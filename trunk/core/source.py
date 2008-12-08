@@ -4,10 +4,18 @@
 
 from wolfox.fengine.extern import *
 
+
 def get_ref_dates(begin,end):
     rss = store.get_xquotes2(dj.connection,[ref_code],begin,end)   #
     rs = rss.values()[0]
     return np.array([r.tdate for r in rs])
+
+def prepare_data(begin,end,type_code ='STOCK'):
+    codes = get_codes(type_code,'SHSE')
+    codes.extend(get_codes(type_code,'SZSE'))
+    #print codes
+    sdata = get_stocks(codes,begin,end)
+    return sdata
 
 def get_codes(type_code='STOCK',source='SHSE'):
     ss = m.StockCode.objects.filter(stype=type_code,exchange__code=source)
@@ -21,8 +29,8 @@ def get_stocks(stocks,begin,end):
 
 
 ####以下是工具类
-
-#将{name:quote_list}转化为{name:[array1,....,array9]}的形式
+OPEN,CLOSE,HIGH,LOW,AVG,AMOUNT,VOLUME = range(7)
+#将{name:quote_list}转化为{name:[array1,....,array7]}的形式
 def tuple2array(quotes):
     ''' 返回的是[topens,tcloses,thighs,tlows,tavgs,tamounts,tvolumes]，各元素都是等长数组
     '''
@@ -56,4 +64,9 @@ def normalize_body(quotes,ihead):
         if not quotes[i][0]:    #这里因为不存在开盘为0的情况，所以不需要quotes[i][0] == None,则因为史上存在某日成交量为0的股票，则必须是quotes[i][0] != None
             pre = quotes[i-1]
             quotes[i] = pre[0],pre[1],pre[2],pre[3],pre[4],0,0
-            
+
+#从输入的qarrays中抽取指定的分量，并组成集合数组
+def extract_collect(qarrays,sector=CLOSE):
+    ts = [ qa[sector] for qa in qarrays ]
+    return np.array(ts)
+

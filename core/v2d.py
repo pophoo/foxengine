@@ -37,7 +37,7 @@ def increase(v,distance=1):
     rev[:,:distance] = 0
     return rev
 
-def ma(source,length):
+def ma2d(source,length):
     ''' 计算二维数组每行的ma 
     '''
     if(source.shape[1] < length):
@@ -56,12 +56,19 @@ def ma(source,length):
     
     return prezeros
 
-from wolfox.fengine.core.v1d import ma1
+from wolfox.fengine.core.v1d import ma
 def ma2(v2,length): #利用一维数组的ma算法
     row_number = v2.shape[0]
     rev = np.zeros_like(v2)
     for i in xrange(row_number):
-        rev[i] = ma1(v2[i],length)
+        rev[i] = ma(v2[i],length)
+    return rev
+
+def ma2a(v2,length):    #v2是array的list
+    row_number = len(v2)
+    rev = [0] * row_number
+    for i in xrange(row_number):
+        rev[i] = ma(v2[i],length)
     return rev
 
 def __bench_ma():
@@ -71,7 +78,20 @@ def __bench_ma():
     times = 50
     a=np.arange(8000000)
     a.shape=2000,4000
-    
+
+    b=time()
+    for i in xrange(times):
+        s = [ r for r in a]
+    e=time()
+    print e-b
+
+    b=time()
+    for i in xrange(10):
+        sa = np.array(s)
+    e=time()
+    print e-b
+
+
     b=time()
     for i in xrange(times):
         ma2(a,3)
@@ -80,11 +100,20 @@ def __bench_ma():
 
     b=time()
     for i in xrange(times):
-        ma(a,3)
+        ma2d(a,3)
+    e=time()
+    print e-b
+
+    b=time()
+    for i in xrange(times):
+        ma2a(s,3)
     e=time()
     print e-b
     
 
 if __name__ == '__main__':
+    import psyco
+    psyco.full()
     __bench_ma()
-    #大概二维向量ma的方式比逐行ma快一倍
+    #一般情况，大概二维向量ma的方式比逐行ma快一倍
+    #在pysco.full()下面，提升不大，差别在10%以内。内存耗用ma2a最小

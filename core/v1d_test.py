@@ -4,10 +4,18 @@ import unittest
 from wolfox.fengine.core.v1d import * 
 
 class ModuleTest(unittest.TestCase):
-    def test_ma1(self):
+    def test_ma(self):
         a= np.array([1,2,3,4,5,6,7,8,9,0])
-        av = ma1(a,3)
-        self.assertEquals(True,np.all(np.array([0, 0, 2, 3, 4, 5, 6, 7, 8, 6])==av))
+        av = ma(a,3)
+        self.assertEquals([0, 0, 2, 3, 4, 5, 6, 7, 8, 6],av.tolist())
+
+    def testTrend(self):
+        a = np.array([1,2,3,2,2,10,2,10,10,4])
+        self.assertEquals([0,1,1,-1,0,1,-1,1,0,-1],trend(a).tolist())
+
+    def testSTrend(self):
+        source = np.array([10,20,30,30,40,50,40,30,20,20,10,20])
+        self.assertEquals([0,1,2,2,3,4,-1,-2,-3,-3,-4,1],strend(source).tolist())
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from wolfox.fengine.core.v2d import * 
+from wolfox.fengine.core.d2 import * 
 
 class ModuleTest(unittest.TestCase):
     def test_posort(self):

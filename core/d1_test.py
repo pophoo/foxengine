@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from wolfox.fengine.core.v1d import * 
+from wolfox.fengine.core.d1 import * 
 
 class ModuleTest(unittest.TestCase):
     def test_ma(self):

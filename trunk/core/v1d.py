@@ -61,3 +61,25 @@ def strend(source):
         pre_v = cur_v
     return rev    
 
+def cross(target,follow):
+    ''' 交叉计算:   target: 参照系,follow: 追击者
+        状态：  1   Follow上叉Target
+                0   无交叉状态 
+                -1  Follow下叉
+
+        粘合一次后按趋势发散仍然算叉，即追击--追平--超越也算，但追击--追平--平--....--超越不算
+        这里不保证Target在上叉(下叉)时的趋势是向上(向下)的
+    '''
+    assert len(target) == len(follow)
+    s = np.sign(follow - target)
+    diff = np.diff(s)
+    flag_a = (np.abs(diff) == 2)  #直接的叉
+    diff_1 = np.roll(diff,1)
+    sd = diff + diff_1  
+    flag_b = (np.abs(sd) == 2)    #粘合一次的叉，特征为 ...1,1,....或...-1,-1,...
+    flag = np.logical_or(flag_a,flag_b)
+    signal = np.sign(diff)
+    s2 = np.zeros_like(diff)
+    np.putmask(s2,flag,signal)
+    rev = np.concatenate((np.array([0]),s2))
+    return rev

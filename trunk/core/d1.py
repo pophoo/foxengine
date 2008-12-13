@@ -4,6 +4,8 @@
 
 import numpy as np
 
+BASE = 1000
+
 def ma(source,length):    #使用numpy，array更加的惯用法
     """ 计算移动平均线
         @param source 源数组

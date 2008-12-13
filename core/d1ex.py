@@ -4,7 +4,9 @@
 #v1d的补充
 
 import numpy as np
-BASE = 1000
+from collections import deque
+from wolfox.fengine.core.d1 import BASE
+
 
 def cover(source,interval=1): #interval必须大于0
     ''' 信号延伸，length为延伸值，发生日为length,逐日递减，直至另一个发生日
@@ -95,10 +97,13 @@ def msum(source,length):
         @param length 均线跨度
         @return 移动平均序列
     """
+    if(len(source) == 0):
+        return source.copy()
     acc = np.add.accumulate(source)
     dacc = np.roll(acc,length)
+    dacc[:length]=0
     rev = acc - dacc
-    rev[:length] = 0
+    rev[:length-1] = 0
     return rev
 
 def msum2(source,length):   
@@ -107,12 +112,14 @@ def msum2(source,length):
         @param length 均线跨度
         @return 移动平均序列
     """
+    if(len(source) == 0):
+        return source.copy()
     acc = np.add.accumulate(source)
     dacc = np.roll(acc,length)
+    dacc[:length]=0
     rev = acc - dacc
-    rev[:length] = acc[:length]
+    rev[:length-1] = acc[:length-1]
     return rev
-
 
 def l_emaxmin(source,functor):
     ''' 近似新高/新低覆盖，因为两层循环内多次用到索引操作，所以用list来计算，用np.array效率会极低
@@ -120,7 +127,7 @@ def l_emaxmin(source,functor):
         而实际上，该点和前一高点之间还存在比当前点更低的连续点，这部分被忽略
         所以结果实际上是从某个低点开始的总长度(当前点不计入内)
     '''
-    rev = numbers(len(source))
+    rev = [0] * len(source)
     if(len(source) < 2):
         return rev
     rev[1] = functor(source[1],source[0]) and 1 or -1
@@ -184,8 +191,8 @@ def sfollow(source1,source2,covered=1):
         两个序列都是!=0为有信号，但都建议>0表示有信号
     '''
     assert len(source1) == len(source2)
-    rev = np.zeros_like(source)
-    extended = covered>1 and extend(source1,covered) or source1
+    rev = np.zeros_like(source1)
+    extended = extend(source1,covered) if covered>1 else source1
     for i in xrange(len(source1)):
         if(extended[i] != 0 and source2[i] != 0):
             rev[i] = 1
@@ -225,8 +232,8 @@ def gsyntony(*args):
     '''
     assert len(args) >= 2
     sources,covered = _iargsparse(1,*args)
-    ss = [ np.sign(msum2(s,covered)) for s in sources]  #每次出现都作为1
-    s = reduce(np.add,ss]
+    ss = [ np.sign(msum2(s,covered)!=0) for s in sources]  #每次!=0的出现都作为1
+    s = reduce(np.add,ss)
     return np.sign(s == len(ss)) #1出现次数等于ss组数
 
 def consecutive(source,value=1):
@@ -255,6 +262,14 @@ def swing2(shigh,slow,covered=1):   #已知高低序列的波动幅度
     vdiff = vmax - vmin
     return vdiff*BASE/vmin
 
+def gswing(*args):  #多参数波动幅度，最后一个参数可以为covered值，默认为1
+    sources,covered = _iargsparse(1,*args)
+    d2 = np.array(sources)
+    vmax = tmax(np.max(d2,0),covered)
+    vmin = tmin(np.min(d2,0),covered)
+    vdiff = vmax - vmin
+    return vdiff*BASE/vmin
+
 def left_fill(source,empty=0):#使用左值补全源序列中为empty的点.直接操作源序列.
     pre = 0
     for i in xrange(len(source)):
@@ -277,7 +292,7 @@ def zavg(source):#求所有非零值的平均数
 
 def tmaxmin(source,covered,functor,gfunctor,limit): #最近len个数据的max值
     tm = limit
-    rev = zeros_like(source)
+    rev = np.zeros_like(source)
     length = len(source)
     prelen = length > covered and covered or length
     for i in range(prelen):
@@ -300,4 +315,14 @@ def tmax(source,covered):
 def tmin(source,covered):
     return tmaxmin(source,covered,min,np.min,99999999)
 
+def transform(signal,v2index,length):
+    ''' 变形运算
+        以v2index中的value为index，将signal中的相应信号转换为长度为length的序列中
+        后面的信号覆盖前面的
+    '''
+    assert len(signal) == len(v2index) and max(v2index) < length    #v2index中的value不能大于length,否则越界
+    rev = np.zeros(length,int)
+    for i in xrange(len(signal)):
+        rev[v2index[i]] = signal[i]
+    return rev
 

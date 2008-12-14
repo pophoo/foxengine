@@ -194,7 +194,7 @@ class ModuleTest(unittest.TestCase):
         r7,v7 = svap(np.array([50,101,299,104,250]),np.array([11,22,33,44,55]),np.array([0,0,0,0,0]))
         self.assertEquals(([],[]),(r7.tolist(),v7.tolist()))
 
-    def testSVap2(self):
+    def test_svap2(self):
         r1,v1 = svap2(np.array([100,200,300,200,300]),np.array([11,22,33,44,55]),np.array([200,200,200,200,200]))
         self.assertEquals(([22,33,33,44,55],[1,2,2,3,4]),(r1.tolist(),v1.tolist()))
         r2,v2 = svap2(np.array([201,258,341,280,330]),np.array([11,22,33,44,55]),np.array([200,200,200,200,200]))
@@ -210,13 +210,24 @@ class ModuleTest(unittest.TestCase):
         r7,v7 = svap2(np.array([50,101,299,104,250]),np.array([11,22,33,44,55]),np.array([0,0,0,0,0]))
         self.assertEquals(([],[]),(r7.tolist(),v7.tolist()))
 
-    def testSVapMa(self):   #只测试通路
+    def test_svap_ma(self):   #只测试通路
         svap_ma(np.array([100,200,300,200,300]),np.array([11,22,33,44,55]),3)
         self.assertTrue(True)
 
-    def testSVap2Ma(self):  #只测试通路
+    def test_svap2_ma(self):  #只测试通路
         svap2_ma(np.array([100,200,300,200,300]),np.array([11,22,33,44,55]),3)
         self.assertTrue(True)
+
+    def test_index2v(self):
+        self.assertEquals([1,1,1,0,1,0,1],index2v(np.array([11,21,31,41,51]),np.array([0,4,6,2,1]),7).tolist())
+        self.assertEquals([1,1,1,0,1,0,1],index2v(np.array([11,21,31,41,51,61]),np.array([0,4,6,2,1,4]),7).tolist())
+        self.assertEquals([1,1,1,0,1,0,1],index2v(np.array([0,21,31,41,51,61,71]),np.array([0,4,6,2,1,4,0]),7).tolist())
+        try:    
+            self.assertEquals([1,1,1,0,1,0,1],index2v(np.array([11,21,31,41,51]),np.array([0,4,6,2,1]),6).tolist())
+        except: 
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
 
     def test_fill_price(self):
         from wolfox.fengine.core.d1i import _fill_price

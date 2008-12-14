@@ -550,6 +550,19 @@ def svap_ma(svolume,sprice,malength):
 def svap2_ma(svolume,sprice,malength):
     return svap2(svolume,sprice,ma(svolume,malength))
 
+def index2v(signal,v2index,length):
+    ''' 变形运算
+        以v2index中的value为index，将signal中的相应信号转换为长度为length的序列中
+        按照vap族的算法，v2index中的v都是排序的
+        signal中的信号在返回值中都变成1
+        另有dlex中的transform，区别在于保留signal信号的原值，同时不要求v2index排序
+    '''
+    assert len(signal) == len(v2index) and max(v2index) < length    #v2index中的value不能大于length,否则越界
+    rev = np.zeros(length,int)
+    t = v2index.compress(signal)
+    rev[t] = 1
+    return rev
+
 def _fill_price(sprice,stimes):
     length = sum(stimes)
     rev,v2index = np.zeros(length,int),np.zeros(length,int)

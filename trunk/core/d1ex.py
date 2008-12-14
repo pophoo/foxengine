@@ -404,3 +404,4 @@ def transform(signal,v2index,length):
         rev[v2index[i]] = signal[i]
     return rev
 
+

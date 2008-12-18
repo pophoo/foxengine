@@ -2,7 +2,7 @@
 
 import re
 import unittest
-from wolfox.fengine.core.d1i import *
+from wolfox.fengine.core.d1indicator import *
 
 class ModuleTest(unittest.TestCase):
     def test_expma(self):
@@ -230,14 +230,14 @@ class ModuleTest(unittest.TestCase):
             self.assertTrue(False)
 
     def test_fill_price(self):
-        from wolfox.fengine.core.d1i import _fill_price
+        from wolfox.fengine.core.d1indicator import _fill_price
         r1,v1 = _fill_price(np.array([11,22,33]),np.array([1,2,3]))
         self.assertEquals(([11,22,22,33,33,33],[0,1,1,2,2,2]),(r1.tolist(),v1.tolist()))
         r2,v2 = _fill_price(np.array([]),np.array([]))
         self.assertEquals(([],[]),(r2.tolist(),v2.tolist()))
 
     def test_find_first_nonzero_index(self):
-        from wolfox.fengine.core.d1i import _find_first_nonzero_index
+        from wolfox.fengine.core.d1indicator import _find_first_nonzero_index
         self.assertEquals(-1,_find_first_nonzero_index(np.array([0,0,0])))
         self.assertEquals(0,_find_first_nonzero_index(np.array([1,0,0])))
         self.assertEquals(0,_find_first_nonzero_index(np.array([1,0,1])))

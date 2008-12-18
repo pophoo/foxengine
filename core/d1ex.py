@@ -317,7 +317,7 @@ def gsyntony(*args):
 def consecutive(source,value=1):
     ''' 计算序列source中value的连续出现次数
     '''
-    rev = np.zeros_like(source)
+    rev = np.zeros(len(source),int)
     cur = 0
     for i in xrange(len(source)):
         if(source[i] == value):

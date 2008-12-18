@@ -29,7 +29,7 @@ def get_stocks(stocks,begin,end):
 
 
 ####以下是工具类
-OPEN,CLOSE,HIGH,LOW,AVG,AMOUNT,VOLUME = range(7)
+from wolfox.fengine.core.d1 import OPEN,CLOSE,HIGH,LOW,AVG,AMOUNT,VOLUME
 #将{name:quote_list}转化为{name:[array1,....,array7]}的形式
 def tuple2array(quotes):
     ''' 返回的是[topens,tcloses,thighs,tlows,tavgs,tamounts,tvolumes]，各元素都是等长数组

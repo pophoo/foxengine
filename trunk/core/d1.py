@@ -6,6 +6,11 @@ import numpy as np
 
 BASE = 1000
 
+OPEN,CLOSE,HIGH,LOW,AVG,AMOUNT,VOLUME = range(1000,1007)
+
+band = np.logical_and
+bor = np.logical_or
+
 def gand(*args):
     ''' args[i]等长，返回args同位元素的and序列
         args[i]中非0为信号
@@ -31,4 +36,4 @@ def desync(source,signal):
     ''' 根据signal序列压缩source序列，去除其中signal=0的部分
         也可直接调用source.compress(signal)
     '''
-    return source.compress(signal)
+    return source.compress(signal)  #等效于source[np.nonzero(signal)]

@@ -3,7 +3,7 @@
 #一维向量K线相关指标的计算
 
 import numpy as np
-from wolfox.fengine.core.d1 import ma,BASE
+from wolfox.fengine.core.d1indicator import ma,BASE
 
 #未知都用'u'表示
 

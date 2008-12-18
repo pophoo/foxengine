@@ -3,7 +3,7 @@
 
 import re
 import unittest
-from wolfox.fengine.core.d1k import *
+from wolfox.fengine.core.d1kline import *
 
 class ModuleTest(unittest.TestCase):
     def testKsign(self):

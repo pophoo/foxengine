@@ -37,3 +37,9 @@ def desync(source,signal):
         也可直接调用source.compress(signal)
     '''
     return source.compress(signal)  #等效于source[np.nonzero(signal)]
+
+def right_roll(source,shift):   #右移，移动部分补0
+    assert shift >= 0
+    rev = np.roll(source,shift)
+    rev[:shift] = 0
+    return rev

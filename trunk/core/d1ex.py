@@ -5,7 +5,7 @@
 
 import numpy as np
 from collections import deque
-from wolfox.fengine.core.d1 import BASE,gand
+from wolfox.fengine.core.d1 import BASE,gand,nsubd
 
 def ma(source,length):    #使用numpy，array更加的惯用法
     """ 计算移动平均线
@@ -28,6 +28,26 @@ def ma(source,length):    #使用numpy，array更加的惯用法
     rev /= length
 
     return rev
+
+def nma(source,length):    #自然ma算法，前length个元素为各自的累积和除以累积元素个数
+    """ 计算移动平均线
+        @param source 源数组
+        @param length 均线跨度
+        @return 移动平均序列
+    """
+    
+    dividen = np.arange(len(source)) + 1
+    dividen[dividen > length] = length
+
+    pps = dividen/2 #用于整数四舍五入尾数
+
+    acc = np.add.accumulate(source)
+    rev = nsubd(acc,length)
+
+    rev += pps  #这种in place方式要快于 sum = (sum + pps) / length
+    rev /= dividen
+    return rev
+
 
 #简单趋势，1表示向上，-1表示向下
 def trend(source):

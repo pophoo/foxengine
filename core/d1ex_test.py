@@ -9,6 +9,11 @@ class ModuleTest(unittest.TestCase):
         av = ma(a,3)
         self.assertEquals([0, 0, 2, 3, 4, 5, 6, 7, 8, 6],av.tolist())
 
+    def test_nma(self):
+        a= np.array([1,2,3,4,5,6,7,8,9,0])
+        av = nma(a,3)
+        self.assertEquals([1, 2, 2, 3, 4, 5, 6, 7, 8, 6],av.tolist())
+
     def test_trend(self):
         a = np.array([1,2,3,2,2,10,2,10,10,4])
         self.assertEquals([0,1,1,-1,0,1,-1,1,0,-1],trend(a).tolist())

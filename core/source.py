@@ -4,7 +4,6 @@
 
 from wolfox.fengine.extern import *
 
-
 def get_ref_dates(begin,end):
     rss = store.get_xquotes2(dj.connection,[ref_code],begin,end)   #
     rs = rss.values()[0]
@@ -67,6 +66,7 @@ def normalize_body(quotes,ihead):
 
 #从输入的qarrays中抽取指定的分量，并组成集合数组
 def extract_collect(qarrays,sector=CLOSE):
+    #print "sector:",sector
     ts = [ qa[sector] for qa in qarrays ]
     return np.array(ts)
 

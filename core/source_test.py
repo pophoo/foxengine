@@ -5,6 +5,13 @@ from wolfox.fengine.extern import * #准备环境
 from wolfox.fengine.core.source import *
 
 class ModuleTest(unittest.TestCase):
+    def test_normailize(self):
+        #通道测试
+        na_null = normalize([])
+        a = [(None,None,None,None,None,None,None),(None,None,None,None,None,None,None),(1,1,1,1,1,1,1),(2,2,2,2,2,2,2),(None,None,None,None,None,None,None),(4,4,4,4,4,4,4)]
+        na = normalize(a)
+        self.assertTrue(True)
+
     def test_normalize_body(self):
         a = [(1,1,1,1,1,1,1),(2,2,2,2,2,2,2),(None,None,None,None,None,None,None),(4,4,4,4,4,4,4)]
         normalize_body(a,0)
@@ -41,6 +48,43 @@ class ModuleTest(unittest.TestCase):
         rev_volume = extract_collect(c,VOLUME)
         self.assertEquals([[13,14],[113,114]],rev_volume.tolist())
         #print rev
+
+
+class SourceDataTest(unittest.TestCase):    #与源数据相关的测试
+    def test_get_ref_dates(self):
+        dates = get_ref_dates(0,20090101,rcode=u'SH000001')
+        #测试空数据
+        dates = get_ref_dates(0,0,rcode=u'SH000001')
+        self.assertTrue(True)
+
+    def test_prepare_data(self):
+        data = prepare_data(0,20090101,rcode=u'SH000001')
+        daga = prepare_data(0,0,rcode=u'SH000001')
+        self.assertTrue(True)
+
+    def test_get_codes(self):
+        codes = get_codes()
+        #测试空数据
+        codes = get_codes('NULLXX')
+        self.assertFalse(codes)
+    
+    def test_get_stocks(self):
+        codes = get_codes()
+        stocks = get_stocks(codes,0,999999999)
+        #print [s.transaction for s in stocks.values()]
+        #测试空的交易数据
+        stocks = get_stocks(codes,0,0)
+        self.assertFalse(stocks.values()[0].transaction)
+        #测试空数据（没有代码集合）        
+        stocks = get_stocks([],0,99999999)
+        self.assertFalse(stocks)
+
+    def test_get_catalog_tree(self):
+        tree = get_catalog_tree()
+        #css = []
+        #[css.extend(cs.catalogs) for cs in tree]
+        #print [ c.stocks for c in css]
+        self.assertTrue(True)
 
 
 if __name__ == "__main__":

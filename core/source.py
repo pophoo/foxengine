@@ -3,27 +3,46 @@
 #服务于数据读取的工具函数
 
 from wolfox.fengine.extern import *
+from wolfox.fengine.core.base import CommonObject as CDO,CatalogSubject as CSO,Catalog as CO
 
-def get_ref_dates(begin,end):
-    rss = store.get_xquotes2(dj.connection,[ref_code],begin,end)   #
+def get_ref_dates(begin,end,rcode=ref_code):
+    rss = store.get_xquotes2(dj.connection,[rcode],begin,end)   #
+    if not rss:
+        return np.array([])
     rs = rss.values()[0]
     return np.array([r.tdate for r in rs])
 
-def prepare_data(begin,end,type_code ='STOCK'):
+def prepare_data(begin,end,type_code ='STOCK',rcode=ref_code):
+    rid = code2id[rcode]
     codes = get_codes(type_code,'SHSE')
     codes.extend(get_codes(type_code,'SZSE'))
-    #print codes
-    sdata = get_stocks(codes,begin,end)
+    #print 'codes:',codes
+    sdata = get_stocks(codes,begin,end,rid=rid)
     return sdata
 
 def get_codes(type_code='STOCK',source='SHSE'):
     ss = m.StockCode.objects.filter(stype=type_code,exchange__code=source)
     return [s.code for s in ss]
 
-def get_stocks(stocks,begin,end):
+def get_stocks(codes,begin,end,rid=ref_id):
     rev = {}
-    for stock in stocks:
-        rev[stock] = tuple2array(store.get_refbased_xquotes(dj.connection,ref_id,code2id[stock],begin,end))
+    for code in codes:
+        sid = code2id[code]
+        vo = CDO(id=sid)
+        vo.transaction = tuple2array(store.get_refbased_xquotes(dj.connection,ref_id,sid,begin,end))
+        rev[sid] = vo
+    return rev
+
+def get_catalog_tree():
+    ss = m.CatalogSubject.objects.all()
+    return _build_catalog_tree(ss)
+
+def _build_catalog_tree(css):
+    rev = []
+    for s in css:
+        cos = [CO(c.id,name=c.name,stocks=[ sc.id for sc in c.stocks.all()]) for c in s.catalogs.all()]
+        cso = CSO(s.code,name=s.name,catalogs=cos)
+        rev.append(cso)
     return rev
 
 
@@ -41,6 +60,8 @@ def tuple2array(quotes):
 #   1. 将第一个有效交易日之前的数据都同化为该日数据，但交易量和金额都为0. 如果区间段内没有有效交易日，则都赋值为0
 #   2. 将之后的每个无效交易日的数据都同化为前一日的数据
 def normalize(quotes):
+    if not quotes:
+        return quotes
     ihead = normalize_head(quotes)
     if ihead < len(quotes) - 1: #ihead如果是最后一个，也不需调用normalize_body了
         normalize_body(quotes,ihead)

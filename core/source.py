@@ -3,7 +3,7 @@
 #服务于数据读取的工具函数
 
 from wolfox.fengine.extern import *
-from wolfox.fengine.core.base import CommonObject as CDO,CatalogSubject as CSO,Catalog as CO
+from wolfox.fengine.core.base import CommonObject as CDO,CatalogSubject as CSO,Catalog as CO,cache
 
 def get_ref_dates(begin,end,rcode=ref_code):
     rss = store.get_xquotes2(dj.connection,[rcode],begin,end)   #
@@ -88,9 +88,11 @@ def normalize_body(quotes,ihead):
             pre = quotes[i-1]
             quotes[i] = pre[0],pre[1],pre[2],pre[3],pre[4],0,0
 
-#从输入的qarrays中抽取指定的分量，并组成集合数组
-def extract_collect(qarrays,sector=CLOSE):
+#从输入stock的qarrays中抽取指定的分量，并组成集合数组
+@cache
+def extract_collect(stock,sector=CLOSE):
     #print "sector:",sector
+    qarrays = stock.transaction
     ts = [ qa[sector] for qa in qarrays ]
     return np.array(ts)
 

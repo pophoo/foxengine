@@ -38,11 +38,14 @@ def get_catalog_tree():
     return _build_catalog_tree(ss)
 
 def _build_catalog_tree(css):
+    #只保留有stock的catalog和catalogsubject
     rev = []
     for s in css:
         cos = [CO(c.id,name=c.name,stocks=[ sc.id for sc in c.stocks.all()]) for c in s.catalogs.all()]
-        cso = CSO(s.code,name=s.name,catalogs=cos)
-        rev.append(cso)
+        cos = [ co for co in cos if co.stocks ]
+        if cos:
+            cso = CSO(s.code,name=s.name,catalogs=cos)
+            rev.append(cso)
     return rev
 
 

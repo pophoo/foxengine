@@ -81,9 +81,11 @@ class SourceDataTest(unittest.TestCase):    #与源数据相关的测试
 
     def test_get_catalog_tree(self):
         tree = get_catalog_tree()
-        #css = []
-        #[css.extend(cs.catalogs) for cs in tree]
+        css = []
+        [css.extend(cs.catalogs) for cs in tree]
         #print [ c.stocks for c in css]
+        for c in css:
+            self.assertTrue(c.stocks)   #都不是空的
         self.assertTrue(True)
 
 

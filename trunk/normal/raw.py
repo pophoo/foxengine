@@ -10,7 +10,7 @@ dates = cs.get_ref_dates(begin,end)
 sdata = cs.prepare_data(begin,end)
 idata = cs.prepare_data(begin,end,'INDEX')
 
-svector = cs.extract_collect(sdata.values(),cs.CLOSE)
+#svector = cs.extract_collect(sdata.values(),cs.CLOSE)
 
 
 

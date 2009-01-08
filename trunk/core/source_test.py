@@ -2,7 +2,9 @@
 
 import unittest
 from wolfox.fengine.extern import * #准备环境
+from wolfox.fengine.core.base import *
 from wolfox.fengine.core.source import *
+
 
 class ModuleTest(unittest.TestCase):
     def test_normailize(self):
@@ -42,7 +44,8 @@ class ModuleTest(unittest.TestCase):
     def test_extract_collect(self):
         a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
         b = np.array([(11,12),(13,14),(15,16),(17,18),(19,110),(111,112),(113,114)])
-        c = np.array([a,b])
+        c = CommonObject(id=3,transaction=np.array([a,b]))
+        #print a.transaction
         rev = extract_collect(c)
         self.assertEquals([[3,4],[13,14]],rev.tolist())
         rev_volume = extract_collect(c,VOLUME)

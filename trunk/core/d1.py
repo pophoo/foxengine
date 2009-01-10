@@ -51,3 +51,15 @@ def roll0(source,shift):   #每行数据右移，移动部分补0
         begin = slen + shift if slen + shift >=0 else 0
         rev[begin:] = 0
     return rev
+
+def rolln(source,shift):   #基本版每行数据移动，移动部分补第一列（右移）的值或最后一列（左移）
+    if len(source) == 0:    #不能用not source
+        return np.array([])
+    rev = np.roll(source,shift)
+    if shift > 0:
+        rev[:shift] = source[0]
+    elif shift < 0:
+        slen = len(source)
+        begin = slen + shift if slen + shift >=0 else 0
+        rev[begin:] = source[-1]
+    return rev

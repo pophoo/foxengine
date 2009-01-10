@@ -20,6 +20,20 @@ def roll02(source,shift):   #每行数据右移，移动部分补0. 二维版本
         rev[:,begin:] = 0
     return rev
 
+def rolln2(source,shift):   #每行数据右移，移动部分补0. 二维版本(兼容一维)
+    if source.ndim == 1:
+        return d1.rolln(source,shift)
+    assert source.ndim == 2
+    rev = np.roll(source,shift,axis=1)
+    if shift > 0:
+        rev[:,:shift] = source[:,0][:,np.newaxis]   #化行为列,source[:,0]返回的是行，[:,np.newaxis]后变为二维
+    elif shift < 0:
+        rlen = source.shape[1]
+        begin = rlen + shift if rlen + shift >=0 else 0
+        rev[:,begin:] = source[:,-1][:,np.newaxis]  #化行为列
+    return rev
+
+
 def nsubd2(source,distance=1):   #自然的偏移减法,distance必须大于0,返回结果中前distance个元素不变
     if source.ndim == 1:
         return d1.nsubd(source)
@@ -64,13 +78,31 @@ def increase(v,distance=1):
     rev[:,:distance] = 0
     return rev
 
+def nincrease(v,distance=1):
+    ''' 计算二维数组每列的distance增量(以万分数表示)
+        返回的前distance列都是针对第一列的增量
+    '''
+    r1 = rolln2(v,distance)
+    rev = (v-r1)*PERCENT_BASE/r1
+    return rev
+
 def percent(v,distance=1):
     ''' 计算二维数组每列的distance比例(以万分数表示，当前列是目标列的%)
         返回的前distance列都为0
+        相当于increase的前端部分+1
     '''
     r1 = np.roll(v,distance,1)
     rev = v*PERCENT_BASE/r1
     rev[:,:distance] = 0
+    return rev
+
+def npercent(v,distance=1):
+    ''' 计算二维数组每列的distance比例(以万分数表示，当前列是目标列的%)
+        返回的前distance列都为0
+        相当于nincrease+1        
+    '''
+    r1 = rolln2(v,distance)
+    rev = v*PERCENT_BASE/r1
     return rev
 
 def cmp_percent(v,pos=0):

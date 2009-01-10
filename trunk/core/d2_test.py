@@ -20,6 +20,23 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([[2,3,0],[5,6,0]],roll02(np.array([(1,2,3),(4,5,6)]),-1).tolist())
         self.assertEquals([[0,0,0],[0,0,0]],roll02(np.array([(1,2,3),(4,5,6)]),-4).tolist())
 
+    def test_rolln2(self):
+        #d1.rolln2
+        self.assertEquals([1,2,3,4,5],rolln2(np.array([1,2,3,4,5]),0).tolist())
+        self.assertEquals([1,1,1,2,3],rolln2(np.array([1,2,3,4,5]),2).tolist())
+        self.assertEquals([1,1,1,1,1],rolln2(np.array([1,2,3,4,5]),5).tolist())
+        self.assertEquals([1,1,1,1,1],rolln2(np.array([1,2,3,4,5]),8).tolist())
+        self.assertEquals([3,4,5,5,5],rolln2(np.array([1,2,3,4,5]),-2).tolist())        
+        self.assertEquals([2,3,4,5,5],rolln2(np.array([1,2,3,4,5]),-1).tolist())
+        self.assertEquals([5,5,5,5,5],rolln2(np.array([1,2,3,4,5]),-6).tolist())        
+        #二维
+        self.assertEquals([[1,2,3],[4,5,6]],rolln2(np.array([(1,2,3),(4,5,6)]),0).tolist())
+        self.assertEquals([[1,1,2],[4,4,5]],rolln2(np.array([(1,2,3),(4,5,6)]),1).tolist())
+        self.assertEquals([[1,1,1],[4,4,4]],rolln2(np.array([(1,2,3),(4,5,6)]),4).tolist())
+        self.assertEquals([[2,3,3],[5,6,6]],rolln2(np.array([(1,2,3),(4,5,6)]),-1).tolist())
+        self.assertEquals([[3,3,3],[6,6,6]],rolln2(np.array([(1,2,3),(4,5,6)]),-4).tolist())
+
+
     def test_nsubd2(self):
         a = np.array([[1,2,3],[4,5,6]])
         self.assertEquals([[1,1,1],[4,1,1]],nsubd2(a).tolist())
@@ -50,10 +67,24 @@ class ModuleTest(unittest.TestCase):
         ia = increase(a)
         self.assertEquals([[0,-2000,7500],[0,-3334,30000],[0,-3750,-4000],[0,0,0]],ia.tolist())
 
+    def test_nincrease(self):
+        a = np.array([(5,4,7),(3,2,8),(8,5,3),(4,4,4)])
+        ia = nincrease(a)
+        self.assertEquals([[0,-2000,7500],[0,-3334,30000],[0,-3750,-4000],[0,0,0]],ia.tolist())
+        ib = nincrease(a,2)
+        self.assertEquals([[0,-2000,4000],[0,-3334,16666],[0,-3750,-6250],[0,0,0]],ib.tolist())
+
     def test_percent(self):
         a = np.array([(5,4,7),(3,2,8),(8,5,3),(4,4,4)])
         ia = percent(a)
         self.assertEquals([[0,8000,17500],[0,6666,40000],[0,6250,6000],[0,10000,10000]],ia.tolist())
+
+    def test_npercent(self):
+        a = np.array([(5,4,7),(3,2,8),(8,5,3),(4,4,4)])
+        ia = npercent(a)
+        self.assertEquals([[10000,8000,17500],[10000,6666,40000],[10000,6250,6000],[10000,10000,10000]],ia.tolist())
+        ib = npercent(a,2)
+        self.assertEquals([[10000,8000,14000],[10000,6666,26666],[10000,6250,3750],[10000,10000,10000]],ib.tolist())
 
     def test_cmp_percent(self):
         a = np.array([(5,4,7),(3,2,8),(8,5,3),(4,4,4)])

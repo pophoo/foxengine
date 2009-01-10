@@ -50,6 +50,16 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([2,3,4,5,0],roll0(np.array([1,2,3,4,5]),-1).tolist())
         self.assertEquals([0,0,0,0,0],roll0(np.array([1,2,3,4,5]),-6).tolist())
 
+    def test_rolln(self):
+        self.assertEquals([1,2,3,4,5],rolln(np.array([1,2,3,4,5]),0).tolist())
+        self.assertEquals([1,1,1,2,3],rolln(np.array([1,2,3,4,5]),2).tolist())
+        self.assertEquals([1,1,1,1,1],rolln(np.array([1,2,3,4,5]),5).tolist())
+        self.assertEquals([1,1,1,1,1],rolln(np.array([1,2,3,4,5]),8).tolist())
+        self.assertEquals([3,4,5,5,5],rolln(np.array([1,2,3,4,5]),-2).tolist())        
+        self.assertEquals([2,3,4,5,5],rolln(np.array([1,2,3,4,5]),-1).tolist())
+        self.assertEquals([5,5,5,5,5],rolln(np.array([1,2,3,4,5]),-6).tolist())
+
+
 if __name__ == "__main__":
     unittest.main()
 

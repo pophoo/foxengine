@@ -3,7 +3,7 @@
 #服务于数据读取的工具函数
 
 from wolfox.fengine.extern import *
-from wolfox.fengine.core.base import CommonObject as CDO,CatalogSubject as CSO,Catalog as CO,wcache
+from wolfox.fengine.core.base import CommonObject as CDO,CatalogSubject as CSO,Catalog as CO,cache,wcache
 
 def get_ref_dates(begin,end,rcode=ref_code):
     rss = store.get_xquotes2(dj.connection,[rcode],begin,end)   #
@@ -16,7 +16,7 @@ def prepare_data(begin,end,type_code ='STOCK',rcode=ref_code):
     rid = code2id[rcode]
     codes = get_codes(type_code,'SHSE')
     codes.extend(get_codes(type_code,'SZSE'))
-    #print 'codes:',codes
+    #print 'codes:',tuple(codes)
     sdata = get_stocks(codes,begin,end,rid=rid)
     return sdata
 
@@ -24,7 +24,9 @@ def get_codes(type_code='STOCK',source='SHSE'):
     ss = m.StockCode.objects.filter(stype=type_code,exchange__code=source)
     return [s.code for s in ss]
 
+@cache  #不能用wcache,无法weakref dict
 def get_stocks(codes,begin,end,rid=ref_id):
+    #print 'codes:',codes
     rev = {}
     for code in codes:
         sid = code2id[code]

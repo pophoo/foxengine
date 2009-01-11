@@ -14,7 +14,7 @@ class CacheTest(unittest.TestCase):
         self.assertNotEquals(a,c)
         del a,b #测试弱引用
         #print cf.cache.keys()
-        self.assertFalse(cf.cache[((1,),())]())
+        self.assertFalse(cf.cache[(1,)]())
         a = cf([])      #测试不可hash的key，except通道
 
     def test_cache(self):
@@ -29,6 +29,36 @@ class CacheTest(unittest.TestCase):
         fl2 = lambda l1,l2 : l1[0]
         cfl2 = cache(fl2)
         a = cfl2([10],[])
+
+
+class ModuleTest(unittest.TestCase):
+    def testCommonObject(self): #通路测试
+        co1 = CommonObject(1)
+        co2 = CommonObject(1,xx=12)
+        self.assertTrue(True)
+
+    def testCatalogSubject(self):   #通路测试
+        cs1 = CatalogSubject(1,'test',[1,2,3])
+        self.assertTrue(True)    
+
+    def testCatalog(self):  #通路测试
+        c1 = Catalog(1,'test',[1,2,3])
+        self.assertTrue(True)    
+
+    def test_trans(self):
+        self.assertEquals((),trans([]))
+        self.assertEquals((),trans({}))
+        self.assertEquals(1,trans(1))
+
+    def test_generate_key(self):
+        self.assertEquals((),generate_key())
+        self.assertEquals((1,2),generate_key(1,2))
+        self.assertEquals((1,2,('xx',3)),generate_key(1,2,xx=3))
+        self.assertEquals((1,(2,),('xx',3)),generate_key(1,[2,],xx=3))
+        self.assertEquals((1,(2,),(('k',1),),('xx',3)),generate_key(1,[2,],{'k':1},xx=3))
+        self.assertEquals((1,(2,),(('k',1),),('xx',3)),generate_key(1,(2,),{'k':1},xx=3))
+        self.assertEquals((1,(2,),(('k',1),('b',2)),('yy',4),('xx',3)),generate_key(1,(2,),{'k':1,'b':2},xx=3,yy=4))        
+        self.assertRaises(TypeError,generate_key,[[],[]],(2,),{'k':1},xx=3) #[[],[]]不能够被转换成可hash的对象
 
 
 if __name__ == "__main__":

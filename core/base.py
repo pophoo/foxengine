@@ -1,6 +1,7 @@
 # -*- coding= utf-8 -*-
 
 import weakref
+import numpy as np
 
 from wolfox.common.tcommon import *
 #直接从wolfox.common.tcommon导入
@@ -20,6 +21,28 @@ class Catalog(CommonObject):
     def __init__(self,id,name,stocks):
         super(Catalog,self).__init__(id,name=name,stocks=stocks)
 
+def trans(t):
+    if isinstance(t,dict):
+        return tuple(t.items())
+    elif isinstance(t,list):
+        return tuple(t)
+    return t
+
+def generate_key(*args,**kwargs):
+    ''' 将第一层可转换成tuple的list,dict对象转换成tuple以生成key
+        但对于[[],[]]这样的位置参数，还是会抛出TypeError
+    '''
+    try:
+        #print 'args:',args,',kwargs:',kwargs.items()
+        key1 = args + tuple(kwargs.items()) #即tuple(kwargs.keys),keys的tuple
+        hash(key1)
+        return key1
+    except TypeError:
+        key2 = tuple((trans(t) for t in args)) + tuple(kwargs.items())
+        #print 'key2:',key2
+        hash(key2)
+        return key2
+
 #from http://wiki.python.org/moin/PythonDecoratorLibrary的memoized,修改成weak reference版本
 class cache(object):
     """Decorator that caches a function's return value each time it is called.
@@ -32,13 +55,12 @@ class cache(object):
         self.cache = {}
     
     def __call__(self, *args,**kwargs):
-        key = (args,tuple(kwargs.items()))
         try:    #对不可hash的Key类型设防
+            key = generate_key(*args,**kwargs)            
             if key in self.cache:
                 return self.cache[key]
             self.cache[key] = rev = self.func(*args,**kwargs)
         except TypeError:
-            #print 'type error',key
             return self.func(*args,**kwargs)
         return rev
 
@@ -63,22 +85,27 @@ class wcache(object):
         self.cache = {}
 
     def __call__(self, *args,**kwargs):
-        key = (args,tuple(kwargs.items()))
         try:    #对不可hash的Key类型设防
+            key = generate_key(*args,**kwargs)
+            #print key
             if key in self.cache:
+                #print 'find key:',key
                 r = self.cache[key]
-                if r():
+                if r() != None: #只能如此，否则如果直接用 if r():，当r()是np.array类型时，会报ValueError,The truth value of an array with more than one element is ambiguous.Use a.any() or a.all()
                     return r()
             rev = self.func(*args,**kwargs)
             self.cache[key] = weakref.ref(rev)
-        except TypeError:
-            #print 'type error',key
+        except TypeError,inst:
+            #print 'type error',args,kwargs,key #对dict无法进行weak reference
+            import traceback
+            traceback.print_exc()
             return self.func(*args,**kwargs)
         return rev
 
     def __repr__(self):
         """Return the function's docstring."""
         return self.func.__doc__
+
 
 @wcache
 def cache_example(i):

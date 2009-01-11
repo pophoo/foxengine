@@ -32,6 +32,25 @@ class dispatch(object):
         """Return the function's docstring."""
         return self.func.__doc__
 
+class cdispatch(object):
+    """ 将(name,catalog,*args,**kwargs)形式的调用结果(array形式)dispatch到stock中相应name属性表示的dict中，dict[catalog_id] = v
+        要求被修饰函数的签名为(stocks,*args,**kwargs)
+    """
+    def __init__(self, func):
+        self.func = func
+    
+    def __call__(self,name,stocks,*args,**kwargs):
+        datas = self.func(stocks,*args,**kwargs)
+        #print datas
+        for s,data in zip(stocks,datas):
+            s.__dict__[name] = data
+        return datas
+
+    def __repr__(self):
+        """Return the function's docstring."""
+        return self.func.__doc__
+
+
 @dispatch
 def dispatch_example(stocks,ma=10):
     try:

@@ -68,6 +68,9 @@ class cache(object):
         """Return the function's docstring."""
         return self.func.__doc__
 
+    def clear(self):
+        self.cache.clear()
+
 @cache
 def cache_example(i):
     return i+10
@@ -97,8 +100,8 @@ class wcache(object):
             self.cache[key] = weakref.ref(rev)
         except TypeError,inst:
             #print 'type error',args,kwargs,key #对dict无法进行weak reference
-            import traceback
-            traceback.print_exc()
+            #import traceback
+            #traceback.print_exc()
             return self.func(*args,**kwargs)
         return rev
 
@@ -106,6 +109,8 @@ class wcache(object):
         """Return the function's docstring."""
         return self.func.__doc__
 
+    def clear(self):
+        self.cache.clear()
 
 @wcache
 def cache_example(i):

@@ -16,6 +16,8 @@ class CacheTest(unittest.TestCase):
         #print cf.cache.keys()
         self.assertFalse(cf.cache[(1,)]())
         a = cf([])      #测试不可hash的key，except通道
+        cf.clear()  #测试通路
+        self.assertTrue(True)
 
     def test_cache(self):
         f = lambda id : id + 10
@@ -29,6 +31,8 @@ class CacheTest(unittest.TestCase):
         fl2 = lambda l1,l2 : l1[0]
         cfl2 = cache(fl2)
         a = cfl2([10],[])
+        cf.clear()  #测试通路
+        self.assertTrue(True)
 
 
 class ModuleTest(unittest.TestCase):

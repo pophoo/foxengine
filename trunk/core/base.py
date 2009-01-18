@@ -43,26 +43,27 @@ def generate_key(*args,**kwargs):
         hash(key2)
         return key2
 
-#from http://wiki.python.org/moin/PythonDecoratorLibrary的memoized,修改成weak reference版本
-class cache(object):
-    """Decorator that caches a function's return value each time it is called.
-    If called later with the same arguments, the cached value is returned, and
-    not re-evaluated.
-        只能缓存非原生结果(对int之类的无法weakref it)
-    """
-    def __init__(self, func):
+class CacheManager(object):
+    def __init__(self):
+        self.caches = set([])
+
+    def register(self,cache):
+        self.caches.add(cache)
+    
+    def clear(self):    #清除已注册各cache的内容,而不是清除这个caches列表(即不是unregister all)
+        for cache in self.caches:
+            cache.clear()
+
+cache_manager = CacheManager()
+
+class AbstractCache(object):
+    def __init__(self,func):
         self.func = func
         self.cache = {}
-    
-    def __call__(self, *args,**kwargs):
-        try:    #对不可hash的Key类型设防
-            key = generate_key(*args,**kwargs)            
-            if key in self.cache:
-                return self.cache[key]
-            self.cache[key] = rev = self.func(*args,**kwargs)
-        except TypeError:
-            return self.func(*args,**kwargs)
-        return rev
+        cache_manager.register(self)
+
+    def __call__(self):
+        raise NotImplementedError,u'该函数为抽象函数，需要由子类实现'
 
     def __repr__(self):
         """Return the function's docstring."""
@@ -71,21 +72,39 @@ class cache(object):
     def clear(self):
         self.cache.clear()
 
+
+#from http://wiki.python.org/moin/PythonDecoratorLibrary的memoized,修改成weak reference版本
+class cache(AbstractCache):
+    """Decorator that caches a function's return value each time it is called.
+    If called later with the same arguments, the cached value is returned, and
+    not re-evaluated.
+        只能缓存非原生结果(对int之类的无法weakref it)
+    """
+   
+    def __call__(self, *args,**kwargs):
+        try:    #对不可hash的Key类型设防
+            key = generate_key(*args,**kwargs)            
+            if key in self.cache:
+                return self.cache[key]
+            rev = self.func(*args,**kwargs)
+            self.cache[key] = rev
+        except TypeError,inst:
+            print 'in type error',str(inst)
+            return self.func(*args,**kwargs)
+        return rev
+
+
 @cache
 def cache_example(i):
     return i+10
 
-
-class wcache(object):
+class wcache(AbstractCache):
     """weakref cache
     Decorator that caches a function's return value each time it is called.
     If called later with the same arguments, the cached value is returned, and
     not re-evaluated.
         只能缓存非原生结果(对int之类的无法weakref it)
     """
-    def __init__(self, func):
-        self.func = func
-        self.cache = {}
 
     def __call__(self, *args,**kwargs):
         try:    #对不可hash的Key类型设防
@@ -99,18 +118,11 @@ class wcache(object):
             rev = self.func(*args,**kwargs)
             self.cache[key] = weakref.ref(rev)
         except TypeError,inst:
-            #print 'type error',args,kwargs,key #对dict无法进行weak reference
+            print 'type error',args,kwargs,key #对dict无法进行weak reference
             #import traceback
             #traceback.print_exc()
             return self.func(*args,**kwargs)
         return rev
-
-    def __repr__(self):
-        """Return the function's docstring."""
-        return self.func.__doc__
-
-    def clear(self):
-        self.cache.clear()
 
 @wcache
 def cache_example(i):

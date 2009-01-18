@@ -12,6 +12,7 @@ def get_ref_dates(begin,end,rcode=ref_code):
     rs = rss.values()[0]
     return np.array([r.tdate for r in rs])
 
+@cache  #不能用wcache,无法weakref dict
 def prepare_data(begin,end,type_code ='STOCK',rcode=ref_code):
     rid = code2id[rcode]
     codes = get_codes(type_code,'SHSE')
@@ -20,12 +21,12 @@ def prepare_data(begin,end,type_code ='STOCK',rcode=ref_code):
     sdata = get_stocks(codes,begin,end,rid=rid)
     return sdata
 
+@wcache
 def get_codes(type_code='STOCK',source='SHSE'):
     ss = m.StockCode.objects.filter(stype=type_code,exchange__code=source)
     return [s.code for s in ss]
 
-@cache  #不能用wcache,无法weakref dict
-def get_stocks(codes,begin,end,rid=ref_id):
+def get_stocks(codes,begin,end,rid=ref_id): 
     #print 'codes:',codes
     rev = {}
     for code in codes:

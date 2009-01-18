@@ -16,8 +16,6 @@ class CacheTest(unittest.TestCase):
         #print cf.cache.keys()
         self.assertFalse(cf.cache[(1,)]())
         a = cf([])      #测试不可hash的key，except通道
-        cf.clear()  #测试通路
-        self.assertTrue(True)
 
     def test_cache(self):
         f = lambda id : id + 10
@@ -31,8 +29,26 @@ class CacheTest(unittest.TestCase):
         fl2 = lambda l1,l2 : l1[0]
         cfl2 = cache(fl2)
         a = cfl2([10],[])
-        cf.clear()  #测试通路
-        self.assertTrue(True)
+
+    def test_AbstractCache(self):   #测试通路,逻辑由具体类测试
+        ac = AbstractCache(lambda x:x)
+        ac.clear()
+        self.assertRaises(TypeError,str,ac) #因为内含的函数没有定义__doc__,导致str(ac)返回None，引发TypeError
+        self.assertRaises(NotImplementedError,ac)   #调用抽象方法__call__
+
+    def test_CacheManager(self):
+        cache_manager.caches.clear()    #清除caches中的列表
+        ac1 = AbstractCache(lambda x:x)
+        ac2 = AbstractCache(lambda x:x)
+        self.assertEquals(2,len(cache_manager.caches))
+        ac1.cache['1'] = 2
+        ac2.cache['2'] = 1
+        self.assertTrue('1' in ac1.cache)
+        self.assertTrue('2' in ac2.cache)
+        cache_manager.clear()
+        self.assertTrue('1' not in ac1.cache)
+        self.assertTrue('2' not in ac2.cache)
+
 
 
 class ModuleTest(unittest.TestCase):

@@ -64,7 +64,7 @@ class SourceDataTest(unittest.TestCase):    #与源数据相关的测试
 
     def test_prepare_data(self):
         data = prepare_data(0,20090101,rcode=u'SH000001')
-        daga = prepare_data(0,0,rcode=u'SH000001')
+        data = prepare_data(0,0,rcode=u'SH000001')
         self.assertTrue(True)
 
     def test_get_codes(self):
@@ -86,12 +86,15 @@ class SourceDataTest(unittest.TestCase):    #与源数据相关的测试
         self.assertFalse(stocks)
 
     def test_get_catalog_tree(self):
-        tree = get_catalog_tree()
+        sdata = prepare_data(0,0,rcode=u'SH000001')        
+        tree = get_catalog_tree(sdata)
         css = []
         [css.extend(cs.catalogs) for cs in tree]
         #print [ c.stocks for c in css]
         for c in css:
             self.assertTrue(c.stocks)   #都不是空的
+            for s in c.stocks:
+                self.assertTrue(isinstance(s,CDO))
         self.assertTrue(True)
 
 

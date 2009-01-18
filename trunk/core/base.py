@@ -89,7 +89,7 @@ class cache(AbstractCache):
             rev = self.func(*args,**kwargs)
             self.cache[key] = rev
         except TypeError,inst:
-            print 'in type error',str(inst)
+            #print 'in type error',str(inst)
             return self.func(*args,**kwargs)
         return rev
 
@@ -118,7 +118,7 @@ class wcache(AbstractCache):
             rev = self.func(*args,**kwargs)
             self.cache[key] = weakref.ref(rev)
         except TypeError,inst:
-            print 'type error',args,kwargs,key #对dict无法进行weak reference
+            #print 'type error',args,kwargs,key #对dict无法进行weak reference
             #import traceback
             #traceback.print_exc()
             return self.func(*args,**kwargs)

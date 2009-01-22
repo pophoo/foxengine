@@ -32,18 +32,24 @@ class dispatch(object):
         """Return the function's docstring."""
         return self.func.__doc__
 
+
 class cdispatch(object):
-    """ 将(name,catalog,*args,**kwargs)形式的调用结果(array形式)dispatch到stock中相应name属性表示的dict中，dict[catalog_id] = v
+    """ 将(name,catalogs,*args,**kwargs)形式的调用结果(array形式)dispatch到stock中相应name属性表示的dict中，dict[catalog_id] = v
         要求被修饰函数的签名为(stocks,*args,**kwargs)
+        #需要一个准集成测试
     """
     def __init__(self, func):
         self.func = func
     
-    def __call__(self,name,stocks,*args,**kwargs):
-        datas = self.func(stocks,*args,**kwargs)
+    def __call__(self,name,catalogs,*args,**kwargs):
+        for c in catalogs:
+            self._dispatch(name,c,*args,**kwargs)
+
+    def _dispatch(self,name,catalog,*args,**kwargs):
+        datas = self.func(catalog.stocks,*args,**kwargs)
         #print datas
-        for s,data in zip(stocks,datas):
-            s.__dict__[name] = data
+        for s,data in zip(catalog.stocks,datas):
+            s.__dict__.setdefault(name,{})[catalog] = data  #这样，这个dict的item就是(catalog,data)
         return datas
 
     def __repr__(self):

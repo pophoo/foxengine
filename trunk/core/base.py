@@ -2,9 +2,12 @@
 
 import weakref
 import numpy as np
+from operator import add as oper_add
 
 from wolfox.common.tcommon import *
 #直接从wolfox.common.tcommon导入
+
+OPEN,CLOSE,HIGH,LOW,AVG,AMOUNT,VOLUME = range(0,7)  #要做数组的下标，必须从0开始
 
 class CommonObject(object):
     def __init__(self,id,**kwargs):
@@ -16,10 +19,12 @@ class CatalogSubject(CommonObject):
     def __init__(self,id,name,catalogs):
         super(CatalogSubject,self).__init__(id,name=name,catalogs=catalogs)
 
-
 class Catalog(CommonObject):
     def __init__(self,id,name,stocks):
         super(Catalog,self).__init__(id,name=name,stocks=stocks)
+
+def get_all_catalogs(subjects):
+    return reduce(oper_add,[cs.catalogs for cs in subjects])
 
 def trans(t):
     if isinstance(t,dict):
@@ -92,7 +97,6 @@ class cache(AbstractCache):
             #print 'in type error',str(inst)
             return self.func(*args,**kwargs)
         return rev
-
 
 @cache
 def cache_example(i):

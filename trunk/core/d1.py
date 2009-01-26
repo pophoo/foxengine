@@ -6,8 +6,6 @@ import numpy as np
 
 BASE = 1000
 
-OPEN,CLOSE,HIGH,LOW,AVG,AMOUNT,VOLUME = range(0,7)  #要做数组的下标，必须从0开始
-
 band = np.logical_and
 bor = np.logical_or
 

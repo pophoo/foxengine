@@ -58,12 +58,24 @@ class ModuleTest(unittest.TestCase):
         self.assertTrue(True)
 
     def testCatalogSubject(self):   #通路测试
-        cs1 = CatalogSubject(1,'test',[1,2,3])
-        self.assertTrue(True)    
+        c1 = Catalog(1,'test',[1,2,3])
+        c2 = Catalog(1,'test',[6,7,8])
+        cs1 = CatalogSubject(1,'test',[c1,c2])
+        self.assertTrue(True)
 
     def testCatalog(self):  #通路测试
         c1 = Catalog(1,'test',[1,2,3])
         self.assertTrue(True)    
+
+    def test_get_all_catalogs(self):
+        c1 = Catalog(1,'test',[1,2,3])
+        c2 = Catalog(1,'test',[6,7,8])
+        cs1 = CatalogSubject(1,'test',[c1,c2])
+        c3 = Catalog(1,'test',[1,2,3])
+        c4 = Catalog(1,'test',[6,7,8])
+        cs2 = CatalogSubject(1,'test',[c3,c4])
+        self.assertEquals([c1,c2,c3,c4],get_all_catalogs([cs1,cs2]))
+        self.assertEquals([c3,c4,c1,c2],get_all_catalogs([cs2,cs1]))
 
     def test_trans(self):
         self.assertEquals((),trans([]))

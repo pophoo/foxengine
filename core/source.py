@@ -19,6 +19,7 @@ def prepare_data(begin,end,type_code ='STOCK',rcode=ref_code):
     codes.extend(get_codes(type_code,'SZSE'))
     #print 'codes:',tuple(codes)
     sdata = get_stocks(codes,begin,end,rid=rid)
+    #print sdata
     return sdata
 
 @wcache
@@ -31,12 +32,13 @@ def get_stocks(codes,begin,end,rid=ref_id):
     rev = {}
     for code in codes:
         sid = code2id[code]
-        vo = CDO(id=sid)
+        vo = CDO(id=sid,code=code)
         vo.transaction = tuple2array(store.get_refbased_xquotes(dj.connection,ref_id,sid,begin,end))
         rev[sid] = vo
     return rev
 
 def get_catalog_tree(sdata):
+    #sdata是 id ==> stock 的dict
     ss = m.CatalogSubject.objects.all()
     return _build_catalog_tree(ss,sdata)
 
@@ -55,11 +57,13 @@ def _build_catalog_tree(css,sdata):
 
 
 ####以下是工具类
-from wolfox.fengine.core.d1 import OPEN,CLOSE,HIGH,LOW,AVG,AMOUNT,VOLUME
+from wolfox.fengine.core.base import OPEN,CLOSE,HIGH,LOW,AVG,AMOUNT,VOLUME
 #将{name:quote_list}转化为{name:[array1,....,array7]}的形式
 def tuple2array(quotes):
-    ''' 返回的是[topens,tcloses,thighs,tlows,tavgs,tamounts,tvolumes]，各元素都是等长数组
+    ''' 返回的是数组[topens,tcloses,thighs,tlows,tavgs,tamounts,tvolumes]，各元素都是等长数组
     '''
+    if not quotes:  #[]时需要满足语义
+        return np.array([[],[],[],[],[],[],[]])
     normalize(quotes)
     rev = np.array(quotes)
     return rev.transpose()
@@ -98,4 +102,8 @@ def normalize_body(quotes,ihead):
 def extract_collect(stocks,sector=CLOSE):
     #print "sector:",sector
     return np.array([s.transaction[sector] for s in stocks])
+
+def extract_collect1(stock,sector=CLOSE):
+    #print "sector:",sector
+    return stock.transaction[sector]
 

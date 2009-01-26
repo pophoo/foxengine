@@ -7,6 +7,16 @@ from wolfox.fengine.core.source import *
 
 
 class ModuleTest(unittest.TestCase):
+    def test_tuple2array(self):
+        a = [(None,None,None,None,None,None,None),(None,None,None,None,None,None,None),(1,1,1,1,1,1,1),(2,2,2,2,2,2,2),(None,None,None,None,None,None,None),(4,4,4,4,4,4,4)]
+        ta = tuple2array(a)
+        self.assertEquals([1,1,1,2,2,4],ta[0].tolist())
+        self.assertEquals([1,1,1,2,2,4],ta[4].tolist())        
+        self.assertEquals([0,0,1,2,0,4],ta[5].tolist())        
+        self.assertEquals([0,0,1,2,0,4],ta[6].tolist())
+        tb = tuple2array([])
+        self.assertEquals([[],[],[],[],[],[],[]],tb.tolist())
+
     def test_normailize(self):
         #通道测试
         na_null = normalize([])
@@ -53,6 +63,15 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([[13,14],[113,114]],rev_volume.tolist())
         #print rev
 
+    def test_extract_collect1(self):
+        a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
+        sa = CommonObject(id=3,transaction=a)
+        #print a.transaction
+        rev = extract_collect1(sa)
+        self.assertEquals([3,4],rev.tolist())
+        rev_volume = extract_collect1(sa,VOLUME)
+        self.assertEquals([13,14],rev_volume.tolist())
+        #print rev
 
 
 class SourceDataTest(unittest.TestCase):    #与源数据相关的测试

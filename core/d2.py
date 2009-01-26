@@ -5,7 +5,65 @@
 import numpy as np
 PERCENT_BASE = 10000
 
+from wolfox.fengine.core.base import OPEN,CLOSE,HIGH,LOW,AVG,AMOUNT,VOLUME
 import wolfox.fengine.core.d1 as d1
+from wolfox.fengine.core.source import extract_collect
+
+
+class dispatch(object):
+    """ 将(name,stocks,*args,**kwargs)形式的调用结果(array形式)dispatch到stock中相应name的属性中
+        要求被修饰函数的签名为(stocks,*args,**kwargs)
+    """
+    def __init__(self, func):
+        self.func = func
+    
+    def __call__(self,name,stocks,*args,**kwargs):
+        sector = kwargs.get('sector',CLOSE)        #默认参数的另一种方法，避免对内部func位置参数的污染(否则为了向func提供参数，必须先明确提供sector参数，或者使用关键字方式指定func的参数，而不能使用位置方式[会被优先当作sector])
+        sdatas = extract_collect(stocks,sector)
+        datas = self.func(sdatas,*args,**kwargs)
+        #print datas
+        for s,data in zip(stocks,datas):
+            s.__dict__[name] = data
+        return datas
+
+    def __repr__(self):
+        """Return the function's docstring."""
+        return self.func.__doc__
+
+
+class cdispatch(object):
+    """ 将(name,catalogs,*args,**kwargs)形式的调用结果(array形式)dispatch到stock中相应name属性表示的dict中，dict[catalog_id] = v
+        要求被修饰函数的签名为(stocks,*args,**kwargs)
+        #需要一个准集成测试
+    """
+    def __init__(self, func):
+        self.func = func
+    
+    def __call__(self,name,catalogs,*args,**kwargs):
+        sector = kwargs.get('sector',CLOSE)        #默认参数的另一种方法，避免对内部func位置参数的污染(否则为了向func提供参数，必须先明确提供sector参数，或者使用关键字方式指定func的参数，而不能使用位置方式[会被优先当作sector])
+        for c in catalogs:
+            self._dispatch(name,c,sector,*args,**kwargs)
+
+    def _dispatch(self,name,catalog,sector=CLOSE,*args,**kwargs):
+        sdatas = extract_collect(catalog.stocks,sector)
+        datas = self.func(sdatas,*args,**kwargs)
+        #print datas
+        for s,data in zip(catalog.stocks,datas):
+            s.__dict__.setdefault(name,{})[catalog] = data  #这样，这个dict的item就是(catalog,data)
+        return datas
+
+    def __repr__(self):
+        """Return the function's docstring."""
+        return self.func.__doc__
+
+@dispatch
+def dispatch_example(sdatas,ma=10):
+    try:
+        return sdatas
+    except Exception,inst: #没有交易数据
+        #print np.array([[] for s in stocks]).tolist()
+        return np.array([[] for s in stocks])
+
 
 def roll02(source,shift):   #每行数据右移，移动部分补0. 二维版本(兼容一维)
     if source.ndim == 1:
@@ -46,11 +104,18 @@ def posort(v):
     '''
     return v.argsort(0).argsort(0)
 
+d_posort = dispatch(posort)
+c_posort = cdispatch(posort)
+
 def inverse_posort(v):
     ''' 对二维数组的每一列进行位置排序
         返回的每个元素都表示它所对应的源元素在所在列的逆排序序号
     '''
     return (v.shape[0] - 1) - v.argsort(0).argsort(0)
+
+d_inverse_posort = dispatch(inverse_posort)
+c_inverse_posort = cdispatch(inverse_posort)
+
 
 def percent_sort(v,sfunc=posort):
     ''' 对二维数组的每一列进行位置排序
@@ -62,12 +127,18 @@ def percent_sort(v,sfunc=posort):
     rev /= rev.shape[0]
     return rev
 
+d_percent_sort = dispatch(percent_sort)
+c_percent_sort = cdispatch(percent_sort)
+
 def inverse_percent_sort(v):
     ''' 对二维数组的每一列进行位置排序
         返回的每个元素都表示它所对应的源元素在所在列的百分序
         即有万分之多少的数大于它
     '''
     return percent_sort(v,inverse_posort)
+
+d_inverse_percent_sort = dispatch(inverse_percent_sort)
+c_inverse_percent_sort = cdispatch(inverse_percent_sort)
 
 def increase(v,distance=1):
     ''' 计算二维数组每列的distance增量(以万分数表示)
@@ -96,6 +167,9 @@ def percent(v,distance=1):
     rev[:,:distance] = 0
     return rev
 
+d_percent = dispatch(percent)
+c_percent = cdispatch(percent)
+
 def npercent(v,distance=1):
     ''' 计算二维数组每列的distance比例(以万分数表示，当前列是目标列的%)
         返回的前distance列都为0
@@ -105,13 +179,20 @@ def npercent(v,distance=1):
     rev = v*PERCENT_BASE/r1
     return rev
 
+d_npercent = dispatch(npercent)
+c_npercent = cdispatch(npercent)
+
 def cmp_percent(v,pos=0):
     ''' 计算二维数组每列的相对于第pos列的比例(以万分数表示，当前列是目标列的%)
     '''
     d = v[:,pos]
     d_column = d[:,np.newaxis]    #化行为列，便于除法
     return (v * PERCENT_BASE)/ d_column
-    
+ 
+d_cmp_percent = dispatch(cmp_percent)
+c_cmp_percent = cdispatch(cmp_percent)
+
+
 def ma2d(source,length):
     ''' 计算二维数组每行的ma 
     '''
@@ -215,3 +296,4 @@ if __name__ == '__main__':
     __bench_ma()
     #一般情况，大概二维向量ma的方式比逐行ma快一倍
     #在pysco.full()下面，提升不大，差别在10%以内。内存耗用ma2a最小
+

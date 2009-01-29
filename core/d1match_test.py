@@ -12,6 +12,16 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,0,0,1,0,0,0,0,0,0,0,1,0,0,1,0, 0,0,0,0,0,0,1,0,0],tmatch(signal,0).tolist())
         self.assertEquals([0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0, 0,0,1,0,0,0,0,0,0],tmatch(signal,5,3).tolist())
 
+    def test_make_trade_signal(self):
+        self.assertEquals([],make_trade_signal(np.array([]),np.array([])).tolist())
+        self.assertEquals([0,0,0,1,-1,0],make_trade_signal(np.array([0,1,0,1,0,0]),np.array([0,1,0,0,1,0])).tolist())
+        self.assertEquals([0,1,-1,0,0],make_trade_signal(np.array([0,1,0,1,0]),np.array([1,0,1,1,0])).tolist())
+
+    def test_make_trade_signal_double_direct(self):
+        self.assertEquals([],make_trade_signal_double_direct(np.array([]),np.array([])).tolist())
+        self.assertEquals([0,0,0,1,-1,0],make_trade_signal_double_direct(np.array([0,1,0,1,0,0]),np.array([0,1,0,0,1,0])).tolist())
+        self.assertEquals([-1,1,-1,0,0],make_trade_signal_double_direct(np.array([0,1,0,1,0]),np.array([1,0,1,1,0])).tolist())
+
     def test_matchshift(self):
         self.assertEquals([],matchshift(np.array([]),np.array([])).tolist())
         self.assertEquals([0,0,1,0,0,1],matchshift(np.array([0,1,0,1,0,0]),np.array([0,1,0,0,1,0])).tolist())
@@ -39,16 +49,6 @@ class ModuleTest(unittest.TestCase):
         #???
         self.assertEquals([0,0,1,0,0,1],makematch([1,0,0,1,0,0],np.array([0,1,1,0,1,0])).tolist())
         self.assertEquals([0,0,0,0,1,0],makematch([0,1,0,0,1,0],np.array([0,0,0,1,0,0])).tolist())
-
-    def test_make_trade_signal(self):
-        self.assertEquals([],make_trade_signal(np.array([]),np.array([])).tolist())
-        self.assertEquals([0,0,0,1,-1,0],make_trade_signal(np.array([0,1,0,1,0,0]),np.array([0,1,0,0,1,0])).tolist())
-        self.assertEquals([0,1,-1,0,0],make_trade_signal(np.array([0,1,0,1,0]),np.array([1,0,1,1,0])).tolist())
-
-    def test_make_trade_signal_double_direct(self):
-        self.assertEquals([],make_trade_signal_double_direct(np.array([]),np.array([])).tolist())
-        self.assertEquals([0,0,0,1,-1,0],make_trade_signal_double_direct(np.array([0,1,0,1,0,0]),np.array([0,1,0,0,1,0])).tolist())
-        self.assertEquals([-1,1,-1,0,0],make_trade_signal_double_direct(np.array([0,1,0,1,0]),np.array([1,0,1,1,0])).tolist())
 
 if __name__ == "__main__":
     unittest.main()

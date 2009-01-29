@@ -41,6 +41,42 @@ class ModuleTest(unittest.TestCase):
         s3 = np.array([400,0,0,-500,0])
         self.assertEquals([100,400],desync(v,s3).tolist())
 
+    def test_desyncs(self):
+        #一般用法
+        ss = np.array([0,1,0,1,0])
+        vv = np.array([1,0,1,1,1])
+        self.assertEquals([1,1],desyncs(vv,ss).tolist())
+        vv = np.array([0,1,0,1,1])
+        self.assertEquals([1,1],desyncs(vv,ss).tolist())
+        vv = np.array([0,1,0,0,1])
+        self.assertEquals([1,0],desyncs(vv,ss).tolist())
+        #特别但是与desync相似的用法
+        s = np.array([1,0,0,1,0])
+        v = np.array([100,200,300,400,500])
+        self.assertEquals([1,1],desyncs(v,s).tolist())
+        s2 = np.array([400,0,0,500,0])
+        self.assertEquals([1,1],desyncs(v,s2).tolist())
+        s3 = np.array([400,0,0,-500,0])
+        self.assertEquals([1,1],desyncs(v,s3).tolist())
+
+    def test_sync(self):
+        s = np.array([1,0,1,1,0])
+        src = np.array([1,0,1])
+        self.assertEquals([1,0,0,1,0],sync(src,s).tolist())
+        src2 = np.array([0,0,0])
+        self.assertEquals([0,0,0,0,0],sync(src2,s).tolist())
+        src3 = np.array([1,1,1])
+        self.assertEquals([1,0,1,1,0],sync(src3,s).tolist())
+
+    def test_smooth(self):
+        ss = np.array([0,1,0,1,0])
+        vv = np.array([1,0,1,1,1])
+        self.assertEquals([0,1,0,1,0],smooth(vv,ss).tolist())
+        vv = np.array([0,1,0,1,1])
+        self.assertEquals([0,1,0,1,0],smooth(vv,ss).tolist())
+        vv = np.array([0,1,0,0,1])
+        self.assertEquals([0,1,0,0,0],smooth(vv,ss).tolist())
+
     def test_roll0(self):
         self.assertEquals([1,2,3,4,5],roll0(np.array([1,2,3,4,5]),0).tolist())
         self.assertEquals([0,0,1,2,3],roll0(np.array([1,2,3,4,5]),2).tolist())

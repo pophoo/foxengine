@@ -136,6 +136,8 @@ class ModuleTest(unittest.TestCase):
         a = np.array([(5,4,7),(3,2,8),(8,5,3),(4,4,4)])
         ia = increase(a)
         self.assertEquals([[0,-2000,7500],[0,-3334,30000],[0,-3750,-4000],[0,0,0]],ia.tolist())
+        ib = increase(a,2)
+        self.assertEquals([[0,0,4000],[0,0,16666],[0,0,-6250],[0,0,0]],ib.tolist())
 
     def test_nincrease(self):
         a = np.array([(5,4,7),(3,2,8),(8,5,3),(4,4,4)])
@@ -148,6 +150,8 @@ class ModuleTest(unittest.TestCase):
         a = np.array([(5,4,7),(3,2,8),(8,5,3),(4,4,4)])
         ia = percent(a)
         self.assertEquals([[0,8000,17500],[0,6666,40000],[0,6250,6000],[0,10000,10000]],ia.tolist())
+        ib = percent(a,2)
+        self.assertEquals([[0,0,14000],[0,0,26666],[0,0,3750],[0,0,10000]],ib.tolist())
 
     def test_npercent(self):
         a = np.array([(5,4,7),(3,2,8),(8,5,3),(4,4,4)])

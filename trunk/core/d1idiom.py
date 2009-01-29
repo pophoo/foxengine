@@ -83,15 +83,15 @@ def tsimplesell(sbuy,shigh,slow,threshold):
 
 def confirmedsell(sbuy,sopen,sclose,shigh,slow,ssignal,threshold):  #ssignal为出发卖出界限的那条线，一般为sclose或slow
     downl = downlimit(shigh,sbuy,threshold)
-    return np.logical_and(ssignal-downl <0,sellconfirm(sopen,sclose,shigh,slow))
+    return np.sign(np.logical_and(ssignal-downl <0,sellconfirm(sopen,sclose,shigh,slow)))   #返回int值便于参加运算和转换
 
 def confirmedselll(sbuy,sopen,sclose,shigh,slow,threshold): #以slow为出发条件
     downl = downlimit(shigh,sbuy,threshold)
-    return np.logical_and(slow-downl <0,sellconfirm(sopen,sclose,shigh,slow))    
+    return np.sign(np.logical_and(slow-downl <0,sellconfirm(sopen,sclose,shigh,slow)))   #返回int值便于参加运算和转换
 
 def confirmedsellc(sbuy,sopen,sclose,shigh,slow,threshold): #以sclose为出发条件
     downl = downlimit(shigh,sbuy,threshold)
-    return np.logical_and(sclose-downl <0,sellconfirm(sopen,sclose,shigh,slow))        
+    return np.sign(np.logical_and(sclose-downl <0,sellconfirm(sopen,sclose,shigh,slow))) #返回int值便于参加运算和转换
 
 def downup(source1,source2,belowdays,crossdays=3):
     ''' 判断source2先在source1之上，然后crossdays日内(为避免重合，默认为3)翻下，停留n天后翻上

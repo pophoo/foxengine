@@ -78,7 +78,7 @@ def roll02(source,shift):   #每行数据右移，移动部分补0. 二维版本
         rev[:,begin:] = 0
     return rev
 
-def rolln2(source,shift):   #每行数据右移，移动部分补0. 二维版本(兼容一维)
+def rolln2(source,shift):   #每行数据右移，移动部分补第一列. 二维版本(兼容一维)
     if source.ndim == 1:
         return d1.rolln(source,shift)
     assert source.ndim == 2
@@ -104,8 +104,8 @@ def posort(v):
     '''
     return v.argsort(0).argsort(0)
 
-d_posort = dispatch(posort)
-c_posort = cdispatch(posort)
+#d_posort = dispatch(posort)
+#c_posort = cdispatch(posort)
 
 def inverse_posort(v):
     ''' 对二维数组的每一列进行位置排序
@@ -113,8 +113,11 @@ def inverse_posort(v):
     '''
     return (v.shape[0] - 1) - v.argsort(0).argsort(0)
 
-d_inverse_posort = dispatch(inverse_posort)
-c_inverse_posort = cdispatch(inverse_posort)
+iposort = inverse_posort
+
+#d_inverse_posort = dispatch(inverse_posort)
+#c_inverse_posort = cdispatch(inverse_posort)
+
 
 
 def percent_sort(v,sfunc=posort):
@@ -127,8 +130,8 @@ def percent_sort(v,sfunc=posort):
     rev /= rev.shape[0]
     return rev
 
-d_percent_sort = dispatch(percent_sort)
-c_percent_sort = cdispatch(percent_sort)
+#d_percent_sort = dispatch(percent_sort)
+#c_percent_sort = cdispatch(percent_sort)
 
 def inverse_percent_sort(v):
     ''' 对二维数组的每一列进行位置排序
@@ -137,8 +140,10 @@ def inverse_percent_sort(v):
     '''
     return percent_sort(v,inverse_posort)
 
-d_inverse_percent_sort = dispatch(inverse_percent_sort)
-c_inverse_percent_sort = cdispatch(inverse_percent_sort)
+ipercent_sort = inverse_percent_sort
+
+#d_inverse_percent_sort = dispatch(inverse_percent_sort)
+#c_inverse_percent_sort = cdispatch(inverse_percent_sort)
 
 def increase(v,distance=1):
     ''' 计算二维数组每列的distance增量(以万分数表示)
@@ -160,27 +165,23 @@ def nincrease(v,distance=1):
 def percent(v,distance=1):
     ''' 计算二维数组每列的distance比例(以万分数表示，当前列是目标列的%)
         返回的前distance列都为0
-        相当于increase的前端部分+1
+        相当于increase+1，最大的差异是percent都大于0，而increase为[-1,..)，全零者(increase=0)被置于中间。percent相对于标准化了，全零者(percent=0)被置于底部
+        故percent更适合        
     '''
     r1 = np.roll(v,distance,1)
     rev = v*PERCENT_BASE/r1
     rev[:,:distance] = 0
     return rev
 
-d_percent = dispatch(percent)
-c_percent = cdispatch(percent)
-
 def npercent(v,distance=1):
     ''' 计算二维数组每列的distance比例(以万分数表示，当前列是目标列的%)
-        返回的前distance列都为0
-        相当于nincrease+1        
+        相当于nincrease+1
+        相对于nincrease，最大的差异是npercent都大于0，而nincrease为[-1,..)，全零者(nincrease=0)被置于中间。npercent相对于标准化了，全零者(npercent)被置于底部
+        故npercent更适合
     '''
     r1 = rolln2(v,distance)
     rev = v*PERCENT_BASE/r1
     return rev
-
-d_npercent = dispatch(npercent)
-c_npercent = cdispatch(npercent)
 
 def cmp_percent(v,pos=0):
     ''' 计算二维数组每列的相对于第pos列的比例(以万分数表示，当前列是目标列的%)
@@ -188,9 +189,6 @@ def cmp_percent(v,pos=0):
     d = v[:,pos]
     d_column = d[:,np.newaxis]    #化行为列，便于除法
     return (v * PERCENT_BASE)/ d_column
- 
-d_cmp_percent = dispatch(cmp_percent)
-c_cmp_percent = cdispatch(cmp_percent)
 
 
 def ma2d(source,length):

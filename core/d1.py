@@ -8,8 +8,8 @@ from wolfox.fengine.core.base import wcache
 
 BASE = 1000
 
-band = np.logical_and
-bor = np.logical_or
+band = lambda x,y : np.sign(np.logical_and(x,y))
+bor = lambda x,y : np.sign(np.logical_or(x,y))
 
 def gand(*args):
     ''' args[i]等长，返回args同位元素的and序列
@@ -69,9 +69,15 @@ def smooth(source,signal):
     rev = np.zeros_like(source)
     bsignal = (signal != 0)
     tmp = np.sign(nsubd(source.cumsum()[bsignal]) > 0)  #这里>0的目的是将np.sign返回的类型约束为int8，因为np.sign对bool返回int8而int返回int32. 而传入的source则可能为int8类型
+    #print rev.dtype,tmp.dtype
     rev[bsignal] = tmp
     return rev
     #return sync(desyncs(source,signal),signal)
+
+def smooth2(src1,src2,signal):
+    ''' 同时处理两个source的smooth的快捷方式
+    ''' 
+    return smooth(src1,signal),smooth(src2,signal)
 
 def roll0(source,shift):   #每行数据右移，移动部分补0
     #print len(source),shift

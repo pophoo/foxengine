@@ -78,12 +78,11 @@ for s in sdata.values():
     #print sbuy.dtype,g.dtype,c_5_22.dtype,c_trend_22.dtype,c_trend_5.dtype
     ssell = d1id.confirmedsellc(sbuy,t[OPEN],t[CLOSE],t[HIGH],t[LOW],75)
     #print s.code,zip(signal,t[CLOSE])
-    sbuy = d1.smooth(sbuy,t[VOLUME])
-    ssell = d1.smooth(ssell,t[VOLUME])
+    sbuy,ssell = smooth2(sbuy,ssell,t[VOLUME])
     ssignal = d1m.make_trade_signal(sbuy,ssell)
     trades.extend(make_trades(s.id,ssignal,dates,t[CLOSE],t[CLOSE]))
 
-xx = trade.evaluate(trades)
+xx = evaluate(trades)
 
 #print unicode(xx)
 

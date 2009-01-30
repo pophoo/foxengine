@@ -13,11 +13,14 @@ import wolfox.fengine.core.d1match as d1m
 import wolfox.fengine.core.d2 as d2
 import wolfox.fengine.core.trade as trade
 
-from wolfox.fengine.core.d1 import band,gand
+from wolfox.fengine.core.d1 import band,gand,smooth,smooth2
+from wolfox.fengine.core.d1ex import ma,trend,strend,cross,sfollow,syntony
 from wolfox.fengine.core.d2 import dispatch,cdispatch,posort,percent_sort,npercent,percent,nincrease
 from wolfox.fengine.core.base import get_all_catalogs
 from wolfox.fengine.core.base import OPEN,CLOSE,HIGH,LOW,AVG,AMOUNT,VOLUME
 from wolfox.fengine.core.d1catalog import calc_index
 from wolfox.fengine.core.source import get_ref_dates,prepare_data
-from wolfox.fengine.core.trade import make_trades,last_trade
+from wolfox.fengine.core.d1match import make_trade_signal
+from wolfox.fengine.core.trade import make_trades,last_trade,evaluate
+
 

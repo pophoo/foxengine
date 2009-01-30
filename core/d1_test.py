@@ -4,6 +4,18 @@ import unittest
 from wolfox.fengine.core.d1 import * 
 
 class ModuleTest(unittest.TestCase):
+    def test_band(self):
+        a = np.array([10,0,-3,0,1])
+        b = np.array([3,0,0,-1,1])
+        c = band(a,b)
+        self.assertEquals([1,0,0,0,1],c.tolist())
+
+    def test_bor(self):
+        a = np.array([10,0,-3,0,1])
+        b = np.array([3,0,0,-1,0])
+        c = bor(a,b)
+        self.assertEquals([1,0,1,1,1],c.tolist())
+ 
     def test_gand(self):
         a = np.array([10,0,-3,0,1])
         b = np.array([3,0,0,-1,1])
@@ -76,6 +88,13 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,1,0,1,0],smooth(vv,ss).tolist())
         vv = np.array([0,1,0,0,1])
         self.assertEquals([0,1,0,0,0],smooth(vv,ss).tolist())
+
+    def test_smooth2(self):
+        ss = np.array([0,1,0,1,0])
+        vv1 = np.array([1,0,1,1,1])
+        vv2 = np.array([1,0,1,0,1])
+        sv1,sv2 = smooth2(vv1,vv2,ss) #只测试通路
+        self.assertTrue(True)
 
     def test_roll0(self):
         #空转

@@ -18,3 +18,6 @@ from wolfox.fengine.core.d2 import dispatch,cdispatch,posort,percent_sort,nperce
 from wolfox.fengine.core.base import get_all_catalogs
 from wolfox.fengine.core.base import OPEN,CLOSE,HIGH,LOW,AVG,AMOUNT,VOLUME
 from wolfox.fengine.core.d1catalog import calc_index
+from wolfox.fengine.core.source import get_ref_dates,prepare_data
+from wolfox.fengine.core.trade import make_trades,last_trade
+

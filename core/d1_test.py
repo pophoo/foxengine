@@ -78,6 +78,10 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,1,0,0,0],smooth(vv,ss).tolist())
 
     def test_roll0(self):
+        #空转
+        self.assertEquals([],roll0(np.array([]),0).tolist())
+        self.assertEquals([],roll0(np.array([]),2).tolist())        
+        #正常情形
         self.assertEquals([1,2,3,4,5],roll0(np.array([1,2,3,4,5]),0).tolist())
         self.assertEquals([0,0,1,2,3],roll0(np.array([1,2,3,4,5]),2).tolist())
         self.assertEquals([0,0,0,0,0],roll0(np.array([1,2,3,4,5]),5).tolist())
@@ -87,6 +91,10 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,0,0,0,0],roll0(np.array([1,2,3,4,5]),-6).tolist())
 
     def test_rolln(self):
+        #空转
+        self.assertEquals([],rolln(np.array([]),0).tolist())
+        self.assertEquals([],rolln(np.array([]),2).tolist())        
+        #正常情形
         self.assertEquals([1,2,3,4,5],rolln(np.array([1,2,3,4,5]),0).tolist())
         self.assertEquals([1,1,1,2,3],rolln(np.array([1,2,3,4,5]),2).tolist())
         self.assertEquals([1,1,1,1,1],rolln(np.array([1,2,3,4,5]),5).tolist())

@@ -2,13 +2,12 @@
 
 #完整的起始脚本
 
-from wolfox.fengine.extern import *
-from wolfox.fengine.internal import *
+from wolfox.fengine.core.shortcut import *
 
 begin,end = 20010101,20030101
-dates = cs.get_ref_dates(begin,end)
-sdata = cs.prepare_data(begin,end)
-idata = cs.prepare_data(begin,end,'INDEX')
+dates = get_ref_dates(begin,end)
+sdata = prepare_data(begin,end)
+idata = prepare_data(begin,end,'INDEX')
 
 
 #svector = cs.extract_collect(sdata.values(),cs.CLOSE)
@@ -42,7 +41,7 @@ c_posort = cdispatch(lambda v,distance=1:percent_sort(percent(v,distance)))
 d_posort = dispatch(lambda v,distance=1:percent_sort(percent(v,distance)))
 
 c_posort('test',catalogs,distance=10)
-d_posort('gtest',sdata.values(),distance=10)
+d_posort('gtest',sdata.values(),distance=60)
 
 for c in catalogs:
     pass
@@ -61,25 +60,35 @@ for s in sdata.values():
 #    for c in 
 
 ss = 0
-
+trades=[]
 
 for s in sdata.values():
     #print s.code
     t = s.transaction
     g = s.gtest >= 7500
     cma_5 = d1e.ma(t[CLOSE],5)
-    cma_22 = d1e.ma(t[CLOSE],12)
+    cma_22 = d1e.ma(t[CLOSE],22)
+    cma_long = d1e.ma(t[CLOSE],60)
     c_5_22 = d1e.cross(cma_22,cma_5) > 0
     c_trend_22 = d1e.strend(cma_22) > 0
     c_trend_5 = d1e.strend(cma_5) > 0
+    c_trend_long = d1e.strend(cma_long) > 0    
     #signal = gand(c_5_22,c_trend_22,c_trend_5)
-    sbuy = gand(g,c_5_22,c_trend_22,c_trend_5)
+    sbuy = gand(g,c_5_22,c_trend_22,c_trend_5,c_trend_long)
     #print sbuy.dtype,g.dtype,c_5_22.dtype,c_trend_22.dtype,c_trend_5.dtype
     ssell = d1id.confirmedsellc(sbuy,t[OPEN],t[CLOSE],t[HIGH],t[LOW],75)
     #print s.code,zip(signal,t[CLOSE])
     sbuy = d1.smooth(sbuy,t[VOLUME])
     ssell = d1.smooth(ssell,t[VOLUME])
     ssignal = d1m.make_trade_signal(sbuy,ssell)
+    trades.extend(make_trades(s.id,ssignal,dates,t[CLOSE],t[CLOSE]))
 
+xx = trade.evaluate(trades)
 
-print 'signal sum = ',ss
+#print unicode(xx)
+
+#print 'signal sum = ',ss
+#print [t for t in trades]
+#print 'eval str'
+
+#for t in trades:    print unicode(t)

@@ -89,6 +89,10 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([[0,0,0],[0,0,0]],roll02(np.array([(1,2,3),(4,5,6)]),4).tolist())
         self.assertEquals([[2,3,0],[5,6,0]],roll02(np.array([(1,2,3),(4,5,6)]),-1).tolist())
         self.assertEquals([[0,0,0],[0,0,0]],roll02(np.array([(1,2,3),(4,5,6)]),-4).tolist())
+        #空转
+        self.assertEquals([],roll02(np.array([]),0).tolist())        
+        self.assertEquals([[],[]],roll02(np.array([[],[]]),0).tolist())
+        self.assertEquals([[],[]],roll02(np.array([[],[]]),2).tolist())
 
     def test_rolln2(self):
         #d1.rolln2
@@ -105,7 +109,10 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([[1,1,1],[4,4,4]],rolln2(np.array([(1,2,3),(4,5,6)]),4).tolist())
         self.assertEquals([[2,3,3],[5,6,6]],rolln2(np.array([(1,2,3),(4,5,6)]),-1).tolist())
         self.assertEquals([[3,3,3],[6,6,6]],rolln2(np.array([(1,2,3),(4,5,6)]),-4).tolist())
-
+        #空转
+        self.assertEquals([],rolln2(np.array([]),0).tolist())        
+        self.assertEquals([[],[]],rolln2(np.array([[],[]]),0).tolist())
+        self.assertEquals([[],[]],rolln2(np.array([[],[]]),2).tolist())
 
     def test_nsubd2(self):
         a = np.array([[1,2,3],[4,5,6]])

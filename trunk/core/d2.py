@@ -69,6 +69,8 @@ def roll02(source,shift):   #每行数据右移，移动部分补0. 二维版本
     if source.ndim == 1:
         return d1.roll0(source,shift)
     assert source.ndim == 2
+    if len(source[0]) == 0:
+        return source.copy()
     rev = np.roll(source,shift,axis=1)
     if shift >= 0:
         rev[:,:shift] = 0
@@ -82,6 +84,8 @@ def rolln2(source,shift):   #每行数据右移，移动部分补第一列. 二�
     if source.ndim == 1:
         return d1.rolln(source,shift)
     assert source.ndim == 2
+    if len(source[0]) == 0:
+        return source.copy()
     rev = np.roll(source,shift,axis=1)
     if shift > 0:
         rev[:,:shift] = source[:,0][:,np.newaxis]   #化行为列,source[:,0]返回的是行，[:,np.newaxis]后变为二维

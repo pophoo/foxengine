@@ -24,6 +24,8 @@ class Catalog(CommonObject):
         super(Catalog,self).__init__(id,name=name,stocks=stocks)
 
 def get_all_catalogs(subjects):
+    if not subjects:
+        return []
     return reduce(oper_add,[cs.catalogs for cs in subjects])
 
 def trans(t):

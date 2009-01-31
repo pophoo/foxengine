@@ -544,10 +544,10 @@ def svap2(svolume,sprice,sbase):
         stimes[i] = times
     return _fill_price(sprice,stimes)
 
-def svap_ma(svolume,sprice,malength):
+def svap_ma(svolume,sprice,malength):   #依赖svolume为整数序列，否则导致ma之后0值有非零的base，直接导致后续所有计算出错
     return svap(svolume,sprice,ma(svolume,malength))
 
-def svap2_ma(svolume,sprice,malength):
+def svap2_ma(svolume,sprice,malength):  #依赖svolume为整数序列，否则导致ma之后0值有非零的base，直接导致后续所有计算出错
     return svap2(svolume,sprice,ma(svolume,malength))
 
 def index2v(signal,v2index,length):
@@ -565,6 +565,7 @@ def index2v(signal,v2index,length):
 
 def _fill_price(sprice,stimes):
     length = sum(stimes)
+    #print length,stimes
     rev,v2index = np.zeros(length,int),np.zeros(length,int)
     cur = 0
     for i in xrange(len(stimes)):

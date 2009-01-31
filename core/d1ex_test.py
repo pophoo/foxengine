@@ -26,7 +26,10 @@ class ModuleTest(unittest.TestCase):
         target = np.array([10,20,30,40,50,40,30,20,10,12,11,12])
         follow = np.array([5,15,35,41,60,50,25,26,8,12,13,12])
         self.assertEquals([0,0,1,0,0,0,-1,1,-1,0,1,0],cross(target,follow).tolist())
-    
+        #空测试
+        cross(np.array([]),np.array([]))
+        self.assertTrue(True)
+
     def test_cover(self):
         source = np.array([0,0,5,0,-5,0,0,0,0,0,1,0,0,3,0,0,-1,1,2,0,0,0,0,6,0])
         self.assertEquals([-1,-2,4,3,4,3,2,1,0,-1,4,3,2,4,3,2,4,4,4,3,2,1,0,4,3],cover(source,4).tolist())
@@ -192,6 +195,8 @@ class ModuleTest(unittest.TestCase):
             self.assertTrue(True)
         else:
             self.assertTrue(False)
+        #空测试
+        self.assertEquals([0,0,0,0,0,0,0],transform(np.array([]),np.array([]),7).tolist())
 
 
 if __name__ == "__main__":

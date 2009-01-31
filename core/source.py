@@ -32,6 +32,7 @@ def get_stocks(codes,begin,end,rid=ref_id):
     rev = {}
     for code in codes:
         sid = code2id[code]
+        #print code
         vo = CDO(id=sid,code=code)
         vo.transaction = tuple2array(store.get_refbased_xquotes(dj.connection,ref_id,sid,begin,end))
         #t:transaction,d:data,g:global,c:catalog?

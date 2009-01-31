@@ -76,6 +76,8 @@ class ModuleTest(unittest.TestCase):
         cs2 = CatalogSubject(1,'test',[c3,c4])
         self.assertEquals([c1,c2,c3,c4],get_all_catalogs([cs1,cs2]))
         self.assertEquals([c3,c4,c1,c2],get_all_catalogs([cs2,cs1]))
+        #空测试
+        self.assertEquals([],get_all_catalogs([]))
 
     def test_trans(self):
         self.assertEquals((),trans([]))

@@ -12,7 +12,9 @@ import wolfox.fengine.core.d1kline as d1k
 import wolfox.fengine.core.d1match as d1m
 import wolfox.fengine.core.d2 as d2
 import wolfox.fengine.core.trade as trade
+import wolfox.fengine.core.utils as utils
 
+from wolfox.fengine.core.utils import fcustom,names
 from wolfox.fengine.core.d1 import band,gand,smooth,smooth2
 from wolfox.fengine.core.d1ex import ma,trend,strend,cross,sfollow,syntony
 from wolfox.fengine.core.d2 import dispatch,cdispatch,posort,percent_sort,npercent,percent,nincrease

@@ -94,6 +94,8 @@ def cross(target,follow):
         这里不保证Target在上叉(下叉)时的趋势是向上(向下)的
     '''
     assert len(target) == len(follow)
+    if(len(target) == 0):
+        return target.copy()
     s = np.sign(follow - target)
     diff = np.diff(s)
     flag_a = (np.abs(diff) == 2)  #直接的叉
@@ -418,7 +420,8 @@ def transform(signal,v2index,length):
         以v2index中的value为index，将signal中的相应信号转换为长度为length的序列中
         后面的信号覆盖前面的
     '''
-    assert len(signal) == len(v2index) and max(v2index) < length    #v2index中的value不能大于length,否则越界
+    assert len(signal) == len(v2index)
+    assert len(v2index) == 0 or np.max(v2index) < length    #v2index中的value不能大于length,否则越界
     rev = np.zeros(length,int)
     for i in xrange(len(signal)):
         rev[v2index[i]] = signal[i]

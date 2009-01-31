@@ -16,7 +16,9 @@ import wolfox.fengine.core.utils as utils
 
 from wolfox.fengine.core.utils import fcustom,names
 from wolfox.fengine.core.d1 import band,gand,smooth,smooth2
-from wolfox.fengine.core.d1ex import ma,trend,strend,cross,sfollow,syntony
+from wolfox.fengine.core.d1ex import ma,trend,strend,cross,sfollow,syntony,transform
+from wolfox.fengine.core.d1indicator import svap_ma
+from wolfox.fengine.core.d1idiom import upconfirm,downup,swingin
 from wolfox.fengine.core.d2 import dispatch,cdispatch,posort,percent_sort,npercent,percent,nincrease
 from wolfox.fengine.core.base import get_all_catalogs
 from wolfox.fengine.core.base import OPEN,CLOSE,HIGH,LOW,AVG,AMOUNT,VOLUME

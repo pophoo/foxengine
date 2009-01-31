@@ -118,26 +118,41 @@ class ModuleTest(unittest.TestCase):
         a = np.array([[1,2,3],[4,5,6]])
         self.assertEquals([[1,1,1],[4,1,1]],nsubd2(a).tolist())
         self.assertEquals([[1,2,2],[4,5,2]],nsubd2(a,2).tolist())
+        na = np.array([[],[],[],[],[],[],[]])   #空测试
+        nsubd2(na)
+        self.assertTrue(True)
 
     def test_posort(self):
         a = np.array([(5,4,7),(3,2,8),(8,5,3),(4,4,4)])
         sa = posort(a)
         self.assertEquals([[2,1,2],[0,0,3],[3,3,0],[1,2,1]],sa.tolist())
+        na = np.array([[],[],[],[],[],[],[]])   #空测试
+        posort(na)
+        self.assertTrue(True)
 
     def test_inverse_posort(self):
         a = np.array([(5,4,7),(3,2,8),(8,5,3),(4,4,4)])
         sa = inverse_posort(a)
         self.assertEquals([[1,2,1],[3,3,0],[0,0,3],[2,1,2]],sa.tolist())
+        na = np.array([[],[],[],[],[],[],[]])   #空测试
+        inverse_posort(na)
+        self.assertTrue(True)
 
     def test_percent_sort(self):
         a = np.array([(5,4,7),(3,2,8),(8,5,3),(4,4,4)])
         sa = percent_sort(a)
         self.assertEquals([[5000,2500,5000],[0,0,7500],[7500,7500,0],[2500,5000,2500]],sa.tolist())
+        na = np.array([[],[],[],[],[],[],[]])   #空测试
+        percent_sort(na)
+        self.assertTrue(True)
     
     def test_inverse_percent_sort(self):
         a = np.array([(5,4,7),(3,2,8),(8,5,3),(4,4,4)])
         sa = inverse_percent_sort(a)
         self.assertEquals([[2500,5000,2500],[7500,7500,0],[0,0,7500],[5000,2500,5000]],sa.tolist())
+        na = np.array([[],[],[],[],[],[],[]])   #空测试
+        inverse_percent_sort(na)
+        self.assertTrue(True)
 
     def test_increase(self):
         a = np.array([(5,4,7),(3,2,8),(8,5,3),(4,4,4)])
@@ -145,6 +160,9 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([[0,-2000,7500],[0,-3334,30000],[0,-3750,-4000],[0,0,0]],ia.tolist())
         ib = increase(a,2)
         self.assertEquals([[0,0,4000],[0,0,16666],[0,0,-6250],[0,0,0]],ib.tolist())
+        na = np.array([[],[],[],[],[],[],[]])   #空测试
+        increase(na)
+        self.assertTrue(True)
 
     def test_nincrease(self):
         a = np.array([(5,4,7),(3,2,8),(8,5,3),(4,4,4)])
@@ -152,6 +170,9 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([[0,-2000,7500],[0,-3334,30000],[0,-3750,-4000],[0,0,0]],ia.tolist())
         ib = nincrease(a,2)
         self.assertEquals([[0,-2000,4000],[0,-3334,16666],[0,-3750,-6250],[0,0,0]],ib.tolist())
+        na = np.array([[],[],[],[],[],[],[]])   #空测试
+        nincrease(na)
+        self.assertTrue(True)
 
     def test_percent(self):
         a = np.array([(5,4,7),(3,2,8),(8,5,3),(4,4,4)])
@@ -159,6 +180,9 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([[0,8000,17500],[0,6666,40000],[0,6250,6000],[0,10000,10000]],ia.tolist())
         ib = percent(a,2)
         self.assertEquals([[0,0,14000],[0,0,26666],[0,0,3750],[0,0,10000]],ib.tolist())
+        na = np.array([[],[],[],[],[],[],[]])   #空测试
+        percent(na)
+        self.assertTrue(True)
 
     def test_npercent(self):
         a = np.array([(5,4,7),(3,2,8),(8,5,3),(4,4,4)])
@@ -166,11 +190,17 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([[10000,8000,17500],[10000,6666,40000],[10000,6250,6000],[10000,10000,10000]],ia.tolist())
         ib = npercent(a,2)
         self.assertEquals([[10000,8000,14000],[10000,6666,26666],[10000,6250,3750],[10000,10000,10000]],ib.tolist())
+        na = np.array([[],[],[],[],[],[],[]])   #空测试
+        npercent(na)
+        self.assertTrue(True)
 
     def test_cmp_percent(self):
         a = np.array([(5,4,7),(3,2,8),(8,5,3),(4,4,4)])
         ia = cmp_percent(a)
         self.assertEquals([[10000,8000,14000],[10000,6666,26666],[10000,6250,3750],[10000,10000,10000]],ia.tolist())
+        na = np.array([[],[],[],[],[],[],[]])   #空测试
+        cmp_percent(na)
+        self.assertTrue(True)
 
     def test_increase_percent(self):    #不动点
         a = np.array([(5,4,7),(3,2,8),(8,5,3),(4,4,4)])

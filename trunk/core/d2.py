@@ -153,6 +153,9 @@ def increase(v,distance=1):
     ''' 计算二维数组每列的distance增量(以万分数表示)
         返回的前distance列都为0
     '''
+    assert v.ndim == 2
+    if len(v[0]) == 0:
+        return v.copy()
     r1 = np.roll(v,distance,1)
     rev = (v-r1)*PERCENT_BASE/r1
     rev[:,:distance] = 0
@@ -172,6 +175,9 @@ def percent(v,distance=1):
         相当于increase+1，最大的差异是percent都大于0，而increase为[-1,..)，全零者(increase=0)被置于中间。percent相对于标准化了，全零者(percent=0)被置于底部
         故percent更适合        
     '''
+    assert v.ndim == 2
+    if len(v[0]) == 0:
+        return v.copy()
     r1 = np.roll(v,distance,1)
     rev = v*PERCENT_BASE/r1
     rev[:,:distance] = 0
@@ -190,6 +196,9 @@ def npercent(v,distance=1):
 def cmp_percent(v,pos=0):
     ''' 计算二维数组每列的相对于第pos列的比例(以万分数表示，当前列是目标列的%)
     '''
+    assert v.ndim == 2
+    if len(v[0]) == 0:
+        return v.copy()
     d = v[:,pos]
     d_column = d[:,np.newaxis]    #化行为列，便于除法
     return (v * PERCENT_BASE)/ d_column

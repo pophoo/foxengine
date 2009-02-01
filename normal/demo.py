@@ -4,9 +4,11 @@
 
 from wolfox.fengine.core.shortcut import *
 
+logger = None
+
 def buy_func_demo1(stock):
     t = stock.transaction
-    g = stock.gtest >= 7500
+    g = stock.gorder >= 7500
     cma_5 = d1e.ma(t[CLOSE],5)
     cma_22 = d1e.ma(t[CLOSE],22)
     cma_long = d1e.ma(t[CLOSE],60)
@@ -35,8 +37,10 @@ def buy_func_demo2(stock,fast,mid,slow,extend_days = 10):
     return band(trend_standard,confirm_cross)
 
 def buy_func_demo3(stock,fast,slow,extend_days = 20):
-    print stock.code
+    #print stock.code
+    logger.debug(stock.code)
     t = stock.transaction
+    g = stock.gorder >= 7500    
     svap,v2i = svap_ma(t[VOLUME],t[CLOSE],22)
     ma_svapfast = ma(svap,fast)
     ma_svapslow = ma(svap,slow)
@@ -56,6 +60,9 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20):
     return gand(confirmed_signal,trend_ma120)
 
 if __name__ == '__main__':
+    import logging
+    logging.basicConfig(filename="demo.log",level=logging.DEBUG,format='%(asctime)s %(levelname)s %(message)s')
+    logger = logging.getLogger('wolfox.fengine.normal.demo')    
     begin,end = 20010101,20030101
     print 'start....'
     dates = get_ref_dates(begin,end)
@@ -69,8 +76,8 @@ if __name__ == '__main__':
     ctree = cs.get_catalog_tree(sdata)
     catalogs = get_all_catalogs(ctree)
 
-    c_posort('test',catalogs,distance=10)
-    d_posort('gtest',sdata.values(),distance=60)
+    #c_posort('test',catalogs,distance=10)
+    d_posort('gorder',sdata.values(),distance=60)
     #template(sdata,dates,buy_func_demo1,csc_func,trade_func)
     #demo2 = fcustom(buy_func_demo2,fast=4,mid=20,slow=75)
     #trades,name = normal_template(sdata,dates,demo2,csc_func,normal_trade_func)

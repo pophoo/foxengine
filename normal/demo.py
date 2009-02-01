@@ -21,6 +21,7 @@ def buy_func_demo1(stock):
     return sbuy
 
 def buy_func_demo2(stock,fast,mid,slow,extend_days = 10):
+    logger.debug('calc: %s ' % stock.code)    
     t = stock.transaction
     ma_fast = ma(t[CLOSE],fast)
     ma_mid = ma(t[CLOSE],mid)
@@ -38,9 +39,10 @@ def buy_func_demo2(stock,fast,mid,slow,extend_days = 10):
 
 def buy_func_demo3(stock,fast,slow,extend_days = 20):
     #print stock.code
-    logger.debug(stock.code)
+    logger.debug('calc: %s ' % stock.code)
     t = stock.transaction
-    g = stock.gorder >= 7500    
+    g = stock.gorder >= 8500    
+    print stock.code,max(stock.gorder)
     svap,v2i = svap_ma(t[VOLUME],t[CLOSE],22)
     ma_svapfast = ma(svap,fast)
     ma_svapslow = ma(svap,slow)
@@ -57,18 +59,20 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20):
     confirmed_signal = syntony(msvap,confirm_up,15)
     smmroc = swingin(t[HIGH],t[LOW],45,800)
     #return gand(confirmed_signal,trend_ma120,smmroc)
-    return gand(confirmed_signal,trend_ma120)
+    return gand(g,confirmed_signal,trend_ma120)
 
 if __name__ == '__main__':
     import logging
     logging.basicConfig(filename="demo.log",level=logging.DEBUG,format='%(asctime)s %(levelname)s %(message)s')
     logger = logging.getLogger('wolfox.fengine.normal.demo')    
-    begin,end = 20010101,20030101
+
+    begin,end = 20010101,20060101
     print 'start....'
     dates = get_ref_dates(begin,end)
     print 'dates finish....'
     sdata = prepare_data(begin,end)
     #sdata = cs.get_stocks(['SH600503'],begin,end,ref_id)
+    #sdata = cs.get_stocks(['SZ000655'],begin,end,ref_id)
     #print sdata[442].transaction[CLOSE]
     print 'sdata finish....'    
     idata = prepare_data(begin,end,'INDEX')
@@ -76,14 +80,27 @@ if __name__ == '__main__':
     ctree = cs.get_catalog_tree(sdata)
     catalogs = get_all_catalogs(ctree)
 
+    import psyco
+    psyco.full()
+
+    from time import time
+    tbegin = time()
+
     #c_posort('test',catalogs,distance=10)
     d_posort('gorder',sdata.values(),distance=60)
     #template(sdata,dates,buy_func_demo1,csc_func,trade_func)
-    #demo2 = fcustom(buy_func_demo2,fast=4,mid=20,slow=75)
-    #trades,name = normal_template(sdata,dates,demo2,csc_func,normal_trade_func)
-    #evs = evaluate(trades)
+    demo2 = fcustom(buy_func_demo2,fast=4,mid=20,slow=75)
+    #name,trades = normal_template(sdata,dates,demo2,csc_func,normal_trade_func)
+    #evs = normal_evaluate(trades)
 
     demo3 = fcustom(buy_func_demo3,fast=5,slow=98)
-    trades,name = normal_template(sdata,dates,demo3,csc_func,normal_trade_func)
-    evs2 = evaluate(trades)
+    
+    trade_func = fcustom(normal_trade_func,begin=20010601)  #交易起始交易时间
+
+    #name,trades = normal_template(sdata,dates,demo2,csc_func,trade_func)
+    name,trades = normal_template(sdata,dates,demo3,csc_func,trade_func)    
+    tend = time()
+    print u'耗时: %s' % (tend-tbegin)
+    logger.debug(u'耗时: %s' % (tend-tbegin))    
+    evs2 = normal_evaluate(trades)
     print evs2.header()

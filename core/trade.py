@@ -7,21 +7,40 @@ from wolfox.common.tcommon import Trade,Evaluation
 
 VOLUMEBASE = 1000
 
-def make_trades(tstock,signal,tdate,tpositive,tnegative,begin=0,taxrate=125):
+def buy_first(signal):  #确认是否前进一步以废除第一个卖出信号
+    return 1 if signal < 0 else 0
+
+def sell_first(signal):  #确认是否前进一步以废除第一个买入信号
+    return 1 if signal > 0 else 0
+
+def double_first(signal):  #双向
+    return 0
+
+def make_trades(tstock,signal,tdate,tpositive,tnegative,begin=0,taxrate=125,trade_strategy=buy_first):
     ''' tstock为stock_id
         ssingal为买卖信号,对于次日买卖的信号，输入前需要将signal roll(1)
         tpositive,tnegative为信号值为正和负时的选择价格
         taxrate为税率，默认为千分之八
         begin为起始交易日
+        trade_strategy为交易方式，先买后卖，先卖后买，还是均可
+        以买入开始计算
     '''
     assert len(tpositive) == len(tnegative) == len(signal)
     sis = signal.nonzero()[0]  #非0信号的index    
+    slen = len(sis)    
+    if slen == 0:
+        return []
     tbegin = tdate.searchsorted(begin)
     ibegin = sis.searchsorted(tbegin)   #tbegin在非0索引中的插入位置
     #print tbegin,ibegin
-    slen = len(sis)
-    if slen == 0 or ibegin == slen: #空信号
+    if ibegin >= slen: #空信号
         return []
+    should_skip = trade_strategy(signal[sis[ibegin]])
+    ibegin += should_skip
+    if ibegin >= slen: #仍然是空信号
+        return []
+    #print signal[tbegin:].tolist(),sis,ibegin,tbegin
+    tbegin = sis[ibegin]
     trades = []
     for i in xrange(ibegin,slen):
         ci = sis[i]
@@ -29,6 +48,7 @@ def make_trades(tstock,signal,tdate,tpositive,tnegative,begin=0,taxrate=125):
         price = tpositive[ci] if cs>0 else tnegative[ci]
         trades.append(Trade(tstock,tdate[ci],price,cs*VOLUMEBASE,taxrate))        
     if sum(signal[tbegin:]) != 0: #最后一个未平仓,不计算
+        #print sum(signal[tbegin:]),signal[tbegin:].tolist()
         trades.pop()
     return trades
 

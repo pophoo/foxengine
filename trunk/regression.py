@@ -6,7 +6,8 @@
 #author: wycharon@gmail.com
 
 from django.core.management import setup_environ
-import wolfox.foxit.settings as settings
+#import wolfox.foxit.settings as settings
+import wolfox.foxit.other_settings.settings_sqlite_test as settings
 setup_environ(settings)
 
 import sys, os, os.path, re, unittest

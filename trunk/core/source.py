@@ -2,8 +2,12 @@
 
 #服务于数据读取的工具函数
 
+import logging
+
 from wolfox.fengine.extern import *
 from wolfox.fengine.core.base import CommonObject as CDO,CatalogSubject as CSO,Catalog as CO,cache,wcache
+
+logger = logging.getLogger('wolfox.fengine.core.source')
 
 def get_ref_dates(begin,end,rcode=ref_code):
     rss = store.get_xquotes2(dj.connection,[rcode],begin,end)   #
@@ -32,6 +36,7 @@ def get_stocks(codes,begin,end,rid=ref_id):
     rev = {}
     for code in codes:
         sid = code2id[code]
+        logger.debug('handling stock:%s' % code)
         #print code
         vo = CDO(id=sid,code=code)
         vo.transaction = tuple2array(store.get_refbased_xquotes(dj.connection,ref_id,sid,begin,end))

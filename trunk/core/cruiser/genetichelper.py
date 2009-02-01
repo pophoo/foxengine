@@ -501,4 +501,3 @@ def ints2bits(isizes,ints):
     for i in xrange(len(ints)):
         bs.extend(int2bits(ints[i],isizes[i]))
     return bs
-

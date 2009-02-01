@@ -36,7 +36,7 @@ def get_stocks(codes,begin,end,rid=ref_id):
     rev = {}
     for code in codes:
         sid = code2id[code]
-        logger.debug('handling stock:%s' % code)
+        logger.debug('loading stock:%s' % code)
         #print code
         vo = CDO(id=sid,code=code)
         vo.transaction = tuple2array(store.get_refbased_xquotes(dj.connection,ref_id,sid,begin,end))

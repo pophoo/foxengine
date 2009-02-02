@@ -23,6 +23,13 @@ class ModuleTest(unittest.TestCase):
         a.__name__,b.__name__ = 'af','bf'
         self.assertEquals(('af','bf'),names(a,b))
 
+    def test_seq_diff(self):
+        self.assertEquals([],seq_diff([],[]))
+        self.assertEquals([],seq_diff([],[1,2]))
+        self.assertEquals([1,2],seq_diff([1,2],[]))
+        self.assertEquals([1,2],seq_diff([1,1,2,2],[]))        
+        self.assertEquals([1],seq_diff([1,1,2],[2]))
+
     def test_get_null_obj_number(self):
         n = get_null_obj_number(list)
         a = []

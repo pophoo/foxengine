@@ -541,8 +541,8 @@ def svap2(svolume,sprice,sbase):
         csv = svolume[i]
         csb = sbase[i]
         if csb: #避免被0除
-            times = (csv+remainder) / sbase[i]
-            remainder = (csv+remainder) % sbase[i]
+            times = (csv+remainder) / csb
+            remainder = (csv+remainder) % csb
         else:   #必然是csv=csb=0
             times = 0
             assert csv == csb

@@ -29,7 +29,7 @@ def ksize(sfirst,tlast,tsmall=3,tmiddle=12,tbig=35):
     strlist = ['u'] * len(sfirst)
     for i in xrange(len(sfirst)):
         ct,cs = tlast[i],sfirst[i]        
-        s = abs(cs - ct)*BASE/cs
+        s = abs(cs - ct)*BASE/cs if cs else tbig #如果cs=0,则设定为a
         if(s >= tbig):
             strlist[i] = 'a'
         elif(s >= tmiddle):
@@ -55,8 +55,8 @@ def ksized(sfirst,tlast,length=5,tbig=2000,tmiddle=600,tsmall=200):
         return ''.join(strlist)
     sma = ma(np.abs(sfirst-tlast),length)
     for i in xrange(length,len(sfirst)):
-        ct,cs = tlast[i],sfirst[i]        
-        s = (sma[i-1] ==0) and tbig+1 or abs((cs - ct)*BASE/sma[i-1])     #分母为0算大阳
+        ct,cs = tlast[i],sfirst[i]
+        s = abs((cs - ct)*BASE/sma[i-1]) if sma[i-1] else tbig    #分母为0算大阳
         if(s >= tbig):
             strlist[i] = 'a'
         elif(s >= tmiddle):
@@ -80,7 +80,7 @@ def kscmp(first1,first2,follow1,follow2,tbig=4000,tmiddle=2000,tsmall=500):
     strlist = ['u'] * len(first1)
     for i in xrange(len(first1)):
         cft1,cft2,cfw1,cfw2 = first1[i],first2[i],follow1[i],follow2[i]
-        s = (cft1-cft2 == 0) and tbig + 1 or abs((cfw2-cfw1)*BASE/(cft2-cft1))
+        s = abs((cfw2-cfw1)*BASE/(cft2-cft1)) if cft1-cft2 else tbig
         #print first1[i],first2[i],follow1[i],follow2[i],s
         if(s >= tbig):
             strlist[i] = 'a'

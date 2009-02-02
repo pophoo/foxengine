@@ -14,7 +14,7 @@ from wolfox.fengine.core.source import *
 RFACTOR = 1.0   #实数转换因子
 INDEX_BASE = 1000
 
-@wcache
+#@wcache
 def calc_index(stocks,sector=CLOSE,weight=AMOUNT,wave = 10,alen=10):
     ''' 计算catalog指数并返回该指数及相关成员的序列，以第一日为基础
         stocks为各成员stock的d2array数组的集合
@@ -37,7 +37,7 @@ def calc_index(stocks,sector=CLOSE,weight=AMOUNT,wave = 10,alen=10):
     index = (waves * s_weights).sum(0)* INDEX_BASE + 0.5    #以便下步取整时四舍五入
     return np.cast['int'](index)
 
-@wcache
+#@wcache
 def calc_drate(stocks,distance=1,sector=CLOSE,wave=100):
     ''' 计算sector的distance增长排序顺位
         用基于wave的级别表示
@@ -49,7 +49,7 @@ def calc_drate(stocks,distance=1,sector=CLOSE,wave=100):
     rate = percent_sort(scores) / (PERCENT_BASE/wave)   #0基
     return rate
 
-@wcache
+#@wcache
 def avg_price(stocks):
     ''' 计算stocks的平均价格，基数大时可忽略个体新增和停牌误差
     '''

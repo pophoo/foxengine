@@ -131,7 +131,10 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20,**kwargs):
     confirmed_signal = syntony(msvap,confirm_up,15)
     smmroc = swingin(t[HIGH],t[LOW],45,800)
     #return gand(confirmed_signal,trend_ma120,smmroc)
-    return gand(g,confirmed_signal,trend_ma120)
+    sbuy = gand(g,confirmed_signal,trend_ma120)
+    del confirmed_signal,trend_ma120,smmroc,confirm_up,down_up,sconfirm,ma120,maslow,msvap
+    del cross_fast_slow,trend_ma_svapslow,trend_ma_svapfast,svap,v2i
+    return sbuy
 
 class ExampleGeneticCruiser(GeneticCruiser):
     def prepare(self):
@@ -156,7 +159,7 @@ if __name__ == '__main__':
     #sdata = cs.get_stocks(['SH600503'],begin,end,ref_id)
     #print sdata[442].transaction[CLOSE]
     print 'sdata finish....'    
-    idata = prepare_data(begin,end,'INDEX')
+    #idata = prepare_data(begin,end,'INDEX')
     print 'idata finish....'    
 
     import psyco

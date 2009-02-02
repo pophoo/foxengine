@@ -4,7 +4,7 @@
 
 import numpy as np
 
-from wolfox.fengine.core.base import wcache
+from wolfox.fengine.core.base import cache,wcache
 
 BASE = 1000
 

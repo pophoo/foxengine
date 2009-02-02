@@ -41,7 +41,34 @@ class ModuleTest(unittest.TestCase):
         a = []
         n1 = get_obj_number(list)
         self.assertEquals(n1,n+1)
+    
+    def test_memory_guard(self):
+        inner_func = lambda : []
+        ig = memory_guard(list)(inner_func)
+        ig()
+        self.assertTrue(ig.new_num > 1)
+        ig2 = memory_guard(list,lambda t : not t)(inner_func)
+        ig2()
+        self.assertEquals(1,ig2.new_num)
 
+    def test_mguard_example(self):
+        mg = mguard_example
+        mg()
+        self.assertEquals(1,mg.new_num)
+
+    def test_mguard_example(self):  #测试debug分支的语法正确性
+        import sys
+        from StringIO import StringIO
+        tmp = sys.stdout
+        sys.stdout = StringIO()  #将标准I/O流重定向到buff对象，抑制输出
+        ##测试
+        inner_func = lambda : []
+        ig = memory_guard(list,debug=True)(inner_func)
+        ig()
+        self.assertTrue(True)
+        #print 'xxx'
+        sys.stdout = tmp        #恢复标准I/O流
+        #print 'uuuu'
 
 if __name__ == "__main__":
     unittest.main()

@@ -18,6 +18,15 @@ def names(*args):
     '''
     return tuple([f.__name__ for f in args])
 
+def seq_diff(source,target):   
+    ''' 对source和follow两个seq求diff，因为序列可能包含不可hash的元素，所以不能直接转换为set
+        返回为diff元素的列表
+    '''
+    ds = dict([ (id(s),s) for s in source])
+    dt = dict([ (id(t),t) for t in target])
+    diff = set(ds) - set(dt)
+    return [ ds[d] for d in diff]
+
 import gc
 def get_null_obj_number(obj_type):
     i = 0

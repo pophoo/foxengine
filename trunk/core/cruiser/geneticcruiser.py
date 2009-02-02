@@ -11,6 +11,7 @@ from wolfox.fengine.core.cruiser.genetic import *
 import wolfox.fengine.core.cruiser.genetichelper as helper
 from bisect import bisect_left as locate
 
+
 logger = logging.getLogger('wolfox.fengine.core.cruiser.geneticcruiser')
 
 #关键评估量map. win/profit为正向收益，用于选择买入点. nwin/nprofit为逆向收益，用于选择卖空点或者判断危险指数
@@ -46,7 +47,7 @@ class GeneticCruiser(object):
         result,loops = nature.run(population,self.maxstep)
         #print len(result),len(population)
         for cell in result:
-            print zip(self.argnames,self.genes2args(cell.genes))
+            #print zip(self.argnames,self.genes2args(cell.genes))
             logger.debug('%s:%s',self.argnames,self.genes2args(cell.genes))
 
     def genes2args(self,genes):#将基因串转化为参数值
@@ -74,15 +75,19 @@ class GeneticCruiser(object):
         ''' evthreshold:记录详细ev的门限函数
         '''
         #print 'common judge','-' * 40
+        @utils.memory_guard(debug=True,gtype=tuple,criterion=lambda t:len(t)==2 and t[0] == 'long_scalars' and not t[1])
         def judge(cell):
             args = self.genes2args(cell.genes)
+            self.calc(sdata,dates,tbegin,evthreshold,**dict(zip(self.argnames,args)))
             name,ev = self.calc(sdata,dates,tbegin,evthreshold,**dict(zip(self.argnames,args)))
             if(ev.count > 0):
                 pass
                 #logger.debug(repr(ev))
             rv = ev.count <=3 and judge.minev or extractor(ev)
             print rv,ev.count,zip(self.argnames,args)
-            logger.debug('%s:%s',name,ev)
+            logger.debug('%s:%s:%s',name,ev.count,unicode(ev))
+            #print 'array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
+            #show_most_common_types()
             return rv
         judge.minev = -1000
         return judge
@@ -106,8 +111,8 @@ class GeneticCruiser(object):
         if(not evthreshold(ev)):
             ev.matchedtrades,ev.balances = [],[]    #相当于先删除。为保证ev的一致性而都赋为[]。否则str(ev)中的zip(...)会出错
         self.ev_result[name] = ev
+        #print 'null list:',get_null_obj_number(list),',null tuple:',get_null_obj_number(tuple)
         return name,ev
-
 
 from wolfox.fengine.core.shortcut import *
 def buy_func_demo3(stock,fast,slow,extend_days = 20,**kwargs):
@@ -115,6 +120,8 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20,**kwargs):
     logger.debug('calc: %s ' % stock.code)
     t = stock.transaction
     g = stock.gorder >= 8500    
+    maslow = ma(t[CLOSE],55)
+    ma120 = ma(t[CLOSE],120)
     svap,v2i = svap_ma(t[VOLUME],t[CLOSE],22)
     ma_svapfast = ma(svap,fast)
     ma_svapslow = ma(svap,slow)
@@ -122,19 +129,13 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20,**kwargs):
     trend_ma_svapslow = trend(ma_svapslow) > 0
     cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
     msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
-    maslow = ma(t[CLOSE],55)
-    ma120 = ma(t[CLOSE],120)
     trend_ma120 = trend(ma120) > 0
     sconfirm = upconfirm(t[OPEN],t[CLOSE],t[HIGH])
     down_up = downup(maslow,t[CLOSE],10,3)
     confirm_up = band(down_up,sconfirm)
     confirmed_signal = syntony(msvap,confirm_up,15)
     smmroc = swingin(t[HIGH],t[LOW],45,800)
-    #return gand(confirmed_signal,trend_ma120,smmroc)
-    sbuy = gand(g,confirmed_signal,trend_ma120)
-    del confirmed_signal,trend_ma120,smmroc,confirm_up,down_up,sconfirm,ma120,maslow,msvap
-    del cross_fast_slow,trend_ma_svapslow,trend_ma_svapfast,svap,v2i
-    return sbuy
+    return gand(confirmed_signal,trend_ma120,smmroc)
 
 class ExampleGeneticCruiser(GeneticCruiser):
     def prepare(self):
@@ -142,8 +143,17 @@ class ExampleGeneticCruiser(GeneticCruiser):
         self.predefined = [(12,55),(20,120)]
         self.buy_func = buy_func_demo3
         self.sell_func = csc_func
+        #self.sell_func = my_csc_func
         self.trade_func = fcustom(normal_trade_func,begin=20010601)
+        #self.trade_func = fcustom(my_trade_func,begin=20010601)
         self.evaluate_func = normal_evaluate
+
+#两个空桩基
+def my_csc_func(stock,buy_signal,threshold=75,**kwargs):   #kwargs目的是吸收无用参数，便于cruiser
+    return np.roll(buy_signal,1)
+
+def my_trade_func(dates,stock,sbuy,ssell,begin=0,taxrate=125,**kwargs):  #kwargs目的是吸收无用参数，便于cruiser
+    return []
 
 
 if __name__ == '__main__':
@@ -155,29 +165,35 @@ if __name__ == '__main__':
     print 'start....'
     dates = get_ref_dates(begin,end)
     print 'dates finish....'
-    sdata = prepare_data(begin,end)
+    #sdata = prepare_data(begin,end)
     #sdata = cs.get_stocks(['SH600503'],begin,end,ref_id)
+    #sdata = cs.get_stocks(['SH600503','SH600000','SZ000001'],begin,end,ref_id)
     #print sdata[442].transaction[CLOSE]
+    codes = get_codes_startswith('SH60000')
+    sdata = cs.get_stocks(codes,begin,end,ref_id)
     print 'sdata finish....'    
     #idata = prepare_data(begin,end,'INDEX')
     print 'idata finish....'    
 
-    import psyco
-    psyco.full()
+    #import psyco
+    #psyco.full()
 
     from time import time
     tbegin = time()
 
     d_posort('gorder',sdata.values(),distance=60)
-    trade_func = fcustom(normal_trade_func,begin=20010601)  #交易初始时间
+    #trade_func = fcustom(normal_trade_func,begin=20010601)  #交易初始时间
     cruiser = ExampleGeneticCruiser(psize=20,maxstep=2)
     cruiser.gcruise(sdata,dates,20010601)
-
+    print 'array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
     tend = time()
     print u'耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    
-
+    
+    '''
     evs = cruiser.ev_result.items()
     evs.sort(key=lambda x:x[1],reverse=True)
     for name,ev in evs:
-        print name,unicode(ev)
+        #print name,unicode(ev)
+        pass
+    '''

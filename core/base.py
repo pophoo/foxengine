@@ -85,7 +85,6 @@ class cache(AbstractCache):
     """Decorator that caches a function's return value each time it is called.
     If called later with the same arguments, the cached value is returned, and
     not re-evaluated.
-        只能缓存非原生结果(对int之类的无法weakref it)
     """
    
     def __call__(self, *args,**kwargs):

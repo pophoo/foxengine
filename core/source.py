@@ -16,7 +16,7 @@ def get_ref_dates(begin,end,rcode=ref_code):
     rs = rss.values()[0]
     return np.array([r.tdate for r in rs])
 
-@cache  #不能用wcache,无法weakref dict
+#@cache  #不能用wcache,无法weakref dict
 def prepare_data(begin,end,type_code ='STOCK',rcode=ref_code):
     rid = code2id[rcode]
     codes = get_codes(type_code,'SHSE')
@@ -105,7 +105,7 @@ def normalize_body(quotes,ihead):
             quotes[i] = pre[0],pre[1],pre[2],pre[3],pre[4],0,0
 
 #从输入stock的qarrays中抽取指定的分量，并组成集合数组。这是一个耗时的操作，故设置弱引用cache
-@wcache
+#@wcache
 def extract_collect(stocks,sector=CLOSE):
     #print "sector:",sector
     return np.array([s.transaction[sector] for s in stocks])

@@ -23,6 +23,18 @@ class ModuleTest(unittest.TestCase):
         a.__name__,b.__name__ = 'af','bf'
         self.assertEquals(('af','bf'),names(a,b))
 
+    def test_get_null_obj_number(self):
+        n = get_null_obj_number(list)
+        a = []
+        n1 = get_null_obj_number(list)
+        self.assertEquals(n1,n+1)
+
+    def test_get_obj_number(self):
+        n = get_obj_number(list)
+        a = []
+        n1 = get_obj_number(list)
+        self.assertEquals(n1,n+1)
+
 
 if __name__ == "__main__":
     unittest.main()

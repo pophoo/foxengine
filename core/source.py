@@ -31,6 +31,11 @@ def get_codes(type_code='STOCK',source='SHSE'):
     ss = m.StockCode.objects.filter(stype=type_code,exchange__code=source)
     return [s.code for s in ss]
 
+@wcache
+def get_codes_startswith(cond):
+    ss = m.StockCode.objects.filter(code__startswith=cond)
+    return [s.code for s in ss]
+
 def get_stocks(codes,begin,end,rid=ref_id): 
     #print 'codes:',codes
     rev = {}

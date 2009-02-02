@@ -91,7 +91,14 @@ class SourceDataTest(unittest.TestCase):    #与源数据相关的测试
         #测试空数据
         codes = get_codes('NULLXX')
         self.assertFalse(codes)
-    
+ 
+    def test_get_codes_startswith(self):
+        codes = get_codes_startswith('SH')
+        self.assertTrue(codes)
+        #测试空数据
+        codes = get_codes_startswith('NULLXX')
+        self.assertFalse(codes)
+
     def test_get_stocks(self):
         codes = get_codes()
         stocks = get_stocks(codes,0,999999999)  #测试通路

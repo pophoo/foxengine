@@ -18,3 +18,14 @@ def names(*args):
     '''
     return tuple([f.__name__ for f in args])
 
+import gc
+def get_null_obj_number(obj_type):
+    i = 0
+    for o in gc.get_objects():
+        if isinstance(o,obj_type) and not o:
+            i+=1
+    return i
+
+def get_obj_number(obj_type):
+    return sum([ isinstance(o,obj_type) and 1 or 0 for o in gc.get_objects() ])
+

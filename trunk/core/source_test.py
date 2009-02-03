@@ -6,7 +6,6 @@ import os
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
     #准备测试环境
     from django.core.management import setup_environ
-    #import wolfox.foxit.settings as settings
     import wolfox.foxit.other_settings.settings_sqlite_test as settings
     setup_environ(settings)
 

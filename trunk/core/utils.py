@@ -86,7 +86,7 @@ class memory_guard(object):
             logger.debug('%s memory guard end,this run create new objs specified: %s',self.__name__,new_num)
             if self.debug:
                 print "new specified %s object number = %s " % (self.gtype,new_num)
-                logger.debug('new specified %s objects:%s',self.gtype,diff)
+                #logger.debug('new specified %s objects:%s',self.gtype,diff)    #可能非常庞大
             mend = wu.GetPerformanceAttributes("Memory", "Available Bytes")
             logger.debug('%s memory guard end,this run eat:%s',self.__name__,mbegin-mend)
             return rev

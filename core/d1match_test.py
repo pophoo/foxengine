@@ -51,4 +51,7 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,0,0,0,1,0],makematch([0,1,0,0,1,0],np.array([0,0,0,1,0,0])).tolist())
 
 if __name__ == "__main__":
+    import logging
+    logging.basicConfig(filename="test.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
+    
     unittest.main()

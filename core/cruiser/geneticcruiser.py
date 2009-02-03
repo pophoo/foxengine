@@ -5,6 +5,7 @@
 '''
 
 import logging
+import time
 from math import log,ceil
 from wolfox.fengine.core.utils import fcustom
 from wolfox.fengine.core.cruiser.genetic import *
@@ -43,7 +44,9 @@ class GeneticCruiser(object):
         nature = Nature(judge,helper.nonlinear_rank,self.selector,self.reproducer,1001)
         population = self.predefined_population()
         population.extend(init_population_bc(self.celler,self.psize - len(population),sum(self.bitgroups),self.crossover))
+        #print 'begin loop:',time.time()
         result,loops = nature.run(population,self.maxstep)
+        #print 'end loop:',time.time()
         #print len(result),len(population)
         for cell in result:
             #print zip(self.argnames,self.genes2args(cell.genes))
@@ -76,6 +79,7 @@ class GeneticCruiser(object):
         #print 'common judge','-' * 40
         @utils.memory_guard(debug=True,gtype=tuple,criterion=lambda t:len(t)==2 and t[0] == 'long_scalars' and not t[1])
         def judge(cell):
+            begin = time.time()
             args = self.genes2args(cell.genes)
             self.calc(sdata,dates,tbegin,evthreshold,**dict(zip(self.argnames,args)))
             name,ev = self.calc(sdata,dates,tbegin,evthreshold,**dict(zip(self.argnames,args)))
@@ -87,6 +91,8 @@ class GeneticCruiser(object):
             logger.debug('%s:%s:%s',name,ev.count,unicode(ev))
             #print 'array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
             #show_most_common_types()
+            end = time.time()
+            print u'judge 耗时',end-begin,begin,end
             return rv
         judge.minev = -1000
         return judge
@@ -147,13 +153,6 @@ class ExampleGeneticCruiser(GeneticCruiser):
         self.trade_func = fcustom(normal_trade_func,begin=20010601)
         #self.trade_func = fcustom(my_trade_func,begin=20010601)
         self.evaluate_func = normal_evaluate
-
-#两个空桩基
-def my_csc_func(stock,buy_signal,threshold=75,**kwargs):   #kwargs目的是吸收无用参数，便于cruiser
-    return np.roll(buy_signal,1)
-
-def my_trade_func(dates,stock,sbuy,ssell,begin=0,taxrate=125,**kwargs):  #kwargs目的是吸收无用参数，便于cruiser
-    return []
 
 
 if __name__ == '__main__':

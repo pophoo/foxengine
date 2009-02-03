@@ -156,7 +156,7 @@ class ExampleGeneticCruiser(GeneticCruiser):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(filename="genetic_cruiser.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
+    logging.basicConfig(filename="genetic_cruiser.log",level=logging.DEBUG,format='#%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 
     begin,end = 20010101,20060101
     print 'start....'

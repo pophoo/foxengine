@@ -626,5 +626,5 @@ class ModuleTest(unittest.TestCase):
 
 if __name__ == "__main__":
     import logging
-    logging.basicConfig(filename="test.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')    
+    logging.basicConfig(filename="test.log",level=logging.DEBUG,format='#%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')    
     unittest.main()    

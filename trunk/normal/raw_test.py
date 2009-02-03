@@ -3,8 +3,18 @@
 import unittest
 from wolfox.fengine.normal.raw import *
 
-class ModuleTest(unittest.TestCase):
-    pass
+class ModuleTest(unittest.TestCase): #保持raw()的有效性
+    def test_raw(self):
+        import sys
+        from StringIO import StringIO
+        tmp = sys.stdout
+        sys.stdout = StringIO()  #将标准I/O流重定向到buff对象，抑制输出
+        raw()
+        #print 'xxx'
+        sys.stdout = tmp        #恢复标准I/O流
+        #print 'uuuu'
+        self.assertTrue(True)
+
 
 if __name__ == "__main__":
     unittest.main()

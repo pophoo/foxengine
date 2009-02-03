@@ -127,6 +127,9 @@ class SourceDataTest(unittest.TestCase):    #与源数据相关的测试
             self.assertTrue(c.stocks)   #都不是空的
             for s in c.stocks:
                 self.assertTrue(isinstance(s,CDO))
+        #测试指定subjects
+        tree2 = get_catalog_tree(sdata,[])   #仍然相当于全部
+        tree3 = get_catalog_tree(sdata,['行业','概念'])        
         self.assertTrue(True)
 
     def test_get_catalog_tree_part_stock(self): #catalogs中包含的元素超出给定的sdata集合时，需要排除这些元素

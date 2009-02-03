@@ -46,7 +46,7 @@ class ModuleTest(unittest.TestCase):
         genes5 = [1]
         genes6 = [0]
         child5,child6 = helper.single_point_crossover(genes5,genes6)
-        self.assertTrue(True)   #±ß½ç¼ì²é
+        self.assertTrue(True)   #è¾¹ç•Œæ£€æŸ¥
 
     def test_single_point_crossover_g(self):
         genes1 = [1,2,3,4,5,6]
@@ -60,7 +60,7 @@ class ModuleTest(unittest.TestCase):
         genes5 = [1]
         genes6 = [0]
         child5,child6 = helper.single_point_crossover_g(genes5,genes6)
-        self.assertTrue(True)   #±ß½ç¼ì²é
+        self.assertTrue(True)   #è¾¹ç•Œæ£€æŸ¥
 
     def test_multi_points_crossover_factory(self):
         genes1 = [1,2,3,4,5,6,7,8,9,10,11,12,13]
@@ -70,7 +70,7 @@ class ModuleTest(unittest.TestCase):
         #print child1,child2
         for i in xrange(len(child1)):
             self.assertEquals(set((child1[i],child2[i])),set((genes1[i],genes2[i])))
-        crossover2 = helper.multi_points_crossover_factory(1) #Ïàµ±ÓÚµ¥µã½»²æ
+        crossover2 = helper.multi_points_crossover_factory(1) #ç›¸å½“äºå•ç‚¹äº¤å‰
         child1,child2 = crossover2(genes1,genes2)
         #print child1,child2
         for i in xrange(len(child1)):
@@ -86,7 +86,7 @@ class ModuleTest(unittest.TestCase):
         crossover(genes3,genes4)
         crossover2(genes3,genes4)
         crossover3(genes3,genes4)
-        self.assertTrue(True)   #±ß½ç¼ì²é
+        self.assertTrue(True)   #è¾¹ç•Œæ£€æŸ¥
     
 
     def test_discrete_crossover(self):
@@ -106,7 +106,7 @@ class ModuleTest(unittest.TestCase):
         child1,child2 = helper.middle_crossover(genes1,genes2)
         child1,child2 = helper.middle_crossover(genes1,genes2,0.35)
         #print child1,child2
-        #²»ÔÙÑéÖ¤child1,child2µÄÊıÖµ
+        #ä¸å†éªŒè¯child1,child2çš„æ•°å€¼
         genes3 = [100,300]
         self.assertRaises(AssertionError,helper.middle_crossover,genes1,genes3)
 
@@ -116,7 +116,7 @@ class ModuleTest(unittest.TestCase):
         child1,child2 = helper.middle_sym_crossover(genes1,genes2)
         child1,child2 = helper.middle_sym_crossover(genes1,genes2,0.35)
         #print child1,child2
-        #²»ÔÙÑéÖ¤child1,child2µÄÊıÖµ
+        #ä¸å†éªŒè¯child1,child2çš„æ•°å€¼
         genes3 = [100,300]
         self.assertRaises(AssertionError,helper.middle_sym_crossover,genes1,genes3)
     
@@ -126,7 +126,7 @@ class ModuleTest(unittest.TestCase):
         child1,child2 = helper.linear_crossover(genes1,genes2)
         child1,child2 = helper.linear_crossover(genes1,genes2,0.35)
         #print child1,child2
-        #²»ÔÙÑéÖ¤child1,child2µÄÊıÖµ
+        #ä¸å†éªŒè¯child1,child2çš„æ•°å€¼
         genes3 = [100,300]
         self.assertRaises(AssertionError,helper.linear_crossover,genes1,genes3)
     
@@ -136,7 +136,7 @@ class ModuleTest(unittest.TestCase):
         child1,child2 = helper.linear_sym_crossover(genes1,genes2)
         child1,child2 = helper.linear_sym_crossover(genes1,genes2,0.35)
         #print child1,child2
-        #²»ÔÙÑéÖ¤child1,child2µÄÊıÖµ
+        #ä¸å†éªŒè¯child1,child2çš„æ•°å€¼
         genes3 = [100,300]
         self.assertRaises(AssertionError,helper.linear_sym_crossover,genes1,genes3)
 
@@ -156,7 +156,7 @@ class ModuleTest(unittest.TestCase):
     def test_weave(self):
         genes1 = [1,2,3,4,5,6,7,8,9]
         genes2 = [10,20,30,40,50,60,70,80,90]
-        self.assertRaises(AssertionError,helper.weave,genes1,genes2,[3,11],helper.exchange)   #Ô½½ç
+        self.assertRaises(AssertionError,helper.weave,genes1,genes2,[3,11],helper.exchange)   #è¶Šç•Œ
         self.assertEquals(([1,2,3,4,5,6,7,8,9],[10,20,30,40,50,60,70,80,90]),helper.weave(genes1,genes2,[],helper.exchange))
         self.assertEquals(([1,2,3,40,50,60,70,80,90],[10,20,30,4,5,6,7,8,9]),helper.weave(genes1,genes2,[3],helper.exchange))
         self.assertEquals(([10,20,30,4,5,6,7,8,9],[1,2,3,40,50,60,70,80,90]),helper.weave(genes1,genes2,[0,3],helper.exchange))
@@ -168,7 +168,7 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals(([1,2,3,4,5,60,7,8,9],[10,20,30,40,50,6,70,80,90]),helper.weave(genes1,genes2,[3,3,5,6],helper.exchange))
         self.assertEquals(([1,2,3,40,50,6,7,8,9],[10,20,30,4,5,60,70,80,90]),helper.weave(genes1,genes2,[3,5,9],helper.exchange))
         self.assertEquals(([1,2,3,40,50,60,70,80,90],[10,20,30,4,5,6,7,8,9]),helper.weave(genes1,genes2,[3,9],helper.exchange))
-        turning_points = [3,5]  #²âÊÔ¼ÆËãÇ°ºóturning_pointsÃ»ÓĞ±ä»¯
+        turning_points = [3,5]  #æµ‹è¯•è®¡ç®—å‰åturning_pointsæ²¡æœ‰å˜åŒ–
         self.assertEquals(([1,2,3,40,50,6,7,8,9],[10,20,30,4,5,60,70,80,90]),helper.weave(genes1,genes2,turning_points,helper.exchange))
         self.assertEquals([3,5],turning_points)
 
@@ -182,22 +182,22 @@ class ModuleTest(unittest.TestCase):
         genes1,genes2 = [1,2,3,4,5,6,7,8,9],[10,20,30,40,50,60,70,80,90]
         self.assertEquals(([10,20,30,40,50,60,70,80,90],[1,2,3,4,5,6,7,8,9]),helper.exchange(genes1,genes2,0,9))
         genes1,genes2 = [1,2,3,4,5,6,7,8,9],[10,20,30,40,50,60,70,80,90]
-        self.assertRaises(AssertionError,helper.exchange,genes1,genes2,3,11)   #Ô½½ç
-        self.assertRaises(AssertionError,helper.exchange,genes1,genes2,-12,3)   #Ô½½ç
-        self.assertRaises(AssertionError,helper.exchange,genes1,genes2,-12,13)   #Ô½½ç
+        self.assertRaises(AssertionError,helper.exchange,genes1,genes2,3,11)   #è¶Šç•Œ
+        self.assertRaises(AssertionError,helper.exchange,genes1,genes2,-12,3)   #è¶Šç•Œ
+        self.assertRaises(AssertionError,helper.exchange,genes1,genes2,-12,13)   #è¶Šç•Œ
 
     def test_random_crosspoints(self):
         tps = helper.random_crosspoints(17)
         self.assertTrue(0 < len(tps) <= 17)
-        tps = helper.random_crosspoints(17) #²»Í¬µÄËæ»ú
+        tps = helper.random_crosspoints(17) #ä¸åŒçš„éšæœº
         self.assertTrue(0 < len(tps) <= 17)
-        tps = helper.random_crosspoints(17) #²»Í¬µÄËæ»ú
+        tps = helper.random_crosspoints(17) #ä¸åŒçš„éšæœº
         self.assertTrue(0 < len(tps) <= 17)
-        tps = helper.random_crosspoints(17) #²»Í¬µÄËæ»ú
+        tps = helper.random_crosspoints(17) #ä¸åŒçš„éšæœº
         self.assertTrue(0 < len(tps) <= 17)
-        tps = helper.random_crosspoints(17) #²»Í¬µÄËæ»ú
+        tps = helper.random_crosspoints(17) #ä¸åŒçš„éšæœº
         self.assertTrue(0 < len(tps) <= 17)
-        tps = helper.random_crosspoints(17) #²»Í¬µÄËæ»ú
+        tps = helper.random_crosspoints(17) #ä¸åŒçš„éšæœº
         self.assertTrue(0 < len(tps) <= 17)
 
     def test_linear_rank(self):
@@ -206,7 +206,7 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals(len(scores),len(ranks))   
 
     def test_nonlinear_rank(self):
-        scores = xrange(16) #ÖÖÈº´óĞ¡32Î»µÄÏŞÖÆ
+        scores = xrange(16) #ç§ç¾¤å¤§å°32ä½çš„é™åˆ¶
         ranks = helper.nonlinear_rank(scores)
         self.assertEquals(len(scores),len(ranks))   
     
@@ -217,7 +217,7 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals(helper.RANK_BASE,sum(ranks))
         self.assertTrue(ranks[1] < ranks[9] < ranks[2])
         #print ranks
-        #´ø²ÎÊı
+        #å¸¦å‚æ•°
         ranks = helper._simple_rank(scores,helper._calc_linear_rank,1.4)
         self.assertEquals(len(scores),len(ranks))
         self.assertEquals(helper.RANK_BASE,sum(ranks))
@@ -228,7 +228,7 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals(helper.RANK_BASE,sum(ranks))
         self.assertTrue(ranks[1] < ranks[9] < ranks[2])
         #print ranks
-        #´ø²ÎÊı
+        #å¸¦å‚æ•°
         ranks = helper._simple_rank(scores,helper._calc_nonlinear_rank,0.4)
         self.assertEquals(len(scores),len(ranks))
         self.assertEquals(helper.RANK_BASE,sum(ranks))
@@ -245,7 +245,7 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals(sorted(ranks,lambda x,y : y - x),ranks)
         ranks2 = helper._calc_linear_rank(length)
         self.assertEquals(id(ranks),id(ranks2))
-        #´ø²ÎÊı,Ğ¡ÓÚÄ¬ÈÏÖµ
+        #å¸¦å‚æ•°,å°äºé»˜è®¤å€¼
         ranks = helper._calc_linear_rank(length,1.2)
         self.assertEquals(length,len(ranks))
         self.assertEquals(helper.RANK_BASE,sum(ranks))
@@ -253,7 +253,7 @@ class ModuleTest(unittest.TestCase):
         for rank in ranks:
             self.assertTrue( 0 <= rank < helper.RANK_BASE )
         self.assertEquals(sorted(ranks,lambda x,y : y - x),ranks)
-        #´óÓÚÄ¬ÈÏÖµ
+        #å¤§äºé»˜è®¤å€¼
         ranks = helper._calc_linear_rank(length,1.9)
         self.assertEquals(length,len(ranks))
         self.assertEquals(helper.RANK_BASE,sum(ranks))
@@ -272,7 +272,7 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals(sorted(ranks,lambda x,y : y - x),ranks)
         ranks2 = helper._calc_nonlinear_rank(length)
         self.assertEquals(id(ranks),id(ranks2))
-        #´ø²ÎÊı,Ğ¡ÓÚÄ¬ÈÏÖµ
+        #å¸¦å‚æ•°,å°äºé»˜è®¤å€¼
         ranks = helper._calc_nonlinear_rank(length,0.1)
         self.assertEquals(length,len(ranks))
         self.assertEquals(helper.RANK_BASE,sum(ranks))
@@ -280,7 +280,7 @@ class ModuleTest(unittest.TestCase):
         for rank in ranks:
             self.assertTrue( 0 <= rank < helper.RANK_BASE )
         self.assertEquals(sorted(ranks,lambda x,y : y - x),ranks)
-        #´óÓÚÄ¬ÈÏÖµ
+        #å¤§äºé»˜è®¤å€¼
         ranks = helper._calc_nonlinear_rank(length,0.3)
         self.assertEquals(length,len(ranks))
         self.assertEquals(helper.RANK_BASE,sum(ranks))
@@ -407,7 +407,7 @@ class ModuleTest(unittest.TestCase):
             self.assertTrue(seeds[i] in pls)
             self.assertTrue(gametes[i] in pls)
             self.assertTrue(seeds[i] != gametes[i])
-        #times·Ç·¨
+        #timeséæ³•
         self.assertRaises(AssertionError,helper.roulette_wheel_selection_factory,1.6)
 
     def test_truncate_selection_factory(self):
@@ -444,11 +444,11 @@ class ModuleTest(unittest.TestCase):
             self.assertTrue(seeds[i] in pool1)
             self.assertTrue(gametes[i] in pool1)
             self.assertTrue(seeds[i] != gametes[i])
-        #times·Ç·¨
+        #timeséæ³•
         self.assertRaises(AssertionError,helper.truncate_selection_factory,times=1.6)
 
-    def test_adjacent_selection_factory_normal(self):#adj = 0.2,times=1,ÁÚ¼¯ÊıÎª2
-        for i in range(20):#¶à´ÎÑ­»·ÒÔÓ¦¶ÔrandomÇé¿ö
+    def test_adjacent_selection_factory_normal(self):#adj = 0.2,times=1,é‚»é›†æ•°ä¸º2
+        for i in range(20):#å¤šæ¬¡å¾ªç¯ä»¥åº”å¯¹randomæƒ…å†µ
             class TCell(object):pass
             c1,c2,c3,c4,c5,c6,c7,c8 = TCell(),TCell(),TCell(),TCell(),TCell(),TCell(),TCell(),TCell()
             c1.genes,c2.genes,c3.genes,c4.genes,c5.genes,c6.genes,c7.genes,c8.genes = [10],[11],[12],[13],[14],[15],[16],[17]
@@ -464,14 +464,14 @@ class ModuleTest(unittest.TestCase):
                 self.assertTrue(seeds[i] != gametes[i])
                 #print seeds[i].genes,gametes[i].genes
                 if(seeds[i].genes[0] == 10): 
-                    self.assertTrue(gametes[i].genes[0] <= seeds[i].genes[0] + 2)  #ÁÚ¼¯ÊıÎª2
+                    self.assertTrue(gametes[i].genes[0] <= seeds[i].genes[0] + 2)  #é‚»é›†æ•°ä¸º2
                 elif(seeds[i].genes[0] == 17):
-                    self.assertTrue(gametes[i].genes[0] >= seeds[i].genes[0] - 2)  #ÁÚ¼¯ÊıÎª2
-                else:#ÖĞ¼äÖÖ×ÓµÄÁÚ¼¯ÔÚÁ½±ß
-                    self.assertTrue( seeds[i].genes[0] - 1 <= gametes[i].genes[0] <= seeds[i].genes[0] + 1)  #ÁÚ¼¯ÊıÎª2
+                    self.assertTrue(gametes[i].genes[0] >= seeds[i].genes[0] - 2)  #é‚»é›†æ•°ä¸º2
+                else:#ä¸­é—´ç§å­çš„é‚»é›†åœ¨ä¸¤è¾¹
+                    self.assertTrue( seeds[i].genes[0] - 1 <= gametes[i].genes[0] <= seeds[i].genes[0] + 1)  #é‚»é›†æ•°ä¸º2
  
-    def test_adjacent_selection_factory_finder(self):#adj = 0.2,times=1,ÁÚ¼¯ÊıÎª2
-        for i in range(20):#¶à´ÎÑ­»·ÒÔÓ¦¶ÔrandomÇé¿ö
+    def test_adjacent_selection_factory_finder(self):#adj = 0.2,times=1,é‚»é›†æ•°ä¸º2
+        for i in range(20):#å¤šæ¬¡å¾ªç¯ä»¥åº”å¯¹randomæƒ…å†µ
             class TCell(object):pass
             c1,c2,c3,c4,c5,c6,c7,c8 = TCell(),TCell(),TCell(),TCell(),TCell(),TCell(),TCell(),TCell()
             c1.genes,c2.genes,c3.genes,c4.genes,c5.genes,c6.genes,c7.genes,c8.genes = [10],[11],[12],[13],[14],[15],[16],[17]
@@ -487,14 +487,14 @@ class ModuleTest(unittest.TestCase):
                 self.assertTrue(seeds[i] != gametes[i])
                 #print seeds[i].genes,gametes[i].genes
                 if(seeds[i].genes[0] == 10): 
-                    self.assertTrue(gametes[i].genes[0] <= seeds[i].genes[0] + 2)  #ÁÚ¼¯ÊıÎª2
+                    self.assertTrue(gametes[i].genes[0] <= seeds[i].genes[0] + 2)  #é‚»é›†æ•°ä¸º2
                 elif(seeds[i].genes[0] == 17):
-                    self.assertTrue(gametes[i].genes[0] >= seeds[i].genes[0] - 2)  #ÁÚ¼¯ÊıÎª2
-                else:#ÖĞ¼äÖÖ×ÓµÄÁÚ¼¯ÔÚÁ½±ß
-                    self.assertTrue( seeds[i].genes[0] - 1 <= gametes[i].genes[0] <= seeds[i].genes[0] + 1)  #ÁÚ¼¯ÊıÎª2
+                    self.assertTrue(gametes[i].genes[0] >= seeds[i].genes[0] - 2)  #é‚»é›†æ•°ä¸º2
+                else:#ä¸­é—´ç§å­çš„é‚»é›†åœ¨ä¸¤è¾¹
+                    self.assertTrue( seeds[i].genes[0] - 1 <= gametes[i].genes[0] <= seeds[i].genes[0] + 1)  #é‚»é›†æ•°ä¸º2
  
-    def test_adjacent_selection_factory_times2(self):#adj = 0.2,times=1,ÁÚ¼¯ÊıÎª2
-        for i in range(20):#¶à´ÎÑ­»·ÒÔÓ¦¶ÔrandomÇé¿ö
+    def test_adjacent_selection_factory_times2(self):#adj = 0.2,times=1,é‚»é›†æ•°ä¸º2
+        for i in range(20):#å¤šæ¬¡å¾ªç¯ä»¥åº”å¯¹randomæƒ…å†µ
             class TCell(object):pass
             c1,c2,c3,c4,c5,c6,c7,c8 = TCell(),TCell(),TCell(),TCell(),TCell(),TCell(),TCell(),TCell()
             c1.genes,c2.genes,c3.genes,c4.genes,c5.genes,c6.genes,c7.genes,c8.genes = [10],[11],[12],[13],[14],[15],[16],[17]
@@ -510,14 +510,14 @@ class ModuleTest(unittest.TestCase):
                 self.assertTrue(seeds[i] != gametes[i])
                 #print seeds[i].genes,gametes[i].genes
                 if(seeds[i].genes[0] == 10): 
-                    self.assertTrue(gametes[i].genes[0] <= seeds[i].genes[0] + 2)  #ÁÚ¼¯ÊıÎª2
+                    self.assertTrue(gametes[i].genes[0] <= seeds[i].genes[0] + 2)  #é‚»é›†æ•°ä¸º2
                 elif(seeds[i].genes[0] == 17):
-                    self.assertTrue(gametes[i].genes[0] >= seeds[i].genes[0] - 2)  #ÁÚ¼¯ÊıÎª2
-                else:#ÖĞ¼äÖÖ×ÓµÄÁÚ¼¯ÔÚÁ½±ß
-                    self.assertTrue( seeds[i].genes[0] - 1 <= gametes[i].genes[0] <= seeds[i].genes[0] + 1)  #ÁÚ¼¯ÊıÎª2
+                    self.assertTrue(gametes[i].genes[0] >= seeds[i].genes[0] - 2)  #é‚»é›†æ•°ä¸º2
+                else:#ä¸­é—´ç§å­çš„é‚»é›†åœ¨ä¸¤è¾¹
+                    self.assertTrue( seeds[i].genes[0] - 1 <= gametes[i].genes[0] <= seeds[i].genes[0] + 1)  #é‚»é›†æ•°ä¸º2
 
-    def test_adjacent_selection_factory_adj04(self):#adj = 0.5,times=1,ÁÚ¼¯ÊıÎª4
-        for i in range(20):#¶à´ÎÑ­»·ÒÔÓ¦¶ÔrandomÇé¿ö
+    def test_adjacent_selection_factory_adj04(self):#adj = 0.5,times=1,é‚»é›†æ•°ä¸º4
+        for i in range(20):#å¤šæ¬¡å¾ªç¯ä»¥åº”å¯¹randomæƒ…å†µ
             class TCell(object):pass
             c1,c2,c3,c4,c5,c6,c7,c8 = TCell(),TCell(),TCell(),TCell(),TCell(),TCell(),TCell(),TCell()
             c1.genes,c2.genes,c3.genes,c4.genes,c5.genes,c6.genes,c7.genes,c8.genes = [10],[11],[12],[13],[14],[15],[16],[17]
@@ -533,15 +533,15 @@ class ModuleTest(unittest.TestCase):
                 self.assertTrue(seeds[i] != gametes[i])
                 #print seeds[i].genes,gametes[i].genes
                 if(seeds[i].genes[0] == 10): 
-                    self.assertTrue(gametes[i].genes[0] <= 14)  #ÁÚ¼¯ÊıÎª4
+                    self.assertTrue(gametes[i].genes[0] <= 14)  #é‚»é›†æ•°ä¸º4
                 elif(seeds[i].genes[0] == 11):
-                    self.assertTrue(10 <= gametes[i].genes[0] <= 14)  #ÁÚ¼¯ÊıÎª4
+                    self.assertTrue(10 <= gametes[i].genes[0] <= 14)  #é‚»é›†æ•°ä¸º4
                 elif(seeds[i].genes[0] == 16):
-                    self.assertTrue(13 <= gametes[i].genes[0] <= 17)  #ÁÚ¼¯ÊıÎª4
+                    self.assertTrue(13 <= gametes[i].genes[0] <= 17)  #é‚»é›†æ•°ä¸º4
                 elif(seeds[i].genes[0] == 17):
-                    self.assertTrue(gametes[i].genes[0] >= seeds[i].genes[0] - 4)  #ÁÚ¼¯ÊıÎª4
-                else:#ÖĞ¼äÖÖ×ÓµÄÁÚ¼¯ÔÚÁ½±ß
-                    self.assertTrue( seeds[i].genes[0] - 2 <= gametes[i].genes[0] <= seeds[i].genes[0] + 2)  #ÁÚ¼¯ÊıÎª4
+                    self.assertTrue(gametes[i].genes[0] >= seeds[i].genes[0] - 4)  #é‚»é›†æ•°ä¸º4
+                else:#ä¸­é—´ç§å­çš„é‚»é›†åœ¨ä¸¤è¾¹
+                    self.assertTrue( seeds[i].genes[0] - 2 <= gametes[i].genes[0] <= seeds[i].genes[0] + 2)  #é‚»é›†æ•°ä¸º4
 
     def test_calc_bitnumber(self):
         self.assertEquals(8,helper.calc_bitnumber(129))

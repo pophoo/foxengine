@@ -82,7 +82,7 @@ class NatureTest(unittest.TestCase):
         nature.cached_judge(cell)
         proxy.verify()
         
-    def test_run_loopout(self): #Î´ÕÒµ½×îÓÅ½â,Íê³ÉËùÓĞµü´ú
+    def test_run_loopout(self): #æœªæ‰¾åˆ°æœ€ä¼˜è§£,å®Œæˆæ‰€æœ‰è¿­ä»£
         class TCell(object):pass
         cell = TCell()
         pls = [cell,cell]
@@ -98,13 +98,13 @@ class NatureTest(unittest.TestCase):
         self.assertEquals(times-1,laststep)
         self.assertEquals(pls,rpls)
 
-    def test_run_0(self): #µü´ú´ÎÊı·Ç·¨
+    def test_run_0(self): #è¿­ä»£æ¬¡æ•°éæ³•
         pls = []
-        fn = lambda x : x   #×®»ù
+        fn = lambda x : x   #æ¡©åŸº
         nature = Nature(fn,fn,fn,fn)
         self.assertRaises(AssertionError,nature.run,pls,0)
 
-    def test_run_1(self): #µÚÒ»´Î¾ÍÕÒµ½×îÓÅ½â
+    def test_run_1(self): #ç¬¬ä¸€æ¬¡å°±æ‰¾åˆ°æœ€ä¼˜è§£
         class TCell(object):pass
         cell = TCell()
         pls = [cell,cell]
@@ -121,7 +121,7 @@ class NatureTest(unittest.TestCase):
         self.assertEquals(0,laststep)
         self.assertEquals(pls,rpls)
 
-    def test_run_2(self):   #µÚ¶ş´úÕÒµ½×îÓÅ½â
+    def test_run_2(self):   #ç¬¬äºŒä»£æ‰¾åˆ°æœ€ä¼˜è§£
         #print 'begin run2'
         class TCell(object):pass
         cell,cell2 = TCell(),TCell()
@@ -185,14 +185,14 @@ class CellTest(unittest.TestCase):
         Cell.random_gene = lambda obj,i : randint(0,9)
         Cell.gene_mutation = lambda obj,i : obj._generate_gene(i)
         Cell.create_by_genes = lambda obj,genes : Cell(obj.length,obj.crossoverer,genes)
-        crossoverer = lambda x,y : (y,x)    #Ö±½Ó»¥»»
+        crossoverer = lambda x,y : (y,x)    #ç›´æ¥äº’æ¢
         cella = Cell(10,crossoverer)
         cellb = Cell(10,crossoverer)
         for i in xrange(20):
             child1,child2 = cella.mate(cellb)
             self.assertEquals(cella.genes,child2.genes)
             self.assertEquals(cellb.genes,child1.genes)
-            child1,child2 = cella.mate(cellb,1.01)  #±ØÈ»±äÒì
+            child1,child2 = cella.mate(cellb,1.01)  #å¿…ç„¶å˜å¼‚
             self.assertEquals(cella.genes,child2.genes)
             self.assertEquals(cellb.genes,child1.genes)
 

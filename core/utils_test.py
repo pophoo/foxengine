@@ -56,7 +56,7 @@ class ModuleTest(unittest.TestCase):
         mg()
         self.assertEquals(1,mg.new_num)
 
-    def test_mguard_example(self):  #测试debug分支的语法正确性
+    def test_mguard_example_debug(self):  #测试debug分支的语法正确性
         import sys
         from StringIO import StringIO
         tmp = sys.stdout
@@ -65,10 +65,10 @@ class ModuleTest(unittest.TestCase):
         inner_func = lambda : []
         ig = memory_guard(list,debug=True)(inner_func)
         ig()
-        self.assertTrue(True)
         #print 'xxx'
         sys.stdout = tmp        #恢复标准I/O流
         #print 'uuuu'
+        self.assertTrue(True)
 
 if __name__ == "__main__":
     unittest.main()

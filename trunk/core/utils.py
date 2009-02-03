@@ -59,6 +59,8 @@ class memory_guard(object):
         
         is equivalent to:
         func = decomaker(argA, argB, ...)(func)
+
+        这个decorate极为耗时，只有在调试时才需要挂上
     '''
     def __init__(self,gtype,criterion = lambda x : True,debug=False):
         ''' gtype为监视的类型
@@ -80,11 +82,11 @@ class memory_guard(object):
             rev = self.func(*args,**kwargs)
             cur_objs = self.get_objs()
             diff = [ t for t in seq_diff(cur_objs,pre_objs) if self.criterion(t) ]
-            #self.new_objs = diff
             new_func.new_num = new_num = len(diff) 
             logger.debug('%s memory guard end,this run create new objs specified: %s',self.__name__,new_num)
             if self.debug:
                 print "new specified %s object number = %s " % (self.gtype,new_num)
+                logger.debug('new specified %s objects:%s',self.gtype,diff)
             mend = wu.GetPerformanceAttributes("Memory", "Available Bytes")
             logger.debug('%s memory guard end,this run eat:%s',self.__name__,mbegin-mend)
             return rev

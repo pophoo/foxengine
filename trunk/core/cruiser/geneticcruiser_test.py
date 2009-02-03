@@ -20,7 +20,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
         sout = sys.stdout.getvalue()
         logger.debug(u'测试输出:%s',sout)
         sys.stdout = self.tmp        #恢复标准I/O流
-        print sout
+        #print sout
        
     def test_geneticcruiser(self):
         begin,end = 20010101,20010201
@@ -30,8 +30,6 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
         #idata = prepare_data(begin,end,'INDEX')
 
         from time import time
-        
-
         d_posort('gorder',sdata.values(),distance=60)
         tbegin = time()
         cruiser = ExampleGeneticCruiser(psize=16,maxstep=1)

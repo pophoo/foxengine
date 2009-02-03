@@ -70,12 +70,12 @@ if __name__ == '__main__':
     print 'start....'
     dates = get_ref_dates(begin,end)
     print 'dates finish....'
-    sdata = prepare_data(begin,end)
-    #sdata = cs.get_stocks(['SH600503'],begin,end,ref_id)
+    #sdata = prepare_data(begin,end)
+    sdata = cs.get_stocks(['SH600503'],begin,end,ref_id)
     #sdata = cs.get_stocks(['SZ000655'],begin,end,ref_id)
     #print sdata[442].transaction[CLOSE]
     print 'sdata finish....'    
-    idata = prepare_data(begin,end,'INDEX')
+    #idata = prepare_data(begin,end,'INDEX')
     print 'idata finish....'    
     ctree = cs.get_catalog_tree(sdata)
     catalogs = get_all_catalogs(ctree)
@@ -90,15 +90,16 @@ if __name__ == '__main__':
     d_posort('gorder',sdata.values(),distance=60)
     #template(sdata,dates,buy_func_demo1,csc_func,trade_func)
     demo2 = fcustom(buy_func_demo2,fast=4,mid=20,slow=75)
-    #name,trades = normal_template(sdata,dates,demo2,csc_func,normal_trade_func)
+    #name =  names(demo2,csc_func,normal_trade_func)    
+    #trades = normal_template(sdata,dates,demo2,csc_func,normal_trade_func)
     #evs = normal_evaluate(trades)
 
     demo3 = fcustom(buy_func_demo3,fast=5,slow=98)
     
     trade_func = fcustom(normal_trade_func,begin=20010601)  #交易起始交易时间
 
-    #name,trades = normal_template(sdata,dates,demo2,csc_func,trade_func)
-    name,trades = normal_template(sdata,dates,demo3,csc_func,trade_func)    
+    name =  names(demo3,csc_func,trade_func)
+    trades = normal_template(sdata,dates,demo3,csc_func,trade_func)    
     tend = time()
     print u'耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    

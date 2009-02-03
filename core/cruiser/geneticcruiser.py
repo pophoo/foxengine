@@ -5,7 +5,7 @@
 '''
 
 import logging
-import time
+import time as stime
 from math import log,ceil
 from wolfox.fengine.core.utils import fcustom
 from wolfox.fengine.core.cruiser.genetic import *
@@ -44,9 +44,9 @@ class GeneticCruiser(object):
         nature = Nature(judge,helper.nonlinear_rank,self.selector,self.reproducer,1001)
         population = self.predefined_population()
         population.extend(init_population_bc(self.celler,self.psize - len(population),sum(self.bitgroups),self.crossover))
-        #print 'begin loop:',time.time()
+        #print 'begin loop:',stime.time()
         result,loops = nature.run(population,self.maxstep)
-        #print 'end loop:',time.time()
+        #print 'end loop:',stime.time()
         #print len(result),len(population)
         for cell in result:
             #print zip(self.argnames,self.genes2args(cell.genes))
@@ -77,11 +77,11 @@ class GeneticCruiser(object):
         ''' evthreshold:记录详细ev的门限函数
         '''
         #print 'common judge','-' * 40
-        @utils.memory_guard(debug=True,gtype=tuple,criterion=lambda t:len(t)==2 and t[0] == 'long_scalars' and not t[1])
+        #@utils.memory_guard(debug=True,gtype=tuple,criterion=lambda t:len(t)==2 and t[0] == 'long_scalars' and not t[1])
+        #@utils.memory_guard(debug=True,gtype=tuple,criterion=lambda t:len(t) < 10)
         def judge(cell):
-            begin = time.time()
+            begin = stime.time()
             args = self.genes2args(cell.genes)
-            self.calc(sdata,dates,tbegin,evthreshold,**dict(zip(self.argnames,args)))
             name,ev = self.calc(sdata,dates,tbegin,evthreshold,**dict(zip(self.argnames,args)))
             if(ev.count > 0):
                 pass
@@ -91,7 +91,7 @@ class GeneticCruiser(object):
             logger.debug('%s:%s:%s',name,ev.count,unicode(ev))
             #print 'array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
             #show_most_common_types()
-            end = time.time()
+            end = stime.time()
             print u'judge 耗时',end-begin,begin,end
             return rv
         judge.minev = -1000

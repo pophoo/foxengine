@@ -5,7 +5,7 @@
 
 from wolfox.fengine.core.shortcut import *
 
-if __name__ == '__main__':
+def raw():
     import logging
     logging.basicConfig(filename="raw.log",level=logging.DEBUG,format='%(asctime)s %(levelname)s %(message)s')
     logger = logging.getLogger('wolfox.fengine.normal.demo')    
@@ -13,12 +13,10 @@ if __name__ == '__main__':
 
     begin,end = 20010101,20020101
     dates = get_ref_dates(begin,end)
-    sdata = prepare_data(begin,end)
-    idata = prepare_data(begin,end,'INDEX')
-
-
+    #sdata = prepare_data(begin,end)
+    #idata = prepare_data(begin,end,'INDEX')
+    sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
     #svector = cs.extract_collect(sdata.values(),cs.CLOSE)
-
     #print dates
     logger.debug(dates)
     #print [ v.transaction for v in sdata.values()]
@@ -26,7 +24,7 @@ if __name__ == '__main__':
     ##print [(i.id,i.code) for i in idata.values()]
     #sh = idata[1] 
     #sh_close = cs.extract_collect([sz])[0]
-    sh_close = cs.extract_collect1(idata[1])
+    #sh_close = cs.extract_collect1(idata[1])
     #print sz_close
 
     closes = cs.extract_collect(sdata.values())
@@ -101,3 +99,6 @@ if __name__ == '__main__':
     #print 'eval str'
 
     #for t in trades:    print unicode(t)
+
+if __name__ == '__main__':
+    raw()

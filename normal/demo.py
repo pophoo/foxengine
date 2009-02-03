@@ -4,7 +4,8 @@
 
 from wolfox.fengine.core.shortcut import *
 
-logger = None
+import logging
+logger = logging.getLogger('wolfox.fengine.normal.demo')    
 
 def buy_func_demo1(stock):
     t = stock.transaction
@@ -61,28 +62,22 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20):
     #return gand(confirmed_signal,trend_ma120,smmroc)
     return gand(g,confirmed_signal,trend_ma120)
 
-if __name__ == '__main__':
-    import logging
-    logging.basicConfig(filename="demo.log",level=logging.DEBUG,format='%(asctime)s %(levelname)s %(message)s')
-    logger = logging.getLogger('wolfox.fengine.normal.demo')    
-
+def demo():
     begin,end = 20010101,20060101
     print 'start....'
     dates = get_ref_dates(begin,end)
     print 'dates finish....'
     #sdata = prepare_data(begin,end)
-    sdata = cs.get_stocks(['SH600503'],begin,end,ref_id)
+    #sdata = cs.get_stocks(['SH600503'],begin,end,ref_id)
     #sdata = cs.get_stocks(['SZ000655'],begin,end,ref_id)
     #print sdata[442].transaction[CLOSE]
+    sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
     print 'sdata finish....'    
     #idata = prepare_data(begin,end,'INDEX')
     print 'idata finish....'    
     ctree = cs.get_catalog_tree(sdata)
     catalogs = get_all_catalogs(ctree)
-
-    import psyco
-    psyco.full()
-
+    
     from time import time
     tbegin = time()
 
@@ -105,3 +100,7 @@ if __name__ == '__main__':
     logger.debug(u'耗时: %s' % (tend-tbegin))    
     evs2 = normal_evaluate(trades)
     print evs2.header()
+
+if __name__ == '__main__':
+    logging.basicConfig(filename="demo.log",level=logging.DEBUG,format='%(asctime)s %(levelname)s %(message)s')    
+    demo()

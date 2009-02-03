@@ -13,7 +13,7 @@ setup_environ(settings)
 import sys, os, os.path, re, unittest
 
 TEST_FILE_PATTERN = 'test\.py$' #默认的测试文件名为以test.py结尾的文件,以test开头的.py文件的pattern串为：'\Atest\w*\.py$'
-IGNORE_DIR_TYPE = ['.svn','CVS']
+IGNORE_DIR_TYPE = ".svn,CVS"
 
 def find_tests_in_directory(root_path,sub_path): #root_path:起始目录，sub_path:目标目录，相对于起始目录的路径
     sub_package = sub_path.replace(os.path.sep,'.')
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     parser.add_option('-d',"--directory",default='.',dest='directory',help="测试起始目录")
     parser.add_option('-f',"--force",action="store_true",dest='force',help="强制本文件所在目录为测试起始目录，优先于-d")
     parser.add_option('-p',"--pattern",default='test\.py$',dest='pattern',help="测试文件名模式")
-    parser.add_option('-i',"--ignore",default=IGNORE_DIR_TYPE,dest='ignore',help="忽略的目录，比如.svn/cvs")
+    parser.add_option('-i',"--ignore",default=IGNORE_DIR_TYPE,dest='ignore',help="忽略的目录，比如.svn/cvs,目录名以逗号隔开")
     
     options,arguments = parser.parse_args()   
     find_all_tests.ignore = options.ignore.split(',')

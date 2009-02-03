@@ -62,13 +62,15 @@ class memory_guard(object):
 
         这个decorate极为耗时，只有在调试时才需要挂上
     '''
-    def __init__(self,gtype,criterion = lambda x : True,debug=False):
+    def __init__(self,gtype,criterion = lambda x : True,debug=False,limit=1000):
         ''' gtype为监视的类型
             criterion用于判定该增加类型中的内容
+            limit为检查的新增对象的最大个数，新对象处于gc.get_objects()返回的列表的头部
         '''
         self.gtype = gtype
         self.criterion = criterion
         self.debug = debug
+        self.limit = 1000   
 
     def __call__(self,func):
         self.func = func
@@ -86,7 +88,7 @@ class memory_guard(object):
             logger.debug('%s memory guard end,this run create new objs specified: %s',self.__name__,new_num)
             if self.debug:
                 print "new specified %s object number = %s " % (self.gtype,new_num)
-                #logger.debug('new specified %s objects:%s',self.gtype,diff)    #可能非常庞大
+                logger.debug('new specified %s objects:%s',self.gtype,diff)    #可能非常庞大
             mend = wu.GetPerformanceAttributes("Memory", "Available Bytes")
             logger.debug('%s memory guard end,this run eat:%s',self.__name__,mbegin-mend)
             return rev
@@ -95,7 +97,7 @@ class memory_guard(object):
         return new_func
 
     def get_objs(self):
-        gobjs = [ t for t in gc.get_objects() if isinstance(t,self.gtype)]
+        gobjs = [ t for t in gc.get_objects()[:self.limit] if isinstance(t,self.gtype)]  #只检查最新limit个(get_objects返回值中最新的在最前面)，因此溢出最多为1000
         return gobjs
 
     def __repr__(self):

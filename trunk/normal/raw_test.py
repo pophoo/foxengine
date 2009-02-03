@@ -9,7 +9,11 @@ class ModuleTest(unittest.TestCase): #保持raw()的有效性
         from StringIO import StringIO
         tmp = sys.stdout
         sys.stdout = StringIO()  #将标准I/O流重定向到buff对象，抑制输出
-        raw()
+        begin,end = 20010101,20020101
+        dates = get_ref_dates(begin,end)
+        sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
+        logger.debug(dates)        
+        raw(sdata,dates)        
         #print 'xxx'
         sys.stdout = tmp        #恢复标准I/O流
         #print 'uuuu'

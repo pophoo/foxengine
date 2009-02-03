@@ -3,30 +3,12 @@
 #完整的原始脚本，不使用任何便利工具和方式。
 #便利的用法请参见demo.py
 
+import logging
 from wolfox.fengine.core.shortcut import *
 
-def raw():
-    import logging
-    logging.basicConfig(filename="raw.log",level=logging.DEBUG,format='%(asctime)s %(levelname)s %(message)s')
-    logger = logging.getLogger('wolfox.fengine.normal.demo')    
+logger = logging.getLogger('wolfox.fengine.normal.raw')    
 
-
-    begin,end = 20010101,20020101
-    dates = get_ref_dates(begin,end)
-    #sdata = prepare_data(begin,end)
-    #idata = prepare_data(begin,end,'INDEX')
-    sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
-    #svector = cs.extract_collect(sdata.values(),cs.CLOSE)
-    #print dates
-    logger.debug(dates)
-    #print [ v.transaction for v in sdata.values()]
-    #print [(s.id,s.code) for s in sdata.values()]
-    ##print [(i.id,i.code) for i in idata.values()]
-    #sh = idata[1] 
-    #sh_close = cs.extract_collect([sz])[0]
-    #sh_close = cs.extract_collect1(idata[1])
-    #print sz_close
-
+def raw(sdata,dates,idata=None):
     closes = cs.extract_collect(sdata.values())
     volumes = cs.extract_collect(sdata.values(),VOLUME)
 
@@ -101,4 +83,22 @@ def raw():
     #for t in trades:    print unicode(t)
 
 if __name__ == '__main__':
-    raw()
+    logging.basicConfig(filename="raw.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
+
+    begin,end = 20010101,20020101
+    dates = get_ref_dates(begin,end)
+    #sdata = prepare_data(begin,end)
+    #idata = prepare_data(begin,end,'INDEX')
+    sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
+    #svector = cs.extract_collect(sdata.values(),cs.CLOSE)
+    #print dates
+    logger.debug(dates)
+    #print [ v.transaction for v in sdata.values()]
+    #print [(s.id,s.code) for s in sdata.values()]
+    ##print [(i.id,i.code) for i in idata.values()]
+    #sh = idata[1] 
+    #sh_close = cs.extract_collect([sz])[0]
+    #sh_close = cs.extract_collect1(idata[1])
+    #print sz_close
+    
+    raw(sdata,dates)

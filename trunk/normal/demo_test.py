@@ -9,7 +9,12 @@ class ModuleTest(unittest.TestCase):    #保持demo的有效性
         from StringIO import StringIO
         tmp = sys.stdout
         sys.stdout = StringIO()  #将标准I/O流重定向到buff对象，抑制输出
-        demo()
+        
+        begin,end = 20010101,20060101
+        dates = get_ref_dates(begin,end)
+        sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
+        
+        demo(sdata,dates)
         #print 'xxx'
         sys.stdout = tmp        #恢复标准I/O流
         #print 'uuuu'

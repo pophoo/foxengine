@@ -2,6 +2,7 @@
 
 import unittest
 
+import sys
 import os
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
     #准备测试环境
@@ -16,20 +17,23 @@ import logging
 logger = logging.getLogger('wolfox.fengine.normal.core.raw_test')
 
 class ModuleTest(unittest.TestCase):    #保持demo的有效性
-    def test_demo(self):
-        import sys
+    def setUp(self):
         from StringIO import StringIO
-        tmp = sys.stdout
+        self.tmp = sys.stdout
         sys.stdout = StringIO()  #将标准I/O流重定向到buff对象，抑制输出
-        
+
+    def tearDown(self):
+        sout = sys.stdout.getvalue()
+        logger.debug(u'测试输出:%s',sout)
+        sys.stdout = self.tmp        #恢复标准I/O流
+        #print sout
+    
+    def test_demo(self):
         begin,end = 20010101,20060101
         dates = get_ref_dates(begin,end)
         sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
         
         demo(sdata,dates)
-        #print 'xxx'
-        sys.stdout = tmp        #恢复标准I/O流
-        #print 'uuuu'
         self.assertTrue(True)
 
 

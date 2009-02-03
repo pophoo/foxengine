@@ -64,8 +64,11 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20):
 
 def demo(sdata,dates,idata=None):
     ctree = cs.get_catalog_tree(sdata)
+    print ctree
     catalogs = get_all_catalogs(ctree)
     
+    print catalogs
+
     from time import time
     tbegin = time()
 

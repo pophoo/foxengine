@@ -20,7 +20,6 @@ logger = logging.getLogger('wolfox.fengine.core.cruiser.geneticcruiser_test')
 
 class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的是保持geneticcruiser的有效性
     def setUp(self):
-        import sys
         from StringIO import StringIO
         self.tmp = sys.stdout
         sys.stdout = StringIO()  #将标准I/O流重定向到buff对象，抑制输出

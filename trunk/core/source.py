@@ -49,9 +49,14 @@ def get_stocks(codes,begin,end,rid=ref_id):
         rev[sid] = vo
     return rev
 
-def get_catalog_tree(sdata):
-    #sdata是 id ==> stock 的dict
-    ss = m.CatalogSubject.objects.all()
+def get_catalog_tree(sdata,subjects=None):
+    ''' sdata是 id ==> stock 的dict
+        subjects为板块类别列表
+    '''
+    if subjects:    #如果设置了subjects，则只取这些
+        ss = m.CatalogSubject.objects.filter(name__in = subjects)
+    else:
+        ss = m.CatalogSubject.objects.all()
     return _build_catalog_tree(ss,sdata)
 
 def _build_catalog_tree(css,sdata):

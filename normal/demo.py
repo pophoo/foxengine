@@ -62,19 +62,7 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20):
     #return gand(confirmed_signal,trend_ma120,smmroc)
     return gand(g,confirmed_signal,trend_ma120)
 
-def demo():
-    begin,end = 20010101,20060101
-    print 'start....'
-    dates = get_ref_dates(begin,end)
-    print 'dates finish....'
-    #sdata = prepare_data(begin,end)
-    #sdata = cs.get_stocks(['SH600503'],begin,end,ref_id)
-    #sdata = cs.get_stocks(['SZ000655'],begin,end,ref_id)
-    #print sdata[442].transaction[CLOSE]
-    sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
-    print 'sdata finish....'    
-    #idata = prepare_data(begin,end,'INDEX')
-    print 'idata finish....'    
+def demo(sdata,dates,idata=None):
     ctree = cs.get_catalog_tree(sdata)
     catalogs = get_all_catalogs(ctree)
     
@@ -102,5 +90,19 @@ def demo():
     print evs2.header()
 
 if __name__ == '__main__':
-    logging.basicConfig(filename="demo.log",level=logging.DEBUG,format='%(asctime)s %(levelname)s %(message)s')    
-    demo()
+    logging.basicConfig(filename="demo.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
+    
+    begin,end = 20010101,20060101
+    print 'start....'
+    dates = get_ref_dates(begin,end)
+    print 'dates finish....'
+    #sdata = prepare_data(begin,end)
+    #sdata = cs.get_stocks(['SH600503'],begin,end,ref_id)
+    #sdata = cs.get_stocks(['SZ000655'],begin,end,ref_id)
+    #print sdata[442].transaction[CLOSE]
+    sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
+    print 'sdata finish....'    
+    #idata = prepare_data(begin,end,'INDEX')
+    print 'idata finish....'    
+    
+    demo(sdata,dates)

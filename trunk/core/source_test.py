@@ -123,6 +123,18 @@ class SourceDataTest(unittest.TestCase):    #与源数据相关的测试
                 self.assertTrue(isinstance(s,CDO))
         self.assertTrue(True)
 
+    def test_get_catalog_tree_part_stock(self): #catalogs中包含的元素超出给定的sdata集合时，需要排除这些元素
+        sdata = get_stocks(['SH600000'],0,0,ref_id)        
+        tree = get_catalog_tree(sdata)
+        css = []
+        [css.extend(cs.catalogs) for cs in tree]
+        #print [ c.stocks for c in css]
+        for c in css:
+            self.assertTrue(c.stocks)   #都不是空的
+            for s in c.stocks:
+                self.assertTrue(isinstance(s,CDO))
+        self.assertTrue(True)
+
 
 if __name__ == "__main__":
     unittest.main()

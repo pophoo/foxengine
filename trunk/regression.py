@@ -62,7 +62,7 @@ if __name__ == "__main__":
     parser.add_option('-i',"--ignore",default=IGNORE_DIR_TYPE,dest='ignore',help="忽略的目录，比如.svn/cvs")
     
     options,arguments = parser.parse_args()   
-    find_all_tests.ignore = options.ignore
+    find_all_tests.ignore = options.ignore.split(',')
     #regression_test.pattern = re.compile(options.pattern, re.IGNORECASE)
     find_tests_in_directory.pattern = re.compile(options.pattern, re.IGNORECASE)
     file_path = lambda filename : os.path.split(os.path.abspath(filename))[0]   #根据相对路径文件名获得绝对路径

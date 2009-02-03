@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 
 #django环境准备
-try:    #如果已经设置，则不再重新设置。这个是为test准备的
-    import os
-    os.environ['DJANGO_SETTINGS_MODULE']
-    #print os.environ['DJANGO_SETTINGS_MODULE']
-except: #未设置settings
+import os
+if 'DJANGO_SETTINGS_MODULE' not in os.environ: #如果已经设置，则不再重新设置。这个是为test准备的
+    #未设置settings
     from django.core.management import setup_environ
     import wolfox.foxit.settings as settings
     setup_environ(settings)
-
 
 import numpy as np
 import django.db as dj

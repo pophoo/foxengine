@@ -1,10 +1,17 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from wolfox.fengine.extern import * #准备环境
+
+import os
+if 'DJANGO_SETTINGS_MODULE' not in os.environ:
+    #准备测试环境
+    from django.core.management import setup_environ
+    #import wolfox.foxit.settings as settings
+    import wolfox.foxit.other_settings.settings_sqlite_test as settings
+    setup_environ(settings)
+
 from wolfox.fengine.core.base import *
 from wolfox.fengine.core.source import *
-
 
 class ModuleTest(unittest.TestCase):
     def test_tuple2array(self):

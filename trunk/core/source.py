@@ -58,7 +58,15 @@ def _build_catalog_tree(css,sdata):
     #只保留有stock的catalog和catalogsubject
     rev = []
     for s in css:
-        cos = [CO(c.id,name=c.name,stocks=[ sdata[sc.id] for sc in c.stocks.all() if sc.id in sdata]) for c in s.catalogs.all()]
+        #cos = [CO(c.id,name=c.name,stocks=[ sdata[sc.id] for sc in c.stocks.all() if sc.id in sdata]) for c in s.catalogs.all()]
+        cos = []
+        for c in s.catalogs.all():
+            for sc in c.stocks.all():
+                if sc.id in sdata:
+                    stocks = [sdata[sc.id]]
+                    cos.append(CO(c.id,name=c.name,stocks=stocks))
+
+
         #这里需要确保sdata[sc.id]!=null，否则会刨出异常。这个条件貌似必然成立，如果数据库完整性能被保证
         cos = [ co for co in cos if co.stocks ]
         if cos:

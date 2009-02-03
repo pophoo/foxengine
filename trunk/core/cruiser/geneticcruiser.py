@@ -11,7 +11,6 @@ from wolfox.fengine.core.cruiser.genetic import *
 import wolfox.fengine.core.cruiser.genetichelper as helper
 from bisect import bisect_left as locate
 
-
 logger = logging.getLogger('wolfox.fengine.core.cruiser.geneticcruiser')
 
 #关键评估量map. win/profit为正向收益，用于选择买入点. nwin/nprofit为逆向收益，用于选择卖空点或者判断危险指数
@@ -158,9 +157,7 @@ def my_trade_func(dates,stock,sbuy,ssell,begin=0,taxrate=125,**kwargs):  #kwargs
 
 
 if __name__ == '__main__':
-    import logging
-    logging.basicConfig(filename="genetic_cruiser.log",level=logging.DEBUG,format='%(asctime)s %(levelname)s %(message)s')
-    logger = logging.getLogger('wolfox.fengine.core.cruiser.geneticcruiser')    
+    logging.basicConfig(filename="genetic_cruiser.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 
     begin,end = 20010101,20060101
     print 'start....'
@@ -175,9 +172,6 @@ if __name__ == '__main__':
     print 'sdata finish....'    
     #idata = prepare_data(begin,end,'INDEX')
     print 'idata finish....'    
-
-    #import psyco
-    #psyco.full()
 
     from time import time
     tbegin = time()

@@ -70,7 +70,10 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20,**kwargs):
     t = stock.transaction
     logger.debug(stock.code)
     print stock.code,time.time()
-    return np.zeros_like(t[CLOSE])
+    sbuy = np.zeros_like(t[CLOSE])
+    #sbuy[1]/sbuy[0]    #测试内存溢出时的logger
+    #sbuy[2]/sbuy[0]
+    return sbuy
 
 #两个空桩基
 def my_csc_func(stock,buy_signal,threshold=75,**kwargs):   #kwargs目的是吸收无用参数，便于cruiser

@@ -4,7 +4,7 @@ import unittest
 from wolfox.fengine.core.base import CommonObject
 from wolfox.fengine.core.shortcut import *
 
-class ModuleTest(unittest.TestCase):    #¶¼ÊÇÍ¨Â·²âÊÔ
+class ModuleTest(unittest.TestCase):    #åªæµ‹è¯•é€šé“
     def test_normal_template(self):
         a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
         b = np.array([(11,12),(13,14),(15,16),(17,18),(19,110),(111,112),(113,114)])
@@ -16,6 +16,7 @@ class ModuleTest(unittest.TestCase):    #¶¼ÊÇÍ¨Â·²âÊÔ
         fsell = lambda x,y:np.array([0,1])
         ftrade = lambda x,y,z,a:(1,2)
         normal_template(sdata,dates,fbuy,fsell,ftrade)
+        self.assertTrue(True)
 
     def test_csc_func(self):
         a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
@@ -23,7 +24,7 @@ class ModuleTest(unittest.TestCase):    #¶¼ÊÇÍ¨Â·²âÊÔ
         bs = np.array([0,1])
         csc_func(sa,bs)
         self.assertTrue(True)
-        #¿Õ²âÊÔ
+        #ç©ºæµ‹è¯•
         a = np.array([(),(),(),(),(),(),()])
         sa = CommonObject(id=3,transaction=a)
         bs = np.array([])
@@ -39,7 +40,7 @@ class ModuleTest(unittest.TestCase):    #¶¼ÊÇÍ¨Â·²âÊÔ
         ss = np.array([0,0,1])
         normal_trade_func(dates,sa,sb,ss)
         self.assertTrue(True)
-        #¿Õ²âÊÔ
+        #ç©ºæµ‹è¯•
         a = np.array([(),(),(),(),(),(),()])        
         sa = CommonObject(id=3,transaction=a)        
         dates = np.array([])
@@ -52,7 +53,7 @@ class ModuleTest(unittest.TestCase):    #¶¼ÊÇÍ¨Â·²âÊÔ
         a = np.array([(5,4,7),(3,2,8),(8,5,3),(4,4,4)])
         sa = ppsort(a)
         self.assertTrue(True)
-        #¿Õ²âÊÔ
+        #ç©ºæµ‹è¯•
         a = np.array([(),(),(),(),(),(),()])        
         sa = ppsort(a)
         self.assertTrue(True)

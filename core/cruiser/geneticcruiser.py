@@ -106,7 +106,8 @@ class GeneticCruiser(object):
         buy_func = fcustom(self.buy_func,**kwargs)
         sell_func = fcustom(self.sell_func,**kwargs)
         trade_func = fcustom(self.trade_func,**kwargs)        
-        name,trades = normal_template(sdata,dates,buy_func,sell_func,trade_func)
+        name = names(buy_func,sell_func,trade_func)
+        trades = normal_template(sdata,dates,buy_func,sell_func,trade_func)
         ev = self.evaluate_func(trades,**kwargs)  
         if(not evthreshold(ev)):
             ev.matchedtrades,ev.balances = [],[]    #相当于先删除。为保证ev的一致性而都赋为[]。否则str(ev)中的zip(...)会出错
@@ -169,7 +170,7 @@ if __name__ == '__main__':
     #sdata = cs.get_stocks(['SH600503'],begin,end,ref_id)
     #sdata = cs.get_stocks(['SH600503','SH600000','SZ000001'],begin,end,ref_id)
     #print sdata[442].transaction[CLOSE]
-    codes = get_codes_startswith('SH60000')
+    codes = get_codes_startswith('SH600000')
     sdata = cs.get_stocks(codes,begin,end,ref_id)
     print 'sdata finish....'    
     #idata = prepare_data(begin,end,'INDEX')

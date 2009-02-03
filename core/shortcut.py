@@ -12,7 +12,7 @@ def normal_template(sdata,dates,buy_func,sell_func,trade_func):
         ssell = sell_func(s,sbuy)
         sbuy,ssell = smooth2(sbuy,ssell,s.transaction[VOLUME])
         trades.extend(trade_func(dates,s,sbuy,ssell))
-    return names(buy_func,sell_func,trade_func),trades
+    return trades
 
 def csc_func(stock,buy_signal,threshold=75,**kwargs):   #kwargs目的是吸收无用参数，便于cruiser
     t = stock.transaction

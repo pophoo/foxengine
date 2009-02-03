@@ -54,7 +54,7 @@ def get_catalog_tree(sdata,subjects=None):
         subjects为板块类别列表
     '''
     if subjects:    #如果设置了subjects，则只取这些
-        ss = m.CatalogSubject.objects.filter(name__in = subjects)
+        ss = m.CatalogSubject.objects.filter(code__in = subjects)
     else:
         ss = m.CatalogSubject.objects.all()
     return _build_catalog_tree(ss,sdata)

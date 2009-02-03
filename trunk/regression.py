@@ -51,7 +51,7 @@ find_all_tests.ignore = IGNORE_DIR_TYPE
 import optparse
 if __name__ == "__main__":                   
     import logging
-    logging.basicConfig(filename="regression.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
+    logging.basicConfig(filename="regression.log",level=logging.DEBUG,format='#%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
     #unittest.main(defaultTest="regression_test")
     parser = optparse.OptionParser()
     #parser.add_option("-r","--recursion", action="store_true", dest="recursion",help="遍历所有子目录下的测试")    #所有子目录

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-»ù±¾ÒÅ´«Ëã·¨:
+åŸºæœ¬é—ä¼ ç®—æ³•:
 """
 
 import random
@@ -14,9 +14,9 @@ logger = logging.getLogger('wolfox.fengine.core.cruiser.genetic')
 
 class Nature(object):
     __slots__ = 'judge','fitness_ranker','selector','reproducer','crossover_rate','mutation_rate','goal','generation','judgecache'
-    #Ä¿±êÖµ´ò·Ö(°´ÕÕÑ°ÓÅÄ¿±êÖµ£¬Õë¶Ô¸öÌå£¬ÒªÇóÎª·Ç¸ºÊı)¡¢ÊÊÓ¦¶ÈÆÀ¹À(°´¸ÅÂÊ,Õë¶ÔÈºÌå£¬ÈçÅÅĞò·¨)
-    #Ñ¡Ôñ×Ó(°´ÕÕ¸ÅÂÊ·Ö²¼,ÈçÂÖÅÌ¶ÄµÈ)£¬¸ù¾İ¸¸´ú²úÉú×Ó´ú(°üº¬ÖØ×é²ßÂÔ)
-    #ÖÕÖ¹Ä¿±ê¡¢µ±Ç°´úÊı
+    #ç›®æ ‡å€¼æ‰“åˆ†(æŒ‰ç…§å¯»ä¼˜ç›®æ ‡å€¼ï¼Œé’ˆå¯¹ä¸ªä½“ï¼Œè¦æ±‚ä¸ºéè´Ÿæ•°)ã€é€‚åº”åº¦è¯„ä¼°(æŒ‰æ¦‚ç‡,é’ˆå¯¹ç¾¤ä½“ï¼Œå¦‚æ’åºæ³•)
+    #é€‰æ‹©å­(æŒ‰ç…§æ¦‚ç‡åˆ†å¸ƒ,å¦‚è½®ç›˜èµŒç­‰)ï¼Œæ ¹æ®çˆ¶ä»£äº§ç”Ÿå­ä»£(åŒ…å«é‡ç»„ç­–ç•¥)
+    #ç»ˆæ­¢ç›®æ ‡ã€å½“å‰ä»£æ•°
 
     def __init__(self,judge,fitness_ranker,selector,reproducer,goal = 99.0):
         self.judge = judge
@@ -26,29 +26,29 @@ class Nature(object):
         self.generation = 0
         self.judge = judge
         self.judgecache = {}
-        self.goal = goal * 1.0  #×ª»»Îª¸¡µãÊı
+        self.goal = goal * 1.0  #è½¬æ¢ä¸ºæµ®ç‚¹æ•°
         
     def run(self,population, n):
-        ''' ÒÔpopulationÎª³õÊ¼ÖÖÈº£¬µü´ún´ú»òÕß´ïµ½goal
-            ·µ»Ø×îÖÕµÄpopulationºÍµü´ú´ÎÊı
+        ''' ä»¥populationä¸ºåˆå§‹ç§ç¾¤ï¼Œè¿­ä»£nä»£æˆ–è€…è¾¾åˆ°goal
+            è¿”å›æœ€ç»ˆçš„populationå’Œè¿­ä»£æ¬¡æ•°
         '''
         assert n > 0
         for i in range(n):
             #print 'begin loop %s' % i
-            logger.debug('begin loop %s' % i)
+            logger.debug(u'begin loop %s' % i)
             self.generation = i
-            scores = [ self.cached_judge(cell) for cell in population]  #Ã¿´ú°´Ä¿±êÖµ´ò·Ö
+            scores = [ self.cached_judge(cell) for cell in population]  #æ¯ä»£æŒ‰ç›®æ ‡å€¼æ‰“åˆ†
             if(max(scores) >= self.goal):
-                #linelog('³öÏÖÂú×ãÒªÇóµÄ½â·¨£¬µü´úÖÕÖ¹ÓÚµÚ%s´ú' % i)
-                logger.debug('³öÏÖÂú×ãÒªÇóµÄ½â·¨£¬µü´úÖÕÖ¹ÓÚµÚ%s´ú' % i)
+                #linelog('å‡ºç°æ»¡è¶³è¦æ±‚çš„è§£æ³•ï¼Œè¿­ä»£ç»ˆæ­¢äºç¬¬%sä»£' % i)
+                logger.debug(u'å‡ºç°æ»¡è¶³è¦æ±‚çš„è§£æ³•ï¼Œè¿­ä»£ç»ˆæ­¢äºç¬¬%sä»£' % i)
                 break
-            fitness = self.fitness_ranker(scores)   #È·¶¨ÊÊÓ¦¶È(ÒÔ0.0001Îªµ¥Î»),×ÜºÍÎª10000
+            fitness = self.fitness_ranker(scores)   #ç¡®å®šé€‚åº”åº¦(ä»¥0.0001ä¸ºå•ä½),æ€»å’Œä¸º10000
             #print scores,fitness
-            seeds,gametes = self.selector(population,fitness)    #Ñ¡³öËùĞèÊıÄ¿µÄºòÑ¡ÖÖ×Ó
-            population = self.reproducer(seeds,gametes)  #½»Åä
+            seeds,gametes = self.selector(population,fitness)    #é€‰å‡ºæ‰€éœ€æ•°ç›®çš„å€™é€‰ç§å­
+            population = self.reproducer(seeds,gametes)  #äº¤é…
         return population,i 
  
-    def cached_judge(self,cell): #judge»º´æ
+    def cached_judge(self,cell): #judgeç¼“å­˜
         skey = repr(cell)
         if(skey not in self.judgecache):
             #print 'can not find:',skey
@@ -56,22 +56,22 @@ class Nature(object):
         return self.judgecache[skey]
         
  
-class Cell(object):   #ÕûÊı»ùÒò¸öÌå
+class Cell(object):   #æ•´æ•°åŸºå› ä¸ªä½“
     __slots__ = 'length','crossoverer','genes'
-    #length:»ùÒò´®³¤¶È,crossoverer:ÖØ×éµãº¯Êı,genes:»ùÒò´®
+    #length:åŸºå› ä¸²é•¿åº¦,crossoverer:é‡ç»„ç‚¹å‡½æ•°,genes:åŸºå› ä¸²
     
     def __init__(self,length,crossoverer,genes=None):
         assert not genes or length == len(genes)
         self.length = length
         self.crossoverer = crossoverer
         self.genes = genes
-        if(not self.genes): #µ÷ÓÃ_generate_geneÇ°self.genes±ØĞëÏÈĞĞ¸³Öµ(ÈôÌõ¼ş³ÉÁ¢£¬ÔòÆäÖµÎªNone)
+        if(not self.genes): #è°ƒç”¨_generate_geneå‰self.geneså¿…é¡»å…ˆè¡Œèµ‹å€¼(è‹¥æ¡ä»¶æˆç«‹ï¼Œåˆ™å…¶å€¼ä¸ºNone)
             self.genes = [self._generate_gene(i) for i in xrange(length)]
 
     def __repr__(self):
         return "<genes:%s>" % (repr(self.genes))
         
-    def mate(self,other,mutation_rate = 0):  #ÕâÖÖÇéĞÎ±ØÈ»Òª½»²æ
+    def mate(self,other,mutation_rate = 0):  #è¿™ç§æƒ…å½¢å¿…ç„¶è¦äº¤å‰
         genes1,genes2 = self.crossoverer(self.genes,other.genes)
         self._intround(genes1)
         self._intround(genes2)
@@ -82,14 +82,14 @@ class Cell(object):   #ÕûÊı»ùÒò¸öÌå
             child2.mutation()
         return child1,child2
 
-    def mutation(self): #Í»±ä
+    def mutation(self): #çªå˜
         i = random.randint(0,self.length-1)
         #print 'before mutation,genes[%s]:%s' %(i,self.genes[i])
         self.genes[i] = self.gene_mutation(i)
         #print 'after mutation,genes[%s]:%s' %(i,self.genes[i])
 
     def _generate_gene(self,index): 
-        '''Õâ¸ö·½·¨¿ÉÄÜÔÚ¹¹½¨¹ı³ÌÖĞµ÷ÓÃ£¬ÒòÎªÓÃµ½ÁËself.genes£¬ËùÒÔµ÷ÓÃ·½·¨Ç°self.genes±ØĞëÒÑ¾­¸³Öµ(ÆäÖµNoneÒ²¿É)'''
+        '''è¿™ä¸ªæ–¹æ³•å¯èƒ½åœ¨æ„å»ºè¿‡ç¨‹ä¸­è°ƒç”¨ï¼Œå› ä¸ºç”¨åˆ°äº†self.genesï¼Œæ‰€ä»¥è°ƒç”¨æ–¹æ³•å‰self.geneså¿…é¡»å·²ç»èµ‹å€¼(å…¶å€¼Noneä¹Ÿå¯)'''
         assert index < self.length
         gene = self.random_gene(index)
         while(self.genes and gene == self.genes[index]):
@@ -103,7 +103,7 @@ class Cell(object):   #ÕûÊı»ùÒò¸öÌå
         return genes
 
 
-class BCell(Cell):#»ùÒòÎª¶ş½øÖÆ´®
+class BCell(Cell):#åŸºå› ä¸ºäºŒè¿›åˆ¶ä¸²
     def __init__(self,length,crossoverer,genes=None):
         super(BCell,self).__init__(length,crossoverer,genes)
 
@@ -118,7 +118,7 @@ class BCell(Cell):#»ùÒòÎª¶ş½øÖÆ´®
         return cell
 
 
-class CCell(Cell):#»ùÒòÎª×Ö·û´®
+class CCell(Cell):#åŸºå› ä¸ºå­—ç¬¦ä¸²
     pool = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
     def __init__(self,length,crossoverer,genes=None):
@@ -141,17 +141,17 @@ def rangeround(genes,genes_max):
         genes[i] = genes[i] % genes_max[i]
     return genes
 
-class NCell(Cell):#ÕûÊı»ùÒò
-    __slots__ = 'genes_max'  #genes_max:µ¥¸ö»ùÒòµÄ×î´óÖµ
+class NCell(Cell):#æ•´æ•°åŸºå› 
+    __slots__ = 'genes_max'  #genes_max:å•ä¸ªåŸºå› çš„æœ€å¤§å€¼
 
     def __init__(self,genes_max,crossoverer,genes=None):
-        self.genes_max = genes_max    #±ØĞëÏÈÉèÖÃ£¬ÒòÎªºóÃæÒªÓÃµ½
+        self.genes_max = genes_max    #å¿…é¡»å…ˆè®¾ç½®ï¼Œå› ä¸ºåé¢è¦ç”¨åˆ°
         super(NCell,self).__init__(len(genes_max),crossoverer,genes)
 
     def random_gene(self,index):
         return  random.randint(0,self.genes_max[index])
 
-    def gene_mutation(self,index):   #¿ÉÒÔ²ÉÈ¡Ò»Ğ©±È½Ï¸´ÔÓµÄËã·¨£¬Èç¹«Ê½2.61,ÕâÀï¼òµ¥´¦Àí
+    def gene_mutation(self,index):   #å¯ä»¥é‡‡å–ä¸€äº›æ¯”è¾ƒå¤æ‚çš„ç®—æ³•ï¼Œå¦‚å…¬å¼2.61,è¿™é‡Œç®€å•å¤„ç†
         return self._generate_gene(index)
 
     def create_by_genes(self,genes):
@@ -160,21 +160,21 @@ class NCell(Cell):#ÕûÊı»ùÒò
         return cell
 
 
-class NCell2(Cell): #NCellµÄ±ä»¯°æ±¾£¬±äÒìÊ±Ö»±ä»¯Ò»Î»
-    __slots__ = 'genes_max','genes_bits'  #genes_max:µ¥¸ö»ùÒòµÄ×î´óÖµ,genes_bits:µ¥¸ö»ùÒòµÄ×î´óÎ»Êı
-    ''' »ùÒòÖµµ½ÕæÊµ²ÎÊıÖµµÄ±ä»»£¬ÒòÎªÓàÊıÓë±äÒìµÄÔ­Òò£¬ĞèÒªÔÚÍâ²¿Ê¹ÓÃÕßÈ·¶¨£¬Í¨³£²ÉÓÃ »ùÒòÖµ/genes_max×î½üµÄÖÊÊı % genes_max
-        ÕâÀï²»±£´æÃ¿¸ögeneµÄmaxÖµ
+class NCell2(Cell): #NCellçš„å˜åŒ–ç‰ˆæœ¬ï¼Œå˜å¼‚æ—¶åªå˜åŒ–ä¸€ä½
+    __slots__ = 'genes_max','genes_bits'  #genes_max:å•ä¸ªåŸºå› çš„æœ€å¤§å€¼,genes_bits:å•ä¸ªåŸºå› çš„æœ€å¤§ä½æ•°
+    ''' åŸºå› å€¼åˆ°çœŸå®å‚æ•°å€¼çš„å˜æ¢ï¼Œå› ä¸ºä½™æ•°ä¸å˜å¼‚çš„åŸå› ï¼Œéœ€è¦åœ¨å¤–éƒ¨ä½¿ç”¨è€…ç¡®å®šï¼Œé€šå¸¸é‡‡ç”¨ åŸºå› å€¼/genes_maxæœ€è¿‘çš„è´¨æ•° % genes_max
+        è¿™é‡Œä¸ä¿å­˜æ¯ä¸ªgeneçš„maxå€¼
     '''
 
     def __init__(self,genes_max,crossoverer,genes=None):
         self.genes_max = genes_max
-        self.genes_bits = self.calc_bits(genes_max)    #±ØĞëÏÈÉèÖÃ£¬ÒòÎªºóÃæÒªÓÃµ½
+        self.genes_bits = self.calc_bits(genes_max)    #å¿…é¡»å…ˆè®¾ç½®ï¼Œå› ä¸ºåé¢è¦ç”¨åˆ°
         super(NCell2,self).__init__(len(genes_max),crossoverer,genes)
 
     def random_gene(self,index):
         return  random.randint(0,self.genes_max[index])
 
-    def gene_mutation(self,index):   #1Î»±äÒìËã·¨,²»ÄÜ³¬¹ıµ±Ç°×î´óÖµ(ºÃÏñ´æÔÚ¸ÅÂÊÎÊÌâ??¶ÔÓÚuplimitºÍ1<<bitnumber-1Ö®¼äµÄÊı×Ö?ÓÖºÃÏñÃ»ÓĞ??)
+    def gene_mutation(self,index):   #1ä½å˜å¼‚ç®—æ³•,ä¸èƒ½è¶…è¿‡å½“å‰æœ€å¤§å€¼(å¥½åƒå­˜åœ¨æ¦‚ç‡é—®é¢˜??å¯¹äºuplimitå’Œ1<<bitnumber-1ä¹‹é—´çš„æ•°å­—?åˆå¥½åƒæ²¡æœ‰??)
         uplimit = self.genes_max[index]
         curv = self.genes[index]
         nextv = curv

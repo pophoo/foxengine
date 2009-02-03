@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 
 """
-ÒÅ´«Ëã·¨µÄ¸¨Öúº¯Êı
+é—ä¼ ç®—æ³•çš„è¾…åŠ©å‡½æ•°
 """
 
 import random
 from math import log
 from bisect import bisect_left as locate
 
-MAX_POPULATION_SIZE = 4096  #×î´óÖÖÈº´óĞ¡
-#×îĞ¡µÄÏŞÖÆÊÇ16£¬²»ÄÜ¸ü¸Ä
-RANK_BASE = 10000   #ÖÖÈºÊÊÓ¦¶ÈµÄ×ÜºÍ(¼´Ïàµ±ÓÚ1),Ã¿¸ö1±íÊ¾Íò·ÖÖ®Ò»
+MAX_POPULATION_SIZE = 4096  #æœ€å¤§ç§ç¾¤å¤§å°
+#æœ€å°çš„é™åˆ¶æ˜¯16ï¼Œä¸èƒ½æ›´æ”¹
+RANK_BASE = 10000   #ç§ç¾¤é€‚åº”åº¦çš„æ€»å’Œ(å³ç›¸å½“äº1),æ¯ä¸ª1è¡¨ç¤ºä¸‡åˆ†ä¹‹ä¸€
 
 def accumulate(source):
     sum = 0
@@ -20,70 +20,70 @@ def accumulate(source):
         rev[i] = sum
     return rev
 
-######crossover(½»²æ/ÖØ×é)µÄ¿ØÖÆº¯Êı,¶ÔÓ¦ÓÚÎ»´®ºÍÊµÖµµÄgene
-def random_crossover(parent_genes1,parent_genes2):  #Ëæ»ú½»»»,#¿ÉÓÃÓÚÎ»´®ºÍÊµÖµ
+######crossover(äº¤å‰/é‡ç»„)çš„æ§åˆ¶å‡½æ•°,å¯¹åº”äºä½ä¸²å’Œå®å€¼çš„gene
+def random_crossover(parent_genes1,parent_genes2):  #éšæœºäº¤æ¢,#å¯ç”¨äºä½ä¸²å’Œå®å€¼
     assert len(parent_genes1) == len(parent_genes2)
     turning_points = random_crosspoints(len(parent_genes1))
     return weave(parent_genes1,parent_genes2,turning_points,exchange)
 
-def uniform_crossover(parent_genes1,parent_genes2):#¿ÉÓÃÓÚÎ»´®ºÍÊµÖµ
-    '''¾ùÔÈ(Ò»ÖÂ)½»²æ,Ã¿Ò»Î»¶¼ĞèÒªÑ¡Ôñ. Ñ¡ÔñµÄ¸ÅÂÊÊÇ0.5:0.5(¿ÉÄÜ0µÄ¸ÅÂÊ¶àÁË0.000...001)'''
+def uniform_crossover(parent_genes1,parent_genes2):#å¯ç”¨äºä½ä¸²å’Œå®å€¼
+    '''å‡åŒ€(ä¸€è‡´)äº¤å‰,æ¯ä¸€ä½éƒ½éœ€è¦é€‰æ‹©. é€‰æ‹©çš„æ¦‚ç‡æ˜¯0.5:0.5(å¯èƒ½0çš„æ¦‚ç‡å¤šäº†0.000...001)'''
     assert len(parent_genes1) == len(parent_genes2)
-    genes1,genes2 = parent_genes1[:],parent_genes2[:]   #×Ó´ú»ùÒòÄ¬ÈÏ¸´ÖÆ¸¸´ú
+    genes1,genes2 = parent_genes1[:],parent_genes2[:]   #å­ä»£åŸºå› é»˜è®¤å¤åˆ¶çˆ¶ä»£
     for i in xrange(len(parent_genes1)):
-        if(random.random() > 0.5):  #½»²æ
+        if(random.random() > 0.5):  #äº¤å‰
             genes1[i],genes2[i] = genes2[i],genes1[i]
     return genes1,genes2
 
-def single_point_crossover(parent_genes1,parent_genes2):#¿ÉÓÃÓÚÎ»´®ºÍÊµÖµ
-    ''' Á½¶Î½»»»(µ¥µã½»²æ,½»²æ·½Ê½Îª½»»»)
-        Ô­ÔòÉÏµ¥µã½»²æ¿ÉÒÔÓÃ²ÎÊıÎª1µÄ¶àµã½»²æÀ´Ìæ»»
-        µ«ÊÇÕâÀïÓĞÒ»¸ölen=2µÄÇéĞÎ£¬±ØÈ»ÊÇÖĞµã½»²æ£¬ËùÒÔĞèÒªÒ»¸öÌØÊâµÄ´¦Àí
+def single_point_crossover(parent_genes1,parent_genes2):#å¯ç”¨äºä½ä¸²å’Œå®å€¼
+    ''' ä¸¤æ®µäº¤æ¢(å•ç‚¹äº¤å‰,äº¤å‰æ–¹å¼ä¸ºäº¤æ¢)
+        åŸåˆ™ä¸Šå•ç‚¹äº¤å‰å¯ä»¥ç”¨å‚æ•°ä¸º1çš„å¤šç‚¹äº¤å‰æ¥æ›¿æ¢
+        ä½†æ˜¯è¿™é‡Œæœ‰ä¸€ä¸ªlen=2çš„æƒ…å½¢ï¼Œå¿…ç„¶æ˜¯ä¸­ç‚¹äº¤å‰ï¼Œæ‰€ä»¥éœ€è¦ä¸€ä¸ªç‰¹æ®Šçš„å¤„ç†
     '''
     assert len(parent_genes1) == len(parent_genes2)
-    genes1,genes2 = parent_genes1[:],parent_genes2[:]   #×Ó´ú»ùÒòÄ¬ÈÏ¸´ÖÆ¸¸´ú
-    if(len(parent_genes1) == 2):#Èç¹ûÖ»ÓĞÁ½¸öÔªËØ£¬Ôò½»²æÎ»±ØÈ»Îª1
+    genes1,genes2 = parent_genes1[:],parent_genes2[:]   #å­ä»£åŸºå› é»˜è®¤å¤åˆ¶çˆ¶ä»£
+    if(len(parent_genes1) == 2):#å¦‚æœåªæœ‰ä¸¤ä¸ªå…ƒç´ ï¼Œåˆ™äº¤å‰ä½å¿…ç„¶ä¸º1
         turning_points = [1]
     else:
-        turning_points = [random.randint(1,len(parent_genes1))]    #cpoint´¦Ò²½»²æ,²»Ñ¡0ÊÇ±ÜÃâÈ«²¿½»²æ£¬Ïàµ±ÓÚÃ»ÓĞ½»²æ
+        turning_points = [random.randint(1,len(parent_genes1))]    #cpointå¤„ä¹Ÿäº¤å‰,ä¸é€‰0æ˜¯é¿å…å…¨éƒ¨äº¤å‰ï¼Œç›¸å½“äºæ²¡æœ‰äº¤å‰
     return weave(parent_genes1,parent_genes2,turning_points,exchange)
 
-def single_point_crossover_g(parent_genes1,parent_genes2):#¿ÉÓÃÓÚÎ»´®ºÍÊµÖµ
-    ''' ±ê×¼Á½¶Î½»»»(µ¥µã½»²æ,½»²æ·½Ê½Îª½»»»)
-        Ã»ÓĞÌØÊâÇéĞÎµÄµ¥µã½»²æ£¬¿ÉÓÃÓÚbitgroup·½Ê½µÄ»ùÒò×é(bitgroup·½Ê½Ã¿Ò»¸ö»ùÒò×é×ÔÖ÷½»»»,Òò´ËÕûÌå²»¶¯»òÕûÌå»¥»»¶¼ÓĞÒâÒå)
-        Ïàµ±ÓÚmulti_points_crossover_factory(1)
+def single_point_crossover_g(parent_genes1,parent_genes2):#å¯ç”¨äºä½ä¸²å’Œå®å€¼
+    ''' æ ‡å‡†ä¸¤æ®µäº¤æ¢(å•ç‚¹äº¤å‰,äº¤å‰æ–¹å¼ä¸ºäº¤æ¢)
+        æ²¡æœ‰ç‰¹æ®Šæƒ…å½¢çš„å•ç‚¹äº¤å‰ï¼Œå¯ç”¨äºbitgroupæ–¹å¼çš„åŸºå› ç»„(bitgroupæ–¹å¼æ¯ä¸€ä¸ªåŸºå› ç»„è‡ªä¸»äº¤æ¢,å› æ­¤æ•´ä½“ä¸åŠ¨æˆ–æ•´ä½“äº’æ¢éƒ½æœ‰æ„ä¹‰)
+        ç›¸å½“äºmulti_points_crossover_factory(1)
     '''
     assert len(parent_genes1) == len(parent_genes2)
-    genes1,genes2 = parent_genes1[:],parent_genes2[:]   #×Ó´ú»ùÒòÄ¬ÈÏ¸´ÖÆ¸¸´ú
-    turning_points = [random.randint(0,len(parent_genes1))]    #cpoint´¦Ò²½»²æ,²»Ñ¡0ÊÇ±ÜÃâÈ«²¿½»²æ£¬Ïàµ±ÓÚÃ»ÓĞ½»²æ
+    genes1,genes2 = parent_genes1[:],parent_genes2[:]   #å­ä»£åŸºå› é»˜è®¤å¤åˆ¶çˆ¶ä»£
+    turning_points = [random.randint(0,len(parent_genes1))]    #cpointå¤„ä¹Ÿäº¤å‰,ä¸é€‰0æ˜¯é¿å…å…¨éƒ¨äº¤å‰ï¼Œç›¸å½“äºæ²¡æœ‰äº¤å‰
     return weave(parent_genes1,parent_genes2,turning_points,exchange)
 
-def multi_points_crossover_factory(number=2):  #¶àµã½»²æ¹¤³§
-    def crossover(parent_genes1,parent_genes2):#¿ÉÓÃÓÚÎ»´®ºÍÊµÖµ
-        '''¶à¶Î½»»»(¶àµã½»²æ,½»²æ·½Ê½Îª½»»»)'''
+def multi_points_crossover_factory(number=2):  #å¤šç‚¹äº¤å‰å·¥å‚
+    def crossover(parent_genes1,parent_genes2):#å¯ç”¨äºä½ä¸²å’Œå®å€¼
+        '''å¤šæ®µäº¤æ¢(å¤šç‚¹äº¤å‰,äº¤å‰æ–¹å¼ä¸ºäº¤æ¢)'''
         #print 'number:',number
         assert len(parent_genes1) == len(parent_genes2)
-        genes1,genes2 = parent_genes1[:],parent_genes2[:]   #×Ó´ú»ùÒòÄ¬ÈÏ¸´ÖÆ¸¸´ú
-        turning_points = [random.randint(0,len(parent_genes1)) for i in xrange(number)]  #½»²æµã
+        genes1,genes2 = parent_genes1[:],parent_genes2[:]   #å­ä»£åŸºå› é»˜è®¤å¤åˆ¶çˆ¶ä»£
+        turning_points = [random.randint(0,len(parent_genes1)) for i in xrange(number)]  #äº¤å‰ç‚¹
         turning_points.sort()
         return weave(genes1,genes2,turning_points,exchange)
     return crossover
 
-def discrete_crossover(parent_genes1,parent_genes2):#¿ÉÓÃÓÚÎ»´®ºÍÊµÖµ
-    '''ÀëÉ¢ÖØ×é£¬Óë¾ùÔÈ(Ò»ÖÂ)½»²æµÄÇø±ğÊÇÃ¿¸ö×Ó´®¶¼¿É×ÔÓÉÑ¡Ôñ£¬²»±ØÊÇ½»²æ(¿ÉÒÔÁ½¸ö×Ó´®µÄÄ³¸öµÈÎ»»ùÒò¶¼À´×ÔÍ¬Ò»¸öparent)'''
+def discrete_crossover(parent_genes1,parent_genes2):#å¯ç”¨äºä½ä¸²å’Œå®å€¼
+    '''ç¦»æ•£é‡ç»„ï¼Œä¸å‡åŒ€(ä¸€è‡´)äº¤å‰çš„åŒºåˆ«æ˜¯æ¯ä¸ªå­ä¸²éƒ½å¯è‡ªç”±é€‰æ‹©ï¼Œä¸å¿…æ˜¯äº¤å‰(å¯ä»¥ä¸¤ä¸ªå­ä¸²çš„æŸä¸ªç­‰ä½åŸºå› éƒ½æ¥è‡ªåŒä¸€ä¸ªparent)'''
     assert len(parent_genes1) == len(parent_genes2)
-    genes1,genes2 = parent_genes1[:],parent_genes1[:]   #×Ó´ú»ùÒòÄ¬ÈÏ¸´ÖÆparent1
+    genes1,genes2 = parent_genes1[:],parent_genes1[:]   #å­ä»£åŸºå› é»˜è®¤å¤åˆ¶parent1
     for i in xrange(len(parent_genes1)):
-        if(random.random() > 0.5):  #´¦Àí×Ó´®1
+        if(random.random() > 0.5):  #å¤„ç†å­ä¸²1
             genes1[i] = parent_genes2[i]
-        if(random.random() > 0.5):  #´¦Àí×Ó´®2
+        if(random.random() > 0.5):  #å¤„ç†å­ä¸²2
             genes2[i] = parent_genes2[i]
     return genes1,genes2
 
-def middle_crossover(parent_genes1,parent_genes2,d=0.25):#Ö»ÓÃÓÚÊµÖµ
-    ''' ÖĞ¼äÖØ×é ×Ó¸öÌå = ¸¸¸öÌå1 + a*(¸¸¸öÌå2-¸¸¸öÌå1)
-        aÊÇ´¦ÓÚ[-d,1+d]ÉÏµÄËæ»úÊı£¬Í¨³£dÈ¡0.25
-        Ã¿¸ö×Ó´úµÄÃ¿¸ö»ùÒò¶¼ÓĞ¶ÀÁ¢µÄaÖµ
+def middle_crossover(parent_genes1,parent_genes2,d=0.25):#åªç”¨äºå®å€¼
+    ''' ä¸­é—´é‡ç»„ å­ä¸ªä½“ = çˆ¶ä¸ªä½“1 + a*(çˆ¶ä¸ªä½“2-çˆ¶ä¸ªä½“1)
+        aæ˜¯å¤„äº[-d,1+d]ä¸Šçš„éšæœºæ•°ï¼Œé€šå¸¸då–0.25
+        æ¯ä¸ªå­ä»£çš„æ¯ä¸ªåŸºå› éƒ½æœ‰ç‹¬ç«‹çš„aå€¼
     '''
     assert len(parent_genes1) == len(parent_genes2)
     genes1,genes2 = [],[]
@@ -96,12 +96,12 @@ def middle_crossover(parent_genes1,parent_genes2,d=0.25):#Ö»ÓÃÓÚÊµÖµ
     #print genes1,genes2
     return genes1,genes2
         
-def middle_sym_crossover(parent_genes1,parent_genes2,d=0.25):#Ö»ÓÃÓÚÊµÖµ
-    ''' ¶Ô³ÆÖĞ¼äÖØ×é 
-        ×Ó¸öÌå1 = ¸¸¸öÌå1 + a*(¸¸¸öÌå2-¸¸¸öÌå1)
-        ×Ó¸öÌå2 = ¸¸¸öÌå2 + a*(¸¸¸öÌå1-¸¸¸öÌå2)
-        aÊÇ´¦ÓÚ[-d,1+d]ÉÏµÄËæ»úÊı£¬Í¨³£dÈ¡0.25
-        Á½¸ö×Ó´úµÄÃ¿¶ÔµÈÎ»»ùÒò¹²ÏíÒ»¸ö¶ÀÁ¢µÄaÖµ
+def middle_sym_crossover(parent_genes1,parent_genes2,d=0.25):#åªç”¨äºå®å€¼
+    ''' å¯¹ç§°ä¸­é—´é‡ç»„ 
+        å­ä¸ªä½“1 = çˆ¶ä¸ªä½“1 + a*(çˆ¶ä¸ªä½“2-çˆ¶ä¸ªä½“1)
+        å­ä¸ªä½“2 = çˆ¶ä¸ªä½“2 + a*(çˆ¶ä¸ªä½“1-çˆ¶ä¸ªä½“2)
+        aæ˜¯å¤„äº[-d,1+d]ä¸Šçš„éšæœºæ•°ï¼Œé€šå¸¸då–0.25
+        ä¸¤ä¸ªå­ä»£çš„æ¯å¯¹ç­‰ä½åŸºå› å…±äº«ä¸€ä¸ªç‹¬ç«‹çš„aå€¼
     '''
     assert len(parent_genes1) == len(parent_genes2)
     genes1,genes2 = [],[]
@@ -113,10 +113,10 @@ def middle_sym_crossover(parent_genes1,parent_genes2,d=0.25):#Ö»ÓÃÓÚÊµÖµ
     return genes1,genes2
 
 
-def linear_crossover(parent_genes1,parent_genes2,d=0.25):#Ö»ÓÃÓÚÊµÖµ
-    ''' ÏßĞÔÖØ×é ×Ó¸öÌå = ¸¸¸öÌå1 + a*(¸¸¸öÌå2-¸¸¸öÌå1)
-        aÊÇ´¦ÓÚ[-d,1+d]ÉÏµÄËæ»úÊı£¬Í¨³£dÈ¡0.25
-        Ã¿¸ö×Ó´ú¹²ÏíÒ»¸ö¶ÀÁ¢µÄaÖµ
+def linear_crossover(parent_genes1,parent_genes2,d=0.25):#åªç”¨äºå®å€¼
+    ''' çº¿æ€§é‡ç»„ å­ä¸ªä½“ = çˆ¶ä¸ªä½“1 + a*(çˆ¶ä¸ªä½“2-çˆ¶ä¸ªä½“1)
+        aæ˜¯å¤„äº[-d,1+d]ä¸Šçš„éšæœºæ•°ï¼Œé€šå¸¸då–0.25
+        æ¯ä¸ªå­ä»£å…±äº«ä¸€ä¸ªç‹¬ç«‹çš„aå€¼
     '''
     assert len(parent_genes1) == len(parent_genes2)
     genes1,genes2 = [],[]
@@ -128,12 +128,12 @@ def linear_crossover(parent_genes1,parent_genes2,d=0.25):#Ö»ÓÃÓÚÊµÖµ
         genes2.append(parent_genes1[i] + a2 * (parent_genes2[i]-parent_genes1[i]))
     return genes1,genes2
 
-def linear_sym_crossover(parent_genes1,parent_genes2,d=0.25):#Ö»ÓÃÓÚÊµÖµ
-    ''' ¶Ô³ÆÏßĞÔÖØ×é 
-        ×Ó¸öÌå1 = ¸¸¸öÌå1 + a*(¸¸¸öÌå2-¸¸¸öÌå1)
-        ×Ó¸öÌå2 = ¸¸¸öÌå2 + a*(¸¸¸öÌå1-¸¸¸öÌå2)
-        aÊÇ´¦ÓÚ[-d,1+d]ÉÏµÄËæ»úÊı£¬Í¨³£dÈ¡0.25
-        ËùÓĞ×Ó´ú¹²ÏíaÖµ
+def linear_sym_crossover(parent_genes1,parent_genes2,d=0.25):#åªç”¨äºå®å€¼
+    ''' å¯¹ç§°çº¿æ€§é‡ç»„ 
+        å­ä¸ªä½“1 = çˆ¶ä¸ªä½“1 + a*(çˆ¶ä¸ªä½“2-çˆ¶ä¸ªä½“1)
+        å­ä¸ªä½“2 = çˆ¶ä¸ªä½“2 + a*(çˆ¶ä¸ªä½“1-çˆ¶ä¸ªä½“2)
+        aæ˜¯å¤„äº[-d,1+d]ä¸Šçš„éšæœºæ•°ï¼Œé€šå¸¸då–0.25
+        æ‰€æœ‰å­ä»£å…±äº«aå€¼
     '''
     assert len(parent_genes1) == len(parent_genes2)
     genes1,genes2 = [],[]
@@ -145,12 +145,12 @@ def linear_sym_crossover(parent_genes1,parent_genes2,d=0.25):#Ö»ÓÃÓÚÊµÖµ
     return genes1,genes2
 
 def bitgroups_crossover_factory(bitgroups,icrossover=single_point_crossover,icrossover_rate=1.01):
-    ''' Î»´®»ùÒò×é½»²æº¯Êı
-        bitgroupsÎªÎ»´®×éµÄsizeÁĞ±í£¬·Ö±ğ±íÊ¾¶àÉÙ¸öÁ¬ĞøÎ»×é³ÉÒ»×éÒÔ±íÊ¾Ò»¸öÊı×Ö
-        icrossoverÎªÎ»´®×éµÄ½»²æ·½·¨
-        icrossoverrateÎªÍâ²¿¾ö¶¨crossoverÖ®ºó£¬ÄÚ²¿¸÷»ùÒò×éµÄcrossover¸ÅÂÊ. 
-            icrossover > 1±íÊ¾Ö»Òª½øÈëÕâ¸öº¯Êı£¬Ã¿¸ö¶¨Î»»ùÒò±ØÈ»ÒÔicrossover·½Ê½½»²æ
-        Èç¹ûicrossover = uniform_crossover,ÇÒicrossover_rate>1.0£¬ÔòÏàµ±ÓÚÖ±½ÓÊ¹ÓÃuniform_crossover
+    ''' ä½ä¸²åŸºå› ç»„äº¤å‰å‡½æ•°
+        bitgroupsä¸ºä½ä¸²ç»„çš„sizeåˆ—è¡¨ï¼Œåˆ†åˆ«è¡¨ç¤ºå¤šå°‘ä¸ªè¿ç»­ä½ç»„æˆä¸€ç»„ä»¥è¡¨ç¤ºä¸€ä¸ªæ•°å­—
+        icrossoverä¸ºä½ä¸²ç»„çš„äº¤å‰æ–¹æ³•
+        icrossoverrateä¸ºå¤–éƒ¨å†³å®šcrossoverä¹‹åï¼Œå†…éƒ¨å„åŸºå› ç»„çš„crossoveræ¦‚ç‡. 
+            icrossover > 1è¡¨ç¤ºåªè¦è¿›å…¥è¿™ä¸ªå‡½æ•°ï¼Œæ¯ä¸ªå®šä½åŸºå› å¿…ç„¶ä»¥icrossoveræ–¹å¼äº¤å‰
+        å¦‚æœicrossover = uniform_crossover,ä¸”icrossover_rate>1.0ï¼Œåˆ™ç›¸å½“äºç›´æ¥ä½¿ç”¨uniform_crossover
     '''
     def crossover(parent_genes1,parent_genes2):
         assert len(parent_genes1) == len(parent_genes2) == sum(bitgroups)
@@ -170,17 +170,17 @@ def bitgroups_crossover_factory(bitgroups,icrossover=single_point_crossover,icro
         return genes1,genes2
     return crossover
 
-###ÖØ×é/½»²æÄ£°åº¯Êı###
+###é‡ç»„/äº¤å‰æ¨¡æ¿å‡½æ•°###
 def weave(parent_genes1,parent_genes2,turning_points,weave_functor): 
-    ''' ÖØ×é×Ó,¸ù¾İÁ½¸ö¸¸»ùÒò×éºÍ½»²æ×ªÕÛµã(turning_points£¬½»²æ×´Ì¬µÄ·´×ªµã)£¬ÒÔ¼°½»²æ×´Ì¬ÏÂµÄ²Ù×÷º¯Êıweave_functor
-        Éú³É×Ó´ú»ùÒò
+    ''' é‡ç»„å­,æ ¹æ®ä¸¤ä¸ªçˆ¶åŸºå› ç»„å’Œäº¤å‰è½¬æŠ˜ç‚¹(turning_pointsï¼Œäº¤å‰çŠ¶æ€çš„åè½¬ç‚¹)ï¼Œä»¥åŠäº¤å‰çŠ¶æ€ä¸‹çš„æ“ä½œå‡½æ•°weave_functor
+        ç”Ÿæˆå­ä»£åŸºå› 
     '''
     assert len(parent_genes1) == len(parent_genes2)
     if(len(turning_points) == 0):
         return parent_genes1,parent_genes2
     assert turning_points[-1] <= len(parent_genes2)
-    genes1,genes2 = parent_genes1[:],parent_genes2[:]   #×Ó´ú»ùÒòÄ¬ÈÏ¸´ÖÆ¸¸´ú
-    ttps = turning_points + [len(parent_genes1)]    #ÉÚ±øµã,±ØÒªÊ±Æô¶¯×îºóÒ»¶ÎµÄ½»²æ
+    genes1,genes2 = parent_genes1[:],parent_genes2[:]   #å­ä»£åŸºå› é»˜è®¤å¤åˆ¶çˆ¶ä»£
+    ttps = turning_points + [len(parent_genes1)]    #å“¨å…µç‚¹,å¿…è¦æ—¶å¯åŠ¨æœ€åä¸€æ®µçš„äº¤å‰
     #print ttps
     pre = 0
     cross_flag = False
@@ -191,22 +191,22 @@ def weave(parent_genes1,parent_genes2,turning_points,weave_functor):
         pre = tp
     return genes1,genes2
 
-#¾ßÌåµÄÖØ×é/½»²æº¯Êı
-def exchange(genes1,genes2,begin,end): #µÈÎ»½»»»½»²æ×Ó,½»²æ´Ó[begin,end)µÄµÈÎ»»ùÒò
+#å…·ä½“çš„é‡ç»„/äº¤å‰å‡½æ•°
+def exchange(genes1,genes2,begin,end): #ç­‰ä½äº¤æ¢äº¤å‰å­,äº¤å‰ä»[begin,end)çš„ç­‰ä½åŸºå› 
     assert len(genes1) == len(genes2)
     assert 0 <= begin  <= end <= len(genes1)
     for index in xrange(begin,end):
         genes1[index],genes2[index] = genes2[index],genes1[index]
     return genes1,genes2
 
-###ÆäËüµÄÖØ×é/½»²æ¸¨Öúº¯Êı
+###å…¶å®ƒçš„é‡ç»„/äº¤å‰è¾…åŠ©å‡½æ•°
 def random_crosspoints(gene_length):
-    ''' Ëæ»ú¶àµã½»²æ
-        ¼ÆËã¸÷¸ö²¿·ÖµÄÖØ×é×ªÕÛµã
-        ´Ó0µ½µÚÒ»¸ö×ªÕÛµãµÄ²¿·ÖÎªµÚÒ»²¿·Ö£¬ÒÀ´ÎÎªµÚ¶ş¡¢Èı¡¢ËÄ....
-        Ã¿¸öÆæÊı²¿·Ö²»½»²æ(0±íÊ¾)£¬Å¼Êı²¿·Ö½»²æ(1±íÊ¾)
+    ''' éšæœºå¤šç‚¹äº¤å‰
+        è®¡ç®—å„ä¸ªéƒ¨åˆ†çš„é‡ç»„è½¬æŠ˜ç‚¹
+        ä»0åˆ°ç¬¬ä¸€ä¸ªè½¬æŠ˜ç‚¹çš„éƒ¨åˆ†ä¸ºç¬¬ä¸€éƒ¨åˆ†ï¼Œä¾æ¬¡ä¸ºç¬¬äºŒã€ä¸‰ã€å››....
+        æ¯ä¸ªå¥‡æ•°éƒ¨åˆ†ä¸äº¤å‰(0è¡¨ç¤º)ï¼Œå¶æ•°éƒ¨åˆ†äº¤å‰(1è¡¨ç¤º)
     '''
-    lastpart = random.randint(1,gene_length)    #lastpart²»ÄÜÎª0£¬·ñÔò½«²»»á½øÈëÑ­»·
+    lastpart = random.randint(1,gene_length)    #lastpartä¸èƒ½ä¸º0ï¼Œå¦åˆ™å°†ä¸ä¼šè¿›å…¥å¾ªç¯
     turning_points = []
     curpoint = 0
     while(curpoint < lastpart):
@@ -215,8 +215,8 @@ def random_crosspoints(gene_length):
         turning_points.append(curpoint)
     return turning_points
 
-######ÊÊÓ¦¶È
-###ÊÊÓ¦¶È¼ÆËã
+######é€‚åº”åº¦
+###é€‚åº”åº¦è®¡ç®—
 def linear_rank(scores):
     return _simple_rank(scores,_calc_linear_rank)
 
@@ -229,22 +229,22 @@ def intround(fv):
 _indices = xrange(MAX_POPULATION_SIZE)
 def _simple_rank(scores,rank_functor,*args):
     pairs = zip(scores,_indices)
-    pairs.sort()    #ÅÅĞò
-    pairs.reverse() #µ¹Ğò£¬·ÖÖµ×î¸ßµÄÔÚ×îÇ°Ãæ
+    pairs.sort()    #æ’åº
+    pairs.reverse() #å€’åºï¼Œåˆ†å€¼æœ€é«˜çš„åœ¨æœ€å‰é¢
     ranks = rank_functor(len(scores),*args)
     orders = zip([second for first,second in pairs],ranks)
     orders.sort()
     return [second for first,second in orders]
 
-###ÊÊÓ¦¶ÈÊıÖµ»º´æ
+###é€‚åº”åº¦æ•°å€¼ç¼“å­˜
 cached_linear_ranks = {}
 cached_nonlinear_ranks = {}
-#ÏßĞÔÊÊÓ¦¶È¼ÆËã
+#çº¿æ€§é€‚åº”åº¦è®¡ç®—
 def _calc_linear_rank(length,first_times = 1.8): 
-    ''' ¸ù¾İ<ÒÅ´«Ëã·¨--ÀíÂÛ¡¢Ó¦ÓÃÓëÈí¼şÊµÏÖp29,¹«Ê½2.50
-        ·µ»ØµÄÁĞ±íÖĞÃ¿¸öÔªËØ¶¼ÊÇÒÔ0.0001Îªµ¥Î»µÄÕûÊı£¬±íÊ¾¸ÅÂÊ
-        Õâ¸öËã·¨¶ÔlengthÃ»ÓĞÒªÇó
-        µ«ÊÇ 1 < first_times < 2 (<1±äÎªµ¹Ğò£¬>2»áÔÚ×îºó²¿·Ö³öÏÖ¸ºÊı)
+    ''' æ ¹æ®<é—ä¼ ç®—æ³•--ç†è®ºã€åº”ç”¨ä¸è½¯ä»¶å®ç°p29,å…¬å¼2.50
+        è¿”å›çš„åˆ—è¡¨ä¸­æ¯ä¸ªå…ƒç´ éƒ½æ˜¯ä»¥0.0001ä¸ºå•ä½çš„æ•´æ•°ï¼Œè¡¨ç¤ºæ¦‚ç‡
+        è¿™ä¸ªç®—æ³•å¯¹lengthæ²¡æœ‰è¦æ±‚
+        ä½†æ˜¯ 1 < first_times < 2 (<1å˜ä¸ºå€’åºï¼Œ>2ä¼šåœ¨æœ€åéƒ¨åˆ†å‡ºç°è´Ÿæ•°)
     '''
     ranks_key = '%s_%s' % (length,first_times)
     if(ranks_key in cached_linear_ranks):
@@ -259,18 +259,18 @@ def _calc_linear_rank(length,first_times = 1.8):
         ranks.append(intround(RANK_BASE * d1 * (first_times - ns*i*d2)))
     #print ranks,sum(ranks)
     epsl = RANK_BASE - sum(ranks)
-    ranks[0] += epsl    #²î¶î¼Óµ½µÚÒ»¸ö
+    ranks[0] += epsl    #å·®é¢åŠ åˆ°ç¬¬ä¸€ä¸ª
     cached_linear_ranks[ranks_key] = ranks
     return ranks
 
-#·ÇÏßĞÔÊÊÓ¦¶È¼ÆËã
+#éçº¿æ€§é€‚åº”åº¦è®¡ç®—
 def _calc_nonlinear_rank(length,first=0.2):
-    ''' ¸ù¾İ<ÒÅ´«Ëã·¨--ÀíÂÛ¡¢Ó¦ÓÃÓëÈí¼şÊµÏÖp30,¹«Ê½2.51
-        ·µ»ØµÄÁĞ±íÖĞÃ¿¸öÔªËØ¶¼ÊÇÒÔ0.0001Îªµ¥Î»µÄÕûÊı£¬±íÊ¾¸ÅÂÊ
-        ÒªÇólength>=16. (·ñÔò¼ÆËãÎó²îºÜÄÑºöÂÔ)
-        firstÎªÅÅĞòµÚÒ»µÄÔªËØµÄ¸ÅÂÊ£¬Ä¬ÈÏÎª0.2£¬²¢ÇÒ 0 < first < 1 (ÒòÎªÓĞepslµÄµ÷Õû£¬ËùÒÔfirstÖ»Òª>0¾Í¿ÉÒÔ.Îª0ÔòµÚÒ»ÔªËØÎª10000£¬²»ºÏ·¨)
+    ''' æ ¹æ®<é—ä¼ ç®—æ³•--ç†è®ºã€åº”ç”¨ä¸è½¯ä»¶å®ç°p30,å…¬å¼2.51
+        è¿”å›çš„åˆ—è¡¨ä¸­æ¯ä¸ªå…ƒç´ éƒ½æ˜¯ä»¥0.0001ä¸ºå•ä½çš„æ•´æ•°ï¼Œè¡¨ç¤ºæ¦‚ç‡
+        è¦æ±‚length>=16. (å¦åˆ™è®¡ç®—è¯¯å·®å¾ˆéš¾å¿½ç•¥)
+        firstä¸ºæ’åºç¬¬ä¸€çš„å…ƒç´ çš„æ¦‚ç‡ï¼Œé»˜è®¤ä¸º0.2ï¼Œå¹¶ä¸” 0 < first < 1 (å› ä¸ºæœ‰epslçš„è°ƒæ•´ï¼Œæ‰€ä»¥firståªè¦>0å°±å¯ä»¥.ä¸º0åˆ™ç¬¬ä¸€å…ƒç´ ä¸º10000ï¼Œä¸åˆæ³•)
     '''
-    assert length >= 16 #Èç¹ûlengthÌ«Ğ¡£¬Õâ¸öËã·¨ÊÇÓĞÎÊÌâµÄ
+    assert length >= 16 #å¦‚æœlengthå¤ªå°ï¼Œè¿™ä¸ªç®—æ³•æ˜¯æœ‰é—®é¢˜çš„
     ranks_key = '%s_%s' % (length,first)
     if(ranks_key in cached_nonlinear_ranks):
         return cached_nonlinear_ranks[ranks_key]
@@ -281,18 +281,18 @@ def _calc_nonlinear_rank(length,first=0.2):
         cur = cur * factor
         ranks.append(intround(cur * RANK_BASE))
     epsl = RANK_BASE - sum(ranks)
-    ranks[0] += epsl    #²î¶î¼Óµ½µÚÒ»¸ö
+    ranks[0] += epsl    #å·®é¢åŠ åˆ°ç¬¬ä¸€ä¸ª
     cached_nonlinear_ranks[ranks_key] = ranks
     return ranks
 
-######Ñ¡ÔñËã·¨,ËùÓĞµÄÑ¡ÔñËã·¨¶¼·µ»Ø2¸ö³¤¶ÈÎªÖÖÈº³¤¶È*2µÄĞòÁĞ,µÚÒ»¸öĞòÁĞÎªËæ»úĞòÁĞ£¬µÚ¶ş¸öĞòÁĞÎªÇ°ÕßµÄÅä¶ÔĞòÁĞ(µ±µÚÒ»ĞòÁĞÔªËØĞèÒªÅä¶ÔµÄÊ±ºò)
-###ÕâÑù£¬¾ÍÄÜ´¦Àí¾Ö²¿Ñ¡Ôñ·¨
-#ÂÖÅÌÑ¡Ôñ
+######é€‰æ‹©ç®—æ³•,æ‰€æœ‰çš„é€‰æ‹©ç®—æ³•éƒ½è¿”å›2ä¸ªé•¿åº¦ä¸ºç§ç¾¤é•¿åº¦*2çš„åºåˆ—,ç¬¬ä¸€ä¸ªåºåˆ—ä¸ºéšæœºåºåˆ—ï¼Œç¬¬äºŒä¸ªåºåˆ—ä¸ºå‰è€…çš„é…å¯¹åºåˆ—(å½“ç¬¬ä¸€åºåˆ—å…ƒç´ éœ€è¦é…å¯¹çš„æ—¶å€™)
+###è¿™æ ·ï¼Œå°±èƒ½å¤„ç†å±€éƒ¨é€‰æ‹©æ³•
+#è½®ç›˜é€‰æ‹©
 def roulette(sums):
     v = random.randint(0,sums[-1])
     return locate(sums,v)
 
-#ĞòÁĞ¾àÀë
+#åºåˆ—è·ç¦»
 bits = [0,1]
 dcache = {}
 
@@ -306,22 +306,22 @@ def cached_distance2(seq1,seq2):
         pass
     return dcache[skey]
 
-def distance2(seq1,seq2):   #ÇóÁ½¸öĞòÁĞµÄ¾àÀë
+def distance2(seq1,seq2):   #æ±‚ä¸¤ä¸ªåºåˆ—çš„è·ç¦»
     assert len(seq1) > 0
     if(isinstance(seq1[0],int)):
         if(seq1[0] not in bits or seq1[-1] not in bits or seq2[0] not in bits or seq2[1] not in bits):
-            #ÏÈ×÷¼òµ¥ÅĞ¶Ï£¬±ÜÃâÏÂÃæÒ»¸öÅĞ¶ÏµÄºÄÊ±²Ù×÷
+            #å…ˆä½œç®€å•åˆ¤æ–­ï¼Œé¿å…ä¸‹é¢ä¸€ä¸ªåˆ¤æ–­çš„è€—æ—¶æ“ä½œ
             return distance2i(seq1,seq2)
-        elif(set(seq1).issubset([0,1])):#ÂÔÈ¥¶Ôset(seq2)µÄÅĞ¶Ï
+        elif(set(seq1).issubset([0,1])):#ç•¥å»å¯¹set(seq2)çš„åˆ¤æ–­
             return distance2b(seq1,seq2)
-        else:#ÈÔÈ»ÊÇÕûÊıĞòÁĞ
+        else:#ä»ç„¶æ˜¯æ•´æ•°åºåˆ—
             return distance2i(seq1,seq2)
     elif(isinstance(seq1[0],str)):
         return distance2c(seq1,seq2)
     else:
         assert False
 
-def distance2c(seq1,seq2):#ÇóÁ½¸ö×Ö·ûĞòÁĞµÄ¾àÀë
+def distance2c(seq1,seq2):#æ±‚ä¸¤ä¸ªå­—ç¬¦åºåˆ—çš„è·ç¦»
     assert len(seq1) == len(seq2)
     sum = 0
     for i in xrange(len(seq1)):
@@ -329,25 +329,25 @@ def distance2c(seq1,seq2):#ÇóÁ½¸ö×Ö·ûĞòÁĞµÄ¾àÀë
         sum += sd * sd
     return sum
 
-def distance2i(seq1,seq2):   #ÇóÁ½¸öÊµÊıĞòÁĞµÄ¾àÀë
+def distance2i(seq1,seq2):   #æ±‚ä¸¤ä¸ªå®æ•°åºåˆ—çš„è·ç¦»
     assert len(seq1) == len(seq2)
     sum = 0
     for i in xrange(len(seq1)):
         sum += (seq1[i] - seq2[i]) * (seq1[i] - seq2[i])
     return sum
 
-def distance2b(seq1,seq2):   #ÇóÁ½¸öÎ»ĞòÁĞµÄÏà²îÎ»Êı
+def distance2b(seq1,seq2):   #æ±‚ä¸¤ä¸ªä½åºåˆ—çš„ç›¸å·®ä½æ•°
     assert len(seq1) == len(seq2)
     sum = 0
     for i in xrange(len(seq1)):
         sum += seq1[i] - seq2[i] > 0 and seq1[i] - seq2[i] or seq2[i] - seq1[i]
     return sum
 
-##²éÕÒÁÚ¼¯
-#ÕûÊıÁÚ¼¯
+##æŸ¥æ‰¾é‚»é›†
+#æ•´æ•°é‚»é›†
 def find_adjacents(population,seed,adj_number,distancer = cached_distance2):
-    ''' populationÎªÖÖÈºĞòÁĞ,seedÎªÑ¡ÖĞµÄ¸öÌå,adj_numberÎª¸ÃË÷ÒıÖĞĞèÒªÑ¡³öµÄ×î½ü¾àÀëµÄÁÚ¾ÓÊı
-        ·µ»ØÕÒµ½µÄÁÚ¼¯µÄË÷Òı
+    ''' populationä¸ºç§ç¾¤åºåˆ—,seedä¸ºé€‰ä¸­çš„ä¸ªä½“,adj_numberä¸ºè¯¥ç´¢å¼•ä¸­éœ€è¦é€‰å‡ºçš„æœ€è¿‘è·ç¦»çš„é‚»å±…æ•°
+        è¿”å›æ‰¾åˆ°çš„é‚»é›†çš„ç´¢å¼•
     '''
     assert adj_number < len(population)
     distance2s = [distancer(seed.genes,unit.genes) for unit in population]
@@ -355,15 +355,15 @@ def find_adjacents(population,seed,adj_number,distancer = cached_distance2):
     pairs.sort()
     return [index for distance,index in pairs[1:adj_number+1]]
 
-#ÂÖÅÌ¶ÄÑ¡ÔñËã·¨
+#è½®ç›˜èµŒé€‰æ‹©ç®—æ³•
 def roulette_wheel_selection_factory(times=1):
     assert isinstance(times,int)
     def roulette_wheel_selection(population,fitness):
         assert len(fitness) > 0
         length = times * len(fitness)
-        sums = accumulate(fitness)    #ÌìÈ»ÅÅĞò
+        sums = accumulate(fitness)    #å¤©ç„¶æ’åº
         seeds = []
-        gametes = []    #ÅäÅ¼×Ó
+        gametes = []    #é…å¶å­
         for i in xrange(0,length):
             seed = population[roulette(sums)]
             gamete = population[roulette(sums)]
@@ -374,7 +374,7 @@ def roulette_wheel_selection_factory(times=1):
         return seeds,gametes
     return roulette_wheel_selection
 
-#½Ø¶ÏÑ¡Ôñ·¨
+#æˆªæ–­é€‰æ‹©æ³•
 def truncate_selection_factory(times=1,truncate_rate=0.5):
     assert isinstance(times,int)
     def truncate_selection(population,fitness):
@@ -386,7 +386,7 @@ def truncate_selection_factory(times=1,truncate_rate=0.5):
         snumber = int(len(pairs) * truncate_rate + 0.5)
         pool = [ cell for fit,cell in pairs][:snumber]
         seeds = []
-        gametes = []    #ÅäÅ¼×Ó
+        gametes = []    #é…å¶å­
         for i in xrange(length):
             seed = random.choice(pool)
             gamete = random.choice(pool)
@@ -397,17 +397,17 @@ def truncate_selection_factory(times=1,truncate_rate=0.5):
         return seeds,gametes
     return truncate_selection
 
-#×î½üÁÚ¼¯Ñ¡Ôñ·¨¹¤³§ ÀàËÆÓÚp31ÖĞµÄÏßĞÔÁÚ¼¯£¬µ«À©É¢Ğ§ÂÊºã¶¨
-#Õâ¸ö·½·¨¼ÆËã¿ªÏúºÜ´ó£¬Ã¿Ò»´ú±ØĞë×öÖÖÈº´óĞ¡´ÎÊıµÄdistance sort.
+#æœ€è¿‘é‚»é›†é€‰æ‹©æ³•å·¥å‚ ç±»ä¼¼äºp31ä¸­çš„çº¿æ€§é‚»é›†ï¼Œä½†æ‰©æ•£æ•ˆç‡æ’å®š
+#è¿™ä¸ªæ–¹æ³•è®¡ç®—å¼€é”€å¾ˆå¤§ï¼Œæ¯ä¸€ä»£å¿…é¡»åšç§ç¾¤å¤§å°æ¬¡æ•°çš„distance sort.
 def adjacent_selection_factory(times=1,adj_factor = 0.2,adj_finder = find_adjacents):
-    def adjacent_selection(population,fitness):    #adjnumberÁÚ½ÓÒò×Ó,ÎªÖÖÈºÊıµÄÒ»¸ö°Ù·Ö±È
-        ''' ¶ÔÓÚ´ÓfitnessÖĞÕÒµ½µÄÃ¿¸öËæ»úµã£¬Æägemete´Ó¾àÀë×î½üµÄlen(fitness) * adj_factor¸öÔªËØÖĞËæ»úÑ¡Ôñ'''
+    def adjacent_selection(population,fitness):    #adjnumberé‚»æ¥å› å­,ä¸ºç§ç¾¤æ•°çš„ä¸€ä¸ªç™¾åˆ†æ¯”
+        ''' å¯¹äºä»fitnessä¸­æ‰¾åˆ°çš„æ¯ä¸ªéšæœºç‚¹ï¼Œå…¶gemeteä»è·ç¦»æœ€è¿‘çš„len(fitness) * adj_factorä¸ªå…ƒç´ ä¸­éšæœºé€‰æ‹©'''
         length = times * len(fitness)
         adj_number = intround(len(fitness) * adj_factor)
         #print adj_number,len(population),len(fitness),len(fitness) * adj_factor
-        sums = accumulate(fitness)    #ÌìÈ»ÅÅĞò
+        sums = accumulate(fitness)    #å¤©ç„¶æ’åº
         seeds = []
-        gametes = []    #ÅäÅ¼×Ó
+        gametes = []    #é…å¶å­
         for i in xrange(0,length):
             seed = population[roulette(sums)]
             seeds.append(seed)
@@ -416,20 +416,20 @@ def adjacent_selection_factory(times=1,adj_factor = 0.2,adj_finder = find_adjace
         return seeds,gametes
     return adjacent_selection
 
-######±äÒìËã·¨
-#ÕûÊıµÄ¶ş½øÖÆ±íÊ¾Î»Êı¼ÆËã
+######å˜å¼‚ç®—æ³•
+#æ•´æ•°çš„äºŒè¿›åˆ¶è¡¨ç¤ºä½æ•°è®¡ç®—
 def calc_bitnumber(uplimit):
     return int(log(uplimit,2)+0.99999)
 
-#ÕûÊıµÄÒ»Î»±äÒì
+#æ•´æ•°çš„ä¸€ä½å˜å¼‚
 def integer_mutation1(value,bitnumber):
-    ''' bitnumberÎª¸ÃÕûÊıµÄÉÏÏŞËùÕ¼µÄ¶ş½øÖÆÎ»Êı'''
+    ''' bitnumberä¸ºè¯¥æ•´æ•°çš„ä¸Šé™æ‰€å çš„äºŒè¿›åˆ¶ä½æ•°'''
     bit = random.randint(0,bitnumber-1)
     xorv = 1 << bit
     return value ^ xorv
     
-######·±Ö³¿ØÖÆËã·¨
-#¼òµ¥·±Ö³Ëã·¨¹¤³§. crossover_rate¾ö¶¨ÊÇ·ñ½»²æ£¬Èô²»½»²æÔòÖ±½Ó¸´ÖÆ
+######ç¹æ®–æ§åˆ¶ç®—æ³•
+#ç®€å•ç¹æ®–ç®—æ³•å·¥å‚. crossover_rateå†³å®šæ˜¯å¦äº¤å‰ï¼Œè‹¥ä¸äº¤å‰åˆ™ç›´æ¥å¤åˆ¶
 def simple_reproducer_factory(crossover_rate,mutation_rate): 
     def reproducer(seeds,gametes):
         #print seeds
@@ -448,7 +448,7 @@ def simple_reproducer_factory(crossover_rate,mutation_rate):
     reproducer.times_of_length = 1
     return reproducer
 
-#2Éú1. crossover_rate¾ö¶¨ÊÇ·ñ½»²æ£¬Èô²»½»²æÔòÖ±½Ó¸´ÖÆ
+#2ç”Ÿ1. crossover_rateå†³å®šæ˜¯å¦äº¤å‰ï¼Œè‹¥ä¸äº¤å‰åˆ™ç›´æ¥å¤åˆ¶
 def simple21_reproducer_factory(crossover_rate,mutation_rate): 
     def reproducer(seeds,gametes):
         #print seeds
@@ -458,7 +458,7 @@ def simple21_reproducer_factory(crossover_rate,mutation_rate):
         while(len(children) < len(seeds)):
             if(random.random() < crossover_rate):
                 child1,child2 = seeds[cur].mate(gametes[cur],mutation_rate)
-                children.append(child1) #È¡µÚÒ»¸ö×Ó´ú
+                children.append(child1) #å–ç¬¬ä¸€ä¸ªå­ä»£
                 cur += 1
             else:
                 children.append(seeds[cur])
@@ -468,15 +468,15 @@ def simple21_reproducer_factory(crossover_rate,mutation_rate):
     reproducer.times_of_length = 1
     return reproducer
 
-######ÆäËü¸¨Öúº¯Êı
-def bits2int(bits): #½«bitsÁĞ±í×ª»»ÎªÏàÓ¦µÄintÖµ,ÆäÖĞ¸ßÎ»ÔÚÇ°£¬Èç[1,0,0,1,1] ==> 19
+######å…¶å®ƒè¾…åŠ©å‡½æ•°
+def bits2int(bits): #å°†bitsåˆ—è¡¨è½¬æ¢ä¸ºç›¸åº”çš„intå€¼,å…¶ä¸­é«˜ä½åœ¨å‰ï¼Œå¦‚[1,0,0,1,1] ==> 19
     value = 0
     length = len(bits)
     for i in xrange(length):
         value += pow(2,length - i - 1) * bits[i]
     return value
 
-#½«bits×ª»»Îªints,isizesÎªÃ¿¸öÕûÊıÕ¼µÄÎ»Êı,Èç[4,6,4,2]µÈ,bitsÎªÎ»´®
+#å°†bitsè½¬æ¢ä¸ºints,isizesä¸ºæ¯ä¸ªæ•´æ•°å çš„ä½æ•°,å¦‚[4,6,4,2]ç­‰,bitsä¸ºä½ä¸²
 def bits2ints(isizes,bits):
     assert sum(isizes) == len(bits)
     cur = 0

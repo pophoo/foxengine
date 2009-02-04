@@ -5,7 +5,7 @@
 
 import numpy as np
 from collections import deque
-from wolfox.fengine.core.d1 import BASE,gand,nsubd
+from wolfox.fengine.core.d1 import BASE,band,gand,nsubd,rolln
 
 def ma(source,length):    #使用numpy，array更加的惯用法
     """ 计算移动平均线
@@ -427,4 +427,29 @@ def transform(signal,v2index,length):
         rev[v2index[i]] = signal[i]
     return rev
 
+LIMIT_BASE = 10000
+def limitup1(source,limit=990):   #涨停板,以万分之表示
+    pre = rolln(source,1)
+    return np.sign(source * LIMIT_BASE / pre >= limit + LIMIT_BASE)
+
+def limitdown1(source,limit=-990):  #跌停板,以万分之表示
+    pre = rolln(source,1)
+    return np.sign(source * LIMIT_BASE / pre <= limit+LIMIT_BASE)
+
+def limit1(source,uplimit=990,downlimit=-990):  #涨跌停板,返回值以1表示涨停,-1表示跌停
+    tu = limitup1(source,uplimit)
+    td = limitdown1(source,downlimit)
+    return tu - td     
+
+def limitup2(high,low,limit=990):   #一字涨停,以万分之表示
+    return band(high-low==0,limitup1(high,limit))
+
+def limitdown2(high,low,limit=-990):   #一字跌停,以万分之表示
+    pre = rolln(high,1)
+    return band(high-low==0,limitdown1(high,limit))
+
+def limit2(high,low,uplimit=990,downlimit=-990):  #涨跌停板,返回值以1表示一字涨停,-1表示一字跌停
+    tu = limitup2(high,low,uplimit)
+    td = limitdown2(high,low,downlimit)
+    return tu - td     
 

@@ -10,6 +10,11 @@ BASE = 1000
 
 band = lambda x,y : np.sign(np.logical_and(x,y))
 bor = lambda x,y : np.sign(np.logical_or(x,y))
+bnot = lambda x:np.sign(np.logical_not(x))
+greater = lambda x,y:np.sign(x>y)
+greater_equals = lambda x,y:np.sign(x>=y)
+lesser = lambda x,y:np.sign(x<y)
+lesser_equals = lambda x,y:np.sign(x<=y)
 
 def gand(*args):
     ''' args[i]等长，返回args同位元素的and序列
@@ -79,7 +84,7 @@ def smooth2(src1,src2,signal):
     ''' 
     return smooth(src1,signal),smooth(src2,signal)
 
-def roll0(source,shift):   #每行数据右移，移动部分补0
+def roll0(source,shift=1):   #每行数据右移，移动部分补0
     #print len(source),shift
     if len(source) == 0:    #不能用if source，因为np.array不能直接适用逻辑运算
         return np.array([])
@@ -92,7 +97,7 @@ def roll0(source,shift):   #每行数据右移，移动部分补0
         rev[begin:] = 0
     return rev
 
-def rolln(source,shift):   #基本版每行数据移动，移动部分补第一列（右移）的值或最后一列（左移）
+def rolln(source,shift=1):   #基本版每行数据移动，移动部分补第一列（右移）的值或最后一列（左移）
     if len(source) == 0:    #不能用not source
         return np.array([])
     rev = np.roll(source,shift)

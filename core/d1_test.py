@@ -16,6 +16,10 @@ class ModuleTest(unittest.TestCase):
         c = bor(a,b)
         self.assertEquals([1,0,1,1,1],c.tolist())
  
+    def test_bnot(self):
+        a = np.array([10,0,-3,0,1])
+        self.assertEquals([0,1,0,1,0],bnot(a).tolist())
+
     def test_gand(self):
         a = np.array([10,0,-3,0,1])
         b = np.array([3,0,0,-1,1])
@@ -34,6 +38,28 @@ class ModuleTest(unittest.TestCase):
         a2 = np.array([10,0,-3,0,1])
         self.assertEquals([1,1,1,0,1],gor(a2,np.array([0,2,3,0,5])).tolist())
 
+    def test_greater(self):
+        a = np.array([10,0,-3,0,1])
+        b = np.array([3,0,0,-1,0])
+        self.assertEquals([1,0,0,1,1],greater(a,b).tolist())
+
+    def test_greater_equals(self):
+        a = np.array([10,0,-3,0,1])
+        b = np.array([3,0,0,-1,0])
+        self.assertEquals([1,1,0,1,1],greater_equals(a,b).tolist())
+
+    def test_lesser(self):
+        a = np.array([10,0,-3,0,1])
+        b = np.array([3,0,0,-1,0])
+        self.assertEquals([0,0,1,0,0],lesser(a,b).tolist())
+        self.assertEquals(bnot(greater_equals(a,b)).tolist(),lesser(a,b).tolist())  #不动点
+
+    def test_lesser_equals(self):
+        a = np.array([10,0,-3,0,1])
+        b = np.array([3,0,0,-1,0])
+        self.assertEquals([0,1,1,0,0],lesser_equals(a,b).tolist())
+        self.assertEquals(bnot(greater(a,b)).tolist(),lesser_equals(a,b).tolist())  #不动点
+        
     def test_subd(self):
         a = np.array([1,2,3,4,5])
         self.assertEquals([0,1,1,1,1],subd(a).tolist())

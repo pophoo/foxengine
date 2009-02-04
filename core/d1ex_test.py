@@ -198,6 +198,30 @@ class ModuleTest(unittest.TestCase):
         #空测试
         self.assertEquals([0,0,0,0,0,0,0],transform(np.array([]),np.array([]),7).tolist())
 
+    def test_limitup1(self):
+        self.assertEquals([],limitup1(np.array([])).tolist())
+        self.assertEquals([0,1,1,0,1],limitup1(np.array([1000,1100,1210,1000,1099])).tolist())
+
+    def test_limitdown1(self):
+        self.assertEquals([],limitdown1(np.array([])).tolist())
+        self.assertEquals([0,1,0,1,0],limitdown1(np.array([1000,900,1000,901,1099])).tolist())
+
+    def test_limit1(self):
+        self.assertEquals([],limit1(np.array([])).tolist())
+        self.assertEquals([0,1,-1,0,1],limit1(np.array([1000,1100,990,1000,1099])).tolist())
+
+    def test_limitup2(self):
+        self.assertEquals([],limitup1(np.array([])).tolist())
+        self.assertEquals([0,0,1,0,1],limitup2(np.array([1000,1100,1210,1000,1099]),np.array([1000,1050,1210,1000,1099])).tolist())
+
+    def test_limitdown2(self):
+        self.assertEquals([],limitdown1(np.array([])).tolist())
+        self.assertEquals([0,1,0,0,0],limitdown2(np.array([1000,900,1000,901,1099]),np.array([1000,900,1000,953,1099])).tolist())
+
+    def test_limit2(self):
+        self.assertEquals([],limitdown1(np.array([])).tolist())
+        self.assertEquals([0,1,-1,0,0],limit2(np.array([1000,1100,990,1000,1099]),np.array([1000,1100,990,1000,1080])).tolist())
+
 
 if __name__ == "__main__":
     import logging

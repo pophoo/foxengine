@@ -7,6 +7,13 @@ from wolfox.fengine.core.d2 import *
 from wolfox.fengine.core.d1catalog import CLOSE
 
 class ModuleTest(unittest.TestCase):
+    def test_assign(self):
+        stocks = CommonObject(id=1),CommonObject(id=2),CommonObject(id=3)
+        assign(stocks,'test','xxx')
+        self.assertEquals('xxx',stocks[0].test)
+        self.assertEquals('xxx',stocks[1].test)
+        self.assertEquals('xxx',stocks[2].test)
+
     def test_dispatch_example(self):
         a = np.array([(1,0,0,0),(500,400,800,400),(0,0,0,0),(0,0,0,0),(0,0,0,0),(5000,4000,8000,4000),(1000,1000,1000,1000)])
         b = np.array([(2,0,0,0),(200,200,200,400),(0,0,0,0),(0,0,0,0),(0,0,0,0),(0,0,4000,4000),(0,0,2000,1000)])

@@ -103,4 +103,3 @@ def downup(source1,source2,belowdays,crossdays=3):
     sdown_up = sfollow(sdown,s2_gt_1,belowdays)  #belowdays之内回去
     return sdown_up
 
-

@@ -10,6 +10,10 @@ import wolfox.fengine.core.d1 as d1
 from wolfox.fengine.core.source import extract_collect
 
 
+def assign(stocks,name,obj):
+    for s in stocks:
+        s.__dict__[name] = obj
+
 class dispatch(object):
     """ 将(name,stocks,*args,**kwargs)形式的调用结果(array形式)dispatch到stock中相应name的属性中
         要求被修饰函数的签名为(stocks,*args,**kwargs)

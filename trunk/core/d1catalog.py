@@ -59,6 +59,14 @@ def avg_price(stocks):
     sv = volume.sum(0)  #单位为手
     return np.cast['int'](sa / sv *100) #单位为分
 
+def catalog_signal(cata_info,cata_threshold=8000,stock_threshold=8000):
+    ''' 查看cata_info中是否存在catalog排序>cata_threshold,stock在该catalog中的排序>stock_threshold的信号
+        cata_info:  {catalog ==> stock_order_in_catalog}
+        cata_threshold: 对catalog的gorder的要求阈值
+        stock_threshold: 对stock在该catalog中的排序的要求阈值，即stock_order_in_catalog
+    '''
+    return gor(*[band(k.gorder >= cata_threshold,v >= stock_threshold) for k,v in cata_info.items()])
+
 #deprecated
 def calc_index_adjacent(stocks,sector=CLOSE):
     ''' 邻接法计算catalog指数并返回该指数及相关成员的序列

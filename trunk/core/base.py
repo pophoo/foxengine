@@ -20,9 +20,11 @@ class CatalogSubject(CommonObject):
     def __init__(self,id,name,catalogs):
         super(CatalogSubject,self).__init__(id,name=name,catalogs=catalogs)
 
+
 class Catalog(CommonObject):
     def __init__(self,id,name,stocks):
         super(Catalog,self).__init__(id,name=name,stocks=stocks)
+
 
 def get_all_catalogs(subjects):
     if not subjects:

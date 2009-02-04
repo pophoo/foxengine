@@ -42,22 +42,26 @@ class ModuleTest(unittest.TestCase):
         a = np.array([10,0,-3,0,1])
         b = np.array([3,0,0,-1,0])
         self.assertEquals([1,0,0,1,1],greater(a,b).tolist())
+        self.assertEquals([1,0,0,0,1],greater(a).tolist())
 
     def test_greater_equals(self):
         a = np.array([10,0,-3,0,1])
         b = np.array([3,0,0,-1,0])
         self.assertEquals([1,1,0,1,1],greater_equals(a,b).tolist())
+        self.assertEquals([1,1,0,1,1],greater_equals(a).tolist())
 
     def test_lesser(self):
         a = np.array([10,0,-3,0,1])
         b = np.array([3,0,0,-1,0])
         self.assertEquals([0,0,1,0,0],lesser(a,b).tolist())
+        self.assertEquals([0,0,1,0,0],lesser(a).tolist())
         self.assertEquals(bnot(greater_equals(a,b)).tolist(),lesser(a,b).tolist())  #不动点
 
     def test_lesser_equals(self):
         a = np.array([10,0,-3,0,1])
         b = np.array([3,0,0,-1,0])
         self.assertEquals([0,1,1,0,0],lesser_equals(a,b).tolist())
+        self.assertEquals([0,1,1,1,0],lesser_equals(a).tolist())        
         self.assertEquals(bnot(greater(a,b)).tolist(),lesser_equals(a,b).tolist())  #不动点
         
     def test_subd(self):
@@ -107,20 +111,26 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([1,0,1,1,0],sync(src3,s).tolist())
 
     def test_smooth(self):
+        #简单用法
         ss = np.array([0,1,0,1,0])
-        vv = np.array([1,0,1,1,1])
-        self.assertEquals([0,1,0,1,0],smooth(vv,ss).tolist())
-        vv = np.array([0,1,0,1,1])
-        self.assertEquals([0,1,0,1,0],smooth(vv,ss).tolist())
-        vv = np.array([0,1,0,0,1])
-        self.assertEquals([0,1,0,0,0],smooth(vv,ss).tolist())
+        vv1 = np.array([1,0,1,1,1])
+        self.assertEquals([0,1,0,1,0],smooth(ss,vv1).tolist())
+        vv2 = np.array([0,1,0,1,1])
+        self.assertEquals([0,1,0,1,0],smooth(ss,vv2).tolist())
+        vv3 = np.array([0,1,0,0,1])
+        self.assertEquals([0,1,0,0,0],smooth(ss,vv3).tolist())
+        #默认的双参数用法
+        self.assertEquals([0,1,0,0,0],smooth(ss,vv1,vv3).tolist())
+        #做点无聊事情的双参数用法
+        self.assertEquals([0,2,0,1,0],smooth(ss,vv1,vv3,sfunc=lambda x,y:x+y).tolist())
 
     def test_smooth2(self):
         ss = np.array([0,1,0,1,0])
         vv1 = np.array([1,0,1,1,1])
-        vv2 = np.array([1,0,1,0,1])
-        sv1,sv2 = smooth2(vv1,vv2,ss) #只测试通路
-        self.assertTrue(True)
+        vv2 = np.array([0,1,0,0,1])
+        sv1,sv2 = smooth2(ss,vv1,vv2) #只测试通路
+        self.assertEquals([0,1,0,1,0],sv1.tolist())
+        self.assertEquals([0,1,0,0,0],sv2.tolist())
 
     def test_roll0(self):
         #空转

@@ -34,7 +34,7 @@ def make_trade_signal(target,follow):
     for i in xrange(len_t):
         cv = s[i]
         tsum += cv
-        if tsum > 1 or tsum <= -1: #连续的无匹配买入/卖出
+        if tsum > 1 or tsum <= -1: #连续的无匹配买入或先行的卖出
             tsum -= cv
             s[i] = 0
     return s

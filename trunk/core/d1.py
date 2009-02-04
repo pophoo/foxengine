@@ -11,10 +11,10 @@ BASE = 1000
 band = lambda x,y : np.sign(np.logical_and(x,y))
 bor = lambda x,y : np.sign(np.logical_or(x,y))
 bnot = lambda x:np.sign(np.logical_not(x))
-greater = lambda x,y:np.sign(x>y)
-greater_equals = lambda x,y:np.sign(x>=y)
-lesser = lambda x,y:np.sign(x<y)
-lesser_equals = lambda x,y:np.sign(x<=y)
+greater = lambda x,y=0:np.sign(x>y)
+greater_equals = lambda x,y=0:np.sign(x>=y)
+lesser = lambda x,y=0:np.sign(x<y)
+lesser_equals = lambda x,y=0:np.sign(x<=y)
 
 def gand(*args):
     ''' args[i]等长，返回args同位元素的and序列
@@ -65,7 +65,7 @@ def sync(source,signal):
     rev[bsignal] = source
     return rev
 
-def smooth(source,signal):
+def smooth_deprecated(signal,source):   #最早的简单实现
     ''' 把source中signal为0位置的信号延续到其后最近的signal为1的位置
         其中source必须是正的信号序列,signal中非0为有信号,在返回值中该正信号被标准化为1
         相当于sync(desyncs(source,signal),signal)
@@ -73,16 +73,35 @@ def smooth(source,signal):
     #print 'len of source:',len(source)
     rev = np.zeros_like(source)
     bsignal = (signal != 0)
-    tmp = np.sign(nsubd(source.cumsum()[bsignal]) > 0)  #这里>0的目的是将np.sign返回的类型约束为int8，因为np.sign对bool返回int8而int返回int32. 而传入的source则可能为int8类型
+    #连续非空位的累积值如果有变化，则说明第二个位置有信号或者两个非空位之间的空位有信号
+    tmp = greater(nsubd(source.cumsum()[bsignal]))  #这里>0的目的是将np.sign返回的类型约束为int8，因为np.sign对bool返回int8而int返回int32. 而传入的source则可能为int8类型
     #print rev.dtype,tmp.dtype
     rev[bsignal] = tmp
     return rev
-    #return sync(desyncs(source,signal),signal)
 
-def smooth2(src1,src2,signal):
-    ''' 同时处理两个source的smooth的快捷方式
+def smooth2(signal,src1,src2):
+    ''' 同时处理两个独立source的smooth的快捷方式
     ''' 
-    return smooth(src1,signal),smooth(src2,signal)
+    return smooth(signal,src1),smooth(signal,src2)
+
+DEFAULT_SMOOTH_FUNC = lambda *args:args[0] if len(args)==1 else gand(*args) #如果只有一个参数就直接返回
+def smooth(signal,*sources,**kwargs):
+    ''' 将sources中的各序列按照signal非空压缩后，调用sfunc进行处理，然后将处理结果展开并返回
+        最简单和典型的用法是
+            把source中signal为0位置的信号延续到其后最近的signal为1的位置
+            其中source必须是正的信号序列,signal中非0为有信号,在返回值中该正信号被标准化为1
+            相当于sync(desyncs(source,signal),signal)
+        实际上对于默认的函数来说,
+    '''
+    assert sources
+    sfunc = kwargs.get('sfunc',DEFAULT_SMOOTH_FUNC)        #默认参数的另一种方法，避免对位置参数的污染
+    rev = np.zeros_like(sources[0])
+    bsignal = (signal != 0)
+    #连续非空位的累积值如果有变化，则说明第二个位置有信号或者两个非空位之间的空位有信号
+    tmp = [greater(nsubd(source.cumsum()[bsignal])) for source in sources]  #这里>0的目的是将np.sign返回的类型约束为int8，因为np.sign对bool返回int8而int返回int32. 而传入的source则可能为int8类型
+    #print rev.dtype,tmp.dtype
+    rev[bsignal] = sfunc(*tmp)
+    return rev
 
 def roll0(source,shift=1):   #每行数据右移，移动部分补0
     #print len(source),shift

@@ -87,13 +87,15 @@ class ModuleTest(unittest.TestCase):
     def test_generate_key(self):
         self.assertEquals((),generate_key())
         self.assertEquals((1,2),generate_key(1,2))
-        self.assertEquals((1,2,('xx',3)),generate_key(1,2,xx=3))
-        self.assertEquals((1,(2,),('xx',3)),generate_key(1,[2,],xx=3))
-        self.assertEquals((1,(2,),(('k',1),),('xx',3)),generate_key(1,[2,],{'k':1},xx=3))
-        self.assertEquals((1,(2,),(('k',1),),('xx',3)),generate_key(1,(2,),{'k':1},xx=3))
-        self.assertEquals((1,(2,),(('k',1),('b',2)),('yy',4),('xx',3)),generate_key(1,(2,),{'k':1,'b':2},xx=3,yy=4))        
-        self.assertRaises(TypeError,generate_key,[[],[]],(2,),{'k':1},xx=3) #[[],[]]不能够被转换成可hash的对象
-
+        self.assertEquals((1,2,'xx',3),generate_key(1,2,xx=3))
+        a2 = [2,]
+        k1 = {'k':1}
+        k2 = {'k':1,'b':2}
+        self.assertEquals((1,id(a2),'xx',3),generate_key(1,a2,xx=3))
+        self.assertEquals((1,(2,),id(k1),'xx',3),generate_key(1,(2,),k1,xx=3))        
+        self.assertEquals((1,id(a2),id(k1),'xx',3),generate_key(1,a2,k1,xx=3))
+        self.assertEquals((1,id(a2),id(k2),'yy','xx',4,3),generate_key(1,a2,k2,xx=3,yy=4))        
+        #self.assertRaises(TypeError,generate_key,[[],[]],(2,),{'k':1},xx=3) #[[],[]]不能够被转换成可hash的对象
 
 if __name__ == "__main__":
     import logging

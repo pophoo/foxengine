@@ -43,7 +43,8 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20):
     logger.debug('calc: %s ' % stock.code)
     t = stock.transaction
     g = stock.gorder >= 8500    
-    print stock.code,max(stock.gorder)
+    signal_s = catalog_signal(stock.c60,8500,8500)  #kao.存在没有c60也就是不归属任何catalog的stock，直接异常
+    #print stock.code,max(stock.gorder)
     svap,v2i = svap_ma(t[VOLUME],t[CLOSE],22)
     ma_svapfast = ma(svap,fast)
     ma_svapslow = ma(svap,slow)
@@ -60,24 +61,42 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20):
     confirmed_signal = syntony(msvap,confirm_up,15)
     smmroc = swingin(t[HIGH],t[LOW],45,800)
     #return gand(confirmed_signal,trend_ma120,smmroc)
-    return gand(g,confirmed_signal,trend_ma120)
+    return gand(g,confirmed_signal,trend_ma120,signal_s)
 
 def demo(sdata,dates,idata=None):
-    ctree = cs.get_catalog_tree(sdata)
+    ctree = cs.get_catalog_tree(sdata,['DY','ZHY'])
     print ctree
+    for s in ctree:
+        print s.name
+        for c in s.catalogs:
+            print c.name
     catalogs = get_all_catalogs(ctree)
-    
-    print catalogs
+    print 'catalog number:',len(catalogs)
+    #print [ str(c.name) for c in catalogs]
 
+    for c in catalogs:
+        print c.name
+        for st in c.stocks:
+            print st.code
     from time import time
     tbegin = time()
 
-    #c_posort('test',catalogs,distance=10)
+    for c in catalogs:  #计算板块指数
+        c.transaction = [calc_index(c.stocks)] * 7  #以单一指数冒充所有，避免extract_collect错误
+    
+    c_posort('c60',catalogs,distance=60)
     d_posort('gorder',sdata.values(),distance=60)
+    d_posort('gorder',catalogs,distance=60)
+
+    #x20=[ band(k.gorder >= 7500,v >= 7500) for k,v in sdata[20].c60.items()]    #板块全局>7500并且在板块内的排序>7500
+    #gor(*x20)   #是否存在某个板块序>7500并且块内排序>7500
+    #svs = sdata.values()
+    #print dir(svs[0])
+    #print svs[0].c60
     #template(sdata,dates,buy_func_demo1,csc_func,trade_func)
     demo2 = fcustom(buy_func_demo2,fast=4,mid=20,slow=75)
     #name =  names(demo2,csc_func,normal_trade_func)    
-    #trades = normal_template(sdata,dates,demo2,csc_func,normal_trade_func)
+    #trades = normal_calc_template(sdata,dates,demo2,csc_func,normal_trade_func)
     #evs = normal_evaluate(trades)
 
     demo3 = fcustom(buy_func_demo3,fast=5,slow=98)
@@ -85,7 +104,7 @@ def demo(sdata,dates,idata=None):
     trade_func = fcustom(normal_trade_func,begin=20010601)  #交易起始交易时间
 
     name =  names(demo3,csc_func,trade_func)
-    trades = normal_template(sdata,dates,demo3,csc_func,trade_func)    
+    trades = normal_calc_template(sdata,dates,demo3,csc_func,trade_func)    
     tend = time()
     print u'耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    
@@ -103,7 +122,9 @@ if __name__ == '__main__':
     #sdata = cs.get_stocks(['SH600503'],begin,end,ref_id)
     #sdata = cs.get_stocks(['SZ000655'],begin,end,ref_id)
     #print sdata[442].transaction[CLOSE]
-    sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
+    #sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
+    codes = get_codes_startswith('SH60000')
+    sdata = cs.get_stocks(codes,begin,end,ref_id)    
     print 'sdata finish....'    
     #idata = prepare_data(begin,end,'INDEX')
     print 'idata finish....'    

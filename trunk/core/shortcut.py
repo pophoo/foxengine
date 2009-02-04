@@ -2,16 +2,24 @@
 
 #各类函数的快捷方式
 
+import logging
+
 from wolfox.fengine.extern import *
 from wolfox.fengine.internal import *
 
-def normal_template(sdata,dates,buy_func,sell_func,trade_func):
+logger = logging.getLogger('wolfox.fengine.core.shortcut')
+
+def normal_calc_template(sdata,dates,buy_func,sell_func,trade_func):
     trades = []
     for s in sdata.values():
-        sbuy = buy_func(s)
-        ssell = sell_func(s,sbuy)
-        sbuy,ssell = smooth2(sbuy,ssell,s.transaction[VOLUME])
-        trades.extend(trade_func(dates,s,sbuy,ssell))
+        try:    #捕捉某些异常，如未划入任何板块的股票在计算板块相关信号时会出错
+            sbuy = buy_func(s)
+            ssell = sell_func(s,sbuy)
+            sbuy,ssell = smooth2(sbuy,ssell,s.transaction[VOLUME])
+            trades.extend(trade_func(dates,s,sbuy,ssell))
+        except Exception,inst:
+            print '%s except : %s' % (s.code,inst)
+            logger.warning('%s calc error : %s',s.code,inst)
     return trades
 
 def csc_func(stock,buy_signal,threshold=75,**kwargs):   #kwargs目的是吸收无用参数，便于cruiser

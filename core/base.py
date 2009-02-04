@@ -29,26 +29,23 @@ def get_all_catalogs(subjects):
     return reduce(oper_add,[cs.catalogs for cs in subjects])
 
 def trans(t):
-    if isinstance(t,dict):
-        return tuple(t.items())
-    elif isinstance(t,list):
-        return tuple(t)
-    return t
+    try:
+        hash(t)
+        return t
+    except TypeError:
+        if isinstance(t,dict) and not t:   #
+            return ()
+        elif isinstance(t,list) and not t: #
+            return ()
+    return id(t)
 
 def generate_key(*args,**kwargs):
     ''' 将第一层可转换成tuple的list,dict对象转换成tuple以生成key
         但对于[[],[]]这样的位置参数，还是会抛出TypeError
     '''
-    try:
-        #print 'args:',args,',kwargs:',kwargs.items()
-        key1 = args + tuple(kwargs.items()) #即tuple(kwargs.keys),keys的tuple
-        hash(key1)
-        return key1
-    except TypeError:
-        key2 = tuple((trans(t) for t in args)) + tuple(kwargs.items())
-        #print 'key2:',key2
-        hash(key2)
-        return key2
+    key_s = tuple([trans(a) for a in args])
+    key_k = tuple(kwargs.keys()) + tuple([trans(a) for a in kwargs.values()])
+    return key_s + key_k
 
 class CacheManager(object):
     def __init__(self):

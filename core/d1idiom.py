@@ -46,7 +46,7 @@ def upconfirm(sopen,sclose,shigh):#阳线突破确认
     #print kscmp(sopen,sclose,shigh,tmax(sopen,sclose),tbig=3000)
     sconfirm = gor(onebigpos,twomiddlepos,threepos)
     #return sconfirm
-    return np.logical_and(sconfirm,np.logical_not(threeupextend))
+    return band(sconfirm,np.logical_not(threeupextend))
 
 def upveto(sopen,sclose,shigh,slow):   #上升否决情况
     sksize = ksize(sopen,sclose)
@@ -71,7 +71,7 @@ def sellconfirm(sopen,sclose,shigh,slow):   #卖出确认情况：非大阳或者中阳
     #大或中阳线
     big_or_middle = np.logical_or(sksize == 'a',sksize =='b')
     bm_and_pos = np.logical_and(sksign == 'a',big_or_middle)
-    return np.logical_not(bm_and_pos)
+    return bnot(bm_and_pos)
 
 def simplesell(sbuy,shigh,slow,threshold):
     downl = downlimit(shigh,sbuy,threshold)
@@ -83,15 +83,15 @@ def tsimplesell(sbuy,shigh,slow,threshold):
 
 def confirmedsell(sbuy,sopen,sclose,shigh,slow,ssignal,threshold):  #ssignal为出发卖出界限的那条线，一般为sclose或slow
     downl = downlimit(shigh,sbuy,threshold)
-    return np.sign(np.logical_and(ssignal-downl <0,sellconfirm(sopen,sclose,shigh,slow)))   #返回int值便于参加运算和转换
+    return band(ssignal-downl <0,sellconfirm(sopen,sclose,shigh,slow))   #返回int值便于参加运算和转换
 
 def confirmedselll(sbuy,sopen,sclose,shigh,slow,threshold): #以slow为出发条件
     downl = downlimit(shigh,sbuy,threshold)
-    return np.sign(np.logical_and(slow-downl <0,sellconfirm(sopen,sclose,shigh,slow)))   #返回int值便于参加运算和转换
+    return band(slow-downl <0,sellconfirm(sopen,sclose,shigh,slow))   #返回int值便于参加运算和转换
 
 def confirmedsellc(sbuy,sopen,sclose,shigh,slow,threshold): #以sclose为出发条件
     downl = downlimit(shigh,sbuy,threshold)
-    return np.sign(np.logical_and(sclose-downl <0,sellconfirm(sopen,sclose,shigh,slow))) #返回int值便于参加运算和转换
+    return band(sclose-downl <0,sellconfirm(sopen,sclose,shigh,slow)) #返回int值便于参加运算和转换
 
 def downup(source1,source2,belowdays,crossdays=3):
     ''' 判断source2先在source1之上，然后crossdays日内(为避免重合，默认为3)翻下，停留n天后翻上
@@ -103,3 +103,13 @@ def downup(source1,source2,belowdays,crossdays=3):
     sdown_up = sfollow(sdown,s2_gt_1,belowdays)  #belowdays之内回去
     return sdown_up
 
+def limit_adjust(source_signal,limit_signal,trans_signal,covered=2):#实际上是smooth的高级版
+    ''' 根据停板信号limit_signal和交易日信号trans_signal调整原始信号，使原始信号避开停板到开板日
+        但是因为停牌日的存在,这个做法也有隐患存在,即信号被延续到连续停牌中的某一天,但开牌日一字停板
+    '''
+    rev = np.zeros_like(source)
+    bsignal = (trans_signal != 0)
+    tmp_src = greater(nsubd(source_signal.cumsum()[bsignal]))
+    limit_src = greater(nsubd(limit_signal.cumsum()[bsignal]))
+    
+    pass

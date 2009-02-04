@@ -21,8 +21,6 @@ def raw(sdata,dates,idata=None):
     catalogs = get_all_catalogs(ctree)
 
     for c in catalogs:
-        #print [ (s.id,s.code) for s in c.stocks]
-        data = cs.extract_collect(c.stocks)
         c.index = calc_index(c.stocks)    
 
     c_posort = cdispatch(lambda v,distance=1:percent_sort(percent(v,distance)))

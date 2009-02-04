@@ -1,21 +1,37 @@
 # -*- coding: utf-8 -*-
 
+import sys
 import unittest
 from wolfox.fengine.core.base import CommonObject
 from wolfox.fengine.core.shortcut import *
 
 class ModuleTest(unittest.TestCase):    #只测试通道
-    def test_normal_template(self):
+    def setUp(self):
+        from StringIO import StringIO
+        self.tmp = sys.stdout
+        sys.stdout = StringIO()  #将标准I/O流重定向到buff对象，抑制输出
+
+    def tearDown(self):
+        sout = sys.stdout.getvalue()
+        logger.debug(u'测试输出:%s',sout)
+        sys.stdout = self.tmp        #恢复标准I/O流
+        #print sout    
+
+    def test_normal_calc_template(self):
         a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
         b = np.array([(11,12),(13,14),(15,16),(17,18),(19,110),(111,112),(113,114)])
-        sa = CommonObject(id=3,transaction=a)
-        sb = CommonObject(id=3,transaction=b)
+        sa = CommonObject(id=3,code='test1',transaction=a)
+        sb = CommonObject(id=3,code='test2',transaction=b)
         dates = np.array([1,2])
         sdata = {'sa':sa,'sb':sb}
         fbuy = lambda x:np.array([1,0])
         fsell = lambda x,y:np.array([0,1])
         ftrade = lambda x,y,z,a:(1,2)
-        normal_template(sdata,dates,fbuy,fsell,ftrade)
+        normal_calc_template(sdata,dates,fbuy,fsell,ftrade)
+        self.assertTrue(True)
+        #测试异常包容性
+        def fbuy(x): raise Exception
+        normal_calc_template(sdata,dates,fbuy,fsell,ftrade)
         self.assertTrue(True)
 
     def test_csc_func(self):

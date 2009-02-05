@@ -15,7 +15,7 @@ import wolfox.fengine.core.trade as trade
 import wolfox.fengine.core.utils as utils
 
 from wolfox.fengine.core.utils import fcustom,names,get_null_obj_number,get_obj_number
-from wolfox.fengine.core.d1 import band,bor,gand,gor,smooth,smooth2
+from wolfox.fengine.core.d1 import band,bor,gand,gor,smooth,smooth2,roll0,rollx
 from wolfox.fengine.core.d1ex import ma,trend,strend,cross,sfollow,syntony,transform
 from wolfox.fengine.core.d1indicator import svap_ma
 from wolfox.fengine.core.d1idiom import upconfirm,downup,swingin

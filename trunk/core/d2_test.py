@@ -101,25 +101,25 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([[],[]],roll02(np.array([[],[]]),0).tolist())
         self.assertEquals([[],[]],roll02(np.array([[],[]]),2).tolist())
 
-    def test_rolln2(self):
-        #d1.rolln2
-        self.assertEquals([1,2,3,4,5],rolln2(np.array([1,2,3,4,5]),0).tolist())
-        self.assertEquals([1,1,1,2,3],rolln2(np.array([1,2,3,4,5]),2).tolist())
-        self.assertEquals([1,1,1,1,1],rolln2(np.array([1,2,3,4,5]),5).tolist())
-        self.assertEquals([1,1,1,1,1],rolln2(np.array([1,2,3,4,5]),8).tolist())
-        self.assertEquals([3,4,5,5,5],rolln2(np.array([1,2,3,4,5]),-2).tolist())        
-        self.assertEquals([2,3,4,5,5],rolln2(np.array([1,2,3,4,5]),-1).tolist())
-        self.assertEquals([5,5,5,5,5],rolln2(np.array([1,2,3,4,5]),-6).tolist())        
+    def test_rollx2(self):
+        #d1.rollx2
+        self.assertEquals([1,2,3,4,5],rollx2(np.array([1,2,3,4,5]),0).tolist())
+        self.assertEquals([1,1,1,2,3],rollx2(np.array([1,2,3,4,5]),2).tolist())
+        self.assertEquals([1,1,1,1,1],rollx2(np.array([1,2,3,4,5]),5).tolist())
+        self.assertEquals([1,1,1,1,1],rollx2(np.array([1,2,3,4,5]),8).tolist())
+        self.assertEquals([3,4,5,5,5],rollx2(np.array([1,2,3,4,5]),-2).tolist())        
+        self.assertEquals([2,3,4,5,5],rollx2(np.array([1,2,3,4,5]),-1).tolist())
+        self.assertEquals([5,5,5,5,5],rollx2(np.array([1,2,3,4,5]),-6).tolist())        
         #二维
-        self.assertEquals([[1,2,3],[4,5,6]],rolln2(np.array([(1,2,3),(4,5,6)]),0).tolist())
-        self.assertEquals([[1,1,2],[4,4,5]],rolln2(np.array([(1,2,3),(4,5,6)]),1).tolist())
-        self.assertEquals([[1,1,1],[4,4,4]],rolln2(np.array([(1,2,3),(4,5,6)]),4).tolist())
-        self.assertEquals([[2,3,3],[5,6,6]],rolln2(np.array([(1,2,3),(4,5,6)]),-1).tolist())
-        self.assertEquals([[3,3,3],[6,6,6]],rolln2(np.array([(1,2,3),(4,5,6)]),-4).tolist())
+        self.assertEquals([[1,2,3],[4,5,6]],rollx2(np.array([(1,2,3),(4,5,6)]),0).tolist())
+        self.assertEquals([[1,1,2],[4,4,5]],rollx2(np.array([(1,2,3),(4,5,6)]),1).tolist())
+        self.assertEquals([[1,1,1],[4,4,4]],rollx2(np.array([(1,2,3),(4,5,6)]),4).tolist())
+        self.assertEquals([[2,3,3],[5,6,6]],rollx2(np.array([(1,2,3),(4,5,6)]),-1).tolist())
+        self.assertEquals([[3,3,3],[6,6,6]],rollx2(np.array([(1,2,3),(4,5,6)]),-4).tolist())
         #空转
-        self.assertEquals([],rolln2(np.array([]),0).tolist())        
-        self.assertEquals([[],[]],rolln2(np.array([[],[]]),0).tolist())
-        self.assertEquals([[],[]],rolln2(np.array([[],[]]),2).tolist())
+        self.assertEquals([],rollx2(np.array([]),0).tolist())        
+        self.assertEquals([[],[]],rollx2(np.array([[],[]]),0).tolist())
+        self.assertEquals([[],[]],rollx2(np.array([[],[]]),2).tolist())
 
     def test_nsubd2(self):
         a = np.array([[1,2,3],[4,5,6]])

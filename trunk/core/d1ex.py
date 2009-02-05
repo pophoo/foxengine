@@ -14,9 +14,9 @@ def ma(source,length):    #使用numpy，array更加的惯用法
         @return 移动平均序列
     """
     if(len(source) < length):
-        return np.zeros(len(source));
+        return np.zeros(len(source),int);
     
-    rev = np.zeros_like(source); ##预先的0
+    rev = np.zeros_like(source); ##预先的0,不采用zeros_like是为了避免
 
     pps = length/2 #用于整数四舍五入尾数
 
@@ -67,7 +67,7 @@ def strend(source):
             1   当前值 > pre
         0为初始趋势(缺少判断时)
     '''
-    rev = np.zeros_like(source)
+    rev = np.zeros(len(source),int) #可能产生溢出，所以不能用zeros_like
     if len(source) == 0:
         return rev
     pre_v = source[0]
@@ -150,29 +150,28 @@ def extend(source,interval=1):#interval必须大于0
             v,curextend = cv,interval
         else:
             curextend -= 1
-        rev[i] = curextend > 0 and v or 0
+        rev[i] = v if curextend > 0 else 0
     return rev
 
 def distance(source):
     ''' 信号相对距离，信号日为0，逐日递增，直至另一个信号日
         初始序列中以非0认为是有信号
     '''
-    rev = np.zeros_like(source)
+    rev = np.zeros(len(source),int) #可能产生溢出，所以不能用zeros_like
     curdistance = 0 #假设前一天为信号发生，因为计算所的的值肯定小于实际距离
     for i in xrange(len(source)):
-        curdistance = source[i] == 0 and curdistance+1 or 0 #不能采用 ?? and 0 or ?+1的方式，因为and 0是False常量
+        curdistance = curdistance+1 if source[i] == 0 else 0 
         rev[i] = curdistance
     return rev
-
 
 def rsum(source,signal):
     ''' 信号日signal之间的相对累积,signal!=0为有信号'''
     assert len(source) == len(signal)
-    rev = np.zeros_like(source)
+    rev = np.zeros(len(source),int) #可能产生溢出，所以不能用zeros_like
     sum = 0
     for i in xrange(len(source)):
         if(signal[i] != 0):
-            sum = source[i]
+            sum = source[i] + 0 #将可能的int8转换为int32,避免溢出
         else:
             sum += source[i] #不能采用 ?? and 0 or ?+1的方式，因为and 0是False常量
         rev[i] = sum
@@ -181,11 +180,11 @@ def rsum(source,signal):
 def ravg(source,signal):
     ''' 信号日signal之间的相对均值,signal!=0为有信号'''
     assert len(source) == len(signal)
-    rev = np.zeros_like(source)
+    rev = np.zeros_like(source) #这里不会溢出
     n,sum = 0,0
     for i in xrange(len(source)):
         if(signal[i] != 0):
-            sum = source[i]
+            sum = source[i] + 0 #将可能的int8转换为int32,避免溢出
             n = 1
         else:
             sum += source[i] #不能采用 ?? and 0 or ?+1的方式，因为and 0是False常量
@@ -199,7 +198,7 @@ def rsub(source,signal):
         d(0) = src(0)
     '''
     assert len(source) == len(signal)
-    rev = np.zeros_like(source)
+    rev = np.zeros_like(source) #原则上不会溢出,source的类型是int8时,数字绝对不会大
     pre = 0
     for i in xrange(len(source)):
         if(signal[i] != 0):

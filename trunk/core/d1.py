@@ -82,7 +82,7 @@ def smooth(signal,*sources,**kwargs):
     '''
     assert sources
     sfunc = kwargs.get('sfunc',DEFAULT_SMOOTH_FUNC)        #默认参数的另一种方法，避免对位置参数的污染
-    rev = np.zeros_like(sources[0])
+    rev = np.zeros_like(sources[0]) #这里的不会产生溢出
     bsignal = (signal != 0)
     #连续非空位的累积值如果有变化，则说明第二个位置有信号或者两个非空位之间的空位有信号
     tmp = [greater(nsubd(source.cumsum()[bsignal])) for source in sources]  #这里>0的目的是将np.sign返回的类型约束为int8，因为np.sign对bool返回int8而int返回int32. 而传入的source则可能为int8类型
@@ -97,7 +97,7 @@ def smooth_deprecated(signal,source):   #最早的简单实现,已经废弃
         相当于sync(desyncs(source,signal),signal)
     '''
     #print 'len of source:',len(source)
-    rev = np.zeros_like(source)
+    rev = np.zeros_like(source) #这里的不会产生溢出
     bsignal = (signal != 0)
     #连续非空位的累积值如果有变化，则说明第二个位置有信号或者两个非空位之间的空位有信号
     tmp = greater(nsubd(source.cumsum()[bsignal]))  #这里>0的目的是将np.sign返回的类型约束为int8，因为np.sign对bool返回int8而int返回int32. 而传入的source则可能为int8类型

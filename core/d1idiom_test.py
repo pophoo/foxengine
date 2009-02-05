@@ -70,6 +70,62 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,0,0,1,0,0,0,0],limit_adjust(css,cls,ts1,covered=2).tolist())
         self.assertEquals([0,0,0,0,1,0,0,0],limit_adjust(css,cls,ts2).tolist())
 
+    def test_B1S1(self):
+        #空测试
+        empty_trans = np.array([(),(),(),(),(),(),()])
+        nb,ns = B1S1(empty_trans,np.array([]),np.array([]))
+        self.assertEquals([],nb.tolist())    
+        self.assertEquals([],ns.tolist())
+        #普通测试
+        trans = np.array([(0,0,0,0),(500,550,800,500),(500,550,550,500),(500,550,550,500),(0,0,0,0),(5000,4000,8000,4000),(1000,1000,0,1000)])
+        sbuy = np.array([1,0,1,1])
+        ssell = np.array([1,0,1,0])
+        lb,ls = B1S1(trans,sbuy,ssell)
+        self.assertEquals([0,0,0,1],lb.tolist())
+        self.assertEquals([0,1,0,0],ls.tolist())
+
+    def test_B1S0(self):
+        #空测试
+        empty_trans = np.array([(),(),(),(),(),(),()])
+        nb,ns = B1S0(empty_trans,np.array([]),np.array([]))
+        self.assertEquals([],nb.tolist())    
+        self.assertEquals([],ns.tolist())
+        #普通测试
+        trans = np.array([(0,0,0,0),(500,550,550,500),(500,550,550,500),(500,550,550,500),(0,0,0,0),(5000,4000,8000,4000),(1000,1000,0,1000)])
+        sbuy = np.array([1,0,1,1])
+        ssell = np.array([1,0,1,0])
+        lb,ls = B1S0(trans,sbuy,ssell)
+        self.assertEquals([0,0,0,1],lb.tolist())
+        self.assertEquals([1,0,0,0],ls.tolist())
+
+    def test_B0S1(self):
+        #空测试
+        empty_trans = np.array([(),(),(),(),(),(),()])
+        nb,ns = B0S1(empty_trans,np.array([]),np.array([]))
+        self.assertEquals([],nb.tolist())    
+        self.assertEquals([],ns.tolist())
+        #普通测试
+        trans = np.array([(0,0,0,0),(500,550,550,500),(500,550,550,500),(500,550,550,500),(0,0,0,0),(5000,4000,8000,4000),(1000,1000,0,1000)])
+        sbuy = np.array([1,0,1,1])
+        ssell = np.array([1,0,1,0])
+        lb,ls = B0S1(trans,sbuy,ssell)
+        self.assertEquals([1,0,0,0],lb.tolist())
+        self.assertEquals([0,1,0,0],ls.tolist())
+
+    def test_B0S0(self):
+        #空测试
+        empty_trans = np.array([(),(),(),(),(),(),()])
+        nb,ns = B0S0(empty_trans,np.array([]),np.array([]))
+        self.assertEquals([],nb.tolist())    
+        self.assertEquals([],ns.tolist())
+        #普通测试
+        trans = np.array([(0,0,0,0),(500,550,550,500),(500,550,550,500),(500,550,550,500),(0,0,0,0),(5000,4000,8000,4000),(1000,1000,0,1000)])
+        sbuy = np.array([1,0,1,1])
+        ssell = np.array([1,0,1,0])
+        lb,ls = B0S0(trans,sbuy,ssell)
+        self.assertEquals([1,0,0,0],lb.tolist())
+        self.assertEquals([1,0,0,0],ls.tolist())
+
 
 if __name__ == "__main__":
     import logging

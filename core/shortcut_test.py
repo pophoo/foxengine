@@ -74,6 +74,18 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         normal_trade_func(dates,sa,sb,ss)
         self.assertTrue(True)
 
+    def test_trade_funcs(self):   #测试全部bMsN_trade_func,只测试通路
+        a = np.array([(1,2,1),(3,4,3),(5,6,5),(7,8,7),(9,10,4),(11,12,3),(13,14,5)])      
+        sa = CommonObject(id=3,transaction=a)        
+        dates = np.array([1,2,3])
+        sb = np.array([0,1,0])
+        ss = np.array([0,0,1])
+        b0s0_trade_func(dates,sa,sb,ss)
+        b0s1_trade_func(dates,sa,sb,ss)
+        b1s0_trade_func(dates,sa,sb,ss)
+        b1s1_trade_func(dates,sa,sb,ss)
+        self.assertTrue(True)
+
     def test_ppsort(self):
         a = np.array([(5,4,7),(3,2,8),(8,5,3),(4,4,4)])
         sa = ppsort(a)

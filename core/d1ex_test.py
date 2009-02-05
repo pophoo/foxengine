@@ -32,7 +32,14 @@ class ModuleTest(unittest.TestCase):
 
     def test_cover(self):
         source = np.array([0,0,5,0,-5,0,0,0,0,0,1,0,0,3,0,0,-1,1,2,0,0,0,0,6,0])
+        self.assertEquals([-1,-2,1,0,1,0,-1,-2,-3,-4,1,0,-1,1,0,-1,1,1,1,0,-1,-2,-3,1,0],cover(source,1).tolist())        
         self.assertEquals([-1,-2,4,3,4,3,2,1,0,-1,4,3,2,4,3,2,4,4,4,3,2,1,0,4,3],cover(source,4).tolist())
+
+    def test_repeat(self):
+        source = np.array([0,0,5,0,-5,0,0,0,0,0,1,0,0,3,0,0,-1,1,2,0,0,0,0,6,0])
+        self.assertEquals([1,1,1,1],repeat(np.array([1,1,1,1]),1).tolist())
+        self.assertEquals([-1,-2,1,0,1,0,-1,-2,-3,-4,1,0,-1,1,0,-1,1,1,1,0,-1,-2,-3,1,0],repeat(source,1).tolist())        
+        self.assertEquals([-1,-2,4,3,2,1,0,-1,-2,-3,4,3,2,1,0,-1,4,3,2,1,0,-1,-2,4,3],repeat(source,4).tolist())
 
     def test_extend(self):
         source = np.array([0,0,5,0,-5,0,0,0,0,0,1,0,0,3,0,0,-1,1,2,0,0,0,0,6,0])
@@ -92,8 +99,15 @@ class ModuleTest(unittest.TestCase):
     def test_derepeat(self):
         self.assertEquals([0,3,4,-5,6,0,1,0,23,3,0],derepeat(np.array([0,3,4,-5,6,0,1,0,23,3,0]),0).tolist())
         self.assertEquals([0,3,0,-5,6,0,0,1,0,23,3,0],derepeat(np.array([0,3,0,-5,6,0,0,1,0,23,3,0]),0).tolist())
-        self.assertEquals([0,3,0,0,0,0,1,0,23,0,0],derepeat(np.array([0,3,4,-5,6,0,1,0,23,3,0])).tolist())
-        self.assertEquals([0,3,0,0,0,0,0,1,0,0,0,0],derepeat(np.array([0,3,0,-5,6,0,0,1,0,23,3,0]),2).tolist())
+        self.assertEquals([0,3,4,-5,6,0,1,0,23,3,0],derepeat(np.array([0,3,4,-5,6,0,1,0,23,3,0])).tolist())
+        self.assertEquals([0,3,0,-5,0,0,0,1,0,23,0,0],derepeat(np.array([0,3,0,-5,6,0,0,1,0,23,3,0]),2).tolist())
+        self.assertEquals([0,3,0,0,6,0,0,1,0,0,3,0],derepeat(np.array([0,3,0,-5,6,0,0,1,0,23,3,0]),3).tolist())
+
+    def test_decover(self):
+        self.assertEquals([0,3,4,-5,6,0,1,0,23,3,0],decover(np.array([0,3,4,-5,6,0,1,0,23,3,0]),0).tolist())
+        self.assertEquals([0,3,0,-5,6,0,0,1,0,23,3,0],decover(np.array([0,3,0,-5,6,0,0,1,0,23,3,0]),0).tolist())
+        self.assertEquals([0,3,0,0,0,0,1,0,23,0,0],decover(np.array([0,3,4,-5,6,0,1,0,23,3,0])).tolist())
+        self.assertEquals([0,3,0,0,0,0,0,1,0,0,0,0],decover(np.array([0,3,0,-5,6,0,0,1,0,23,3,0]),2).tolist())
 
     def test_derepeatc(self):
         self.assertEquals([0,3,0,0,0,0,1,0,23,0,0],derepeatc(np.array([0,3,4,-5,6,0,1,0,23,3,0])).tolist())

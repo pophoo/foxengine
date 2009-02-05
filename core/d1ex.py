@@ -110,7 +110,7 @@ def cross(target,follow):
     return rev
 
 def cover(source,interval=1): #interval必须大于0
-    ''' 信号延伸，length为延伸值，发生日为length,逐日递减，直至另一个发生日.
+    ''' 信号延伸，length为延伸值，发生日为length,逐日递减(小于0则都为0)，直至另一个发生日.
         初始序列中以>0认为是有信号(以免最普通的用法中需要先过滤掉负值)
         假定-1位置无信号发生
         新的信号会增强已有信号        
@@ -119,11 +119,11 @@ def cover(source,interval=1): #interval必须大于0
     curcover = 0
     for i in xrange(len(source)):
         curcover = interval if source[i] != 0 else curcover-1
-        rev[i] = curcover
+        rev[i] = curcover if curcover > 0 else 0
     return rev
 
 def repeat(source,interval=1): #interval必须大于0
-    ''' 信号延伸，length为延伸值，发生日为length,逐日递减，直至另一个发生日
+    ''' 信号延伸，length为延伸值，发生日为length,逐日递减(小于0则都为0)，直至另一个发生日
         初始序列中以>0认为是有信号(以免最普通的用法中需要先过滤掉负值)
         假定-1位置无信号发生
         覆盖期内的新信号无增强作用
@@ -133,7 +133,7 @@ def repeat(source,interval=1): #interval必须大于0
     for i in xrange(len(source)):
         if source[i] and curcover <= 0:
             curcover = interval
-        rev[i] = curcover
+        rev[i] = curcover if curcover >= 0 else 0
         curcover -= 1
     return rev
 

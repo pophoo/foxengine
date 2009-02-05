@@ -106,7 +106,7 @@ def downup(source1,source2,belowdays,crossdays=3):
     sdown_up = sfollow(sdown,s2_gt_1,belowdays)  #belowdays之内回去
     return sdown_up
 
-def _limit_adjuster(css,cls,covered):
+def _limit_adjuster(css,cls,covered):#covered不能大于127否则会溢出, np.sign(bool array)返回的是int8数组
     ''' css:压缩后的source_signal,cls:压缩后的limit_signal
         屏蔽cls非空日的那些css信号,使其延后到covered之内的非停板日,或者取消(后面的covered日都停板)
         返回处理后的css
@@ -118,7 +118,7 @@ def _limit_adjuster(css,cls,covered):
     #print css,cls,css_covered,derepeat(band(css_covered>0,bnot(cls)))
     return derepeat(band(css_covered > 0,bnot(cls)),covered)    
     
-def limit_adjust(source_signal,limit_signal,trans_signal,covered=3):
+def limit_adjust(source_signal,limit_signal,trans_signal,covered=3):#covered不能大于127否则会溢出, np.sign(bool array)返回的是int8数组
     ''' 根据停板信号limit_signal和交易日信号trans_signal调整原始信号，使原始信号避开停板到开板日
         可能因covered的原因导致连续非停板日中间出现停板日后,信号多发. 但这个可由makke_trade之类的函数处理掉
         只有covered=2时,不会出现这个情况
@@ -180,6 +180,7 @@ def B1S1(trans,sbuy,ssell):
         返回经过信号延续、停板和停牌处理的sbuy,ssell
         次日买卖则只受到一字线的影响
     '''
+    #print sbuy,np.sum(sbuy)
     sbuy,ssell = roll0(sbuy),roll0(ssell)
     #print 'input rolled:',sbuy,ssell
     up_limit_line = limitup2(trans[HIGH],trans[LOW])
@@ -188,4 +189,5 @@ def B1S1(trans,sbuy,ssell):
     sbuy = limit_adjust(sbuy,up_limit_line,trans[VOLUME])
     ssell = limit_adjust(ssell,down_limit_line,trans[VOLUME])
     #print 'end adjust:',ssell
+    #print sbuy,np.sum(sbuy)
     return sbuy,ssell

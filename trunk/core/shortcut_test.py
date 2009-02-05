@@ -80,6 +80,7 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         dates = np.array([1,2,3])
         sb = np.array([0,1,0])
         ss = np.array([0,0,1])
+        dummy_trade_func(dates,sa,sb,ss)
         b0s0_trade_func(dates,sa,sb,ss)
         b0s1_trade_func(dates,sa,sb,ss)
         b1s0_trade_func(dates,sa,sb,ss)

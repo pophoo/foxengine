@@ -126,6 +126,9 @@ def limit_adjust(source_signal,limit_signal,trans_signal,covered=3):
     adjuster = fcustom(_limit_adjuster,covered=covered)
     return smooth(trans_signal,source_signal,limit_signal,sfunc=adjuster)
 
+def BS_DUMMY(trans,sbuy,ssell):
+    return sbuy,ssell
+
 def B0S0(trans,sbuy,ssell):
     ''' 买卖信号都在当日实现
         t为stock.transaction

@@ -70,6 +70,20 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,0,0,1,0,0,0,0],limit_adjust(css,cls,ts1,covered=2).tolist())
         self.assertEquals([0,0,0,0,1,0,0,0],limit_adjust(css,cls,ts2).tolist())
 
+    def test_BS_DUMMY(self):
+        #空测试
+        empty_trans = np.array([(),(),(),(),(),(),()])
+        nb,ns = BS_DUMMY(empty_trans,np.array([]),np.array([]))
+        self.assertEquals([],nb.tolist())    
+        self.assertEquals([],ns.tolist())
+        #普通测试
+        trans = np.array([(0,0,0,0),(500,550,800,500),(500,550,550,500),(500,550,550,500),(0,0,0,0),(5000,4000,8000,4000),(1000,1000,0,1000)])
+        sbuy = np.array([1,0,1,1])
+        ssell = np.array([1,0,1,0])
+        lb,ls = BS_DUMMY(trans,sbuy,ssell)
+        self.assertEquals([1,0,1,1],lb.tolist())
+        self.assertEquals([1,0,1,0],ls.tolist())
+
     def test_B1S1(self):
         #空测试
         empty_trans = np.array([(),(),(),(),(),(),()])

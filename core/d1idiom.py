@@ -6,11 +6,13 @@
 """
 
 import numpy as np
+from functools import partial
 
 from wolfox.fengine.core.d1 import *
 from wolfox.fengine.core.d1ex import *
 from wolfox.fengine.core.d1indicator import *
 from wolfox.fengine.core.d1kline import *
+
 
 def swingin(shigh,slow,covered,threshold):
     ''' 测试shigh,slow最近covered天内的波动幅度小于threshold
@@ -103,13 +105,46 @@ def downup(source1,source2,belowdays,crossdays=3):
     sdown_up = sfollow(sdown,s2_gt_1,belowdays)  #belowdays之内回去
     return sdown_up
 
-def limit_adjust(source_signal,limit_signal,trans_signal,covered=2):#实际上是smooth的高级版
-    ''' 根据停板信号limit_signal和交易日信号trans_signal调整原始信号，使原始信号避开停板到开板日
-        但是因为停牌日的存在,这个做法也有隐患存在,即信号被延续到连续停牌中的某一天,但开牌日一字停板
+def _limit_adjuster(css,cls,covered):
+    ''' css:压缩后的source_signal,cls:压缩后的limit_signal
+        屏蔽cls非空日的那些css信号,使其延后到covered之内的非停板日,或者取消(后面的covered日都停板)
+        返回处理后的css
     '''
-    rev = np.zeros_like(source)
-    bsignal = (trans_signal != 0)
-    tmp_src = greater(nsubd(source_signal.cumsum()[bsignal]))
-    limit_src = greater(nsubd(limit_signal.cumsum()[bsignal]))
+    css_covered = cover(css,covered)
+    return derepeat(band(css_covered,bnot(cls)))
     
-    pass
+def limit_adjust(source_signal,limit_signal,trans_signal,covered=3):
+    ''' 根据停板信号limit_signal和交易日信号trans_signal调整原始信号，使原始信号避开停板到开板日
+        可能因covered的原因导致连续非停板日中间出现停板日后,信号多发. 但这个可由makke_trade之类的函数处理掉
+        只有covered=2时,不会出现这个情况
+    '''
+    adjuster = partial(_limit_adjuster,covered=covered)
+    return smooth(trans_signal,source_signal,limit_signal,sfunc=adjuster)
+
+def B0S0(t,sbuy,ssell):
+    ''' 当日买卖
+        t为stock.transaction
+        返回经过停板处理的sbuy,ssell
+    '''
+    return sbuy,ssell
+
+def B0S1(t,sbuy,ssell):
+    ''' 当日买卖
+        t为stock.transaction
+        返回经过停板处理的sbuy,ssell
+    '''
+    return sbuy,ssell
+
+def B1S0(t,sbuy,ssell):
+    ''' 当日买卖
+        t为stock.transaction
+        返回经过停板处理的sbuy,ssell
+    '''
+    return sbuy,ssell
+
+def B1S1(t,sbuy,ssell):
+    ''' 当日买卖
+        t为stock.transaction
+        返回经过停板处理的sbuy,ssell
+    '''
+    return sbuy,ssell

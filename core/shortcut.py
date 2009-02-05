@@ -6,6 +6,7 @@ import logging
 
 from wolfox.fengine.extern import *
 from wolfox.fengine.internal import *
+from wolfox.fengine.core.d1idiom import B0S0,B0S1,B1S0,B1S1
 
 logger = logging.getLogger('wolfox.fengine.core.shortcut')
 
@@ -26,10 +27,15 @@ def csc_func(stock,buy_signal,threshold=75,**kwargs):   #kwargs目的是吸收�
     t = stock.transaction
     return d1id.confirmedsellc(buy_signal,t[OPEN],t[CLOSE],t[HIGH],t[LOW],threshold)
 
-def normal_trade_func(dates,stock,sbuy,ssell,begin=0,taxrate=125,**kwargs):  #kwargs目的是吸收无用参数，便于cruiser
+def _trade_func(dates,stock,sbuy,ssell,prepare_func,begin=0,taxrate=125,**kwargs):  #kwargs目的是吸收无用参数，便于cruiser
+    ''' prepare_func是对sbuy和ssell进行预处理，如买卖都是次日交易则为B1S1 
+    '''
     t = stock.transaction
+    sbuy,ssell = prepare_func(s.transaction,sbuy,ssell)
     ssignal = make_trade_signal(sbuy,ssell)
     return make_trades(stock.id,ssignal,dates,t[CLOSE],t[CLOSE],begin,taxrate)
+
+normal_trade_func = fcustom(_trade_func,prepare_func=B1S1)  #一般情形买卖信号都是延后一日发生
 
 def normal_evaluate(trades,**kwargs):   #kwargs目的是吸收无用参数，便于cruiser
     return evaluate(trades)

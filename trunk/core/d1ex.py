@@ -110,15 +110,31 @@ def cross(target,follow):
     return rev
 
 def cover(source,interval=1): #interval必须大于0
-    ''' 信号延伸，length为延伸值，发生日为length,逐日递减，直至另一个发生日
+    ''' 信号延伸，length为延伸值，发生日为length,逐日递减，直至另一个发生日.
         初始序列中以>0认为是有信号(以免最普通的用法中需要先过滤掉负值)
         假定-1位置无信号发生
+        新的信号会增强已有信号        
     '''
     rev = np.zeros_like(source)
     curcover = 0
     for i in xrange(len(source)):
-        curcover = source[i] != 0 and interval or curcover-1
+        curcover = interval if source[i] != 0 else curcover-1
         rev[i] = curcover
+    return rev
+
+def repeat(source,interval=1): #interval必须大于0
+    ''' 信号延伸，length为延伸值，发生日为length,逐日递减，直至另一个发生日
+        初始序列中以>0认为是有信号(以免最普通的用法中需要先过滤掉负值)
+        假定-1位置无信号发生
+        覆盖期内的新信号无增强作用
+    '''
+    rev = np.zeros_like(source)
+    curcover = -1
+    for i in xrange(len(source)):
+        if source[i] and curcover <= 0:
+            curcover = interval
+        rev[i] = curcover
+        curcover -= 1
     return rev
 
 def extend(source,interval=1):#interval必须大于0
@@ -253,9 +269,22 @@ def emax(source):
 def emin(source):
     return np.array(l_emaxmin(source.tolist(),lt))
 
-
 def derepeat(source,interval=1):
-    '''去除间隔期内!=0数值的重复出现
+    ''' 去除间隔期内!=0数值的重复出现，间隔期内新信号被忽略其增强作用
+    '''
+    rev = np.zeros_like(source)
+    cover = 0
+    for i in xrange(len(source)):
+        cv = source[i]
+        if cv and cover <=0:
+            rev[i] = cv
+            cover = interval
+        cover -= 1
+    return rev
+
+def decover(source,interval=1):
+    ''' 去除间隔期内!=0数值的重复出现，新的信号会增强interval
+        去除效率大于derepeatc
     '''
     rev = np.zeros_like(source)
     cover = 0

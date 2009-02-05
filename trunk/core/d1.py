@@ -86,6 +86,7 @@ def smooth(signal,*sources,**kwargs):
     bsignal = (signal != 0)
     #连续非空位的累积值如果有变化，则说明第二个位置有信号或者两个非空位之间的空位有信号
     tmp = [greater(nsubd(source.cumsum()[bsignal])) for source in sources]  #这里>0的目的是将np.sign返回的类型约束为int8，因为np.sign对bool返回int8而int返回int32. 而传入的source则可能为int8类型
+    #print 'in smooth:tmp=',tmp,',sources:',sources,'bsignal:',bsignal
     #print rev.dtype,tmp.dtype
     rev[bsignal] = sfunc(*tmp)
     return rev

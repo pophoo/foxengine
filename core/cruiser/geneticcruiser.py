@@ -152,7 +152,7 @@ class ExampleGeneticCruiser(GeneticCruiser):
         #self.sell_func = my_csc_func
         self.trade_func = fcustom(normal_trade_func,begin=20010601)
         #self.trade_func = fcustom(my_trade_func,begin=20010601)
-        self.evaluate_func = normal_evaluate
+        self.evaluate_func = create_evaluator()
 
 
 if __name__ == '__main__':

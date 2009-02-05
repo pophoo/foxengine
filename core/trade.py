@@ -3,7 +3,10 @@
 #与交易和评估相关的函数
 
 import numpy as np
-from wolfox.common.tcommon import Trade,Evaluation
+from wolfox.fengine.base.common import Trade,Evaluation
+
+import logging
+logger = logging.getLogger('wolfox.fengine.core.trade')
 
 VOLUMEBASE = 1000
 
@@ -17,7 +20,7 @@ def double_first(signal):  #双向
     return 0
 
 def make_trades(tstock,signal,tdate,tpositive,tnegative,begin=0,taxrate=125,trade_strategy=buy_first):
-    ''' tstock为stock_id
+    ''' tstock为stock_code
         ssingal为买卖信号,对于次日买卖的信号，输入前需要将signal roll(1)
         tpositive,tnegative为信号值为正和负时的选择价格
         taxrate为税率，默认为千分之八
@@ -68,7 +71,17 @@ def last_trade(tstock,signal,tdate,tpositive,tnegative,begin=0,taxrate=125):
     trades= [Trade(tstock,tdate[last_index],price,cs*VOLUMEBASE,taxrate)]
     return trades
 
-def evaluate(trades):#一次交易可以允许多次买卖，以单个股票数量为0为交易完成标志
+DEFAULT_EVALUATE_FILTER = lambda mts:mts
+def evaluate(trades,filter=DEFAULT_EVALUATE_FILTER):
+    ''' 对交易进行匹配和评估
+        一次交易可以允许多次买卖，以单个股票存续数量为0为交易完成标志
+        filter为对已经匹配成功的交易进行
+        matchedtrades中的元素形式为：
+            trade1,trade2,....,traden
+            满足    所有trade的volume之和为0，并且任何前m个trade的volume之和不为0(对于买先策略为大于0)
+            这个evaluate函数只有trade1,trade2两个成分，如果要一次买入多次卖出的，需要另一个evaluate
+            并且要有相应的新的make_trades函数
+    '''
     matchedtrades = []
     contexts = {}
     for trade in trades:
@@ -83,6 +96,10 @@ def evaluate(trades):#一次交易可以允许多次买卖，以单个股票数量为0为交易完成标志
                 contexts[trade.tstock] = (sum,items)
         else:
             contexts[trade.tstock] = (trade.tvolume,[trade])
+    #print matchedtrades
+    filtered = filter(matchedtrades)
+    for matchedtrade in matchedtrades:
+        logger.debug('matched trade:%s,%s',matchedtrade[0],matchedtrade[1])
     #print '交易情况',matchedtrades,wincount,winamount,lostcount,lostamount
     return Evaluation(matchedtrades)
 

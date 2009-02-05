@@ -50,7 +50,7 @@ class ModuleTest(unittest.TestCase):    #只测试通道
     def test_trade_func(self):
         from wolfox.fengine.core.shortcut import _trade_func
         a = np.array([(1,2,1),(3,4,3),(5,6,5),(7,8,7),(9,10,4),(11,12,3),(13,14,5)])      
-        sa = CommonObject(id=3,transaction=a)        
+        sa = CommonObject(id=3,code='TEST',transaction=a)        
         dates = np.array([1,2,3])
         sb = np.array([0,1,0])
         ss = np.array([0,0,1])
@@ -58,7 +58,7 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         self.assertTrue(True)
         #空测试
         a = np.array([(),(),(),(),(),(),()])        
-        sa = CommonObject(id=3,transaction=a)        
+        sa = CommonObject(id=3,code='TEST',transaction=a)        
         dates = np.array([])
         sb = np.array([])
         ss = np.array([])
@@ -67,7 +67,7 @@ class ModuleTest(unittest.TestCase):    #只测试通道
  
     def test_normal_trade_func(self):   #只测试通路
         a = np.array([(1,2,1),(3,4,3),(5,6,5),(7,8,7),(9,10,4),(11,12,3),(13,14,5)])      
-        sa = CommonObject(id=3,transaction=a)        
+        sa = CommonObject(id=3,code='TEST',transaction=a)        
         dates = np.array([1,2,3])
         sb = np.array([0,1,0])
         ss = np.array([0,0,1])
@@ -76,7 +76,7 @@ class ModuleTest(unittest.TestCase):    #只测试通道
 
     def test_trade_funcs(self):   #测试全部bMsN_trade_func,只测试通路
         a = np.array([(1,2,1),(3,4,3),(5,6,5),(7,8,7),(9,10,4),(11,12,3),(13,14,5)])      
-        sa = CommonObject(id=3,transaction=a)        
+        sa = CommonObject(id=3,code='TEST',transaction=a)
         dates = np.array([1,2,3])
         sb = np.array([0,1,0])
         ss = np.array([0,0,1])
@@ -96,6 +96,11 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         sa = ppsort(a)
         self.assertTrue(True)
 
+    def test_create_evaluator(self): #只测试通路
+        evf = create_evaluator()
+        evf([])
+        self.assertTrue(True)
+        
 
 if __name__ == "__main__":
     import logging

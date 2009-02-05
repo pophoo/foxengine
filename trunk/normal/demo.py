@@ -65,19 +65,19 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20):
 
 def demo(sdata,dates,idata=None):
     ctree = cs.get_catalog_tree(sdata,['DY','ZHY'])
-    print ctree
+    #print ctree
     for s in ctree:
         print s.name
         for c in s.catalogs:
             print c.name
     catalogs = get_all_catalogs(ctree)
-    print 'catalog number:',len(catalogs)
+    #print 'catalog number:',len(catalogs)
     #print [ str(c.name) for c in catalogs]
 
-    for c in catalogs:
-        print c.name
-        for st in c.stocks:
-            print st.code
+    #for c in catalogs:
+    #    print c.name
+    #    for st in c.stocks:
+    #        print st.code
     from time import time
     tbegin = time()
 
@@ -102,6 +102,7 @@ def demo(sdata,dates,idata=None):
     demo3 = fcustom(buy_func_demo3,fast=5,slow=98)
     
     trade_func = fcustom(normal_trade_func,begin=20010601)  #交易起始交易时间
+    #trade_func = fcustom(dummy_trade_func,begin=20010601)  #交易起始交易时间
 
     name =  names(demo3,csc_func,trade_func)
     trades = normal_calc_template(sdata,dates,demo3,csc_func,trade_func)    
@@ -110,6 +111,7 @@ def demo(sdata,dates,idata=None):
     logger.debug(u'耗时: %s' % (tend-tbegin))    
     evs2 = normal_evaluate(trades)
     print evs2.header()
+    #print evs2
 
 if __name__ == '__main__':
     logging.basicConfig(filename="demo.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
@@ -123,7 +125,7 @@ if __name__ == '__main__':
     #sdata = cs.get_stocks(['SZ000655'],begin,end,ref_id)
     #print sdata[442].transaction[CLOSE]
     #sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
-    codes = get_codes_startswith('SH600')
+    codes = get_codes_startswith('SH60')
     sdata = cs.get_stocks(codes,begin,end,ref_id)    
     print 'sdata finish....'    
     #idata = prepare_data(begin,end,'INDEX')

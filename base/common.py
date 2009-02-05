@@ -146,8 +146,12 @@ class Trade(DatedStock):
         self.tstock = tstock
         self.tdate = tdate
         self.tprice = tprice
+        self.taxrate = taxrate
+        self.set_volume(tvolume)
+
+    def set_volume(self,tvolume):
         self.tvolume = tvolume
-        self.ttax = (self.tprice * abs(self.tvolume)  + taxrate/2)/ taxrate
+        self.ttax = (self.tprice * abs(self.tvolume)  + self.taxrate/2)/ self.taxrate
 
     def calc(self): #计算收入现金数(方向与tvolume相反)
         #print 'tax:',self.ttax,',amount:',self.tprice * (-self.tvolume)

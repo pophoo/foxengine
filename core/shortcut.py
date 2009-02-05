@@ -16,7 +16,7 @@ def normal_calc_template(sdata,dates,buy_func,sell_func,trade_func):
         try:    #捕捉某些异常，如未划入任何板块的股票在计算板块相关信号时会出错
             sbuy = buy_func(s)
             ssell = sell_func(s,sbuy)
-            #sbuy,ssell = smooth2(s.transaction[VOLUME],sbuy,ssell)
+            #sbuy,ssell = smooth2(s.transaction[VOLUME],sbuy,ssell) #这个处理被划入bMsN_trade_func中
             trades.extend(trade_func(dates,s,sbuy,ssell))
         except Exception,inst:
             print '%s except : %s' % (s.code,inst)

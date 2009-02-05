@@ -75,7 +75,7 @@ class memory_guard(object):
     def __call__(self,func):
         self.func = func
         self.__name__ = self.func.__name__
-        def new_func(*args,**kwargs):
+        def guarded_func(*args,**kwargs):
             mbegin = wu.GetPerformanceAttributes("Memory", "Available Bytes")
             logger.debug('%s memory guard begin: %s',self.__name__,mbegin)
             if self.debug:
@@ -84,17 +84,19 @@ class memory_guard(object):
             rev = self.func(*args,**kwargs)
             cur_objs = self.get_objs()
             diff = [ t for t in seq_diff(cur_objs,pre_objs) if self.criterion(t) ]
-            new_func.new_num = new_num = len(diff) 
+            guarded_func.new_num = new_num = len(diff) 
             logger.debug('%s memory guard end,this run create new objs specified: %s',self.__name__,new_num)
             if self.debug:
                 print "new specified %s object number = %s " % (self.gtype,new_num)
                 #logger.debug('new specified %s objects:%s',self.gtype,diff)    #可能非常庞大
+                #import sys,traceback
+                #traceback.print_stack(file=open('trace.txt','w'))
             mend = wu.GetPerformanceAttributes("Memory", "Available Bytes")
             logger.debug('%s memory guard end,this run eat:%s',self.__name__,mbegin-mend)
             return rev
-        new_func.parent = self
-        new_func.new_num = 0
-        return new_func
+        guarded_func.parent = self
+        guarded_func.new_num = 0
+        return guarded_func
 
     def get_objs(self):
         gobjs = [ t for t in gc.get_objects()[:self.limit] if isinstance(t,self.gtype)]  #只检查最新limit个(get_objects返回值中最新的在最前面)，因此溢出最多为1000

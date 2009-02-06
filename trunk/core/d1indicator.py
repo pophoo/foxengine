@@ -5,10 +5,10 @@
 
 import numpy as np
 
-from wolfox.fengine.core.d1 import BASE,gand,subd
+from wolfox.fengine.core.d1 import BASE,gand,gmax,subd,rollx
 from wolfox.fengine.core.d1ex import tmax,tmin,trend,msum,ma
 
-serial = np.arange(10000)   #不超过10000个数据点
+#serial = np.arange(10000)   #不超过10000个数据点
 
 #expfunctor = lambda cur,expma,trate,base=BASE: (cur*trate + expma * (base-trate) + base/2)/base
 def expma(source,trate):    
@@ -310,6 +310,15 @@ def rsi(source,length):
             downsum -= il - il1
         pre = cur
     return rev
+
+def tr(shigh,slow,sclose):
+    ''' 真实波幅
+    '''
+    sclose = rollx(sclose)
+    shl = np.abs(shigh - slow)
+    shc = np.abs(shigh - sclose)
+    slc = np.abs(slow - sclose)
+    return gmax(shl,shc,slc)
 
 def uplines(*args):
     ''' args[0]...args[-1]各个序列多头排列，其中args[0]为最快速线

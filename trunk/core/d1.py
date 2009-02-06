@@ -32,6 +32,16 @@ def gor(*args):
     s = reduce(np.add,ss)
     return np.sign(s > 0) #1出现次数>0
 
+def gmax(*source):
+    ''' 返回source各数组中同位元素的最大值组成的数组
+    '''
+    return np.array(source).max(axis=0)
+
+def gmin(*source):
+    ''' 返回source各数组中同位元素的最小值组成的数组
+    '''
+    return np.array(source).min(axis=0)
+
 def subd(source,distance=1):   #偏移减法,distance必须大于0,返回结果中前distance个元素为0
     pres = np.zeros(distance,int)
     main = source[distance:] - source[:-distance]

@@ -11,6 +11,7 @@ import wolfox.fengine.core.d1catalog as d1c
 import wolfox.fengine.core.d1kline as d1k
 import wolfox.fengine.core.d1match as d1m
 import wolfox.fengine.core.d2 as d2
+import wolfox.fengine.core.pmanager as pm
 import wolfox.fengine.core.trade as trade
 import wolfox.fengine.core.utils as utils
 

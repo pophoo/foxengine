@@ -95,11 +95,6 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         a = np.array([(),(),(),(),(),(),()])        
         sa = ppsort(a)
         self.assertTrue(True)
-
-    def test_create_evaluator(self): #只测试通路
-        evf = create_evaluator()
-        evf([])
-        self.assertTrue(True)
         
 
 if __name__ == "__main__":

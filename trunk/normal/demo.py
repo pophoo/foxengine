@@ -42,6 +42,7 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20):
     #print stock.code
     logger.debug('calc: %s ' % stock.code)
     t = stock.transaction
+    print t[CLOSE]
     g = stock.gorder >= 8500    
     signal_s = catalog_signal(stock.c60,8500,8500)  #kao.存在没有c60也就是不归属任何catalog的stock，直接异常
     #print stock.code,max(stock.gorder)
@@ -111,8 +112,7 @@ def demo(sdata,dates,idata=None):
     logger.debug(u'耗时: %s' % (tend-tbegin))    
     #for trade in trades:
     #    print trade
-    evf = create_evaluator()
-    evs2 = evf(trades)
+    evs2 = normal_evaluate(trades)
     print evs2.header()
     #print evs2
 
@@ -128,7 +128,7 @@ if __name__ == '__main__':
     #sdata = cs.get_stocks(['SZ000655'],begin,end,ref_id)
     #print sdata[442].transaction[CLOSE]
     #sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
-    codes = get_codes_startswith('SH600')
+    codes = get_codes_startswith('SH600004')
     sdata = cs.get_stocks(codes,begin,end,ref_id)    
     print 'sdata finish....'    
     #idata = prepare_data(begin,end,'INDEX')

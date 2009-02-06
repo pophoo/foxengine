@@ -52,6 +52,11 @@ class CacheTest(unittest.TestCase):
 
 
 class ModuleTest(unittest.TestCase):
+    def testBaseObject(self): #通路测试
+        co1 = BaseObject()
+        co2 = BaseObject(a=1,xx=12)
+        self.assertTrue(True)
+    
     def testCommonObject(self): #通路测试
         co1 = CommonObject(1)
         co2 = CommonObject(1,xx=12)

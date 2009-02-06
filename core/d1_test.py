@@ -38,6 +38,22 @@ class ModuleTest(unittest.TestCase):
         a2 = np.array([10,0,-3,0,1])
         self.assertEquals([1,1,1,0,1],gor(a2,np.array([0,2,3,0,5])).tolist())
 
+    def test_gmax(self):
+        a = np.array([10,0,-3,0,1])
+        b = np.array([3,0,0,-1,0])
+        c = np.array([1,0,3,3,-1])
+        self.assertEquals([10,0,-3,0,1],gmax(a).tolist())
+        self.assertEquals([10,0,0,0,1],gmax(a,b).tolist())
+        self.assertEquals([10,0,3,3,1],gmax(a,b,c).tolist())
+
+    def test_gmin(self):
+        a = np.array([10,0,-3,0,1])
+        b = np.array([3,0,0,-1,0])
+        c = np.array([1,0,3,3,-1])
+        self.assertEquals([10,0,-3,0,1],gmin(a).tolist())
+        self.assertEquals([3,0,-3,-1,0],gmin(a,b).tolist())
+        self.assertEquals([1,0,-3,-1,-1],gmin(a,b,c).tolist())
+
     def test_greater(self):
         a = np.array([10,0,-3,0,1])
         b = np.array([3,0,0,-1,0])

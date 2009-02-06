@@ -56,6 +56,8 @@ class ReportTest(unittest.TestCase):
 
 class TradeTest(unittest.TestCase):
     def test_normal(self):
+        self.assertEquals(0,common.Trade(1,1,1000,0).ttax)        
+        self.assertEquals(0,common.Trade(1,1,1000.0,0).ttax)    #价格浮点情形，实际中应当不会出现
         self.assertEquals(8,common.Trade(1,1,1000,-1).ttax)
         self.assertEquals(8,common.Trade(1,1,1000,1).ttax)
         self.assertEquals(8,common.Trade(1,1,1040,1).ttax)

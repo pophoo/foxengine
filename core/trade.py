@@ -8,7 +8,7 @@ from wolfox.fengine.base.common import Trade,Evaluation
 import logging
 logger = logging.getLogger('wolfox.fengine.core.trade')
 
-VOLUMEBASE = 1000
+VOLUME_BASE = 1000
 
 def buy_first(signal):  #确认是否前进一步以废除第一个卖出信号
     return 1 if signal < 0 else 0
@@ -49,7 +49,7 @@ def make_trades(tstock,signal,tdate,tpositive,tnegative,begin=0,taxrate=125,trad
         ci = sis[i]
         cs = signal[ci]
         price = tpositive[ci] if cs>0 else tnegative[ci]
-        trades.append(Trade(tstock,tdate[ci],price,cs*VOLUMEBASE,taxrate))        
+        trades.append(Trade(tstock,tdate[ci],price,cs*VOLUME_BASE,taxrate))        
     if sum(signal[tbegin:]) != 0: #最后一个未平仓,不计算
         #print sum(signal[tbegin:]),signal[tbegin:].tolist()
         trades.pop()
@@ -68,15 +68,14 @@ def last_trade(tstock,signal,tdate,tpositive,tnegative,begin=0,taxrate=125):
     last_index = sis[-1]
     cs = signal[last_index]
     price = tpositive[last_index] if cs > 0 else tnegative[last_index]
-    trades= [Trade(tstock,tdate[last_index],price,cs*VOLUMEBASE,taxrate)]
+    trades= [Trade(tstock,tdate[last_index],price,cs*VOLUME_BASE,taxrate)]
     return trades
 
-DEFAULT_EVALUATE_FILTER = lambda mts:mts
-def evaluate(trades,filter=DEFAULT_EVALUATE_FILTER):
+def evaluate(trades):
     ''' 对交易进行匹配和评估
         一次交易可以允许多次买卖，以单个股票存续数量为0为交易完成标志
         filter为对已经匹配成功的交易进行
-        matchedtrades中的元素形式为：
+        matchedtrades列表中的元素形式为：
             trade1,trade2,....,traden
             满足    所有trade的volume之和为0，并且任何前m个trade的volume之和不为0(对于买先策略为大于0)
             这个evaluate函数只有trade1,trade2两个成分，如果要一次买入多次卖出的，需要另一个evaluate
@@ -97,9 +96,39 @@ def evaluate(trades,filter=DEFAULT_EVALUATE_FILTER):
         else:
             contexts[trade.tstock] = (trade.tvolume,[trade])
     #print matchedtrades
-    filtered = filter(matchedtrades)
     for matchedtrade in matchedtrades:
         logger.debug('matched trade:%s,%s',matchedtrade[0],matchedtrade[1])
     #print '交易情况',matchedtrades,wincount,winamount,lostcount,lostamount
     return Evaluation(matchedtrades)
 
+DEFAULT_EVALUATE_FILTER = lambda mts:mts
+def gevaluate(trades,filter=DEFAULT_EVALUATE_FILTER):
+    ''' 对交易进行匹配和评估
+        一次交易可以允许多次买卖，以单个股票存续数量为0为交易完成标志
+        filter为对已经匹配成功的交易进行
+        matchedtrades列表中的元素形式为：
+            trade1,trade2,....,traden
+            满足    所有trade的volume之和为0，并且任何前m个trade的volume之和不为0(对于买先策略为大于0)
+            这个evaluate函数只有trade1,trade2两个成分，如果要一次买入多次卖出的，需要另一个evaluate
+            并且要有相应的新的make_trades函数
+    '''
+    matchedtrades = []
+    contexts = {}
+    for trade in trades:
+        if(trade.tstock in contexts):
+            sum,items = contexts[trade.tstock]
+            items.append(trade)
+            sum += trade.tvolume
+            if(sum == 0):#交易完成
+                del contexts[trade.tstock] #以触发下一次的else (如果设置为None则第一次和每次新交易的判断不同)
+                matchedtrades.append(items) 
+            else:
+                contexts[trade.tstock] = (sum,items)
+        else:
+            contexts[trade.tstock] = (trade.tvolume,[trade])
+    #print matchedtrades
+    matchedtrades = filter(matchedtrades)
+    for matchedtrade in matchedtrades:
+        logger.debug('matched trade:%s,%s',matchedtrade[0],matchedtrade[1])
+    #print '交易情况',matchedtrades,wincount,winamount,lostcount,lostamount
+    return Evaluation(matchedtrades)

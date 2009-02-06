@@ -36,17 +36,15 @@ def _trade_func(dates,stock,sbuy,ssell,prepare_func,begin=0,taxrate=125,**kwargs
     ssignal = make_trade_signal(sbuy,ssell)
     return make_trades(stock.code,ssignal,dates,t[CLOSE],t[CLOSE],begin,taxrate)
 
+def normal_evaluate(matchedtrades,**kwargs):
+    return evaluate(matchedtrades)
+
 dummy_trade_func = fcustom(_trade_func,prepare_func=BS_DUMMY)  
 b1s1_trade_func = fcustom(_trade_func,prepare_func=B1S1)  
 b0s0_trade_func = fcustom(_trade_func,prepare_func=B0S0)
 b0s1_trade_func = fcustom(_trade_func,prepare_func=B0S1)
 b1s0_trade_func = fcustom(_trade_func,prepare_func=B1S0)
 normal_trade_func = b1s1_trade_func   #一般情形买卖信号都是延后一日发生
-
-def create_evaluator(filter = DEFAULT_EVALUATE_FILTER):
-    def efunc(trades,**kwargs):         #kwargs目的是吸收无用参数，便于cruiser
-        return evaluate(trades,filter)
-    return efunc
 
 
 ppsort = lambda v,distance=1:percent_sort(percent(v,distance))

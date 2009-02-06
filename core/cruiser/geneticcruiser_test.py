@@ -62,7 +62,7 @@ class ExampleGeneticCruiser(gcruiser.GeneticCruiser):
         self.buy_func = buy_func_demo3
         self.sell_func = my_csc_func
         self.trade_func = fcustom(my_trade_func,begin=20010601)
-        self.evaluate_func = create_evaluator()
+        self.evaluate_func = normal_evaluate
 
 
 def buy_func_demo3(stock,fast,slow,extend_days = 20,**kwargs):

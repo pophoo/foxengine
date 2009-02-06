@@ -151,7 +151,8 @@ class Trade(DatedStock):
 
     def set_volume(self,tvolume):
         self.tvolume = tvolume
-        self.ttax = (self.tprice * abs(self.tvolume)  + self.taxrate/2)/ self.taxrate
+        self.ttax = (self.tprice * abs(self.tvolume)  + self.taxrate/2)/ self.taxrate if abs(tvolume) > 0 else 0
+        #实际上前一个公式也蕴含了整数情形下abs(tvolume)=0时ttax=0，但为避免浮点等复杂情形，适用判断
 
     def calc(self): #计算收入现金数(方向与tvolume相反)
         #print 'tax:',self.ttax,',amount:',self.tprice * (-self.tvolume)

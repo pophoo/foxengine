@@ -106,6 +106,12 @@ def evaluate(trades,matcher=match_trades):
 
 import operator
 def DEFAULT_EVALUATE_FILTER(matched_named_trades):
+    ''' 输入是元素如下的列表：
+            parent: BaseObject
+            trades:[[trade1,trade2,...],[trade3,trade4,...],....] 闭合交易列表
+        返回采纳的闭合交易的合并列表
+            [[trade1,trade2,...],[trade3,trade4,...],....]
+    '''
     tradess = [ mnt.trades for mnt in matched_named_trades if mnt.trades]   #形如[[trades,trades...],[trades,trades,...]...]
     return reduce(operator.add,tradess)
 
@@ -115,15 +121,15 @@ def gevaluate(named_trades,filter=DEFAULT_EVALUATE_FILTER,matcher=match_trades):
             evalutaion用于对trades中的交易进行风险和期望管理
         filter为对已经匹配成功的交易进行头寸管理
         matched_named_trades列表中的元素为BaseObject，其属性包括：
-            parent:指向所属的namedtrade(也是BaseObject)
-            trades:trade1,trade2,....,traden
+            parent:指向所属的named_trade(也是BaseObject)
+            trades:[[trade1,trade2,...],[trade3,trade4,...],....]
             满足    所有trade的volume之和为0，并且任何前m个trade的volume之和不为0(对于买先策略为大于0)
             这个evaluate函数只有trade1,trade2两个成分，如果要一次买入多次卖出的，需要另一个evaluate
             并且要有相应的新的make_trades函数
     '''
     matched_named_trades = []
-    for co in named_trades:
-        matched_named_trades.append(BaseObject(parent=co,trades=matcher(co.trades)))
+    for nt in named_trades:
+        matched_named_trades.append(BaseObject(parent=nt,trades=matcher(nt.trades)))
     matched_trades = filter(matched_named_trades)   #转换成[trades,trades,...]形式
     for matched_trade in matched_trades:
         #print 'matched trade:%s,%s',matched_trade[0],matched_trade[1]

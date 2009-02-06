@@ -24,7 +24,7 @@ class ModuleTest(unittest.TestCase):    #保持demo的有效性
 
     def tearDown(self):
         sout = sys.stdout.getvalue()
-        logger.debug(u'测试输出:%s',sout)
+        logger.debug(u'demo测试控制台输出:%s',sout)
         sys.stdout = self.tmp        #恢复标准I/O流
         #print sout
     

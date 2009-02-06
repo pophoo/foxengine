@@ -3,7 +3,9 @@
     遍历指定目录下的所有测试文件，运行其中的测试用例
 '''
 #This file is licensed under the Apache License Version 2.0
-#author: wycharon@gmail.com
+#author: wangycc@gmail.com
+
+import logging
 
 from django.core.management import setup_environ
 #import wolfox.foxit.settings as settings
@@ -14,6 +16,8 @@ import sys, os, os.path, re, unittest
 
 TEST_FILE_PATTERN = 'test\.py$' #默认的测试文件名为以test.py结尾的文件,以test开头的.py文件的pattern串为：'\Atest\w*\.py$'
 IGNORE_DIR_TYPE = ".svn,CVS"
+
+logger = logging.getLogger('regression')
 
 def find_tests_in_directory(root_path,sub_path): #root_path:起始目录，sub_path:目标目录，相对于起始目录的路径
     sub_package = sub_path.replace(os.path.sep,'.')
@@ -44,13 +48,25 @@ def find_all_tests():
         all_tests.addTest(find_tests_in_directory(root_path,sub_path))
     return all_tests
 
+
+def setUp():
+    from StringIO import StringIO
+    tmp = sys.stdout
+    sys.stdout = StringIO()  #将标准I/O流重定向到buff对象，抑制输出
+    return tmp
+
+def tearDown(tmp):
+    sout = sys.stdout.getvalue()
+    logger.debug(u'regression控制台输出:%s',sout)
+    sys.stdout = tmp        #恢复标准I/O流
+    #print sout
+
 #regression_test.pattern = re.compile(TEST_FILE_PATTERN, re.IGNORECASE)
 find_tests_in_directory.pattern = re.compile(TEST_FILE_PATTERN, re.IGNORECASE)
 find_all_tests.ignore = IGNORE_DIR_TYPE
 
 import optparse
 if __name__ == "__main__":                   
-    import logging
     logging.basicConfig(filename="regression.log",level=logging.DEBUG,format='#%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
     #unittest.main(defaultTest="regression_test")
     parser = optparse.OptionParser()
@@ -70,8 +86,10 @@ if __name__ == "__main__":
     target_directory = options.force and file_path(__file__) or options.directory
     os.chdir(target_directory)
     test_runner = unittest.TextTestRunner()
+    tmp = setUp()
     if(options.only):
         test_runner.run(find_tests_in_directory(target_directory,''))    #不能直接使用unittest.main,会导致命令行参数冲突
     else:
         test_runner.run(find_all_tests())   #不能直接使用unittest.main,会导致命令行参数冲突
+    tearDown(tmp)
 

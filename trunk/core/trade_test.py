@@ -97,28 +97,28 @@ class ModuleTest(unittest.TestCase):
         trades = make_trades(1,signal2,tdate,tbuy,tsell,begin=20050104)
         self.assertEquals(0,len(trades))
 
-    def test_eval_successive(self):#连续
+    def test_match_trades_successive(self):#连续
         trade1 = Trade(1,20050101,1000,1)
         trade2 = Trade(1,20050101,1100,1)
         trade3 = Trade(1,20050101,800,-1)
         trade4 = Trade(1,20050101,1200,-1)
         trades = [trade1,trade2,trade3,trade4]
-        ev = evaluate(trades)
-        self.assertEquals(1,len(ev.matchedtrades))
-        self.assertEquals([trade1,trade2,trade3,trade4],ev.matchedtrades[0])
+        mts = match_trades(trades)
+        self.assertEquals(1,len(mts))
+        self.assertEquals([trade1,trade2,trade3,trade4],mts[0])
 
-    def test_eval_left(self):#包含未闭合交易
+    def test_match_trades_left(self):#包含未闭合交易
         trade1 = Trade(1,20050101,1000,1)
         trade2 = Trade(1,20050101,1100,1)
         trade3 = Trade(1,20050101,800,-1)
         trade4 = Trade(1,20050101,1200,-1)
         trade5= Trade(1,20050101,1200,1)
         trades = [trade1,trade2,trade3,trade4,trade5]
-        ev = evaluate(trades)
-        self.assertEquals(1,len(ev.matchedtrades))
-        self.assertEquals([trade1,trade2,trade3,trade4],ev.matchedtrades[0])
+        mts = match_trades(trades)
+        self.assertEquals(1,len(mts))
+        self.assertEquals([trade1,trade2,trade3,trade4],mts[0])
 
-    def test_eval_multi(self):#包含未闭合交易
+    def test_match_trades_multi(self):#包含未闭合交易
         trade1 = Trade(1,20050101,1000,1)
         trade2 = Trade(2,20050101,1100,1)
         trade3 = Trade(1,20050101,800,-1)
@@ -126,9 +126,27 @@ class ModuleTest(unittest.TestCase):
         trade5= Trade(1,20050101,1200,1)
         trade6= Trade(2,20050101,1300,-1)
         trades = [trade1,trade2,trade3,trade4,trade5,trade6]
-        ev = evaluate(trades)
-        self.assertEquals([trade1,trade3],ev.matchedtrades[0])
-        self.assertEquals([trade2,trade4],ev.matchedtrades[1])
+        mts = match_trades(trades)
+        self.assertEquals(2,len(mts))
+        self.assertEquals([trade1,trade3],mts[0])
+        self.assertEquals([trade2,trade4],mts[1])
+
+    def test_evaluate(self):    #只测试通路
+        evaluate([])
+        self.assertTrue(True)
+    
+    def test_DEFAULT_EVALUATE_FILTER(self):
+        mnt1 = BaseObject(trades = [1,2,3])
+        mnt2 = BaseObject(trades = [10,20,30])
+        filtered = DEFAULT_EVALUATE_FILTER([mnt1,mnt2])
+        self.assertEquals([1,2,3,10,20,30],filtered)
+
+    def test_gevaluate(self):
+        trade1 = Trade(1,20050101,1000,1)
+        trade2 = Trade(1,20050101,1100,-1)
+        nt1 = BaseObject(name='test1',evaluation=Evaluation([]),trades=[trade1,trade2])
+        nt2 = BaseObject(name='test1',evaluation=Evaluation([]),trades=[])
+        ev = gevaluate([nt1,nt2])
 
 
 if __name__ == "__main__":

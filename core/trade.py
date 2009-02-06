@@ -4,6 +4,7 @@
 
 import numpy as np
 from wolfox.fengine.base.common import Trade,Evaluation
+from wolfox.fengine.core.base import BaseObject
 
 import logging
 logger = logging.getLogger('wolfox.fengine.core.trade')
@@ -71,17 +72,16 @@ def last_trade(tstock,signal,tdate,tpositive,tnegative,begin=0,taxrate=125):
     trades= [Trade(tstock,tdate[last_index],price,cs*VOLUME_BASE,taxrate)]
     return trades
 
-def evaluate(trades):
-    ''' 对交易进行匹配和评估
+def match_trades(trades):
+    ''' 对交易进行匹配
         一次交易可以允许多次买卖，以单个股票存续数量为0为交易完成标志
-        filter为对已经匹配成功的交易进行
-        matchedtrades列表中的元素形式为：
+        返回值matched_trades列表中的元素形式为：
             trade1,trade2,....,traden
             满足    所有trade的volume之和为0，并且任何前m个trade的volume之和不为0(对于买先策略为大于0)
-            这个evaluate函数只有trade1,trade2两个成分，如果要一次买入多次卖出的，需要另一个evaluate
-            并且要有相应的新的make_trades函数
+            这个matcher函数只有trade1,trade2两个成分，如果要一次买入多次卖出的，需要另一个matcher
+            并且要有相应的新的make_trades函数来对应
     '''
-    matchedtrades = []
+    matched_trades = []
     contexts = {}
     for trade in trades:
         if(trade.tstock in contexts):
@@ -90,45 +90,42 @@ def evaluate(trades):
             sum += trade.tvolume
             if(sum == 0):#交易完成
                 del contexts[trade.tstock] #以触发下一次的else (如果设置为None则第一次和每次新交易的判断不同)
-                matchedtrades.append(items) 
+                matched_trades.append(items) 
             else:
                 contexts[trade.tstock] = (sum,items)
         else:
             contexts[trade.tstock] = (trade.tvolume,[trade])
-    #print matchedtrades
-    for matchedtrade in matchedtrades:
-        logger.debug('matched trade:%s,%s',matchedtrade[0],matchedtrade[1])
-    #print '交易情况',matchedtrades,wincount,winamount,lostcount,lostamount
-    return Evaluation(matchedtrades)
+    #print matched_trades
+    #for matched_trade in matched_trades:logger.debug('matched trade:%s,%s',matched_trade[0],matched_trade[1])
+    return matched_trades
 
-DEFAULT_EVALUATE_FILTER = lambda mts:mts
-def gevaluate(trades,filter=DEFAULT_EVALUATE_FILTER):
+def evaluate(trades,matcher=match_trades):
     ''' 对交易进行匹配和评估
-        一次交易可以允许多次买卖，以单个股票存续数量为0为交易完成标志
-        filter为对已经匹配成功的交易进行
-        matchedtrades列表中的元素形式为：
-            trade1,trade2,....,traden
+    '''
+    return Evaluation(matcher(trades))
+
+import operator
+def DEFAULT_EVALUATE_FILTER(matched_named_trades):
+    tradess = [ mnt.trades for mnt in matched_named_trades if mnt.trades]   #形如[[trades,trades...],[trades,trades,...]...]
+    return reduce(operator.add,tradess)
+
+def gevaluate(named_trades,filter=DEFAULT_EVALUATE_FILTER,matcher=match_trades):
+    ''' 对多个来源组的交易进行匹配、头寸管理和评估。一次交易可以允许多次买卖，以单个股票存续数量为0为交易完成标志
+        named_trades为BaseObject列表，每个BaseObject包括name,evaluation,trades三个属性
+            evalutaion用于对trades中的交易进行风险和期望管理
+        filter为对已经匹配成功的交易进行头寸管理
+        matched_named_trades列表中的元素为BaseObject，其属性包括：
+            parent:指向所属的namedtrade(也是BaseObject)
+            trades:trade1,trade2,....,traden
             满足    所有trade的volume之和为0，并且任何前m个trade的volume之和不为0(对于买先策略为大于0)
             这个evaluate函数只有trade1,trade2两个成分，如果要一次买入多次卖出的，需要另一个evaluate
             并且要有相应的新的make_trades函数
     '''
-    matchedtrades = []
-    contexts = {}
-    for trade in trades:
-        if(trade.tstock in contexts):
-            sum,items = contexts[trade.tstock]
-            items.append(trade)
-            sum += trade.tvolume
-            if(sum == 0):#交易完成
-                del contexts[trade.tstock] #以触发下一次的else (如果设置为None则第一次和每次新交易的判断不同)
-                matchedtrades.append(items) 
-            else:
-                contexts[trade.tstock] = (sum,items)
-        else:
-            contexts[trade.tstock] = (trade.tvolume,[trade])
-    #print matchedtrades
-    matchedtrades = filter(matchedtrades)
-    for matchedtrade in matchedtrades:
-        logger.debug('matched trade:%s,%s',matchedtrade[0],matchedtrade[1])
-    #print '交易情况',matchedtrades,wincount,winamount,lostcount,lostamount
-    return Evaluation(matchedtrades)
+    matched_named_trades = []
+    for co in named_trades:
+        matched_named_trades.append(BaseObject(parent=co,trades=matcher(co.trades)))
+    matched_trades = filter(matched_named_trades)   #转换成[trades,trades,...]形式
+    for matched_trade in matched_trades:
+        #print 'matched trade:%s,%s',matched_trade[0],matched_trade[1]
+        logger.debug('matched trade:%s,%s',matched_trade[0],matched_trade[1])
+    return Evaluation(matched_trades)

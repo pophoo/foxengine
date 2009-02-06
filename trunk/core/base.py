@@ -10,6 +10,11 @@ from wolfox.common.tcommon import *
 OPEN,CLOSE,HIGH,LOW,AVG,AMOUNT,VOLUME = range(0,7)  #要做数组的下标，必须从0开始
 LEN_TRANS = 7   #交易数据个数
 
+class BaseObject(object):
+    def __init__(self,**kwargs):
+        self.__dict__.update(kwargs)
+
+
 class CommonObject(object):
     def __init__(self,id,**kwargs):
         self.id = id

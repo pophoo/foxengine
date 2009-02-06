@@ -26,7 +26,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
 
     def tearDown(self):
         sout = sys.stdout.getvalue()
-        logger.debug(u'测试输出:%s',sout)
+        logger.debug(u'geneticcruiser测试控制台输出:%s',sout)
         sys.stdout = self.tmp        #恢复标准I/O流
         #print sout
        

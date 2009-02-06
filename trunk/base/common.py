@@ -140,7 +140,7 @@ def f2_10000(fsrc):   # float转换为100为单位的整数
     return int(fsrc/10000.0 + 0.5)
 
 class Trade(DatedStock):
-    __slots__ = 'tstock','tdate','tprice','tvolume','ttax'
+    #__slots__ = 'tstock','tdate','tprice','tvolume','ttax' #不太方便，去掉
 
     def __init__(self,tstock,tdate,tprice,tvolume,taxrate = 125): #taxrate默认值为千分之八(1000/125). tvolume正为买入，负为卖出
         self.tstock = tstock

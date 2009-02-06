@@ -144,9 +144,12 @@ class ModuleTest(unittest.TestCase):
     def test_gevaluate(self):
         trade1 = Trade(1,20050101,1000,1)
         trade2 = Trade(1,20050101,1100,-1)
+        trade3 = Trade(2,20050501,1000,1)
+        trade4 = Trade(2,20050501,1100,-1)
         nt1 = BaseObject(name='test1',evaluation=Evaluation([]),trades=[trade1,trade2])
-        nt2 = BaseObject(name='test1',evaluation=Evaluation([]),trades=[])
+        nt2 = BaseObject(name='test1',evaluation=Evaluation([]),trades=[trade3,trade4])
         ev = gevaluate([nt1,nt2])
+        self.assertEquals([[trade1,trade2],[trade3,trade4]],ev.matchedtrades)
 
 
 if __name__ == "__main__":

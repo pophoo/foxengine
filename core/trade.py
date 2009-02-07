@@ -5,6 +5,7 @@
 import numpy as np
 from wolfox.fengine.base.common import Trade,Evaluation
 from wolfox.fengine.core.base import BaseObject
+from wolfox.fengine.core.utils import fcustom
 
 import logging
 logger = logging.getLogger('wolfox.fengine.core.trade')
@@ -20,8 +21,25 @@ def sell_first(signal):  #确认是否前进一步以废除第一个买入信号
 def double_first(signal):  #双向
     return 0
 
-def make_trades(tstock,signal,tdate,tpositive,tnegative,begin=0,taxrate=125,trade_strategy=buy_first):
-    ''' tstock为stock_code
+def default_extra(trade,stock,index):   #不做任何事情
+    return trade
+
+def atr_extra(trade,stock,index):   #将atr值赋给trade
+    trade.atr = stock.atr[index]
+    return trade
+
+def append_attribute_extra(trade,stock,index,attribute_name):
+    if attribute_name in stock.__dict__:
+        trade.__dict__[attribute_name] = stock.__dict__[attribute_name][index]
+    else:
+        logger.warn('append attribute error:%s do not have attribute %s',stock.code,attribute_name)
+    return trade
+
+atr_extra = fcustom(append_attribute_extra,attribute_name='atr')
+
+def make_trades(stock,signal,tdate,tpositive,tnegative
+        ,begin=0,taxrate=125,trade_strategy=buy_first,extra_func=default_extra):
+    ''' stock为stock
         ssingal为买卖信号,对于次日买卖的信号，输入前需要将signal roll(1)
         tpositive,tnegative为信号值为正和负时的选择价格
         taxrate为税率，默认为千分之八
@@ -50,13 +68,15 @@ def make_trades(tstock,signal,tdate,tpositive,tnegative,begin=0,taxrate=125,trad
         ci = sis[i]
         cs = signal[ci]
         price = tpositive[ci] if cs>0 else tnegative[ci]
-        trades.append(Trade(tstock,tdate[ci],price,cs*VOLUME_BASE,taxrate))        
+        ctrade = Trade(stock.code,tdate[ci],price,cs*VOLUME_BASE,taxrate)
+        trades.append(extra_func(ctrade,stock,ci))
     if sum(signal[tbegin:]) != 0: #最后一个未平仓,不计算
         #print sum(signal[tbegin:]),signal[tbegin:].tolist()
         trades.pop()
     return trades
 
-def last_trade(tstock,signal,tdate,tpositive,tnegative,begin=0,taxrate=125):
+def last_trade(stock,signal,tdate,tpositive,tnegative
+        ,begin=0,taxrate=125,trade_strategy=buy_first,extra_func=default_extra): #trade_strategy虽然没用，也给写上
     ''' 返回值为[x]形式(无时为[])
     '''
     assert len(tpositive) == len(tnegative) == len(signal)
@@ -69,7 +89,8 @@ def last_trade(tstock,signal,tdate,tpositive,tnegative,begin=0,taxrate=125):
     last_index = sis[-1]
     cs = signal[last_index]
     price = tpositive[last_index] if cs > 0 else tnegative[last_index]
-    trades= [Trade(tstock,tdate[last_index],price,cs*VOLUME_BASE,taxrate)]
+    ltrade = Trade(stock.code,tdate[last_index],price,cs*VOLUME_BASE,taxrate)
+    trades= [extra_func(ltrade,stock,last_index)]
     return trades
 
 def match_trades(trades):

@@ -36,7 +36,7 @@ class MediatorTest(unittest.TestCase):
         sdata = {'sa':sa,'sb':sb}
         fbuy = lambda x:np.array([1,0])
         fsell = lambda x,y:np.array([0,1])
-        ftrade = lambda x,y,z,a,b,c,d:(1,2)
+        ftrade = lambda x,y,z,a,c,begin:(1,2)
         m = Mediator(fbuy,fsell)
         m._calc(ftrade,sdata,dates)
         self.assertTrue(True)

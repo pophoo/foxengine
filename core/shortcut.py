@@ -44,7 +44,7 @@ def _trade_func_deprecated(dates,stock,sbuy,ssell,prepare_func,begin=0,taxrate=1
     t = stock.transaction
     sbuy,ssell = prepare_func(t,sbuy,ssell)
     ssignal = make_trade_signal(sbuy,ssell)
-    return make_trades(stock.code,ssignal,dates,t[CLOSE],t[CLOSE],begin,taxrate)
+    return make_trades(stock,ssignal,dates,t[CLOSE],t[CLOSE],begin,taxrate)
 
 dummy_trade_func_deprecated = fcustom(_trade_func_deprecated,prepare_func=BS_DUMMY)  
 b1s1_trade_func_deprecated = fcustom(_trade_func_deprecated,prepare_func=B1S1)  

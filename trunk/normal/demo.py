@@ -42,7 +42,7 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20):
     #print stock.code
     logger.debug('calc: %s ' % stock.code)
     t = stock.transaction
-    print t[CLOSE]
+    #print t[CLOSE]
     g = stock.gorder >= 8500    
     signal_s = catalog_signal(stock.c60,8500,8500)  #kao.存在没有c60也就是不归属任何catalog的stock，直接异常
     #print stock.code,max(stock.gorder)
@@ -102,19 +102,15 @@ def demo(sdata,dates,idata=None):
 
     demo3 = fcustom(buy_func_demo3,fast=5,slow=98)
     
-    trade_func = fcustom(normal_trade_func,begin=20010601)  #交易起始交易时间
-    #trade_func = fcustom(dummy_trade_func,begin=20010601)  #交易起始交易时间
-
-    name =  names(demo3,csc_func,trade_func)
-    trades = normal_calc_template(sdata,dates,demo3,csc_func,trade_func)    
+    m = Mediator(demo3,csc_func)
+    name = m.name()
+    trades = m.calc(sdata,dates,20010601)
     tend = time()
     print u'耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    
-    #for trade in trades:
-    #    print trade
-    evs2 = normal_evaluate(trades)
-    print evs2.header()
-    #print evs2
+    evs3 = normal_evaluate(trades)
+    print evs3.header()
+
 
 if __name__ == '__main__':
     logging.basicConfig(filename="demo.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
@@ -128,7 +124,7 @@ if __name__ == '__main__':
     #sdata = cs.get_stocks(['SZ000655'],begin,end,ref_id)
     #print sdata[442].transaction[CLOSE]
     #sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
-    codes = get_codes_startswith('SH600004')
+    codes = get_codes_startswith('SH600')
     sdata = cs.get_stocks(codes,begin,end,ref_id)    
     print 'sdata finish....'    
     #idata = prepare_data(begin,end,'INDEX')

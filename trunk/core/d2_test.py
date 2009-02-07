@@ -228,6 +228,15 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals(ibc.tolist()[3],ia.tolist()[3])         
         self.assertTrue(True)
 
+    def test_ppsort(self):
+        a = np.array([(5,4,7),(3,2,8),(8,5,3),(4,4,4)])
+        sa = ppsort(a)
+        self.assertTrue(True)
+        #空测试
+        a = np.array([(),(),(),(),(),(),()])        
+        sa = ppsort(a)
+        self.assertTrue(True)
+
     def test_ma2d(self):
         a= np.array([(1,2,3,4,5,6,7,8,9,0),(0,9,8,7,6,5,4,3,2,1)])
         av = ma2d(a,3)

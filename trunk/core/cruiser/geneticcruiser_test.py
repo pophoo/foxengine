@@ -61,7 +61,7 @@ class ExampleGeneticCruiser(gcruiser.GeneticCruiser):
         self.predefined = [(12,55),(20,120)]
         self.buy_func = buy_func_demo3
         self.sell_func = my_csc_func
-        self.trade_func = fcustom(my_trade_func,begin=20010601)
+        #self.trade_func = fcustom(my_trade_func,begin=20010601)
         self.evaluate_func = normal_evaluate
 
 

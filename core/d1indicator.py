@@ -320,6 +320,9 @@ def tr(shigh,slow,sclose):
     slc = np.abs(slow - sclose)
     return gmax(shl,shc,slc)
 
+def atr(shigh,slow,sclose,length):
+    return ma(tr(shigh,slow,sclose),length)
+
 def uplines(*args):
     ''' args[0]...args[-1]各个序列多头排列，其中args[0]为最快速线
     '''

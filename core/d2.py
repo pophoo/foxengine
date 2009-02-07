@@ -208,6 +208,12 @@ def cmp_percent(v,pos=0):
     return (v * PERCENT_BASE)/ d_column
 
 
+ppsort = lambda v,distance=1:percent_sort(percent(v,distance))
+
+c_posort = cdispatch(ppsort)
+d_posort = dispatch(ppsort)
+
+
 def ma2d(source,length):
     ''' 计算二维数组每行的ma 
     '''

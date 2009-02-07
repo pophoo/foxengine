@@ -92,7 +92,7 @@ class GeneticCruiser(object):
             #print 'array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
             #show_most_common_types()
             end = stime.time()
-            print u'judge 耗时',end-begin,begin,end
+            print u'judge 耗时',end-begin #,begin,end
             return rv
         judge.minev = -1000
         return judge
@@ -110,9 +110,12 @@ class GeneticCruiser(object):
     def calc(self,sdata,dates,tbegin,evthreshold,**kwargs):
         buy_func = fcustom(self.buy_func,**kwargs)
         sell_func = fcustom(self.sell_func,**kwargs)
-        trade_func = fcustom(self.trade_func,**kwargs)        
-        name = names(buy_func,sell_func,trade_func)
-        trades = normal_calc_template(sdata,dates,buy_func,sell_func,trade_func)
+        #trade_func = fcustom(self.trade_func,**kwargs)        
+        #name = names(buy_func,sell_func,trade_func)
+        #trades = normal_calc_template(sdata,dates,buy_func,sell_func,trade_func)
+        m = Mediator(buy_func,sell_func)
+        name = m.name()
+        trades = m.calc(sdata,dates,begin=tbegin)
         ev = self.evaluate_func(trades,**kwargs)  
         if(not evthreshold(ev)):
             ev.matchedtrades,ev.balances = [],[]    #相当于先删除。为保证ev的一致性而都赋为[]。否则str(ev)中的zip(...)会出错
@@ -150,7 +153,7 @@ class ExampleGeneticCruiser(GeneticCruiser):
         self.buy_func = buy_func_demo3
         self.sell_func = csc_func
         #self.sell_func = my_csc_func
-        self.trade_func = fcustom(normal_trade_func,begin=20010601)
+        #self.trade_func = fcustom(normal_trade_func,begin=20010601)
         #self.trade_func = fcustom(my_trade_func,begin=20010601)
         self.evaluate_func = normal_evaluate
 
@@ -178,8 +181,9 @@ if __name__ == '__main__':
     d_posort('gorder',sdata.values(),distance=60)
     #trade_func = fcustom(normal_trade_func,begin=20010601)  #交易初始时间
     cruiser = ExampleGeneticCruiser(psize=20,maxstep=2)
+    print 'before cruiser,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
     cruiser.gcruise(sdata,dates,20010601)
-    print 'array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
+    print 'after cruiesr,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
     tend = time()
     print u'耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    

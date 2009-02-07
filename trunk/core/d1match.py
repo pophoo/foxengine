@@ -44,7 +44,7 @@ def make_trade_signal_double_direct(target_b,target_s):
         同时，卖出优先级高于买入，这样，不存在t+1问题。
         信号次日起效的偏移需要外部处理
         允许target_b/target_s交替先行, 即允许卖空
-        返回结果确保任何两个连续信号量相加为0        
+        返回结果确保任何三个连续信号量相加不大于2或小于-2, 如最多连续的2个买入, 第一个买入是对之前卖出的平仓,第二个是开仓买入
     '''
     len_b,len_s = len(target_b),len(target_s)
     assert len_b == len_s
@@ -58,6 +58,44 @@ def make_trade_signal_double_direct(target_b,target_s):
         if tsum > 1 or tsum < -1: #连续的无匹配买入/卖出
             tsum -= cv
             s[i] = 0
+    return s
+
+def make_trade_signal_advanced(target,follow):  
+    ''' 根据target和follow信号，集成交易信号，除去无匹配的连续买入和卖出
+        同时，卖出优先级高于买入，这样，不存在t+1问题。
+        信号次日起效的偏移需要外部处理
+        不允许follow信号先行(tsum<=-1), 对于纯粹的卖空操作,只需要将卖出信号作为target
+        允许多次买入，但只允许一次卖出,即不允许连续的卖出信号
+    '''
+    len_t,len_f = len(target),len(follow)
+    assert len_t == len_f
+    if(len_f == 0):
+        return  np.array([])
+    s = np.sign(target - follow * 2) #卖出优先于买入，当日两者同时发生的话，仍然为卖出信号
+    state = 0   #0空仓状态,1持仓状态
+    for i in xrange(len_t):
+        cv = s[i]
+        if state == 0:   #空仓
+            if cv < 0:   #空仓忽略卖出信号
+                s[i] = 0
+            elif cv > 0:
+                state = 1
+        elif cv < 0:    #持仓且买出,成为空仓
+            state = 0
+    return s
+
+def make_trade_signal_double_direct_free(target_b,target_s):
+    ''' 根据target和follow信号，集成交易信号，除去无匹配的连续买入和卖出
+        同时，卖出优先级高于买入，这样，不存在t+1问题。
+        信号次日起效的偏移需要外部处理
+        允许target_b/target_s交替先行, 即允许卖空
+        对买入卖出信号不做限制。
+    '''
+    len_b,len_s = len(target_b),len(target_s)
+    assert len_b == len_s
+    if(len_s == 0):
+        return  np.array([])
+    s = np.sign(target_b - target_s) #两类信号同等待遇,同时出现则抵消
     return s
 
 

@@ -9,16 +9,27 @@ import logging
 
 from wolfox.fengine.base.common import Trade
 from wolfox.fengine.core.base import BaseObject
+from wolfox.fengine.core.utils import fcustom
 
 logger = logging.getLogger('wolfox.fengine.core.postion_manager')
 
 POS_BASE = 1000
 
+#平均损失函数，返回的是千分比表示的平均损失
+def ev_lost(trade): 
+    return trade.parent.evaluation.lostavg
+
+def atr_lost(trade,times=1):
+    return trade.atr * times * POS_BASE / trade.price
+
+atr_lost_2 = fcustom(atr_lost,times=2)
+
 class PositionManager(object):
-    def __init__(self,init_size=100000000,max_proportion=200,risk=10):
+    def __init__(self,init_size=100000000,max_proportion=200,risk=10,calc_lost=ev_lost):
         self.init_size = init_size     #现金,#以0.001元为单位
         self.max_proportion = max_proportion    #单笔占总金额的最大占比(千分比)
         self.risk = risk    #每笔交易承担的风险占总金额的比例(千分比)
+        self.calc_lost = calc_lost
         self.position = Position()  #现有仓位: code ==> trade
         self.cash = init_size
         self.earning = 0        #当前盈利
@@ -38,17 +49,16 @@ class PositionManager(object):
 
     def organize_trades(self,named_trades):
         ''' 输入是元素如下的列表：
-                parent: BaseObject
                 trades:[[trade1,trade2,...],[trade3,trade4,...],....] 闭合交易列表
             转换合并按日期排序后返回
-                [(trade1,parent),(trade2,parent),...]
+                [trade1,trade2,.....]
         '''
-        trades = []
-        for nt in named_trades:
-            if nt:
-                cur_trades = reduce(operator.add,nt.trades)
-                trades.extend([(t,nt.parent) for t in cur_trades])
-        trades.sort(cmp=lambda x,y:x[0].tdate-y[0].tdate)                
+        nts = filter(lambda ts : ts,named_trades)   #滤去空元素
+        if not nts: #啥也没剩下
+            return []
+        tradess = reduce(operator.add,nts) #转换为[[...],[...],[...]]
+        trades = reduce(operator.add,tradess)   #为[......]
+        trades.sort(cmp=lambda x,y:x.tdate-y.tdate)
         return trades        
 
     def filter(self,named_trades):
@@ -56,12 +66,12 @@ class PositionManager(object):
         return self.position.history
 
     def run(self,trades):
-        for trade,parent in trades:
+        for trade in trades:
             climit = self.cur_limit()
             crisk = self.cur_risk()
             if trade.tvolume > 0:   #买入
                 #print u'买入,before cash:',self.cash,'tstock:',trade.tstock
-                self.cash += self.position.push(trade,parent.evaluation.lostavg,crisk,climit)
+                self.cash += self.position.push(trade,self.calc_lost(trade),crisk,climit)
                 #print u'买入,after cash:',self.cash                
             else:   #卖出
                 income,cost = self.position.pop(trade)

@@ -6,54 +6,6 @@ import wolfox.fengine.base.common as common
 class ModuleTest(unittest.TestCase):
     pass
 
-class QuoteTest(unittest.TestCase):
-    def test_create_quote(self):#不抛出异常就成功
-        quote = common.createQuoteFromSrc(1,1,1,1,1,1,1,1)
-        quote = common.createQuoteFromDb(1,1,1,1,1,1,1,1,1)
-
-    def test_calc_avg_volume0(self):
-        quote = common.Quote()
-        quote.tclose = 100
-        quote.tvolume = 0
-        quote.calcAvg()
-        self.assertEquals(quote.tclose,quote.tavg)
-
-    def test_calc_avg_normal(self):
-        quote = common.Quote()
-        quote.tamount = 250 #25万元
-        quote.tvolume = 100 #10000股
-        quote.calcAvg()
-        self.assertEquals(25000,quote.tavg)
-
-    def test_calc_avg_overflow(self): #测试整数溢出,因为是长整型参与计算，不应当出错
-        quote = common.Quote()
-        quote.tamount = 25000 #2500万元
-        quote.tvolume = 100000 #10000000股
-        quote.calcAvg()
-        self.assertEquals(2500,quote.tavg)
-
-    def test_as_dict(self):
-        quote = common.Quote()
-        quote.tstock = 'A00001'
-        quote.tclose = 100
-        quote.tvolume = 123
-        adict = quote.asdict()
-        self.assertEquals('A00001',adict['tstock'])
-        self.assertEquals(100,adict['tclose'])
-        self.assertEquals(123,adict['tvolume'])
-
-class XInfoTest(unittest.TestCase):
-    def test_create_xinfo(self):
-        xi = common.createXInfoFromSrc(1,1,1,1,1,1,1,1,1)
-        xi = common.createXInfoFromDb(1,1,1,1,1,1,1,1,1,1,1,1)
-        self.assertEquals(xi.tdate,xi.texecuteday)
-
-class ReportTest(unittest.TestCase):
-    def test_create_report(self):
-        report = common.createReportFromSrc(1,1,1,1,1,1,1,1,1,1,1,1)
-        report = common.createReportFromDb(1,1,1,1,1,1,1,1,1,1,1,1,1)
-        self.assertEquals(report.tdate,report.treleaseday)
-
 class TradeTest(unittest.TestCase):
     def test_normal(self):
         self.assertEquals(0,common.Trade(1,1,1000,0).ttax)        

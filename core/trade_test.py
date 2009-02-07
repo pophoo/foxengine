@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from wolfox.common.tcommon import Quote,Trade
+from wolfox.fengine.base.common import Quote,Trade
 from wolfox.fengine.core.trade import *
 
 class ModuleTest(unittest.TestCase):

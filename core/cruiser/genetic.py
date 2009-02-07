@@ -7,8 +7,8 @@
 import random
 from math import log
 import logging
-from wolfox.common.tutils import linelog
-import wolfox.core.cruiser.genetichelper as helper
+from wolfox.foxit.base.tutils import linelog
+import wolfox.fengine.core.cruiser.genetichelper as helper
 
 logger = logging.getLogger('wolfox.fengine.core.cruiser.genetic')
 

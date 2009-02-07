@@ -24,10 +24,6 @@ def normal_calc_template(sdata,dates,buy_func,sell_func,trade_func):
             logger.warning('%s calc error : %s',s.code,inst)
     return trades
 
-def csc_func(stock,buy_signal,threshold=75,**kwargs):   #kwargs目的是吸收无用参数，便于cruiser
-    t = stock.transaction
-    return d1id.confirmedsellc(buy_signal,t[OPEN],t[CLOSE],t[HIGH],t[LOW],threshold)
-
 def _trade_func(dates,stock,sbuy,ssell,prepare_func,begin=0,taxrate=125,**kwargs):  #kwargs目的是吸收无用参数，便于cruiser
     ''' prepare_func是对sbuy和ssell进行预处理，如买卖都是次日交易则为B1S1 
     '''
@@ -35,6 +31,11 @@ def _trade_func(dates,stock,sbuy,ssell,prepare_func,begin=0,taxrate=125,**kwargs
     sbuy,ssell = prepare_func(t,sbuy,ssell)
     ssignal = make_trade_signal(sbuy,ssell)
     return make_trades(stock.code,ssignal,dates,t[CLOSE],t[CLOSE],begin,taxrate)
+
+def csc_func(stock,buy_signal,threshold=75,**kwargs):   #kwargs目的是吸收无用参数，便于cruiser
+    t = stock.transaction
+    return d1id.confirmedsellc(buy_signal,t[OPEN],t[CLOSE],t[HIGH],t[LOW],threshold)
+
 
 def create_evaluator(matcher=match_trades):
     def efunc(trades,**kwargs):         #kwargs目的是吸收无用参数，便于cruiser

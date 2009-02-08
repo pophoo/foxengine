@@ -133,13 +133,13 @@ class ModuleTest(unittest.TestCase):
         shigh = np.array([200,250,200,400])
         slow = np.array([100,200,100,200])
         sclose = np.array([150,220,150,300])
-        self.assertEquals([100,100,120,250],tr(shigh,slow,sclose).tolist())
+        self.assertEquals([100,100,120,250],tr(sclose,shigh,slow).tolist())
 
-    def test_tr(self):
+    def test_atr(self):
         shigh = np.array([200,250,200,400])
         slow = np.array([100,200,100,200])
         sclose = np.array([150,220,150,300])
-        self.assertEquals([100,100,120,250],atr(shigh,slow,sclose,1).tolist())
+        self.assertEquals([100,100,120,250],atr(sclose,shigh,slow,1).tolist())
 
     def test_uplines(self):
         self.assertEquals([0,1,1,1,1,0,0,0,0],uplines(np.array([1,2,3,4,5,5,4,3,2])).tolist())

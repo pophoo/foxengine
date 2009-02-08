@@ -7,9 +7,11 @@
 import operator
 import logging
 
+import numpy as np
 from wolfox.fengine.base.common import Trade
 from wolfox.fengine.core.base import BaseObject
 from wolfox.fengine.core.utils import fcustom
+from wolfox.fengine.core.d1ex import extend2next
 
 logger = logging.getLogger('wolfox.fengine.core.postion_manager')
 
@@ -120,7 +122,34 @@ def atr_lost(trade,times=1):
 
 atr_lost_2 = fcustom(atr_lost,times=2)
 
-class PositionManager(object):
+from math import sqrt
+def RPR(xt,y):  #净值评估函数,xt为日期维x,y为相应净值
+    '''#根据海龟交易法则
+       计算方法来自http://www.scipy.org/Cookbook/LinearRegression
+    '''
+    (ar,br)=np.polyfit(xt,y,1)  #一阶拟合
+    xr = np.polyval([ar,br],xt)
+    err=sqrt(sum((xr-xt)**2)/len(xt)) #标准差
+    (a_s,b_s,r,tt,stderr)=stats.linregress(xt,y)
+    year_inc_rate = int(a_s * 365 * POS_BASE/b_s)
+    logger.debug('rar:year_inc_rate=%s,a=%s,b=%s,k=a/b=%s,stderr=%s,err=%s',year_inc_rate,a_s,b_s,a_s/b_s,stderr,err)
+    return year_inc_rate
+
+def CSHARP(xt,y):   #变异夏普比率
+    ''' 以回报而非超额回报为分子近似计算月比例
+    '''
+    indices = range(0,len(xt),30)
+    m_xt = xt[indices]
+    m_y = y[indices]
+    (ar,br)=np.polyfit(m_xt,m_y,1)  #一阶拟合
+    yr = np.polyval([ar,br],m_xt)
+    err=sqrt(sum((yr-m_y)**2)/len(m_xt)) #标准差
+    csharp = int(ar/br/err * POS_BASE)
+    return csharp
+
+
+from scipy import stats
+class PositionManager(object):  #只适合先买后卖，卖空和混合方式都要由子类定制run实现
     def __init__(self,init_size=100000000,max_proportion=200,risk=10,calc_lost=ev_lost,position=Position):
         self.init_size = init_size     #现金,#以0.001元为单位
         self.max_proportion = max_proportion    #单笔占总金额的最大占比(千分比)
@@ -129,11 +158,13 @@ class PositionManager(object):
         self.position = position()  #现有仓位: code ==> trade
         self.cash = init_size
         self.earning = 0        #当前盈利
+        self.vhistory = [BaseObject(date=0,value=self.init_size)]      #净值历史
 
     def clear(self):
         self.cash = self.init_size
         self.earning = 0
         self.position.clear()
+        self.vhistory = [BaseObject(date=0,value=self.init_size)]
 
     def assets(self):
         return self.init_size + self.earning
@@ -176,8 +207,61 @@ class PositionManager(object):
                 #print u'买入,after cash:',self.cash                
             else:   #卖出
                 income,cost = self.position.pop(trade)
-                self.cash += income
-                self.earning += (income + cost)
+                if income:  #非空转
+                    self.cash += income
+                    self.earning += (income + cost)
+                    self.vhistory.append(BaseObject(date=trade.tdate,value=self.assets()))
+
+    def calc_net_indicator(self,date_manager,func=RPR): 
+        xt = np.arange(len(date_manager))    #x轴
+        y = self.organize_net_array(date_manager)  #y轴
+        return func(xt,y)
+
+    def organize_net_array(self,date_manager):
+        ''' 根据date_manager和vhistory获得净值数组(坐标与dates相一致)
+        '''
+        rev = np.zeros(len(date_manager),int)
+        self.vhistory[0].date = date_manager.begin
+        for b in self.vhistory: #第一个是初始值
+            index = date_manager.get_index(b.date)
+            rev[index] = b.value
+        rev = extend2next(rev)
+        return rev
 
 
+import datetime
+class DateManager(object):
+    def __init__(self,begin=0,end=0):
+        self.begin = begin
+        self.end = end
+        self.date_map = self.init_dates(begin,end)
 
+    def __len__(self):
+        return len(self.date_map)
+
+    def init_dates(self,begin,end):
+        if end <= begin:
+            return {}
+        date_map = {}
+        from_date = datetime.date(begin/10000,begin%10000/100,begin%100)
+        to_date = datetime.date(end/10000,end%10000/100,end%100)
+        step = datetime.timedelta(1)
+        cur_date = from_date
+        i = 0
+        while cur_date < to_date:
+            idate = cur_date.year * 10000 + cur_date.month * 100 + cur_date.day
+            date_map[idate] = i
+            cur_date += step
+            i += 1
+        return date_map
+    
+    def get_index(self,date):
+        if date in self.date_map:
+            return self.date_map[date]
+        else:
+            logger.warn('%s not in [%s,%s)',date,self.begin,self.end)
+            print '%s not in [%s,%s)' % (date,self.begin,self.end)
+            raise KeyError('%s not in [%s,%s)' % (date,self.begin,self.end))
+
+    def get_dates(self):
+        return sorted(self.date_map.keys())

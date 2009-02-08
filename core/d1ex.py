@@ -153,6 +153,37 @@ def extend(source,interval=1):#interval必须大于0
         rev[i] = v if curextend > 0 else 0
     return rev
 
+def extend2next(source):
+    ''' 信号延伸，一直延伸到下一个信号
+        >0  正信号
+        =0  无信号
+        <0  负信号
+    '''
+    rev = np.zeros_like(source)
+    cur = 0
+    for i in xrange(len(source)):
+        cv = source[i]
+        if cv != 0:
+            cur = cv
+        rev[i] = cur
+    return rev
+
+def extend2reverse(source):
+    ''' 信号延伸，一直延伸到反向信号
+        >0  正信号
+        =0  无信号
+        <0  负信号
+    '''
+    rev = np.zeros_like(source)
+    cur = 0
+    for i in xrange(len(source)):
+        cv = source[i]
+        #if cv != 0 and cv * cur <= 0:
+        if cv != 0 and (( cv > 0 and cur <=0) or (cv<0 and cur >=0)):   #效率上可能高一些?
+           cur = cv
+        rev[i] = cur
+    return rev
+
 def distance(source):
     ''' 信号相对距离，信号日为0，逐日递增，直至另一个信号日
         初始序列中以非0认为是有信号

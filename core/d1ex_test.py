@@ -45,6 +45,16 @@ class ModuleTest(unittest.TestCase):
         source = np.array([0,0,5,0,-5,0,0,0,0,0,1,0,0,3,0,0,-1,1,2,0,0,0,0,6,0])
         self.assertEquals([0,0,5,5,-5,-5,-5,-5,0,0,1,1,1,3,3,3,-1,1,2,2,2,2,0,6,6],extend(source,4).tolist())
 
+    def test_extend2reverse(self):
+        source = np.array([0,0,5,0,-5,0,0,0,0,0,1,0,0,3,0,0,-1,1,2,0,0,0,0,6,0])
+        self.assertEquals([0,0,5,5,-5,-5,-5,-5,-5,-5,1,1,1,1,1,1,-1,1,1,1,1,1,1,1,1],extend2reverse(source).tolist())
+        self.assertEquals([],extend2reverse(np.array([])).tolist())
+
+    def test_extend2next(self):
+        source = np.array([0,0,5,0,-5,0,0,0,0,0,1,0,0,3,0,0,-1,1,2,0,0,0,0,6,0])
+        self.assertEquals([0,0,5,5,-5,-5,-5,-5,-5,-5,1,1,1,3,3,3,-1,1,2,2,2,2,2,6,6],extend2next(source).tolist())
+        self.assertEquals([],extend2next(np.array([])).tolist())
+
     def test_distance(self):
         source = np.array([0,0,5,0,-5,0,0,0,0,0,1,0,0,3,0,0,-1,1,2,0,0,0,0,6,0])
         self.assertEquals([1,2,0,1,0,1,2,3,4,5,0,1,2,0,1,2,0,0,0,1,2,3,4,0,1],distance(source).tolist())

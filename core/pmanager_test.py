@@ -3,12 +3,39 @@
 import logging
 
 import unittest
+from scipy import randn
 from wolfox.fengine.core.pmanager import *
 
 logger = logging.getLogger('wolfox.fengine.core.pmanager_test')
 
 class ModuleTest(unittest.TestCase):
-    pass
+    def test_ev_lost(self):
+        trade = BaseObject(parent=BaseObject(evaluation=BaseObject(lostavg=10)))
+        self.assertEquals(10,ev_lost(trade))
+
+    def test_atr_lost(self):
+        trade = BaseObject(price=10000,atr=200)
+        self.assertEquals(20,atr_lost(trade))
+        self.assertEquals(40,atr_lost_2(trade))
+
+    def test_RPR(self):
+        xt = np.arange(29)
+        y = np.ones(len(xt),int)
+        y *= 100000000        
+        self.assertEquals(0,RPR(xt,y))
+        y[14:] = 100120000
+        #print y,xt
+        self.assertEquals(22,RPR(xt,y))
+
+    def test_CSHARP(self):#通路测试
+        n = 305
+        a = 0.8
+        b = 4
+        xt = np.arange(n)
+        y = np.polyval([a,b],xt)
+        yn= y + randn(n)
+        cs = CSHARP(xt,yn)
+        self.assertTrue(cs>0)
 
 
 class PositionTest(unittest.TestCase):
@@ -206,12 +233,16 @@ class PositionManagerTest(unittest.TestCase):
         pm.cash = 100000000
         pm.earning = 20000
         trade1 = Trade(0,20010101,10000,1)        
+        trade2 = Trade(0,20010101,12000,-1)        
         pm.position.push(trade1,100,100000,999999000)
         self.assertEquals(1,len(pm.position.holdings))
+        pm.vhistory.append(BaseObject(tdate=20010101,value=10))
+        self.assertEquals(2,len(pm.vhistory))
         pm.clear()
         self.assertEquals(pm.init_size,pm.cash)
         self.assertEquals(0,pm.earning)
         self.assertEquals(0,len(pm.position.holdings))
+        self.assertEquals(1,len(pm.vhistory))
 
     def test_cur_limit(self):
         pm = PositionManager()
@@ -305,6 +336,10 @@ class PositionManagerTest(unittest.TestCase):
         self.assertEquals(101664000,pm.cash)    #毛利2000,税费42*8=336,净利1664
         self.assertEquals(1664000,pm.earning)
         self.assertEquals(pm.earning,pm.cash-pm.init_size)
+        self.assertEquals(3,len(pm.vhistory))
+        self.assertEquals(100000000,pm.vhistory[0].value)
+        self.assertEquals(101824000,pm.vhistory[1].value)   #挣2000，税176
+        self.assertEquals(101664000,pm.vhistory[2].value)   #挣2000，税176
 
     def test_run_with_advancedposition(self):
         pm = PositionManager(position=AdvancedPosition)
@@ -338,14 +373,48 @@ class PositionManagerTest(unittest.TestCase):
         self.assertEquals(2072000,pm.earning)
         self.assertEquals(pm.earning,pm.cash-pm.init_size)
 
-    def test_ev_lost(self):
-        trade = BaseObject(parent=BaseObject(evaluation=BaseObject(lostavg=10)))
-        self.assertEquals(10,ev_lost(trade))
+    def test_organize_net_array(self):
+        pm = PositionManager(position=AdvancedPosition)
+        dm = DateManager(20010101,20010130)
+        self.assertEquals([pm.init_size]*29,pm.organize_net_array(dm).tolist())
+        vnext = pm.init_size+120000
+        pm.vhistory.append(BaseObject(date=20010115,value=vnext))
+        self.assertEquals([pm.init_size]*14 + [vnext]*15,pm.organize_net_array(dm).tolist())
 
-    def test_atr_lost(self):
-        trade = BaseObject(price=10000,atr=200)
-        self.assertEquals(20,atr_lost(trade))
-        self.assertEquals(40,atr_lost_2(trade))
+    def test_calc_net_indicator(self):
+        pm = PositionManager(position=AdvancedPosition)
+        dm = DateManager(20010101,20010130)
+        self.assertEquals(0,pm.calc_net_indicator(dm))
+        vnext = pm.init_size+120000
+        pm.vhistory.append(BaseObject(date=20010115,value=vnext))        
+        self.assertEquals(22,pm.calc_net_indicator(dm))
+
+
+class DateManagerTest(unittest.TestCase):
+    def test_init(self):
+        self.assertEquals({},DateManager(0,0).date_map)
+        self.assertEquals({20070101:0},DateManager(20070101,20070102).date_map)
+
+    def test_init_dates(self):
+        self.assertEquals({},DateManager(0,0).date_map)
+        self.assertEquals({},DateManager(20070101,20050101).date_map)
+        self.assertEquals({20070101:0},DateManager(20070101,20070102).date_map)
+        self.assertEquals(30,len(DateManager(20070101,20070131).date_map))
+
+    def test_get_index(self):
+        d = DateManager(20010101,20050101)
+        self.assertEquals(0,d.get_index(20010101))
+        self.assertEquals(len(d.date_map)-1,d.get_index(20041231))
+        self.assertTrue(d.get_index(20030101))
+        self.assertRaises(KeyError,d.get_index,20060101)
+
+    def test_get_dates(self):
+        d = DateManager(20010101,20010128)
+        self.assertEquals(range(20010101,20010128),d.get_dates())
+
+    def test_len(self):
+        self.assertEquals(0,len(DateManager(0,0)))
+        self.assertEquals(30,len(DateManager(20070101,20070131)))
 
 
 if __name__ == "__main__":

@@ -474,6 +474,20 @@ def tmax(source,covered):
 def tmin(source,covered):
     return tmaxmin(source,covered,min,np.min,99999999)
 
+def maxmin0(source,functor,limit):    #全周期顺序maxmin计算,即返回值每个元素都是从起始到它这个位置的最大/最小值
+    rev = np.zeros_like(source)
+    cur = limit
+    for i in range(len(source)):
+        cur = functor(cur,source[i])
+        rev[i] = cur
+    return rev
+
+def max0(source):
+    return maxmin0(source,max,-99999999)
+
+def min0(source):
+    return maxmin0(source,min,99999999)
+
 def transform(signal,v2index,length):
     ''' 变形运算
         以v2index中的value为index，将signal中的相应信号转换为长度为length的序列中

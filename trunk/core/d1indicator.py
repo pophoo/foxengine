@@ -311,7 +311,7 @@ def rsi(source,length):
         pre = cur
     return rev
 
-def tr(shigh,slow,sclose):
+def tr(sclose,shigh,slow):
     ''' 真实波幅
     '''
     sclose = rollx(sclose)
@@ -320,8 +320,8 @@ def tr(shigh,slow,sclose):
     slc = np.abs(slow - sclose)
     return gmax(shl,shc,slc)
 
-def atr(shigh,slow,sclose,length):
-    return ma(tr(shigh,slow,sclose),length)
+def atr(sclose,shigh,slow,length):
+    return ma(tr(sclose,shigh,slow),length)
 
 def uplines(*args):
     ''' args[0]...args[-1]各个序列多头排列，其中args[0]为最快速线
@@ -375,7 +375,6 @@ def ama_maker(covered=10,dfast=2,dslow=30):
             preama = ama
         return rev
     return ama
-
 
 ### emv族及vap族为Richard W. Arms发明的算法,以及改进 
 def emv(shigh,slow,sweight):#经典emv算法,sweight即为成交量(权重)

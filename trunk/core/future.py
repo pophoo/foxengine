@@ -16,7 +16,7 @@ def mm_ratio(sclose,shigh,slow,length=1,atr_length=1):
             比如一次是2/1,另一次是1/2，如果单独求比例然后平均，则e_ratio=(2+0.5)/2=1.25
                 而先求平均再除,则是 (2+1)/(1+2) = 1
                 显然后者是正常情形
-        这是一个future函数, 正因为有左移的原因,所以最后length的数据可能是失准的,需要处理掉,失灭为准
+        这是一个future函数, 正因为有左移的原因,所以最后length的数据是失准的,需要处理掉,失灭为准
     '''
     m_atr = atr(sclose,shigh,slow,atr_length)
     #print m_atr
@@ -28,3 +28,12 @@ def mm_ratio(sclose,shigh,slow,length=1,atr_length=1):
     amfe[-length:] = amae[-length:] = 0
     return amfe,amae
 
+def decline(source,length=1):
+    ''' 计算length内最大衰落期和衰落幅度
+    '''
+    rsource = source[::-1]
+    xmin = min0(rsource)[::-1]  #求逆序的顺序最小值
+    smax = source - xmin    #当前值和后续的最小值的差，即衰落幅度
+    max_range = np.max(smax)
+    max_period = 0
+    return max_range,max_period

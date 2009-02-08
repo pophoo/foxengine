@@ -61,7 +61,7 @@ def make_trade_signal_double_direct(target_b,target_s):
     return s
 
 def make_trade_signal_advanced(target,follow):  
-    ''' 根据target和follow信号，集成交易信号，除去无匹配的连续买入和卖出
+    ''' 根据target和follow信号，集成交易信号
         同时，卖出优先级高于买入，这样，不存在t+1问题。
         信号次日起效的偏移需要外部处理
         不允许follow信号先行(tsum<=-1), 对于纯粹的卖空操作,只需要将卖出信号作为target

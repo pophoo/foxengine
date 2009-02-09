@@ -482,11 +482,30 @@ def maxmin0(source,functor,limit):    #全周期顺序maxmin计算,即返回值�
         rev[i] = cur
     return rev
 
+def amaxmin0(source,functor,limit):    #全周期顺序maxmin位置计算,即返回值每个元素都是从起始到它这个位置的最大/最小值的索引
+    rev = np.zeros_like(source)
+    pre = limit
+    index = 0
+    for i in range(len(source)):
+        cur = functor(pre,source[i])
+        if cur != pre:
+            index = i
+            pre = cur
+        rev[i] = index
+    return rev
+
 def max0(source):
     return maxmin0(source,max,-99999999)
 
 def min0(source):
     return maxmin0(source,min,99999999)
+
+def amax0(source):
+    return amaxmin0(source,max,-99999999)
+
+def amin0(source):
+    return amaxmin0(source,min,99999999)
+
 
 def transform(signal,v2index,length):
     ''' 变形运算

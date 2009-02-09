@@ -3,8 +3,9 @@
 ''' 所有未来相关函数
 '''
 
+import numpy as np
 from wolfox.fengine.core.d1indicator import atr
-from wolfox.fengine.core.d1ex import tmax,tmin
+from wolfox.fengine.core.d1ex import tmax,tmin,min0,amin0
 from wolfox.fengine.core.d1 import rollx,BASE
 
 def mm_ratio(sclose,shigh,slow,length=1,atr_length=1):
@@ -28,12 +29,15 @@ def mm_ratio(sclose,shigh,slow,length=1,atr_length=1):
     amfe[-length:] = amae[-length:] = 0
     return amfe,amae
 
-def decline(source,length=1):
-    ''' 计算length内最大衰落期和衰落幅度
+def decline(source):
+    ''' 计算最大衰落幅度和相应衰弱期(未必是最大衰落期)
     '''
     rsource = source[::-1]
     xmin = min0(rsource)[::-1]  #求逆序的顺序最小值
+    amin = len(source)-1-amin0(rsource)[::-1]  #逆序求最小值位置号后转换成顺序值
     smax = source - xmin    #当前值和后续的最小值的差，即衰落幅度
     max_range = np.max(smax)
-    max_period = 0
+    max_index = np.where(smax==max_range)[-1][0]  #最后一个为准，符合直观. np.where返回数组的元素是索引号数组，所以需[0]
+    min_index = amin[max_index]
+    max_period = min_index - max_index  #以交易日为单位的衰落期
     return max_range,max_period

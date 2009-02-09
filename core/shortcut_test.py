@@ -32,7 +32,7 @@ class ModuleTest(unittest.TestCase):    #只测试通道
 
     def test_atr_sell_func(self):
         a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
-        sa = CommonObject(id=3,transaction=a,atr=(1,2))
+        sa = CommonObject(id=3,transaction=a,atr=np.array([1,2]))
         bs = np.array([0,1])
         atr_sell_func(sa,bs)
         self.assertTrue(True)

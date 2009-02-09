@@ -72,6 +72,15 @@ class MediatorTest(unittest.TestCase):
         m.calc_last(sdata,dates)
         self.assertTrue(True)
 
+    def test_prepare(self):
+        a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
+        sa = CommonObject(id=3,code='test1',transaction=a)
+        fbuy = lambda x:np.array([1,0])
+        fsell = lambda x,y:np.array([0,1])
+        m = Mediator(fbuy,fsell)
+        m.prepare(sa)
+        self.assertEquals(2,len(sa.atr))
+
 
 if __name__ == "__main__":
     import logging

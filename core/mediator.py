@@ -6,6 +6,7 @@
 
 import logging
 
+from wolfox.fengine.core.d1indicator import atr
 from wolfox.fengine.core.d1idiom import B0S0,B0S1,B1S0,B1S1,BS_DUMMY
 from wolfox.fengine.core.d1match import make_trade_signal,make_trade_signal_advanced
 from wolfox.fengine.core.trade import make_trades,last_trade,default_extra,atr_extra
@@ -28,6 +29,7 @@ class Mediator(object):
         self.buy_pricer = pricer[0]
         self.sell_pricer = pricer[1]
         self.extra_func = extra_func
+        self.taxrate = taxrate
         self.make_trades = fcustom(make_trades,taxrate=taxrate,extra_func=extra_func)
         self.last_trade = fcustom(last_trade,taxrate=taxrate,extra_func=extra_func)
 
@@ -45,6 +47,7 @@ class Mediator(object):
         trades = []
         for s in sdata.values():
             try:    #捕捉某些异常，如未划入任何板块的股票在计算板块相关信号时会出错
+                self.prepare(s)
                 sbuy = self.buy_signal_maker(s)
                 ssell = self.sell_signal_maker(s,sbuy)
                 #sbuy,ssell = smooth2(s.transaction[VOLUME],sbuy,ssell) #这个处理被划入bMsN_trade_func中
@@ -62,4 +65,7 @@ class Mediator(object):
         ssignal = self.trade_signal_maker(sbuy,ssell)
         return tmaker(stock,ssignal,dates,self.buy_pricer(stock),self.sell_pricer(stock),begin=begin)
 
+    def prepare(self,stock):
+        trans = stock.transaction
+        stock.atr = atr(trans[CLOSE],trans[HIGH],trans[LOW],20)
 

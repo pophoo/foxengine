@@ -15,6 +15,14 @@ def csc_func(stock,buy_signal,threshold=75,**kwargs):   #kwargs目的是吸收�
     t = stock.transaction
     return d1id.confirmedsellc(buy_signal,t[OPEN],t[CLOSE],t[HIGH],t[LOW],threshold)
 
+def atr_sell_func(stock,buy_signal,times=100,covered=20,**kwargs): 
+    ''' kwargs目的是吸收无用参数，便于cruiser
+        times为0.01为单位的倍数
+    '''
+    t = stock.transaction
+    down_limit = tmax(t[HIGH] - stock.atr * times / 100,covered)    #最近n天波动下限的最大值
+    sdown = equals(cross(down_limit,t[LOW]),-1)
+    return band(sdown,sellconfirm(t[OPEN],t[CLOSE],t[HIGH],t[LOW]))
 
 def create_evaluator(matcher=match_trades):
     def efunc(trades,**kwargs):         #kwargs目的是吸收无用参数，便于cruiser

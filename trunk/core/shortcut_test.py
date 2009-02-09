@@ -30,6 +30,20 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         csc_func(sa,bs)
         self.assertTrue(True)
 
+    def test_atr_sell_func(self):
+        a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
+        sa = CommonObject(id=3,transaction=a,atr=(1,2))
+        bs = np.array([0,1])
+        atr_sell_func(sa,bs)
+        self.assertTrue(True)
+        #空测试
+        a = np.array([(),(),(),(),(),(),()])
+        sa = CommonObject(id=3,transaction=a)
+        bs = np.array([])
+        csc_func(sa,bs)
+        self.assertTrue(True)
+
+
     def test_create_evaluator(self): #只测试通路
         evf = create_evaluator()
         evf([])

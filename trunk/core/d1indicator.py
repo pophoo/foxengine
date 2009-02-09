@@ -13,7 +13,7 @@ from wolfox.fengine.core.d1ex import tmax,tmin,trend,msum,ma
 #expfunctor = lambda cur,expma,trate,base=BASE: (cur*trate + expma * (base-trate) + base/2)/base
 def expma(source,trate):    
     ''' 指数移动平均线
-        trate为今日数据在计算中所占的比重,以1/10000为基数
+        trate为今日数据在计算中所占的比重,以1/1000(1/BASE)为基数
     '''
 
     length = (2* BASE+trate/2)/trate -1
@@ -320,8 +320,8 @@ def tr(sclose,shigh,slow):
     slc = np.abs(slow - sclose)
     return gmax(shl,shc,slc)
 
-def atr(sclose,shigh,slow,length):
-    return ma(tr(sclose,shigh,slow),length)
+def atr(sclose,shigh,slow,length=20):
+    return cexpma(tr(sclose,shigh,slow),length)
 
 def uplines(*args):
     ''' args[0]...args[-1]各个序列多头排列，其中args[0]为最快速线

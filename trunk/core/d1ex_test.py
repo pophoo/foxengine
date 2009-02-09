@@ -60,6 +60,7 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([1,2,0,1,0,1,2,3,4,5,0,1,2,0,1,2,0,0,0,1,2,3,4,0,1],distance(source).tolist())
 
     def test_rsum(self):
+        self.assertEquals([],rsum(np.array([]),np.array([])).tolist())        
         source = np.array([10,20,30,40,50,60])
         signal = np.array([0,0,-1,0,1,0])
         self.assertEquals([10,30,30,70,50,110],rsum(source,signal).tolist())
@@ -67,6 +68,7 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([10,30,30,70,50,110],rsum(source,signal2).tolist())
 
     def test_ravg(self):
+        self.assertEquals([],ravg(np.array([]),np.array([])).tolist())        
         source = np.array([10,20,30,40,50,60])
         signal = np.array([0,0,-1,0,1,0])
         self.assertEquals([10,15,30,35,50,55],ravg(source,signal).tolist())
@@ -74,11 +76,12 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([10,15,30,35,50,55],ravg(source,signal2).tolist())
 
     def test_rsub(self):
+        self.assertEquals([],rsub(np.array([]),np.array([])).tolist())
         source = np.array([10,20,30,40,50,60])
         signal = np.array([0,0,-1,0,1,0])
-        self.assertEquals([0,0,30,0,20,0],rsub(source,signal).tolist())
+        self.assertEquals([0,0,20,0,20,0],rsub(source,signal).tolist())
         signal2 = np.array([1,0,-1,0,1,0])
-        self.assertEquals([10,0,20,0,20,0],rsub(source,signal2).tolist())
+        self.assertEquals([0,0,20,0,20,0],rsub(source,signal2).tolist())
 
     def test_msum(self):
         self.assertEquals([],msum(np.array([]),2).tolist())

@@ -229,8 +229,10 @@ def rsub(source,signal):
         d(0) = src(0)
     '''
     assert len(source) == len(signal)
-    rev = np.zeros_like(source) #原则上不会溢出,source的类型是int8时,数字绝对不会大
-    pre = 0
+    if len(source) == 0:
+        return source.copy()
+    rev = np.zeros_like(source) #原则上不会溢出,若source的类型是int8时,数字将在+/-5之间
+    pre = source[0] 
     for i in xrange(len(source)):
         if(signal[i] != 0):
             cv = source[i]

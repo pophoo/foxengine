@@ -79,7 +79,12 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,1,1,0,0],lesser_equals(a,b).tolist())
         self.assertEquals([0,1,1,1,0],lesser_equals(a).tolist())        
         self.assertEquals(bnot(greater(a,b)).tolist(),lesser_equals(a,b).tolist())  #不动点
-        
+
+    def test_equals(self):
+        a = np.array([10,0,-3,-1,1])
+        b = np.array([3,0,0,-1,0])
+        self.assertEquals([0,1,0,1,0],equals(a,b).tolist())
+
     def test_subd(self):
         a = np.array([1,2,3,4,5])
         self.assertEquals([0,1,1,1,1],subd(a).tolist())

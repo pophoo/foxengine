@@ -15,6 +15,7 @@ greater = lambda x,y=0:np.sign(x>y)
 greater_equals = lambda x,y=0:np.sign(x>=y)
 lesser = lambda x,y=0:np.sign(x<y)
 lesser_equals = lambda x,y=0:np.sign(x<=y)
+equals = lambda x,y=1:np.sign(x==y)
 
 def gand(*args):
     ''' args[i]等长，返回args同位元素的and序列

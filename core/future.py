@@ -3,10 +3,14 @@
 ''' 所有未来相关函数
 '''
 
+import logging
+
 import numpy as np
 from wolfox.fengine.core.d1indicator import atr
-from wolfox.fengine.core.d1ex import tmax,tmin,min0,amin0
-from wolfox.fengine.core.d1 import rollx,BASE
+from wolfox.fengine.core.d1ex import tmax,tmin,tmaxmin,min0,amin0,derepeatc,distance,rsub
+from wolfox.fengine.core.d1 import BASE,bor,equals,rollx,roll0
+
+logger = logging.getLogger("wolfox.fengine.core.future")
 
 def mm_ratio(sclose,shigh,slow,length=1,atr_length=1):
     ''' 计算标准化的最大有利变动(MFE)/最大不利变动(MAE)
@@ -41,3 +45,62 @@ def decline(source):
     min_index = amin[max_index]
     max_period = min_index - max_index  #以交易日为单位的衰落期
     return max_range,max_period
+
+def decline_ranges(source,covered=22):    
+    ''' 求以covered为顶/底点辐射半径所得到的高低点确定的衰落幅度
+        covered默认为辐射半径为月
+        返回衰落幅度数组
+    '''
+    peaks = xpeak_points(source,covered)
+    prange = rsub(source,peaks)
+    min_peaks = (peaks == -1)   #做选择下标必须是bool类型
+    max_ranges = -prange[min_peaks]  #这里的值都是cur_min-pre_max，故此需要取反.
+    return max_ranges
+
+def decline_periods(source,covered=22):
+    ''' 求以covered为顶/底点辐射半径所得到的高低点确定的衰落期
+        covered默认为辐射半径为月
+        返回衰落期数组
+    '''
+    peaks = xpeak_points(source,covered)
+    periods = roll0(distance(peaks),1)    #distance计数信号日为0，因此右移一日。右移后距离是信号日起的距离-1
+    min_peaks = (peaks == -1) 
+    max_periods = periods[min_peaks] + 1 #
+    return max_periods
+
+def xmaxmin_points(source,extends,functor,gfunctor,limit):
+    ''' 计算最高或最低点,extends为作用范围. 返回值中前extends和后extends位都置0
+    '''
+    covered = extends * 2 + 1 #最大点必然大于之前的extends个元素和之后的extends个元素
+    if(len(source) < covered):
+        return np.zeros_like(source)
+    peak_values = tmaxmin(source,covered,functor,gfunctor,limit)
+    xpeak_values = rollx(peak_values,-extends)
+    cores = equals(source,xpeak_values)
+    ncores = derepeatc(cores)
+    ncores[:extends] = ncores[-extends:] = 0
+    return ncores
+
+def xmax_points(source,extends):
+    return xmaxmin_points(source,extends,max,np.max,-99999999)
+
+def xmin_points(source,extends):
+    return xmaxmin_points(source,extends,min,np.min,99999999)
+
+def xpeak_points_2(shigh,slow,extends):   #高点序列的顶点和底点序列的底点
+    ''' 顶点必然不会是底点, 1表示顶点，-1表示底点，0表示中间点. 高低点同时出现，按中间点算
+        非常微妙的情况下，也能够处理正确(符合直觉和逻辑)
+        self.assertEquals([0,1,-1,1,-1,0],xpeak_points([1,7,6,6,2,8],1))  #[2]的6被计为底点,而[3]的6被计为顶点
+        但这类情况当extends为相对大度量时绝对不会在正常情况下出现
+        理论上会出现高点和底点同时在一个位置的情形，此时默认为高点.(实际上当extends相对较大时极其少见)
+    '''
+    return xmax_points(shigh,extends) - xmin_points(slow,extends)
+
+def xpeak_points(source,extends):   #单一序列的顶/底点
+    ''' 顶点必然不会是底点, 1表示顶点，-1表示底点，0表示中间点. 高低点同时出现，按中间点算
+        非常微妙的情况下，也能够处理正确(符合直觉和逻辑)
+        self.assertEquals([0,1,-1,1,-1,0],xpeak_points([1,7,6,6,2,8],1))  #[2]的6被计为底点,而[3]的6被计为顶点
+        但这类情况当extends为相对大度量时绝对不会在正常情况下出现
+    '''
+    return xpeak_points_2(source,source,extends)
+

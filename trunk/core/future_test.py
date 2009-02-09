@@ -15,6 +15,13 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([-300,400,0,0],amae.tolist())        
         #self.assertEquals([100,100,120,250],atr(sclose,shigh,slow,1).tolist())
         
+    def test_decline(self):
+        sclose = np.array([1000,1005,1007,990,940,920,900,910,960,930,915,990,1020,990])
+        self.assertEquals((107,4),decline(sclose))
+        sclose = np.array([1000,1005,1007,990,940,920,900,910,960,930,891,990,1020,990])
+        self.assertEquals((116,8),decline(sclose))
+        sclose = np.array([1000,1005,1007,990,940,920,900,910,960,1030,1050,990,970,930,935,915,990,1040,1080])
+        self.assertEquals((135,5),decline(sclose))
 
 
 if __name__ == "__main__":

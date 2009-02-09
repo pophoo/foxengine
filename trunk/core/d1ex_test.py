@@ -219,6 +219,16 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([7,6,5,4,3,2,1],min0(np.array([7,6,5,4,3,2,1])).tolist())
         self.assertEquals([4,4,3,3,1,1],min0(np.array([4,5,3,4,1,7])).tolist())
 
+    def test_amax0(self):
+        self.assertEquals([0,0,0,0,0,0,0],amax0(np.array([7,6,5,4,3,2,1])).tolist())
+        self.assertEquals([0,1,2,3,4,5,6],amax0(np.array([1,2,3,4,5,6,7])).tolist())
+        self.assertEquals([0,1,2,2,2,5],amax0(np.array([3,4,5,4,4,7])).tolist())
+
+    def test_amin0(self):
+        self.assertEquals([0,0,0,0,0,0],amin0(np.array([3,4,5,4,4,7])).tolist())
+        self.assertEquals([0,1,2,3,4,5,6],amin0(np.array([7,6,5,4,3,2,1])).tolist())
+        self.assertEquals([0,0,2,2,4,4],amin0(np.array([4,5,3,4,1,7])).tolist())
+
     def test_transform(self):
         self.assertEquals([11,51,41,0,21,0,31],transform(np.array([11,21,31,41,51]),np.array([0,4,6,2,1]),7).tolist())
         self.assertEquals([11,51,41,0,61,0,31],transform(np.array([11,21,31,41,51,61]),np.array([0,4,6,2,1,4]),7).tolist())

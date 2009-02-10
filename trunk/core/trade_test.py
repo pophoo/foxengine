@@ -59,6 +59,9 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals(20050109,trades[0].tdate)
         self.assertEquals(109,trades[0].tprice)
         self.assertEquals(1000,trades[0].tvolume)
+        self.assertEquals(type(trades[0].tprice),type(1))    #确认是平凡的int数据类型，非numpy.intxx
+        self.assertEquals(type(trades[0].tdate),type(1))
+        self.assertEquals(type(trades[0].tvolume),type(1))
 
     def test_last_trade_with_begin(self):
         stock = BaseObject(code='test')        
@@ -104,6 +107,9 @@ class ModuleTest(unittest.TestCase):
         signal1 = np.array([0,0,1,-1,0,1,0,-1,1,0])
         trades = make_trades(stock,signal1,tdate,tbuy,tsell)
         self.assertEquals(4,len(trades))
+        self.assertEquals(type(trades[0].tprice),type(1))    #确认是平凡的int数据类型，非numpy.intxx
+        self.assertEquals(type(trades[0].tdate),type(1))
+        self.assertEquals(type(trades[0].tvolume),type(1))        
 
     def test_make_trades_with_begin(self):
         stock = BaseObject(code='test')
@@ -175,6 +181,9 @@ class ModuleTest(unittest.TestCase):
         self.assertTrue(True)
     
     def test_DEFAULT_EVALUATE_FILTER(self):
+        #空测试
+        self.assertEquals([],DEFAULT_EVALUATE_FILTER([]))        
+        #正常测试
         mnt1 = [1,2,3]
         mnt2 = [10,20,30]
         filtered = DEFAULT_EVALUATE_FILTER([mnt1,mnt2])

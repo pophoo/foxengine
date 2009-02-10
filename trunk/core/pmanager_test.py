@@ -37,6 +37,26 @@ class ModuleTest(unittest.TestCase):
         cs = CSHARP(xt,yn)
         self.assertTrue(cs>0)
 
+    def test_half_of_first_sizer(self):
+        t1 = Trade(0,20010101,10000,100)
+        t11 = Trade(0,20010101,10000,200)
+        t2 = Trade(0,20010101,10000,-100)
+        self.assertEquals(50,half_of_first_sizer([t1]))
+        self.assertEquals(50,half_of_first_sizer([t1,t11]))
+        self.assertEquals(50,half_of_first_sizer([t2,t2]))
+        self.assertEquals(50,half_of_first_sizer([t1,t1,t11]))
+        self.assertEquals(0,half_of_first_sizer([t1,t1,t1,t1]))
+
+    def test_half_of_total_sizer(self):
+        t1 = Trade(0,20010101,10000,100)
+        t11 = Trade(0,20010101,10000,200)
+        t2 = Trade(0,20010101,10000,-100)
+        self.assertEquals(50,half_of_total_sizer([t1]))
+        self.assertEquals(150,half_of_total_sizer([t1,t11]))
+        self.assertEquals(100,half_of_total_sizer([t2,t2]))
+        self.assertEquals(200,half_of_total_sizer([t1,t1,t11]))
+        self.assertEquals(0,half_of_total_sizer([t1,t1,t1,t1]))
+
 
 class PositionTest(unittest.TestCase):
     def test_init(self):    #通路测试
@@ -200,7 +220,14 @@ class AdvancePositionTest(unittest.TestCase):
         self.assertEquals(trade1,relative_trades[0])
         self.assertEquals(trade3,relative_trades[1])
         self.assertEquals(trade1.tvolume/2,trade3.tvolume)
-
+        #测试上升时才加码
+        p.clear()
+        trade2.price = 9990
+        p.push(trade1,10,1000000,9999999000)
+        p.push(trade2,10,1000000,9999999000)
+        relative_trades = p.holdings[trade1.tstock]
+        self.assertEquals(1,len(relative_trades))   
+        
     def test_push_pop_closed(self):
         p = AdvancedPosition()
         trade1 = Trade(0,20010101,10000,1)

@@ -22,11 +22,11 @@ from wolfox.fengine.core.d1ex import ma,trend,strend,cross,sfollow,syntony,trans
 from wolfox.fengine.core.d1indicator import svap_ma
 from wolfox.fengine.core.d1idiom import upconfirm,downup,swingin
 from wolfox.fengine.core.d2 import dispatch,cdispatch,posort,percent_sort,npercent,percent,nincrease,c_posort,d_posort
-from wolfox.fengine.core.base import get_all_catalogs
+from wolfox.fengine.core.base import BaseObject,CommonObject,get_all_catalogs
 from wolfox.fengine.core.base import OPEN,CLOSE,HIGH,LOW,AVG,AMOUNT,VOLUME
 from wolfox.fengine.core.d1catalog import calc_index,catalog_signal
 from wolfox.fengine.core.source import get_ref_dates,prepare_data,get_codes,get_codes_startswith
 from wolfox.fengine.core.d1match import make_trade_signal
-from wolfox.fengine.core.trade import make_trades,last_trade,evaluate
+from wolfox.fengine.core.trade import make_trades,last_trade,evaluate,gevaluate
 from wolfox.fengine.core.mediator import Mediator,CMediator10
-
+from wolfox.fengine.core.pmanager import Position,AdvancedPosition,PositionManager

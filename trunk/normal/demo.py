@@ -104,6 +104,20 @@ def demo(sdata,dates,idata=None):
     evs3 = normal_evaluate(trades)
     print evs3.header()
 
+    pman = PositionManager()
+    pevs = gevaluate([BaseObject(name=m.name(),evaluation=evs3,trades=trades)])
+    print pevs.header()
+
+    import yaml
+    #print yaml.dump(pevs.matchedtrades)
+    for mt in pevs.matchedtrades:
+        print mt[0]
+        print dir(mt[0])
+        del mt[0].atr
+        del mt[0].parent
+        print dir(mt[0])
+        print yaml.dump(mt[0])
+        #print yaml.dump(mt)
 
 if __name__ == '__main__':
     logging.basicConfig(filename="demo.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
@@ -117,7 +131,7 @@ if __name__ == '__main__':
     #sdata = cs.get_stocks(['SZ000655'],begin,end,ref_id)
     #print sdata[442].transaction[CLOSE]
     #sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
-    codes = get_codes_startswith('SH600000')
+    codes = get_codes_startswith('SH6000')
     sdata = cs.get_stocks(codes,begin,end,ref_id)    
     print 'sdata finish....'    
     #idata = prepare_data(begin,end,'INDEX')

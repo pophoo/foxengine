@@ -30,6 +30,17 @@ def create_evaluator(matcher=match_trades):
 
 normal_evaluate = create_evaluator()
 
+def prepare_catalogs(sdata,distance=60):
+    ctree = cs.get_catalog_tree(sdata,['DY','ZHY'])
+    catalogs = get_all_catalogs(ctree)
+    for c in catalogs:  #计算板块指数
+        c.transaction = [calc_index(c.stocks)] * 7  #以单一指数冒充所有，避免extract_collect错误
+    #print catalogs
+    c_posort('c%s'% distance,catalogs,distance=distance)
+    d_posort('gorder',sdata.values(),distance=distance)
+    d_posort('gorder',catalogs,distance=distance)
+    return ctree,catalogs   
+
 
 #以下deprecated,使用Mediator替代
 def normal_calc_template_deprecated(sdata,dates,buy_func,sell_func,trade_func):

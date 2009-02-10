@@ -118,7 +118,10 @@ def normalize_body(quotes,ihead):
 #@wcache
 def extract_collect(stocks,sector=CLOSE):
     #print "sector:",sector
-    return np.array([s.transaction[sector] for s in stocks])
+    if stocks:
+        return np.array([s.transaction[sector] for s in stocks])
+    else:# 输入为空列表时，必须仍然保持返回数组的维度为2，保持一致性
+        return np.array([[]])
 
 def extract_collect1(stock,sector=CLOSE):
     #print "sector:",sector

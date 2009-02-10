@@ -68,6 +68,8 @@ class ModuleTest(unittest.TestCase):
         rev_volume = extract_collect([sa,sb],VOLUME)
         self.assertEquals([[13,14],[113,114]],rev_volume.tolist())
         #print rev
+        #空测试,返回数组维度必须仍然是2
+        self.assertEquals(2,extract_collect([]).ndim)
 
     def test_extract_collect1(self):
         a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])

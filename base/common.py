@@ -2,7 +2,7 @@
 
 from wolfox.foxit.base.common import *
 
-class Trade(DatedStock):
+class Trade(object):
     #__slots__ = 'tstock','tdate','tprice','tvolume','ttax' #不太方便，去掉
 
     def __init__(self,tstock,tdate,tprice,tvolume,taxrate = 125): #taxrate默认值为千分之八(1000/125). tvolume正为买入，负为卖出

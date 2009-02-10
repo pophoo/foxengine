@@ -53,6 +53,16 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         normal_evaluate([])
         self.assertTrue(True)
 
+    def test_prepare_catalogs(self):    #只测试通路
+        a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
+        b = np.array([(11,12),(13,14),(15,16),(17,18),(19,110),(111,112),(113,114)])
+        sa = CommonObject(id=3,code='test1',transaction=a)
+        sb = CommonObject(id=3,code='test2',transaction=b)
+        sdata = {'sa':sa,'sb':sb}
+        ctree,catalogs = prepare_catalogs(sdata)
+        self.assertEquals(2,len(sa.gorder))
+        self.assertEquals(2,len(sb.gorder))
+
     #以下是已经deprecated的函数的测试，也相当于deprecated
     def test_normal_calc_template_deprecated(self):
         a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
@@ -70,7 +80,6 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         def fbuy(x): raise Exception
         normal_calc_template_deprecated(sdata,dates,fbuy,fsell,ftrade)
         self.assertTrue(True)
-
 
     def test_normal_calc_template_deprecated(self):
         a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])

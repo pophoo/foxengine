@@ -24,6 +24,7 @@ class dispatch(object):
     def __call__(self,name,stocks,*args,**kwargs):
         sector = kwargs.get('sector',CLOSE)        #默认参数的另一种方法，避免对内部func位置参数的污染(否则为了向func提供参数，必须先明确提供sector参数，或者使用关键字方式指定func的参数，而不能使用位置方式[会被优先当作sector])
         sdatas = extract_collect(stocks,sector)
+        #print 'sdatas:',sdatas,'...'
         datas = self.func(sdatas,*args,**kwargs)
         #print datas
         for s,data in zip(stocks,datas):

@@ -65,13 +65,12 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20):
     return gand(g,confirmed_signal,trend_ma120,signal_s)
 
 def demo(sdata,dates,idata=None):
-    ctree = cs.get_catalog_tree(sdata,['DY','ZHY'])
+    ctree,catalogs = prepare_catalogs(sdata)
     #print ctree
     for s in ctree:
         print s.name
         for c in s.catalogs:
             print c.name
-    catalogs = get_all_catalogs(ctree)
     #print 'catalog number:',len(catalogs)
     #print [ str(c.name) for c in catalogs]
 
@@ -79,15 +78,9 @@ def demo(sdata,dates,idata=None):
     #    print c.name
     #    for st in c.stocks:
     #        print st.code
+
     from time import time
     tbegin = time()
-
-    for c in catalogs:  #计算板块指数
-        c.transaction = [calc_index(c.stocks)] * 7  #以单一指数冒充所有，避免extract_collect错误
-    
-    c_posort('c60',catalogs,distance=60)
-    d_posort('gorder',sdata.values(),distance=60)
-    d_posort('gorder',catalogs,distance=60)
 
     #x20=[ band(k.gorder >= 7500,v >= 7500) for k,v in sdata[20].c60.items()]    #板块全局>7500并且在板块内的排序>7500
     #gor(*x20)   #是否存在某个板块序>7500并且块内排序>7500

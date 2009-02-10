@@ -9,8 +9,9 @@ from wolfox.fengine.core.base import CommonObject
 logger = logging.getLogger('wolfox.fengine.core.mediator_test')
 
 class ModuleTest(unittest.TestCase):
-    pass
-
+    def test_CMediator10_init(self):
+        CMediator10(np.array([1,0,0,1]),np.array([0,0,1,0]))
+        self.assertTrue(True)
 
 class MediatorTest(unittest.TestCase):
     def test_init(self):

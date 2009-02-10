@@ -146,7 +146,7 @@ class ModuleTest(unittest.TestCase):
         trans = np.array([(0,0,0,0),(500,550,550,500),(500,550,550,500),(500,550,550,500),(0,0,0,0),(5000,4000,8000,4000),(1000,1000,0,1000)])
         satr = np.array([40,50,80,40])
         sbuy = np.array([1,0,1,1])
-        atr_seller(sbuy,trans,satr)
+        s,d = atr_seller(sbuy,trans,satr)
         self.assertTrue(True)
 
 

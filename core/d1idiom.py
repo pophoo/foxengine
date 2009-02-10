@@ -192,11 +192,10 @@ def B1S1(trans,sbuy,ssell):
     #print sbuy,np.sum(sbuy)
     return sbuy,ssell
 
-def atr_seller(sbuy,trans,satr,times=1000,covered=20): 
+def atr_seller(sbuy,trans,satr,times=1000,covered=10): 
     ''' kwargs目的是吸收无用参数，便于cruiser
         times为以0.001为单位的倍数
     '''
-    down_limit = tmax(trans[HIGH] - satr * times / 1000,covered)    #最近n天波动下限的最大值
+    down_limit = tmax(trans[HIGH] - satr * times / 1000,covered)    #最近covered天波动下限的最大值
     sdown = equals(cross(down_limit,trans[LOW]),-1)
-    return band(sdown,sellconfirm(trans[OPEN],trans[CLOSE],trans[HIGH],trans[LOW]))
-        
+    return band(sdown,sellconfirm(trans[OPEN],trans[CLOSE],trans[HIGH],trans[LOW])),down_limit

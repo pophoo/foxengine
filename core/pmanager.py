@@ -72,12 +72,16 @@ class Position(object): #只能用于管理单边头寸(即卖出都是pop，买
         return total
 
 
-def half_of_first_sizer(trades):
-    return abs(trades[0].tvolume / 2)
+def half_of_first_sizer(trades,max_times=4):    #max_times，最多买入次数
+    if len(trades) < max_times:
+        return abs(trades[0].tvolume / 2)
+    return 0
 
-def half_of_total_sizer(trades):
-    total = sum([t.tvolume for t in trades])
-    return abs(total / 2)
+def half_of_total_sizer(trades,max_times=4):    #max_times，最多买入次数
+    if len(trades) < max_times:
+        total = sum([t.tvolume for t in trades])
+        return abs(total / 2)
+    return 0
 
 class AdvancedPosition(Position):
     def __init__(self,sizer = half_of_first_sizer):

@@ -68,7 +68,7 @@ def make_trades(stock,signal,tdate,tpositive,tnegative
         ci = sis[i]
         cs = signal[ci]
         price = tpositive[ci] if cs>0 else tnegative[ci]
-        ctrade = Trade(stock.code,tdate[ci],price,cs*VOLUME_BASE,taxrate)
+        ctrade = Trade(stock.code,int(tdate[ci]),int(price),int(cs)*VOLUME_BASE,taxrate) #int强制转换，避免把numpy.int32传入trade.因为ndarray索引得到的值是numpy.intxx的，而非普通int
         trades.append(extra_func(ctrade,stock,ci))
     if sum(signal[tbegin:]) != 0: #最后一个未平仓,不计算
         #print sum(signal[tbegin:]),signal[tbegin:].tolist()
@@ -89,7 +89,7 @@ def last_trade(stock,signal,tdate,tpositive,tnegative
     last_index = sis[-1]
     cs = signal[last_index]
     price = tpositive[last_index] if cs > 0 else tnegative[last_index]
-    ltrade = Trade(stock.code,tdate[last_index],price,cs*VOLUME_BASE,taxrate)
+    ltrade = Trade(stock.code,int(tdate[last_index]),int(price),int(cs)*VOLUME_BASE,taxrate)
     trades= [extra_func(ltrade,stock,last_index)]
     return trades
 
@@ -130,13 +130,16 @@ def DEFAULT_EVALUATE_FILTER(matched_named_trades):
         返回采纳的闭合交易的合并列表
             [[trade1,trade2,...],[trade3,trade4,...],....]
     '''
-    return reduce(operator.add,matched_named_trades)
+    if matched_named_trades:
+        return reduce(operator.add,matched_named_trades)
+    else:
+        return []
 
-def gevaluate(named_trades,filter=DEFAULT_EVALUATE_FILTER,matcher=match_trades):
+def gevaluate(named_trades,gfilter=DEFAULT_EVALUATE_FILTER,matcher=match_trades):
     ''' 对多个来源组的交易进行匹配、头寸管理和评估。一次交易可以允许多次买卖，以单个股票存续数量为0为交易完成标志
         named_trades为BaseObject列表，每个BaseObject包括name,evaluation,trades三个属性
             evalutaion用于对trades中的交易进行风险和期望管理
-        filter为对已经匹配成功的交易进行头寸管理
+        gfilter为对已经匹配成功的交易进行头寸管理
         matched_named_trades列表中的元素为
             trades:[[trade1,trade2,...],[trade3,trade4,...],....]
             满足    所有trade的volume之和为0，并且任何前m个trade的volume之和不为0(对于买先策略为大于0)
@@ -152,7 +155,7 @@ def gevaluate(named_trades,filter=DEFAULT_EVALUATE_FILTER,matcher=match_trades):
             for ctrade in trades:
                 ctrade.parent = nt
         matched_named_trades.append(tradess)
-    matched_trades = filter(matched_named_trades)   #头寸管理并转换成[trades,trades,...]形式
+    matched_trades = gfilter(matched_named_trades)   #头寸管理并转换成[trades,trades,...]形式
     for matched_trade in matched_trades:
         #print 'matched trade:%s,%s',matched_trade[0],matched_trade[1]
         logger.debug('matched trade:%s,%s',matched_trade[0],matched_trade[1])

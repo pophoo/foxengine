@@ -3,7 +3,7 @@
 from wolfox.foxit.base.common import *
 
 class Trade(object):
-    #__slots__ = 'tstock','tdate','tprice','tvolume','ttax' #不太方便，去掉
+    #__slots__ = 'tstock','tdate','tprice','tvolume','ttax' #不太方便，去掉, 也不再需要继承asdict(已经没有slot了)
 
     def __init__(self,tstock,tdate,tprice,tvolume,taxrate = 125): #taxrate默认值为千分之八(1000/125). tvolume正为买入，负为卖出
         self.tstock = tstock
@@ -44,8 +44,8 @@ class Trade(object):
         return balance
 
 
-class Evaluation(asdict):
-    __slots__ = 'matchedtrades','count','balance','balances','wincount','winamount','lostcount','lostamount','deucecount','ratesum','rateavg','winrate','remark','lostavg','R'  #w赢利值inamount,亏损值lostamount都用正数表示
+class Evaluation(object):
+    #__slots__ = 'matchedtrades','count','balance','balances','wincount','winamount','lostcount','lostamount','deucecount','ratesum','rateavg','winrate','remark','lostavg','R'  #w赢利值inamount,亏损值lostamount都用正数表示
 
     def __init__(self,matchedtrades,remark=''): 
         self.matchedtrades = matchedtrades  
@@ -86,7 +86,7 @@ class Evaluation(asdict):
 \t\t总盈亏率(1/1000)=%(ratesum)s,平均盈亏率(1/1000)=%(rateavg)s,盈利交易率(1/1000)=%(winrate)s
 \t\t赢利次数=%(wincount)s,赢利总值=%(winamount)s
 \t\t亏损次数=%(lostcount)s,亏损总值=%(lostamount)s
-\t\t平盘次数=%(deucecount)s\n''' % self
+\t\t平盘次数=%(deucecount)s\n''' % self.__dict__
 
     def __str__(self):
         smatchedtrades = u'\t\t闭合交易明细:\n'

@@ -165,5 +165,6 @@ def gevaluate(named_trades,gfilter=DEFAULT_EVALUATE_FILTER):
     matched_trades = gfilter(matched_named_trades)   #头寸管理并转换成[trades,trades,...]形式
     for matched_trade in matched_trades:
         #print 'matched trade:%s,%s',matched_trade[0],matched_trade[1]
-        logger.debug('matched trade:%s,%s',matched_trade[0],matched_trade[1])
+        #logger.debug('matched trade:%s,%s',matched_trade[0],matched_trade[1])
+        pass
     return Evaluation(matched_trades)

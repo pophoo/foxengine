@@ -98,9 +98,11 @@ class AdvancedPosition(Position):
         if trade.tstock not in self.holdings:   
             return Position.push(self,trade,lostavg,risk,size_limit)
         tolds = self.holdings[trade.tstock]
+        print tolds
         direct = 1 if tolds[0].tvolume >= 0 else -1  #1买入-1卖出
         if (direct == 1 and trade.tprice <= tolds[-1].tprice) or (direct == -1 and trade.tprice >= tolds[-1].tprice):  
             #买入后下降中不再买入或卖出后上升中不再卖出
+            #print u'后续交易条件不符合,last price:%s,cur price:%s' % (tolds[-1].tprice,trade.tprice)
             return 0
         wanted_size = self.sizer(tolds)
         if wanted_size * trade.tprice > size_limit:
@@ -108,8 +110,9 @@ class AdvancedPosition(Position):
         wanted_size = (wanted_size / 100) * 100     #交易量向100取整
         if direct == -1:
             wanted_size = - wanted_size
+        #print u'后续交易开始，volume=%s' % wanted_size            
         if wanted_size == 0:
-            logger.debug('second wanted volume is too smal : %s %s',trade.tstock,trade.tdate)
+            logger.debug('second wanted volume is too small : %s %s',trade.tstock,trade.tdate)
             trade.set_volume(0)
             return 0
         trade.set_volume(wanted_size)
@@ -159,6 +162,7 @@ class PositionManager(object):  #只适合先买后卖，卖空和混合方式�
         self.max_proportion = max_proportion    #单笔占总金额的最大占比(千分比)
         self.risk = risk    #每笔交易承担的风险占总金额的比例(千分比)
         self.calc_lost = calc_lost
+        print position
         self.position = position()  #现有仓位: code ==> trade
         self.cash = init_size
         self.earning = 0        #当前盈利

@@ -115,7 +115,7 @@ class Evaluation(object):
             if(trade.tvolume > 0):
                 sum -= trade.calc() #买入时收入现金数为负数
         #print 'len(trades):%s,sum:%s' % (len(trades),sum)
-        return sum > 0 and sum or 99999999   #避免出现sum=0的情形。因为除权的原因，有可能出现买入价为0的情形，特别是基金
+        return sum if sum > 0 else 99999999   #避免出现sum=0的情形。因为除权的原因，有可能出现买入价为0的情形，特别是基金
 
     def __lt__(self,other): #只用于排序
         #print 'in < self=%s,other=%s' % (self.rateavg,other.rateavg)

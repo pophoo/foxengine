@@ -10,8 +10,10 @@ import logging
 import numpy as np
 from wolfox.fengine.base.common import Trade
 from wolfox.fengine.core.base import BaseObject
+from wolfox.fengine.core.d1 import greater
 from wolfox.fengine.core.utils import fcustom
 from wolfox.fengine.core.d1ex import extend2next
+from wolfox.fengine.core.future import decline_ranges,decline_periods,decline
 
 logger = logging.getLogger('wolfox.fengine.core.postion_manager')
 
@@ -98,7 +100,7 @@ class AdvancedPosition(Position):
         if trade.tstock not in self.holdings:   
             return Position.push(self,trade,lostavg,risk,size_limit)
         tolds = self.holdings[trade.tstock]
-        print tolds
+        #print tolds
         direct = 1 if tolds[0].tvolume >= 0 else -1  #1买入-1卖出
         if (direct == 1 and trade.tprice <= tolds[-1].tprice) or (direct == -1 and trade.tprice >= tolds[-1].tprice):  
             #买入后下降中不再买入或卖出后上升中不再卖出
@@ -146,13 +148,27 @@ def CSHARP(xt,y):   #变异夏普比率
     ''' 以回报而非超额回报为分子近似计算月比例
     '''
     indices = range(0,len(xt),30)
+    #print indices
     m_xt = xt[indices]
     m_y = y[indices]
+    #print m_xt,m_y
     (ar,br)=np.polyfit(m_xt,m_y,1)  #一阶拟合
     yr = np.polyval([ar,br],m_xt)
     err=sqrt(sum((yr-m_y)**2)/len(m_xt)) #标准差
+    #print ar,br,err
     csharp = int(ar/br/err * POS_BASE)
     return csharp
+
+def AVG_DECLINE(xt,y,covered=22):
+    mranges = decline_ranges(y,covered)
+    mperiods = decline_periods(y,covered)
+    #print 'ranges,periods:',mranges,mperiods
+    avg_range = np.sum(mranges) / np.sum(greater(mranges))
+    avg_period = np.sum(mperiods) / np.sum(greater(mperiods))
+    return avg_range,avg_period
+
+def MAX_DECLINE(xt,y):
+    return decline(y)
 
 
 from scipy import stats
@@ -162,7 +178,7 @@ class PositionManager(object):  #只适合先买后卖，卖空和混合方式�
         self.max_proportion = max_proportion    #单笔占总金额的最大占比(千分比)
         self.risk = risk    #每笔交易承担的风险占总金额的比例(千分比)
         self.calc_lost = calc_lost
-        print position
+        #print position
         self.position = position()  #现有仓位: code ==> trade
         self.cash = init_size
         self.earning = 0        #当前盈利
@@ -236,7 +252,9 @@ class PositionManager(object):  #只适合先买后卖，卖空和混合方式�
         rev = extend2next(rev)
         return rev
 
+
 AdvancedPositionManager = fcustom(PositionManager,position=AdvancedPosition)
+AdvancedATRPositionManager = fcustom(PositionManager,position=AdvancedPosition,calc_lost=atr_lost_2)
 
 import datetime
 class DateManager(object):

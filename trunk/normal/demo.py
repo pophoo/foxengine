@@ -43,7 +43,7 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20):
     #logger.debug('calc: %s ' % stock.code)
     t = stock.transaction
     #print t[CLOSE]
-    return np.ones_like(t[CLOSE])
+    #return np.ones_like(t[CLOSE])
     g = stock.gorder >= 8500    
     signal_s = catalog_signal(stock.c60,8500,8500)  #kao.存在没有c60也就是不归属任何catalog的stock，直接异常
     #print stock.code,max(stock.gorder)
@@ -65,7 +65,7 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20):
     #return gand(confirmed_signal,trend_ma120,smmroc)
     return gand(g,confirmed_signal,trend_ma120,signal_s)
 
-def demo(sdata,dates,idata=None):
+def demo(sdata,dates,begin,end,idata=None):
     ctree,catalogs = prepare_catalogs(sdata)
     #print ctree
     for s in ctree:
@@ -117,6 +117,12 @@ def demo(sdata,dates,idata=None):
     pevs = gevaluate([BaseObject(name=m.name(),evaluation=evs3,trades=tradess)],pman.filter)
     print pevs.header()
 
+    dm = DateManager(begin,end)
+    print 'RPR:',pman.calc_net_indicator(dm)
+    print 'CSHARP:',pman.calc_net_indicator(dm,pm.CSHARP)
+    print 'AVG RANGE/PERIOD:%s/%s' % pman.calc_net_indicator(dm,pm.AVG_DECLINE)
+    print 'MAX RANGE/PERIOD:%s/%s' % pman.calc_net_indicator(dm,pm.MAX_DECLINE)    
+    print 'assets:%s,incom_rate:%s' % (pman.assets(),pman.income_rate())
 
     for trades in pevs.matchedtrades:
         for trade in trades:
@@ -137,10 +143,10 @@ if __name__ == '__main__':
     #sdata = cs.get_stocks(['SZ000655'],begin,end,ref_id)
     #print sdata[442].transaction[CLOSE]
     #sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
-    codes = get_codes_startswith('SH600000')
+    codes = get_codes_startswith('SH600')
     sdata = cs.get_stocks(codes,begin,end,ref_id)    
     print 'sdata finish....'    
     #idata = prepare_data(begin,end,'INDEX')
     print 'idata finish....'    
     
-    demo(sdata,dates)
+    demo(sdata,dates,begin,end)

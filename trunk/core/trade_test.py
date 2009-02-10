@@ -174,6 +174,7 @@ class ModuleTest(unittest.TestCase):
         #print mts
         self.assertEquals(2,len(mts))
         self.assertEquals([[trade1,trade2,trade3],[trade4,trade5]],mts)
+        self.assertEquals(trade1.tvolume+trade2.tvolume,-trade3.tvolume)
 
     def test_match_trades_multi(self):#包含未闭合交易
         trade1 = Trade(1,20050101,1000,1)

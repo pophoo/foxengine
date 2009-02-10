@@ -164,13 +164,16 @@ def B1S0(trans,sbuy,ssell):
         返回经过信号延续、停板和停牌处理的sbuy,ssell
         次日买入只受到一字线影响，而当日卖出受到收盘跌停影响
     '''
+    #print 'input:%s',sbuy.tolist()
     sbuy = roll0(sbuy)
+    #print 'input,after roll:%s',sbuy.tolist()
     #print 'input rolled:',sbuy,ssell
     up_limit_line = limitup2(trans[HIGH],trans[LOW])
     down_limit_line = limitdown1(trans[CLOSE])
     #print 'begin adjust:',up_limit_line,down_limit_line
     sbuy = limit_adjust(sbuy,up_limit_line,trans[VOLUME])
     ssell = limit_adjust(ssell,down_limit_line,trans[VOLUME])
+    #print 'after limit adjust:%s',sbuy.tolist()    
     #print 'end adjust:',ssell
     return sbuy,ssell
 

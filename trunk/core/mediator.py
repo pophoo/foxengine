@@ -50,7 +50,8 @@ class Mediator(object):
                 self.prepare(s)
                 sbuy = self.buy_signal_maker(s)
                 ssell = self.sell_signal_maker(s,sbuy)
-                #sbuy,ssell = smooth2(s.transaction[VOLUME],sbuy,ssell) #这个处理被划入bMsN_trade_func中
+                #logger.debug('sbuy:%s',sbuy.tolist())                
+                #sbuy,ssell = smooth2(s.transaction[VOLUME],sbuy,ssell) #这个处理被划入limit_adjust
                 trades.extend(self.trade_maker(tmaker,dates,s,sbuy,ssell,begin=begin))
             except Exception,inst:
                 print 'mediator _calc %s except : %s' % (s.code,inst)
@@ -62,6 +63,8 @@ class Mediator(object):
         '''
         t = stock.transaction
         sbuy,ssell = self.trade_strategy(t,sbuy,ssell)
+        #logger.debug('sbuy,after strategy:%s',sbuy.tolist())
+        #logger.debug('ssell,after strategy:%s',ssell.tolist())
         ssignal = self.trade_signal_maker(sbuy,ssell)
         return tmaker(stock,ssignal,dates,self.buy_pricer(stock),self.sell_pricer(stock),begin=begin)
 

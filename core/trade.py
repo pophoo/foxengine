@@ -68,7 +68,7 @@ def make_trades(stock,signal,tdate,tpositive,tnegative
     trades = []
     for i in xrange(ibegin,slen):
         ci = sis[i]
-        cs = signal[ci]
+        cs = signal[ci]     #通常是1/-1,只有正/负有意义，数值本身无意义
         price = tpositive[ci] if cs>0 else tnegative[ci]
         ctrade = Trade(stock.code,int(tdate[ci]),int(price),int(cs)*VOLUME_BASE,taxrate) #int强制转换，避免把numpy.int32传入trade.因为ndarray索引得到的值是numpy.intxx的，而非普通int
         trades.append(extra_func(ctrade,stock,ci))
@@ -97,29 +97,31 @@ def last_trade(stock,signal,tdate,tpositive,tnegative
 
 def match_trades(trades):
     ''' 对交易进行匹配
-        一次交易可以允许多次买卖，以单个股票存续数量为0为交易完成标志
+        一次交易可以允许多次买卖，(买和卖)允许分步建仓，但必须一次平仓
         返回值matched_trades列表中的元素形式为：
             [trade1,trade2,....,traden]
             满足    所有trade的volume之和为0，并且任何前m个trade的volume之和不为0(对于买先策略为大于0)
         这里不对卖空进行限制，限制卖空和连续卖空的动作定义在d1match.make_trade_signal.xxxx
+        不论买还是卖，建仓可以有多次，平仓都只能一次
     '''
     matched_trades = []
     contexts = {}
     #state: 1持多仓，0空仓，-1持卖仓
     for trade in trades:
         if(trade.tstock in contexts):
-            state,items = contexts[trade.tstock]
-            #print trade,state            
+            tsum,items = contexts[trade.tstock]
+            #print trade,tsum
             items.append(trade)
-            if (state == 1 and trade.tvolume < 0) or (state == -1 and trade.tvolume > 0):   #反向仓位，则平仓
+            if (tsum > 0 and trade.tvolume < 0) or (tsum < 0 and trade.tvolume > 0):   #反向仓位，则平仓
                 #print 'trade finish,date=%s' % trade.tdate,'items:',items[0]
                 del contexts[trade.tstock] #以触发下一次的else (如果设置为None则第一次和每次新交易的判断不同)
+                trade.tvolume = -tsum   #平仓只有一次
                 matched_trades.append(items) 
-            else:
-                contexts[trade.tstock] = (state,items)
+            else:   #同向
+                tsum += trade.tvolume
+                contexts[trade.tstock] = (tsum,items)
         else:
-            state = 1 if trade.tvolume > 0 else -1
-            contexts[trade.tstock] = (state,[trade])
+            contexts[trade.tstock] = (trade.tvolume,[trade])
     #print matched_trades
     #for matched_trade in matched_trades:logger.debug('matched trade:%s,%s',matched_trade[0],matched_trade[1])
     return matched_trades

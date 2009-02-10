@@ -21,8 +21,8 @@ class ModuleTest(unittest.TestCase):
     def test_make_trade_signal_advanced(self):
         self.assertEquals([],make_trade_signal_advanced(np.array([]),np.array([])).tolist())
         self.assertEquals([0,0,0,1,-1,0],make_trade_signal_advanced(np.array([0,1,0,1,0,0]),np.array([0,1,0,0,1,0])).tolist())
-        self.assertEquals([0,1,1,-2,0],make_trade_signal_advanced(np.array([0,1,1,0,0]),np.array([1,0,0,1,0])).tolist())
-        self.assertEquals([0,1,1,-2,0,0,1,-1,0],make_trade_signal_advanced(np.array([0,1,1,0,0,0,1,0,0]),np.array([1,0,0,1,0,0,0,1,0])).tolist())
+        self.assertEquals([0,1,1,-1,0],make_trade_signal_advanced(np.array([0,1,1,0,0]),np.array([1,0,0,1,0])).tolist())
+        self.assertEquals([0,1,1,-1,0,0,1,-1,0],make_trade_signal_advanced(np.array([0,1,1,0,0,0,1,0,0]),np.array([1,0,0,1,0,0,0,1,0])).tolist())
 
 
     def test_make_trade_signal_double_direct(self):

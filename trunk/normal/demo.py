@@ -95,7 +95,7 @@ def demo(sdata,dates,idata=None):
 
     demo3 = fcustom(buy_func_demo3,fast=5,slow=98)
     
-    m = Mediator(demo3,csc_func)
+    m = CMediator10(demo3,atr_sell_func)
     name = m.name()
     trades = m.calc(sdata,dates,20010601)
     tend = time()
@@ -117,7 +117,7 @@ if __name__ == '__main__':
     #sdata = cs.get_stocks(['SZ000655'],begin,end,ref_id)
     #print sdata[442].transaction[CLOSE]
     #sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
-    codes = get_codes_startswith('SH600')
+    codes = get_codes_startswith('SH600000')
     sdata = cs.get_stocks(codes,begin,end,ref_id)    
     print 'sdata finish....'    
     #idata = prepare_data(begin,end,'INDEX')

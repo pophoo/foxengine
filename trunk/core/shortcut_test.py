@@ -35,14 +35,14 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         sa = CommonObject(id=3,transaction=a,atr=np.array([1,2]))
         bs = np.array([0,1])
         atr_sell_func(sa,bs)
-        self.assertTrue(True)
+        #print sa.down_limit
+        self.assertEquals(2,len(sa.down_limit))
         #空测试
         a = np.array([(),(),(),(),(),(),()])
         sa = CommonObject(id=3,transaction=a)
         bs = np.array([])
         csc_func(sa,bs)
         self.assertTrue(True)
-
 
     def test_create_evaluator(self): #只测试通路
         evf = create_evaluator()

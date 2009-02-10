@@ -15,13 +15,16 @@ def csc_func(stock,buy_signal,threshold=75,**kwargs):   #kwargs目的是吸收�
     t = stock.transaction
     return d1id.confirmedsellc(buy_signal,t[OPEN],t[CLOSE],t[HIGH],t[LOW],threshold)
 
-def atr_sell_func(stock,buy_signal,times=1000,covered=20,**kwargs): 
+def atr_sell_func(stock,buy_signal,times=1000,covered=10,**kwargs): 
     ''' kwargs目的是吸收无用参数，便于cruiser
         times为0.001为单位的倍数
+        covered是求最近最高点的范围长
         是d1idiom.atr_seller的简单包装
     '''
     trans = stock.transaction
-    return d1id.atr_seller(buy_signal,trans,stock.atr,times,covered)
+    ssignal,down_limit = d1id.atr_seller(buy_signal,trans,stock.atr,times,covered)
+    stock.down_limit = down_limit
+    return ssignal
 
 def create_evaluator(matcher=match_trades):
     def efunc(trades,**kwargs):         #kwargs目的是吸收无用参数，便于cruiser
@@ -63,6 +66,7 @@ def _trade_func_deprecated(dates,stock,sbuy,ssell,prepare_func,begin=0,taxrate=1
     sbuy,ssell = prepare_func(t,sbuy,ssell)
     ssignal = make_trade_signal(sbuy,ssell)
     return make_trades(stock,ssignal,dates,t[CLOSE],t[CLOSE],begin,taxrate)
+
 
 dummy_trade_func_deprecated = fcustom(_trade_func_deprecated,prepare_func=BS_DUMMY)  
 b1s1_trade_func_deprecated = fcustom(_trade_func_deprecated,prepare_func=B1S1)  

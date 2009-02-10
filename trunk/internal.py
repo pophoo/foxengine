@@ -28,5 +28,5 @@ from wolfox.fengine.core.d1catalog import calc_index,catalog_signal
 from wolfox.fengine.core.source import get_ref_dates,prepare_data,get_codes,get_codes_startswith
 from wolfox.fengine.core.d1match import make_trade_signal
 from wolfox.fengine.core.trade import make_trades,last_trade,evaluate
-from wolfox.fengine.core.mediator import Mediator
+from wolfox.fengine.core.mediator import Mediator,CMediator10
 

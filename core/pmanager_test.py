@@ -57,6 +57,10 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals(200,half_of_total_sizer([t1,t1,t11]))
         self.assertEquals(0,half_of_total_sizer([t1,t1,t1,t1]))
 
+    def test_advancedposition_init(self):
+        pm = AdvancedPositionManager()
+        self.assertTrue(pm.position)
+
 
 class PositionTest(unittest.TestCase):
     def test_init(self):    #通路测试

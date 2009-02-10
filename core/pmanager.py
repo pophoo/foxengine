@@ -34,12 +34,12 @@ class Position(object): #只能用于管理单边头寸(即卖出都是pop，买
             risk是能够承担的风险值,以0.001元表示
             size_limit为上限交易额,也以0.001元表示
         '''
+        #print 'push:',trade
         if trade.tstock in self.holdings:   #已经在持股. 对于多个来源的交易集合可能出现这种情况
             logger.debug('repeated buy in : %s %s',trade.tstock,trade.tdate)
             trade.set_volume(0)
             return 0
         wanted_size = risk / (trade.tprice * lostavg / POS_BASE)
-        #print wanted_size
         if wanted_size * trade.tprice > size_limit:
             wanted_size = size_limit / trade.tprice * 990 / POS_BASE #预留的tax
         wanted_size = (wanted_size / 100) * 100     #交易量向100取整
@@ -232,6 +232,7 @@ class PositionManager(object):  #只适合先买后卖，卖空和混合方式�
         rev = extend2next(rev)
         return rev
 
+AdvancedPositionManager = fcustom(PositionManager,position=AdvancedPosition)
 
 import datetime
 class DateManager(object):

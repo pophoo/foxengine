@@ -162,6 +162,18 @@ class ModuleTest(unittest.TestCase):
         mts = match_trades(trades)
         self.assertEquals(1,len(mts))
         self.assertEquals([trade1,trade2,trade3],mts[0])
+        self.assertEquals(trade1.tvolume+trade2.tvolume,-trade3.tvolume)
+
+    def test_match_trades_successive_neg(self):#连续建空仓
+        trade1 = Trade(1,20050101,1000,-1)
+        trade2 = Trade(1,20050101,1100,-1)
+        trade3 = Trade(1,20050101,800,1)
+        trade4 = Trade(1,20050101,1200,1)
+        trades = [trade1,trade2,trade3,trade4]
+        mts = match_trades(trades)
+        self.assertEquals(1,len(mts))
+        self.assertEquals([trade1,trade2,trade3],mts[0])
+        self.assertEquals(trade1.tvolume+trade2.tvolume,-trade3.tvolume)
 
     def test_match_trades_left(self):#包含未闭合交易
         trade1 = Trade(1,20050101,1000,1)

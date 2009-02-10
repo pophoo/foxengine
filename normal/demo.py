@@ -40,9 +40,10 @@ def buy_func_demo2(stock,fast,mid,slow,extend_days = 10):
 
 def buy_func_demo3(stock,fast,slow,extend_days = 20):
     #print stock.code
-    logger.debug('calc: %s ' % stock.code)
+    #logger.debug('calc: %s ' % stock.code)
     t = stock.transaction
     #print t[CLOSE]
+    return np.ones_like(t[CLOSE])
     g = stock.gorder >= 8500    
     signal_s = catalog_signal(stock.c60,8500,8500)  #kao.存在没有c60也就是不归属任何catalog的stock，直接异常
     #print stock.code,max(stock.gorder)
@@ -97,31 +98,37 @@ def demo(sdata,dates,idata=None):
     
     m = CMediator10(demo3,atr_sell_func)
     name = m.name()
-    trades = m.calc(sdata,dates,20010601)
+    tradess = m.calc_matched(sdata,dates,20010601)
     tend = time()
     print u'耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    
-    evs3 = normal_evaluate(trades)
+    evs3 = normal_evaluate(tradess)
     print evs3.header()
-
-    pman = PositionManager()
-    pevs = gevaluate([BaseObject(name=m.name(),evaluation=evs3,trades=trades)])
-    print pevs.header()
+    for mtrades in evs3.matchedtrades:
+        for trade in mtrades:
+            #print trade
+            pass
 
     import yaml
-    #print yaml.dump(pevs.matchedtrades)
-    print pevs.matchedtrades
+    f = file('demo_ev.txt','w')
+    yaml.dump(evs3,f)
 
-    print dir(evs3)
-    print yaml.dump(evs3)
-    print dir(pevs)
-    print yaml.dump(pevs)
+    pman = AdvancedPositionManager()
+    pevs = gevaluate([BaseObject(name=m.name(),evaluation=evs3,trades=tradess)],pman.filter)
+    print pevs.header()
+
+
+    for trades in pevs.matchedtrades:
+        for trade in trades:
+            del trade.parent
+    
+    yaml.dump(pevs,f)
 
 
 if __name__ == '__main__':
     logging.basicConfig(filename="demo.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
     
-    begin,end = 20010101,20060101
+    begin,end = 20010101,20050101
     print 'start....'
     dates = get_ref_dates(begin,end)
     print 'dates finish....'
@@ -130,7 +137,7 @@ if __name__ == '__main__':
     #sdata = cs.get_stocks(['SZ000655'],begin,end,ref_id)
     #print sdata[442].transaction[CLOSE]
     #sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
-    codes = get_codes_startswith('SH6000')
+    codes = get_codes_startswith('SH600000')
     sdata = cs.get_stocks(codes,begin,end,ref_id)    
     print 'sdata finish....'    
     #idata = prepare_data(begin,end,'INDEX')

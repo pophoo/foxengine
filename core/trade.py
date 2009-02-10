@@ -126,10 +126,10 @@ def match_trades(trades):
     #for matched_trade in matched_trades:logger.debug('matched trade:%s,%s',matched_trade[0],matched_trade[1])
     return matched_trades
 
-def evaluate(trades,matcher=match_trades):
+def evaluate(trades):
     ''' 对交易进行匹配和评估
     '''
-    return Evaluation(matcher(trades))
+    return Evaluation(trades)
 
 import operator
 def DEFAULT_EVALUATE_FILTER(matched_named_trades):
@@ -143,7 +143,7 @@ def DEFAULT_EVALUATE_FILTER(matched_named_trades):
     else:
         return []
 
-def gevaluate(named_trades,gfilter=DEFAULT_EVALUATE_FILTER,matcher=match_trades):
+def gevaluate(named_trades,gfilter=DEFAULT_EVALUATE_FILTER):
     ''' 对多个来源组的交易进行匹配、头寸管理和评估。一次交易可以允许多次买卖，以单个股票存续数量为0为交易完成标志
         named_trades为BaseObject列表，每个BaseObject包括name,evaluation,trades三个属性
             evalutaion用于对trades中的交易进行风险和期望管理
@@ -152,12 +152,11 @@ def gevaluate(named_trades,gfilter=DEFAULT_EVALUATE_FILTER,matcher=match_trades)
             trades:[[trade1,trade2,...],[trade3,trade4,...],....]
             满足    所有trade的volume之和为0，并且任何前m个trade的volume之和不为0(对于买先策略为大于0)
                     trade有parent属性，指向其所属的named_trades
-            本evaluate函数只有trade1,trade2两个成分，如果要一次买入多次卖出的，需要另一个evaluate
-            并且要有相应的新的make_trades函数
     '''
     matched_named_trades = []
     for nt in named_trades:
-        tradess=matcher(nt.trades)
+        tradess=nt.trades
+        #print tradess
         if not tradess: continue   #貌似无此必要,但可简化头寸管理部分的操作，而且更加符合直观
         for trades in tradess:
             for ctrade in trades:

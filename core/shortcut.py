@@ -26,9 +26,9 @@ def atr_sell_func(stock,buy_signal,times=1000,covered=10,**kwargs):
     stock.down_limit = down_limit
     return ssignal
 
-def create_evaluator(matcher=match_trades):
+def create_evaluator():
     def efunc(trades,**kwargs):         #kwargs目的是吸收无用参数，便于cruiser
-        return evaluate(trades,matcher)
+        return evaluate(trades)
     return efunc
 
 normal_evaluate = create_evaluator()

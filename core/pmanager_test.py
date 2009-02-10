@@ -35,7 +35,30 @@ class ModuleTest(unittest.TestCase):
         y = np.polyval([a,b],xt)
         yn= y + randn(n)
         cs = CSHARP(xt,yn)
+        print 'cs:',cs
         self.assertTrue(cs>0)
+
+    def test_AVG_DECLINE(self):#通路测试
+        n = 305
+        a = 0.8
+        b = 4
+        xt = np.arange(n)
+        y = np.polyval([a,b],xt)
+        yn= y + randn(n)
+        ar,ap = AVG_DECLINE(xt,yn,1)
+        print 'ar=%s,ap=%s' % (ar,ap)
+        self.assertTrue(True)
+
+    def test_MAX_DECLINE(self):#通路测试
+        n = 305
+        a = 0.8
+        b = 4
+        xt = np.arange(n)
+        y = np.polyval([a,b],xt)
+        yn= y + randn(n)
+        mr,mp = MAX_DECLINE(xt,yn)
+        print 'mr=%s,mp=%s' % (mr,mp)
+        self.assertTrue(True)
 
     def test_half_of_first_sizer(self):
         t1 = Trade(0,20010101,10000,100)
@@ -59,6 +82,10 @@ class ModuleTest(unittest.TestCase):
 
     def test_advancedposition_init(self):
         pm = AdvancedPositionManager()
+        self.assertTrue(pm.position)
+
+    def test_advancedatrposition_init(self):
+        pm = AdvancedATRPositionManager()
         self.assertTrue(pm.position)
 
 

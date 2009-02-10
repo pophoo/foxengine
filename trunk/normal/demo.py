@@ -110,14 +110,13 @@ def demo(sdata,dates,idata=None):
 
     import yaml
     #print yaml.dump(pevs.matchedtrades)
-    for mt in pevs.matchedtrades:
-        print mt[0]
-        print dir(mt[0])
-        del mt[0].atr
-        del mt[0].parent
-        print dir(mt[0])
-        print yaml.dump(mt[0])
-        #print yaml.dump(mt)
+    print pevs.matchedtrades
+
+    print dir(evs3)
+    print yaml.dump(evs3)
+    print dir(pevs)
+    print yaml.dump(pevs)
+
 
 if __name__ == '__main__':
     logging.basicConfig(filename="demo.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')

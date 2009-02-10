@@ -101,21 +101,25 @@ def match_trades(trades):
         返回值matched_trades列表中的元素形式为：
             [trade1,trade2,....,traden]
             满足    所有trade的volume之和为0，并且任何前m个trade的volume之和不为0(对于买先策略为大于0)
+        这里不对卖空进行限制，限制卖空和连续卖空的动作定义在d1match.make_trade_signal.xxxx
     '''
     matched_trades = []
     contexts = {}
+    #state: 1持多仓，0空仓，-1持卖仓
     for trade in trades:
         if(trade.tstock in contexts):
-            sum,items = contexts[trade.tstock]
+            state,items = contexts[trade.tstock]
+            #print trade,state            
             items.append(trade)
-            sum += trade.tvolume
-            if(sum == 0):#交易完成
+            if (state == 1 and trade.tvolume < 0) or (state == -1 and trade.tvolume > 0):   #反向仓位，则平仓
+                #print 'trade finish,date=%s' % trade.tdate,'items:',items[0]
                 del contexts[trade.tstock] #以触发下一次的else (如果设置为None则第一次和每次新交易的判断不同)
                 matched_trades.append(items) 
             else:
-                contexts[trade.tstock] = (sum,items)
+                contexts[trade.tstock] = (state,items)
         else:
-            contexts[trade.tstock] = (trade.tvolume,[trade])
+            state = 1 if trade.tvolume > 0 else -1
+            contexts[trade.tstock] = (state,[trade])
     #print matched_trades
     #for matched_trade in matched_trades:logger.debug('matched trade:%s,%s',matched_trade[0],matched_trade[1])
     return matched_trades

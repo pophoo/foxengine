@@ -2,6 +2,10 @@
 
 import numpy as np
 
+import logging
+
+logger = logging.getLogger('wolfox.fengine.core.match')
+
 def tmatch(signal,length=5,interval=1):
     ''' 正确设置超时平仓点    
         平仓参数：信号，持股时长，间隔. signal>0为有信号
@@ -21,7 +25,6 @@ def tmatch(signal,length=5,interval=1):
 def make_trade_signal(target,follow):  
     ''' 根据target和follow信号，集成交易信号，除去无匹配的连续买入和卖出
         同时，卖出优先级高于买入，这样，不存在t+1问题。
-        信号次日起效的偏移需要外部处理
         不允许follow信号先行(tsum<=-1), 对于纯粹的卖空操作,只需要将卖出信号作为target
         返回结果确保任何两个连续信号量相加为0
     '''
@@ -64,24 +67,27 @@ def make_trade_signal_advanced(target,follow):
     ''' 根据target和follow信号，集成交易信号
         同时，卖出优先级高于买入，这样，不存在t+1问题。
         信号次日起效的偏移需要外部处理
-        不允许follow信号先行(tsum<=-1), 对于纯粹的卖空操作,只需要将卖出信号作为target
-        允许多次买入，但只允许一次卖出,即不允许连续的卖出信号
+        允许多次买入，但只允许一次卖出,即不允许连续的卖出信号，也不允许卖出信号先行
+        对于纯粹的卖空操作,只需要将卖出信号作为target
     '''
     len_t,len_f = len(target),len(follow)
     assert len_t == len_f
     if(len_f == 0):
         return  np.array([])
     s = np.sign(target - follow * 2) #卖出优先于买入，当日两者同时发生的话，仍然为卖出信号
-    state = 0   #0空仓状态,1持仓状态
+    holdings = 0
     for i in xrange(len_t):
         cv = s[i]
-        if state == 0:   #空仓
-            if cv < 0:   #空仓忽略卖出信号
-                s[i] = 0
-            elif cv > 0:
-                state = 1
-        elif cv < 0:    #持仓且买出,成为空仓
-            state = 0
+        if cv > 0:
+            holdings += 1
+        elif cv < 0 and holdings == 0:  #空仓忽略卖出信号
+            s[i] = 0
+        elif cv < 0 and holdings > 0:  #持仓则发出卖出信号，是否一次卖出由match_trade确定
+            s[i] = 1    #cv * holdings
+            holdings = 0
+        else:   #cv==0不变
+            pass
+        logger.debug(s.tolist())
     return s
 
 def make_trade_signal_double_direct_free(target_b,target_s):

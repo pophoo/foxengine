@@ -26,11 +26,21 @@ class ModuleTest(unittest.TestCase):
         stock = BaseObject()
         self.assertEquals(trade,default_extra(trade,stock,0))
 
+    def test_atr_extra_custom(self):
+        stock = BaseObject(code='test',atr=np.array([1,2,3]))
+        trade = Trade(stock.code,20010101,10000,1)
+        atr_extra_custom(trade,stock,0)
+        self.assertEquals(1,trade.atr)
+        self.assertEquals(type(1),type(trade.atr))
+        atr_extra_custom(trade,stock,2)
+        self.assertEquals(3,trade.atr)
+
     def test_atr_extra(self):
         stock = BaseObject(code='test',atr=np.array([1,2,3]))
         trade = Trade(stock.code,20010101,10000,1)
         atr_extra(trade,stock,0)
         self.assertEquals(1,trade.atr)
+        self.assertEquals(type(1),type(trade.atr))
         atr_extra(trade,stock,2)
         self.assertEquals(3,trade.atr)
 
@@ -41,6 +51,8 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals(1,trade.atr)
         append_attribute_extra(trade,stock,2,'atr')
         self.assertEquals(3,trade.atr)
+        append_attribute_extra(trade,stock,0,'atr','vtr')   #指定不同的目的名字
+        self.assertEquals(1,trade.vtr)
         #属性不存在测试
         append_attribute_extra(trade,stock,2,'xtr')
         self.assertRaises(AttributeError,lambda:trade.xtr)
@@ -59,9 +71,9 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals(20050109,trades[0].tdate)
         self.assertEquals(109,trades[0].tprice)
         self.assertEquals(1000,trades[0].tvolume)
-        self.assertEquals(type(trades[0].tprice),type(1))    #确认是平凡的int数据类型，非numpy.intxx
-        self.assertEquals(type(trades[0].tdate),type(1))
-        self.assertEquals(type(trades[0].tvolume),type(1))
+        self.assertEquals(type(1),type(trades[0].tprice))    #确认是平凡的int数据类型，非numpy.intxx
+        self.assertEquals(type(1),type(trades[0].tdate))
+        self.assertEquals(type(1),type(trades[0].tvolume))
 
     def test_last_trade_with_begin(self):
         stock = BaseObject(code='test')        
@@ -95,7 +107,6 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals(1109,trades[0].tprice)
         self.assertEquals(-1000,trades[0].tvolume)
 
-
     def test_make_trades(self): #begin=0
         stock = BaseObject(code='test')        
         tdate = np.array([20050101,20050102,20050103,20050104,20050105,20050106,20050107,20050108,20050109,20050110])
@@ -107,9 +118,9 @@ class ModuleTest(unittest.TestCase):
         signal1 = np.array([0,0,1,-1,0,1,0,-1,1,0])
         trades = make_trades(stock,signal1,tdate,tbuy,tsell)
         self.assertEquals(4,len(trades))
-        self.assertEquals(type(trades[0].tprice),type(1))    #确认是平凡的int数据类型，非numpy.intxx
-        self.assertEquals(type(trades[0].tdate),type(1))
-        self.assertEquals(type(trades[0].tvolume),type(1))        
+        self.assertEquals(type(1),type(trades[0].tprice))    #确认是平凡的int数据类型，非numpy.intxx
+        self.assertEquals(type(1),type(trades[0].tdate))
+        self.assertEquals(type(1),type(trades[0].tvolume))
 
     def test_make_trades_with_begin(self):
         stock = BaseObject(code='test')

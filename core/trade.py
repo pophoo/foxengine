@@ -24,18 +24,20 @@ def double_first(signal):  #双向
 def default_extra(trade,stock,index):   #不做任何事情
     return trade
 
-def atr_extra(trade,stock,index):   #将atr值赋给trade
-    trade.atr = stock.atr[index]
+def atr_extra_custom(trade,stock,index):   #将atr值赋给trade，专门定制，已经在后面被一般方法覆盖
+    trade.atr = int(stock.atr[index])   #将atr转换为平凡的int类型，而非numpy.int32，以便后续处理
     return trade
 
-def append_attribute_extra(trade,stock,index,attribute_name):
-    if attribute_name in stock.__dict__:
-        trade.__dict__[attribute_name] = stock.__dict__[attribute_name][index]
+def append_attribute_extra(trade,stock,index,attr_name_from,attr_name_to=None):
+    if attr_name_from in stock.__dict__:
+        if not attr_name_to:
+            attr_name_to = attr_name_from
+        trade.__dict__[attr_name_to] = int(stock.__dict__[attr_name_from][index]) #将atr转换为平凡的int类型，而非numpy.int32，以便后续处理
     else:
-        logger.warn('append attribute error:%s do not have attribute %s',stock.code,attribute_name)
+        logger.warn('append attribute error:%s do not have attribute %s',stock.code,attr_name_from)
     return trade
 
-atr_extra = fcustom(append_attribute_extra,attribute_name='atr')
+atr_extra = fcustom(append_attribute_extra,attr_name_from='atr')    #atr_extra的一般定义方法
 
 def make_trades(stock,signal,tdate,tpositive,tnegative
         ,begin=0,taxrate=125,trade_strategy=buy_first,extra_func=default_extra):

@@ -13,6 +13,11 @@ class ModuleTest(unittest.TestCase):
         CMediator10(np.array([1,0,0,1]),np.array([0,0,1,0]))
         self.assertTrue(True)
 
+    def test_Mediator10_init(self):
+        Mediator10(np.array([1,0,0,1]),np.array([0,0,1,0]))
+        self.assertTrue(True)
+
+
 class MediatorTest(unittest.TestCase):
     def test_init(self):
         fbuy = lambda x:np.array([1,0])

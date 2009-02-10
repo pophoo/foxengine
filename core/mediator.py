@@ -71,6 +71,10 @@ class Mediator(object):
 
 #收盘价买入，下限突破价卖出，必须有下限突破线
 cl_pricer = (lambda s : s.transaction[CLOSE],lambda s : s.down_limit)
+
+#定制的Mediator
+#一次买入一次买出，买入信号次日有效，卖出信号当日起效
+Mediator10 = fcustom(Mediator,trade_strategy=B1S0,pricer = cl_pricer)
 #允许连续买入一次卖出，买入信号次日有效，卖出信号当日起效
 CMediator10 = fcustom(Mediator,trade_signal_maker=make_trade_signal_advanced
         ,trade_strategy=B1S0,pricer = cl_pricer)

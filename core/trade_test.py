@@ -161,7 +161,7 @@ class ModuleTest(unittest.TestCase):
         trades = [trade1,trade2,trade3,trade4]
         mts = match_trades(trades)
         self.assertEquals(1,len(mts))
-        self.assertEquals([trade1,trade2,trade3,trade4],mts[0])
+        self.assertEquals([trade1,trade2,trade3],mts[0])
 
     def test_match_trades_left(self):#包含未闭合交易
         trade1 = Trade(1,20050101,1000,1)
@@ -171,8 +171,9 @@ class ModuleTest(unittest.TestCase):
         trade5= Trade(1,20050101,1200,1)
         trades = [trade1,trade2,trade3,trade4,trade5]
         mts = match_trades(trades)
-        self.assertEquals(1,len(mts))
-        self.assertEquals([trade1,trade2,trade3,trade4],mts[0])
+        #print mts
+        self.assertEquals(2,len(mts))
+        self.assertEquals([[trade1,trade2,trade3],[trade4,trade5]],mts)
 
     def test_match_trades_multi(self):#包含未闭合交易
         trade1 = Trade(1,20050101,1000,1)

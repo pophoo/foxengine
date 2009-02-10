@@ -9,7 +9,7 @@ import logging
 from wolfox.fengine.core.d1indicator import atr
 from wolfox.fengine.core.d1idiom import B0S0,B0S1,B1S0,B1S1,BS_DUMMY
 from wolfox.fengine.core.d1match import make_trade_signal,make_trade_signal_advanced
-from wolfox.fengine.core.trade import make_trades,last_trade,default_extra,atr_extra
+from wolfox.fengine.core.trade import make_trades,last_trade,match_trades,default_extra,atr_extra
 from wolfox.fengine.core.base import CLOSE,OPEN,HIGH,LOW
 from wolfox.fengine.core.utils import fcustom
 
@@ -20,11 +20,14 @@ default_pricer = (lambda s : s.transaction[CLOSE],lambda s : s.transaction[CLOSE
 class Mediator(object):
     def __init__(self,buy_signal_maker,sell_signal_maker
             ,taxrate=125
-            ,trade_signal_maker=make_trade_signal,trade_strategy=B1S1
+            ,trade_signal_maker=make_trade_signal
+            ,matcher = match_trades
+            ,trade_strategy=B1S1
             ,pricer = default_pricer,extra_func=atr_extra):
         self.buy_signal_maker = buy_signal_maker
         self.sell_signal_maker = sell_signal_maker
         self.trade_signal_maker = trade_signal_maker
+        self.matcher = matcher
         self.trade_strategy = trade_strategy
         self.buy_pricer = pricer[0]
         self.sell_pricer = pricer[1]
@@ -39,6 +42,9 @@ class Mediator(object):
 
     def calc(self,sdata,dates,begin=0,**kwargs):
         return self._calc(self.make_trades,sdata,dates,begin,**kwargs)
+
+    def calc_matched(self,sdata,dates,begin=0,**kwargs):
+        return self.matcher(self._calc(self.make_trades,sdata,dates,begin,**kwargs))
 
     def calc_last(self,sdata,dates,begin=0,**kwargs):
         return self._calc(self.last_trade,sdata,dates,begin,**kwargs)

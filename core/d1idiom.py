@@ -200,5 +200,5 @@ def atr_seller(sbuy,trans,satr,times=BASE,covered=10):
         times为以0.001为单位的倍数
     '''
     down_limit = tmax(trans[HIGH] - satr * times / BASE,covered)    #最近covered天波动下限的最大值
-    sdown = equals(cross(down_limit,trans[LOW]),-1)
+    sdown = equals(cross(down_limit,trans[LOW]),-1)     #最低价触及
     return band(sdown,sellconfirm(trans[OPEN],trans[CLOSE],trans[HIGH],trans[LOW])),down_limit

@@ -15,7 +15,7 @@ def csc_func(stock,buy_signal,threshold=75,**kwargs):   #kwargs目的是吸收�
     t = stock.transaction
     return d1id.confirmedsellc(buy_signal,t[OPEN],t[CLOSE],t[HIGH],t[LOW],threshold)
 
-def atr_sell_func(stock,buy_signal,times=1000,covered=10,**kwargs): 
+def atr_sell_func(stock,buy_signal,times=2000,covered=10,**kwargs): 
     ''' kwargs目的是吸收无用参数，便于cruiser
         times为0.001为单位的倍数
         covered是求最近最高点的范围长

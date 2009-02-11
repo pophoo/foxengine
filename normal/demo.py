@@ -112,6 +112,8 @@ def demo(sdata,dates,begin,end,idata=None):
     result,strade = ev.evaluate_all(tradess,pman,dm)
     print strade
     print yaml.dump(result)
+    f.write(strade)
+    f.close()
 
 
 if __name__ == '__main__':
@@ -126,7 +128,7 @@ if __name__ == '__main__':
     #sdata = cs.get_stocks(['SZ000655'],begin,end,ref_id)
     #print sdata[442].transaction[CLOSE]
     #sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
-    codes = get_codes_startswith('SH600000')
+    codes = get_codes_startswith('SH600')
     sdata = cs.get_stocks(codes,begin,end,ref_id)    
     print 'sdata finish....'    
     #idata = prepare_data(begin,end,'INDEX')

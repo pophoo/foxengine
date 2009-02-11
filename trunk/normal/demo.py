@@ -99,10 +99,12 @@ def demo(sdata,dates,begin,end,idata=None):
     pman = AdvancedPositionManager()
     dman = DateManager(begin,end)
 
-    config1 = BaseObject(buyer = buy_func_demo1,seller=atr_seller,pman=pman,dman=dman)    
-    config2 = BaseObject(buyer = demo2,seller=atr_seller,pman=pman,dman=dman)    
-    config3 = BaseObject(buyer = demo3,seller=atr_seller,pman=pman,dman=dman)
-    batch([config1,config2,config3],sdata,dates,begin)
+    seller = atr_seller_factory(4000)
+    config1 = BaseObject(buyer = buy_func_demo1,seller=seller,pman=pman,dman=dman)    
+    config2 = BaseObject(buyer = demo2,seller=seller,pman=pman,dman=dman)    
+    config3 = BaseObject(buyer = demo3,seller=seller,pman=pman,dman=dman)
+    configs = [config1,config2,config3]
+    batch(configs,sdata,dates,begin)
     #batch([config3],sdata,dates,begin)    
     #print config.name
     #print config.result
@@ -117,9 +119,8 @@ def demo(sdata,dates,begin,end,idata=None):
 
     import yaml
     f = file('demo_ev.txt','w')
-    f.write('name:%s\n%s' % (name,config1.strade))
-    f.write('name:%s\n%s' % (name,config2.strade))
-    f.write('name:%s\n%s' % (name,config3.strade))    
+    for config in configs:
+        f.write('name:%s\npre_ev:%s\ngev:%s' % (config.name,config.result.pre_ev,config.result.g_ev))
     f.close()
 
 

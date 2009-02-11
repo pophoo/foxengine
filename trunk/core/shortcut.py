@@ -6,7 +6,7 @@ import logging
 
 from wolfox.fengine.extern import *
 from wolfox.fengine.internal import *
-from wolfox.fengine.core.d1idiom import B0S0,B0S1,B1S0,B1S1,BS_DUMMY,atr_seller
+from wolfox.fengine.core.d1idiom import B0S0,B0S1,B1S0,B1S1,BS_DUMMY
 from wolfox.fengine.core.trade import match_trades
 
 logger = logging.getLogger('wolfox.fengine.core.shortcut')

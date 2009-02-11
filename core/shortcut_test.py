@@ -6,17 +6,6 @@ from wolfox.fengine.core.base import CommonObject
 from wolfox.fengine.core.shortcut import *
 
 class ModuleTest(unittest.TestCase):    #只测试通道
-    def setUp(self):
-        from StringIO import StringIO
-        self.tmp = sys.stdout
-        sys.stdout = StringIO()  #将标准I/O流重定向到buff对象，抑制输出
-
-    def tearDown(self):
-        sout = sys.stdout.getvalue()
-        logger.debug(u'测试输出:%s',sout)
-        sys.stdout = self.tmp        #恢复标准I/O流
-        #print sout    
-
     def test_csc_func(self):
         a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
         sa = CommonObject(id=3,transaction=a)
@@ -62,6 +51,20 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         ctree,catalogs = prepare_catalogs(sdata)
         self.assertEquals(2,len(sa.gorder))
         self.assertEquals(2,len(sb.gorder))
+
+    def test_calc_trades(self):
+        a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
+        b = np.array([(11,12),(13,14),(15,16),(17,18),(19,110),(111,112),(113,114)])
+        sa = CommonObject(id=3,code='test1',transaction=a)
+        sb = CommonObject(id=3,code='test2',transaction=b)
+        sdata = {'sa':sa,'sb':sb}
+        dates = np.array([20010101,20010102])
+        buyer = lambda x:x.transaction[CLOSE]
+        seller = lambda x,b:b
+        name,trades = calc_trades(buyer,seller,sdata,dates,20010101)
+        print name
+        self.assertTrue(name)
+
 
     #以下是已经deprecated的函数的测试，也相当于deprecated
     def test_normal_calc_template_deprecated(self):

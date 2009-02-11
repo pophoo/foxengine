@@ -44,6 +44,11 @@ def prepare_catalogs(sdata,distance=60):
     d_posort('gorder',catalogs,distance=distance)
     return ctree,catalogs   
 
+def calc_trades(buyer,seller,sdata,dates,begin):
+    m = CMediator10(buyer,seller)
+    name = m.name()
+    tradess = m.calc_matched(sdata,dates,begin)
+    return name,tradess
 
 #以下deprecated,使用Mediator替代
 def normal_calc_template_deprecated(sdata,dates,buy_func,sell_func,trade_func):

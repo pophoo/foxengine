@@ -50,7 +50,40 @@ def gevaluate(named_trades,gfilter=DEFAULT_EVALUATE_FILTER):
     return Evaluation(matched_trades)
 
 
-def evaluate_all(trades):
+import yaml
+from wolfox.fengine.core.base import BaseObject
+from wolfox.fengine.core.pmanager import CSHARP,AVG_DECLINE,MAX_DECLINE
+def evaluate_all(tradess,pos_manager,date_manager):
     ''' 针对单个方法的一站式评估
+        trades为从mediator.calc_matched返回的matched trades
+        pos_manager为position manager的实例
+        date_manager为DateManager的实例
+        返回表示结果数据的对象rev和交易输出
     '''
-    pass
+    pre_ev = evaluate(tradess)
+
+    spre = yaml.dump(pre_ev)
+
+    g_ev = gevaluate([BaseObject(evaluation=pre_ev,trades=tradess)],pos_manager.filter)
+
+    rev = BaseObject(RPR=pos_manager.calc_net_indicator(date_manager)
+            ,CSHARP=pos_manager.calc_net_indicator(date_manager,CSHARP)
+            ,AVGRANGE=pos_manager.calc_net_indicator(date_manager,AVG_DECLINE)
+            ,MAXRANGE=pos_manager.calc_net_indicator(date_manager,MAX_DECLINE)
+            ,assets = pos_manager.assets()
+            ,income_rate = pos_manager.income_rate()
+            ,pre_ev = pre_ev.copy_header()
+            ,g_ev = g_ev.copy_header()
+            )
+
+    #print 'types:',type(rev.RPR),type(rev.CSHARP),type(rev.AVGRANGE)
+    #print type(rev.income_rate),type(rev.assets)
+
+    srev = yaml.dump(rev)
+
+    for trades in g_ev.matchedtrades:
+        for trade in trades:
+            del trade.parent
+    sg = yaml.dump(g_ev)
+
+    return rev,'%s\n%s\n%s' % (spre,srev,sg)

@@ -2,6 +2,7 @@
 
 import unittest
 from wolfox.fengine.base.common import Quote,Trade,Evaluation
+from wolfox.fengine.core.pmanager import AdvancedPositionManager,DateManager
 from wolfox.fengine.core.base import BaseObject
 from wolfox.fengine.core.evaluate import *
 
@@ -35,6 +36,17 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals(nt2,trade3.parent)
         self.assertEquals(nt2,trade4.parent)
 
+    def test_evaluate_all(self):    #÷ª≤‚ ‘Õ®¬∑
+        trade1 = Trade(1,20050101,1000,1)
+        trade2 = Trade(1,20050101,1100,-1)
+        pman = AdvancedPositionManager()
+        dm = DateManager(20050101,20050401)        
+        rev,srev = evaluate_all([[trade1,trade2]],pman,dm)
+        self.assertTrue(rev)
+        self.assertTrue(srev)
+        self.assertTrue(rev.pre_ev)
+        self.assertTrue(rev.g_ev)
+        
 
 if __name__ == "__main__":
     import logging

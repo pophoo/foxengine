@@ -99,7 +99,7 @@ def demo(sdata,dates,begin,end,idata=None):
     #m = CMediator10(demo3,atr_sell_func)
     #name = m.name()
     #tradess = m.calc_matched(sdata,dates,20010601)
-    name,tradess = calc_trades(demo3,atr_sell_func,sdata,dates,20010601)
+    name,tradess = calc_trades(demo3,atr_seller,sdata,dates,20010601)
     tend = time()
     print u'耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    

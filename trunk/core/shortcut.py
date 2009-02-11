@@ -6,7 +6,7 @@ import logging
 
 from wolfox.fengine.extern import *
 from wolfox.fengine.internal import *
-from wolfox.fengine.core.d1idiom import B0S0,B0S1,B1S0,B1S1,BS_DUMMY
+from wolfox.fengine.core.d1idiom import B0S0,B0S1,B1S0,B1S1,BS_DUMMY,atr_seller
 from wolfox.fengine.core.trade import match_trades
 
 logger = logging.getLogger('wolfox.fengine.core.shortcut')
@@ -14,17 +14,6 @@ logger = logging.getLogger('wolfox.fengine.core.shortcut')
 def csc_func(stock,buy_signal,threshold=75,**kwargs):   #kwargs目的是吸收无用参数，便于cruiser
     t = stock.transaction
     return d1id.confirmedsellc(buy_signal,t[OPEN],t[CLOSE],t[HIGH],t[LOW],threshold)
-
-def atr_sell_func(stock,buy_signal,times=2000,covered=10,**kwargs): 
-    ''' kwargs目的是吸收无用参数，便于cruiser
-        times为0.001为单位的倍数
-        covered是求最近最高点的范围长
-        是d1idiom.atr_seller的简单包装
-    '''
-    trans = stock.transaction
-    ssignal,down_limit = d1id.atr_seller(buy_signal,trans,stock.atr,times,covered)
-    stock.down_limit = down_limit
-    return ssignal
 
 def create_evaluator():
     def efunc(trades,**kwargs):         #kwargs目的是吸收无用参数，便于cruiser
@@ -49,6 +38,24 @@ def calc_trades(buyer,seller,sdata,dates,begin):
     name = m.name()
     tradess = m.calc_matched(sdata,dates,begin)
     return name,tradess
+
+import yaml
+def batch(configs,sdata,dates,begin):
+    for config in configs:
+        try:
+            buyer = config.buyer
+            seller = config.seller
+            pman = config.pman
+            dman = config.dman
+            name,tradess = calc_trades(buyer,seller,sdata,dates,begin)
+            result,strade = ev.evaluate_all(tradess,pman,dman)
+            config.name = name
+            config.result = result
+            config.strade = strade
+        except Exception,inst:
+            print 'batch error:',inst
+            logger.warn('except:',inst)
+
 
 #以下deprecated,使用Mediator替代
 def normal_calc_template_deprecated(sdata,dates,buy_func,sell_func,trade_func):

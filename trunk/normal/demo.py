@@ -99,7 +99,7 @@ def demo(sdata,dates,begin,end,idata=None):
     pman = AdvancedPositionManager()
     dman = DateManager(begin,end)
 
-    seller = atr_seller_factory(4000)
+    seller = atr_seller_factory(3000)
     config1 = BaseObject(buyer = buy_func_demo1,seller=seller,pman=pman,dman=dman)    
     config2 = BaseObject(buyer = demo2,seller=seller,pman=pman,dman=dman)    
     config3 = BaseObject(buyer = demo3,seller=seller,pman=pman,dman=dman)

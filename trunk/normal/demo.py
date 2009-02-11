@@ -68,10 +68,11 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20):
 def demo(sdata,dates,begin,end,idata=None):
     ctree,catalogs = prepare_catalogs(sdata)
     #print ctree
-    for s in ctree:
-        print s.name
-        for c in s.catalogs:
-            print c.name
+    #for s in ctree:
+    #    print s.name
+    #    for c in s.catalogs:
+    #        print c.name
+
     #print 'catalog number:',len(catalogs)
     #print [ str(c.name) for c in catalogs]
 
@@ -95,24 +96,30 @@ def demo(sdata,dates,begin,end,idata=None):
     #evs = normal_evaluate(trades)
 
     demo3 = fcustom(buy_func_demo3,fast=5,slow=98)
-    
+    pman = AdvancedPositionManager()
+    dman = DateManager(begin,end)
+
+    config1 = BaseObject(buyer = buy_func_demo1,seller=atr_seller,pman=pman,dman=dman)    
+    config2 = BaseObject(buyer = demo2,seller=atr_seller,pman=pman,dman=dman)    
+    config3 = BaseObject(buyer = demo3,seller=atr_seller,pman=pman,dman=dman)
+    batch([config1,config2,config3],sdata,dates,begin)
+    #batch([config3],sdata,dates,begin)    
+    #print config.name
+    #print config.result
+    #print config.strade
     #m = CMediator10(demo3,atr_sell_func)
     #name = m.name()
     #tradess = m.calc_matched(sdata,dates,20010601)
-    name,tradess = calc_trades(demo3,atr_seller,sdata,dates,20010601)
     tend = time()
     print u'耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
-    pman = AdvancedPositionManager()
-    dm = DateManager(begin,end)
 
     import yaml
     f = file('demo_ev.txt','w')
-    result,strade = ev.evaluate_all(tradess,pman,dm)
-    print strade
-    print yaml.dump(result)
-    f.write(strade)
+    f.write('name:%s\n%s' % (name,config1.strade))
+    f.write('name:%s\n%s' % (name,config2.strade))
+    f.write('name:%s\n%s' % (name,config3.strade))    
     f.close()
 
 

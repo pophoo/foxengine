@@ -52,9 +52,12 @@ def batch(configs,sdata,dates,begin):
             config.name = name
             config.result = result
             config.strade = strade
+            logger.debug('calc finished:%s:',config.name)
         except Exception,inst:
             print 'batch error:',inst
-            logger.warn('except:',inst)
+            #import traceback
+            #traceback.print_stack()
+            logger.exception('batch error:buyer name=%s,seller name=%s',buyer.__name__,seller.__name__)
 
 
 #以下deprecated,使用Mediator替代

@@ -37,7 +37,9 @@ def gevaluate(named_trades,gfilter=DEFAULT_EVALUATE_FILTER):
     for nt in named_trades:
         tradess=nt.trades
         #print tradess
-        if not tradess: continue   #貌似无此必要,但可简化头寸管理部分的操作，而且更加符合直观
+        if not tradess: 
+            print tradess
+            continue   #貌似无此必要,但可简化头寸管理部分的操作，而且更加符合直观
         for trades in tradess:
             for ctrade in trades:
                 ctrade.parent = nt
@@ -64,6 +66,9 @@ def evaluate_all(tradess,pos_manager,date_manager):
 
     spre = yaml.dump(pre_ev)
 
+    #恢复干净环境，否则上一次调用时的trades还在pos_manager里面，但它们的parent已经被删除了,会在下次删除时出错
+    pos_manager.clear() 
+
     g_ev = gevaluate([BaseObject(evaluation=pre_ev,trades=tradess)],pos_manager.filter)
 
     rev = BaseObject(RPR=pos_manager.calc_net_indicator(date_manager)
@@ -85,5 +90,4 @@ def evaluate_all(tradess,pos_manager,date_manager):
         for trade in trades:
             del trade.parent
     sg = yaml.dump(g_ev)
-
     return rev,'%s\n%s\n%s' % (spre,srev,sg)

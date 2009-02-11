@@ -44,6 +44,7 @@ class Trade(object):
         return balance
 
 
+from copy import copy as ccopy
 class Evaluation(object):
     #__slots__ = 'matchedtrades','count','balance','balances','wincount','winamount','lostcount','lostamount','deucecount','ratesum','rateavg','winrate','remark','lostavg','R'  #w赢利值inamount,亏损值lostamount都用正数表示
 
@@ -63,6 +64,11 @@ class Evaluation(object):
         self.lostavg = self.lostamount / self.lostcount if self.lostcount else 0
         self.R = self.rateavg * 1000 / self.lostavg if self.lostavg else 1000   #平均净收益/平均亏损，若没有亏损，则设为1000,即R=10
         #print '胜负次数',self.wincount,self.lostcount
+
+    def copy_header(self):
+        ne = ccopy(self)
+        ne.matchedtrades = []   #清除trades
+        return ne
 
     def calcwinlost(self):
         wincount = winamount = lostcount = lostamount = 0

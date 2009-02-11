@@ -94,6 +94,24 @@ class EvaluationTest(unittest.TestCase):
         ev2.R = 101
         self.assertTrue(ev1 < ev2 and ev2 > ev1)
 
+    def test_copy_header(self):
+        trade = common.Trade(1,2,3,4)
+        trade1 = common.Trade(1,1,1000,1000,100)
+        trade2 = common.Trade(1,2,1500,-1000,100)
+        trade3 = common.Trade(2,1,2000,1000,100)
+        trade4 = common.Trade(2,2,1500,-1000,100)
+        trade5 = common.Trade(3,1,2970,1000,100)
+        trade6 = common.Trade(3,2,3030,-1000,100)
+        e = common.Evaluation([[trade1,trade2],[trade3,trade4],[trade5,trade6]])
+        e2 = e.copy_header()
+        self.assertEquals([],e2.matchedtrades)
+        self.assertEquals(e.count,e2.count)
+        self.assertEquals(e.balance,e2.balance)
+        self.assertEquals(e.lostavg,e2.lostavg)
+        self.assertEquals(e.R,e2.R)
+        self.assertEquals(e.rateavg,e2.rateavg)
+        self.assertEquals(e.winrate,e2.winrate)
+        
 
 if __name__ == "__main__":
     unittest.main()

@@ -19,20 +19,6 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         csc_func(sa,bs)
         self.assertTrue(True)
 
-    def test_atr_sell_func(self):
-        a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
-        sa = CommonObject(id=3,transaction=a,atr=np.array([1,2]))
-        bs = np.array([0,1])
-        atr_sell_func(sa,bs)
-        #print sa.down_limit
-        self.assertEquals(2,len(sa.down_limit))
-        #空测试
-        a = np.array([(),(),(),(),(),(),()])
-        sa = CommonObject(id=3,transaction=a)
-        bs = np.array([])
-        csc_func(sa,bs)
-        self.assertTrue(True)
-
     def test_create_evaluator(self): #只测试通路
         evf = create_evaluator()
         evf([])
@@ -60,11 +46,31 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         sdata = {'sa':sa,'sb':sb}
         dates = np.array([20010101,20010102])
         buyer = lambda x:x.transaction[CLOSE]
-        seller = lambda x,b:b
-        name,trades = calc_trades(buyer,seller,sdata,dates,20010101)
-        print name
+        name,trades = calc_trades(buyer,atr_seller,sdata,dates,20010101)
+        #print name
         self.assertTrue(name)
 
+    def test_batch(self):
+        a = np.array([(1,2,3),(3,4,5),(5,6,7),(7,8,9),(9,10,11),(11,12,13),(13,14,15)])
+        b = np.array([(11,12,13),(13,14,15),(15,16,18),(17,18,19),(19,20,23),(20,21,25),(23,24,28)])
+        sa = CommonObject(id=3,code='test1',transaction=a)
+        sb = CommonObject(id=3,code='test2',transaction=b)
+        sdata = {'sa':sa,'sb':sb}
+        dates = np.arange(20010101,20010146)    #45个采样点，避免在计算CSHARP中线形回归的时候报警
+        batch([],sdata,dates,20010101)    #空测试
+        self.assertTrue(True)
+        pman = AdvancedPositionManager()
+        dman = DateManager(20010101,20010215)
+        buyer = lambda x:np.ones(30,int)
+        c1 = BaseObject(buyer=buyer,seller=atr_seller,pman=pman,dman=dman)
+        c2 = BaseObject(buyer=buyer,seller=atr_seller,pman=pman,dman=dman)
+        batch([c1,c2],sdata,dates,20010101)
+        self.assertTrue(c1.name)
+        self.assertEquals(c1.name,c2.name)
+        self.assertTrue(True)
+
+    def test_batch_except(self):
+        pass    #计算内部的异常已经在mediator._calc中吸收了
 
     #以下是已经deprecated的函数的测试，也相当于deprecated
     def test_normal_calc_template_deprecated(self):

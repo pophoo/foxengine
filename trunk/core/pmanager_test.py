@@ -47,6 +47,8 @@ class ModuleTest(unittest.TestCase):
         yn= y + randn(n)
         ar,ap = AVG_DECLINE(xt,yn,1)
         print 'ar=%s,ap=%s' % (ar,ap)
+        self.assertEquals(type(1),type(ar))
+        self.assertEquals(type(1),type(ap))        
         self.assertTrue(True)
 
     def test_MAX_DECLINE(self):#通路测试
@@ -58,6 +60,8 @@ class ModuleTest(unittest.TestCase):
         yn= y + randn(n)
         mr,mp = MAX_DECLINE(xt,yn)
         print 'mr=%s,mp=%s' % (mr,mp)
+        self.assertEquals(type(1),type(mr))
+        self.assertEquals(type(1),type(mp))        
         self.assertTrue(True)
 
     def test_half_of_first_sizer(self):
@@ -148,6 +152,12 @@ class PositionTest(unittest.TestCase):
         self.assertEquals(0,v)
         self.assertEquals(2,len(p.holdings))    #未变化
         
+    def test_push_lostavg0(self):
+        p = Position()
+        trade = Trade(0,20010101,10000,1)
+        v = p.push(trade,0,10000000,999999000)
+        self.assertTrue(True)
+
     def test_pop(self):
         p = Position()
         trade = Trade(0,20010101,10000,1)

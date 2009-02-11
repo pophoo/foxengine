@@ -96,39 +96,22 @@ def demo(sdata,dates,begin,end,idata=None):
 
     demo3 = fcustom(buy_func_demo3,fast=5,slow=98)
     
-    m = CMediator10(demo3,atr_sell_func)
-    name = m.name()
-    tradess = m.calc_matched(sdata,dates,20010601)
+    #m = CMediator10(demo3,atr_sell_func)
+    #name = m.name()
+    #tradess = m.calc_matched(sdata,dates,20010601)
+    name,tradess = calc_trades(demo3,atr_sell_func,sdata,dates,20010601)
     tend = time()
     print u'耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    
-    evs3 = normal_evaluate(tradess)
-    print evs3.header()
-    for mtrades in evs3.matchedtrades:
-        for trade in mtrades:
-            #print trade
-            pass
+
+    pman = AdvancedPositionManager()
+    dm = DateManager(begin,end)
 
     import yaml
     f = file('demo_ev.txt','w')
-    yaml.dump(evs3,f)
-
-    pman = AdvancedPositionManager()
-    pevs = gevaluate([BaseObject(name=m.name(),evaluation=evs3,trades=tradess)],pman.filter)
-    print pevs.header()
-
-    dm = DateManager(begin,end)
-    print 'RPR:',pman.calc_net_indicator(dm)
-    print 'CSHARP:',pman.calc_net_indicator(dm,pm.CSHARP)
-    print 'AVG RANGE/PERIOD:%s/%s' % pman.calc_net_indicator(dm,pm.AVG_DECLINE)
-    print 'MAX RANGE/PERIOD:%s/%s' % pman.calc_net_indicator(dm,pm.MAX_DECLINE)    
-    print 'assets:%s,incom_rate:%s' % (pman.assets(),pman.income_rate())
-
-    for trades in pevs.matchedtrades:
-        for trade in trades:
-            del trade.parent
-    
-    yaml.dump(pevs,f)
+    result,strade = ev.evaluate_all(tradess,pman,dm)
+    print strade
+    print yaml.dump(result)
 
 
 if __name__ == '__main__':
@@ -143,7 +126,7 @@ if __name__ == '__main__':
     #sdata = cs.get_stocks(['SZ000655'],begin,end,ref_id)
     #print sdata[442].transaction[CLOSE]
     #sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
-    codes = get_codes_startswith('SH600')
+    codes = get_codes_startswith('SH600000')
     sdata = cs.get_stocks(codes,begin,end,ref_id)    
     print 'sdata finish....'    
     #idata = prepare_data(begin,end,'INDEX')

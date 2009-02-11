@@ -25,6 +25,9 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals((116,8),decline(sclose))
         sclose = np.array([1000,1005,1007,990,940,920,900,910,960,1030,1050,990,970,930,935,915,990,1040,1080])
         self.assertEquals((135,5),decline(sclose))
+        mr,mp = decline(sclose)
+        self.assertEquals(type(1),type(mr))
+        self.assertEquals(type(1),type(mp))
 
     def test_decline_ranges(self):
         sclose = np.array([1000,1005,1007,990,940,920,900,910,960,930,915,990,1020,990])

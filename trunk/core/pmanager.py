@@ -41,9 +41,13 @@ class Position(object): #只能用于管理单边头寸(即卖出都是pop，买
             logger.debug('repeated buy in : %s %s',trade.tstock,trade.tdate)
             trade.set_volume(0)
             return 0
-        wanted_size = risk / (trade.tprice * lostavg / POS_BASE)
-        if wanted_size * trade.tprice > size_limit:
-            wanted_size = size_limit / trade.tprice * 990 / POS_BASE #预留的tax
+        max_size = size_limit / trade.tprice * 990 / POS_BASE #预留的tax
+        if lostavg == 0:
+            wanted_size = max_size
+        else:
+            wanted_size = risk / (trade.tprice * lostavg / POS_BASE)
+            if wanted_size > max_size:
+                wanted_size = max_size
         wanted_size = (wanted_size / 100) * 100     #交易量向100取整
         if trade.tvolume < 0:
             wanted_size = -wanted_size
@@ -165,7 +169,7 @@ def AVG_DECLINE(xt,y,covered=22):
     #print 'ranges,periods:',mranges,mperiods
     avg_range = np.sum(mranges) / np.sum(greater(mranges))
     avg_period = np.sum(mperiods) / np.sum(greater(mperiods))
-    return avg_range,avg_period
+    return int(avg_range),int(avg_period)
 
 def MAX_DECLINE(xt,y):
     return decline(y)
@@ -292,3 +296,4 @@ class DateManager(object):
 
     def get_dates(self):
         return sorted(self.date_map.keys())
+

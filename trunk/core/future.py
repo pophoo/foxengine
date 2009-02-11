@@ -45,7 +45,7 @@ def decline(source):
     max_index = np.where(smax==max_range)[-1][0]  #最后一个为准，符合直观. np.where返回数组的元素是索引号数组，所以需[0]
     min_index = amin[max_index]
     max_period = min_index - max_index  #以交易日为单位的衰落期
-    return max_range,max_period
+    return int(max_range),int(max_period)   #返回值非数组时，必须转换为标准int
 
 def decline_ranges(source,covered=22):    
     ''' 求以covered为顶/底点辐射半径所得到的高低点确定的衰落幅度

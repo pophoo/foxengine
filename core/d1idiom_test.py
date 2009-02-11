@@ -163,6 +163,17 @@ class ModuleTest(unittest.TestCase):
         atr_seller(sa,bs)
         self.assertTrue(True)
 
+    def test_atr_seller_factory(self):  #通路测试
+        a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
+        sa = CommonObject(id=3,transaction=a,atr=np.array([1,2]))
+        bs = np.array([0,1])
+        seller1 = atr_seller_factory(1000)
+        seller2 = atr_seller_factory(2000)
+        seller3 = atr_seller_factory(3000,30)        
+        seller1(sa,bs)
+        seller2(sa,bs)        
+        seller3(sa,bs)
+        self.assertTrue(True)
 
 
 if __name__ == "__main__":

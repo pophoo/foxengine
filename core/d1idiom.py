@@ -214,3 +214,5 @@ def atr_seller(stock,buy_signal,times=2000,covered=10,**kwargs):
     stock.down_limit = down_limit
     return ssignal
 
+def atr_seller_factory(times=2000,covered=10):
+    return fcustom(atr_seller,times=times,covered=covered)

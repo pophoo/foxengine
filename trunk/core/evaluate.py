@@ -48,3 +48,9 @@ def gevaluate(named_trades,gfilter=DEFAULT_EVALUATE_FILTER):
         #logger.debug('matched trade:%s,%s',matched_trade[0],matched_trade[1])
         pass
     return Evaluation(matched_trades)
+
+
+def evaluate_all(trades):
+    ''' 针对单个方法的一站式评估
+    '''
+    pass

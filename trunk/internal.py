@@ -14,6 +14,7 @@ import wolfox.fengine.core.d2 as d2
 import wolfox.fengine.core.pmanager as pm
 import wolfox.fengine.core.mediator as mdtr
 import wolfox.fengine.core.trade as trade
+import wolfox.fengine.core.evaluate as ev
 import wolfox.fengine.core.utils as utils
 
 from wolfox.fengine.core.utils import fcustom,names,get_null_obj_number,get_obj_number
@@ -27,6 +28,7 @@ from wolfox.fengine.core.base import OPEN,CLOSE,HIGH,LOW,AVG,AMOUNT,VOLUME
 from wolfox.fengine.core.d1catalog import calc_index,catalog_signal
 from wolfox.fengine.core.source import get_ref_dates,prepare_data,get_codes,get_codes_startswith
 from wolfox.fengine.core.d1match import make_trade_signal
-from wolfox.fengine.core.trade import make_trades,last_trade,evaluate,gevaluate
+from wolfox.fengine.core.trade import make_trades,last_trade
+from wolfox.fengine.core.evaluate import evaluate,gevaluate
 from wolfox.fengine.core.mediator import Mediator,Mediator10,CMediator10
 from wolfox.fengine.core.pmanager import Position,AdvancedPosition,PositionManager,AdvancedPositionManager,DateManager

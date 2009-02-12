@@ -31,6 +31,10 @@ class ModuleTest(unittest.TestCase):    #保持demo的有效性
     def test_demo(self):
         begin,end = 20010101,20060101
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        d_posort('g5',sdata.values(),distance=5)        
+        d_posort('g20',sdata.values(),distance=20)    
+        d_posort('g120',sdata.values(),distance=120)     
+        d_posort('g250',sdata.values(),distance=250)            
         demo(sdata,dates,begin,end)        
         self.assertTrue(True)
 

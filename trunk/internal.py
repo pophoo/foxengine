@@ -18,7 +18,7 @@ import wolfox.fengine.core.evaluate as ev
 import wolfox.fengine.core.utils as utils
 
 from wolfox.fengine.core.utils import fcustom,names,get_null_obj_number,get_obj_number
-from wolfox.fengine.core.d1 import band,bor,gand,gor,smooth,smooth2,roll0,rollx
+from wolfox.fengine.core.d1 import band,bor,gand,gor,greater,smooth,smooth2,roll0,rollx
 from wolfox.fengine.core.d1ex import ma,trend,strend,cross,sfollow,syntony,transform
 from wolfox.fengine.core.d1indicator import svap_ma
 from wolfox.fengine.core.d1idiom import upconfirm,downup,swingin,atr_seller,atr_seller_factory
@@ -31,4 +31,4 @@ from wolfox.fengine.core.d1match import make_trade_signal
 from wolfox.fengine.core.trade import make_trades,last_trade
 from wolfox.fengine.core.evaluate import evaluate,gevaluate,evaluate_all
 from wolfox.fengine.core.mediator import Mediator,Mediator10,CMediator10,OMediator10,mediator_factory,oo_pricer,cl_pricer,ol_pricer,co_pricer
-from wolfox.fengine.core.pmanager import Position,AdvancedPosition,PositionManager,AdvancedPositionManager,DateManager
+from wolfox.fengine.core.pmanager import Position,AdvancedPosition,PositionManager,AdvancedPositionManager,AdvancedATRPositionManager,DateManager

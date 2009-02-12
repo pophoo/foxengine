@@ -79,9 +79,9 @@ def batch(configs,sdata,dates,begin,**kwargs):
 
 def rate_mfe_mae(sdata):
     sum_mfe,sum_mae = 0,0
-    for s in sdata:
-        sum_mfe += s.sum_mfe
-        sum_mae += s.sum_mae
+    for s in sdata.values():
+        sum_mfe += s.mfe_sum
+        sum_mae += s.mae_sum
     if sum_mae:
         return sum_mfe * BASE/sum_mae
     else:

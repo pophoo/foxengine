@@ -30,9 +30,8 @@ class ModuleTest(unittest.TestCase):    #保持demo的有效性
     
     def test_demo(self):
         begin,end = 20010101,20060101
-        dates = get_ref_dates(begin,end)
-        sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
-        demo(sdata,dates,begin,end)
+        dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        demo(sdata,dates,begin,end)        
         self.assertTrue(True)
 
 

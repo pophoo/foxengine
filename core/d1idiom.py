@@ -76,6 +76,7 @@ def sellconfirm(sopen,sclose,shigh,slow):   #卖出确认情况：非大阳或者中阳
     bm_and_pos = np.logical_and(sksign == 'a',big_or_middle)
     return bnot(bm_and_pos)
 
+####sell_func必须对stock.downlimit进行赋值
 def simplesell(sbuy,shigh,slow,threshold):
     downl = downlimit(shigh,sbuy,threshold)
     return slow - downl < 0

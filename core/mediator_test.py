@@ -4,17 +4,37 @@ import numpy as np
 import logging
 import unittest
 from wolfox.fengine.core.mediator import *
-from wolfox.fengine.core.base import CommonObject
+from wolfox.fengine.core.base import CommonObject,BaseObject
 
 logger = logging.getLogger('wolfox.fengine.core.mediator_test')
 
 class ModuleTest(unittest.TestCase):
+    def test_pricers(self):
+        s = BaseObject(transaction=np.array([[1],[2],[3],[4],[5],[6],[7]]),down_limit=np.array([8]))
+        self.assertEquals([2],cl_pricer[0](s).tolist())
+        self.assertEquals([8],cl_pricer[1](s).tolist())
+        self.assertEquals([1],ol_pricer[0](s).tolist())
+        self.assertEquals([8],ol_pricer[1](s).tolist())
+        self.assertEquals([1],oo_pricer[0](s).tolist())
+        self.assertEquals([1],oo_pricer[1](s).tolist())
+        self.assertEquals([2],co_pricer[0](s).tolist())
+        self.assertEquals([1],co_pricer[1](s).tolist())
+    
+    def test_Mediator10_init(self):
+        Mediator10(np.array([1,0,0,1]),np.array([0,0,1,0]))
+        self.assertTrue(True)
+    
     def test_CMediator10_init(self):
         CMediator10(np.array([1,0,0,1]),np.array([0,0,1,0]))
         self.assertTrue(True)
 
-    def test_Mediator10_init(self):
-        Mediator10(np.array([1,0,0,1]),np.array([0,0,1,0]))
+    def test_OMediator10_init(self):
+        OMediator10(np.array([1,0,0,1]),np.array([0,0,1,0]))
+        self.assertTrue(True)
+
+    def test_mediator_factory(self):
+        mediator1 = mediator_factory()(np.array([1,0,0,1]),np.array([0,0,1,0]))
+        mediator2 = mediator_factory(trade_strategy=B1S1,pricer = oo_pricer)(np.array([1,0,0,1]),np.array([0,0,1,0]))
         self.assertTrue(True)
 
 

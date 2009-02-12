@@ -43,7 +43,7 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20):
     #logger.debug('calc: %s ' % stock.code)
     t = stock.transaction
     #print t[CLOSE]
-    #return np.ones_like(t[CLOSE])
+    return np.ones_like(t[CLOSE])
     g = stock.gorder >= 8500    
     #kao.存在没有c60也就是不归属任何catalog的stock，直接异常
     signal_s = catalog_signal(stock.c60,8500,8500)  
@@ -116,5 +116,6 @@ if __name__ == '__main__':
     #sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
     begin = 20000101
     end = 20050101
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
     dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
     demo(sdata,dates,begin,end)

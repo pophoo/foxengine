@@ -21,12 +21,12 @@ class ModuleTest(unittest.TestCase):
 
     def test_finishing(self):
         sbuy = np.array([0,1,1,0,1,0,0])
-        smfe = np.array([1,2,3,4,5,6,7])
-        smae = np.array([10,20,30,40,50,60,70])
+        smfe = np.array([1,2,3,4,50,6,7])
+        smae = np.array([10,20,30,40,500,60,70])
         sum_mfe,sum_mae = mm_sum(sbuy,smfe,smae)
         #print s.mfe_sum,s.mae_sum
-        self.assertEquals(10,sum_mfe)
-        self.assertEquals(100,sum_mae)
+        self.assertEquals(55,sum_mfe)
+        self.assertEquals(550,sum_mae)
         
     def test_decline(self):
         sclose = np.array([1000,1005,1007,990,940,920,900,910,960,930,915,990,1020,990])

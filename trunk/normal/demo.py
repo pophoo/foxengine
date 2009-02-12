@@ -99,7 +99,7 @@ def demo(sdata,dates,begin,end,idata=None):
     pman = AdvancedPositionManager()
     dman = DateManager(begin,end)
 
-    seller = atr_seller_factory(3000)
+    seller = atr_seller_factory(2000)
     config1 = BaseObject(buyer = buy_func_demo1,seller=seller,pman=pman,dman=dman)    
     config2 = BaseObject(buyer = demo2,seller=seller,pman=pman,dman=dman)    
     config3 = BaseObject(buyer = demo3,seller=seller,pman=pman,dman=dman)
@@ -116,12 +116,8 @@ def demo(sdata,dates,begin,end,idata=None):
     print u'耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
-
-    import yaml
-    f = file('demo_ev.txt','w')
-    for config in configs:
-        f.write('name:%s\npre_ev:%s\ngev:%s' % (config.name,config.result.pre_ev,config.result.g_ev))
-    f.close()
+    save_configs('demo_ev.txt',configs)
+    
 
 
 if __name__ == '__main__':
@@ -136,7 +132,7 @@ if __name__ == '__main__':
     #sdata = cs.get_stocks(['SZ000655'],begin,end,ref_id)
     #print sdata[442].transaction[CLOSE]
     #sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
-    codes = get_codes_startswith('SH600')
+    codes = get_codes_startswith('SH600000')
     sdata = cs.get_stocks(codes,begin,end,ref_id)    
     print 'sdata finish....'    
     #idata = prepare_data(begin,end,'INDEX')

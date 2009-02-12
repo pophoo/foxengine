@@ -72,6 +72,13 @@ class ModuleTest(unittest.TestCase):    #只测试通道
     def test_batch_except(self):
         pass    #计算内部的异常已经在mediator._calc中吸收了
 
+    def test_save_configs(self):
+        result = BaseObject(RPR=1,CSHARP=0,AVGRANGE=(1,2),MAXRANGE=(3,4),income_rate=123,pre_ev=[1,2],g_ev=[3,4])
+        config = BaseObject(name='test',result=result,strade='test strade')
+        import os
+        save_configs('test_save_configs.txt',[config,config])
+        os.remove('test_save_configs.txt')
+
     #以下是已经deprecated的函数的测试，也相当于deprecated
     def test_normal_calc_template_deprecated(self):
         a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])

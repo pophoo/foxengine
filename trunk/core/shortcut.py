@@ -59,6 +59,16 @@ def batch(configs,sdata,dates,begin):
             #traceback.print_stack()
             logger.exception('batch error:buyer name=%s,seller name=%s',buyer.__name__,seller.__name__)
 
+def save_configs(filename,configs):
+    f = file(filename,'a')
+    f.write('\n\n\n------------------------------------------------------------------------------------------------------------')
+    for config in configs:
+        r = config.result
+        f.write('\nname:%s\npre_ev:%s\ngev:%s' % (config.name,r.pre_ev,r.g_ev))
+        f.write('\nR:%s\nCSHARP:%s\nAVGRANGE:%s\nMAXRANGE:%s\nINRATE:%s' % (r.RPR,r.CSHARP,r.AVGRANGE,r.MAXRANGE,r.income_rate))
+        f.write('\n**************************************************')
+    f.close()
+
 
 #以下deprecated,使用Mediator替代
 def normal_calc_template_deprecated(sdata,dates,buy_func,sell_func,trade_func):

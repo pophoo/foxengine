@@ -116,5 +116,5 @@ if __name__ == '__main__':
     #sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
     begin = 20000101
     end = 20050101
-    dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
+    dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
     demo(sdata,dates,begin,end)

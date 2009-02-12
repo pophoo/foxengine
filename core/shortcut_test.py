@@ -90,11 +90,10 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         self.assertTrue(True)
 
     def test_rate_mfe_mae(self):
-        self.assertEquals(1000000,rate_mfe_mae([]))
-        s1 = BaseObject(sum_mfe=100,sum_mae=50)
-        s2 = BaseObject(sum_mfe=1000,sum_mae=500)
-        self.assertEquals(2000,rate_mfe_mae([s1,s2]))
-
+        self.assertEquals(1000000,rate_mfe_mae({}))
+        s1 = BaseObject(mfe_sum=100,mae_sum=50)
+        s2 = BaseObject(mfe_sum=1000,mae_sum=500)
+        self.assertEquals(2000,rate_mfe_mae({'s1':s1,'s2':s2}))
 
 
     #------------------------------------------------------------------------------------------------

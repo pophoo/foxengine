@@ -14,7 +14,7 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals(10,ev_lost(trade))
 
     def test_atr_lost(self):
-        trade = BaseObject(price=10000,atr=200)
+        trade = BaseObject(tprice=10000,atr=200)
         self.assertEquals(20,atr_lost(trade))
         self.assertEquals(40,atr_lost_2(trade))
 
@@ -314,7 +314,7 @@ class PositionManagerTest(unittest.TestCase):
 
     def test_cur_limit(self):
         pm = PositionManager()
-        self.assertEquals(20000000,pm.cur_limit())
+        self.assertEquals(12500000,pm.cur_limit())
         pm.init_size = 10000
         pm.earning = 2000
         pm.max_proportion = 200

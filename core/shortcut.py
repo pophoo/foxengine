@@ -3,12 +3,14 @@
 #各类函数的快捷方式
 
 import logging
+from time import time
 
 from wolfox.fengine.extern import *
 from wolfox.fengine.internal import *
 from wolfox.fengine.core.d1 import BASE
 from wolfox.fengine.core.d1idiom import B0S0,B0S1,B1S0,B1S1,BS_DUMMY
 from wolfox.fengine.core.trade import match_trades
+
 
 logger = logging.getLogger('wolfox.fengine.core.shortcut')
 
@@ -60,6 +62,7 @@ def calc_trades(buyer,seller,sdata,dates,begin,cmediator=CMediator10,**kwargs):
 def batch(configs,sdata,dates,begin,**kwargs):
     for config in configs:
         try:
+            tbegin = time()            
             buyer = config.buyer
             seller = config.seller
             pman = config.pman
@@ -70,7 +73,9 @@ def batch(configs,sdata,dates,begin,**kwargs):
             config.mm_ratio = rate_mfe_mae(sdata)
             config.result = result
             config.strade = strade
-            logger.debug('calc finished:%s:',config.name)
+            tend = time()
+            logger.debug(u'calc finished:%s,耗时:%s',config.name,tend-tbegin)
+            print u'calc finished:%s,耗时:%s' % (config.name,tend-tbegin)
         except Exception,inst:
             print 'batch error:',inst
             #import traceback

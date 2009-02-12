@@ -9,7 +9,9 @@ logger = logging.getLogger('wolfox.fengine.normal.demo')
 
 def buy_func_demo1(stock):
     t = stock.transaction
-    g = stock.gorder >= 7500
+    #g = stock.gorder >= 7500
+    #g = gand(stock.g5 > stock.g20,stock.g20 > stock.gorder,stock.gorder > stock.g120,stock.g120 > stock.g250)    
+    #g对这个没效果
     cma_5 = d1e.ma(t[CLOSE],5)
     cma_22 = d1e.ma(t[CLOSE],22)
     cma_long = d1e.ma(t[CLOSE],60)
@@ -24,6 +26,8 @@ def buy_func_demo1(stock):
 def buy_func_demo2(stock,fast,mid,slow,extend_days = 10):
     logger.debug('calc: %s ' % stock.code)    
     t = stock.transaction
+    #g = gand(stock.g5 > stock.g20,stock.g20 > stock.gorder,stock.gorder > stock.g120,stock.g120 > stock.g250)    
+    #g对这个没效果
     ma_fast = ma(t[CLOSE],fast)
     ma_mid = ma(t[CLOSE],mid)
     ma_slow = ma(t[CLOSE],slow)
@@ -36,17 +40,18 @@ def buy_func_demo2(stock,fast,mid,slow,extend_days = 10):
     cross_fm_fs = sfollow(cross_fast_mid,cross_fast_slow,extend_days)
     confirm_cross = sfollow(cross_fm_fs,cross_mid_slow,extend_days)
     trend_standard = trend(ma(t[CLOSE],55)) > 0
-    return band(trend_standard,confirm_cross)
+    return gand(g,trend_standard,confirm_cross)
 
 def buy_func_demo3(stock,fast,slow,extend_days = 20):
     #print stock.code
     #logger.debug('calc: %s ' % stock.code)
     t = stock.transaction
     #print t[CLOSE]
-    return np.ones_like(t[CLOSE])
-    g = stock.gorder >= 8500    
+    #return np.ones_like(t[CLOSE])
+    #g = stock.gorder >= 8500    
+    g = gand(stock.g5 > stock.g20,stock.g20 > stock.gorder,stock.gorder > stock.g120,stock.g120 > stock.g250)
     #kao.存在没有c60也就是不归属任何catalog的stock，直接异常
-    signal_s = catalog_signal(stock.c60,8500,8500)  
+    #signal_s = catalog_signal(stock.c60,8500,8500)  
     #print stock.code,max(stock.gorder)
     svap,v2i = svap_ma(t[VOLUME],t[CLOSE],22)
     ma_svapfast = ma(svap,fast)
@@ -58,13 +63,15 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20):
     maslow = ma(t[CLOSE],55)
     ma120 = ma(t[CLOSE],120)
     trend_ma120 = trend(ma120) > 0
-    sconfirm = upconfirm(t[OPEN],t[CLOSE],t[HIGH])
-    down_up = downup(maslow,t[CLOSE],10,3)
-    confirm_up = band(down_up,sconfirm)
-    confirmed_signal = syntony(msvap,confirm_up,15)
-    smmroc = swingin(t[HIGH],t[LOW],45,800)
+    #sconfirm = upconfirm(t[OPEN],t[CLOSE],t[HIGH])
+    #down_up = downup(maslow,t[CLOSE],10,3)
+    #confirm_up = band(down_up,sconfirm)
+    #confirmed_signal = syntony(msvap,confirm_up,15)
+    #smmroc = swingin(t[HIGH],t[LOW],45,800)
     #return gand(confirmed_signal,trend_ma120,smmroc)
-    return gand(g,confirmed_signal,trend_ma120,signal_s)
+    #confirmed_signal起到反作用
+    #return gand(g,confirmed_signal,trend_ma120)  #,signal_s)
+    return gand(g,msvap,trend_ma120)
 
 def demo(sdata,dates,begin,end,idata=None):
     #print ctree
@@ -86,17 +93,20 @@ def demo(sdata,dates,begin,end,idata=None):
 
     demo2 = fcustom(buy_func_demo2,fast=4,mid=20,slow=75)
     demo3 = fcustom(buy_func_demo3,fast=5,slow=98)
-    pman = AdvancedPositionManager()
+    #pman = AdvancedPositionManager()
+    pman = AdvancedATRPositionManager()
     dman = DateManager(begin,end)
 
     myMediator=mediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
 
-    #seller = atr_seller_factory(2000)
-    seller = csc_func
+    seller = atr_seller_factory(3000)
+    #seller = csc_func
     config1 = BaseObject(buyer = buy_func_demo1,seller=seller,pman=pman,dman=dman)    
     config2 = BaseObject(buyer = demo2,seller=seller,pman=pman,dman=dman)    
     config3 = BaseObject(buyer = demo3,seller=seller,pman=pman,dman=dman)
-    configs = [config1,config2,config3]
+    #configs = [config1,config2,config3]
+    configs = [config3]
+    #configs = [config1,config2]
     batch(configs,sdata,dates,begin,cmediator=myMediator)
 
     tend = time()
@@ -114,8 +124,19 @@ if __name__ == '__main__':
     #sdata = cs.get_stocks(['SZ000655'],begin,end,ref_id)
     #print sdata[442].transaction[CLOSE]
     #sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
-    begin = 20000101
-    end = 20050101
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
-    dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+    begin = 20010701
+    end = 20050701
+    from time import time
+    tbegin = time()
+    
+    dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
+    tend = time()
+    print u'数据准备耗时: %s' % (tend-tbegin)
+    
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+    d_posort('g5',sdata.values(),distance=5)        
+    d_posort('g20',sdata.values(),distance=20)    
+    d_posort('g120',sdata.values(),distance=120)     
+    d_posort('g250',sdata.values(),distance=250)     
     demo(sdata,dates,begin,end)
+

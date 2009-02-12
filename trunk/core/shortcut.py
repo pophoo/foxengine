@@ -33,13 +33,29 @@ def prepare_catalogs(sdata,distance=60):
     d_posort('gorder',catalogs,distance=distance)
     return ctree,catalogs   
 
-def calc_trades(buyer,seller,sdata,dates,begin):
-    m = CMediator10(buyer,seller)
+def prepare_all(begin,end,codes=[],icodes=[]):
+    print 'start....'
+    dates = get_ref_dates(begin,end)
+    print 'dates finish....'
+    if codes:
+        sdata = cs.get_stocks(codes,begin,end,ref_id)
+    else:
+        sdata = prepare_data(begin,end)
+    print 'sdata finish....'
+    if icodes:
+        idata = cs.get_stocks(icodes,begin,end,ref_id)
+    else:
+        idata = prepare_data(begin,end,'INDEX')
+    print 'idata finish....'    
+    ctree,catalogs = prepare_catalogs(sdata)    
+    return dates,sdata,idata,catalogs    
+
+def calc_trades(buyer,seller,sdata,dates,begin,myMediator=CMediator10):
+    m = myMediator(buyer,seller)
     name = m.name()
     tradess = m.calc_matched(sdata,dates,begin)
     return name,tradess
 
-import yaml
 def batch(configs,sdata,dates,begin):
     for config in configs:
         try:

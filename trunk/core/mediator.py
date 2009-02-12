@@ -61,7 +61,7 @@ class Mediator(object):
                 trades.extend(self.trade_maker(tmaker,dates,s,sbuy,ssell,begin=begin))
             except Exception,inst:
                 print 'mediator _calc %s except : %s' % (s.code,inst)
-                logger.warning('%s calc error : %s',s.code,inst)
+                logger.exception('%s calc error : %s',s.code,inst)
         return trades
     
     def trade_maker(self,tmaker,dates,stock,sbuy,ssell,begin=0):  #kwargs目的是吸收无用参数，便于cruiser
@@ -80,6 +80,12 @@ class Mediator(object):
 
 #收盘价买入，下限突破价卖出，必须有下限突破线
 cl_pricer = (lambda s : s.transaction[CLOSE],lambda s : s.down_limit)
+#开盘价买入，下限突破价卖出，必须有下限突破线
+ol_pricer = (lambda s : s.transaction[OPEN],lambda s : s.down_limit)
+#开盘价买入，开盘价卖出
+oo_pricer = (lambda s : s.transaction[OPEN],lambda s : s.transaction[OPEN])
+#收盘价买入，开盘价卖出
+co_pricer = (lambda s : s.transaction[CLOSE],lambda s : s.transaction[OPEN])
 
 #定制的Mediator
 #一次买入一次买出，买入信号次日有效，卖出信号当日起效
@@ -87,4 +93,8 @@ Mediator10 = fcustom(Mediator,trade_strategy=B1S0,pricer = cl_pricer)
 #允许连续买入一次卖出，买入信号次日有效，卖出信号当日起效
 CMediator10 = fcustom(Mediator,trade_signal_maker=make_trade_signal_advanced
         ,trade_strategy=B1S0,pricer = cl_pricer)
+OMediator10 = fcustom(Mediator,trade_signal_maker=make_trade_signal_advanced
+        ,trade_strategy=B1S0,pricer = cl_pricer)
 
+def mediator_factory(trade_signal_maker=make_trade_signal_advanced,trade_strategy=B1S0,pricer = cl_pricer):
+    return fcustom(Mediator,trade_signal_maker = trade_signal_maker,trade_strategy = trade_strategy,pricer=pricer)

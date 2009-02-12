@@ -38,7 +38,7 @@ def gevaluate(named_trades,gfilter=DEFAULT_EVALUATE_FILTER):
         tradess=nt.trades
         #print tradess
         if not tradess: 
-            print tradess
+            #print tradess
             continue   #貌似无此必要,但可简化头寸管理部分的操作，而且更加符合直观
         for trades in tradess:
             for ctrade in trades:
@@ -70,7 +70,6 @@ def evaluate_all(tradess,pos_manager,date_manager):
     pos_manager.clear() 
 
     g_ev = gevaluate([BaseObject(evaluation=pre_ev,trades=tradess)],pos_manager.filter)
-
     rev = BaseObject(RPR=pos_manager.calc_net_indicator(date_manager)
             ,CSHARP=pos_manager.calc_net_indicator(date_manager,CSHARP)
             ,AVGRANGE=pos_manager.calc_net_indicator(date_manager,AVG_DECLINE)
@@ -83,7 +82,6 @@ def evaluate_all(tradess,pos_manager,date_manager):
 
     #print 'types:',type(rev.RPR),type(rev.CSHARP),type(rev.AVGRANGE)
     #print type(rev.income_rate),type(rev.assets)
-
     srev = yaml.dump(rev)
 
     for trades in g_ev.matchedtrades:

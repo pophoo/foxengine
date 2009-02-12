@@ -51,8 +51,9 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         self.assertTrue(name)
 
     def test_batch(self):
-        a = np.array([(1,2,3),(3,4,5),(5,6,7),(7,8,9),(9,10,11),(11,12,13),(13,14,15)])
-        b = np.array([(11,12,13),(13,14,15),(15,16,18),(17,18,19),(19,20,23),(20,21,25),(23,24,28)])
+        dummy = range(45)
+        a = np.array([dummy,dummy,dummy,dummy,dummy,dummy,dummy,dummy])
+        b = np.array([dummy,dummy,dummy,dummy,dummy,dummy,dummy,dummy])
         sa = CommonObject(id=3,code='test1',transaction=a)
         sb = CommonObject(id=3,code='test2',transaction=b)
         sdata = {'sa':sa,'sb':sb}
@@ -61,7 +62,7 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         self.assertTrue(True)
         pman = AdvancedPositionManager()
         dman = DateManager(20010101,20010215)
-        buyer = lambda x:np.ones(30,int)
+        buyer = lambda x:np.ones(45,int)
         c1 = BaseObject(buyer=buyer,seller=atr_seller,pman=pman,dman=dman)
         c2 = BaseObject(buyer=buyer,seller=atr_seller,pman=pman,dman=dman)
         batch([c1,c2],sdata,dates,20010101)
@@ -79,6 +80,17 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         save_configs('test_save_configs.txt',[config,config])
         os.remove('test_save_configs.txt')
 
+    def test_prepare_all(self):#只测试通路
+        import wolfox.fengine.core.shortcut as sc
+        fold = sc.prepare_catalogs
+        sc.prepare_catalogs = lambda s:([],[])
+        dates,sdata,idata,catalogs = prepare_all(20010101,20010131,['SH600000'],['SH000001'])
+        #print sc.prepare_catalogs,fold
+        sc.prepare_catalogs = fold
+        self.assertTrue(True)
+
+
+    #------------------------------------------------------------------------------------------------
     #以下是已经deprecated的函数的测试，也相当于deprecated
     def test_normal_calc_template_deprecated(self):
         a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
@@ -94,24 +106,11 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         self.assertTrue(True)
         #测试异常包容性
         def fbuy(x): raise Exception
-        normal_calc_template_deprecated(sdata,dates,fbuy,fsell,ftrade)
-        self.assertTrue(True)
-
-    def test_normal_calc_template_deprecated(self):
-        a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
-        b = np.array([(11,12),(13,14),(15,16),(17,18),(19,110),(111,112),(113,114)])
-        sa = CommonObject(id=3,code='test1',transaction=a)
-        sb = CommonObject(id=3,code='test2',transaction=b)
+        se1 = CommonObject(id=3,code='test exception catch 1',transaction=a)
+        se2 = CommonObject(id=3,code='test exception catch 2',transaction=b)
         dates = np.array([1,2])
-        sdata = {'sa':sa,'sb':sb}
-        fbuy = lambda x:np.array([1,0])
-        fsell = lambda x,y:np.array([0,1])
-        ftrade = lambda x,y,z,a:(1,2)
-        normal_calc_template_deprecated(sdata,dates,fbuy,fsell,ftrade)
-        self.assertTrue(True)
-        #测试异常包容性
-        def fbuy(x): raise Exception
-        normal_calc_template_deprecated(sdata,dates,fbuy,fsell,ftrade)
+        edata = {'se1':se1,'se2':se2}
+        normal_calc_template_deprecated(edata,dates,fbuy,fsell,ftrade)
         self.assertTrue(True)
 
     def test_trade_func_deprecated(self):

@@ -66,7 +66,6 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20):
     return gand(g,confirmed_signal,trend_ma120,signal_s)
 
 def demo(sdata,dates,begin,end,idata=None):
-    ctree,catalogs = prepare_catalogs(sdata)
     #print ctree
     #for s in ctree:
     #    print s.name
@@ -84,34 +83,19 @@ def demo(sdata,dates,begin,end,idata=None):
     from time import time
     tbegin = time()
 
-    #x20=[ band(k.gorder >= 7500,v >= 7500) for k,v in sdata[20].c60.items()]    #板块全局>7500并且在板块内的排序>7500
-    #gor(*x20)   #是否存在某个板块序>7500并且块内排序>7500
-    #svs = sdata.values()
-    #print dir(svs[0])
-    #print svs[0].c60
-    #template(sdata,dates,buy_func_demo1,csc_func,trade_func)
     demo2 = fcustom(buy_func_demo2,fast=4,mid=20,slow=75)
-    #name =  names(demo2,csc_func,normal_trade_func)    
-    #trades = normal_calc_template(sdata,dates,demo2,csc_func,normal_trade_func)
-    #evs = normal_evaluate(trades)
-
     demo3 = fcustom(buy_func_demo3,fast=5,slow=98)
     pman = AdvancedPositionManager()
     dman = DateManager(begin,end)
 
-    seller = atr_seller_factory(2000)
+    #seller = atr_seller_factory(2000)
+    seller = csc_func
     config1 = BaseObject(buyer = buy_func_demo1,seller=seller,pman=pman,dman=dman)    
     config2 = BaseObject(buyer = demo2,seller=seller,pman=pman,dman=dman)    
     config3 = BaseObject(buyer = demo3,seller=seller,pman=pman,dman=dman)
     configs = [config1,config2,config3]
     batch(configs,sdata,dates,begin)
-    #batch([config3],sdata,dates,begin)    
-    #print config.name
-    #print config.result
-    #print config.strade
-    #m = CMediator10(demo3,atr_sell_func)
-    #name = m.name()
-    #tradess = m.calc_matched(sdata,dates,20010601)
+
     tend = time()
     print u'耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    
@@ -123,19 +107,11 @@ def demo(sdata,dates,begin,end,idata=None):
 if __name__ == '__main__':
     logging.basicConfig(filename="demo.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
     
-    begin,end = 20010101,20050101
-    print 'start....'
-    dates = get_ref_dates(begin,end)
-    print 'dates finish....'
-    #sdata = prepare_data(begin,end)
     #sdata = cs.get_stocks(['SH600503'],begin,end,ref_id)
     #sdata = cs.get_stocks(['SZ000655'],begin,end,ref_id)
     #print sdata[442].transaction[CLOSE]
     #sdata = cs.get_stocks(['SH600000'],begin,end,ref_id)
-    codes = get_codes_startswith('SH600000')
-    sdata = cs.get_stocks(codes,begin,end,ref_id)    
-    print 'sdata finish....'    
-    #idata = prepare_data(begin,end,'INDEX')
-    print 'idata finish....'    
-    
+    begin = 20000101
+    end = 20050101
+    dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
     demo(sdata,dates,begin,end)

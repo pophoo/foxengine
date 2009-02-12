@@ -30,5 +30,5 @@ from wolfox.fengine.core.source import get_ref_dates,prepare_data,get_codes,get_
 from wolfox.fengine.core.d1match import make_trade_signal
 from wolfox.fengine.core.trade import make_trades,last_trade
 from wolfox.fengine.core.evaluate import evaluate,gevaluate,evaluate_all
-from wolfox.fengine.core.mediator import Mediator,Mediator10,CMediator10,OMediator10,mediator_factory
+from wolfox.fengine.core.mediator import Mediator,Mediator10,CMediator10,OMediator10,mediator_factory,oo_pricer,cl_pricer,ol_pricer,co_pricer
 from wolfox.fengine.core.pmanager import Position,AdvancedPosition,PositionManager,AdvancedPositionManager,DateManager

@@ -88,13 +88,15 @@ def demo(sdata,dates,begin,end,idata=None):
     pman = AdvancedPositionManager()
     dman = DateManager(begin,end)
 
+    myMediator=mediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
+
     #seller = atr_seller_factory(2000)
     seller = csc_func
     config1 = BaseObject(buyer = buy_func_demo1,seller=seller,pman=pman,dman=dman)    
     config2 = BaseObject(buyer = demo2,seller=seller,pman=pman,dman=dman)    
     config3 = BaseObject(buyer = demo3,seller=seller,pman=pman,dman=dman)
     configs = [config1,config2,config3]
-    batch(configs,sdata,dates,begin)
+    batch(configs,sdata,dates,begin,cmediator=myMediator)
 
     tend = time()
     print u'耗时: %s' % (tend-tbegin)

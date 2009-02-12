@@ -50,20 +50,20 @@ def prepare_all(begin,end,codes=[],icodes=[]):
     ctree,catalogs = prepare_catalogs(sdata)    
     return dates,sdata,idata,catalogs    
 
-def calc_trades(buyer,seller,sdata,dates,begin,myMediator=CMediator10):
-    m = myMediator(buyer,seller)
+def calc_trades(buyer,seller,sdata,dates,begin,cmediator=CMediator10,**kwargs):
+    m = cmediator(buyer,seller)
     name = m.name()
     tradess = m.calc_matched(sdata,dates,begin)
     return name,tradess
 
-def batch(configs,sdata,dates,begin):
+def batch(configs,sdata,dates,begin,**kwargs):
     for config in configs:
         try:
             buyer = config.buyer
             seller = config.seller
             pman = config.pman
             dman = config.dman
-            name,tradess = calc_trades(buyer,seller,sdata,dates,begin)
+            name,tradess = calc_trades(buyer,seller,sdata,dates,begin,**kwargs)
             result,strade = ev.evaluate_all(tradess,pman,dman)
             config.name = name
             config.result = result

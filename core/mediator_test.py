@@ -128,6 +128,21 @@ class MediatorTest(unittest.TestCase):
         m = Mediator(fbuy,fsell)
         m.prepare(sa)
         self.assertEquals(2,len(sa.atr))
+        self.assertEquals(2,len(sa.mfe))
+        self.assertEquals(2,len(sa.mae))
+
+    def test_finishing(self):
+        sbuy = np.array([0,1,1,0,1,0,0])
+        smfe = np.array([1,2,3,4,5,6,7])
+        smae = np.array([10,20,30,40,50,60,70])
+        s = BaseObject(mfe=smfe,mae=smae)
+        fbuy = lambda x:np.array([1,0])
+        fsell = lambda x,y:np.array([0,1])
+        m = Mediator(fbuy,fsell)
+        m.finishing(s,sbuy,sbuy)
+        #print s.mfe_sum,s.mae_sum
+        self.assertEquals(10,s.mfe_sum)
+        self.assertEquals(100,s.mae_sum)
 
 
 if __name__ == "__main__":

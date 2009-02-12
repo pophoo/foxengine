@@ -75,7 +75,7 @@ class ModuleTest(unittest.TestCase):    #只测试通道
 
     def test_save_configs(self):
         result = BaseObject(RPR=1,CSHARP=0,AVGRANGE=(1,2),MAXRANGE=(3,4),income_rate=123,pre_ev=[1,2],g_ev=[3,4])
-        config = BaseObject(name='test',result=result,strade='test strade')
+        config = BaseObject(name='test',result=result,strade='test strade',mm_ratio=100)
         import os
         save_configs('test_save_configs.txt',[config,config])
         os.remove('test_save_configs.txt')
@@ -84,10 +84,17 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         import wolfox.fengine.core.shortcut as sc
         fold = sc.prepare_catalogs
         sc.prepare_catalogs = lambda s:([],[])
-        dates,sdata,idata,catalogs = prepare_all(20010101,20010131,['SH600000'],['SH000001'])
+        dates,sdata,idata,catalogs = prepare_all(20010101,20010102,['SH600000'],['SH000001'])
         #print sc.prepare_catalogs,fold
         sc.prepare_catalogs = fold
         self.assertTrue(True)
+
+    def test_rate_mfe_mae(self):
+        self.assertEquals(1000000,rate_mfe_mae([]))
+        s1 = BaseObject(sum_mfe=100,sum_mae=50)
+        s2 = BaseObject(sum_mfe=1000,sum_mae=500)
+        self.assertEquals(2000,rate_mfe_mae([s1,s2]))
+
 
 
     #------------------------------------------------------------------------------------------------

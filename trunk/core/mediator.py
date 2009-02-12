@@ -7,6 +7,7 @@
 import logging
 
 from wolfox.fengine.core.d1indicator import atr
+from wolfox.fengine.core.future import mm_ratio,mm_sum
 from wolfox.fengine.core.d1idiom import B0S0,B0S1,B1S0,B1S1,BS_DUMMY
 from wolfox.fengine.core.d1match import make_trade_signal,make_trade_signal_advanced
 from wolfox.fengine.core.trade import make_trades,last_trade,match_trades,default_extra,atr_extra
@@ -53,15 +54,16 @@ class Mediator(object):
         trades = []
         for s in sdata.values():
             try:    #捕捉某些异常，如未划入任何板块的股票在计算板块相关信号时会出错
-                self.prepare(s)
+                self.prepare(s,**kwargs)
                 sbuy = self.buy_signal_maker(s)
                 ssell = self.sell_signal_maker(s,sbuy)
                 #logger.debug('sbuy:%s',sbuy.tolist())                
                 #sbuy,ssell = smooth2(s.transaction[VOLUME],sbuy,ssell) #这个处理被划入limit_adjust
                 trades.extend(self.trade_maker(tmaker,dates,s,sbuy,ssell,begin=begin))
+                self.finishing(s,sbuy,ssell)
             except Exception,inst:
-                print 'mediator _calc %s except : %s' % (s.code,inst)
-                logger.exception('%s calc error : %s',s.code,inst)
+                print u'mediator _calc %s except : %s' % (s.code,inst)
+                logger.exception(u'%s calc error : %s',s.code,inst)
         return trades
     
     def trade_maker(self,tmaker,dates,stock,sbuy,ssell,begin=0):  #kwargs目的是吸收无用参数，便于cruiser
@@ -69,14 +71,20 @@ class Mediator(object):
         '''
         t = stock.transaction
         sbuy,ssell = self.trade_strategy(t,sbuy,ssell)
-        #logger.debug('sbuy,after strategy:%s',sbuy.tolist())
-        #logger.debug('ssell,after strategy:%s',ssell.tolist())
+        #logger.debug(u'sbuy,after strategy:%s',sbuy.tolist())
+        #logger.debug(u'ssell,after strategy:%s',ssell.tolist())
         ssignal = self.trade_signal_maker(sbuy,ssell)
         return tmaker(stock,ssignal,dates,self.buy_pricer(stock),self.sell_pricer(stock),begin=begin)
 
-    def prepare(self,stock):
+    def prepare(self,stock,atr_covered=20,mm_covered=20,**kwargs):  #kwargs吸收无用参数
         trans = stock.transaction
-        stock.atr = atr(trans[CLOSE],trans[HIGH],trans[LOW],20)
+        stock.atr = atr(trans[CLOSE],trans[HIGH],trans[LOW],atr_covered)
+        stock.mfe,stock.mae = mm_ratio(trans[CLOSE],trans[HIGH],trans[LOW],stock.atr,covered=mm_covered)
+
+    def finishing(self,stock,sbuy,ssell):
+        stock.mfe_sum,stock.mae_sum = mm_sum(sbuy,stock.mfe,stock.mae)
+
+
 
 #收盘价买入，下限突破价卖出，必须有下限突破线
 cl_pricer = (lambda s : s.transaction[CLOSE],lambda s : s.down_limit)

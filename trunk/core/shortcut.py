@@ -6,6 +6,7 @@ import logging
 
 from wolfox.fengine.extern import *
 from wolfox.fengine.internal import *
+from wolfox.fengine.core.d1 import BASE
 from wolfox.fengine.core.d1idiom import B0S0,B0S1,B1S0,B1S1,BS_DUMMY
 from wolfox.fengine.core.trade import match_trades
 
@@ -66,6 +67,7 @@ def batch(configs,sdata,dates,begin,**kwargs):
             name,tradess = calc_trades(buyer,seller,sdata,dates,begin,**kwargs)
             result,strade = ev.evaluate_all(tradess,pman,dman)
             config.name = name
+            config.mm_ratio = rate_mfe_mae(sdata)
             config.result = result
             config.strade = strade
             logger.debug('calc finished:%s:',config.name)
@@ -75,6 +77,16 @@ def batch(configs,sdata,dates,begin,**kwargs):
             #traceback.print_stack()
             logger.exception('batch error:buyer name=%s,seller name=%s',buyer.__name__,seller.__name__)
 
+def rate_mfe_mae(sdata):
+    sum_mfe,sum_mae = 0,0
+    for s in sdata:
+        sum_mfe += s.sum_mfe
+        sum_mae += s.sum_mae
+    if sum_mae:
+        return sum_mfe * BASE/sum_mae
+    else:
+        return BASE * BASE
+
 def save_configs(filename,configs):
     f = file(filename,'a')
     f.write('\n\n\n------------------------------------------------------------------------------------------------------------')
@@ -82,6 +94,7 @@ def save_configs(filename,configs):
         r = config.result
         f.write('\nname:%s\npre_ev:%s\ngev:%s' % (config.name,r.pre_ev,r.g_ev))
         f.write('\nR:%s\nCSHARP:%s\nAVGRANGE:%s\nMAXRANGE:%s\nINRATE:%s' % (r.RPR,r.CSHARP,r.AVGRANGE,r.MAXRANGE,r.income_rate))
+        f.write('\nMMRatio:%s' % config.mm_ratio)
         f.write('\n**************************************************')
     f.close()
 

@@ -45,7 +45,8 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20):
     #print t[CLOSE]
     #return np.ones_like(t[CLOSE])
     g = stock.gorder >= 8500    
-    signal_s = catalog_signal(stock.c60,8500,8500)  #kao.存在没有c60也就是不归属任何catalog的stock，直接异常
+    #kao.存在没有c60也就是不归属任何catalog的stock，直接异常
+    signal_s = catalog_signal(stock.c60,8500,8500)  
     #print stock.code,max(stock.gorder)
     svap,v2i = svap_ma(t[VOLUME],t[CLOSE],22)
     ma_svapfast = ma(svap,fast)

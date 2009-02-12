@@ -9,7 +9,7 @@ import logging
 import numpy as np
 from wolfox.fengine.core.d1indicator import atr
 from wolfox.fengine.core.d1ex import tmax,tmin,tmaxmin,min0,amin0,derepeatc,distance,rsub
-from wolfox.fengine.core.d1 import BASE,bor,greater,equals,rollx,roll0
+from wolfox.fengine.core.d1 import BASE,bor,equals,rollx,roll0
 
 logger = logging.getLogger("wolfox.fengine.core.future")
 
@@ -30,12 +30,13 @@ def mm_ratio(sclose,shigh,slow,satr,covered=1):
     amfe = (m_max - sclose) * BASE / satr      #可能出现m_max[i] < sclose[i]的情况，如当日之后的covered内sclose一直下行
     amae = (sclose - m_min) * BASE / satr      #可能出现m_min[i] > sclose[i]的情况，如当日之后的covered内sclose一直上行
     amfe[-covered:] = amae[-covered:] = 0
+    #print amfe.tolist(),amae.tolist()
     return amfe,amae
 
 def mm_sum(sbuy,smfe,smae):
     ''' 根据sbuy和smfe,smae值计算sbuy信号日的mfe,mae之和
     '''
-    indices = greater(sbuy)
+    indices = sbuy > 0
     sum_smfe = np.sum(smfe[indices])
     sum_smae = np.sum(smae[indices])
     return int(sum_smfe),int(sum_smae)

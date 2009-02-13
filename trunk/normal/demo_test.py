@@ -35,7 +35,7 @@ class ModuleTest(unittest.TestCase):    #保持demo的有效性
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     
         d_posort('g250',sdata.values(),distance=250)            
-        demo(sdata,dates,begin,end)        
+        demo(dates,sdata,begin,end)        
         self.assertTrue(True)
 
 

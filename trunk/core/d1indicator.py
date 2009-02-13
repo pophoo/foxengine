@@ -172,12 +172,13 @@ def tracelimit(source,sup,signal,satr,stop_times,trace_times):
     for i in xrange(len(source)):
         cur = source[i]
         cur_h = sup[i]
+        cur_atr = satr[i]
         if signal[i] > 0:
             cur_max = cur   #以买入点而非当日高点，因为不能判断当日高点是否是买入之后
-            cur_stop = cur - satr[i] * stop_times/BASE
+            cur_stop = cur - cur_atr * stop_times/BASE
         elif cur_max < cur_h:
             cur_max = cur_h
-        cur_trace = cur_max - satr[i] * trace_times/BASE
+        cur_trace = cur_max - cur_atr * trace_times/BASE
         if cur_stop < cur_trace:
             cur_stop = cur_trace
         rev[i] = cur_stop

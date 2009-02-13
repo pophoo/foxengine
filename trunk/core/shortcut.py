@@ -95,7 +95,8 @@ def rate_mfe_mae(sdata):
 def save_configs(filename,configs,begin,end):
     f = file(filename,'a')
     f.write('\n\n\n------------------------------------------------------------------------------------------------------------')
-    f.write('\nbegin=%s,end=%s' % (begin,end))
+    f.write('\n\nbegin=%s,end=%s' % (begin,end))
+    f.write('\n\n------------------------------------------------------------------------------------------------------------')    
     for config in configs:
         r = config.result
         f.write('\nname:%s\npre_ev:%s\ngev:%s' % (config.name,r.pre_ev,r.g_ev))

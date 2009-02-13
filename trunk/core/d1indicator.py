@@ -26,20 +26,45 @@ def expma(source,trate):
         return rev
     cur = source[0]
     for i in xrange(1,length-1):
-        cur = int((source[i] * 1L * trate + cur * 1L * (BASE - trate) + BASE/2)/BASE)    #1L防止计算中溢出
+        cur = (source[i] * trate + cur * (BASE - trate) + BASE/2)/BASE    
         #cur = expfunctor(source[i],cur,trate)
     for i in xrange(length-1,len(source)):
-        oldcur = cur
-        cur = int((source[i] * 1L * trate + cur * 1L * (BASE - trate)+ BASE/2)/BASE)     #1L防止计算中溢出
+        cur = (source[i] * trate + cur * (BASE - trate)+ BASE/2)/BASE     
         #cur = expfunctor(source[i],cur,trate)
         rev[i] = cur
-        assert cur >= 0
+        #assert cur >= 0
     return rev
 
 def cexpma(source,n):
     '''国内使用的expma,直接用n作为参数
     '''
     return expma(source,(2*BASE+(n+1)/2)/(n+1))
+
+def vexpma(source,trate):    
+    ''' 指数移动平均线, 为大数据而设
+        trate为今日数据在计算中所占的比重,以1/1000(1/BASE)为基数
+    '''
+
+    length = (2* BASE+trate/2)/trate -1
+    #print 'trate:',trate,'length;',length
+    rev = np.zeros_like(source)
+    if(len(source) < length):
+        return rev
+    cur = source[0]
+    for i in xrange(1,length-1):
+        cur = (source[i] + BASE/2)/BASE * trate + (cur+BASE/2)/BASE*(BASE - trate)
+        #cur = expfunctor(source[i],cur,trate)
+    for i in xrange(length-1,len(source)):
+        cur = (source[i] + BASE/2)/BASE * trate + (cur+BASE/2)/BASE * (BASE - trate)     #1L防止计算中溢出
+        #cur = expfunctor(source[i],cur,trate)
+        rev[i] = cur
+        assert cur >= 0
+    return rev
+
+def vcexpma(source,n):
+    '''国内使用的expma,直接用n作为参数,为大数据而设
+    '''
+    return vexpma(source,(2*BASE+(n+1)/2)/(n+1))
 
 def macd(source):
     ''' 按照经典定义，MACD=EXPMA(1500)-EXPMA(750)
@@ -649,10 +674,10 @@ def svap2(svolume,sprice,sbase):
     return _fill_price(sprice,stimes)
 
 def svap_ma(svolume,sprice,malength):   #依赖svolume为整数序列，否则导致ma之后0值有非零的base，直接导致后续所有计算出错
-    return svap(svolume,sprice,rollx(cexpma(svolume,malength)))
+    return svap(svolume,sprice,rollx(ma(svolume,malength)))
 
 def svap2_ma(svolume,sprice,malength):  #依赖svolume为整数序列，否则导致ma之后0值有非零的base，直接导致后续所有计算出错
-    return svap2(svolume,sprice,rollx(cexpma(svolume,malength)))
+    return svap2(svolume,sprice,rollx(ma(svolume,malength)))
 
 def index2v(signal,v2index,length):
     ''' 变形运算

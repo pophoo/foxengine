@@ -175,7 +175,7 @@ def vama2(stock,fast,slow,pre_length=120,ma_standard=120):
     trend_ma_standard = trend(ma_standard) > 0
     return gand(g,msvap,trend_ma_standard)
 
-def vama3(stock,fast,mid,slow,sma=22,ma_standard=120,extend_days=10):
+def vama3(stock,fast,mid,slow,pre_length=120,ma_standard=120,extend_days=10):
     ''' vama三叉
         argnames = ['vama_standard','vamamiddle','vamafast']
             arggroups = [[116,59,12],

@@ -580,10 +580,10 @@ def svap2(svolume,sprice,sbase):
     return _fill_price(sprice,stimes)
 
 def svap_ma(svolume,sprice,malength):   #依赖svolume为整数序列，否则导致ma之后0值有非零的base，直接导致后续所有计算出错
-    return svap(svolume,sprice,ma(svolume,malength))
+    return svap(svolume,sprice,rollx(expma(svolume,malength)))
 
 def svap2_ma(svolume,sprice,malength):  #依赖svolume为整数序列，否则导致ma之后0值有非零的base，直接导致后续所有计算出错
-    return svap2(svolume,sprice,ma(svolume,malength))
+    return svap2(svolume,sprice,rollx(expma(svolume,malength)))
 
 def index2v(signal,v2index,length):
     ''' 变形运算

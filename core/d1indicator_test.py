@@ -190,6 +190,16 @@ class ModuleTest(unittest.TestCase):
         r2,v2 = vap2(np.array([201,258,341,280,330]),np.array([11,22,33,44,55]),200)
         self.assertEquals(([11,22,33,33,44,55,55],[0,1,2,2,3,4,4]),(r2.tolist(),v2.tolist()))
 
+    def test_vap_pre(self): #只测试通路
+        r1,v1 = vap_pre(np.array([100,200,300,200,300]),np.array([11,22,33,44,55]),2)
+        r2,v2 = vap_pre(np.array([100,200,300,200,300]),np.array([11,22,33,44,55]),12) #pre_length超长
+        self.assertTrue(True)
+
+    def test_vap2_pre(self):    #只测试通路
+        r1,v1 = vap2_pre(np.array([100,200,300,200,300]),np.array([11,22,33,44,55]),2)
+        r2,v2 = vap2_pre(np.array([100,200,300,200,300]),np.array([11,22,33,44,55]),12) #pre_length超长
+        self.assertTrue(True)
+
     def test_svap(self):
         r1,v1 = svap(np.array([100,200,300,200,300]),np.array([11,22,33,44,55]),np.array([100,100,100,100,100]))
         self.assertEquals(([11,22,22,33,33,33,44,44,55,55,55],[0,1,1,2,2,2,3,3,4,4,4]),(r1.tolist(),v1.tolist()))

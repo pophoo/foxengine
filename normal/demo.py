@@ -9,8 +9,8 @@ logger = logging.getLogger('wolfox.fengine.normal.demo')
 
 def buy_func_demo1(stock):
     t = stock.transaction
-    #g = stock.gorder >= 7500
-    #g = gand(stock.g5 > stock.g20,stock.g20 > stock.gorder,stock.gorder > stock.g120,stock.g120 > stock.g250)    
+    #g = stock.g60 >= 7500
+    #g = gand(stock.g5 > stock.g20,stock.g20 > stock.g60,stock.g60 > stock.g120,stock.g120 > stock.g250)    
     #g对这个没效果
     cma_5 = d1e.ma(t[CLOSE],5)
     cma_22 = d1e.ma(t[CLOSE],22)
@@ -26,7 +26,7 @@ def buy_func_demo1(stock):
 def buy_func_demo2(stock,fast,mid,slow,extend_days = 10):
     logger.debug('calc: %s ' % stock.code)    
     t = stock.transaction
-    #g = gand(stock.g5 > stock.g20,stock.g20 > stock.gorder,stock.gorder > stock.g120,stock.g120 > stock.g250)    
+    #g = gand(stock.g5 > stock.g20,stock.g20 > stock.g60,stock.g60 > stock.g120,stock.g120 > stock.g250)    
     #g对这个没效果
     ma_fast = ma(t[CLOSE],fast)
     ma_mid = ma(t[CLOSE],mid)
@@ -48,11 +48,11 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20):
     t = stock.transaction
     #print t[CLOSE]
     #return np.ones_like(t[CLOSE])
-    #g = stock.gorder >= 8500    
-    g = gand(stock.g5 > stock.g20,stock.g20 > stock.gorder,stock.gorder > stock.g120,stock.g120 > stock.g250)
+    #g = stock.g60 >= 8500    
+    g = gand(stock.g5 > stock.g20,stock.g20 > stock.g60,stock.g60 > stock.g120,stock.g120 > stock.g250)
     #kao.存在没有c60也就是不归属任何catalog的stock，直接异常
     #signal_s = catalog_signal(stock.c60,8500,8500)  
-    #print stock.code,max(stock.gorder)
+    #print stock.code,max(stock.g60)
     svap,v2i = svap_ma(t[VOLUME],t[CLOSE],22)
     ma_svapfast = ma(svap,fast)
     ma_svapslow = ma(svap,slow)
@@ -63,6 +63,9 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20):
     maslow = ma(t[CLOSE],55)
     ma120 = ma(t[CLOSE],120)
     trend_ma120 = trend(ma120) > 0
+    trend_20 = trend(stock.g20) > 0
+    trend_60 = trend(stock.g60) > 0
+    
     #sconfirm = upconfirm(t[OPEN],t[CLOSE],t[HIGH])
     #down_up = downup(maslow,t[CLOSE],10,3)
     #confirm_up = band(down_up,sconfirm)
@@ -71,7 +74,36 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20):
     #return gand(confirmed_signal,trend_ma120,smmroc)
     #confirmed_signal起到反作用
     #return gand(g,confirmed_signal,trend_ma120)  #,signal_s)
-    return gand(g,msvap,trend_ma120)
+    return gand(g,msvap,trend_ma120,trend_20,trend_60)
+
+def buy_func_demo4(stock):
+    #print stock.code
+    #logger.debug('calc: %s ' % stock.code)
+    t = stock.transaction
+    #print t[CLOSE]
+    #return np.ones_like(t[CLOSE])
+    #g = stock.g60 >= 8500    
+    g = gand(stock.g5 > stock.g20,stock.g20 > stock.g60,stock.g60 > stock.g120,stock.g120 > stock.g250)
+    #kao.存在没有c60也就是不归属任何catalog的stock，直接异常
+    #signal_s = catalog_signal(stock.c60,8500,8500)  
+    #print stock.code,max(stock.g60)
+    trend_20 = trend(stock.g20) > 0
+    trend_60 = trend(stock.g60) > 0
+
+    cross_fast_slow = gand(cross(stock.g60,stock.g20)>0,trend_20,trend_60)
+    #sconfirm = upconfirm(t[OPEN],t[CLOSE],t[HIGH])
+    #down_up = downup(maslow,t[CLOSE],10,3)
+    #confirm_up = band(down_up,sconfirm)
+    #confirmed_signal = syntony(msvap,confirm_up,15)
+    #smmroc = swingin(t[HIGH],t[LOW],45,800)
+    #return gand(confirmed_signal,trend_ma120,smmroc)
+    #confirmed_signal起到反作用
+    #return gand(g,confirmed_signal,trend_ma120)  #,signal_s)
+    ma120 = ma(t[CLOSE],120)
+    trend_ma120 = trend(ma120) > 0
+    
+    return gand(g,cross_fast_slow,trend_ma120)
+
 
 def demo(sdata,dates,begin,end,idata=None):
     #print ctree
@@ -104,6 +136,7 @@ def demo(sdata,dates,begin,end,idata=None):
     config1 = BaseObject(buyer = buy_func_demo1,seller=seller,pman=pman,dman=dman)    
     config2 = BaseObject(buyer = demo2,seller=seller,pman=pman,dman=dman)    
     config3 = BaseObject(buyer = demo3,seller=seller,pman=pman,dman=dman)
+    config4 = BaseObject(buyer = buy_func_demo4,seller=seller,pman=pman,dman=dman)    
     #configs = [config1,config2,config3]
     configs = [config3]
     #configs = [config1,config2]

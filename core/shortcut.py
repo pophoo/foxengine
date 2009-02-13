@@ -31,9 +31,9 @@ def prepare_catalogs(sdata,distance=60):
     for c in catalogs:  #计算板块指数
         c.transaction = [calc_index(c.stocks)] * 7  #以单一指数冒充所有，避免extract_collect错误
     #print catalogs
-    c_posort('c%s'% distance,catalogs,distance=distance)
-    d_posort('gorder',sdata.values(),distance=distance)
-    d_posort('gorder',catalogs,distance=distance)
+    c_posort('c%s' % distance,catalogs,distance=distance)
+    d_posort('g%s' % distance,sdata.values(),distance=distance)
+    d_posort('g%s' % distance,catalogs,distance=distance)
     return ctree,catalogs   
 
 def prepare_all(begin,end,codes=[],icodes=[]):

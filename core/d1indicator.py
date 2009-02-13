@@ -507,6 +507,18 @@ def vap2(svolume,sprice,base):
         stimes[i] = times
     return _fill_price(sprice,stimes)
 
+def vap_pre(svolume,sprice,pre_length):   #依赖svolume为整数序列，否则导致ma之后0值有非零的base，直接导致后续所有计算出错
+    if(len(svolume) < pre_length or pre_length == 0):
+        pre_length = len(svolume)
+    unit = np.sum(svolume[:pre_length]) / pre_length
+    return vap(svolume,sprice,unit)
+
+def vap2_pre(svolume,sprice,pre_length):  #依赖svolume为整数序列，否则导致ma之后0值有非零的base，直接导致后续所有计算出错
+    if(len(svolume) < pre_length or pre_length == 0):
+        pre_length = len(svolume)
+    unit = np.sum(svolume[:pre_length]) / pre_length
+    return vap2(svolume,sprice,unit)
+
 def svap(svolume,sprice,sbase):
     ''' 成交量调整的价格曲线Volume Adjusted Price Line
         返回经成交量调整的价格序列，以及该序列发生的时间

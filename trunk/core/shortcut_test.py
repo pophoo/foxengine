@@ -75,7 +75,7 @@ class ModuleTest(unittest.TestCase):    #只测试通道
 
     def test_save_configs(self):
         result = BaseObject(RPR=1,CSHARP=0,AVGRANGE=(1,2),MAXRANGE=(3,4),income_rate=123,pre_ev=[1,2],g_ev=[3,4])
-        config = BaseObject(name='test',result=result,strade='test strade',mm_ratio=100)
+        config = BaseObject(name='test',result=result,strade='test strade',mm=(100,5))
         import os
         save_configs('test_save_configs.txt',[],20010101,20050101)
         save_configs('test_save_configs.txt',[config,config],20010101,20050101)
@@ -91,10 +91,10 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         self.assertTrue(True)
 
     def test_rate_mfe_mae(self):
-        self.assertEquals(1000000,rate_mfe_mae({}))
-        s1 = BaseObject(mfe_sum=100,mae_sum=50)
-        s2 = BaseObject(mfe_sum=1000,mae_sum=500)
-        self.assertEquals(2000,rate_mfe_mae({'s1':s1,'s2':s2}))
+        self.assertEquals((1000000000,0),rate_mfe_mae({}))
+        s1 = BaseObject(mfe_sum=100,mae_sum=50,mm_count=10)
+        s2 = BaseObject(mfe_sum=1000,mae_sum=500,mm_count=20)
+        self.assertEquals((2000,30),rate_mfe_mae({'s1':s1,'s2':s2}))
 
 
     #------------------------------------------------------------------------------------------------

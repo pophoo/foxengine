@@ -4,8 +4,11 @@
     取代之前shortcut.py中的若干功能
 '''
 
+import numpy as np
+
 import logging
 
+from wolfox.fengine.core.d1 import greater
 from wolfox.fengine.core.d1indicator import atr
 from wolfox.fengine.core.future import mm_ratio,mm_sum
 from wolfox.fengine.core.d1idiom import B0S0,B0S1,B1S0,B1S1,BS_DUMMY
@@ -84,6 +87,7 @@ class Mediator(object):
     def finishing(self,stock,sbuy,ssell):
         #print '..........finishing.......'
         stock.mfe_sum,stock.mae_sum = mm_sum(sbuy,stock.mfe,stock.mae)
+        stock.mm_count = int(np.sum(greater(sbuy)))
 
 
 

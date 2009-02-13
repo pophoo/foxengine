@@ -70,7 +70,7 @@ def batch(configs,sdata,dates,begin,**kwargs):
             name,tradess = calc_trades(buyer,seller,sdata,dates,begin,**kwargs)
             result,strade = ev.evaluate_all(tradess,pman,dman)
             config.name = name
-            config.mm_ratio = rate_mfe_mae(sdata)
+            config.mm = rate_mfe_mae(sdata)
             config.result = result
             config.strade = strade
             tend = time()
@@ -85,13 +85,15 @@ def batch(configs,sdata,dates,begin,**kwargs):
 
 def rate_mfe_mae(sdata):
     sum_mfe,sum_mae = 0,0
+    count_mm= 0
     for s in sdata.values():
         sum_mfe += s.mfe_sum
         sum_mae += s.mae_sum
+        count_mm += s.mm_count
     if sum_mae:
-        return sum_mfe * BASE/sum_mae
+        return (sum_mfe * BASE/sum_mae,count_mm)
     else:
-        return BASE * BASE
+        return (BASE * BASE * BASE,count_mm)    #需要有明显差别
 
 def save_configs(filename,configs,begin,end):
     f = file(filename,'a')
@@ -102,7 +104,7 @@ def save_configs(filename,configs,begin,end):
         r = config.result
         f.write('\nname:%s\npre_ev:%s\ngev:%s' % (config.name,r.pre_ev,r.g_ev))
         f.write('\nR:%s\nCSHARP:%s\nAVGRANGE:%s\nMAXRANGE:%s\nINRATE:%s' % (r.RPR,r.CSHARP,r.AVGRANGE,r.MAXRANGE,r.income_rate))
-        f.write('\nMMRatio:%s' % config.mm_ratio)
+        f.write('\nMMRatio:%s,mm_count%s' % config.mm)
         f.write('\n**************************************************')
     f.close()
 

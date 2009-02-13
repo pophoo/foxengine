@@ -14,7 +14,7 @@ if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 from wolfox.fengine.normal.raw import *
 
 import logging
-logger = logging.getLogger('wolfox.fengine.normal.core.demo_test')
+logger = logging.getLogger('wolfox.fengine.normal.raw_test')
 
 class ModuleTest(unittest.TestCase): #保持raw()的有效性
     def setUp(self):

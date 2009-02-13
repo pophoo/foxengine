@@ -94,6 +94,12 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([600,620,700,650,650,550,880,880,692,650,650,590],tracelimit(source,shigh,signal,satr,1000,2000).tolist())
         self.assertEquals([700,620,700,650,700,550,980,980,692,650,710,590],tracelimit(source,shigh,signal,satr,2000,1000).tolist())
 
+    def test_tracemax(self):
+        self.assertEquals([],tracemax(np.array([]),np.array([])).tolist())
+        shigh  = np.array([800,820,900,850,890,750,1080,820,900,850,810,790])
+        signal = np.array([0,1,1,1,0,1,0,0,1,0,0,1])
+        self.assertEquals([800,820,900,850,890,750,1080,1080,900,900,900,790],tracemax(shigh,signal).tolist())
+
     def test_zigzag(self):
         source = np.array([700,720,900,1100,1000,999,980,720,792,793,800,990])
         points,boundary = zigzag(source,100)

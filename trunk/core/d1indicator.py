@@ -5,7 +5,7 @@
 
 import numpy as np
 
-from wolfox.fengine.core.d1 import BASE,gand,gmax,subd,rollx
+from wolfox.fengine.core.d1 import BASE,gand,gmax,greater,subd,rollx
 from wolfox.fengine.core.d1ex import tmax,tmin,trend,msum,ma
 
 import logging
@@ -162,7 +162,7 @@ def tracelimit(source,sup,signal,satr,stop_times,trace_times):
         stop_times为止损时的atr倍数
         trace_times为跟踪的atr倍数
     '''
-    assert len(source) == len(signal)
+    assert len(source) == len(sup) == len(signal) == len(satr)
     rev = np.zeros_like(source)
     if(len(source) == 0):
         return rev
@@ -182,6 +182,21 @@ def tracelimit(source,sup,signal,satr,stop_times,trace_times):
         if cur_stop < cur_trace:
             cur_stop = cur_trace
         rev[i] = cur_stop
+    return rev
+
+def tracemax(source,signal):
+    ''' 信号日间的最大值追踪
+    '''
+    assert len(source) == len(signal)
+    rev = np.zeros_like(source)
+    cur_max = 0
+    for i in xrange(len(source)):
+        cur = source[i]
+        if signal[i] > 0:
+            cur_max = cur
+        elif cur_max < cur:
+            cur_max = cur
+        rev[i] = cur_max
     return rev
 
 def zigzag(source,threshold):#source[i]不能为0. 因为用到了 and . or 选择判断中

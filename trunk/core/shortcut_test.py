@@ -77,7 +77,8 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         result = BaseObject(RPR=1,CSHARP=0,AVGRANGE=(1,2),MAXRANGE=(3,4),income_rate=123,pre_ev=[1,2],g_ev=[3,4])
         config = BaseObject(name='test',result=result,strade='test strade',mm_ratio=100)
         import os
-        save_configs('test_save_configs.txt',[config,config])
+        save_configs('test_save_configs.txt',[],20010101,20050101)
+        save_configs('test_save_configs.txt',[config,config],20010101,20050101)
         os.remove('test_save_configs.txt')
 
     def test_prepare_all(self):#只测试通路

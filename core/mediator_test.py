@@ -143,6 +143,8 @@ class MediatorTest(unittest.TestCase):
         #print s.mfe_sum,s.mae_sum
         self.assertEquals(10,s.mfe_sum)
         self.assertEquals(100,s.mae_sum)
+        self.assertEquals(3,s.mm_count)
+        self.assertEquals(type(1),type(s.mm_count))
 
 
 if __name__ == "__main__":

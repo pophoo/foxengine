@@ -15,8 +15,8 @@ def run_body(sdata,dates,begin,end):
     pman = AdvancedATRPositionManager()
     dman = DateManager(begin,end)
     myMediator=mediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
-    #seller = atr_seller_factory(3000)
-    seller = csc_func
+    seller = atr_seller_factory(stop_times=1500)
+    #seller = csc_func
     #pman = AdvancedPositionManager()
 
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
@@ -77,7 +77,7 @@ def run_body(sdata,dates,begin,end):
     print u'计算耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
-    save_configs('csc_ev1.txt',configs,begin,end)
+    save_configs('atr1500_ev.txt',configs,begin,end)
 
 def run_main(dates,sdata,idata,catalogs,begin,end):
     d_posort('g5',sdata.values(),distance=5)        

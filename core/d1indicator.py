@@ -132,6 +132,51 @@ def tuplimit(source,signal,threshold=60):
     ''' 跟踪型上限 '''
     return tupdownlimit(source,signal,threshold,*functor_map['up'])
 
+def stoplimit(source,signal,satr,times): 
+    ''' 信号日起的下限计算
+        signal序列以>0为有信号
+    '''
+    assert len(source) == len(signal)
+    rev = np.zeros_like(source)
+    if(len(source) == 0):
+        return rev
+    cur_stop = 0
+    for i in xrange(len(source)):
+        if signal[i] > 0:
+            cur_stop = source[i] - satr[i] * times/BASE
+        rev[i] = cur_stop
+    return rev
+
+def tracelimit(source,sup,signal,satr,stop_times,trace_times):
+    ''' 信号日起的追踪止损。自有信号起至下一个信号间以max值-atr*trace_times和买入值-atr*stop_times的高者为止损线
+        source:买入价
+        sup:上包线，为high或close
+        signal:>0为有信号
+        satr:atr线
+        stop_times为止损时的atr倍数
+        trace_times为跟踪的atr倍数
+    '''
+    assert len(source) == len(signal)
+    rev = np.zeros_like(source)
+    if(len(source) == 0):
+        return rev
+    cur_stop = 0
+    cur_max = 0
+    cur_trace = 0
+    for i in xrange(len(source)):
+        cur = source[i]
+        cur_h = sup[i]
+        if signal[i] > 0:
+            cur_max = cur   #以买入点而非当日高点，因为不能判断当日高点是否是买入之后
+            cur_stop = cur - satr[i] * stop_times/BASE
+        elif cur_max < cur_h:
+            cur_max = cur_h
+        cur_trace = cur_max - satr[i] * trace_times/BASE
+        if cur_stop < cur_trace:
+            cur_stop = cur_trace
+        rev[i] = cur_stop
+    return rev
+
 def zigzag(source,threshold):#source[i]不能为0. 因为用到了 and . or 选择判断中
     ''' 摆动滤波 Arthur Merrill，求折点(根据折点之前的数据求得转折限，若当日数据突破该限，则转折成立)
         threshold以1/BASE为单位

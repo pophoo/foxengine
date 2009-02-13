@@ -140,13 +140,22 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([1,0,0,0],lb.tolist())
         self.assertEquals([1,0,0,0],ls.tolist())
 
-    def test_atr_sell_func(self):
+    def test_atr_sell_func(self):   #通路测试
         empty_trans = np.array([(),(),(),(),(),(),()])
         atr_sell_func(np.array([]),empty_trans,np.array([]))
         trans = np.array([(0,0,0,0),(500,550,550,500),(500,550,550,500),(500,550,550,500),(0,0,0,0),(5000,4000,8000,4000),(1000,1000,0,1000)])
         satr = np.array([40,50,80,40])
         sbuy = np.array([1,0,1,1])
         s,d = atr_sell_func(sbuy,trans,satr)
+        self.assertTrue(True)
+
+    def test_atr_sell_func_old(self):   #通路测试
+        empty_trans = np.array([(),(),(),(),(),(),()])
+        atr_sell_func_old(np.array([]),empty_trans,np.array([]))
+        trans = np.array([(0,0,0,0),(500,550,550,500),(500,550,550,500),(500,550,550,500),(0,0,0,0),(5000,4000,8000,4000),(1000,1000,0,1000)])
+        satr = np.array([40,50,80,40])
+        sbuy = np.array([1,0,1,1])
+        s,d = atr_sell_func_old(sbuy,trans,satr)
         self.assertTrue(True)
 
     def test_atr_seller(self):
@@ -162,6 +171,7 @@ class ModuleTest(unittest.TestCase):
         bs = np.array([])
         atr_seller(sa,bs)
         self.assertTrue(True)
+
 
     def test_atr_seller_factory(self):  #通路测试
         a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])

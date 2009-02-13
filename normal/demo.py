@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#完整的起始脚本
+#完整的演示脚本
 
 from wolfox.fengine.core.shortcut import *
 
@@ -105,7 +105,7 @@ def buy_func_demo4(stock):
     return gand(g,cross_fast_slow,trend_ma120)
 
 
-def demo(sdata,dates,begin,end,idata=None):
+def demo(dates,sdata,begin,end,idata=None):
     #print ctree
     #for s in ctree:
     #    print s.name
@@ -171,5 +171,5 @@ if __name__ == '__main__':
     d_posort('g20',sdata.values(),distance=20)    
     d_posort('g120',sdata.values(),distance=120)     
     d_posort('g250',sdata.values(),distance=250)     
-    demo(sdata,dates,begin,end)
+    demo(dates,sdata,begin,end)
 

@@ -74,10 +74,10 @@ def run_body(sdata,dates,begin,end):
     batch(configs,sdata,dates,begin,cmediator=myMediator)
 
     tend = time()
-    print u'耗时: %s' % (tend-tbegin)
+    print u'计算耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
-    save_configs('csc_ev.txt',configs,begin,end)
+    save_configs('csc_ev1.txt',configs,begin,end)
 
 def run_main(dates,sdata,idata,catalogs,begin,end):
     d_posort('g5',sdata.values(),distance=5)        
@@ -90,7 +90,7 @@ def run_main(dates,sdata,idata,catalogs,begin,end):
 if __name__ == '__main__':
     logging.basicConfig(filename="run.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
     
-    begin,end = 20010701,20050701
+    begin,end = 20010701,20080101
     from time import time
     tbegin = time()
     dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])

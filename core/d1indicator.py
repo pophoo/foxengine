@@ -479,6 +479,7 @@ def vap(svolume,sprice,base):
         3   对adjustedPrice进行任意操作，最后用transform将相应的成交量坐标映射回date
     这个算法对新股和次新股效果可能较差，因为头几天的成交量实在太大
     '''
+    #print len(svolume),len(sprice),base    
     assert len(svolume) == len(sprice) and base > 0
     stimes = np.ones(len(svolume),int)    #默认都是1
     for i in xrange(len(svolume)):
@@ -497,6 +498,7 @@ def vap2(svolume,sprice,base):
         3   对adjustedPrice进行任意操作，最后用transform将相应的成交量坐标映射回date
     这个算法对新股和次新股效果可能较差，因为头几天的成交量实在太大
     '''
+    #print len(svolume),len(sprice)
     assert len(svolume) == len(sprice) and base > 0
     stimes = np.zeros(len(svolume),int)  #默认都是0
     cur,remainder = 0,0
@@ -507,16 +509,21 @@ def vap2(svolume,sprice,base):
         stimes[i] = times
     return _fill_price(sprice,stimes)
 
+DEFAULT_UNIT = 5000
 def vap_pre(svolume,sprice,pre_length):   #依赖svolume为整数序列，否则导致ma之后0值有非零的base，直接导致后续所有计算出错
     if(len(svolume) < pre_length or pre_length == 0):
         pre_length = len(svolume)
     unit = np.sum(svolume[:pre_length]) / pre_length
+    if unit == 0:
+        unit = DEFAULT_UNIT
     return vap(svolume,sprice,unit)
 
 def vap2_pre(svolume,sprice,pre_length):  #依赖svolume为整数序列，否则导致ma之后0值有非零的base，直接导致后续所有计算出错
     if(len(svolume) < pre_length or pre_length == 0):
         pre_length = len(svolume)
     unit = np.sum(svolume[:pre_length]) / pre_length
+    if unit == 0:
+        unit = DEFAULT_UNIT
     return vap2(svolume,sprice,unit)
 
 def svap(svolume,sprice,sbase):

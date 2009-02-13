@@ -193,11 +193,13 @@ class ModuleTest(unittest.TestCase):
     def test_vap_pre(self): #只测试通路
         r1,v1 = vap_pre(np.array([100,200,300,200,300]),np.array([11,22,33,44,55]),2)
         r2,v2 = vap_pre(np.array([100,200,300,200,300]),np.array([11,22,33,44,55]),12) #pre_length超长
+        r3,v3 = vap_pre(np.array([0,0,0,0,0]),np.array([11,22,33,44,55]),12) #pre_length超长        
         self.assertTrue(True)
 
     def test_vap2_pre(self):    #只测试通路
         r1,v1 = vap2_pre(np.array([100,200,300,200,300]),np.array([11,22,33,44,55]),2)
         r2,v2 = vap2_pre(np.array([100,200,300,200,300]),np.array([11,22,33,44,55]),12) #pre_length超长
+        r2,v2 = vap2_pre(np.array([0,0,0,0,0]),np.array([11,22,33,44,55]),12) #pre_length超长        
         self.assertTrue(True)
 
     def test_svap(self):
@@ -234,6 +236,7 @@ class ModuleTest(unittest.TestCase):
 
     def test_svap_ma(self):   #只测试通路
         svap_ma(np.array([100,200,300,200,300]),np.array([11,22,33,44,55]),3)
+        svap_ma(np.array([0,0,0,0,0]),np.array([11,22,33,44,55]),3)        
         self.assertTrue(True)
 
     def test_svap2_ma(self):  #只测试通路

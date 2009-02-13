@@ -39,13 +39,13 @@ def run_body(sdata,dates,begin,end):
     #configs.append(config(buyer=fcustom(svama2s,fast=5,slow=98)))
     #configs.append(config(buyer=fcustom(svama2s,fast=14,slow=88)))
     #configs.append(config(buyer=fcustom(svama2s,fast=8,slow=71)))
-    #configs.append(config(buyer=fcustom(svama3,fast=12,mid=55,slow=119)))
+    #configs.append(config(buyer=fcustom(svama3,fast=12,mid=55,slow=119)))   
     configs.append(config(buyer=fcustom(svama3,fast=23,mid=64,slow=120)))   #mm=1611,times=5
     #configs.append(config(buyer=fcustom(svama3,fast=31,mid=57,slow=30)))
     
     #configs.append(config(buyer=fcustom(vama3,fast=12,mid=59,slow=116)))
     #configs.append(config(buyer=fcustom(vama3,fast=20,mid=64,slow=119)))    
-    #configs.append(config(buyer=fcustom(vama3,fast=29,mid=55,slow=100)))    
+    configs.append(config(buyer=fcustom(vama3,fast=29,mid=55,slow=100)))    #mm=1966,times=1 
     configs.append(config(buyer=fcustom(vama3,fast=12,mid=45,slow=100)))    #mm=2030,times=7
     #configs.append(config(buyer=fcustom(vama3,fast=25,mid=53,slow=124)))
     #configs.append(config(buyer=fcustom(vama3,fast=8,mid=43,slow=102)))
@@ -93,6 +93,7 @@ if __name__ == '__main__':
     begin,end = 20010701,20080101
     from time import time
     tbegin = time()
+    
     dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000','SZ002258'],[ref_code])    
     tend = time()

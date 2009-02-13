@@ -595,8 +595,8 @@ def svap(svolume,sprice,sbase):
     stimes = np.ones(len(svolume),int)    #默认全部是1
     for i in xrange(firsti,len(svolume)):
         csv,csb = svolume[i],sbase[i]
-        if csb < 0:
-            print 'csb<0 :',csb
+        #if csb < 0:
+        #    print 'csb<0 :',csb
         times = (csv + csb - 1)/csb if csb else 1   #避免被零除，一旦被零除，因为csv/csb本身是numpy内部类型，会导致生成的结果类型有内存泄漏问题
         stimes[i] = times
     return _fill_price(sprice,stimes)
@@ -652,7 +652,7 @@ def index2v(signal,v2index,length):
 
 def _fill_price(sprice,stimes):
     length = sum(stimes)
-    print length,stimes
+    #print length,stimes
     rev,v2index = np.zeros(length,int),np.zeros(length,int)
     cur = 0
     for i in xrange(len(stimes)):

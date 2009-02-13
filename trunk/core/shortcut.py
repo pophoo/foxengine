@@ -75,6 +75,7 @@ def batch(configs,sdata,dates,begin,**kwargs):
             config.strade = strade
             tend = time()
             logger.debug(u'strade:%s',strade)
+            logger.debug(u'\nMMRatio:%s,mfe:%s,mae:%s,mm_count:%s' % config.mm)
             logger.debug(u'calc finished:%s,耗时:%s',config.name,tend-tbegin)
             print u'calc finished:%s,耗时:%s' % (config.name,tend-tbegin)
         except Exception,inst:

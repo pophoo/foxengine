@@ -115,7 +115,7 @@ class GeneticCruiser(object):
         #trades = normal_calc_template(sdata,dates,buy_func,sell_func,trade_func)
         m = Mediator(buy_func,sell_func)
         name = m.name()
-        trades = m.calc(sdata,dates,begin=tbegin)
+        trades = m.calc_matched(sdata,dates,begin=tbegin)
         ev = self.evaluate_func(trades,**kwargs)  
         if(not evthreshold(ev)):
             ev.matchedtrades,ev.balances = [],[]    #相当于先删除。为保证ev的一致性而都赋为[]。否则str(ev)中的zip(...)会出错

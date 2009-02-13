@@ -146,7 +146,7 @@ def demo(dates,sdata,begin,end,idata=None):
     print u'耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
-    save_configs('demo_ev.txt',configs)
+    save_configs('demo_ev.txt',configs,begin,end)
     
 
 

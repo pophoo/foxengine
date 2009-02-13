@@ -73,7 +73,7 @@ def svama2(stock,fast,slow,sma=22,ma_standard=120):
     trend_ma_standard = trend(ma_standard) > 0
     return gand(g,msvap,trend_ma_standard)
 
-def svama2s(stock,fast,slow,sma=22,ma_standard=120):
+def svama2s(stock,fast,slow,sma=22,ma_standard=120,extend_days = 10):
     ''' svama两线交叉, 先是快线叉慢线,然后是慢线叉快线
         argnames = ['slow','fast','threshold']
         arggroups = [ [4,53,30],
@@ -100,7 +100,7 @@ def svama2s(stock,fast,slow,sma=22,ma_standard=120):
     #cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
     cross_fast_slow = band(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast)
     cross_slow_fast = band(cross(ma_svapfast,ma_svapslow)>0,trend_ma_svapslow)
-    synced = sfollow(cross_fast_slow,cross_slow_fast,extend_day)
+    synced = sfollow(cross_fast_slow,cross_slow_fast,extend_days)
     msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
     ma_standard = ma(t[CLOSE],ma_standard)
     trend_ma_standard = trend(ma_standard) > 0

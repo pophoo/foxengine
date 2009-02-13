@@ -39,7 +39,7 @@ class ModuleTest(unittest.TestCase):    #通路测试
         self.assertTrue(True)
 
     def test_svama2s(self):
-        sbuy = svama2(self.stock,5,20)
+        sbuy = svama2s(self.stock,5,20)
         self.assertTrue(True)
 
     def test_svama3(self):
@@ -50,6 +50,9 @@ class ModuleTest(unittest.TestCase):    #通路测试
         sbuy = vama2(self.stock,5,20)
         self.assertTrue(True)
     
+    def test_vama3(self):
+        sbuy = vama2(self.stock,5,20,120)
+        self.assertTrue(True)
 
 
 if __name__ == "__main__":

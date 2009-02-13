@@ -8,6 +8,9 @@ import numpy as np
 from wolfox.fengine.core.d1 import BASE,gand,gmax,subd,rollx
 from wolfox.fengine.core.d1ex import tmax,tmin,trend,msum,ma
 
+import logging
+logger = logging.getLogger('wolfox.fengine.core.d1indicator')
+
 #serial = np.arange(10000)   #不超过10000个数据点
 
 #expfunctor = lambda cur,expma,trate,base=BASE: (cur*trate + expma * (base-trate) + base/2)/base
@@ -17,17 +20,19 @@ def expma(source,trate):
     '''
 
     length = (2* BASE+trate/2)/trate -1
+    #print 'trate:',trate,'length;',length
     rev = np.zeros_like(source)
     if(len(source) < length):
         return rev
-    expma = source[0]
+    cur = source[0]
     for i in xrange(1,length-1):
-        expma = (source[i] * trate + expma * (BASE - trate) + BASE/2)/BASE
-        #expma = expfunctor(source[i],expma,trate)
+        cur = int((source[i] * trate * 1L + cur * 1L * (BASE - trate) + BASE/2)/BASE)    #1L防止计算中溢出
+        #cur = expfunctor(source[i],cur,trate)
     for i in xrange(length-1,len(source)):
-        expma = (source[i] * trate + expma * (BASE - trate)+ BASE/2)/BASE
-        #expma = expfunctor(source[i],expma,trate)
-        rev[i] = expma
+        cur = int((source[i] * trate * 1L + cur * 1L * (BASE - trate)+ BASE/2)/BASE)     #1L防止计算中溢出
+        #cur = expfunctor(source[i],cur,trate)
+        rev[i] = cur
+        assert cur >= 0
     return rev
 
 def cexpma(source,n):
@@ -590,6 +595,8 @@ def svap(svolume,sprice,sbase):
     stimes = np.ones(len(svolume),int)    #默认全部是1
     for i in xrange(firsti,len(svolume)):
         csv,csb = svolume[i],sbase[i]
+        if csb < 0:
+            print 'csb<0 :',csb
         times = (csv + csb - 1)/csb if csb else 1   #避免被零除，一旦被零除，因为csv/csb本身是numpy内部类型，会导致生成的结果类型有内存泄漏问题
         stimes[i] = times
     return _fill_price(sprice,stimes)
@@ -625,10 +632,10 @@ def svap2(svolume,sprice,sbase):
     return _fill_price(sprice,stimes)
 
 def svap_ma(svolume,sprice,malength):   #依赖svolume为整数序列，否则导致ma之后0值有非零的base，直接导致后续所有计算出错
-    return svap(svolume,sprice,rollx(expma(svolume,malength)))
+    return svap(svolume,sprice,rollx(cexpma(svolume,malength)))
 
 def svap2_ma(svolume,sprice,malength):  #依赖svolume为整数序列，否则导致ma之后0值有非零的base，直接导致后续所有计算出错
-    return svap2(svolume,sprice,rollx(expma(svolume,malength)))
+    return svap2(svolume,sprice,rollx(cexpma(svolume,malength)))
 
 def index2v(signal,v2index,length):
     ''' 变形运算
@@ -645,7 +652,7 @@ def index2v(signal,v2index,length):
 
 def _fill_price(sprice,stimes):
     length = sum(stimes)
-    #print length,stimes
+    print length,stimes
     rev,v2index = np.zeros(length,int),np.zeros(length,int)
     cur = 0
     for i in xrange(len(stimes)):

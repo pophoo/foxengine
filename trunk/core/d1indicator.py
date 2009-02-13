@@ -26,10 +26,11 @@ def expma(source,trate):
         return rev
     cur = source[0]
     for i in xrange(1,length-1):
-        cur = int((source[i] * trate * 1L + cur * 1L * (BASE - trate) + BASE/2)/BASE)    #1L防止计算中溢出
+        cur = int((source[i] * 1L * trate + cur * 1L * (BASE - trate) + BASE/2)/BASE)    #1L防止计算中溢出
         #cur = expfunctor(source[i],cur,trate)
     for i in xrange(length-1,len(source)):
-        cur = int((source[i] * trate * 1L + cur * 1L * (BASE - trate)+ BASE/2)/BASE)     #1L防止计算中溢出
+        oldcur = cur
+        cur = int((source[i] * 1L * trate + cur * 1L * (BASE - trate)+ BASE/2)/BASE)     #1L防止计算中溢出
         #cur = expfunctor(source[i],cur,trate)
         rev[i] = cur
         assert cur >= 0

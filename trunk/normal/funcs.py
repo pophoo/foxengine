@@ -32,15 +32,15 @@ def ma3(stock,fast,mid,slow,ma_standard=120,extend_days = 10):
     ma_fast = ma(t[CLOSE],fast)
     ma_mid = ma(t[CLOSE],mid)
     ma_slow = ma(t[CLOSE],slow)
-    trend_fast = trend(ma_fast) > 0
-    trend_mid = trend(ma_mid) > 0    
-    trend_slow = trend(ma_slow) > 0
+    trend_fast = strend(ma_fast) > 0
+    trend_mid = strend(ma_mid) > 0    
+    trend_slow = strend(ma_slow) > 0
     cross_fast_mid = band(cross(ma_mid,ma_fast),trend_fast)
     cross_fast_slow = band(cross(ma_slow,ma_fast),trend_fast)
     cross_mid_slow = band(cross(ma_slow,ma_mid),trend_mid)
     cross_fm_fs = sfollow(cross_fast_mid,cross_fast_slow,extend_days)
     confirm_cross = sfollow(cross_fm_fs,cross_mid_slow,extend_days)
-    trend_ma_standard = trend(ma(t[CLOSE],ma_standard)) > 0
+    trend_ma_standard = strend(ma(t[CLOSE],ma_standard)) > 0
     return gand(trend_ma_standard,confirm_cross)
 
 def svama2(stock,fast,slow,sma=22,ma_standard=120):
@@ -65,12 +65,12 @@ def svama2(stock,fast,slow,sma=22,ma_standard=120):
     svap,v2i = svap_ma(t[VOLUME],t[CLOSE],sma)
     ma_svapfast = ma(svap,fast)
     ma_svapslow = ma(svap,slow)
-    trend_ma_svapfast = trend(ma_svapfast) > 0
-    trend_ma_svapslow = trend(ma_svapslow) > 0
+    trend_ma_svapfast = strend(ma_svapfast) > 0
+    trend_ma_svapslow = strend(ma_svapslow) > 0
     cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
     msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
     ma_standard = ma(t[CLOSE],ma_standard)
-    trend_ma_standard = trend(ma_standard) > 0
+    trend_ma_standard = strend(ma_standard) > 0
     return gand(g,msvap,trend_ma_standard)
 
 def svama2s(stock,fast,slow,sma=22,ma_standard=120,extend_days = 10):
@@ -95,15 +95,15 @@ def svama2s(stock,fast,slow,sma=22,ma_standard=120,extend_days = 10):
     svap,v2i = svap_ma(t[VOLUME],t[CLOSE],sma)
     ma_svapfast = ma(svap,fast)
     ma_svapslow = ma(svap,slow)
-    trend_ma_svapfast = trend(ma_svapfast) > 0
-    trend_ma_svapslow = trend(ma_svapslow) > 0
+    trend_ma_svapfast = strend(ma_svapfast) > 0
+    trend_ma_svapslow = strend(ma_svapslow) > 0
     #cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
     cross_fast_slow = band(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast)
     cross_slow_fast = band(cross(ma_svapfast,ma_svapslow)>0,trend_ma_svapslow)
     synced = sfollow(cross_fast_slow,cross_slow_fast,extend_days)
     msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
     ma_standard = ma(t[CLOSE],ma_standard)
-    trend_ma_standard = trend(ma_standard) > 0
+    trend_ma_standard = strend(ma_standard) > 0
     return gand(g,msvap,trend_ma_standard)
 
 def svama3(stock,fast,mid,slow,sma=22,ma_standard=120,extend_days=10):
@@ -136,9 +136,9 @@ def svama3(stock,fast,mid,slow,sma=22,ma_standard=120,extend_days=10):
     ma_svapfast = ma(svap,fast)
     ma_svapmid = ma(svap,mid)    
     ma_svapslow = ma(svap,slow)
-    trend_ma_svapfast = trend(ma_svapfast) > 0
-    trend_ma_svapmid = trend(ma_svapmid) > 0    
-    trend_ma_svapslow = trend(ma_svapslow) > 0
+    trend_ma_svapfast = strend(ma_svapfast) > 0
+    trend_ma_svapmid = strend(ma_svapmid) > 0    
+    trend_ma_svapslow = strend(ma_svapslow) > 0
 
     #cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
     cross_fast_mid = band(cross(ma_svapmid,ma_svapfast)>0,trend_ma_svapfast)
@@ -165,14 +165,14 @@ def vama2(stock,fast,slow,pre_length=120,ma_standard=120):
     svap,v2i = vap_pre(t[VOLUME],t[CLOSE],pre_length)
     ma_svapfast = ma(svap,fast)
     ma_svapslow = ma(svap,slow)
-    trend_ma_svapfast = trend(ma_svapfast) > 0
-    trend_ma_svapslow = trend(ma_svapslow) > 0
+    trend_ma_svapfast = strend(ma_svapfast) > 0
+    trend_ma_svapslow = strend(ma_svapslow) > 0
     #cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
     cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapslow)
     msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
 
     ma_standard = ma(t[CLOSE],ma_standard)
-    trend_ma_standard = trend(ma_standard) > 0
+    trend_ma_standard = strend(ma_standard) > 0
     return gand(g,msvap,trend_ma_standard)
 
 def vama3(stock,fast,mid,slow,pre_length=120,ma_standard=120,extend_days=10):
@@ -193,9 +193,9 @@ def vama3(stock,fast,mid,slow,pre_length=120,ma_standard=120,extend_days=10):
     ma_svapfast = ma(svap,fast)
     ma_svapmid = ma(svap,mid)    
     ma_svapslow = ma(svap,slow)
-    trend_ma_svapfast = trend(ma_svapfast) > 0
-    trend_ma_svapmid = trend(ma_svapmid) > 0    
-    trend_ma_svapslow = trend(ma_svapslow) > 0
+    trend_ma_svapfast = strend(ma_svapfast) > 0
+    trend_ma_svapmid = strend(ma_svapmid) > 0    
+    trend_ma_svapslow = strend(ma_svapslow) > 0
 
     #cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
     cross_fast_mid = band(cross(ma_svapmid,ma_svapfast)>0,trend_ma_svapfast)
@@ -206,7 +206,7 @@ def vama3(stock,fast,mid,slow,pre_length=120,ma_standard=120,extend_days=10):
     msvap = transform(sync3,v2i,len(t[VOLUME]))
 
     ma_standard = ma(t[CLOSE],ma_standard)
-    trend_ma_standard = trend(ma_standard) > 0
+    trend_ma_standard = strend(ma_standard) > 0
     return gand(g,msvap,trend_ma_standard)
 
 

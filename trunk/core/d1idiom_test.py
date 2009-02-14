@@ -13,6 +13,10 @@ class ModuleTest(unittest.TestCase):
         s = swingin1(np.array([100,150,180,200,400]),3,500)
         self.assertEquals([1,1,0,1,0],s.tolist())
 
+    def test_up_under(self):
+        s = up_under(np.array([100,150,180,200,400,300,200,400]),np.array([100,150,180,200,400,300,500,400]),3,500)
+        self.assertEquals([1,0,0,1,0,0,1,1],s.tolist())
+
     def test_upconfirm(self):
         upconfirm(np.array([1,2,3,4,5]),np.array([2,3,4,5,6]),np.array([4,5,6,7,8]))
         self.assertTrue(True)

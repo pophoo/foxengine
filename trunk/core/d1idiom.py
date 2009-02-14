@@ -18,17 +18,27 @@ from wolfox.fengine.core.d1kline import *
 def swingin(shigh,slow,covered,threshold):
     ''' 测试shigh,slow最近covered天内的波动幅度小于threshold
         对任意i属于[0:len(shigh)),有shigh[i] >= slow[i]
-        用于涨幅测试
+        用于振幅测试，不能确认是涨上来的还是跌下去
     '''
     #print swing2(shigh,slow,covered)
     return lesser_equals(swing2(shigh,slow,covered),threshold)
     
-
 def swingin1(source,covered,threshold):
     ''' 测试source最近covered天内的波动幅度小于threshold
-        用于涨幅测试
+        用于振幅测试，不能确认是涨上来的还是跌下去
     '''
     return lesser_equals(swing(source,covered),threshold)
+
+def up_under(shigh,slow,covered,threshold):
+    ''' 测试shigh,slow最近covered天内上升幅度小于threshold
+        对任意i属于[0:len(shigh)),有shigh[i] >= slow[i]
+        用于涨幅测试
+    '''
+    srange,sdiff = iswing2(shigh,slow,covered)
+    #print srange,sdiff
+    up2threshold = band(srange >= threshold,sdiff >= 0)
+    #print up2threshold
+    return bnot(up2threshold)
 
 def upconfirm(sopen,sclose,shigh):#阳线突破确认
     sksize = ksize(sopen,sclose)

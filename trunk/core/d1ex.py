@@ -436,6 +436,15 @@ def swing2(shigh,slow,covered=1):   #已知高低序列的波动幅度
     vdiff = vmax - vmin
     return vdiff*BASE/vmin
 
+def iswing(source,covered=1):   #计算序列的波动幅度，以及高低点离当前点的远近差(正数表示高点近,负数表示低点近)
+    return iswing2(source,source,covered)
+
+def iswing2(shigh,slow,covered=1):   #计算高低序列的波动幅度，以及高低点离当前点的远近差(正数表示高点近[即曾经上升],负数表示低点近[即曾经下降])
+    vmax,imax = ti_max(shigh,covered)
+    vmin,imin = ti_min(slow,covered)
+    vdiff = vmax - vmin
+    return vdiff*BASE/vmin,imax-imin
+
 def gswing(*args):  #多参数波动幅度，最后一个参数可以为covered值，默认为1
     sources,covered = _iargsparse(1,*args)
     d2 = np.array(sources)
@@ -443,6 +452,16 @@ def gswing(*args):  #多参数波动幅度，最后一个参数可以为covered�
     vmin = tmin(np.min(d2,0),covered)
     vdiff = vmax - vmin
     return vdiff*BASE/vmin
+
+def giswing(*args):  #多参数波动幅度以及高低点离当前点的远近差，最后一个参数可以为covered值，默认为1
+    sources,covered = _iargsparse(1,*args)
+    d2 = np.array(sources)
+    vmax,imax = ti_max(np.max(d2,0),covered)
+    vmin,imin = ti_min(np.min(d2,0),covered)
+    #print vmax,imax
+    #print vmin,imin
+    vdiff = vmax - vmin
+    return vdiff*BASE/vmin,imax-imin
 
 def left_fill(source,empty=0):#使用左值补全源序列中为empty的点.直接操作源序列.
     pre = 0
@@ -483,11 +502,117 @@ def tmaxmin(source,covered,functor,gfunctor,limit): #最近len个数据的max值
         rev[i] = tm
     return rev
 
-def tmax(source,covered):
-    return tmaxmin(source,covered,max,np.max,-99999999)
+def tmax(source,covered): #最近len个数据的max值
+    ''' 等同于
+        tmaxmin(source,covered,max,np.max,-99999999)
+        是其展开版本
+    '''
+    tm = -99999999
+    rev = np.zeros_like(source)
+    length = len(source)
+    prelen = length > covered and covered or length
+    for i in range(prelen):
+        v = source[i]
+        if tm < v:
+            tm = v
+        rev[i] = tm
+    buffer = deque([v for v in source[:prelen]])   #优化方法，避免vquit=source[i-covered]的方式，对nbarray的直接索引有严重的性能问题
+    for i in range(prelen,length):
+        v = source[i]
+        buffer.append(v)
+        vquit=buffer.popleft()
+        if tm < v:
+            tm = v
+        if tm == vquit and v != tm: #退出的正好是最大值,计算前covered-1个元素的最大值, pre=source[i-1]
+            tm = np.max(source[i-covered+1:i+1])
+        rev[i] = tm
+    return rev
 
-def tmin(source,covered):
-    return tmaxmin(source,covered,min,np.min,99999999)
+def tmin(source,covered): #最近len个数据的max值
+    ''' 等同于
+        tmaxmin(source,covered,min,np.min,99999999)
+        是其展开版本
+    '''
+    tm = 99999999
+    rev = np.zeros_like(source)
+    length = len(source)
+    prelen = length > covered and covered or length
+    for i in range(prelen):
+        v = source[i]
+        if tm > v:
+            tm = v
+        rev[i] = tm
+    buffer = deque([v for v in source[:prelen]])   #优化方法，避免vquit=source[i-covered]的方式，对nbarray的直接索引有严重的性能问题
+    for i in range(prelen,length):
+        v = source[i]
+        buffer.append(v)
+        vquit=buffer.popleft()
+        if tm > v:
+            tm = v
+        if tm == vquit and v != tm: #退出的正好是最大值,计算前covered-1个元素的最大值, pre=source[i-1]
+            tm = np.min(source[i-covered+1:i+1])
+        rev[i] = tm
+    return rev
+
+def ti_max(source,covered): #最近len个数据的max值及这些max值的坐标
+    tm = -99999999
+    im = 0
+    rev = np.zeros_like(source)
+    irev = np.zeros_like(source)
+    length = len(source)
+    prelen = length > covered and covered or length
+    for i in range(prelen):
+        v = source[i]
+        if tm <= v: #以最近的那个最大值位置为准
+            tm = v
+            im = i
+        rev[i] = tm
+        irev[i] = im
+    buffer = deque([v for v in source[:prelen]])   #优化方法，避免vquit=source[i-covered]的方式，对nbarray的直接索引有严重的性能问题
+    for i in range(prelen,length):
+        v = source[i]
+        buffer.append(v)
+        vquit=buffer.popleft()
+        if tm <= v:  #以最近的那个最大值位置为准
+            #print tm,v
+            tm = v
+            im = i
+        if tm == vquit and v != tm: #退出的正好是最大值,计算前covered-1个元素的最大值, pre=source[i-1]
+            tm = np.max(source[i-covered+1:i+1])
+            im = i - np.argmax(source[i:i-covered:-1])  #计算离当前点最近的那个最大值,故必须倒序求位置,然后再反过来
+            #print 'quit:',tm,im
+        rev[i] = tm
+        irev[i] = im
+    return rev,irev
+
+def ti_min(source,covered): #最近len个数据的min值及这些min值的坐标
+    tm = 99999999
+    im = 0
+    rev = np.zeros_like(source)
+    irev = np.zeros_like(source)
+    length = len(source)
+    prelen = length > covered and covered or length
+    for i in range(prelen):
+        v = source[i]
+        if tm >= v: #以最近的那个最小值位置为准
+            tm = v
+            im = i
+        rev[i] = tm
+        irev[i] = im
+    buffer = deque([v for v in source[:prelen]])   #优化方法，避免vquit=source[i-covered]的方式，对nbarray的直接索引有严重的性能问题
+    for i in range(prelen,length):
+        v = source[i]
+        buffer.append(v)
+        vquit=buffer.popleft()
+        if tm >= v: #以最近的那个最小值位置为准
+            tm = v
+            im = i
+        if tm == vquit and v != tm: #退出的正好是最大值,计算前covered-1个元素的最大值, pre=source[i-1]
+            tm = np.min(source[i-covered+1:i+1])
+            im = i - np.argmin(source[i:i-covered:-1])  #计算离当前点最近的那个最小值,故必须倒序求位置,然后再反过来            
+        rev[i] = tm
+        irev[i] = im
+    return rev,irev
 
 def maxmin0(source,functor,limit):    #全周期顺序maxmin计算,即返回值每个元素都是从起始到它这个位置的最大/最小值
     rev = np.zeros_like(source)

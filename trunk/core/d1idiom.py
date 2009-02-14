@@ -20,14 +20,15 @@ def swingin(shigh,slow,covered,threshold):
         对任意i属于[0:len(shigh)),有shigh[i] >= slow[i]
         用于涨幅测试
     '''
-    return swing2(shigh,slow,covered) > threshold
+    #print swing2(shigh,slow,covered)
+    return lesser_equals(swing2(shigh,slow,covered),threshold)
     
 
 def swingin1(source,covered,threshold):
     ''' 测试source最近covered天内的波动幅度小于threshold
         用于涨幅测试
     '''
-    return swing(source,covered) > threshold
+    return lesser_equals(swing(source,covered),threshold)
 
 def upconfirm(sopen,sclose,shigh):#阳线突破确认
     sksize = ksize(sopen,sclose)

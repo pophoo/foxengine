@@ -72,8 +72,9 @@ def svama2(stock,fast,slow,sma=22,ma_standard=120):
     msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
     ma_standard = ma(t[CLOSE],ma_standard)
     trend_ma_standard = strend(ma_standard) > 0
-    sup = up_under(t[HIGH],t[LOW],10,300)    
-    return gand(g,msvap,trend_ma_standard,sup)
+    #sup = up_under(t[HIGH],t[LOW],10,300)    
+    #return gand(g,msvap,trend_ma_standard,sup)
+    return gand(g,msvap,trend_ma_standard)
 
 def svama2s(stock,fast,slow,sma=22,ma_standard=120,extend_days = 10):
     ''' svama两线交叉, 先是快线叉慢线,然后是慢线叉快线
@@ -106,8 +107,9 @@ def svama2s(stock,fast,slow,sma=22,ma_standard=120,extend_days = 10):
     msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
     ma_standard = ma(t[CLOSE],ma_standard)
     trend_ma_standard = strend(ma_standard) > 0
-    sup = up_under(t[HIGH],t[LOW],extend_days,300)    
-    return gand(g,msvap,trend_ma_standard,sup)
+    #sup = up_under(t[HIGH],t[LOW],extend_days,300)    
+    #return gand(g,msvap,trend_ma_standard,sup)
+    return gand(g,msvap,trend_ma_standard)
 
 def svama3(stock,fast,mid,slow,sma=22,ma_standard=120,extend_days=10):
     ''' svama三叉
@@ -153,8 +155,9 @@ def svama3(stock,fast,mid,slow,sma=22,ma_standard=120,extend_days=10):
 
     ma_standard = ma(t[CLOSE],ma_standard)
     trend_ma_standard = strend(ma_standard) > 0
-    sup = up_under(t[HIGH],t[LOW],extend_days,300)    
-    return gand(g,msvap,trend_ma_standard,sup)
+    #sup = up_under(t[HIGH],t[LOW],extend_days,300)    
+    #return gand(g,msvap,trend_ma_standard,sup)
+    return gand(g,msvap,trend_ma_standard)
 
 def vama2(stock,fast,slow,pre_length=120,ma_standard=120):
     ''' vama双叉
@@ -177,8 +180,9 @@ def vama2(stock,fast,slow,pre_length=120,ma_standard=120):
 
     ma_standard = ma(t[CLOSE],ma_standard)
     trend_ma_standard = strend(ma_standard) > 0
-    sup = up_under(t[HIGH],t[LOW],10,300)
-    return gand(g,msvap,trend_ma_standard,sup)
+    #sup = up_under(t[HIGH],t[LOW],10,300)
+    #return gand(g,msvap,trend_ma_standard,sup)
+    return gand(g,msvap,trend_ma_standard)
 
 def vama3(stock,fast,mid,slow,pre_length=120,ma_standard=120,extend_days=10):
     ''' vama三叉
@@ -212,7 +216,7 @@ def vama3(stock,fast,mid,slow,pre_length=120,ma_standard=120,extend_days=10):
 
     ma_standard = ma(t[CLOSE],ma_standard)
     trend_ma_standard = strend(ma_standard) > 0
-    sup = up_under(t[HIGH],t[LOW],10,300)    
-    return gand(g,msvap,trend_ma_standard,sup)
-
+    #sup = up_under(t[HIGH],t[LOW],10,300)    
+    #return gand(g,msvap,trend_ma_standard,sup)
+    return gand(g,msvap,trend_ma_standard)
 

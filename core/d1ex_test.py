@@ -174,6 +174,19 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,2000,200,666,2000],swing(np.array([10,30,25,15,45]),2).tolist())
         self.assertEquals([0,2000,2000,1000,2000],swing(np.array([10,30,25,15,45]),3).tolist())
 
+    def test_iswing(self):
+        sv,si = iswing(np.array([10,30,25,15,45]))
+        self.assertEquals([0,0,0,0,0],sv.tolist())
+        self.assertEquals([0,0,0,0,0],si.tolist())        
+        #
+        sv,si = iswing(np.array([10,30,25,15,45]),2)
+        self.assertEquals([0,2000,200,666,2000],sv.tolist())
+        self.assertEquals([0,1,-1,-1,1],si.tolist())        
+        #
+        sv,si = iswing(np.array([10,30,25,15,45]),3)
+        self.assertEquals([0,2000,2000,1000,2000],sv.tolist())
+        self.assertEquals([0,1,1,-2,1],si.tolist())        
+
     def test_gswing(self):
         base = np.array([10,10,10,10,10])
         self.assertEquals([0,2000,1000,500,3500],gswing(base,np.array([10,30,5,15,45])).tolist())
@@ -184,6 +197,35 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([1000,2000,5000,3000,3500],gswing(base,base2,np.array([10,30,5,15,45]),2).tolist())
         self.assertEquals([1000,2000,5000,5000,8000],gswing(base,base2,np.array([10,30,5,15,45]),3).tolist())
 
+    def test_giswing(self):
+        base = np.array([10,10,10,10,10])
+        #
+        sv,si = giswing(base,np.array([10,30,5,15,45]))
+        self.assertEquals([0,2000,1000,500,3500],sv.tolist())
+        self.assertEquals([0,0,0,0,0],si.tolist())
+        #
+        sv,si = giswing(base,np.array([10,30,5,15,45]),2)
+        self.assertEquals([0,2000,5000,2000,3500],sv.tolist())
+        self.assertEquals([0,0,-1,1,0],si.tolist())
+        #
+        sv,si = giswing(base,np.array([10,30,5,15,45]),3)
+        self.assertEquals([0,2000,5000,5000,8000],sv.tolist())
+        self.assertEquals([0,0,-1,-1,2],si.tolist())
+        #
+        base2 = np.array([20,20,20,20,20])
+        #
+        sv,si = giswing(base,base2,np.array([10,30,5,15,45]))
+        self.assertEquals([1000,2000,3000,1000,3500],sv.tolist())
+        self.assertEquals([0,0,0,0,0],si.tolist())
+        #
+        sv,si = giswing(base,base2,np.array([10,30,5,15,45]),2)
+        self.assertEquals([1000,2000,5000,3000,3500],sv.tolist())
+        self.assertEquals([0,0,-1,1,0],si.tolist())
+        #
+        sv,si = giswing(base,base2,np.array([10,30,5,15,45]),3)
+        self.assertEquals([1000,2000,5000,5000,8000],sv.tolist())
+        self.assertEquals([0,0,-1,-1,2],si.tolist())
+
     def test_swing2(self):
         slow = np.array([10,10,10,10,10,10])
         shigh = np.array([10,30,15,25,45,25])
@@ -191,6 +233,22 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,2000,2000,1500,3500,3500],swing2(shigh,slow,2).tolist())
         self.assertEquals([0,2000,2000,2000,3500,3500],swing2(shigh,slow,3).tolist())
 
+    def test_iswing2(self):
+        slow = np.array([10,10,10,10,10,10])
+        shigh = np.array([10,30,15,25,45,25])
+        #
+        sv,si = iswing2(shigh,slow)
+        self.assertEquals([0,2000,500,1500,3500,1500],sv.tolist())
+        self.assertEquals([0,0,0,0,0,0],si.tolist())
+        #
+        sv,si = iswing2(shigh,slow,2)
+        self.assertEquals([0,2000,2000,1500,3500,3500],sv.tolist())
+        self.assertEquals([0,0,-1,0,0,-1],si.tolist())
+        #
+        sv,si = iswing2(shigh,slow,3)
+        self.assertEquals([0,2000,2000,2000,3500,3500],sv.tolist())
+        self.assertEquals([0,0,-1,-2,0,-1],si.tolist())
+        
     def test_left_fill(self):
         self.assertEquals([],left_fill([]))
         self.assertEquals([0,0,0,0,0],left_fill(np.array([0,0,0,0,0])).tolist())
@@ -220,6 +278,55 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([1,1,1,1,1,1,1],tmin(np.array([1,2,3,4,5,6,7]),14).tolist())
         self.assertEquals([3,3,4,4,4,4],tmin(np.array([3,4,5,4,4,7]),2).tolist())
 
+    def test_ti_max(self):
+        r,ir = ti_max(np.array([7,6,5,4,3,2,1]),1)
+        self.assertEquals([7,6,5,4,3,2,1],r.tolist())
+        self.assertEquals([0,1,2,3,4,5,6],ir.tolist())
+        #
+        r,ir = ti_max(np.array([1,2,3,4,5,6,7]),2)
+        self.assertEquals([1,2,3,4,5,6,7],r.tolist())
+        self.assertEquals([0,1,2,3,4,5,6],ir.tolist())
+        #
+        r,ir = ti_max(np.array([7,6,5,4,3,2,1]),2)
+        self.assertEquals([7,7,6,5,4,3,2],r.tolist())
+        self.assertEquals([0,0,1,2,3,4,5],ir.tolist())
+        #
+        r,ir = ti_max(np.array([7,6,5,4,3,2,1]),14)
+        self.assertEquals([7,7,7,7,7,7,7],r.tolist())
+        self.assertEquals([0,0,0,0,0,0,0],ir.tolist())
+        #
+        #print '---------'
+        r,ir = ti_max(np.array([3,4,5,4,4,7]),2)
+        self.assertEquals([3,4,5,5,4,7],r.tolist())
+        self.assertEquals([0,1,2,2,4,5],ir.tolist())
+        #print '+++++++++++'
+ 
+    def test_ti_min(self):
+        r,ir = ti_min(np.array([3,4,5,4,4,7]),1)
+        self.assertEquals([3,4,5,4,4,7],r.tolist())
+        self.assertEquals([0,1,2,3,4,5],ir.tolist())
+        #
+        r,ir = ti_min(np.array([1,2,3,4,5,6,7]),2)
+        self.assertEquals([1,1,2,3,4,5,6],r.tolist())
+        self.assertEquals([0,0,1,2,3,4,5],ir.tolist())
+        #
+        r,ir = ti_min(np.array([7,6,5,4,3,2,1]),2)
+        self.assertEquals([7,6,5,4,3,2,1],r.tolist())
+        self.assertEquals([0,1,2,3,4,5,6],ir.tolist())
+        #
+        r,ir = ti_min(np.array([1,2,3,4,5,6,7]),14)
+        self.assertEquals([1,1,1,1,1,1,1],r.tolist())
+        self.assertEquals([0,0,0,0,0,0,0],ir.tolist())
+        #
+        r,ir = ti_min(np.array([3,4,5,4,4,7]),2)
+        self.assertEquals([3,3,4,4,4,4],r.tolist())
+        self.assertEquals([0,0,1,3,4,4],ir.tolist())
+        #
+        r,ir = ti_min(np.array([5,4,3,4,4,1]),2)
+        self.assertEquals([5,4,3,3,4,1],r.tolist())
+        self.assertEquals([0,1,2,2,4,5],ir.tolist())
+
+        
     def test_max0(self):
         self.assertEquals([7,7,7,7,7,7,7],max0(np.array([7,6,5,4,3,2,1])).tolist())
         self.assertEquals([1,2,3,4,5,6,7],max0(np.array([1,2,3,4,5,6,7])).tolist())

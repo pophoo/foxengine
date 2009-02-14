@@ -80,7 +80,7 @@ def run_body(sdata,dates,begin,end):
     print u'计算耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
-    save_configs('atr_sh2_ev.txt',configs,begin,end)
+    save_configs('atr_sh_3_ev.txt',configs,begin,end)
 
 def run_main(dates,sdata,idata,catalogs,begin,end):
     d_posort('g5',sdata.values(),distance=5)        

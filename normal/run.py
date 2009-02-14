@@ -9,6 +9,9 @@ import logging
 logger = logging.getLogger('wolfox.fengine.normal.run')    
 
 def run_body(sdata,dates,begin,end):
+    #import psyco
+    #psyco.full()
+    
     from time import time
     tbegin = time()
 
@@ -40,7 +43,6 @@ def run_body(sdata,dates,begin,end):
     #configs.append(config(buyer=fcustom(svama2s,fast=14,slow=88)))
     #configs.append(config(buyer=fcustom(svama2s,fast=8,slow=71)))
     #configs.append(config(buyer=fcustom(svama3,fast=12,mid=55,slow=119)))   
-    configs.append(config(buyer=fcustom(svama3,fast=23,mid=64,slow=120)))   #mm=1611,times=5
     #configs.append(config(buyer=fcustom(svama3,fast=31,mid=57,slow=30)))
     
     #configs.append(config(buyer=fcustom(vama3,fast=12,mid=59,slow=116)))
@@ -61,6 +63,7 @@ def run_body(sdata,dates,begin,end):
     #onfigs.append(config(buyer=fcustom(svama2,fast=5,slow=68)))    
     configs.append(config(buyer=fcustom(svama3,fast=12,mid=42,slow=127)))    #mm=2489,times=5
     configs.append(config(buyer=fcustom(svama3,fast=20,mid=64,slow=119)))    #mm=1622,times=4
+    #configs.append(config(buyer=fcustom(svama3,fast=23,mid=64,slow=120)))   #mm=1611,times=5    #基本同上
     #configs.append(config(buyer=fcustom(svama3,fast=12,mid=59,slow=116)))
     #configs.append(config(buyer=fcustom(svama3,fast=17,mid=57,slow=92)))    
     #configs.append(config(buyer=fcustom(vama3,fast=18,mid=52,slow=22)))    
@@ -77,7 +80,7 @@ def run_body(sdata,dates,begin,end):
     print u'计算耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
-    save_configs('atr1500b_ev.txt',configs,begin,end)
+    save_configs('atrPROFILE_ev.txt',configs,begin,end)
 
 def run_main(dates,sdata,idata,catalogs,begin,end):
     d_posort('g5',sdata.values(),distance=5)        
@@ -90,12 +93,15 @@ def run_main(dates,sdata,idata,catalogs,begin,end):
 if __name__ == '__main__':
     logging.basicConfig(filename="run.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
     
-    begin,end = 20010701,20080101
+    begin,end = 20010701,20060101
     from time import time
     tbegin = time()
     
     dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])    
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600050'],[ref_code])
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601398'],[ref_code])        
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,get_codes(),[ref_code])
     tend = time()
     print u'数据准备耗时: %s' % (tend-tbegin)    
     run_main(dates,sdata,idata,catalogs,begin,end)

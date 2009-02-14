@@ -428,10 +428,7 @@ def consecutive(source,value=1):
     return rev
 
 def swing(source,covered=1):    #波动幅度
-    vmax = tmax(source,covered)
-    vmin = tmin(source,covered)
-    vdiff = vmax-vmin
-    return vdiff*BASE/vmin
+    return swing2(source,source,covered)
 
 def swing2(shigh,slow,covered=1):   #已知高低序列的波动幅度
     vmax = tmax(shigh,covered)

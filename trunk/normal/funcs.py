@@ -149,7 +149,7 @@ def svama3(stock,fast,mid,slow,sma=22,ma_standard=120,extend_days=10):
     msvap = transform(sync3,v2i,len(t[VOLUME]))
 
     ma_standard = ma(t[CLOSE],ma_standard)
-    trend_ma_standard = trend(ma_standard) > 0
+    trend_ma_standard = strend(ma_standard) > 0
     return gand(g,msvap,trend_ma_standard)
 
 def vama2(stock,fast,slow,pre_length=120,ma_standard=120):

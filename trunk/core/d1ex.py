@@ -137,7 +137,7 @@ def repeat(source,interval=1): #interval必须大于0
         curcover -= 1
     return rev
 
-def extend(source,interval=1):#interval必须大于0
+def extend_old(source,interval=1):#interval必须大于0
     ''' 信号延伸，length为延伸值，将发生日及其后的length-1日的值赋值为发生日的值
         源序列中所有非0的数值都是信号
         假定-1位置无信号发生，从0开始如果没有新信号，仍然为0
@@ -152,6 +152,21 @@ def extend(source,interval=1):#interval必须大于0
             curextend -= 1
         rev[i] = v if curextend > 0 else 0
     return rev
+
+def extend(source,interval=1):#interval必须大于0
+    if len(source) == 0:
+        return np.array([])
+    rev = np.zeros_like(source)
+    indices = np.where(source != 0)[0]
+    cur=0
+    #print indices
+    for i in xrange(0,len(indices)):
+        index = indices[i]
+        rev[cur:cur+interval] = source[cur]
+        cur = index
+    rev[cur:] = source[cur]
+    return rev
+
 
 def extend2next(source):
     ''' 信号延伸，一直延伸到下一个信号
@@ -353,11 +368,12 @@ def sfollow(source1,source2,covered=1):
         两个序列都是!=0为有信号，但都建议>0表示有信号
     '''
     assert len(source1) == len(source2)
-    rev = np.zeros_like(source1)
+    #rev = np.zeros_like(source1)
     extended = extend(source1,covered) if covered>1 else source1
-    for i in xrange(len(source1)):
-        if(extended[i] != 0 and source2[i] != 0):
-            rev[i] = 1
+    rev = band(extended,source2)
+    #for i in xrange(len(source1)):
+    #    if(extended[i] and source2[i]):
+    #        rev[i] = 1
     return rev
 
 def syntony(source1,source2,covered = 1):

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import time
+import time as stime
 import unittest
 import logging
 
@@ -28,7 +28,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
         sout = sys.stdout.getvalue()
         logger.debug(u'geneticcruiser测试控制台输出:%s',sout)
         sys.stdout = self.tmp        #恢复标准I/O流
-        #print sout
+        print sout
        
     def test_geneticcruiser(self):
         begin,end = 20010101,20010201
@@ -68,7 +68,7 @@ class ExampleGeneticCruiser(gcruiser.GeneticCruiser):
 def buy_func_demo3(stock,fast,slow,extend_days = 20,**kwargs):
     t = stock.transaction
     logger.debug(stock.code)
-    print stock.code,time.time()
+    print stock.code,stime.time()
     sbuy = np.zeros_like(t[CLOSE])
     #sbuy[1]/sbuy[0]    #测试内存溢出时的logger
     #sbuy[2]/sbuy[0]

@@ -8,7 +8,7 @@ import numpy as np
 
 import logging
 
-from wolfox.fengine.core.d1 import greater
+from wolfox.fengine.core.d1 import greater,rollx
 from wolfox.fengine.core.d1indicator import atr
 from wolfox.fengine.core.future import mm_ratio,mm_sum
 from wolfox.fengine.core.d1idiom import B0S0,B0S1,B1S0,B1S1,BS_DUMMY
@@ -120,7 +120,8 @@ class MM_Mediator(Mediator):
             try:    #捕捉某些异常，如未划入任何板块的股票在计算板块相关信号时会出错
                 self.prepare(s,**kwargs)
                 sbuy = self.buy_signal_maker(s)
-                ssell = np.zeros_like(sbuy)
+                ssell = rollx(sbuy,2)  #便于trade匹配
+                trades.extend(self.trade_maker(tmaker,dates,s,sbuy,ssell,begin=begin))                
                 self.finishing(s,sbuy,ssell)
             except Exception,inst:
                 print u'dummy mediator _calc %s except : %s' % (s.code,inst)

@@ -91,11 +91,13 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         self.assertTrue(True)
 
     def test_rate_mfe_mae(self):
-        self.assertEquals((1000000000,0,0,0),rate_mfe_mae({}))
+        self.assertEquals((1,0,0,0),rate_mfe_mae({}))        
         s1 = BaseObject(mfe_sum=100,mae_sum=50,mm_count=10)
         s2 = BaseObject(mfe_sum=1000,mae_sum=500,mm_count=20)
         self.assertEquals((2000,1100,550,30),rate_mfe_mae({'s1':s1,'s2':s2}))
-
+        s3 = BaseObject(mfe_sum=100,mae_sum=0,mm_count=10)
+        s4 = BaseObject(mfe_sum=1000,mae_sum=0,mm_count=20)
+        self.assertEquals((1000000000,1100,0,30),rate_mfe_mae({'s3':s3,'s4':s4}))
 
     #------------------------------------------------------------------------------------------------
     #以下是已经deprecated的函数的测试，也相当于deprecated

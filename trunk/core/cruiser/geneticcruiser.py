@@ -28,7 +28,7 @@ class GeneticCruiser(object):
         self.argnames = self.args.keys()
         self.argpool = self.args.values()
         self.bitgroups = [ helper.calc_bitnumber(len(sp)) for sp in self.argpool]
-        print self.bitgroups
+        #print self.bitgroups
         self.celler = BCell    #这里只能是BCell
         #print self.argnames
         self.extractor = evmap[evmode]
@@ -66,7 +66,7 @@ class GeneticCruiser(object):
         return args
 
     def args2genes(self,args):#将参数值转化为基因串
-        print args,self.bitgroups
+        #print args,self.bitgroups
         assert len(args) == len(self.bitgroups)
         genes = []
         for i in xrange(len(args)):
@@ -82,7 +82,7 @@ class GeneticCruiser(object):
         #@utils.memory_guard(debug=True,gtype=tuple,criterion=lambda t:len(t)==2 and t[0] == 'long_scalars' and not t[1])
         #@utils.memory_guard(debug=True,gtype=tuple,criterion=lambda t:len(t) < 10)
         def judge(cell):
-            print 'enter judge'
+            #print 'enter judge'
             begin = stime.time()
             args = self.genes2args(cell.genes)
             name,ev = self.calc(sdata,dates,tbegin,evthreshold,**dict(zip(self.argnames,args)))

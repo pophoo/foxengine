@@ -80,7 +80,7 @@ def run_body(sdata,dates,begin,end):
     print u'计算耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
-    save_configs('atr_sz_3_ev.txt',configs,begin,end)
+    save_configs('atr_ev_test.txt',configs,begin,end)
 
 def run_main(dates,sdata,idata,catalogs,begin,end):
     d_posort('g5',sdata.values(),distance=5)        
@@ -99,10 +99,11 @@ if __name__ == '__main__':
     
     #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])
+    dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600050'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601398'],[ref_code])        
     #dates,sdata,idata,catalogs = prepare_all(begin,end,get_codes(),[ref_code])
-    dates,sdata,idata,catalogs = prepare_all(begin,end,get_codes(source='SZSE'),[ref_code])
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,get_codes(source='SZSE'),[ref_code])
     tend = time()
     print u'数据准备耗时: %s' % (tend-tbegin)    
     run_main(dates,sdata,idata,catalogs,begin,end)

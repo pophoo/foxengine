@@ -85,7 +85,6 @@ class Mediator(object):
         stock.mfe,stock.mae = mm_ratio(trans[CLOSE],trans[HIGH],trans[LOW],stock.atr,covered=mm_covered)
 
     def finishing(self,stock,sbuy,ssell):
-        #print '..........finishing.......'
         stock.mfe_sum,stock.mae_sum = mm_sum(sbuy,stock.mfe,stock.mae)
         stock.mm_count = int(np.sum(greater(sbuy)))
 

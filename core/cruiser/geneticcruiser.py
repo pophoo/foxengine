@@ -22,7 +22,7 @@ class GeneticCruiser(object):
         NCell/NCell2在ngeneticcruiser中实现(非常类似但除了makejudge之外都有微妙差别)
         CCell难以用于这种整数寻优中(可能只适用于小整数范围寻优或者字符代表策略的寻优)
     '''
-    def __init__(self,evmode='profit',psize=100,maxstep=100):
+    def __init__(self,evmode='profit',psize=100,maxstep=100,goal=10000):
         assert evmode in evmap
         self.prepare()   #准备argnames,argpool和template_func
         self.argnames = self.args.keys()
@@ -38,11 +38,12 @@ class GeneticCruiser(object):
         self.crossover = helper.bitgroups_crossover_factory(self.bitgroups,helper.single_point_crossover_g)
         self.reproducer = helper.simple_reproducer_factory(0.85,0.1)
         self.selector = helper.roulette_wheel_selection_factory(self.reproducer.times_of_length)        
+        self.goal = goal
         self.ev_result = {}
 
     def gcruise(self,sdata,dates,tbegin):
         judge = self.makejudge(sdata,dates,tbegin,self.extractor,lambda ev : self.extractor(ev) >= 0)
-        nature = Nature(judge,helper.nonlinear_rank,self.selector,self.reproducer,1001)
+        nature = Nature(judge,helper.nonlinear_rank,self.selector,self.reproducer,self.goal)
         population = self.predefined_population()
         population.extend(init_population_bc(self.celler,self.psize - len(population),sum(self.bitgroups),self.crossover))
         #print 'begin loop:',stime.time()
@@ -189,7 +190,7 @@ if __name__ == '__main__':
 
     d_posort('gorder',sdata.values(),distance=60)
     #trade_func = fcustom(normal_trade_func,begin=20010601)  #交易初始时间
-    cruiser = ExampleGeneticCruiser(psize=20,maxstep=2)
+    cruiser = ExampleGeneticCruiser(psize=20,maxstep=2,goal=20000)
     print 'before cruiser,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
     cruiser.gcruise(sdata,dates,20010601)
     print 'after cruiesr,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)

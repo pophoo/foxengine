@@ -93,6 +93,8 @@ def rate_mfe_mae(sdata):
         count_mm += s.mm_count
     if sum_mae:
         return (sum_mfe * BASE/sum_mae,sum_mfe,sum_mae,count_mm)
+    elif sum_mae == sum_mfe:
+        return (1,sum_mfe,sum_mae,count_mm)
     else:
         return (BASE * BASE * BASE,sum_mfe,sum_mae,count_mm)    #需要有明显差别
 

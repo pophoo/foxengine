@@ -28,6 +28,7 @@ class GeneticCruiser(object):
         self.argnames = self.args.keys()
         self.argpool = self.args.values()
         self.bitgroups = [ helper.calc_bitnumber(len(sp)) for sp in self.argpool]
+        print self.bitgroups
         self.celler = BCell    #这里只能是BCell
         #print self.argnames
         self.extractor = evmap[evmode]
@@ -65,6 +66,7 @@ class GeneticCruiser(object):
         return args
 
     def args2genes(self,args):#将参数值转化为基因串
+        print args,self.bitgroups
         assert len(args) == len(self.bitgroups)
         genes = []
         for i in xrange(len(args)):
@@ -106,6 +108,7 @@ class GeneticCruiser(object):
         ''' 设置预定义的子种群
             注意，这里的预定义子种群中每个基因组的值都是绝对参数值，需要转换成位置表示的索引值才能对应到genes
             比如 [10,11,21]对应于 (0,20),(10,100),(20,200)的参数范围时，实际的基因值应当是[10,1,1]
+            必须要有一个预定义子种，否则需要调用init_population_bc，要求size和length参数
         '''
         geness = []
         for arggroup in self.predefined:

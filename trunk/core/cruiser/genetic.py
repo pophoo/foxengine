@@ -34,7 +34,7 @@ class Nature(object):
         '''
         assert n > 0
         for i in range(n):
-            #print 'begin loop %s' % i
+            print 'begin loop %s' % i
             logger.debug(u'begin loop %s' % i)
             self.generation = i
             scores = [ self.cached_judge(cell) for cell in population]  #每代按目标值打分

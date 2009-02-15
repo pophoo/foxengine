@@ -51,9 +51,12 @@ class GeneticCruiser(object):
         result,loops = nature.run(population,self.maxstep)
         #print 'end loop:',stime.time()
         #print len(result),len(population)
-        for cell in result:
+        #for cell in result:
             #print zip(self.argnames,self.genes2args(cell.genes))
-            logger.debug('%s:%s',self.argnames,self.genes2args(cell.genes))
+            #logger.debug('%s:%s',self.argnames,self.genes2args(cell.genes))
+        for k,v in sorted(self.ev_result.items(),cmp=lambda x,y:x[1]-y[1]):  #排序
+            logger.debug('%s:%s',k,v)
+        
 
     def genes2args(self,genes):#将基因串转化为参数值
         ints = helper.bits2ints(self.bitgroups,genes)
@@ -101,6 +104,7 @@ class GeneticCruiser(object):
             #show_most_common_types()
             end = stime.time()
             print u'judge 耗时',end-begin #,begin,end
+            self.ev_result[name] = rv   #ev
             return rv
         judge.minev = -1000
         judge.minmm = 0
@@ -129,7 +133,7 @@ class GeneticCruiser(object):
         ev = self.evaluate_func(trades,**kwargs)  
         if(not evthreshold(ev)):
             ev.matchedtrades,ev.balances = [],[]    #相当于先删除。为保证ev的一致性而都赋为[]。否则str(ev)中的zip(...)会出错
-        self.ev_result[name] = ev
+        #self.ev_result[name] = ev  #移入到jduge中，因为可能值不是ev
         #print 'null list:',get_null_obj_number(list),',null tuple:',get_null_obj_number(tuple)
         return name,ev
 

@@ -80,13 +80,17 @@ class GeneticCruiser(object):
         #@utils.memory_guard(debug=True,gtype=tuple,criterion=lambda t:len(t)==2 and t[0] == 'long_scalars' and not t[1])
         #@utils.memory_guard(debug=True,gtype=tuple,criterion=lambda t:len(t) < 10)
         def judge(cell):
+            print 'enter judge'
             begin = stime.time()
             args = self.genes2args(cell.genes)
             name,ev = self.calc(sdata,dates,tbegin,evthreshold,**dict(zip(self.argnames,args)))
             if(ev.count > 0):
                 pass
                 #logger.debug(repr(ev))
-            rv = ev.count <=3 and judge.minev or extractor(ev)
+            #rv = ev.count <=3 and judge.minev or extractor(ev)
+            mm = rate_mfe_mae(sdata)
+            mm_ratio = mm[0]
+            rv = mm_ratio if ev.count > 3 else judge.minmm
             print rv,ev.count,zip(self.argnames,args)
             logger.debug('%s:%s:%s',name,ev.count,unicode(ev))
             #print 'array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
@@ -95,6 +99,7 @@ class GeneticCruiser(object):
             print u'judge 耗时',end-begin #,begin,end
             return rv
         judge.minev = -1000
+        judge.minmm = 0
         return judge
     
     def predefined_population(self):

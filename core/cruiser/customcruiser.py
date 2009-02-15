@@ -51,6 +51,9 @@ if __name__ == '__main__':
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601398'],[ref_code])        
     #dates,sdata,idata,catalogs = prepare_all(begin,end,get_codes(),[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,get_codes(source='SZSE'),[ref_code])
+    import psyco
+    psyco.full()
+
     d_posort('g5',sdata.values(),distance=5)        
     d_posort('g20',sdata.values(),distance=20)    
     d_posort('g120',sdata.values(),distance=120)     

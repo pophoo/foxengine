@@ -18,7 +18,8 @@ class Svama3Cruiser(GeneticCruiser):
         self.args = dict(fast=range(1,49),mid=range(2,100),slow=range(5,260)
                 ,sma=range(3,130),ma_standard=range(5,260),extend_days=range(5,36))
         self.buy_func = svama3
-        self.sell_func = csc_func
+        #self.sell_func = csc_func
+        self.sell_func = atr_seller
         self.predefined = [(1,2,5,3,5,5)]
         #self.sell_func = my_csc_func
         #self.trade_func = fcustom(normal_trade_func,begin=20010601)
@@ -27,15 +28,15 @@ class Svama3Cruiser(GeneticCruiser):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(filename="genetic_cruiser.log",level=logging.DEBUG,format='#%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
+    logging.basicConfig(filename="custom_cruiser.log",level=logging.DEBUG,format='#%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 
     begin,end = 20010101,20060101
     #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])
-    dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600050'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601398'],[ref_code])        
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,get_codes(),[ref_code])
+    dates,sdata,idata,catalogs = prepare_all(begin,end,get_codes(),[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,get_codes(source='SZSE'),[ref_code])
     d_posort('g5',sdata.values(),distance=5)        
     d_posort('g20',sdata.values(),distance=20)    

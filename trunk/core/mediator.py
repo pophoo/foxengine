@@ -110,3 +110,20 @@ OMediator10 = fcustom(Mediator,trade_signal_maker=make_trade_signal_advanced
 
 def mediator_factory(trade_signal_maker=make_trade_signal_advanced,trade_strategy=B1S0,pricer = cl_pricer):
     return fcustom(Mediator,trade_signal_maker = trade_signal_maker,trade_strategy = trade_strategy,pricer=pricer)
+
+class MM_Mediator(Mediator):
+    ''' 只用于计算mm_ratio的mediator
+    '''
+    def _calc(self,tmaker,sdata,dates,begin=0,**kwargs):
+        trades = []
+        for s in sdata.values():
+            try:    #捕捉某些异常，如未划入任何板块的股票在计算板块相关信号时会出错
+                self.prepare(s,**kwargs)
+                sbuy = self.buy_signal_maker(s)
+                ssell = np.zeros_like(sbuy)
+                self.finishing(s,sbuy,ssell)
+            except Exception,inst:
+                print u'dummy mediator _calc %s except : %s' % (s.code,inst)
+                logger.exception(u'%s calc error : %s',s.code,inst)
+        return trades
+

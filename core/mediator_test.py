@@ -117,7 +117,7 @@ class MediatorTest(unittest.TestCase):
         m.calc_last(sdata,dates)
         self.assertTrue(True)
         #空测试
-        m.calc_matched({},np.array([]))
+        m.calc_last({},np.array([]))
         self.assertTrue(True)
 
     def test_prepare(self):
@@ -148,6 +148,35 @@ class MediatorTest(unittest.TestCase):
 
 
 class MM_MediatorTest(unittest.TestCase):
+    def test_calc_matched(self):
+        a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
+        b = np.array([(11,12),(13,14),(15,16),(17,18),(19,110),(111,112),(113,114)])
+        sa = CommonObject(id=3,code='test1',transaction=a)
+        sb = CommonObject(id=3,code='test2',transaction=b)
+        dates = np.array([1,2])
+        sdata = {'sa':sa,'sb':sb}
+        fbuy = lambda x:np.array([1,0])
+        fsell = lambda x,y:np.array([0,1])
+        m = MM_Mediator(fbuy,fsell)
+        m.calc_matched(sdata,dates)
+        self.assertTrue(True)
+        #空测试
+        m.calc_matched({},np.array([]))
+        self.assertTrue(True)
+
+    def test__calc(self):
+        a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
+        b = np.array([(11,12),(13,14),(15,16),(17,18),(19,110),(111,112),(113,114)])
+        sa = CommonObject(id=3,code='test1',transaction=a)
+        sb = CommonObject(id=3,code='test2',transaction=b)
+        dates = np.array([1,2])
+        sdata = {'sa':sa,'sb':sb}
+        fbuy = lambda x:np.array([1,0])
+        fsell = lambda x,y:np.array([0,1])
+        ftrade = lambda x,y,z,a,c,begin:(1,2)
+        m = MM_Mediator(fbuy,fsell)
+        self.assertRaises(NotImplementedError,m._calc,ftrade,sdata,dates)
+        
     def test_calc(self):
         a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
         b = np.array([(11,12),(13,14),(15,16),(17,18),(19,110),(111,112),(113,114)])
@@ -158,11 +187,19 @@ class MM_MediatorTest(unittest.TestCase):
         fbuy = lambda x:np.array([1,0])
         fsell = lambda x,y:np.array([0,1])
         m = MM_Mediator(fbuy,fsell)
-        m.calc(sdata,dates)
-        self.assertTrue(True)
-        #空测试
-        m.calc_matched({},np.array([]))
-        self.assertTrue(True)
+        self.assertRaises(NotImplementedError,m.calc,sdata,dates)
+
+    def test_calc_last(self):
+        a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
+        b = np.array([(11,12),(13,14),(15,16),(17,18),(19,110),(111,112),(113,114)])
+        sa = CommonObject(id=3,code='test1',transaction=a)
+        sb = CommonObject(id=3,code='test2',transaction=b)
+        dates = np.array([1,2])
+        sdata = {'sa':sa,'sb':sb}
+        fbuy = lambda x:np.array([1,0])
+        fsell = lambda x,y:np.array([0,1])
+        m = MM_Mediator(fbuy,fsell)
+        self.assertRaises(NotImplementedError,m.calc_last,sdata,dates)
 
 
 if __name__ == "__main__":

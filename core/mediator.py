@@ -8,6 +8,7 @@ import numpy as np
 
 import logging
 
+from wolfox.fengine.base.common import Trade
 from wolfox.fengine.core.d1 import greater,rollx
 from wolfox.fengine.core.d1indicator import atr
 from wolfox.fengine.core.future import mm_ratio,mm_sum
@@ -111,18 +112,22 @@ OMediator10 = fcustom(Mediator,trade_signal_maker=make_trade_signal_advanced
 def mediator_factory(trade_signal_maker=make_trade_signal_advanced,trade_strategy=B1S0,pricer = cl_pricer):
     return fcustom(Mediator,trade_signal_maker = trade_signal_maker,trade_strategy = trade_strategy,pricer=pricer)
 
+dummy_trades = [Trade(-1,0,0,1),Trade(-1,0,0,-1)]
 class MM_Mediator(Mediator):
     ''' 只用于计算mm_ratio的mediator
     '''
     def _calc(self,tmaker,sdata,dates,begin=0,**kwargs):
+        raise NotImplementedError(u'MM_Mediator不能调用_calc')
+
+    def calc_matched(self,sdata,dates,begin=0,**kwargs):
         trades = []
         for s in sdata.values():
             try:    #捕捉某些异常，如未划入任何板块的股票在计算板块相关信号时会出错
                 self.prepare(s,**kwargs)
                 sbuy = self.buy_signal_maker(s)
-                ssell = rollx(sbuy,2)  #便于trade匹配
-                trades.extend(self.trade_maker(tmaker,dates,s,sbuy,ssell,begin=begin))                
-                self.finishing(s,sbuy,ssell)
+                for i in range(np.sum(sbuy)):   #假Trade数据
+                    trades.append(dummy_trades)
+                self.finishing(s,sbuy,None)
             except Exception,inst:
                 print u'dummy mediator _calc %s except : %s' % (s.code,inst)
                 logger.exception(u'%s calc error : %s',s.code,inst)

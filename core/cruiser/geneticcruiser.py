@@ -46,6 +46,7 @@ class GeneticCruiser(object):
         population = self.predefined_population()
         population.extend(init_population_bc(self.celler,self.psize - len(population),sum(self.bitgroups),self.crossover))
         #print 'begin loop:',stime.time()
+        print 'maxstep',self.maxstep
         result,loops = nature.run(population,self.maxstep)
         #print 'end loop:',stime.time()
         #print len(result),len(population)

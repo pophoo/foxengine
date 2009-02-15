@@ -47,14 +47,6 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
         print u'耗时: %s' % (tend-tbegin)
         logger.debug(u'耗时: %s' % (tend-tbegin))    
         
-        '''
-        evs = cruiser.ev_result.items()
-        evs.sort(key=lambda x:x[1],reverse=True)
-        for name,ev in evs:
-            #print name,unicode(ev)
-            pass
-        '''        
-
     def test_mm_geneticcruiser(self):
         begin,end = 20010101,20010201
         dates = get_ref_dates(begin,end)

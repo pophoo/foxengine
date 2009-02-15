@@ -51,12 +51,14 @@ class GeneticCruiser(object):
         result,loops = nature.run(population,self.maxstep)
         #print 'end loop:',stime.time()
         #print len(result),len(population)
+        self.log_result()
+
+    def log_result(self):
         #for cell in result:
             #print zip(self.argnames,self.genes2args(cell.genes))
             #logger.debug('%s:%s',self.argnames,self.genes2args(cell.genes))
-        for k,v in sorted(self.ev_result.items(),cmp=lambda x,y:x[1]-y[1]):  #排序
+        for k,v in sorted(self.ev_result.items(),cmp=lambda x,y:self.extractor(x[1])-self.extractor(y[1])):  #排序
             logger.debug('%s:%s',k,v)
-        
 
     def genes2args(self,genes):#将基因串转化为参数值
         ints = helper.bits2ints(self.bitgroups,genes)
@@ -94,20 +96,16 @@ class GeneticCruiser(object):
             if(ev.count > 0):
                 pass
                 #logger.debug(repr(ev))
-            #rv = ev.count <=3 and judge.minev or extractor(ev)
-            mm = rate_mfe_mae(sdata)
-            mm_ratio = mm[0]
-            rv = mm_ratio if ev.count > 3 else judge.minmm
+            rv = ev.count <=3 and judge.minev or extractor(ev)
             print rv,ev.count,zip(self.argnames,args)
             logger.debug('%s:%s:%s',name,ev.count,unicode(ev))
             #print 'array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
             #show_most_common_types()
             end = stime.time()
             print u'judge 耗时',end-begin #,begin,end
-            self.ev_result[name] = rv   #ev
+            self.ev_result[name] = ev   #ev
             return rv
         judge.minev = -1000
-        judge.minmm = 0
         return judge
     
     def predefined_population(self):
@@ -124,9 +122,6 @@ class GeneticCruiser(object):
     def calc(self,sdata,dates,tbegin,evthreshold,**kwargs):
         buy_func = fcustom(self.buy_func,**kwargs)
         sell_func = fcustom(self.sell_func,**kwargs)
-        #trade_func = fcustom(self.trade_func,**kwargs)        
-        #name = names(buy_func,sell_func,trade_func)
-        #trades = normal_calc_template(sdata,dates,buy_func,sell_func,trade_func)
         m = Mediator(buy_func,sell_func)
         name = m.name()
         trades = m.calc_matched(sdata,dates,begin=tbegin)
@@ -136,6 +131,56 @@ class GeneticCruiser(object):
         #self.ev_result[name] = ev  #移入到jduge中，因为可能值不是ev
         #print 'null list:',get_null_obj_number(list),',null tuple:',get_null_obj_number(tuple)
         return name,ev
+
+class MM_GeneticCruiser(GeneticCruiser):
+    def log_result(self):   #记录结果的mm_ratio
+        for k,v in sorted(self.ev_result.items(),cmp=lambda x,y:x[1]-y[1]):  #排序
+            logger.debug('%s:%s',k,v)
+
+    def makejudge(self,sdata,dates,tbegin,extractor,evthreshold = lambda ev : ev.rateavg >= 0):
+        ''' evthreshold:记录详细ev的门限函数
+        '''
+        #print 'common judge','-' * 40
+        #@utils.memory_guard(debug=True,gtype=tuple,criterion=lambda t:len(t)==2 and t[0] == 'long_scalars' and not t[1])
+        #@utils.memory_guard(debug=True,gtype=tuple,criterion=lambda t:len(t) < 10)
+        def judge(cell):
+            #print 'enter judge'
+            begin = stime.time()
+            args = self.genes2args(cell.genes)
+            name,ev = self.calc(sdata,dates,tbegin,evthreshold,**dict(zip(self.argnames,args)))
+            if(ev.count > 0):
+                pass
+                #logger.debug(repr(ev))
+            mm = rate_mfe_mae(sdata)
+            mm_ratio = mm[0]
+            rv = mm_ratio if ev.count > 3 else judge.minmm
+            print rv,ev.count,zip(self.argnames,args)
+            logger.debug('%s:%s:%s',name,ev.count,unicode(ev))
+            #print 'array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
+            #show_most_common_types()
+            end = stime.time()
+            print u'judge 耗时',end-begin #,begin,end
+            self.ev_result[name] = rv   #ev
+            return rv
+        judge.minmm = 0
+        return judge
+
+    def calc(self,sdata,dates,tbegin,evthreshold,**kwargs):
+        buy_func = fcustom(self.buy_func,**kwargs)
+        sell_func = fcustom(self.sell_func,**kwargs)
+        #trade_func = fcustom(self.trade_func,**kwargs)        
+        #name = names(buy_func,sell_func,trade_func)
+        #trades = normal_calc_template(sdata,dates,buy_func,sell_func,trade_func)
+        m = MM_Mediator(buy_func,sell_func)
+        name = m.name()
+        trades = m.calc_matched(sdata,dates,begin=tbegin)
+        ev = self.evaluate_func(trades,**kwargs)  
+        if(not evthreshold(ev)):
+            ev.matchedtrades,ev.balances = [],[]    #相当于先删除。为保证ev的一致性而都赋为[]。否则str(ev)中的zip(...)会出错
+        #self.ev_result[name] = ev  #移入到jduge中，因为可能值不是ev
+        #print 'null list:',get_null_obj_number(list),',null tuple:',get_null_obj_number(tuple)
+        return name,ev
+
 
 from wolfox.fengine.core.shortcut import *
 def buy_func_demo3(stock,fast,slow,extend_days = 20,**kwargs):
@@ -172,6 +217,18 @@ class ExampleGeneticCruiser(GeneticCruiser):
         self.evaluate_func = normal_evaluate
 
 
+class ExampleMMGeneticCruiser(GeneticCruiser):
+    def prepare(self):
+        self.args = {'fast':range(2,49),'slow':range(5,129)}
+        self.predefined = [(12,55),(20,120)]
+        self.buy_func = buy_func_demo3
+        self.sell_func = csc_func   #实质上无用
+        #self.sell_func = my_csc_func
+        #self.trade_func = fcustom(normal_trade_func,begin=20010601)
+        #self.trade_func = fcustom(my_trade_func,begin=20010601)
+        self.evaluate_func = normal_evaluate
+
+
 if __name__ == '__main__':
     logging.basicConfig(filename="genetic_cruiser.log",level=logging.DEBUG,format='#%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 
@@ -202,10 +259,8 @@ if __name__ == '__main__':
     print u'耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    
     
-    '''
-    evs = cruiser.ev_result.items()
-    evs.sort(key=lambda x:x[1],reverse=True)
-    for name,ev in evs:
-        #print name,unicode(ev)
-        pass
-    '''
+    print 'next mm_cruiser:'
+    cruiser = ExampleMMGeneticCruiser(psize=20,maxstep=2,goal=20000)
+    print 'before cruiser,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
+    cruiser.gcruise(sdata,dates,20010601)
+    

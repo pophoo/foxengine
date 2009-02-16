@@ -88,6 +88,7 @@ def rate_mfe_mae(sdata):
     sum_mfe,sum_mae = 0,0
     count_mm= 0
     for s in sdata.values():
+        #if s.mfe_sum > 0: print s.code
         sum_mfe += s.mfe_sum
         sum_mae += s.mae_sum
         count_mm += s.mm_count

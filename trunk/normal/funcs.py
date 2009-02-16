@@ -136,7 +136,8 @@ def svama3(stock,fast,mid,slow,sma=22,ma_standard=120,extend_days=10,**kwargs):
         ]    
     '''
     t = stock.transaction
-    g = gand(stock.g5 > stock.g20,stock.g20 > stock.g60,stock.g60 > stock.g120,stock.g120 > stock.g250)
+    #print stock.code,len(t[CLOSE]),sum(t[CLOSE])
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
     svap,v2i = svap_ma(t[VOLUME],t[CLOSE],sma)
     ma_svapfast = ma(svap,fast)
     ma_svapmid = ma(svap,mid)    
@@ -153,11 +154,15 @@ def svama3(stock,fast,mid,slow,sma=22,ma_standard=120,extend_days=10,**kwargs):
     sync3 = sfollow(sync_fast_2,cross_mid_slow,extend_days)
     msvap = transform(sync3,v2i,len(t[VOLUME]))
 
+    #print 'ma_standard:',ma_standard
     ma_standard = ma(t[CLOSE],ma_standard)
     trend_ma_standard = strend(ma_standard) > 0
     #sup = up_under(t[HIGH],t[LOW],extend_days,300)    
     #return gand(g,msvap,trend_ma_standard,sup)
-    return gand(g,msvap,trend_ma_standard)
+    sbuy = gand(g,msvap,trend_ma_standard)
+    #print sum(g),sum(msvap),sum(trend_ma_standard)
+    #print 'sum sbuy:',sum(sbuy)
+    return sbuy
 
 def vama2(stock,fast,slow,pre_length=120,ma_standard=120,**kwargs):
     ''' vama双叉

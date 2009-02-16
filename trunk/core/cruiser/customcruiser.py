@@ -48,11 +48,12 @@ if __name__ == '__main__':
     logging.basicConfig(filename="custom_cruiser_mm.log",level=logging.DEBUG,format='#%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 
     begin,end = 20010701,20060101
-    dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600050'],[ref_code])
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601398'],[ref_code])        
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601398'],[ref_code])
+    dates,sdata,idata,catalogs = prepare_all(begin,end,['SZ000630'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,get_codes(),[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,get_codes(source='SZSE'),[ref_code])
     import psyco

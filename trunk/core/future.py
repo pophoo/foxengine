@@ -48,6 +48,7 @@ def mm_sum_smooth(sbuy,smfe,smae,smooth=1):
     '''
     indices = sbuy > 0
     ssmfe = np.sort(smfe[indices])
+    #print ssmfe
     if smooth > len(ssmfe):
         smooth = len(ssmfe)
     avg_mfe = int(np.average(ssmfe) + 0.5)

@@ -33,7 +33,7 @@ class Svama3MMCruiser(MM_GeneticCruiser):
         self.buy_func = svama3
         #self.sell_func = csc_func
         self.sell_func = atr_seller
-        self.predefined = [(1,2,5,3,5,5)]
+        self.predefined = [(1,2,5,3,5,5),(45,76,85,51,65,5),(45,76,76,51,65,5)]
         #self.sell_func = my_csc_func
         #self.trade_func = fcustom(normal_trade_func,begin=20010601)
         #self.trade_func = fcustom(my_trade_func,begin=20010601)

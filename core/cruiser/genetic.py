@@ -46,8 +46,8 @@ class Nature(object):
             #print scores,fitness
             seeds,gametes = self.selector(population,fitness)    #选出所需数目的候选种子
             population = self.reproducer(seeds,gametes)  #交配
-            for k,v in sorted(self.judgecache.items(),cmp=lambda x,y:x[1]-y[1]):  #排序
-                logger.debug('%s:%s',k,v)
+        for k,v in sorted(self.judgecache.items(),cmp=lambda x,y:x[1]-y[1]):  #排序
+            logger.debug('%s:%s',k,v)
         return population,i 
  
     def cached_judge(self,cell): #judge缓存

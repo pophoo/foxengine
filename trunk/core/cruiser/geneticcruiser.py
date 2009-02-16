@@ -163,7 +163,7 @@ class MM_GeneticCruiser(GeneticCruiser):
             #show_most_common_types()
             end = stime.time()
             print u'judge 耗时',end-begin #,begin,end
-            self.ev_result[name] = rv   #ev
+            self.ev_result[name] = mm_ratio   #ev
             return rv
         judge.minmm = 0
         return judge

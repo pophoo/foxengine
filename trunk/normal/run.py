@@ -25,7 +25,7 @@ def run_body(sdata,dates,begin,end):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
     #configs.append(config(buyer=fcustom(ma3,fast=4,mid=45,slow=88)))
-    configs.append(config(buyer=fcustom(ma3,fast=8,mid=45,slow=70)))    #mm=1015,times=265
+    #configs.append(config(buyer=fcustom(ma3,fast=8,mid=45,slow=70)))    #mm=1015,times=265
 
     #configs.append(config(buyer=fcustom(svama2,fast=53,slow=108)))
     #configs.append(config(buyer=fcustom(svama2,fast=16,slow=61)))
@@ -47,8 +47,8 @@ def run_body(sdata,dates,begin,end):
     
     #configs.append(config(buyer=fcustom(vama3,fast=12,mid=59,slow=116)))
     #configs.append(config(buyer=fcustom(vama3,fast=20,mid=64,slow=119)))    
-    configs.append(config(buyer=fcustom(vama3,fast=29,mid=55,slow=100)))    #mm=1966,times=1 
-    configs.append(config(buyer=fcustom(vama3,fast=12,mid=45,slow=100)))    #mm=2030,times=7
+    #configs.append(config(buyer=fcustom(vama3,fast=29,mid=55,slow=100)))    #mm=1966,times=1 
+    #configs.append(config(buyer=fcustom(vama3,fast=12,mid=45,slow=100)))    #mm=2030,times=7
     #configs.append(config(buyer=fcustom(vama3,fast=25,mid=53,slow=124)))
     #configs.append(config(buyer=fcustom(vama3,fast=8,mid=43,slow=102)))
     
@@ -61,15 +61,17 @@ def run_body(sdata,dates,begin,end):
     #configs.append(config(buyer=fcustom(svama2,fast=1,slow=5)))    
     #configs.append(config(buyer=fcustom(svama2,fast=47,slow=94)))    
     #onfigs.append(config(buyer=fcustom(svama2,fast=5,slow=68)))    
-    configs.append(config(buyer=fcustom(svama3,fast=12,mid=42,slow=127)))    #mm=2489,times=5
-    configs.append(config(buyer=fcustom(svama3,fast=20,mid=64,slow=119)))    #mm=1622,times=4
+    #configs.append(config(buyer=fcustom(svama3,fast=12,mid=42,slow=127)))    #mm=2489,times=5
+    #configs.append(config(buyer=fcustom(svama3,fast=20,mid=64,slow=119)))    #mm=1622,times=4
     #configs.append(config(buyer=fcustom(svama3,fast=23,mid=64,slow=120)))   #mm=1611,times=5    #基本同上
     #configs.append(config(buyer=fcustom(svama3,fast=12,mid=59,slow=116)))
     #configs.append(config(buyer=fcustom(svama3,fast=17,mid=57,slow=92)))    
     #configs.append(config(buyer=fcustom(vama3,fast=18,mid=52,slow=22)))    
     
-
-
+    #svama3:slow=193,sma=129,ma_standard=140,mid=78,fast=35,extend_days=19:atr_seller:slow=193,sma=129,ma_standard=140,mid=78,fast=35,extend_days=19:make_trade_signal:B1S1
+    configs.append(config(buyer=fcustom(svama3,fast=35,mid=78,slow=193,sma=129,ms_standard=140,extend_days=19)))
+    configs.append(config(buyer=fcustom(svama3,fast=35,mid=80,slow=200,sma=120,ms_standard=140,extend_days=20)))
+    
     
     #configs = [config1,config2,config3]
     #configs = [config3]
@@ -93,13 +95,13 @@ def run_main(dates,sdata,idata,catalogs,begin,end):
 if __name__ == '__main__':
     logging.basicConfig(filename="run.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
     
-    begin,end = 20010701,20080101
+    begin,end = 20010701,20060101
     from time import time
     tbegin = time()
     
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
+    dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])
-    dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600050'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601398'],[ref_code])        
     #dates,sdata,idata,catalogs = prepare_all(begin,end,get_codes(),[ref_code])

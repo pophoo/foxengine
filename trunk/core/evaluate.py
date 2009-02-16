@@ -64,7 +64,7 @@ def evaluate_all(tradess,pos_manager,date_manager):
     '''
     pre_ev = evaluate(tradess)
 
-    spre = yaml.dump(pre_ev)
+    spre = unicode(pre_ev)
 
     #恢复干净环境，否则上一次调用时的trades还在pos_manager里面，但它们的parent已经被删除了,会在下次删除时出错
     pos_manager.clear() 
@@ -83,9 +83,10 @@ def evaluate_all(tradess,pos_manager,date_manager):
     #print 'types:',type(rev.RPR),type(rev.CSHARP),type(rev.AVGRANGE)
     #print type(rev.income_rate),type(rev.assets)
     srev = yaml.dump(rev)
+    #srev = unicode(g_ev)
 
-    for trades in g_ev.matchedtrades:
-        for trade in trades:
-            del trade.parent
-    sg = yaml.dump(g_ev)
-    return rev,'%s\n%s\n%s' % (spre,srev,sg)
+    #for trades in g_ev.matchedtrades:
+    #    for trade in trades:
+    #        del trade.parent
+    sg = unicode(g_ev)
+    return rev,'%s\npre_ev:\n%s\ng_ev:\n%s' % (srev,spre,sg)

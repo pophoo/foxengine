@@ -11,7 +11,7 @@ import logging
 from wolfox.fengine.base.common import Trade
 from wolfox.fengine.core.d1 import greater,rollx
 from wolfox.fengine.core.d1indicator import atr
-from wolfox.fengine.core.future import mm_ratio,mm_sum
+from wolfox.fengine.core.future import mm_ratio,mm_sum_smooth
 from wolfox.fengine.core.d1idiom import B0S0,B0S1,B1S0,B1S1,BS_DUMMY
 from wolfox.fengine.core.d1match import make_trade_signal,make_trade_signal_advanced
 from wolfox.fengine.core.trade import make_trades,last_trade,match_trades,default_extra,atr_extra
@@ -86,7 +86,7 @@ class Mediator(object):
         stock.mfe,stock.mae = mm_ratio(trans[CLOSE],trans[HIGH],trans[LOW],stock.atr,covered=mm_covered)
 
     def finishing(self,stock,sbuy,ssell):
-        stock.mfe_sum,stock.mae_sum = mm_sum(sbuy,stock.mfe,stock.mae)
+        stock.mfe_sum,stock.mae_sum = mm_sum_smooth(sbuy,stock.mfe,stock.mae,smooth=2)  #平滑掉两个最大值
         stock.mm_count = int(np.sum(greater(sbuy)))
 
 

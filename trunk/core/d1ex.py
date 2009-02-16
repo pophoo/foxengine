@@ -673,12 +673,14 @@ def limit1(source,uplimit=990,downlimit=-990):  #涨跌停板,返回值以1表�
     td = limitdown1(source,downlimit)
     return tu - td     
 
-def limitup2(high,low,limit=990):   #一字涨停,以万分之表示
-    return band(high-low==0,limitup1(high,limit))
+def limitup2(high,low,limit=990):   #一字涨停,以万分之表示,不再依赖limit,认为上涨一线就是停
+    #return band(high-low==0,limitup1(high,limit))
+    pre = rollx(high,1)
+    return band(high-low==0,pre<high)
 
 def limitdown2(high,low,limit=-990):   #一字跌停,以万分之表示
     pre = rollx(high,1)
-    return band(high-low==0,limitdown1(high,limit))
+    return band(high-low==0,pre>high)
 
 def limit2(high,low,uplimit=990,downlimit=-990):  #涨跌停板,返回值以1表示一字涨停,-1表示一字跌停
     tu = limitup2(high,low,uplimit)

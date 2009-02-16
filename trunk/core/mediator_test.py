@@ -141,7 +141,7 @@ class MediatorTest(unittest.TestCase):
         m = Mediator(fbuy,fsell)
         m.finishing(s,sbuy,sbuy)
         #print s.mfe_sum,s.mae_sum
-        self.assertEquals(10,s.mfe_sum)
+        self.assertEquals(8,s.mfe_sum)
         self.assertEquals(100,s.mae_sum)
         self.assertEquals(3,s.mm_count)
         self.assertEquals(type(1),type(s.mm_count))

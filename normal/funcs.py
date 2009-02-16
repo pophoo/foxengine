@@ -9,7 +9,7 @@ logger = logging.getLogger('wolfox.fengine.normal.funcs')
 import numpy as np
 from wolfox.fengine.internal import *
 
-def ma3(stock,fast,mid,slow,ma_standard=120,extend_days = 10,**kwargs):
+def ma3(stock,fast,mid,slow,ma_standard=120,extend_days = 10):
     ''' ma三线金叉
         不要求最慢的那条线在被快线交叉时趋势必须向上，但要求被中线交叉时趋势向上
         argnames= ['slow','middle','fast']
@@ -44,7 +44,7 @@ def ma3(stock,fast,mid,slow,ma_standard=120,extend_days = 10,**kwargs):
     sup = up_under(t[HIGH],t[LOW],extend_days,300)
     return gand(trend_ma_standard,confirm_cross,sup)
 
-def svama2(stock,fast,slow,sma=22,ma_standard=120,**kwargs):
+def svama2(stock,fast,slow,sma=22,ma_standard=120):
     ''' svama两线交叉
         argnames = ['slow','fast','threshold']
         arggroups = [ [4,53,30],
@@ -76,7 +76,7 @@ def svama2(stock,fast,slow,sma=22,ma_standard=120,**kwargs):
     #return gand(g,msvap,trend_ma_standard,sup)
     return gand(g,msvap,trend_ma_standard)
 
-def svama2s(stock,fast,slow,sma=22,ma_standard=120,extend_days = 10,**kwargs):
+def svama2s(stock,fast,slow,sma=22,ma_standard=120,extend_days = 10):
     ''' svama两线交叉, 先是快线叉慢线,然后是慢线叉快线
         argnames = ['slow','fast','threshold']
         arggroups = [ [4,53,30],
@@ -111,7 +111,7 @@ def svama2s(stock,fast,slow,sma=22,ma_standard=120,extend_days = 10,**kwargs):
     #return gand(g,msvap,trend_ma_standard,sup)
     return gand(g,msvap,trend_ma_standard)
 
-def svama3(stock,fast,mid,slow,sma=22,ma_standard=120,extend_days=10,**kwargs):
+def svama3(stock,fast,mid,slow,sma=22,ma_standard=120,extend_days=10):
     ''' svama三叉
         argnames = ['slow','middle','fast','threshold']
         arglist = [(3,128,1),(2,65,1),(1,32,1),(15,76,15)]
@@ -164,7 +164,7 @@ def svama3(stock,fast,mid,slow,sma=22,ma_standard=120,extend_days=10,**kwargs):
     #print 'sum sbuy:',sum(sbuy)
     return sbuy
 
-def vama2(stock,fast,slow,pre_length=120,ma_standard=120,**kwargs):
+def vama2(stock,fast,slow,pre_length=120,ma_standard=120):
     ''' vama双叉
         argnames = ['slow','fast']
         arggroups = [ [2,113],
@@ -189,7 +189,7 @@ def vama2(stock,fast,slow,pre_length=120,ma_standard=120,**kwargs):
     #return gand(g,msvap,trend_ma_standard,sup)
     return gand(g,msvap,trend_ma_standard)
 
-def vama3(stock,fast,mid,slow,pre_length=120,ma_standard=120,extend_days=10,**kwargs):
+def vama3(stock,fast,mid,slow,pre_length=120,ma_standard=120,extend_days=10):
     ''' vama三叉
         argnames = ['vama_standard','vamamiddle','vamafast']
             arggroups = [[116,59,12],

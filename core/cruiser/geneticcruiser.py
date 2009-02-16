@@ -28,6 +28,7 @@ class GeneticCruiser(object):
         self.argnames = [k for k,v in sorted(self.args.items())]    #为了方便预定义种子对位置的查找，因为dict是不保序的
         #self.argnames = self.args.keys()
         self.argpool = [v for k,v in sorted(self.args.items())]     #为了方便预定义种子对位置的查找，因为dict是不保序的   
+        #print self.argpool
         #self.argpool = self.args.values()
         self.bitgroups = [ helper.calc_bitnumber(len(sp)) for sp in self.argpool]
         #print self.bitgroups
@@ -80,9 +81,12 @@ class GeneticCruiser(object):
         genes = []
         items = sorted(args.items())
         for i in xrange(len(items)):
-            pos = locate(self.argpool[i],items[i])   #必然可以找到
+            #print self.argpool[i],items[i],items[i][0],items[i][1]
+            pos = locate(self.argpool[i],items[i][1])   #必然可以找到
             #print 'bitgroups[i]/pos',self.bitgroups[i],pos
             genes.extend(helper.int2bits(pos,self.bitgroups[i]))
+        #print items,',genes2args:',self.genes2args(genes)    
+        #print genes
         return genes
 
     def makejudge(self,sdata,dates,tbegin,extractor,evthreshold = lambda ev : ev.rateavg >= 0):
@@ -158,7 +162,7 @@ class MM_GeneticCruiser(GeneticCruiser):
             mm_ratio = mm[0]
             rv = mm_ratio if ev.count > 3 else judge.minmm
             print rv,ev.count,zip(self.argnames,args)
-            logger.debug('%s:%s:%s',name,ev.count,unicode(ev))
+            logger.debug('%s:mm:%s:%s:%s',name,mm,ev.count,unicode(ev))
             #print 'array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
             #show_most_common_types()
             end = stime.time()

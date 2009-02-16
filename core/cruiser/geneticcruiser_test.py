@@ -29,7 +29,13 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
         logger.debug(u'geneticcruiser测试控制台输出:%s',sout)
         sys.stdout = self.tmp        #恢复标准I/O流
         print sout
-       
+    
+    def test_args2genes_genes2args(self): #不动点测试
+        cruiser = ExampleGeneticCruiser(psize=16,maxstep=1)
+        genes = cruiser.args2genes(dict(fast=32,slow=81))
+        args = cruiser.genes2args(genes)
+        self.assertEquals([32,81],args)
+
     def test_geneticcruiser(self):
         begin,end = 20010101,20010201
         dates = get_ref_dates(begin,end)

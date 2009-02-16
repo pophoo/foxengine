@@ -68,7 +68,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
 class ExampleGeneticCruiser(gcruiser.GeneticCruiser):
     def prepare(self):
         self.args = {'fast':range(2,49),'slow':range(5,129)}
-        self.predefined = [(12,55),(20,120)]
+        self.predefined = [dict(fast=12,slow=55),dict(fast=20,slow=120)]
         self.buy_func = buy_func_demo3
         self.sell_func = my_csc_func
         #self.trade_func = fcustom(my_trade_func,begin=20010601)
@@ -77,7 +77,7 @@ class ExampleGeneticCruiser(gcruiser.GeneticCruiser):
 class ExampleMMGeneticCruiser(gcruiser.MM_GeneticCruiser):
     def prepare(self):
         self.args = {'fast':range(2,49),'slow':range(5,129)}
-        self.predefined = [(12,55),(20,120)]
+        self.predefined = [dict(fast=12,slow=55),dict(fast=20,slow=120)]
         self.buy_func = buy_func_demo3
         self.sell_func = my_csc_func    #无用
         #self.trade_func = fcustom(my_trade_func,begin=20010601)

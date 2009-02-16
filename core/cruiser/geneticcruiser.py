@@ -25,8 +25,10 @@ class GeneticCruiser(object):
     def __init__(self,evmode='profit',psize=100,maxstep=100,goal=10000):
         assert evmode in evmap
         self.prepare()   #准备argnames,argpool和template_func
-        self.argnames = self.args.keys()
-        self.argpool = self.args.values()
+        self.argnames = [k for k,v in sorted(self.args.items())]    #为了方便预定义种子对位置的查找，因为dict是不保序的
+        #self.argnames = self.args.keys()
+        self.argpool = [v for k,v in sorted(self.args.items())]     #为了方便预定义种子对位置的查找，因为dict是不保序的   
+        #self.argpool = self.args.values()
         self.bitgroups = [ helper.calc_bitnumber(len(sp)) for sp in self.argpool]
         #print self.bitgroups
         self.celler = BCell    #这里只能是BCell
@@ -76,8 +78,9 @@ class GeneticCruiser(object):
         #print args,self.bitgroups
         assert len(args) == len(self.bitgroups)
         genes = []
-        for i in xrange(len(args)):
-            pos = locate(self.argpool[i],args[i])   #必然可以找到
+        items = sorted(args.items())
+        for i in xrange(len(items)):
+            pos = locate(self.argpool[i],items[i])   #必然可以找到
             #print 'bitgroups[i]/pos',self.bitgroups[i],pos
             genes.extend(helper.int2bits(pos,self.bitgroups[i]))
         return genes
@@ -208,7 +211,7 @@ def buy_func_demo3(stock,fast,slow,extend_days = 20,**kwargs):
 class ExampleGeneticCruiser(GeneticCruiser):
     def prepare(self):
         self.args = {'fast':range(2,49),'slow':range(5,129)}
-        self.predefined = [(12,55),(20,120)]
+        self.predefined = [dict(fast=12,slow=55),dict(fast=20,slow=120)]
         self.buy_func = buy_func_demo3
         self.sell_func = csc_func
         #self.sell_func = my_csc_func
@@ -220,7 +223,7 @@ class ExampleGeneticCruiser(GeneticCruiser):
 class ExampleMMGeneticCruiser(GeneticCruiser):
     def prepare(self):
         self.args = {'fast':range(2,49),'slow':range(5,129)}
-        self.predefined = [(12,55),(20,120)]
+        self.predefined = [dict(fast=12,slow=55),dict(fast=20,slow=120)]
         self.buy_func = buy_func_demo3
         self.sell_func = csc_func   #实质上无用
         #self.sell_func = my_csc_func

@@ -20,7 +20,7 @@ class Svama3Cruiser(GeneticCruiser):
         self.buy_func = svama3
         #self.sell_func = csc_func
         self.sell_func = atr_seller
-        self.predefined = [(1,2,5,3,5,5)]
+        self.predefined = [dict(fast=1,mid=2,slow=5,sma=3,ma_standard=5,extend_days=5)]
         #self.sell_func = my_csc_func
         #self.trade_func = fcustom(normal_trade_func,begin=20010601)
         #self.trade_func = fcustom(my_trade_func,begin=20010601)
@@ -33,7 +33,9 @@ class Svama3MMCruiser(MM_GeneticCruiser):
         self.buy_func = svama3
         #self.sell_func = csc_func
         self.sell_func = atr_seller
-        self.predefined = [(1,2,5,3,5,5),(45,76,85,51,65,5),(45,76,76,51,65,5)]
+        self.predefined = [dict(fast=1,mid=2,slow=5,sma=3,ma_standard=5,extend_days=5)
+                ,dict(fast=45,mid=76,slow=85,sma=51,ma_standard=65,extend_days=5)
+                ,dict(fast=45,mid=76,slow=76,sma=51,ma_standard=65,extend_days=5)]
         #self.sell_func = my_csc_func
         #self.trade_func = fcustom(normal_trade_func,begin=20010601)
         #self.trade_func = fcustom(my_trade_func,begin=20010601)

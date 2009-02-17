@@ -116,12 +116,12 @@ if __name__ == '__main__':
     logging.basicConfig(filename="custom_cruiser_mm.log",level=logging.DEBUG,format='#%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 
     begin,end = 20010701,20060101
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
+    dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600050'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601398'],[ref_code])
-    dates,sdata,idata,catalogs = prepare_all(begin,end,['SZ000630'],[ref_code])
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SZ000630'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,get_codes(),[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,get_codes(source='SZSE'),[ref_code])
     import psyco
@@ -131,8 +131,8 @@ if __name__ == '__main__':
     d_posort('g20',sdata.values(),distance=20)    
     d_posort('g120',sdata.values(),distance=120)     
     d_posort('g250',sdata.values(),distance=250)     
-    cruiser = Svama3MMCruiser(psize=16,maxstep=1,goal=0)
-    #cruiser = Svama3MMCruiser(psize=100,maxstep=50,goal=20000)
+    #cruiser = Svama3MMCruiser(psize=16,maxstep=1,goal=0)
+    cruiser = Svama3MMCruiser(psize=100,maxstep=50,goal=20000)
     print 'before cruiser,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
     cruiser.gcruise(sdata,dates,20010701)    
     print 'after cruiesr,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)    

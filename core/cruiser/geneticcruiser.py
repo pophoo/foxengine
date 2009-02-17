@@ -169,7 +169,7 @@ class MM_GeneticCruiser(GeneticCruiser):
                 #logger.debug(repr(ev))
             mm = rate_mfe_mae(sdata)
             mm_ratio = mm[0]
-            rv = mm_ratio if ev.count > 3 else judge.minmm
+            rv = abs(mm_ratio) if ev.count > 3 else judge.minmm
             print rv,ev.count,zip(self.argnames,args)
             logger.debug('%s:mm:%s',name,mm) #,ev.count),unicode(ev.header()))
             #print 'array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)

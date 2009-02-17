@@ -70,7 +70,7 @@ def run_body(sdata,dates,begin,end):
     #configs.append(config(buyer=fcustom(svama3,fast=35,mid=78,slow=193,sma=129,ma_standard=140,extend_days=19)))
     #configs.append(config(buyer=fcustom(svama3,fast=35,mid=80,slow=200,sma=120,ma_standard=140,extend_days=20)))
     configs.append(config(buyer=fcustom(svama3,fast=15,mid=94,slow=209,sma=24,ma_standard=202,extend_days=30)))    
-    #configs.append(config(buyer=fcustom(svama3,fast=15,mid=90,slow=210,sma=25,ma_standard=200,extend_days=30)))
+    configs.append(config(buyer=fcustom(svama3,fast=15,mid=90,slow=210,sma=25,ma_standard=200,extend_days=30)))
 
     #configs = [config1,config2,config3]
     #configs = [config3]
@@ -120,22 +120,22 @@ def run_mm_body(sdata,dates,begin,end):
 if __name__ == '__main__':
     logging.basicConfig(filename="run.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
     
-    begin,end = 20010701,20060101
+    begin,end = 20010701,20090101
     from time import time
     tbegin = time()
     
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
+    dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601398'],[ref_code])        
-    dates,sdata,idata,catalogs = prepare_all(begin,end,['SZ000630'],[ref_code])        
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SZ000630'],[ref_code])        
     #dates,sdata,idata,catalogs = prepare_all(begin,end,get_codes(),[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,get_codes(source='SZSE'),[ref_code])
     tend = time()
     print u'数据准备耗时: %s' % (tend-tbegin)    
-    #run_main(dates,sdata,idata,catalogs,begin,end)
     import psyco
     psyco.full()
-    
-    run_mm_main(dates,sdata,idata,catalogs,begin,end)
+
+    run_main(dates,sdata,idata,catalogs,begin,end)
+    #run_mm_main(dates,sdata,idata,catalogs,begin,end)

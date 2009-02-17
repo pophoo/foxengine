@@ -157,12 +157,12 @@ def svama3(stock,fast,mid,slow,sma=22,ma_standard=120,extend_days=10):
     #print 'ma_standard:',ma_standard
     ma_standard = ma(t[CLOSE],ma_standard)
     trend_ma_standard = strend(ma_standard) > 0
-    #sup = up_under(t[HIGH],t[LOW],extend_days,300)    
-    #return gand(g,msvap,trend_ma_standard,sup)
-    sbuy = gand(g,msvap,trend_ma_standard)
+    sup = up_under(t[HIGH],t[LOW],extend_days,300)    
+    return gand(g,msvap,trend_ma_standard,sup)
+    #sbuy = gand(g,msvap,trend_ma_standard)
     #print sum(g),sum(msvap),sum(trend_ma_standard)
     #print 'sum sbuy:',sum(sbuy)
-    return sbuy
+    #return sbuy
 
 def vama2(stock,fast,slow,pre_length=120,ma_standard=120):
     ''' vama双叉

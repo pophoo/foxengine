@@ -69,9 +69,13 @@ def run_body(sdata,dates,begin,end):
     #svama3:slow=193,sma=129,ma_standard=140,mid=78,fast=35,extend_days=19:atr_seller:slow=193,sma=129,ma_standard=140,mid=78,fast=35,extend_days=19:make_trade_signal:B1S1
     #configs.append(config(buyer=fcustom(svama3,fast=35,mid=78,slow=193,sma=129,ma_standard=140,extend_days=19)))
     #configs.append(config(buyer=fcustom(svama3,fast=35,mid=80,slow=200,sma=120,ma_standard=140,extend_days=20)))
-    configs.append(config(buyer=fcustom(svama3,fast=15,mid=94,slow=209,sma=24,ma_standard=202,extend_days=30)))    
-    configs.append(config(buyer=fcustom(svama3,fast=15,mid=90,slow=210,sma=25,ma_standard=200,extend_days=30)))
-
+    #configs.append(config(buyer=fcustom(svama3,fast=15,mid=94,slow=209,sma=24,ma_standard=202,extend_days=30)))    
+    #configs.append(config(buyer=fcustom(svama3,fast=15,mid=90,slow=210,sma=25,ma_standard=200,extend_days=30)))
+    #-34745 4 [('extend_days', 13), ('fast', 6), ('ma_standard', 227), ('mid', 34), ('slow', 69), ('sma', 21)]
+    configs.append(config(buyer=fcustom(svama3,fast=6,mid=34,slow=69,sma=21,ma_standard=227,extend_days=13)))
+    configs.append(config(buyer=fcustom(svama3,fast=6,mid=35,slow=70,sma=20,ma_standard=220,extend_days=13)))
+    #3968 17 [('extend_days', 26), ('fast', 8), ('ma_standard', 48), ('mid', 90), ('slow', 34), ('sma', 20)]
+    
     #configs = [config1,config2,config3]
     #configs = [config3]
     #configs = [config1,config2]

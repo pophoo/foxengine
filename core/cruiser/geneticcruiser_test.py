@@ -36,6 +36,15 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
         args = cruiser.genes2args(genes)
         self.assertEquals([32,81],args)
 
+    def test_log_result_mm(self):
+        cruiser = ExampleMMGeneticCruiser(psize=16,maxstep=1)
+        cruiser.ev_result['test1'] = (10,11,11,11)
+        cruiser.ev_result['test2'] = (11,10,10,10)
+        cruiser.log_result()
+        self.assertTrue(True)
+        cruiser.ev_result['test3'] = 11
+        self.assertRaises(ValueError,cruiser.log_result)
+
     def test_geneticcruiser(self):
         begin,end = 20010101,20010201
         dates = get_ref_dates(begin,end)
@@ -52,7 +61,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
         tend = time()
         print u'耗时: %s' % (tend-tbegin)
         logger.debug(u'耗时: %s' % (tend-tbegin))    
-        
+
     def test_mm_geneticcruiser(self):
         begin,end = 20010101,20010201
         dates = get_ref_dates(begin,end)
@@ -75,7 +84,7 @@ class ExampleGeneticCruiser(gcruiser.GeneticCruiser):
     def prepare(self):
         self.args = {'fast':range(2,49),'slow':range(5,129)}
         self.predefined = [dict(fast=12,slow=55),dict(fast=20,slow=120)]
-        self.buy_func = buy_func_demo3
+        self.buy_func = buy_func_demo
         self.sell_func = my_csc_func
         #self.trade_func = fcustom(my_trade_func,begin=20010601)
         self.evaluate_func = normal_evaluate
@@ -84,20 +93,19 @@ class ExampleMMGeneticCruiser(gcruiser.MM_GeneticCruiser):
     def prepare(self):
         self.args = {'fast':range(2,49),'slow':range(5,129)}
         self.predefined = [dict(fast=12,slow=55),dict(fast=20,slow=120)]
-        self.buy_func = buy_func_demo3
+        self.buy_func = buy_func_demo
         self.sell_func = my_csc_func    #无用
         #self.trade_func = fcustom(my_trade_func,begin=20010601)
         self.evaluate_func = normal_evaluate
 
 
-def buy_func_demo3(stock,fast,slow,extend_days = 20,**kwargs):
+def buy_func_demo(stock,fast,slow,extend_days = 20,**kwargs):
+    logger.debug('calc: %s ' % stock.code)
     t = stock.transaction
-    logger.debug(stock.code)
-    print stock.code,stime.time()
-    sbuy = np.zeros_like(t[CLOSE])
-    #sbuy[1]/sbuy[0]    #测试内存溢出时的logger
-    #sbuy[2]/sbuy[0]
-    return sbuy
+    rev = np.ones_like(t[CLOSE])
+    rev = [1 if i/3==0 else 0 for i in xrange(len(t[CLOSE]))]
+    return np.array(rev)
+
 
 #两个空桩基
 def my_csc_func(stock,buy_signal,threshold=75,**kwargs):   #kwargs目的是吸收无用参数，便于cruiser

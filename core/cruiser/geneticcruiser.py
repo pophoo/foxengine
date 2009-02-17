@@ -119,12 +119,14 @@ class GeneticCruiser(object):
         ''' 设置预定义的子种群
             注意，这里的预定义子种群中每个基因组的值都是绝对参数值，需要转换成位置表示的索引值才能对应到genes
             比如 [10,11,21]对应于 (0,20),(10,100),(20,200)的参数范围时，实际的基因值应当是[10,1,1]
-            必须要有一个预定义子种，否则需要调用init_population_bc，要求size和length参数
         '''
         geness = []
         for arggroup in self.predefined:
             geness.append(self.args2genes(arggroup))
-        return init_population_bc_with_geness(self.celler,geness,self.crossover)
+        if geness:
+            return init_population_bc_with_geness(self.celler,geness,self.crossover)
+        else:
+            return []
 
     def calc(self,sdata,dates,tbegin,evthreshold,**kwargs):
         buy_func = fcustom(self.buy_func,**kwargs)
@@ -141,8 +143,15 @@ class GeneticCruiser(object):
 
 class MM_GeneticCruiser(GeneticCruiser):
     def log_result(self):   #记录结果的mm_ratio
-        for k,v in sorted(self.ev_result.items(),cmp=lambda x,y:x[1]-y[1]):  #排序
-            logger.debug('%s:%s',k,v)
+        try:    #这里有时候会抛出异常，非常奇怪，没找到原因，但先如此
+            #print 'logger:..................'
+            for k,v in sorted(self.ev_result.items(),cmp=lambda x,y:x[1][0]-y[1][0]):  #排序
+                logger.debug('%s:%s',k,v)
+        except Exception,inst:
+            logger.exception(u'log_result出错:%s',unicode(inst))
+            for k,v in self.ev_result.items():  #排序
+                logger.debug('%s:%s',k,v)
+            raise ValueError('in log_result')
 
     def makejudge(self,sdata,dates,tbegin,extractor,evthreshold = lambda ev : ev.rateavg >= 0):
         ''' evthreshold:记录详细ev的门限函数
@@ -162,12 +171,12 @@ class MM_GeneticCruiser(GeneticCruiser):
             mm_ratio = mm[0]
             rv = mm_ratio if ev.count > 3 else judge.minmm
             print rv,ev.count,zip(self.argnames,args)
-            logger.debug('%s:mm:%s:%s:%s',name,mm,ev.count,unicode(ev))
+            logger.debug('%s:mm:%s',name,mm) #,ev.count),unicode(ev.header()))
             #print 'array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
             #show_most_common_types()
             end = stime.time()
             print u'judge 耗时',end-begin #,begin,end
-            self.ev_result[name] = mm_ratio   #ev
+            self.ev_result[name] = mm    #mm   #ev
             return rv
         judge.minmm = 0
         return judge

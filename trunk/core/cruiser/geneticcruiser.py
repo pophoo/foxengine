@@ -145,7 +145,7 @@ class MM_GeneticCruiser(GeneticCruiser):
     def log_result(self):   #记录结果的mm_ratio
         try:    #这里有时候会抛出异常，非常奇怪，没找到原因，但先如此
             #print 'logger:..................'
-            for k,v in sorted(self.ev_result.items(),cmp=lambda x,y:x[1][0]-y[1][0]):  #排序
+            for k,v in sorted(self.ev_result.items(),cmp=lambda x,y:abs(x[1][0])-abs(y[1][0])):  #排序
                 logger.debug('%s:%s',k,v)
         except Exception,inst:
             logger.exception(u'log_result出错:%s',unicode(inst))

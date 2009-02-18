@@ -132,7 +132,8 @@ if __name__ == '__main__':
     d_posort('g120',sdata.values(),distance=120)     
     d_posort('g250',sdata.values(),distance=250)     
     #cruiser = Svama3MMCruiser(psize=16,maxstep=1,goal=0)
-    cruiser = Svama3MMCruiser(psize=100,maxstep=50,goal=20000)
+    #cruiser = Svama3MMCruiser(psize=100,maxstep=50,goal=200000)    #goal不能太小
+    cruiser = Svama2MMCruiser(psize=100,maxstep=50,goal=200000)
     print 'before cruiser,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
     cruiser.gcruise(sdata,dates,20010701)    
     print 'after cruiesr,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)    

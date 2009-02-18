@@ -134,6 +134,12 @@ def svama3(stock,fast,mid,slow,sma=22,ma_standard=120,extend_days=10):
             [44,61,7,75],
             [20,48,30,60]
         ]    
+
+        可以考虑信号发出n天内，突然放水10-20%到下位支撑(20,55,120)[附近]然后向上
+            或者强势盘整幅度越来越小    见600117 20030115的信号(6,12,69,ex=13,ma=227,sma=21)
+            另四线理顺也是启动的强势附件
+            并考虑筛选条件，如10内涨幅超过20-25%
+
     '''
     t = stock.transaction
     #print stock.code,len(t[CLOSE]),sum(t[CLOSE])

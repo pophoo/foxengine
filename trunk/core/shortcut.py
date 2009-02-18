@@ -109,7 +109,7 @@ def save_configs(filename,configs,begin,end):
         f.write('\nname:%s\npre_ev:%s\ngev:%s' % (config.name,r.pre_ev,r.g_ev))
         f.write('\nR:%s\nCSHARP:%s\nAVGRANGE:%s\nMAXRANGE:%s\nINRATE:%s' % (r.RPR,r.CSHARP,r.AVGRANGE,r.MAXRANGE,r.income_rate))
         f.write('\nMMRatio:%s,mfe:%s,mae:%s,mm_count:%s' % config.mm)
-        if config.mm[0] > BASE:
+        if abs(config.mm[0]) > BASE:
             f.write('\n%s' % config.strade)
         f.write('\n**************************************************')
     f.close()

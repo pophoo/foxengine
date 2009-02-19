@@ -30,7 +30,7 @@ class Svama3MMCruiser(MM_GeneticCruiser):
     def prepare(self):
         print 'prepare:'
         self.args = dict(fast=range(1,49),mid=range(2,100),slow=range(5,260)
-                ,sma=range(3,130),ma_standard=range(5,260),extend_days=range(1,36)
+                ,sma=range(3,130,2),ma_standard=range(5,260,5),extend_days=range(1,36,2)
                 )
         self.buy_func = lambda stock,fast,mid,slow,sma,ma_standard,extend_days,**kwargs:svama3(stock,fast,mid,slow,sma,ma_standard,extend_days)
         #self.buy_func = lambda stock,fast,mid,slow,sma,ma_standard,extend_days,**kwargs:np.ones_like(stock.transaction[CLOSE])
@@ -63,7 +63,7 @@ class Svama2sMMCruiser(MM_GeneticCruiser):
     def prepare(self):
         print 'prepare:'
         self.args = dict(fast=range(1,49),slow=range(5,260)
-                ,sma=range(3,130),ma_standard=range(5,260),extend_days=range(1,36)
+                ,sma=range(3,130,2),ma_standard=range(5,260,5),extend_days=range(1,36,2)
                 )
         self.buy_func = lambda stock,fast,slow,sma,ma_standard,extend_days,**kwargs:svama2s(stock,fast,slow,sma,ma_standard,extend_days)
         #kwargs用于吸收其它函数所需的参数
@@ -75,8 +75,8 @@ class Vama2MMCruiser(MM_GeneticCruiser):
     def prepare(self):
         print 'prepare:'
         self.args = dict(fast=range(1,49),slow=range(5,260)
-                ,pre_length=(1,200)                
-                ,ma_standard=range(5,260)
+                ,pre_length=(1,200,5)                
+                ,ma_standard=range(5,260,5)
                 )
         self.buy_func = lambda stock,fast,slow,pre_length,ma_standard,**kwargs:vama2(stock,fast,slow,pre_length,ma_standard)
         #kwargs用于吸收其它函数所需的参数
@@ -88,9 +88,9 @@ class Vama3MMCruiser(MM_GeneticCruiser):
     def prepare(self):
         print 'prepare:'
         self.args = dict(fast=range(1,49),mid=range(2,100),slow=range(5,260)
-                ,pre_length=(1,200)                
-                ,ma_standard=range(5,260)
-                ,extend_days=(1,36)
+                ,pre_length=(1,200,5)                
+                ,ma_standard=range(5,260,5)
+                ,extend_days=(1,36,2)
                 )
         self.buy_func = lambda stock,fast,mid,slow,pre_length,ma_standard,extend_days,**kwargs:vama3(stock,fast,mid,slow,pre_length,ma_standard,extend_days)
         #kwargs用于吸收其它函数所需的参数
@@ -102,7 +102,7 @@ class Ma3MMCruiser(MM_GeneticCruiser):
     def prepare(self):
         print 'prepare:'
         self.args = dict(fast=range(1,49),mid=range(2,100),slow=range(5,260)
-                ,ma_standard=range(5,260)
+                ,ma_standard=range(5,260,5)
                 ,extend_days=(1,36)
                 )
         self.buy_func = lambda stock,fast,mid,slow,ma_standard,extend_days,**kwargs:ma3(stock,fast,mid,slow,ma_standard,extend_days)

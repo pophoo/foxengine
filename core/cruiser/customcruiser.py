@@ -75,7 +75,7 @@ class Vama2MMCruiser(MM_GeneticCruiser):
     def prepare(self):
         print 'prepare:'
         self.args = dict(fast=range(1,49),slow=range(5,260)
-                ,pre_length=(1,200,5)                
+                ,pre_length=range(1,200,5)                
                 ,ma_standard=range(5,260,5)
                 )
         self.buy_func = lambda stock,fast,slow,pre_length,ma_standard,**kwargs:vama2(stock,fast,slow,pre_length,ma_standard)
@@ -88,9 +88,9 @@ class Vama3MMCruiser(MM_GeneticCruiser):
     def prepare(self):
         print 'prepare:'
         self.args = dict(fast=range(1,49),mid=range(2,100),slow=range(5,260)
-                ,pre_length=(1,200,5)                
+                ,pre_length=range(1,200,5)                
                 ,ma_standard=range(5,260,5)
-                ,extend_days=(1,36,2)
+                ,extend_days=range(1,36,2)
                 )
         self.buy_func = lambda stock,fast,mid,slow,pre_length,ma_standard,extend_days,**kwargs:vama3(stock,fast,mid,slow,pre_length,ma_standard,extend_days)
         #kwargs用于吸收其它函数所需的参数
@@ -103,7 +103,7 @@ class Ma3MMCruiser(MM_GeneticCruiser):
         print 'prepare:'
         self.args = dict(fast=range(1,49),mid=range(2,100),slow=range(5,260)
                 ,ma_standard=range(5,260,5)
-                ,extend_days=(1,36)
+                ,extend_days=range(1,36,2)
                 )
         self.buy_func = lambda stock,fast,mid,slow,ma_standard,extend_days,**kwargs:ma3(stock,fast,mid,slow,ma_standard,extend_days)
         #kwargs用于吸收其它函数所需的参数
@@ -134,7 +134,8 @@ if __name__ == '__main__':
     #cruiser = Svama3MMCruiser(psize=16,maxstep=1,goal=0)
     #cruiser = Svama3MMCruiser(psize=100,maxstep=50,goal=2000000)    #goal不能太小
     #cruiser = Svama2MMCruiser(psize=100,maxstep=50,goal=2000000)
-    cruiser = Svama2sMMCruiser(psize=100,maxstep=50,goal=2000000)
+    #cruiser = Svama2sMMCruiser(psize=100,maxstep=50,goal=2000000)
+    cruiser = Vama3MMCruiser(psize=100,maxstep=50,goal=2000000)
     print 'before cruiser,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
     cruiser.gcruise(sdata,dates,20010701)    
     print 'after cruiesr,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)    

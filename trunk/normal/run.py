@@ -101,6 +101,8 @@ def run_body(sdata,dates,begin,end):
     ##<<lambda>:slow=132,sma=36,ma_standard=9,extend_days=8,fast=2,mid=45:atr_seller:slow=132,sma=36,ma_standard=9,extend_days=8,fast=2,mid=45:make_trade_signal:B1S1>:(1374, 123999, 90234, 56)    
     configs.append(config(buyer=fcustom(svama3,fast=2,mid=45,slow=132,sma=36,ma_standard=9,extend_days=8)))
 
+    #以下是svama2
+
     #configs = [config1,config2,config3]
     #configs = [config3]
     #configs = [config1,config2]

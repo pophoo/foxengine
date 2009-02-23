@@ -73,6 +73,28 @@ class ModuleTest(unittest.TestCase):    #只测试通道
     def test_batch_except(self):
         pass    #计算内部的异常已经在mediator._calc中吸收了
 
+    def test_merge(self):
+        pman = AdvancedPositionManager()
+        dman = DateManager(20010101,20010215)
+        dummy = range(45)
+        a = np.array([dummy,dummy,dummy,dummy,dummy,dummy,dummy,dummy])
+        b = np.array([dummy,dummy,dummy,dummy,dummy,dummy,dummy,dummy])
+        sa = CommonObject(id=3,code='test1',transaction=a)
+        sb = CommonObject(id=3,code='test2',transaction=b)
+        sdata = {'sa':sa,'sb':sb}
+        dates = np.arange(20010101,20010146)    #45个采样点，避免在计算CSHARP中线形回归的时候报警
+        r1,s1 = merge([],sdata,dates,20010101,pman,dman)    #空测试
+        self.assertEquals(0,r1.pre_ev.count)
+        self.assertEquals(0,r1.g_ev.count)        
+        self.assertTrue(True)
+        buyer = lambda x:np.ones(45,int)
+        c1 = BaseObject(buyer=buyer,seller=atr_seller,pman=pman,dman=dman)
+        c2 = BaseObject(buyer=buyer,seller=atr_seller,pman=pman,dman=dman)
+        r2,s2 = merge([c1,c2],sdata,dates,20010101,pman,dman)
+        self.assertEquals(0,r2.pre_ev.count)
+        self.assertEquals(0,r2.g_ev.count)        
+        self.assertTrue(True)
+
     def test_save_configs(self):
         result = BaseObject(RPR=1,CSHARP=0,AVGRANGE=(1,2),MAXRANGE=(3,4),income_rate=123,pre_ev=[1,2],g_ev=[3,4])
         config = BaseObject(name='test',result=result,strade='test strade',mm=(100,80,80,5))
@@ -80,6 +102,13 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         save_configs('test_save_configs.txt',[],20010101,20050101)
         save_configs('test_save_configs.txt',[config,config],20010101,20050101)
         os.remove('test_save_configs.txt')
+
+    def test_save_merged(self):
+        result = BaseObject(RPR=1,CSHARP=0,AVGRANGE=(1,2),MAXRANGE=(3,4),income_rate=123,pre_ev=[1,2],g_ev=[3,4])
+        strade='test strade'
+        import os
+        save_merged('test_save_merged.txt',result,strade,20010101,20050101)
+        os.remove('test_save_merged.txt')
 
     def test_prepare_all(self):#只测试通路
         import wolfox.fengine.core.shortcut as sc

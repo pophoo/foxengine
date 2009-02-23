@@ -84,6 +84,25 @@ def batch(configs,sdata,dates,begin,**kwargs):
             #traceback.print_stack()
             logger.exception('batch error:buyer name=%s,seller name=%s',buyer.__name__,seller.__name__)
 
+def merge(configs,sdata,dates,begin,pman,dman,**kwargs):
+    merged_trades = []
+    for config in configs:
+        try:
+            tbegin = time()            
+            buyer = config.buyer
+            seller = config.seller
+            name,tradess = calc_trades(buyer,seller,sdata,dates,begin,**kwargs)
+            merged_trades.extend(tradess)
+            tend = time()
+            logger.debug(u'merge finished:%s,耗时:%s',name,tend-tbegin)
+        except Exception,inst:
+            print 'merge error:',inst
+            #import traceback
+            #traceback.print_stack()
+            logger.exception('batch error:buyer name=%s,seller name=%s',buyer.__name__,seller.__name__)
+    result,strade = ev.evaluate_all(merged_trades,pman,dman)
+    return result,strade
+
 def rate_mfe_mae(sdata):
     sum_mfe,sum_mae = 0,0
     count_mm= 0
@@ -112,6 +131,16 @@ def save_configs(filename,configs,begin,end):
         if abs(config.mm[0]) > BASE:
             f.write('\n%s' % config.strade)
         f.write('\n**************************************************')
+    f.close()
+
+def save_merged(filename,result,strade,begin,end):
+    f = file(filename,'a')
+    f.write('\n\n\n------------------------------------------------------------------------------------------------------------')
+    f.write('\n\nbegin=%s,end=%s' % (begin,end))
+    f.write('\n\n------------------------------------------------------------------------------------------------------------')    
+    f.write('\nmerged:\npre_ev:%s\ngev:%s' % (result.pre_ev,result.g_ev))
+    f.write('\nR:%s\nCSHARP:%s\nAVGRANGE:%s\nMAXRANGE:%s\nINRATE:%s' % (result.RPR,result.CSHARP,result.AVGRANGE,result.MAXRANGE,result.income_rate))
+    f.write('\n%s' % strade)
     f.close()
 
 

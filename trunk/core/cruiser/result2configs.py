@@ -47,23 +47,39 @@ def lines2configs(name,rf,wf):
     groups = pmappings[name].groups
     cmm_pattern = re.compile(mm_pattern)
     for line in rf:
-        if not line.rstrip():   #滤掉空行
-            continue
-        s_mm = transform(line,cmm_pattern,mm_groups)
-        s_key = transform(line,pattern,groups)
-        if s_key:
-            oline = 'configs.append(config(buyer=fcustom(%s,%s))) #%s\n' % (name,s_key,s_mm)
+        try:
+            s_mm = transform(line,cmm_pattern,mm_groups)
+            s_key = transform(line,pattern,groups)
+            oline = 'configs.append(config(buyer=fcustom(%s,%s))) \t#%s\n' % (name,s_key,s_mm)
             #print oline
             wf.write(oline)
+        except:
+            if not line.rstrip():
+                print u'空行'
+            else:
+                print u'匹配错误',line
+            pass    #空行或者别的
         
 def transform(line,pattern,groups):
     x = re.search(pattern,line)
     #print pattern,line
     lss = []
     for grp in groups:
-        lss.append('%s=%s' % (grp,x.group(grp)))
+        lss.append('%s=%3d' % (grp,int(x.group(grp))))
     ss = ','.join(lss)
     return ss
 
 
+import optparse
+if __name__ == '__main__':
+    #python result2configs.py -t svama2 -i custom_cruiser_mm_svama2.txt -o svama2_configs.txt     
+    logging.basicConfig(filename="r2c.log",level=logging.DEBUG,format='#%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
+    parser = optparse.OptionParser()
+    parser.add_option('--type','-t',help="转换类型")    
+    parser.add_option('--fin','-i',help="输入文件")
+    parser.add_option('--fout','-o',help="输出文件")
+    options,arguments = parser.parse_args()
+    
+    result2configs(options.type,options.fin,options.fout)
+ 
 

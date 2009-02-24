@@ -16,7 +16,7 @@ def run_body(sdata,dates,begin,end):
     pman = AdvancedATRPositionManager()
     dman = DateManager(begin,end)
     myMediator=mediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
-    seller = atr_seller_factory(stop_times=1500)
+    seller = atr_seller_factory(stop_times=2000,trace_times=3000)
     #seller = csc_func
     #pman = AdvancedPositionManager()
 
@@ -325,7 +325,7 @@ def run_mm_body(sdata,dates,begin,end):
 if __name__ == '__main__':
     logging.basicConfig(filename="run.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
     
-    begin,end = 20010701,20060101
+    begin,end = 20010701,20080101
     from time import time
     tbegin = time()
     

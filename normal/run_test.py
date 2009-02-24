@@ -11,8 +11,9 @@ if 'DJANGO_SETTINGS_MODULE' not in os.environ:
     import wolfox.foxit.other_settings.settings_sqlite_test as settings
     setup_environ(settings)
 
-from wolfox.fengine.core.shortcut import *
-from wolfox.fengine.normal.run import run_main,run_mm_main
+from wolfox.fengine.core.shortcut import *  #因为已经设置了测试环境，所以这里因external导致的环境将不会设置
+import wolfox.fengine.normal.run as run
+from wolfox.fengine.normal.funcs import svama3
 
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.run_test')
@@ -22,23 +23,56 @@ class ModuleTest(unittest.TestCase):    #保持run的有效性
         from StringIO import StringIO
         self.tmp = sys.stdout
         sys.stdout = StringIO()  #将标准I/O流重定向到buff对象，抑制输出
+        self.old_prepare_configs = run.prepare_configs  #保存run.prepare_configs，因为run/run_mm将重写它
 
     def tearDown(self):
         sout = sys.stdout.getvalue()
         logger.debug(u'demo测试控制台输出:%s',sout)
         sys.stdout = self.tmp        #恢复标准I/O流
         #print sout
-    
-    def test_run(self):
-        begin,end = 20010101,20060101
+        run.prepare_configs = self.old_prepare_configs
+
+    def dummy_prepare_configs(self,seller,pman,dman):
+        config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
+        configs = []
+        configs.append(config(buyer=fcustom(svama3,fast=6,mid=24,slow=49,sma=21,ma_standard=60,extend_days=13)))
+        return configs
+
+    def test_prepare_configs(self):
+        pman = AdvancedATRPositionManager()
+        dman = DateManager(20010101,20040101)
+        seller = atr_seller_factory(stop_times=2000,trace_times=3000)
+        configs = run.prepare_configs(seller,pman,dman)
+        self.assertTrue(len(configs) > 1)
+
+    def test_prepare_order(self):
+        begin,end = 20010101,20010701
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        run_main(dates,sdata,idata,catalogs,begin,end)        
+        run.prepare_order(sdata)
+        self.assertTrue(True)
+
+    def test_run(self):
+        begin,end = 20010101,20010701
+        xbegin = 20010401
+        dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        run.prepare_configs = self.dummy_prepare_configs
+        run.run_main(dates,sdata,idata,catalogs,begin,end,xbegin)        
         self.assertTrue(True)
 
     def test_run_mm(self):
-        begin,end = 20010101,20060101
+        begin,end = 20010101,20010701
+        xbegin = 20010401
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        run_mm_main(dates,sdata,idata,catalogs,begin,end)        
+        run.prepare_configs = self.dummy_prepare_configs
+        run.run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)        
+        self.assertTrue(True)
+
+    def test_run_merge(self):
+        begin,end = 20010101,20010701
+        xbegin = 20010401
+        dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        run.prepare_configs = self.dummy_prepare_configs
+        run.run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)        
         self.assertTrue(True)
 
 

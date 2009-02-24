@@ -73,6 +73,24 @@ class ModuleTest(unittest.TestCase):    #只测试通道
     def test_batch_except(self):
         pass    #计算内部的异常已经在mediator._calc中吸收了
 
+    def test_mm_batch(self):
+        dummy = range(45)
+        a = np.array([dummy,dummy,dummy,dummy,dummy,dummy,dummy,dummy])
+        b = np.array([dummy,dummy,dummy,dummy,dummy,dummy,dummy,dummy])
+        sa = CommonObject(id=3,code='test1',transaction=a)
+        sb = CommonObject(id=3,code='test2',transaction=b)
+        sdata = {'sa':sa,'sb':sb}
+        dates = np.arange(20010101,20010146)    #45个采样点，避免在计算CSHARP中线形回归的时候报警
+        mm_batch([],sdata,dates,20010101)    #空测试
+        self.assertTrue(True)
+        buyer = lambda x:np.ones(45,int)
+        c1 = BaseObject(buyer=buyer,seller=atr_seller,pman=None,dman=None)
+        c2 = BaseObject(buyer=buyer,seller=atr_seller,pman=None,dman=None)
+        mm_batch([c1,c2],sdata,dates,20010101)
+        self.assertTrue(c1.name)
+        self.assertEquals(c1.name,c2.name)
+        self.assertTrue(True)
+
     def test_merge(self):
         pman = AdvancedPositionManager()
         dman = DateManager(20010101,20010215)
@@ -102,6 +120,13 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         save_configs('test_save_configs.txt',[],20010101,20050101)
         save_configs('test_save_configs.txt',[config,config],20010101,20050101)
         os.remove('test_save_configs.txt')
+
+    def test_save_mm_configs(self):
+        config = BaseObject(name='test',mm=(100,80,80,5))
+        import os
+        save_mm_configs('test_save_mm_configs.txt',[],20010101,20050101)
+        save_mm_configs('test_save_mm_configs.txt',[config,config],20010101,20050101)
+        os.remove('test_save_mm_configs.txt')
 
     def test_save_merged(self):
         result = BaseObject(RPR=1,CSHARP=0,AVGRANGE=(1,2),MAXRANGE=(3,4),income_rate=123,pre_ev=[1,2],g_ev=[3,4])

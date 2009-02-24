@@ -13,12 +13,16 @@ svama2_pattern = r'ma_standard=(?P<ma_standard>\d+),slow=(?P<slow>\d+),fast=(?P<
 svama2_groups = ['fast','slow','sma','ma_standard']
 svama3_pattern = r'slow=(?P<slow>\d+),sma=(?P<sma>\d+),ma_standard=(?P<ma_standard>\d+),extend_days=(?P<extend_days>\d+),fast=(?P<fast>\d+),mid=(?P<mid>\d+)'
 svama3_groups = ['fast','mid','slow','sma','ma_standard','extend_days']
+
 svama2s_pattern = r'ma_standard=(?P<ma_standard>\d+),slow=(?P<slow>\d+),extend_days=(?P<extend_days>\d+),fast=(?P<fast>\d+),sma=(?P<sma>\d+)'
 svama2s_groups = ['fast','slow','sma','ma_standard','extend_days']
+
 vama3_pattern = r'slow=(?P<slow>\d+),pre_length=(?P<pre_length>\d+),ma_standard=(?P<ma_standard>\d+),extend_days=(?P<extend_days>\d+),fast=(?P<fast>\d+),mid=(?P<mid>\d+)'
 vama3_groups = ['fast','mid','slow','pre_length','ma_standard','extend_days']
+
 vama2_pattern = r'slow=(?P<slow>\d+),pre_length=(?P<pre_length>\d+),ma_standard=(?P<ma_standard>\d+),fast=(?P<fast>\d+)'
 vama2_groups = ['fast','slow','pre_length','ma_standard']
+
 ma3_pattern = r'slow=(?P<slow>\d+),ma_standard=(?P<ma_standard>\d+),extend_days=(?P<extend_days>\d+),fast=(?P<fast>\d+),mid=(?P<mid>\d+)'
 ma3_groups = ['fast','mid','slow','ma_standard','extend_days']
 
@@ -53,7 +57,8 @@ def lines2configs(name,rf,wf):
             oline = '    configs.append(config(buyer=fcustom(%s,%s))) \t#%s\n' % (name,s_key,s_mm)
             #print oline
             wf.write(oline)
-        except:
+        except Exception,inst:
+            logger.exception(inst)
             if not line.rstrip():
                 print u'空行'
             else:
@@ -62,7 +67,7 @@ def lines2configs(name,rf,wf):
         
 def transform(line,pattern,groups):
     x = re.search(pattern,line)
-    #print pattern,line
+    #print pattern.pattern,line
     lss = []
     for grp in groups:
         lss.append('%s=%3d' % (grp,int(x.group(grp))))

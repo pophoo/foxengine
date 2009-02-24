@@ -38,7 +38,7 @@ class ModuleTest(unittest.TestCase):
         line = '''#wolfox.fengine.core.shortcut:log_result:145:2009-02-18 23:04:30,875 DEBUG Mediator:<<lambda>:ma_standard=172,slow=176,fast=22,sma=9:atr_seller:ma_standard=172,slow=176,fast=22,sma=9:make_trade_signal:B1S1>:(1391, 13520, 9718, 7)'''
         pattern = re.compile(r'''ma_standard=(?P<ma_standard>\d+),slow=(?P<slow>\d+),fast=(?P<fast>\d+),sma=(?P<sma>\d+)''')
         groups = ['fast','slow','sma','ma_standard']
-        self.assertEquals('fast=22,slow=176,sma=9,ma_standard=172',transform(line,pattern,groups))
+        self.assertEquals('fast= 22,slow=176,sma=  9,ma_standard=172',transform(line,pattern,groups))
 
     def test_results2configs(self): #只测试通路
         rfile = open(file_input,'w+')

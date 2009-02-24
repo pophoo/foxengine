@@ -8,18 +8,7 @@ from wolfox.fengine.normal.funcs import *
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.run')    
 
-def run_body(sdata,dates,begin,end):
-    
-    from time import time
-    tbegin = time()
-
-    pman = AdvancedATRPositionManager()
-    dman = DateManager(begin,end)
-    myMediator=mediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
-    seller = atr_seller_factory(stop_times=2000,trace_times=3000)
-    #seller = csc_func
-    #pman = AdvancedPositionManager()
-
+def prepare_configs(seller,pman,dman):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
     #configs.append(config(buyer=fcustom(vama3,fast=12,mid=45,slow=100)))    #mm=2030,times=7
@@ -73,7 +62,7 @@ def run_body(sdata,dates,begin,end):
     #<<lambda>:slow=122,sma=100,ma_standard=239,extend_days=21,fast=45,mid=87:atr_seller:slow=122,sma=100,ma_standard=239,extend_days=21,fast=45,mid=87:make_trade_signal:B1S1>:(3283, 16557, 5042, 7)
     configs.append(config(buyer=fcustom(svama3,fast=45,mid=87,slow=122,sma=100,ma_standard=239,extend_days=21)))
     ##<<lambda>:slow=196,sma=47,ma_standard=128,extend_days=6,fast=44,mid=86:atr_seller:slow=196,sma=47,ma_standard=128,extend_days=6,fast=44,mid=86:make_trade_signal:B1S1>:(5143, 9387, 1825, 2)
-    configs.append(config(buyer=fcustom(svama3,fast=44,id=86,slow=196,sma=47,ma_standard=128,extend_days=6)))
+    configs.append(config(buyer=fcustom(svama3,fast=44,mid=86,slow=196,sma=47,ma_standard=128,extend_days=6)))
     ##<<lambda>:slow=196,sma=111,ma_standard=240,extend_days=26,fast=12,mid=22:atr_seller:slow=196,sma=111,ma_standard=240,extend_days=26,fast=12,mid=22:make_trade_signal:B1S1>:(2979, 15747, 5286, 6)
     configs.append(config(buyer=fcustom(svama3,fast=12,mid=22,slow=196,sma=111,ma_standard=240,extend_days=26)))
     ##<<lambda>:slow=124,sma=28,ma_standard=236,extend_days=29,fast=1,mid=23:atr_seller:slow=124,sma=28,ma_standard=236,extend_days=29,fast=1,mid=23:make_trade_signal:B1S1>:(2830, 32933, 11635, 12)
@@ -276,56 +265,94 @@ def run_body(sdata,dates,begin,end):
     configs.append(config(buyer=fcustom(vama3,fast=  5,mid= 25,slow=137,pre_length=156,ma_standard=230,extend_days= 11))) 	#balance=13524,times=  3    
 
     #以下是vama2
+    
+    return configs
 
-    #configs = [config1,config2,config3]
-    #configs = [config3]
-    #configs = [config1,config2]
-    batch(configs,sdata,dates,begin,cmediator=myMediator)
-
-    tend = time()
-    print u'计算耗时: %s' % (tend-tbegin)
-    logger.debug(u'耗时: %s' % (tend-tbegin))    
-
-    save_configs('atr_ev_svama3.txt',configs,begin,end)
-
-def run_main(dates,sdata,idata,catalogs,begin,end):
+def prepare_order(sdata):
     d_posort('g5',sdata.values(),distance=5)        
     d_posort('g20',sdata.values(),distance=20)    
     d_posort('g120',sdata.values(),distance=120)     
     d_posort('g250',sdata.values(),distance=250)     
-    run_body(sdata,dates,begin,end)
 
-def run_mm_main(dates,sdata,idata,catalogs,begin,end):
-    d_posort('g5',sdata.values(),distance=5)        
-    d_posort('g20',sdata.values(),distance=20)    
-    d_posort('g120',sdata.values(),distance=120)     
-    d_posort('g250',sdata.values(),distance=250)     
-    run_mm_body(sdata,dates,begin,end)
-
-def run_mm_body(sdata,dates,begin,end):
+def run_body(sdata,dates,begin,end,xbegin):
+    
     from time import time
     tbegin = time()
 
-    kvs = dict(fast=15,mid=94,slow=209,sma=24,ma_standard=202,extend_days=30)
-    seller = fcustom(atr_seller,**kvs) #atr_seller_factory(stop_times=1500)
+    pman = AdvancedATRPositionManager()
+    dman = DateManager(begin,end)
+    myMediator=mediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
+    seller = atr_seller_factory(stop_times=2000,trace_times=3000)
+    #seller = csc_func
 
-    myMediator=MM_Mediator(fcustom(svama3,**kvs),seller)
-    trades = myMediator.calc_matched(sdata,dates,begin=tbegin)
-    ev = normal_evaluate(trades,**kvs)  
-    mm = rate_mfe_mae(sdata)
-    logger.debug('%s:mm:%s:%s:%s',myMediator.name(),mm,ev.count,unicode(ev))
-    
+    configs = prepare_configs(seller,pman,dman)
+    batch(configs,sdata,dates,xbegin,cmediator=myMediator)
+
     tend = time()
     print u'计算耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
+    save_configs('atr_ev.txt',configs,xbegin,end)
+
+def run_merge_body(sdata,dates,begin,end,xbegin):
+    
+    from time import time
+    tbegin = time()
+
+    pman = AdvancedATRPositionManager()
+    dman = DateManager(begin,end)
+    myMediator=mediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
+    seller = atr_seller_factory(stop_times=2000,trace_times=3000)
+    #seller = csc_func
+
+    configs = prepare_configs(seller,pman,dman)
+    result,strade = merge(configs,sdata,dates,xbegin,pman,dman,cmediator=myMediator)
+
+    tend = time()
+    print u'计算耗时: %s' % (tend-tbegin)
+    logger.debug(u'耗时: %s' % (tend-tbegin))    
+    save_merged('atr_merged.txt',result,strade,xbegin,end)
+
+def run_mm_body(sdata,dates,begin,end,xbegin):
+    from time import time
+    tbegin = time()
+
+    #kvs = dict(fast=15,mid=94,slow=209,sma=24,ma_standard=202,extend_days=30)
+    #seller = fcustom(atr_seller,**kvs) #atr_seller_factory(stop_times=1500)
+    seller = atr_seller_factory()
+    myMediator=MM_Mediator
+    configs = prepare_configs(seller,None,None)
+    
+    mm_batch(configs,sdata,dates,xbegin)
+
+    tend = time()
+    print u'计算耗时: %s' % (tend-tbegin)
+    logger.debug(u'耗时: %s' % (tend-tbegin))    
+
+    save_mm_configs('mm_ev.txt',configs,xbegin,end)
     #save_configs('atr_ev_mm_test.txt',configs,begin,end)
+
+def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
+    prepare_order(sdata)
+    run_body(sdata,dates,begin,end,xbegin)
+
+def run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin):
+    prepare_order(sdata)
+    run_merge_body(sdata,dates,begin,end,xbegin)
+
+
+def run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin):
+    prepare_order(sdata)    
+    run_mm_body(sdata,dates,begin,end,xbegin)
+
+
 
 
 if __name__ == '__main__':
     logging.basicConfig(filename="run.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
     
-    begin,end = 20010701,20080101
+    begin,end = 20060701,20090101
+    xbegin = 20071001
     from time import time
     tbegin = time()
     
@@ -342,5 +369,5 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    run_main(dates,sdata,idata,catalogs,begin,end)
-    #run_mm_main(dates,sdata,idata,catalogs,begin,end)
+    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)

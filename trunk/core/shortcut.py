@@ -53,13 +53,13 @@ def prepare_all(begin,end,codes=[],icodes=[]):
     ctree,catalogs = prepare_catalogs(sdata)    
     return dates,sdata,idata,catalogs    
 
-def calc_trades(buyer,seller,sdata,dates,begin,cmediator=CMediator10,**kwargs):
+def calc_trades(buyer,seller,sdata,dates,xbegin,cmediator=CMediator10,**kwargs):
     m = cmediator(buyer,seller)
     name = m.name()
-    tradess = m.calc_matched(sdata,dates,begin)
+    tradess = m.calc_matched(sdata,dates,xbegin)
     return name,tradess
 
-def batch(configs,sdata,dates,begin,**kwargs):
+def batch(configs,sdata,dates,xbegin,**kwargs):
     for config in configs:
         try:
             tbegin = time()            
@@ -67,7 +67,7 @@ def batch(configs,sdata,dates,begin,**kwargs):
             seller = config.seller
             pman = config.pman
             dman = config.dman
-            name,tradess = calc_trades(buyer,seller,sdata,dates,begin,**kwargs)
+            name,tradess = calc_trades(buyer,seller,sdata,dates,xbegin,**kwargs)
             result,strade = ev.evaluate_all(tradess,pman,dman)
             config.name = name
             config.mm = rate_mfe_mae(sdata)
@@ -84,14 +84,34 @@ def batch(configs,sdata,dates,begin,**kwargs):
             #traceback.print_stack()
             logger.exception('batch error:buyer name=%s,seller name=%s',buyer.__name__,seller.__name__)
 
-def merge(configs,sdata,dates,begin,pman,dman,**kwargs):
+def mm_batch(configs,sdata,dates,xbegin):
+    for config in configs:
+        try:
+            tbegin = time()            
+            buyer = config.buyer
+            seller = config.seller
+            pman = config.pman
+
+            myMediator = MM_Mediator(buyer,seller)
+            trades = myMediator.calc_matched(sdata,dates,begin=xbegin)
+            mm = rate_mfe_mae(sdata)
+            logger.debug('%s:mm:%s',myMediator.name(),mm)
+            config.mm = mm
+            config.name = myMediator.name()
+        except Exception,inst:
+            print 'mm_batch error:',inst
+            #import traceback
+            #traceback.print_stack()
+            logger.exception('mm_batch error:buyer name=%s,seller name=%s',buyer.__name__,seller.__name__)
+
+def merge(configs,sdata,dates,xbegin,pman,dman,**kwargs):
     merged_trades = []
     for config in configs:
         try:
             tbegin = time()            
             buyer = config.buyer
             seller = config.seller
-            name,tradess = calc_trades(buyer,seller,sdata,dates,begin,**kwargs)
+            name,tradess = calc_trades(buyer,seller,sdata,dates,xbegin,**kwargs)
             merged_trades.extend(tradess)
             tend = time()
             logger.debug(u'merge finished:%s,耗时:%s',name,tend-tbegin)
@@ -132,6 +152,16 @@ def save_configs(filename,configs,begin,end):
             f.write('\n%s' % config.strade)
         f.write('\n**************************************************')
     f.close()
+
+def save_mm_configs(filename,configs,begin,end):
+    f = file(filename,'a')
+    f.write('\n\n\n------------------------------------------------------------------------------------------------------------')
+    f.write('\n\nbegin=%s,end=%s' % (begin,end))
+    f.write('\n\n------------------------------------------------------------------------------------------------------------')    
+    for config in configs:
+        f.write('\nname:%s\nmm:%s' % (config.name,config.mm))
+    f.close()
+
 
 def save_merged(filename,result,strade,begin,end):
     f = file(filename,'a')

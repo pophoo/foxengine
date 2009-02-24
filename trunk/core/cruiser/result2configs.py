@@ -50,7 +50,7 @@ def lines2configs(name,rf,wf):
         try:
             s_mm = transform(line,cmm_pattern,mm_groups)
             s_key = transform(line,pattern,groups)
-            oline = 'configs.append(config(buyer=fcustom(%s,%s))) \t#%s\n' % (name,s_key,s_mm)
+            oline = '    configs.append(config(buyer=fcustom(%s,%s))) \t#%s\n' % (name,s_key,s_mm)
             #print oline
             wf.write(oline)
         except:

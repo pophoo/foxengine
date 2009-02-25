@@ -25,7 +25,7 @@ def ma3(stock,fast,mid,slow,ma_standard=120,extend_days = 10):
                 ]
         
     '''
-    logger.debug('ma3 calc: %s ' % stock.code)    
+    #logger.debug('ma3 calc: %s ' % stock.code)    
     t = stock.transaction
     #g = gand(stock.g5 > stock.g20,stock.g20 > stock.g60,stock.g60 > stock.g120,stock.g120 > stock.g250)    
     #g对这个没效果

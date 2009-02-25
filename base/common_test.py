@@ -41,13 +41,13 @@ class TradeTest(unittest.TestCase):
         trade3 = common.Trade(1,20050101,600,-500,100)
         trade4 = common.Trade(1,20050101,1200,-1000,100)
         self.assertEquals(71000,common.Trade.balanceit([trade1,trade2,trade3,trade4]))
-        trade1 = common.Trade(1,20050101,100000,100000,100)
-        trade2 = common.Trade(1,20050101,80000,50000,100)
-        trade3 = common.Trade(1,20050101,60000,-50000,100)
-        trade4 = common.Trade(1,20050101,120000,-100000,100)
+        trade1 = common.Trade(1,20050101,100000,10000,100)
+        trade2 = common.Trade(1,20050101,80000,5000,100)
+        trade3 = common.Trade(1,20050101,60000,-5000,100)
+        trade4 = common.Trade(1,20050101,120000,-10000,100)
         balance = common.Trade.balanceit([trade1,trade2,trade3,trade4])
-        self.assertEquals(710000000,balance)
-        #self.assertEquals(type(1),type(balance))   #这里应该不是出现类型问题的地方
+        self.assertEquals(71000000,balance)
+        self.assertEquals(type(1),type(balance))   #这里应该不是出现类型问题的地方,只要成交金额小于200w
 
 
 class EvaluationTest(unittest.TestCase):

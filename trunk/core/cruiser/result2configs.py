@@ -20,7 +20,7 @@ svama2s_groups = ['fast','slow','sma','ma_standard','extend_days']
 vama3_pattern = r'slow=(?P<slow>\d+),pre_length=(?P<pre_length>\d+),ma_standard=(?P<ma_standard>\d+),extend_days=(?P<extend_days>\d+),fast=(?P<fast>\d+),mid=(?P<mid>\d+)'
 vama3_groups = ['fast','mid','slow','pre_length','ma_standard','extend_days']
 
-vama2_pattern = r'slow=(?P<slow>\d+),pre_length=(?P<pre_length>\d+),ma_standard=(?P<ma_standard>\d+),fast=(?P<fast>\d+)'
+vama2_pattern = r'pre_length=(?P<pre_length>\d+),ma_standard=(?P<ma_standard>\d+),slow=(?P<slow>\d+),fast=(?P<fast>\d+)'
 vama2_groups = ['fast','slow','pre_length','ma_standard']
 
 ma3_pattern = r'slow=(?P<slow>\d+),ma_standard=(?P<ma_standard>\d+),extend_days=(?P<extend_days>\d+),fast=(?P<fast>\d+),mid=(?P<mid>\d+)'
@@ -31,6 +31,8 @@ pmappings = {'svama2':BaseObject(pattern=svama2_pattern,groups=svama2_groups),
         'svama3':BaseObject(pattern=svama3_pattern,groups=svama3_groups),
         'svama2s':BaseObject(pattern=svama2s_pattern,groups=svama2s_groups),
         'vama3':BaseObject(pattern=vama3_pattern,groups=vama3_groups),
+        'vama2':BaseObject(pattern=vama2_pattern,groups=vama2_groups),
+        
         }
 
 

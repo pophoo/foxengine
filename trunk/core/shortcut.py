@@ -98,6 +98,8 @@ def mm_batch(configs,sdata,dates,xbegin):
             logger.debug('%s:mm:%s',myMediator.name(),mm)
             config.mm = mm
             config.name = myMediator.name()
+            tend = time()            
+            print u'mm_calc finished:%s,耗时:%s,mm=%s' % (config.name,tend-tbegin,mm)
         except Exception,inst:
             print 'mm_batch error:',inst
             #import traceback
@@ -115,6 +117,7 @@ def merge(configs,sdata,dates,xbegin,pman,dman,**kwargs):
             merged_trades.extend(tradess)
             tend = time()
             logger.debug(u'merge finished:%s,耗时:%s',name,tend-tbegin)
+            print u'merge_calc finished:%s,耗时:%s' % (name,tend-tbegin)            
         except Exception,inst:
             print 'merge error:',inst
             #import traceback
@@ -132,7 +135,7 @@ def rate_mfe_mae(sdata):
         sum_mae += s.mae_sum
         count_mm += s.mm_count
     if sum_mae:
-        return (sum_mfe * BASE/sum_mae,sum_mfe,sum_mae,count_mm)
+        return (int(sum_mfe * BASE/sum_mae),sum_mfe,sum_mae,count_mm)
     elif sum_mae == sum_mfe:
         return (1,sum_mfe,sum_mae,count_mm)
     else:

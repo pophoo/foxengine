@@ -70,11 +70,11 @@ class Evaluation(object):
         ne.matchedtrades = []   #清除trades
         return ne
 
-    def calcwinlost(self):
+    def calcwinlost(self):  #内中的balance必须返回int值
         wincount = winamount = lostcount = lostamount = 0
         balances = [0] * len(self.matchedtrades)
         for i in range(len(self.matchedtrades)):
-            balance = Trade.balanceit(self.matchedtrades[i]) * 1000/self.sumtrades(self.matchedtrades[i])
+            balance = int(Trade.balanceit(self.matchedtrades[i]) * 1000/self.sumtrades(self.matchedtrades[i]))  #不加转换，则当成交金额略大时，成为long类型
             #print balance,Trade.balanceit(self.matchedtrades[i]) * 1000,self.sumtrades(self.matchedtrades[i])
             if(balance > 0):
                 wincount += 1

@@ -41,6 +41,14 @@ class TradeTest(unittest.TestCase):
         trade3 = common.Trade(1,20050101,600,-500,100)
         trade4 = common.Trade(1,20050101,1200,-1000,100)
         self.assertEquals(71000,common.Trade.balanceit([trade1,trade2,trade3,trade4]))
+        trade1 = common.Trade(1,20050101,100000,100000,100)
+        trade2 = common.Trade(1,20050101,80000,50000,100)
+        trade3 = common.Trade(1,20050101,60000,-50000,100)
+        trade4 = common.Trade(1,20050101,120000,-100000,100)
+        balance = common.Trade.balanceit([trade1,trade2,trade3,trade4])
+        self.assertEquals(710000000,balance)
+        #self.assertEquals(type(1),type(balance))   #这里应该不是出现类型问题的地方
+
 
 class EvaluationTest(unittest.TestCase):
     def test_normal(self):   #实际上测试了calcwinlost,sumrate
@@ -96,17 +104,18 @@ class EvaluationTest(unittest.TestCase):
 
     def test_copy_header(self):
         trade = common.Trade(1,2,3,4)
-        trade1 = common.Trade(1,1,1000,1000,100)
-        trade2 = common.Trade(1,2,1500,-1000,100)
-        trade3 = common.Trade(2,1,2000,1000,100)
-        trade4 = common.Trade(2,2,1500,-1000,100)
-        trade5 = common.Trade(3,1,2970,1000,100)
-        trade6 = common.Trade(3,2,3030,-1000,100)
+        trade1 = common.Trade(1,1,10000,1000,100)
+        trade2 = common.Trade(1,2,15000,-1000,100)
+        trade3 = common.Trade(2,1,20000,1000,100)
+        trade4 = common.Trade(2,2,15000,-1000,100)
+        trade5 = common.Trade(3,1,29700,1000,100)
+        trade6 = common.Trade(3,2,30300,-1000,100)
         e = common.Evaluation([[trade1,trade2],[trade3,trade4],[trade5,trade6]])
         e2 = e.copy_header()
         self.assertEquals([],e2.matchedtrades)
         self.assertEquals(e.count,e2.count)
         self.assertEquals(e.balance,e2.balance)
+        self.assertEquals(type(1),type(e.balance))  #balance必须返回int值，排序时简单需要
         self.assertEquals(e.lostavg,e2.lostavg)
         self.assertEquals(e.R,e2.R)
         self.assertEquals(e.rateavg,e2.rateavg)

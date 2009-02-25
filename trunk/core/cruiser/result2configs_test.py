@@ -27,6 +27,10 @@ vama2_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-02-24 20:56:11,
 #wolfox.fengine.core.shortcut:log_result:145:2009-02-24 20:56:11,937 DEBUG Mediator:<<lambda>:pre_length=1,ma_standard=245,slow=38,fast=8:atr_seller:pre_length=1,ma_standard=245,slow=38,fast=8:make_trade_signal:B1S1>:(2102, 23633, 11241, 8)
 '''
 
+ma3_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-02-25 02:41:09,203 DEBUG Mediator:<<lambda>:ma_standard=195,slow=103,extend_days=31,fast=36,mid=43:atr_seller:ma_standard=195,slow=103,extend_days=31,fast=36,mid=43:make_trade_signal:B1S1>:(3256, 3244448, 996354, 782)
+#wolfox.fengine.core.shortcut:log_result:145:2009-02-25 02:41:09,203 DEBUG Mediator:<<lambda>:ma_standard=185,slow=103,extend_days=31,fast=38,mid=43:atr_seller:ma_standard=185,slow=103,extend_days=31,fast=38,mid=43:make_trade_signal:B1S1>:(2855, 3182238, 1114287, 818)
+'''
+
 file_input,file_output = 'test_result2configs_input','test_result2configs_output'
 
 class ModuleTest(unittest.TestCase):
@@ -94,6 +98,13 @@ class ModuleTest(unittest.TestCase):
         rows = result.split('\n')
         self.assertEquals(3,len(rows))
 
+    def test_ma3(self):
+        rf = StringIO(ma3_txt)
+        wf = StringIO()
+        lines2configs('ma3',rf,wf)
+        result = wf.getvalue()
+        rows = result.split('\n')
+        self.assertEquals(3,len(rows))
 
 
 if __name__ == "__main__":

@@ -56,10 +56,12 @@ class Mediator(object):
 
     def _calc(self,tmaker,sdata,dates,begin=0,**kwargs):
         trades = []
+        ibegin = dates.searchsorted(begin)
         for s in sdata.values():
             try:    #捕捉某些异常，如未划入任何板块的股票在计算板块相关信号时会出错
                 self.prepare(s,**kwargs)
                 sbuy = self.buy_signal_maker(s)
+                sbuy[:ibegin] = 0   #去掉之前的信号，便于mm的对tbegin的一致性，而trade因为已经自身处理了时段，无此处也无影响
                 ssell = self.sell_signal_maker(s,sbuy)
                 #logger.debug('sbuy:%s',sbuy.tolist())                
                 #sbuy,ssell = smooth2(s.transaction[VOLUME],sbuy,ssell) #这个处理被划入limit_adjust
@@ -88,7 +90,6 @@ class Mediator(object):
     def finishing(self,stock,sbuy,ssell):
         stock.mfe_sum,stock.mae_sum = mm_sum_smooth(sbuy,stock.mfe,stock.mae,smooth=2)  #平滑掉两个最大值
         stock.mm_count = int(np.sum(greater(sbuy)))
-
 
 
 #收盘价买入，下限突破价卖出，必须有下限突破线

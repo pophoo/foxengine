@@ -115,7 +115,8 @@ class Ma3MMCruiser(MM_GeneticCruiser):
 if __name__ == '__main__':
     logging.basicConfig(filename="custom_cruiser_mm.log",level=logging.DEBUG,format='#%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 
-    begin,end = 20010701,20060101
+    begin,end = 20060701,20090101
+    tbegin = 20071001
     dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
@@ -139,5 +140,5 @@ if __name__ == '__main__':
     #cruiser = Vama2MMCruiser(psize=100,maxstep=50,goal=2000000)
     cruiser = Ma3MMCruiser(psize=100,maxstep=50,goal=2000000)
     print 'before cruiser,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
-    cruiser.gcruise(sdata,dates,20010701)    
+    cruiser.gcruise(sdata,dates,tbegin)
     print 'after cruiesr,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)    

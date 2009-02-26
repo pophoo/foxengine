@@ -602,18 +602,24 @@ def vap2(svolume,sprice,base):
     return _fill_price(sprice,stimes)
 
 DEFAULT_UNIT = 5000
-def vap_pre(svolume,sprice,pre_length):   #依赖svolume为整数序列，否则导致ma之后0值有非零的base，直接导致后续所有计算出错
+def vap_pre(svolume,sprice,pre_length,weight=5):   
+    ''' 依赖svolume为整数序列，否则导致ma之后0值有非零的base，直接导致后续所有计算出错
+        weight为权数，unit单位为pre_length的平均数再除以weight
+    '''
     if(len(svolume) < pre_length or pre_length == 0):
         pre_length = len(svolume)
-    unit = np.sum(svolume[:pre_length]) / pre_length
+    unit = np.sum(svolume[:pre_length]) / pre_length / weight
     if unit == 0:
         unit = DEFAULT_UNIT
     return vap(svolume,sprice,unit)
 
-def vap2_pre(svolume,sprice,pre_length):  #依赖svolume为整数序列，否则导致ma之后0值有非零的base，直接导致后续所有计算出错
+def vap2_pre(svolume,sprice,pre_length,weight=5):  
+    ''' 依赖svolume为整数序列，否则导致ma之后0值有非零的base，直接导致后续所有计算出错
+        weight为权数，unit单位为pre_length的平均数再除以weight    
+    '''
     if(len(svolume) < pre_length or pre_length == 0):
         pre_length = len(svolume)
-    unit = np.sum(svolume[:pre_length]) / pre_length
+    unit = np.sum(svolume[:pre_length]) / pre_length / weight
     if unit == 0:
         unit = DEFAULT_UNIT
     return vap2(svolume,sprice,unit)
@@ -673,11 +679,17 @@ def svap2(svolume,sprice,sbase):
         stimes[i] = times
     return _fill_price(sprice,stimes)
 
-def svap_ma(svolume,sprice,malength):   #依赖svolume为整数序列，否则导致ma之后0值有非零的base，直接导致后续所有计算出错
-    return svap(svolume,sprice,rollx(ma(svolume,malength)))
+def svap_ma(svolume,sprice,malength,weight=5):   
+    ''' 依赖svolume为整数序列，否则导致ma之后0值有非零的base，直接导致后续所有计算出错
+        weight为权数，unit单位ma再除以weight
+    '''
+    return svap(svolume,sprice,rollx(ma(svolume,malength)/weight))
 
-def svap2_ma(svolume,sprice,malength):  #依赖svolume为整数序列，否则导致ma之后0值有非零的base，直接导致后续所有计算出错
-    return svap2(svolume,sprice,rollx(ma(svolume,malength)))
+def svap2_ma(svolume,sprice,malength,weight=5):  
+    ''' 依赖svolume为整数序列，否则导致ma之后0值有非零的base，直接导致后续所有计算出错
+        weight为权数，unit单位ma再除以weight
+    '''
+    return svap2(svolume,sprice,rollx(ma(svolume,malength)/weight))
 
 def index2v(signal,v2index,length):
     ''' 变形运算

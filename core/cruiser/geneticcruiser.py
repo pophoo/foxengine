@@ -143,7 +143,7 @@ class GeneticCruiser(object):
 
 class MM_GeneticCruiser(GeneticCruiser):
     def log_result(self):   #记录结果的mm_ratio
-        try:    #这里有时候会抛出异常，非常奇怪，没找到原因，但先如此
+        try:    #这里有时候会抛出异常，原因已经找到，因为int计算过程中溢出转换成long,导致cmp返回long值不符合要求(要求为int)
             #print 'logger:..................'
             for k,v in sorted(self.ev_result.items(),cmp=lambda x,y:abs(x[1][0])-abs(y[1][0])):  #排序
                 logger.debug('%s:%s',k,v)

@@ -40,7 +40,7 @@ class Nature(object):
             try:    #在此过程中可以用ctrl-c退出
                 scores = [ self.cached_judge(cell) for cell in population]  #每代按目标值打分
             except KeyboardInterrupt,inst:
-                logger.exception(u'巡游过程中异常退出,%s',unicode(inst))
+                logger.exception('巡游过程中ctrl-c退出')    #这里不能用u''字符串。比较诡异，说明logger的exception和debug的使用方式不一致
                 print u'巡游过程中异常退出,%s' % unicode(inst)
                 break
             if(max(scores) >= self.goal):

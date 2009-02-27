@@ -37,7 +37,12 @@ class Nature(object):
             print 'begin loop %s' % i
             logger.debug(u'begin loop %s' % i)
             self.generation = i
-            scores = [ self.cached_judge(cell) for cell in population]  #每代按目标值打分
+            try:    #在此过程中可以用ctrl-c退出
+                scores = [ self.cached_judge(cell) for cell in population]  #每代按目标值打分
+            except KeyboardInterrupt,inst:
+                logger.exception(u'巡游过程中异常退出,%s',unicode(inst))
+                print u'巡游过程中异常退出,%s' % unicode(inst)
+                break
             if(max(scores) >= self.goal):
                 #linelog('出现满足要求的解法，迭代终止于第%s代' % i)
                 logger.debug(u'出现满足要求的解法，迭代终止于第%s代' % i)

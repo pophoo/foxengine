@@ -53,6 +53,23 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,1,1,1],catalog_signal(cata_info,7500,1000).tolist())        
         self.assertEquals([0,0,0,0],catalog_signal(cata_info,8001,8001).tolist())
 
+    def test_catalog_signal_cs(self):
+        c1 = CommonObject(id=1,gorder=np.array([0,0,7500,7500]))
+        c2 = CommonObject(id=1,gorder=np.array([0,7500,0,7500]))
+        c3 = CommonObject(id=1,gorder=np.array([0,7500,0,7500]))
+        cata_info = {c1:np.array([1000,1000,1000,8000]),c2:np.array([8000,8000,0,0]),c3:np.array([8000,8000,0,0])}
+        self.assertEquals([0,1,0,1],catalog_signal_cs(cata_info,lambda c,s:band(c.gorder>=7500,s>=7500)).tolist())
+        self.assertEquals([0,1,1,1],catalog_signal_cs(cata_info,lambda c,s:band(c.gorder>=7500,s>=1000)).tolist())        
+        self.assertEquals([0,0,0,0],catalog_signal_cs(cata_info,lambda c,s:band(c.gorder>=8001,s>=8001)).tolist())
+
+    def test_catalog_signal_c(self):
+        c1 = CommonObject(id=1,gorder=np.array([0,0,7500,7500]))
+        c2 = CommonObject(id=1,gorder=np.array([0,7500,0,7500]))
+        c3 = CommonObject(id=1,gorder=np.array([0,7500,0,7500]))
+        cata_info = {c1:np.array([1000,1000,1000,8000]),c2:np.array([8000,8000,0,0]),c3:np.array([8000,8000,0,0])}
+        self.assertEquals([0,1,1,1],catalog_signal_c(cata_info,lambda c:c.gorder>=7500).tolist())
+        self.assertEquals([0,0,0,0],catalog_signal_c(cata_info,lambda c:c.gorder>=8001).tolist())
+
     #deprecated
     def test_calc_index_adjacent(self):
         a = np.array([(0,0,0,0),(500,400,800,400),(0,0,0,0),(0,0,0,0),(0,0,0,0),(0,0,0,0),(1000,1000,1000,1000)])

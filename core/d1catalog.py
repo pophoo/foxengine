@@ -64,8 +64,23 @@ def catalog_signal(cata_info,cata_threshold=8000,stock_threshold=8000):
         cata_info:  {catalog ==> stock_order_in_catalog}
         cata_threshold: 对catalog的gorder的要求阈值
         stock_threshold: 对stock在该catalog中的排序的要求阈值，即stock_order_in_catalog
+        是catalog_signal_together的特殊版本
     '''
     return gor(*[band(k.gorder >= cata_threshold,v >= stock_threshold) for k,v in cata_info.items()])
+
+def catalog_signal_cs(cata_info,extractor):
+    ''' 查看cata_info中是否存在catalog符合extractor的信号
+        cata_info:  {catalog ==> stock_order_in_catalog}
+        extractor: catalog,stock ==> signal序列的函数，如 lambda c,s:band(c.g60 > 5000,s.g60>5000)
+    '''
+    return gor(*[extractor(c,s) for c,s in cata_info.items()])
+
+def catalog_signal_c(cata_info,extractor):
+    ''' 查看cata_info中是否存在catalog符合extractor的信号
+        cata_info:  {catalog ==> stock_order_in_catalog}
+        extractor: catalog ==> signal序列的函数，如 lambda c:c.g60 > 5000
+    '''
+    return gor(*[extractor(c) for c in cata_info.keys()])
 
 #deprecated
 def calc_index_adjacent(stocks,sector=CLOSE):

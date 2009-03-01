@@ -113,7 +113,7 @@ class Ma3MMCruiser(MM_GeneticCruiser):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(filename="custom_cruiser_mm_1.log",level=logging.DEBUG,format='#%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
+    logging.basicConfig(filename="custom_cruiser_mm_3.log",level=logging.DEBUG,format='#%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 
     begin,end = 20060101,20090101
     tbegin = 20071001
@@ -133,12 +133,12 @@ if __name__ == '__main__':
     d_posort('g120',sdata.values(),distance=120)     
     d_posort('g250',sdata.values(),distance=250)     
     #cruiser = Svama3MMCruiser(psize=16,maxstep=1,goal=0)
-    cruiser = Svama3MMCruiser(psize=100,maxstep=50,goal=2000000)    #goal不能太小
+    #cruiser = Svama3MMCruiser(psize=100,maxstep=50,goal=2000000)    #goal不能太小
     #cruiser = Svama2MMCruiser(psize=100,maxstep=50,goal=2000000)
-    #cruiser = Svama2sMMCruiser(psize=100,maxstep=50,goal=2000000)
-    #cruiser = Vama3MMCruiser(psize=100,maxstep=50,goal=2000000)
-    #cruiser = Vama2MMCruiser(psize=100,maxstep=50,goal=2000000)
-    #cruiser = Ma3MMCruiser(psize=100,maxstep=50,goal=2000000)
+    #cruiser = Svama2sMMCruiser(psize=100,maxstep=50,goal=200000000)
+    #cruiser = Vama3MMCruiser(psize=100,maxstep=50,goal=200000000)
+    cruiser = Vama2MMCruiser(psize=100,maxstep=50,goal=20000000)
+    #cruiser = Ma3MMCruiser(psize=100,maxstep=50,goal=200000000)
     print 'before cruiser,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
     cruiser.gcruise(sdata,dates,tbegin)
     print 'after cruiesr,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)    

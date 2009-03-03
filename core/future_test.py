@@ -65,6 +65,7 @@ class ModuleTest(unittest.TestCase):
         from wolfox.fengine.core.future import _sum_smooth_mae
         self.assertEquals(15,_sum_smooth_mae(np.array([1,2,3,4,5])))
         self.assertEquals(13,_sum_smooth_mae(np.array([1,2,-3,4,5])))
+        self.assertEquals(9,_sum_smooth_mae(np.array([1,2,-3,0,5])))
 
     def test_decline(self):
         sclose = np.array([1000,1005,1007,990,940,920,900,910,960,930,915,990,1020,990])

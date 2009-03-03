@@ -43,19 +43,29 @@ def mm_sum(sbuy,smfe,smae):
 
 def mm_sum_smooth(sbuy,smfe,smae,smooth=1):
     ''' 根据sbuy和smfe,smae值计算sbuy信号日的mfe,mae之和
-        smooth是需要平滑掉的max数,平滑方式是用smooth个平均值取代头smooth个最大值
-        不去平滑min
     '''
     indices = sbuy > 0
-    ssmfe = np.sort(smfe[indices])
+    sum_smfe =  _sum_smooth_mfe(smfe[indices],smooth)
+    sum_smae =  _sum_smooth_mae(smae[indices])
+    return int(sum_smfe),int(sum_smae)
+
+def _sum_smooth_mfe(smfe,smooth=1):
+    ''' smooth是需要平滑掉的max数,平滑方式是用smooth个平均值取代头smooth个最大值
+    '''
+    ssmfe = np.sort(smfe)
     #print ssmfe
     if smooth > len(ssmfe):
         smooth = len(ssmfe)
     avg_mfe = int(np.average(ssmfe) + 0.5)
     #print avg_mfe,smooth,len(indices)
-    sum_smfe =  np.sum(ssmfe[:-smooth]) + smooth * avg_mfe
-    sum_smae = np.sum(smae[indices])
-    return int(sum_smfe),int(sum_smae)
+    sum_smfe =  np.sum(ssmfe[:-smooth]) + smooth * avg_mfe    
+    return sum_smfe
+
+def _sum_smooth_mae(smae):
+    ''' 对于mae，所有<0的数都平滑成1  '''
+    smae[smae < 0]  = 1
+    sum_smae = np.sum(smae)
+    return sum_smae
 
 def decline(source):
     ''' 计算最大衰落幅度和相应衰弱期(未必是最大衰落期)

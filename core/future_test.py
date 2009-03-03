@@ -36,6 +36,15 @@ class ModuleTest(unittest.TestCase):
         #print s.mfe_sum,s.mae_sum
         self.assertEquals(23,sum_mfe)
         self.assertEquals(550,sum_mae)
+
+    def test_mm_sum_smooth_less_than_0(self):
+        sbuy = np.array([0,1,1,0,1,0,0])
+        smfe = np.array([1,2,3,4,50,6,7])
+        smae = np.array([10,20,-30,40,-500,60,70])
+        sum_mfe,sum_mae = mm_sum_smooth(sbuy,smfe,smae)
+        #print s.mfe_sum,s.mae_sum
+        self.assertEquals(23,sum_mfe)
+        self.assertEquals(22,sum_mae)
  
     def test_mm_sum_smooth_greaterthan_length(self):
         sbuy = np.array([0,1,1,0,1,0,0])
@@ -45,7 +54,18 @@ class ModuleTest(unittest.TestCase):
         #print s.mfe_sum,s.mae_sum
         self.assertEquals(54,sum_mfe)
         self.assertEquals(550,sum_mae)
- 
+
+    def test_sum_smooth_mfe(self):
+        from wolfox.fengine.core.future import _sum_smooth_mfe
+        self.assertEquals(13,_sum_smooth_mfe(np.array([1,2,3,4,5])))
+        self.assertEquals(12,_sum_smooth_mfe(np.array([1,2,3,4,5]),2))
+        self.assertEquals(15,_sum_smooth_mfe(np.array([1,2,3,4,5]),8))
+
+    def test_sum_smooth_mae(self):
+        from wolfox.fengine.core.future import _sum_smooth_mae
+        self.assertEquals(15,_sum_smooth_mae(np.array([1,2,3,4,5])))
+        self.assertEquals(13,_sum_smooth_mae(np.array([1,2,-3,4,5])))
+
     def test_decline(self):
         sclose = np.array([1000,1005,1007,990,940,920,900,910,960,930,915,990,1020,990])
         self.assertEquals((107,4),decline(sclose))

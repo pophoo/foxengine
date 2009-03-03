@@ -84,6 +84,28 @@ def batch(configs,sdata,dates,xbegin,**kwargs):
             #traceback.print_stack()
             logger.exception('batch error:buyer name=%s,seller name=%s',buyer.__name__,seller.__name__)
 
+def batch_last(configs,sdata,dates,xbegin,cmediator=CMediator10,**kwargs):
+    ltrades = {}
+    for config in configs:
+        try:
+            tbegin = time()            
+            buyer = config.buyer
+            seller = config.seller
+            m = cmediator(buyer,seller)
+            name = m.name()
+            trades = m.calc_last(sdata,dates,xbegin)
+            if trades:
+                ltrades[name] = trades
+            tend = time()
+            logger.debug(u'calc_last finished:%s,耗时:%s',name,tend-tbegin)
+            #print u'calc_last finished:%s,耗时:%s' % (name,tend-tbegin)
+        except Exception,inst:
+            print 'batch_last error:',inst
+            #import traceback
+            #traceback.print_stack()
+            logger.exception('batch_last error:buyer name=%s,seller name=%s',buyer.__name__,seller.__name__)
+    return ltrades
+
 def mm_batch(configs,sdata,dates,xbegin):
     for config in configs:
         try:
@@ -153,6 +175,18 @@ def save_configs(filename,configs,begin,end):
         f.write('\nMMRatio:%s,mfe:%s,mae:%s,mm_count:%s' % config.mm)
         if abs(config.mm[0]) > BASE:
             f.write('\n%s' % config.strade)
+        f.write('\n**************************************************')
+    f.close()
+
+def save_last(filename,dtrades,begin,end,dlast):
+    f = file(filename,'a')
+    f.write('\n\n\n------------------------------------------------------------------------------------------------------------')
+    f.write('\n\nbegin=%s,end=%s,last_date=%s' % (begin,end,dlast))
+    f.write('\n\n------------------------------------------------------------------------------------------------------------')    
+    for name,trades in dtrades:
+        f.write('\nname:%s\n' % name)
+        for trade in trades:
+            f.write('%s\n' % unicode(trade))
         f.write('\n**************************************************')
     f.close()
 

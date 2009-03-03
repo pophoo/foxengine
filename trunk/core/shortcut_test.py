@@ -73,6 +73,25 @@ class ModuleTest(unittest.TestCase):    #只测试通道
     def test_batch_except(self):
         pass    #计算内部的异常已经在mediator._calc中吸收了
 
+    def test_batch_last(self):
+        dummy = range(45)
+        a = np.array([dummy,dummy,dummy,dummy,dummy,dummy,dummy,dummy])
+        b = np.array([dummy,dummy,dummy,dummy,dummy,dummy,dummy,dummy])
+        sa = CommonObject(id=3,code='test1',transaction=a)
+        sb = CommonObject(id=3,code='test2',transaction=b)
+        sdata = {'sa':sa,'sb':sb}
+        dates = np.arange(20010101,20010146)    #45个采样点，避免在计算CSHARP中线形回归的时候报警
+        batch_last([],sdata,dates,20010101)    #空测试
+        self.assertTrue(True)
+        buyer = lambda x:np.ones(45,int)
+        buyer2 = lambda x:np.ones(40,int)
+        buyer.__name__ = 'buyer1'
+        buyer2.__name__ = 'buyer2'
+        c1 = BaseObject(buyer=buyer,seller=atr_seller)
+        c2 = BaseObject(buyer=buyer2,seller=atr_seller)
+        ts = batch_last([c1,c2],sdata,dates,20010101)
+        self.assertTrue(True)
+
     def test_mm_batch(self):
         dummy = range(45)
         a = np.array([dummy,dummy,dummy,dummy,dummy,dummy,dummy,dummy])
@@ -120,6 +139,15 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         save_configs('test_save_configs.txt',[],20010101,20050101)
         save_configs('test_save_configs.txt',[config,config],20010101,20050101)
         os.remove('test_save_configs.txt')
+
+    def test_save_last(self):
+        from wolfox.fengine.base.common import Trade
+        trades1 = [Trade('test',1,1,1),Trade('test2',2,2,2)]
+        trades2 = [Trade('test3',1,1,1),Trade('test4',2,2,2)]
+        import os
+        save_last('test_save_last.txt',{},20010101,20050101,20041220)
+        save_last('test_save_last.txt',{'t1':trades1,'t2':trades2},20010101,20050101,20041220)
+        os.remove('test_save_last.txt')
 
     def test_save_mm_configs(self):
         config = BaseObject(name='test',mm=(100,80,80,5))

@@ -59,6 +59,14 @@ class ModuleTest(unittest.TestCase):    #保持run的有效性
         run.run_main(dates,sdata,idata,catalogs,begin,end,xbegin)        
         self.assertTrue(True)
 
+    def test_run_last(self):
+        begin,end = 20010101,20010701
+        xbegin = 20010401
+        dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        run.prepare_configs = self.dummy_prepare_configs
+        run.run_main(dates,sdata,idata,catalogs,begin,end,xbegin)        
+        self.assertTrue(True)
+
     def test_run_mm(self):
         begin,end = 20010101,20010701
         xbegin = 20010401

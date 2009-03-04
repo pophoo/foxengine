@@ -148,7 +148,8 @@ def RPR(xt,y):  #净值评估函数,xt为日期维x,y为相应净值
     logger.debug('rar:year_inc_rate=%s,a=%s,b=%s,k=a/b=%s,stderr=%s,err=%s',year_inc_rate,a_s,b_s,a_s/b_s,stderr,err)
     logger.debug('rar:ar:%s,br:%s',ar,br)
     if year_inc_rate >=0:
-        logger.debug('year_inc_rate>0,net:%s',y.tolist())
+        pass
+        #logger.debug('year_inc_rate>0,net:%s',y.tolist())
     return year_inc_rate
 
 def CSHARP(xt,y):   #变异夏普比率

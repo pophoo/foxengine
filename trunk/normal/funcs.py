@@ -27,7 +27,7 @@ def ma3(stock,fast,mid,slow,ma_standard=120,extend_days = 10):
     '''
     #logger.debug('ma3 calc: %s ' % stock.code)    
     t = stock.transaction
-    #g = gand(stock.g5 > stock.g20,stock.g20 > stock.g60,stock.g60 > stock.g120,stock.g120 > stock.g250)    
+    #g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
     #g对这个没效果
     ma_fast = ma(t[CLOSE],fast)
     ma_mid = ma(t[CLOSE],mid)
@@ -45,7 +45,7 @@ def ma3(stock,fast,mid,slow,ma_standard=120,extend_days = 10):
     return gand(trend_ma_standard,confirm_cross,sup)
 
 
-c_extractor = lambda c:gand(c.g5 > c.g20,c.g20>c.g60,c.g60>c.g120,c.g120>c.g250)
+c_extractor = lambda c:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250)
 def svama2(stock,fast,slow,sma=22,ma_standard=120):
     ''' svama两线交叉
         argnames = ['slow','fast','threshold']
@@ -64,8 +64,8 @@ def svama2(stock,fast,slow,sma=22,ma_standard=120):
         ]
     '''
     t = stock.transaction
-    g = gand(stock.g5 > stock.g20,stock.g20 > stock.g60,stock.g60 > stock.g120,stock.g120 > stock.g250)
-    c = catalog_signal_c(stock.catalog,c_extractor)
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    #c = catalog_signal_c(stock.catalog,c_extractor)    #效果不咋地，反作用
     #g = np.ones_like(stock.g5)
     svap,v2i = svap_ma(t[VOLUME],t[CLOSE],sma)
     ma_svapfast = ma(svap,fast)
@@ -98,7 +98,7 @@ def svama2s(stock,fast,slow,sma=22,ma_standard=120,extend_days = 10):
         ]
     '''
     t = stock.transaction
-    g = gand(stock.g5 > stock.g20,stock.g20 > stock.g60,stock.g60 > stock.g120,stock.g120 > stock.g250)
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
     svap,v2i = svap_ma(t[VOLUME],t[CLOSE],sma)
     ma_svapfast = ma(svap,fast)
     ma_svapslow = ma(svap,slow)
@@ -183,7 +183,7 @@ def vama2(stock,fast,slow,pre_length=120,ma_standard=120):
             [58,3] ]    
     '''
     t = stock.transaction
-    g = gand(stock.g5 > stock.g20,stock.g20 > stock.g60,stock.g60 > stock.g120,stock.g120 > stock.g250)    
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
     svap,v2i = vap_pre(t[VOLUME],t[CLOSE],pre_length)
     ma_svapfast = ma(svap,fast)
     ma_svapslow = ma(svap,slow)
@@ -211,9 +211,8 @@ def vama3(stock,fast,mid,slow,pre_length=120,ma_standard=120,extend_days=10):
             [102,43,8]]
     '''
     t = stock.transaction
-    g = gand(stock.g5 > stock.g20,stock.g20 > stock.g60,stock.g60 > stock.g120,stock.g120 > stock.g250)    
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
     svap,v2i = vap_pre(t[VOLUME],t[CLOSE],pre_length)
-
     ma_svapfast = ma(svap,fast)
     ma_svapmid = ma(svap,mid)    
     ma_svapslow = ma(svap,slow)

@@ -178,7 +178,7 @@ def stoplimit(source,signal,satr,times):
         rev[i] = cur_stop
     return rev
 
-def tracelimit(source,sup,signal,satr,stop_times,trace_times):
+def tracelimit_old(source,sup,signal,satr,stop_times,trace_times):
     ''' 信号日起的追踪止损。自有信号起至下一个信号间以max值-atr*trace_times和买入值-atr*stop_times的高者为止损线
         source:买入价
         sup:上包线，为high或close
@@ -204,6 +204,35 @@ def tracelimit(source,sup,signal,satr,stop_times,trace_times):
         elif cur_max < cur_h:
             cur_max = cur_h
         cur_trace = cur_max - cur_atr * trace_times/BASE
+        if cur_stop < cur_trace:
+            cur_stop = cur_trace
+        rev[i] = cur_stop
+    return rev
+
+def tracelimit(source,sup,signal,satr,stop_times,trace_times):
+    ''' 信号日起的追踪止损。自有信号起至下一个信号间以当前值-atr*trace_times的最高者和买入值-atr*stop_times的高者为止损线
+        source:买入价
+        sup:上包线，为high或close
+        signal:>0为有信号
+        satr:atr线
+        stop_times为止损时的atr倍数
+        trace_times为跟踪的atr倍数
+        避免原始的tracelimit因为从高点下来小阴小阳调整而触发的止损(atr变小)
+    '''
+    assert len(source) == len(sup) == len(signal) == len(satr)
+    rev = np.zeros_like(source)
+    if(len(source) == 0):
+        return rev
+    cur_stop = 0
+    cur_trace = 0
+    for i in xrange(len(source)):
+        cur = source[i]
+        cur_h = sup[i]
+        cur_atr = satr[i]
+        if signal[i] > 0:
+            cur_stop = cur - cur_atr * stop_times/BASE
+            cur_h = cur #高点设为当前点，因为无法判断真正高点是否是在当前点之后出现
+        cur_trace = cur_h - cur_atr * trace_times/BASE
         if cur_stop < cur_trace:
             cur_stop = cur_trace
         rev[i] = cur_stop

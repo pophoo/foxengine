@@ -55,6 +55,9 @@ class ModuleTest(unittest.TestCase):    #通路测试
         sbuy = vama3(self.stock,5,20,120)
         self.assertTrue(True)
 
+    def test_svama3_x(self):
+        sbuy = svama3_x(self.stock,5,20,120)
+        self.assertTrue(True)
 
 if __name__ == "__main__":
     logging.basicConfig(filename="test.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')

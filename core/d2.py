@@ -37,7 +37,7 @@ class dispatch(object):
 
 
 class cdispatch(object):
-    """ 将(name,catalogs,*args,**kwargs)形式的调用结果(array形式)dispatch到stock中相应name属性表示的dict中，dict[catalog_id] = v
+    """ 将(name,catalogs,*args,**kwargs)形式的调用结果(array形式)dispatch到stock中相应name属性表示的dict中，dict[catalog] = v
         要求被修饰函数的签名为(stocks,*args,**kwargs)
         #需要一个准集成测试
     """
@@ -61,13 +61,18 @@ class cdispatch(object):
         """Return the function's docstring."""
         return self.func.__doc__
 
+@cdispatch
+def dummy_catalogs(sdatas,*args,**kwargs):   #用于利用cdispatch将catalog分配到相应的stock中
+    #print sdatas,np.array([[] for s in sdatas])
+    return np.array([[] for s in sdatas])
+
 @dispatch
 def dispatch_example(sdatas,ma=10):
     try:
         return sdatas
     except Exception,inst: #没有交易数据
         #print np.array([[] for s in stocks]).tolist()
-        return np.array([[] for s in stocks])
+        return np.array([[] for s in sdatas])
 
 
 def roll02(source,shift):   #每行数据右移，移动部分补0. 二维版本(兼容一维)

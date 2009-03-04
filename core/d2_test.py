@@ -78,9 +78,41 @@ class ModuleTest(unittest.TestCase):
         df('test2',[catalog3,catalog4],100)
         self.assertEquals([],ns1.test2[catalog3].tolist())
         #完全的空，测试通路
-        nrev2 = df('test3',[],100)
-        self.assertFalse(nrev2)
-    
+        dummy_catalogs('test3',[],100)
+        self.assertTrue(True)
+ 
+    def test_dummy_catalog(self):
+        a = np.array([(1,0,0,0),(500,400,800,400),(0,0,0,0),(0,0,0,0),(0,0,0,0),(5000,4000,8000,4000),(1000,1000,1000,1000)])
+        b = np.array([(2,0,0,0),(200,200,200,400),(0,0,0,0),(0,0,0,0),(0,0,0,0),(0,0,4000,4000),(0,0,2000,1000)])
+        s1 = CommonObject(id=3,transaction=a)
+        s2 = CommonObject(id=4,transaction=b)
+        catalog = CommonObject(id=15,stocks=[s1,s2])
+        dummy_catalogs('test',[catalog],100)
+        #print s1.test[catalog]
+        self.assertEquals([],s1.test[catalog].tolist())
+        self.assertEquals([],s2.test[catalog].tolist())
+        c = np.array([(1,0,0,0),(500,400,800,400),(0,0,0,0),(0,0,0,0),(0,0,0,0),(5000,4000,8000,4000),(1000,1000,1000,1000)])
+        d = np.array([(2,0,0,0),(200,200,200,400),(0,0,0,0),(0,0,0,0),(0,0,0,0),(0,0,4000,4000),(0,0,2000,1000)])
+        s3 = CommonObject(id=4,transaction=c)
+        s4 = CommonObject(id=5,transaction=d)
+        catalog2 = CommonObject(id=16,stocks=[s3,s4])
+        dummy_catalogs('test2',[catalog,catalog2],100)        
+        self.assertEquals([],s1.test2[catalog].tolist())
+        self.assertEquals([],s2.test2[catalog].tolist())
+        self.assertEquals([],s3.test2[catalog2].tolist())
+        self.assertEquals([],s4.test2[catalog2].tolist())
+        #测试空数据
+        na = np.array([[],[],[],[],[],[],[]])
+        ns1 = CommonObject(id=51,transaction=na)
+        ns2 = CommonObject(id=52,transaction=na)        
+        catalog3 = CommonObject(id=16,stocks=[ns1,ns2])
+        catalog4 = CommonObject(id=17,stocks=[ns1,ns2])        
+        n = dummy_catalogs('test2',[catalog3,catalog4],100)
+        self.assertEquals([],ns1.test2[catalog3].tolist())
+        #完全的空，测试通路
+        dummy_catalogs('test3',[],100)
+        self.assertTrue(True)
+
     def test_roll02(self):
         #d1.roll02
         self.assertEquals([1,2,3,4,5],roll02(np.array([1,2,3,4,5]),0).tolist())

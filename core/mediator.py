@@ -86,6 +86,7 @@ class Mediator(object):
         trans = stock.transaction
         stock.atr = atr(trans[CLOSE],trans[HIGH],trans[LOW],atr_covered)
         stock.mfe,stock.mae = mm_ratio(trans[CLOSE],trans[HIGH],trans[LOW],stock.atr,covered=mm_covered)
+        stock.mfe_sum,stock.mae_sum,stock.mm_count = 0,0,0   #初始值
 
     def finishing(self,stock,sbuy,ssell):
         stock.mfe_sum,stock.mae_sum = mm_sum_smooth(sbuy,stock.mfe,stock.mae,smooth=2)  #平滑掉两个最大值

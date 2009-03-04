@@ -44,6 +44,8 @@ def ma3(stock,fast,mid,slow,ma_standard=120,extend_days = 10):
     sup = up_under(t[HIGH],t[LOW],extend_days,300)
     return gand(trend_ma_standard,confirm_cross,sup)
 
+
+c_extractor = lambda c:gand(c.g5 > c.g20,c.g20>c.g60,c.g60>c.g120,c.g120>c.g250)
 def svama2(stock,fast,slow,sma=22,ma_standard=120):
     ''' svama两线交叉
         argnames = ['slow','fast','threshold']
@@ -63,6 +65,8 @@ def svama2(stock,fast,slow,sma=22,ma_standard=120):
     '''
     t = stock.transaction
     g = gand(stock.g5 > stock.g20,stock.g20 > stock.g60,stock.g60 > stock.g120,stock.g120 > stock.g250)
+    c = catalog_signal_c(stock.catalog,c_extractor)
+    #g = np.ones_like(stock.g5)
     svap,v2i = svap_ma(t[VOLUME],t[CLOSE],sma)
     ma_svapfast = ma(svap,fast)
     ma_svapslow = ma(svap,slow)

@@ -9,6 +9,8 @@ logger = logging.getLogger('wolfox.fengine.normal.funcs')
 import numpy as np
 from wolfox.fengine.internal import *
 
+#后续：svama/vama系列信号发出之后，下来碰到ma55/120然后向上者
+
 def ma3(stock,fast,mid,slow,ma_standard=120,extend_days = 10):
     ''' ma三线金叉
         不要求最慢的那条线在被快线交叉时趋势必须向上，但要求被中线交叉时趋势向上
@@ -233,4 +235,71 @@ def vama3(stock,fast,mid,slow,pre_length=120,ma_standard=120,extend_days=10):
     #sup = up_under(t[HIGH],t[LOW],10,300)    
     #return gand(g,msvap,trend_ma_standard,sup)
     return gand(g,msvap,trend_ma_standard)
+
+
+def svama3_x(stock,fast,mid,slow,sma=22,ma_standard=120,extend_days=10):
+    ''' svama三叉,30天内再有日线底线叉55/120
+        argnames = ['slow','middle','fast','threshold']
+        arglist = [(3,128,1),(2,65,1),(1,32,1),(15,76,15)]
+        arggroups = [
+            [119,55,12,15],
+            [103,62,12,45],
+            [111,57,19,15],
+            [120,64,23,15],
+            [127,60,12,45],
+            [127,42,12,45],
+            [92,57,17,45],
+            #[123,64,12,15],
+            [31,57,30,15],
+            [23,61,30,30],
+            [31,56,28,15],
+            [18,52,22,75],
+            [20,60,25,30],
+            [43,26,31,60],
+            [68,64,28,75],
+            [44,61,7,75],
+            [20,48,30,60]
+        ]    
+
+        可以考虑信号发出n天内，突然放水10-20%到下位支撑(20,55,120)[附近]然后向上
+            或者强势盘整幅度越来越小    见600117 20030115的信号(6,12,69,ex=13,ma=227,sma=21)
+            另四线理顺也是启动的强势附件
+            并考虑筛选条件，如10内涨幅超过20-25%
+
+    '''
+    t = stock.transaction
+    #print stock.code,len(t[CLOSE]),sum(t[CLOSE])
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    svap,v2i = svap_ma(t[VOLUME],t[CLOSE],sma)
+    ma_svapfast = ma(svap,fast)
+    ma_svapmid = ma(svap,mid)    
+    ma_svapslow = ma(svap,slow)
+    trend_ma_svapfast = strend(ma_svapfast) > 0
+    trend_ma_svapmid = strend(ma_svapmid) > 0    
+    trend_ma_svapslow = strend(ma_svapslow) > 0
+
+    #cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
+    cross_fast_mid = band(cross(ma_svapmid,ma_svapfast)>0,trend_ma_svapfast)
+    cross_fast_slow = band(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast)    
+    cross_mid_slow = band(cross(ma_svapslow,ma_svapmid)>0,trend_ma_svapmid)
+    sync_fast_2 = sfollow(cross_fast_mid,cross_fast_slow,extend_days)
+    sync3 = sfollow(sync_fast_2,cross_mid_slow,extend_days)
+    msvap = transform(sync3,v2i,len(t[VOLUME]))
+
+    #print 'ma_standard:',ma_standard
+    ma_standard = ma(t[CLOSE],ma_standard)
+    trend_ma_standard = strend(ma_standard) > 0
+
+    ma_fast = ma(t[CLOSE],3)
+    ma_mid = ma(t[CLOSE],20)
+    ma_slow = ma(t[CLOSE],55)
+    trend_fast = strend(ma_fast) > 0
+    trend_mid = strend(ma_mid) > 0    
+    trend_slow = strend(ma_slow) > 0
+    cross_fast_mid = band(cross(ma_mid,ma_fast),trend_fast)
+    cross_fast_slow = band(cross(ma_slow,ma_fast),trend_fast)
+    xcross = bor(cross_fast_mid,cross_fast_slow)
+    csignal = gand(trend_fast,trend_mid,trend_slow,xcross)
+    sf = sfollow(msvap,csignal)
+    return gand(g,sf,trend_ma_standard)
 

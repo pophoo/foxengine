@@ -44,6 +44,7 @@ def prepare_all(begin,end,codes=[],icodes=[]):
         sdata = cs.get_stocks(codes,begin,end,ref_id)
     else:
         sdata = prepare_data(begin,end)
+        sdata.update(prepare_data(begin,end,'FUND'))
     print 'sdata finish....'
     if icodes:
         idata = cs.get_stocks(icodes,begin,end,ref_id)

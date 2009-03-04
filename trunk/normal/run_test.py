@@ -24,6 +24,8 @@ class ModuleTest(unittest.TestCase):    #保持run的有效性
         self.tmp = sys.stdout
         sys.stdout = StringIO()  #将标准I/O流重定向到buff对象，抑制输出
         self.old_prepare_configs = run.prepare_configs  #保存run.prepare_configs，因为run/run_mm将重写它
+        self.old_prepare_configs_A = run.prepare_configs_A  #保存run.prepare_configs，因为run/run_mm将重写它
+        self.old_prepare_configs_B = run.prepare_configs_B #保存run.prepare_configs，因为run/run_mm将重写它
 
     def tearDown(self):
         sout = sys.stdout.getvalue()
@@ -31,6 +33,8 @@ class ModuleTest(unittest.TestCase):    #保持run的有效性
         sys.stdout = self.tmp        #恢复标准I/O流
         #print sout
         run.prepare_configs = self.old_prepare_configs
+        run.prepare_configs_A = self.old_prepare_configs_A
+        run.prepare_configs_B = self.old_prepare_configs_B        
 
     def dummy_prepare_configs(self,seller,pman,dman):
         config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
@@ -43,6 +47,20 @@ class ModuleTest(unittest.TestCase):    #保持run的有效性
         dman = DateManager(20010101,20040101)
         seller = atr_seller_factory(stop_times=2000,trace_times=3000)
         configs = run.prepare_configs(seller,pman,dman)
+        self.assertTrue(len(configs) > 1)
+
+    def test_prepare_configs_A(self):
+        pman = AdvancedATRPositionManager()
+        dman = DateManager(20010101,20040101)
+        seller = atr_seller_factory(stop_times=2000,trace_times=3000)
+        configs = run.prepare_configs_A(seller,pman,dman)
+        self.assertTrue(len(configs) > 1)
+
+    def test_prepare_configs_B(self):
+        pman = AdvancedATRPositionManager()
+        dman = DateManager(20010101,20040101)
+        seller = atr_seller_factory(stop_times=2000,trace_times=3000)
+        configs = run.prepare_configs_B(seller,pman,dman)
         self.assertTrue(len(configs) > 1)
 
     def test_prepare_order(self):
@@ -63,7 +81,8 @@ class ModuleTest(unittest.TestCase):    #保持run的有效性
         begin,end = 20010101,20010701
         xbegin = 20010401
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        run.prepare_configs = self.dummy_prepare_configs
+        run.prepare_configs_A = self.dummy_prepare_configs
+        run.prepare_configs_B = self.dummy_prepare_configs
         run.run_main(dates,sdata,idata,catalogs,begin,end,xbegin)        
         self.assertTrue(True)
 

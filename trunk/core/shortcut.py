@@ -183,10 +183,11 @@ def save_last(filename,dtrades,begin,end,dlast):
     f.write('\n\n\n------------------------------------------------------------------------------------------------------------')
     f.write('\n\nbegin=%s,end=%s,last_date=%s' % (begin,end,dlast))
     f.write('\n\n------------------------------------------------------------------------------------------------------------')    
-    for name,trades in dtrades:
+    for name,trades in dtrades.items():
         f.write('\nname:%s\n' % name)
         for trade in trades:
-            f.write('%s\n' % unicode(trade))
+            if trade.tdate >= dlast:
+                f.write('%s\n' % unicode(trade))
         f.write('\n**************************************************')
     f.close()
 

@@ -20,6 +20,8 @@ class TradeTest(unittest.TestCase):
         self.assertEquals(11,common.Trade(1,1,1050,10,1000).ttax)
         str(common.Trade(1,1,1050,10,1000))
         strtest = str(common.Trade(1,1,1050,10,1000))  #测试__repr__
+        z = common.Trade(11,12,-10,15)
+        self.assertEquals(1,z.tprice)
         self.assertTrue(True)
 
     def test_set_volume(self):    #已经蕴含在testNormal中了
@@ -84,11 +86,11 @@ class EvaluationTest(unittest.TestCase):
         trades = (trade1,trade2,trade3,trade4)
         self.assertEquals(3030000,common.Evaluation.sumtrades(trades))
     
-    def test_sum_trades_zero(self):
+    def test_sum_trades_zero(self):#0==>1
         trade1 = common.Trade(1,1,0,1000,100)
         trade2 = common.Trade(1,2,1500,-1000,100)
         trades = (trade1,trade2)
-        self.assertEquals(99999999,common.Evaluation.sumtrades(trades))
+        self.assertEquals(1010,common.Evaluation.sumtrades(trades))
 
     def test_empty(self):    #测试没有异常
         ev = common.Evaluation([])

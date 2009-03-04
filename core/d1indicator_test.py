@@ -93,6 +93,20 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,620,700,650,650,550,550,550,692,650,650,590],stoplimit(source,signal,satr,1000).tolist())
         self.assertEquals([0,520,600,550,550,450,450,450,592,550,550,490],stoplimit(source,signal,satr,2000).tolist())
 
+    def test_tracelimit_old(self):
+        self.assertEquals([],tracelimit_old(np.array([]),np.array([]),np.array([]),np.array([]),1000,1000).tolist())
+        self.assertEquals([],tracelimit_old(np.array([]),np.array([]),np.array([]),np.array([]),2000,1000).tolist())
+        source = np.array([700,720,800,750,700,650,980,720,792,750,710,690])
+        shigh  = np.array([800,820,900,850,800,750,1080,820,892,850,810,790])
+        signal = np.array([0,1,1,1,0,1,0,0,1,1,0,1])
+        satr = np.array([100,100,100,100,100,100,100,100,100,100,100,100])
+        self.assertEquals([600,620,700,650,650,550,880,880,692,650,650,590],tracelimit_old(source,source,signal,satr,1000,1000).tolist())
+        self.assertEquals([500,620,700,650,650,550,780,780,692,650,650,590],tracelimit_old(source,source,signal,satr,1000,2000).tolist())        
+        self.assertEquals([600,620,700,650,650,550,880,880,692,650,650,590],tracelimit_old(source,source,signal,satr,2000,1000).tolist())
+        self.assertEquals([700,620,700,650,700,550,980,980,692,650,710,590],tracelimit_old(source,shigh,signal,satr,1000,1000).tolist())
+        self.assertEquals([600,620,700,650,650,550,880,880,692,650,650,590],tracelimit_old(source,shigh,signal,satr,1000,2000).tolist())
+        self.assertEquals([700,620,700,650,700,550,980,980,692,650,710,590],tracelimit_old(source,shigh,signal,satr,2000,1000).tolist())
+
     def test_tracelimit(self):
         self.assertEquals([],tracelimit(np.array([]),np.array([]),np.array([]),np.array([]),1000,1000).tolist())
         self.assertEquals([],tracelimit(np.array([]),np.array([]),np.array([]),np.array([]),2000,1000).tolist())

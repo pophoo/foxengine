@@ -92,7 +92,6 @@ def prepare_configs(seller,pman,dman):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
     
-    '''
     #svama3
     configs.append(config(buyer=fcustom(svama3,fast=6,mid=42,slow=69,sma=22,ma_standard=227,extend_days=13)))   #mm:(30880, 16830, 545, 4)  [1461,95,650] 20
     configs.append(config(buyer=fcustom(svama3,fast=6,mid=34,slow=69,sma=21,ma_standard=227,extend_days=13)))   #mm:[3239,230,551] 49
@@ -113,7 +112,6 @@ def prepare_configs(seller,pman,dman):
     configs.append(config(buyer=fcustom(svama3,fast= 10,mid= 30,slow=204,sma= 97,ma_standard=230,extend_days=  7))) 	#balance=11440,times=  7   ##
     configs.append(config(buyer=fcustom(svama3,fast= 27,mid= 62,slow= 49,sma= 73,ma_standard=205,extend_days= 31))) 	#balance=3872,times= 16
     configs.append(config(buyer=fcustom(svama3,fast= 23,mid= 75,slow=222,sma= 19,ma_standard=180,extend_days= 25))) 	#balance=4287,times=  7    #
-    '''
     #svama2
     configs.append(config(buyer=fcustom(svama2,fast=  6,slow=171,sma=105,ma_standard=244))) 	#balance=2854,times=  7
     configs.append(config(buyer=fcustom(svama2,fast= 15,slow=  7,sma= 92,ma_standard=232))) #   #balance=69244,times=  2
@@ -132,7 +130,6 @@ def prepare_configs(seller,pman,dman):
     configs.append(config(buyer=fcustom(svama2,fast= 14,slow=128,sma=120,ma_standard= 84))) 	#balance=5205,times= 28
     configs.append(config(buyer=fcustom(svama2,fast= 37,slow=112,sma= 46,ma_standard=232))) 	#balance=3039,times=  4
 
-    '''
     #以下为svama2s
     configs.append(config(buyer=fcustom(svama2s,fast= 13,slow= 79,sma= 41,ma_standard=231,extend_days= 23))) 	#balance=2406,times= 20
     configs.append(config(buyer=fcustom(svama2s,fast= 13,slow= 95,sma= 65,ma_standard=231,extend_days= 23))) 	#balance=2565,times= 10
@@ -176,7 +173,6 @@ def prepare_configs(seller,pman,dman):
     configs.append(config(buyer=fcustom(vama2,fast=  4,slow= 89,pre_length= 21,ma_standard=230))) 	#balance=4130,times= 16
     #ma3
     configs.append(config(buyer=fcustom(ma3,fast= 23,mid= 26,slow=150,ma_standard=240,extend_days= 31))) 	#balance=2857,times=1622
-    '''
 
     return configs
 
@@ -294,7 +290,7 @@ def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(filename="run_x3.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
+    logging.basicConfig(filename="run_x4.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
     
     #测试时间段 [19980101,19990101-20010801],[20000101,20010701-20050901],[20040601,20050801-20071031],[20060601,20071031-20090101]
     #总时间段   [20000101,20010701,20090101]    #一个完整的周期+一个下降段
@@ -319,6 +315,7 @@ if __name__ == '__main__':
     #dates,sdata,idata,catalogs = prepare_all(begin,end,get_codes(source='SZSE'),[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SZ000792'],[ref_code])            
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600888'],[ref_code])
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SZ000020'],[ref_code])
     tend = time()
     print u'数据准备耗时: %s' % (tend-tbegin)    
     import psyco

@@ -98,7 +98,7 @@ def batch_last(configs,sdata,dates,xbegin,cmediator=CMediator10,**kwargs):
                 ltrades[name] = trades
             tend = time()
             logger.debug(u'calc_last finished:%s,耗时:%s',name,tend-tbegin)
-            #print u'calc_last finished:%s,耗时:%s' % (name,tend-tbegin)
+            print u'calc_last finished:%s,耗时:%s' % (name,tend-tbegin)
         except Exception,inst:
             print 'batch_last error:',inst
             #import traceback

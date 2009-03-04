@@ -130,10 +130,11 @@ def _limit_adjuster(css,cls,covered):#covered不能大于127否则会溢出, np.sign(bool
     #print css,cls,css_covered,derepeat(band(css_covered>0,bnot(cls)))
     return derepeat(band(css_covered > 0,bnot(cls)),covered)    
     
-def limit_adjust(source_signal,limit_signal,trans_signal,covered=3):#covered不能大于127否则会溢出, np.sign(bool array)返回的是int8数组
+def limit_adjust(source_signal,limit_signal,trans_signal,covered=10):#covered不能大于127否则会溢出, np.sign(bool array)返回的是int8数组
     ''' 根据停板信号limit_signal和交易日信号trans_signal调整原始信号，使原始信号避开停板到开板日
         可能因covered的原因导致连续非停板日中间出现停板日后,信号多发. 但这个可由makke_trade之类的函数处理掉
         只有covered=2时,不会出现这个情况
+        covered=10，最多10个停板，超过则可能导致跌停情况下卖出信号被忽略
     '''
     adjuster = fcustom(_limit_adjuster,covered=covered)
     return smooth(trans_signal,source_signal,limit_signal,sfunc=adjuster)
@@ -234,6 +235,7 @@ def atr_seller(stock,buy_signal,stop_times=3*BASE/2,trace_times=2*BASE,covered=1
     trans = stock.transaction
     ssignal,down_limit = atr_sell_func(buy_signal,trans,stock.atr,stop_times,trace_times,covered,buy_sector,up_sector)
     stock.down_limit = down_limit
+    #print buy_signal - ssignal
     return ssignal
 
 def atr_seller_factory(stop_times=3*BASE/2,trace_times=2*BASE,covered=10,buy_sector=OPEN,up_sector=HIGH):

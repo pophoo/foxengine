@@ -28,6 +28,7 @@ class ModuleTest(unittest.TestCase):    #通路测试
         g120 = np.array([randint(0,10000) for i in range(2000)])
         g250 = np.array([randint(0,10000) for i in range(2000)])        
         s = BaseObject(code='SH00TEST',transaction=trans,g5=g5,g20=g20,g60=g60,g120=g120,g250=g250)
+        s.catalog = {s:g5}
         self.stock = s
 
     def test_ma3(self):

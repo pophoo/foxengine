@@ -187,8 +187,8 @@ def save_last(filename,dtrades,begin,end,dlast):
         f.write('\nname:%s\n' % name)
         #print trades
         for trade in trades:
-            #if trade.tdate >= dlast:
-            f.write('%s\n' % unicode(trade))
+            if trade.tdate >= dlast:
+                f.write('%s\n' % unicode(trade))
         f.write('\n**************************************************')
     f.close()
 

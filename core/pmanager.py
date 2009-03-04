@@ -35,6 +35,7 @@ class Position(object): #只能用于管理单边头寸(即卖出都是pop，买
             lostavg是平均损失比例(千分位表示)
             risk是能够承担的风险值,以0.001元表示
             size_limit为上限交易额,也以0.001元表示
+            price<0时会溢出。这种情况也会出现，600497，20050906. 这个问题由trade去保障
         '''
         #print 'push:',trade
         if trade.tstock in self.holdings:   #已经在持股. 对于多个来源的交易集合可能出现这种情况

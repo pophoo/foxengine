@@ -92,27 +92,6 @@ def prepare_configs(seller,pman,dman):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
 
-    configs.append(config(buyer=fcustom(svama3_x,fast=6,mid=42,slow=69,sma=22,ma_standard=227,extend_days=13)))   #mm:(30880, 16830, 545, 4)  [1461,95,650] 20
-    configs.append(config(buyer=fcustom(svama3_x,fast=6,mid=34,slow=69,sma=21,ma_standard=227,extend_days=13)))   #mm:[3239,230,551] 49
-    configs.append(config(buyer=fcustom(svama3_x,fast= 28,mid= 93,slow= 76,sma=113,ma_standard=195,extend_days=  5))) 	#balance=2854,times=  9    # [692,54,333] 9
-    configs.append(config(buyer=fcustom(svama3_x,fast= 29,mid= 58,slow= 12,sma= 65,ma_standard=250,extend_days= 13))) 	#balance=98932,times=  2   # [1000,86,1000] 2
-    configs.append(config(buyer=fcustom(svama3_x,fast= 27,mid= 26,slow= 76,sma= 89,ma_standard=190,extend_days=  5))) 	#balance=3885,times= 24    # [2301,122,576] 26
-    configs.append(config(buyer=fcustom(svama3_x,fast=  7,mid= 23,slow= 66,sma= 77,ma_standard=195,extend_days= 19))) 	#balance=3092,times= 68      [838,52,455] 102
-    configs.append(config(buyer=fcustom(svama3_x,fast= 29,mid= 26,slow=143,sma= 79,ma_standard=175,extend_days= 19))) 	#balance=4901,times= 11      [1227,108,545] 11
-    configs.append(config(buyer=fcustom(svama3_x,fast= 29,mid= 19,slow=144,sma= 95,ma_standard=175,extend_days=  3))) 	#balance=17630,times= 19   #   [1338,137,700] 20 
-    configs.append(config(buyer=fcustom(svama3_x,fast= 17,mid= 26,slow=141,sma= 95,ma_standard=245,extend_days=  3))) 	#balance=3092,times= 13    ##
-    configs.append(config(buyer=fcustom(svama3_x,fast= 10,mid= 94,slow=156,sma= 73,ma_standard=210,extend_days=  5))) 	#balance=8197,times=  6    ##
-    configs.append(config(buyer=fcustom(svama3_x,fast=  2,mid= 90,slow=175,sma= 11,ma_standard=195,extend_days= 13))) 	#balance=8442,times=  2    ##
-    configs.append(config(buyer=fcustom(svama3_x,fast= 37,mid= 67,slow=106,sma= 87,ma_standard=245,extend_days=  9))) 	#balance=6402,times=  4    #
-    configs.append(config(buyer=fcustom(svama3_x,fast= 42,mid= 25,slow= 76,sma= 97,ma_standard=195,extend_days=  5))) 	#balance=3049,times= 19
-    configs.append(config(buyer=fcustom(svama3_x,fast= 42,mid= 30,slow= 76,sma= 97,ma_standard=195,extend_days= 35))) 	#balance=5359,times=  5    #
-    configs.append(config(buyer=fcustom(svama3_x,fast= 39,mid= 57,slow=196,sma=101,ma_standard=180,extend_days= 17))) 	#balance=7971,times= 18
-    configs.append(config(buyer=fcustom(svama3_x,fast=  2,mid= 19,slow=233,sma= 81,ma_standard=245,extend_days= 15))) 	#balance=3648,times= 42
-    configs.append(config(buyer=fcustom(svama3_x,fast= 10,mid= 30,slow=204,sma= 97,ma_standard=230,extend_days=  7))) 	#balance=11440,times=  7   ##
-    configs.append(config(buyer=fcustom(svama3_x,fast= 27,mid= 62,slow= 49,sma= 73,ma_standard=205,extend_days= 31))) 	#balance=3872,times= 16
-    configs.append(config(buyer=fcustom(svama3_x,fast= 23,mid= 75,slow=222,sma= 19,ma_standard=180,extend_days= 25))) 	#balance=4287,times=  7    #
-
-    '''
     #svama3
     configs.append(config(buyer=fcustom(svama3,fast=6,mid=42,slow=69,sma=22,ma_standard=227,extend_days=13)))   #mm:(30880, 16830, 545, 4)  [1461,95,650] 20
     configs.append(config(buyer=fcustom(svama3,fast=6,mid=34,slow=69,sma=21,ma_standard=227,extend_days=13)))   #mm:[3239,230,551] 49
@@ -194,7 +173,6 @@ def prepare_configs(seller,pman,dman):
     configs.append(config(buyer=fcustom(vama2,fast=  4,slow= 89,pre_length= 21,ma_standard=230))) 	#balance=4130,times= 16
     #ma3
     configs.append(config(buyer=fcustom(ma3,fast= 23,mid= 26,slow=150,ma_standard=240,extend_days= 31))) 	#balance=2857,times=1622
-    '''
 
     return configs
 
@@ -317,12 +295,12 @@ if __name__ == '__main__':
     #总时间段   [20000101,20010701,20090101]    #一个完整的周期+一个下降段
     #分段测试的要求，段mm > 1000-1500或抑制，总段mm > 2000
     
-    begin,xbegin,end = 20000101,20010701,20090101
+    #begin,xbegin,end = 20000101,20010701,20090101
     #begin,xbegin,end = 19980101,19990701,20010801    
     #begin,xbegin,end = 20040601,20050801,20071031
     #begin,xbegin,end = 20060601,20071031,20090101
     #begin,xbegin,end = 19980101,19990101,20090101
-    #begin,xbegin,end,lbegin = 20070101,20080601,20090327,20081201
+    begin,xbegin,end,lbegin = 20070101,20080601,20090327,20080601
     from time import time
     tbegin = time()
     
@@ -345,7 +323,7 @@ if __name__ == '__main__':
     run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
-    #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
 
     #prepare_order(sdata.values())
     #prepare_order(catalogs)

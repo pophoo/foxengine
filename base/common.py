@@ -8,7 +8,7 @@ class Trade(object):
     def __init__(self,tstock,tdate,tprice,tvolume,taxrate = 125): #taxrate默认值为千分之八(1000/125). tvolume正为买入，负为卖出
         self.tstock = tstock
         self.tdate = tdate
-        self.tprice = tprice
+        self.tprice = tprice if tprice > 0 else 1 #避免除权除成负/0的出现(会影响仓位计算) 600497,200509以前情形
         self.taxrate = taxrate
         self.set_volume(tvolume)
 
@@ -119,6 +119,7 @@ class Evaluation(object):
         for trade in trades:
             #print trade
             if(trade.tvolume > 0):
+                #print trade.tprice,trade.tvolume,trade.calc()
                 sum -= trade.calc() #买入时收入现金数为负数
         #print 'len(trades):%s,sum:%s' % (len(trades),sum)
         return sum if sum > 0 else 99999999   #避免出现sum=0的情形。因为除权的原因，有可能出现买入价为0的情形，特别是基金

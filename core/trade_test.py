@@ -94,7 +94,7 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals(109,trades[0].tprice)
         self.assertEquals(1000,trades[0].tvolume)
         trades = last_trade(stock,signal1,tdate,tbuy,tsell,begin=20050104)
-        self.assertEquals(0,len(trades))    #全部已经平仓，无未平仓，以卖出开始
+        self.assertEquals(1,len(trades))    #全部已经平仓，无未平仓，以卖出开始
         trades = last_trade(stock,signal1,tdate,tbuy,tsell,begin=20050105)
         self.assertEquals(1,len(trades))
         self.assertEquals(20050109,trades[0].tdate)

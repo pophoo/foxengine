@@ -86,8 +86,12 @@ def last_trade(stock,signal,tdate,tpositive,tnegative
     tbegin = tdate.searchsorted(begin)
     ibegin = sis.searchsorted(tbegin)   #tbegin在非0索引中的插入位置
     slen = len(sis)
-    if slen == 0 or sum(signal[tbegin:]) == 0 or tdate[sis[-1]] < begin: #空信号序列(实际上也是sum(signal)==0)或都已经匹配，无悬挂之买入/卖出
+    #print tbegin,ibegin,slen
+    #if slen == 0 or sum(signal[tbegin:]) == 0 or tdate[sis[-1]] < begin: #空信号序列(实际上也是sum(signal)==0)或都已经匹配，无悬挂之买入/卖出
+    #    return []
+    if slen == 0 or tdate[sis[-1]] < begin: #空信号序列,匹配的卖出也要显示    
         return []
+    #print signal
     last_index = sis[-1]
     cs = signal[last_index]
     price = tpositive[last_index] if cs > 0 else tnegative[last_index]

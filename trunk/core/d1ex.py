@@ -183,6 +183,15 @@ def extend2next(source):
         rev[i] = cur
     return rev
 
+def sresume(source,length=5):
+    ''' 连续>=length个零的第一个非零日
+    '''
+    rev = np.zeros_like(source)
+    nzeros = np.where(source != 0)[0]
+    sdiff = nsubd(nzeros)
+    rev[nzeros[sdiff>=length]] = 1
+    return rev
+
 def extend2reverse(source):
     ''' 信号延伸，一直延伸到反向信号
         >0  正信号

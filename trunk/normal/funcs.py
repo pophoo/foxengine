@@ -237,47 +237,25 @@ def vama3(stock,fast,mid,slow,pre_length=120,ma_standard=120,extend_days=10):
     return gand(g,msvap,trend_ma_standard)
 
 
-def svama3_x(stock,fast,mid,slow,sma=22,ma_standard=120,extend_days=10):
-    ''' svama三叉,30天内再有日线底线叉55/120
-        可以考虑信号发出n天内，突然放水10-20%到下位支撑(20,55,120)[附近]然后向上
-            或者强势盘整幅度越来越小    见600117 20030115的信号(6,12,69,ex=13,ma=227,sma=21)
-            另四线理顺也是启动的强势附件
-            并考虑筛选条件，如10内涨幅超过20-25%
-
+#svama2和vama2信号发出后的再确认
+def svama2x(stock,fast,slow,base,sma=22,ma_standard=120):
+    ''' svama二叉,30天内再有日线底线叉ma(base)
     '''
     t = stock.transaction
-    #print stock.code,len(t[CLOSE]),sum(t[CLOSE])
     g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
     svap,v2i = svap_ma(t[VOLUME],t[CLOSE],sma)
     ma_svapfast = ma(svap,fast)
-    ma_svapmid = ma(svap,mid)    
     ma_svapslow = ma(svap,slow)
     trend_ma_svapfast = strend(ma_svapfast) > 0
-    trend_ma_svapmid = strend(ma_svapmid) > 0    
     trend_ma_svapslow = strend(ma_svapslow) > 0
-
-    #cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
-    cross_fast_mid = band(cross(ma_svapmid,ma_svapfast)>0,trend_ma_svapfast)
-    cross_fast_slow = band(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast)    
-    cross_mid_slow = band(cross(ma_svapslow,ma_svapmid)>0,trend_ma_svapmid)
-    sync_fast_2 = sfollow(cross_fast_mid,cross_fast_slow,extend_days)
-    sync3 = sfollow(sync_fast_2,cross_mid_slow,extend_days)
-    msvap = transform(sync3,v2i,len(t[VOLUME]))
-
-    #print 'ma_standard:',ma_standard
+    cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
+    msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
     ma_standard = ma(t[CLOSE],ma_standard)
     trend_ma_standard = strend(ma_standard) > 0
 
-    ma_fast = ma(t[CLOSE],3)
-    ma_mid = ma(t[CLOSE],20)
-    ma_slow = ma(t[CLOSE],55)
-    trend_fast = strend(ma_fast) > 0
-    trend_mid = strend(ma_mid) > 0    
-    trend_slow = strend(ma_slow) > 0
-    cross_fast_mid = band(cross(ma_mid,ma_fast),trend_fast)
-    cross_fast_slow = band(cross(ma_slow,ma_fast),trend_fast)
-    xcross = bor(cross_fast_mid,cross_fast_slow)
-    csignal = gand(trend_fast,trend_mid,trend_slow,xcross)
-    sf = sfollow(msvap,csignal)
+    ma_fast = t[LOW]
+    ma_base = ma(t[CLOSE],base)
+    trend_base = strend(ma_base) > 0    
+    xcross = band(cross(ma_base,ma_fast),trend_base)
+    sf = sfollow(msvap,xcross)
     return gand(g,sf,trend_ma_standard)
-

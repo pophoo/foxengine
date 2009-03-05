@@ -50,6 +50,16 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
         cruiser = ccruiser.Svama2MMCruiser(psize=20,maxstep=1,goal=20000)
         cruiser.gcruise(sdata,dates,20010601)    
 
+    def test_svama2x_mm_cruiser(self):
+        begin,end = 20010101,20010201
+        dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        d_posort('g5',sdata.values(),distance=5)        
+        d_posort('g20',sdata.values(),distance=20)    
+        d_posort('g120',sdata.values(),distance=120)     
+        d_posort('g250',sdata.values(),distance=250)     
+        cruiser = ccruiser.Svama2xMMCruiser(psize=20,maxstep=1,goal=20000)
+        cruiser.gcruise(sdata,dates,20010601)    
+
     def test_svama2s_mm_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])

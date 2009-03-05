@@ -59,6 +59,19 @@ class Svama2MMCruiser(MM_GeneticCruiser):
         self.predefined = []
         self.evaluate_func = normal_evaluate
 
+class Svama2xMMCruiser(MM_GeneticCruiser):
+    def prepare(self):
+        print 'prepare:'
+        self.args = dict(fast=range(1,49),slow=range(5,260)
+                ,sma=range(3,130,2),ma_standard=range(5,260,5)
+                ,base=range(8,250,2)
+                )
+        self.buy_func = lambda stock,fast,slow,base,sma,ma_standard,**kwargs:svama2x(stock,fast,slow,base,sma,ma_standard)
+        #kwargs用于吸收其它函数所需的参数
+        self.sell_func = atr_seller
+        self.predefined = []
+        self.evaluate_func = normal_evaluate
+
 class Svama2sMMCruiser(MM_GeneticCruiser):
     def prepare(self):
         print 'prepare:'
@@ -137,8 +150,9 @@ if __name__ == '__main__':
     #cruiser = Svama2MMCruiser(psize=100,maxstep=50,goal=2000000)
     #cruiser = Svama2sMMCruiser(psize=100,maxstep=50,goal=200000000)
     #cruiser = Vama3MMCruiser(psize=100,maxstep=50,goal=200000000)
-    cruiser = Vama2MMCruiser(psize=100,maxstep=50,goal=20000000)
+    #cruiser = Vama2MMCruiser(psize=100,maxstep=50,goal=20000000)
     #cruiser = Ma3MMCruiser(psize=100,maxstep=50,goal=200000000)
+    cruiser = Svama2xMMCruiser(psize=100,maxstep=50,goal=20000000)
     print 'before cruiser,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
     cruiser.gcruise(sdata,dates,tbegin)
     print 'after cruiesr,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)    

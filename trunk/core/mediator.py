@@ -9,13 +9,14 @@ import numpy as np
 import logging
 
 from wolfox.fengine.base.common import Trade
-from wolfox.fengine.core.d1 import greater,rollx
+from wolfox.fengine.core.d1 import greater,rollx,band,bnot
+from wolfox.fengine.core.d1ex import sresume
 from wolfox.fengine.core.d1indicator import atr
 from wolfox.fengine.core.future import mm_ratio,mm_sum_smooth
 from wolfox.fengine.core.d1idiom import B0S0,B0S1,B1S0,B1S1,BS_DUMMY
 from wolfox.fengine.core.d1match import make_trade_signal,make_trade_signal_advanced
 from wolfox.fengine.core.trade import make_trades,last_trade,match_trades,default_extra,atr_extra
-from wolfox.fengine.core.base import CLOSE,OPEN,HIGH,LOW
+from wolfox.fengine.core.base import CLOSE,OPEN,HIGH,LOW,VOLUME
 from wolfox.fengine.core.utils import fcustom
 
 logger = logging.getLogger('wolfox.fengine.core.mediator')
@@ -77,6 +78,7 @@ class Mediator(object):
         '''
         t = stock.transaction
         sbuy,ssell = self.trade_strategy(t,sbuy,ssell)
+        sbuy = band(sbuy,bnot(sresume(stock.transaction[VOLUME],10))) #对停牌10日以上的的股票，消除其sbuy信号
         #logger.debug(u'sbuy,after strategy:%s',sbuy.tolist())
         #logger.debug(u'ssell,after strategy:%s',ssell.tolist())
         ssignal = self.trade_signal_maker(sbuy,ssell)

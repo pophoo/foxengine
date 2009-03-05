@@ -12,8 +12,10 @@ mm_groups = ['balance','times']
 svama2_pattern = r'ma_standard=(?P<ma_standard>\d+),slow=(?P<slow>\d+),fast=(?P<fast>\d+),sma=(?P<sma>\d+)'
 svama2_groups = ['fast','slow','sma','ma_standard']
 
-svama2x_pattern = r'ma_standard=(?P<ma_standard>\d+),base=(?P<base>\d+),fast=(?P<fast>\d+),sma=(?P<sma>\d+),slow=(?P<slow>\d+)'
-svama2x_groups = ['fast','slow','base','sma','ma_standard']
+#wolfox.fengine.core.shortcut:judge:174:2009-03-05 20:41:57,765 DEBUG Mediator:<<lambda>:slow=154,sma=67,base=152,ma_standard=85,extend_days=5,fast=10:atr_seller:slow=154,sma=67,base=152,ma_standard=85,extend_days=5,fast=10:make_trade_signal:B1S1>:mm:(530, 72242, 136209, 60)
+
+svama2x_pattern = r'slow=(?P<slow>\d+),sma=(?P<sma>\d+),base=(?P<base>\d+),ma_standard=(?P<ma_standard>\d+),extend_days=(?P<extend_days>\d+),fast=(?P<fast>\d+)'
+svama2x_groups = ['fast','slow','base','sma','ma_standard','extend_days']
 
 svama3_pattern = r'slow=(?P<slow>\d+),sma=(?P<sma>\d+),ma_standard=(?P<ma_standard>\d+),extend_days=(?P<extend_days>\d+),fast=(?P<fast>\d+),mid=(?P<mid>\d+)'
 svama3_groups = ['fast','mid','slow','sma','ma_standard','extend_days']
@@ -27,6 +29,9 @@ vama3_groups = ['fast','mid','slow','pre_length','ma_standard','extend_days']
 vama2_pattern = r'pre_length=(?P<pre_length>\d+),ma_standard=(?P<ma_standard>\d+),slow=(?P<slow>\d+),fast=(?P<fast>\d+)'
 vama2_groups = ['fast','slow','pre_length','ma_standard']
 
+vama2x_pattern = r'slow=(?P<slow>\d+),base=(?P<base>\d+),pre_length=(?P<pre_length>\d+),ma_standard=(?P<ma_standard>\d+),extend_days=(?P<extend_days>\d+),fast=(?P<fast>\d+)'
+vama2x_groups = ['fast','slow','base','pre_length','ma_standard','extend_days']
+
 ma3_pattern = r'ma_standard=(?P<ma_standard>\d+),slow=(?P<slow>\d+),extend_days=(?P<extend_days>\d+),fast=(?P<fast>\d+),mid=(?P<mid>\d+)'
 ma3_groups = ['fast','mid','slow','ma_standard','extend_days']
 
@@ -37,6 +42,7 @@ pmappings = {'svama2':BaseObject(pattern=svama2_pattern,groups=svama2_groups),
         'svama2s':BaseObject(pattern=svama2s_pattern,groups=svama2s_groups),
         'vama3':BaseObject(pattern=vama3_pattern,groups=vama3_groups),
         'vama2':BaseObject(pattern=vama2_pattern,groups=vama2_groups),
+        'vama2x':BaseObject(pattern=vama2x_pattern,groups=vama2x_groups),
         'ma3':BaseObject(pattern=ma3_pattern,groups=ma3_groups),        
         }
 

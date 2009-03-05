@@ -14,6 +14,9 @@ svama2_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-02-18 23:04:30
 svama3_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-02-18 14:48:35,125 DEBUG Mediator:<<lambda>:slow=196,sma=48,ma_standard=111,extend_days=6,fast=27,mid=87:atr_seller:slow=196,sma=48,ma_standard=111,extend_days=6,fast=27,mid=87:make_trade_signal:B1S1>:(2008, 28953, 14418, 11)
 ##wolfox.fengine.core.shortcut:log_result:145:2009-02-18 14:48:35,125 DEBUG Mediator:<<lambda>:slow=16,sma=70,ma_standard=228,extend_days=22,fast=33,mid=6:atr_seller:slow=16,sma=70,ma_standard=228,extend_days=22,fast=33,mid=6:make_trade_signal:B1S1>:(1940, 17272, 8899, 8)
 '''
+svama2x_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-03-05 13:07:42,096 DEBUG Mediator:<<lambda>:ma_standard=65,base=24,fast=33,sma=47,slow=58:atr_seller:ma_standard=65,base=24,fast=33,sma=47,slow=58:make_trade_signal:B1S1>:(3118, 69048, 22140, 15)
+#wolfox.fengine.core.shortcut:log_result:145:2009-03-05 13:07:42,096 DEBUG Mediator:<<lambda>:ma_standard=20,base=62,fast=3,sma=77,slow=50:atr_seller:ma_standard=20,base=62,fast=3,sma=77,slow=50:make_trade_signal:B1S1>:(3185, 177713, 55792, 29)
+'''
 
 svama2s_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-02-22 02:45:57,483 DEBUG Mediator:<<lambda>:ma_standard=230,slow=118,extend_days=7,fast=14,sma=85:atr_seller:ma_standard=230,slow=118,extend_days=7,fast=14,sma=85:make_trade_signal:B1S1>:(2072, 39478, 19047, 18)
 #wolfox.fengine.core.shortcut:log_result:145:2009-02-22 02:45:57,500 DEBUG Mediator:<<lambda>:ma_standard=230,slow=22,extend_days=23,fast=10,sma=77:atr_seller:ma_standard=230,slow=22,extend_days=23,fast=10,sma=77:make_trade_signal:B1S1>:(2100, 57464, 27352, 26)
@@ -62,6 +65,14 @@ class ModuleTest(unittest.TestCase):
         rf = StringIO(svama2_txt)
         wf = StringIO()
         lines2configs('svama2',rf,wf)
+        result = wf.getvalue()
+        rows = result.split('\n')
+        self.assertEquals(3,len(rows))
+
+    def test_svama2x(self):
+        rf = StringIO(svama2x_txt)
+        wf = StringIO()
+        lines2configs('svama2x',rf,wf)
         result = wf.getvalue()
         rows = result.split('\n')
         self.assertEquals(3,len(rows))

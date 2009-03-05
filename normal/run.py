@@ -91,7 +91,7 @@ def prepare_configs_B(seller,pman,dman): # 400<=R<1000
 def prepare_configs(seller,pman,dman):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
-
+    '''
     #svama3
     configs.append(config(buyer=fcustom(svama3,fast=6,mid=42,slow=69,sma=22,ma_standard=227,extend_days=13)))   #mm:(30880, 16830, 545, 4)  [1461,95,650] 20
     configs.append(config(buyer=fcustom(svama3,fast=6,mid=34,slow=69,sma=21,ma_standard=227,extend_days=13)))   #mm:[3239,230,551] 49
@@ -173,7 +173,26 @@ def prepare_configs(seller,pman,dman):
     configs.append(config(buyer=fcustom(vama2,fast=  4,slow= 89,pre_length= 21,ma_standard=230))) 	#balance=4130,times= 16
     #ma3
     configs.append(config(buyer=fcustom(ma3,fast= 23,mid= 26,slow=150,ma_standard=240,extend_days= 31))) 	#balance=2857,times=1622
+    '''
 
+    #svama2x
+    configs.append(config(buyer=fcustom(svama2x,base=55,fast=  6,slow=171,sma=105,ma_standard=244))) 	#balance=2854,times=  7
+    configs.append(config(buyer=fcustom(svama2x,base=55,fast= 15,slow=  7,sma= 92,ma_standard=232))) #   #balance=69244,times=  2
+    configs.append(config(buyer=fcustom(svama2x,base=55,fast= 18,slow= 57,sma= 11,ma_standard=245))) 	#balance=2900,times=  4
+    configs.append(config(buyer=fcustom(svama2x,base=55,fast=  8,slow= 66,sma=114,ma_standard= 92))) 	#balance=3082,times= 33
+    configs.append(config(buyer=fcustom(svama2x,base=55,fast=  3,slow= 60,sma= 54,ma_standard=254))) #	#balance=6066,times=  7
+    configs.append(config(buyer=fcustom(svama2x,base=55,fast=  4,slow= 91,sma=122,ma_standard= 80))) 	#balance=6461,times= 13
+    configs.append(config(buyer=fcustom(svama2x,base=55,fast=  3,slow= 97,sma=115,ma_standard= 83))) 	#balance=6713,times=  9
+    configs.append(config(buyer=fcustom(svama2x,base=55,fast= 26,slow= 88,sma= 73,ma_standard=238))) 	#balance=2760,times= 35
+    configs.append(config(buyer=fcustom(svama2x,base=55,fast= 27,slow=175,sma= 85,ma_standard= 72))) 	#balance=5523,times= 36
+    configs.append(config(buyer=fcustom(svama2x,base=55,fast=  8,slow=164,sma=122,ma_standard= 78))) 	#balance=2727,times= 28
+    configs.append(config(buyer=fcustom(svama2x,base=55,fast=  5,slow=166,sma= 53,ma_standard= 79))) 	#balance=3572,times= 15
+    configs.append(config(buyer=fcustom(svama2x,base=55,fast=  8,slow=196,sma= 46,ma_standard=214))) 	#balance=11796,times= 15
+    configs.append(config(buyer=fcustom(svama2x,base=55,fast=  2,slow=209,sma= 53,ma_standard=200))) #balance=524165,times=5    
+    configs.append(config(buyer=fcustom(svama2x,base=55,fast=  4,slow=128,sma=120,ma_standard= 80))) 	#balance=4648,times= 12
+    configs.append(config(buyer=fcustom(svama2x,base=55,fast= 14,slow=128,sma=120,ma_standard= 84))) 	#balance=5205,times= 28
+    configs.append(config(buyer=fcustom(svama2x,base=55,fast= 37,slow=112,sma= 46,ma_standard=232))) 	#balance=3039,times=  4
+    
     return configs
 
 def prepare_order(sdata):
@@ -295,12 +314,12 @@ if __name__ == '__main__':
     #总时间段   [20000101,20010701,20090101]    #一个完整的周期+一个下降段
     #分段测试的要求，段mm > 1000-1500或抑制，总段mm > 2000
     
-    #begin,xbegin,end = 20000101,20010701,20090101
+    begin,xbegin,end = 20000101,20010701,20090101
     #begin,xbegin,end = 19980101,19990701,20010801    
     #begin,xbegin,end = 20040601,20050801,20071031
     #begin,xbegin,end = 20060601,20071031,20090101
     #begin,xbegin,end = 19980101,19990101,20090101
-    begin,xbegin,end,lbegin = 20070101,20080601,20090327,20080601
+    #begin,xbegin,end,lbegin = 20070101,20080601,20090327,20080601
     from time import time
     tbegin = time()
     

@@ -63,6 +63,15 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,0,5,5,-5,-5,-5,-5,-5,-5,1,1,1,3,3,3,-1,1,2,2,2,2,2,6,6],extend2next(source).tolist())
         self.assertEquals([],extend2next(np.array([])).tolist())
 
+    def test_sresume(self):
+        source = np.array([0,0,5,0,-5,0,0,0,0,0,1,0,0,3,0,0,-1,1,2,0,0,0,0,6,0])
+        self.assertEquals([0,0,1,0,1, 0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,1,0],sresume(source,2).tolist())
+        self.assertEquals([0,0,0,0,0, 0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,1,0],sresume(source,3).tolist())
+        self.assertEquals([0,0,0,0,0, 0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0],sresume(source,5).tolist())
+        self.assertEquals([0,0,0,0,0, 0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],sresume(source,6).tolist())
+        self.assertEquals([0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],sresume(source,7).tolist())        
+        self.assertEquals([],sresume(np.array([])).tolist())
+        
     def test_distance(self):
         source = np.array([0,0,5,0,-5,0,0,0,0,0,1,0,0,3,0,0,-1,1,2,0,0,0,0,6,0])
         self.assertEquals([1,2,0,1,0,1,2,3,4,5,0,1,2,0,1,2,0,0,0,1,2,3,4,0,1],distance(source).tolist())

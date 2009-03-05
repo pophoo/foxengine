@@ -64,9 +64,9 @@ class Svama2xMMCruiser(MM_GeneticCruiser):
         print 'prepare:'
         self.args = dict(fast=range(1,49),slow=range(5,260)
                 ,sma=range(3,130,2),ma_standard=range(5,260,5)
-                ,base=range(8,250,2)
+                ,base=range(8,250,2),extend_days=range(5,36)
                 )
-        self.buy_func = lambda stock,fast,slow,base,sma,ma_standard,**kwargs:svama2x(stock,fast,slow,base,sma,ma_standard)
+        self.buy_func = lambda stock,fast,slow,base,sma,ma_standard,extend_days,**kwargs:svama2x(stock,fast,slow,base,sma,ma_standard,extend_days)
         #kwargs用于吸收其它函数所需的参数
         self.sell_func = atr_seller
         self.predefined = []
@@ -92,6 +92,19 @@ class Vama2MMCruiser(MM_GeneticCruiser):
                 ,ma_standard=range(5,260,5)
                 )
         self.buy_func = lambda stock,fast,slow,pre_length,ma_standard,**kwargs:vama2(stock,fast,slow,pre_length,ma_standard)
+        #kwargs用于吸收其它函数所需的参数
+        self.sell_func = atr_seller
+        self.predefined = []
+        self.evaluate_func = normal_evaluate
+
+class Vama2xMMCruiser(MM_GeneticCruiser):
+    def prepare(self):
+        print 'prepare:'
+        self.args = dict(fast=range(1,49),slow=range(5,260)
+                ,pre_length=range(1,200,5),ma_standard=range(5,260,5)
+                ,base=range(8,250,2),extend_days=range(5,36)
+                )
+        self.buy_func = lambda stock,fast,slow,base,pre_length,ma_standard,extend_days,**kwargs:vama2x(stock,fast,slow,base,pre_length,ma_standard,extend_days)
         #kwargs用于吸收其它函数所需的参数
         self.sell_func = atr_seller
         self.predefined = []
@@ -126,10 +139,10 @@ class Ma3MMCruiser(MM_GeneticCruiser):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(filename="custom_cruiser_mm_3.log",level=logging.DEBUG,format='#%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
+    logging.basicConfig(filename="custom_cruiser_mm_3x.log",level=logging.DEBUG,format='#%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 
-    begin,end = 20060101,20090101
-    tbegin = 20071001
+    begin,end = 20000101,20050901
+    tbegin = 20010801
     dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
@@ -152,7 +165,8 @@ if __name__ == '__main__':
     #cruiser = Vama3MMCruiser(psize=100,maxstep=50,goal=200000000)
     #cruiser = Vama2MMCruiser(psize=100,maxstep=50,goal=20000000)
     #cruiser = Ma3MMCruiser(psize=100,maxstep=50,goal=200000000)
-    cruiser = Svama2xMMCruiser(psize=100,maxstep=50,goal=20000000)
+    #cruiser = Svama2xMMCruiser(psize=100,maxstep=50,goal=20000000)
+    cruiser = Vama2xMMCruiser(psize=100,maxstep=50,goal=20000000)
     print 'before cruiser,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
     cruiser.gcruise(sdata,dates,tbegin)
     print 'after cruiesr,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)    

@@ -593,4 +593,14 @@ svama3,fast=  7,mid= 23,slow= 66,sma= 77,ma_standard=195,extend_days= 19
 svama3,fast= 37,mid= 67,slow=106,sma= 87,ma_standard=245,extend_days=  9 
 
 
+#20080305
+新增svama2x
+    configs.append(config(buyer=fcustom(svama2x,base=55,fast= 27,slow=175,sma= 85,ma_standard= 72))) 	
+    configs.append(config(buyer=fcustom(svama2x,base=55,fast= 14,slow=128,sma=120,ma_standard= 84)))
+    configs.append(config(buyer=fcustom(svama2x,fast= 18,slow= 62,base= 10,sma= 47,ma_standard= 65))) 	#balance=3325,times= 21
+    configs.append(config(buyer=fcustom(svama2x,fast=  2,slow= 53,base= 58,sma= 75,ma_standard= 50))) 	#balance=5184,times= 58
+    configs.append(config(buyer=fcustom(svama2x,fast=  5,slow= 62,base= 62,sma=107,ma_standard= 30))) 	#balance=6675,times= 57
+    configs.append(config(buyer=fcustom(svama2x,fast=  8,slow= 61,base= 44,sma= 77,ma_standard= 65))) 	#balance=7726,times= 15
+    configs.append(config(buyer=fcustom(svama2x,fast=  9,slow= 62,base= 44,sma= 75,ma_standard= 65))) 	#balance=9509,times= 12
+    configs.append(config(buyer=fcustom(svama2x,fast=  1,slow= 61,base=  8,sma= 75,ma_standard= 85))) 	#balance=15853,times=  4
 

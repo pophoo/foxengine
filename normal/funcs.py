@@ -238,8 +238,8 @@ def vama3(stock,fast,mid,slow,pre_length=120,ma_standard=120,extend_days=10):
 
 
 #svama2和vama2信号发出后的再确认
-def svama2x(stock,fast,slow,base,sma=22,ma_standard=120):
-    ''' svama二叉,30天内再有日线底线叉ma(base)
+def svama2x(stock,fast,slow,base,sma=22,ma_standard=120,extend_days=10):
+    ''' svama二叉,extend_days天内再有日线底线叉ma(base)
     '''
     t = stock.transaction
     g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
@@ -257,5 +257,32 @@ def svama2x(stock,fast,slow,base,sma=22,ma_standard=120):
     ma_base = ma(t[CLOSE],base)
     trend_base = strend(ma_base) > 0    
     xcross = band(cross(ma_base,ma_fast),trend_base)
-    sf = sfollow(msvap,xcross)
+    sf = sfollow(msvap,xcross,extend_days)
     return gand(g,sf,trend_ma_standard)
+
+def vama2x(stock,fast,slow,base,pre_length=120,ma_standard=120,extend_days=10):
+    ''' vama双叉,extend_days天内再有日线底线叉ma(base)
+    '''
+    t = stock.transaction
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    svap,v2i = vap_pre(t[VOLUME],t[CLOSE],pre_length)
+    ma_svapfast = ma(svap,fast)
+    ma_svapslow = ma(svap,slow)
+    trend_ma_svapfast = strend(ma_svapfast) > 0
+    trend_ma_svapslow = strend(ma_svapslow) > 0
+    #cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
+    cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapslow)
+    msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
+
+    ma_standard = ma(t[CLOSE],ma_standard)
+    trend_ma_standard = strend(ma_standard) > 0
+    #sup = up_under(t[HIGH],t[LOW],10,300)
+
+    ma_fast = t[LOW]
+    ma_base = ma(t[CLOSE],base)
+    trend_base = strend(ma_base) > 0    
+    xcross = band(cross(ma_base,ma_fast),trend_base)
+    sf = sfollow(msvap,xcross,extend_days)
+
+    return gand(g,sf,trend_ma_standard)
+

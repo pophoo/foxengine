@@ -12,7 +12,6 @@ mm_groups = ['balance','times']
 svama2_pattern = r'ma_standard=(?P<ma_standard>\d+),slow=(?P<slow>\d+),fast=(?P<fast>\d+),sma=(?P<sma>\d+)'
 svama2_groups = ['fast','slow','sma','ma_standard']
 
-#wolfox.fengine.core.shortcut:judge:174:2009-03-05 20:41:57,765 DEBUG Mediator:<<lambda>:slow=154,sma=67,base=152,ma_standard=85,extend_days=5,fast=10:atr_seller:slow=154,sma=67,base=152,ma_standard=85,extend_days=5,fast=10:make_trade_signal:B1S1>:mm:(530, 72242, 136209, 60)
 
 svama2x_pattern = r'slow=(?P<slow>\d+),sma=(?P<sma>\d+),base=(?P<base>\d+),ma_standard=(?P<ma_standard>\d+),extend_days=(?P<extend_days>\d+),fast=(?P<fast>\d+)'
 svama2x_groups = ['fast','slow','base','sma','ma_standard','extend_days']

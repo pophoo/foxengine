@@ -12,6 +12,16 @@ logger = logging.getLogger('wolfox.fengine.normal.run')
 #1 缩小止损，止损和跟随建议为1600/2400
 #2 信号出来后打到55/120均线附近
 
+def prepare_temp_configs(seller,pman=None,dman=None):
+    config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
+    configs = []
+    configs.append(config(buyer=fcustom(svama2x,fast= 44,slow= 15,base=190,sma= 43,ma_standard=225,extend_days= 23))) 	#balance=2418,times=  7
+    configs.append(config(buyer=fcustom(svama2x,fast= 44,slow=  5,base=190,sma= 43,ma_standard=225,extend_days= 23))) 	#balance=4565,times=  9
+    configs.append(config(buyer=fcustom(svama2x,fast= 44,slow=  7,base=190,sma= 43,ma_standard=225,extend_days=  7))) 	#balance=9140,times= 11    
+    configs.append(config(buyer=fcustom(vama2x,fast= 41,slow= 10,base=246,pre_length=171,ma_standard=170,extend_days=  7))) 	#balance=3587,times=  6
+    
+    return configs
+
 def prepare_configs_A(seller,pman,dman):    #R>=1000
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
@@ -222,7 +232,8 @@ def run_body(sdata,dates,begin,end,xbegin):
     #seller = fcustom(csc_func,threshold=100)
 
     #configs = prepare_configs(seller,pman,dman)
-    configs = prepare_configs_A(seller,pman,dman)
+    configs = prepare_temp_configs(seller,pman,dman)
+    #configs = prepare_configs_A(seller,pman,dman)
     configs.extend(prepare_configs_B(seller,pman,dman))
     batch(configs,sdata,dates,xbegin,cmediator=myMediator)
 
@@ -259,7 +270,7 @@ def run_mm_body(sdata,dates,begin,end,xbegin):
     #seller = fcustom(atr_seller,**kvs) #atr_seller_factory(stop_times=1500)
     seller = atr_seller_factory()
     myMediator=MM_Mediator
-    configs = prepare_configs(seller,None,None)
+    configs = prepare_temp_configs(seller)
     
     mm_batch(configs,sdata,dates,xbegin)
 

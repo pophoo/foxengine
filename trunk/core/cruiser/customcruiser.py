@@ -64,7 +64,7 @@ class Svama2xMMCruiser(MM_GeneticCruiser):
         print 'prepare:'
         self.args = dict(fast=range(1,49),slow=range(5,260)
                 ,sma=range(3,130,2),ma_standard=range(5,260,5)
-                ,base=range(8,250,2),extend_days=range(5,36)
+                ,base=range(8,250,2),extend_days=range(0,36)
                 )
         self.buy_func = lambda stock,fast,slow,base,sma,ma_standard,extend_days,**kwargs:svama2x(stock,fast,slow,base,sma,ma_standard,extend_days)
         #kwargs用于吸收其它函数所需的参数
@@ -102,7 +102,7 @@ class Vama2xMMCruiser(MM_GeneticCruiser):
         print 'prepare:'
         self.args = dict(fast=range(1,49),slow=range(5,260)
                 ,pre_length=range(1,200,5),ma_standard=range(5,260,5)
-                ,base=range(8,250,2),extend_days=range(5,36)
+                ,base=range(8,250,2),extend_days=range(0,36)
                 )
         self.buy_func = lambda stock,fast,slow,base,pre_length,ma_standard,extend_days,**kwargs:vama2x(stock,fast,slow,base,pre_length,ma_standard,extend_days)
         #kwargs用于吸收其它函数所需的参数

@@ -42,6 +42,11 @@ class ModuleTest(unittest.TestCase):    #保持run的有效性
         configs.append(config(buyer=fcustom(svama3,fast=6,mid=24,slow=49,sma=21,ma_standard=60,extend_days=13)))
         return configs
 
+    def test_prepare_temp_configs(self):
+        seller = atr_seller_factory(stop_times=2000,trace_times=3000)
+        configs = run.prepare_temp_configs(seller)
+        self.assertTrue(len(configs) > 1)
+
     def test_prepare_configs(self):
         pman = AdvancedATRPositionManager()
         dman = DateManager(20010101,20040101)

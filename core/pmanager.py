@@ -182,7 +182,7 @@ def MAX_DECLINE(xt,y):
 
 from scipy import stats
 class PositionManager(object):  #只适合先买后卖，卖空和混合方式都要由子类定制run实现
-    def __init__(self,init_size=100000000,max_proportion=125,risk=10,calc_lost=ev_lost,position=Position):
+    def __init__(self,init_size=100000000,max_proportion=200,risk=10,calc_lost=ev_lost,position=Position):
         self.init_size = init_size     #现金,#以0.001元为单位
         self.max_proportion = max_proportion    #单笔占总金额的最大占比(千分比)
         self.risk = risk    #每笔交易承担的风险占总金额的比例(千分比)

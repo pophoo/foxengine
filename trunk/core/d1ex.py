@@ -268,7 +268,7 @@ def msum(source,length):
     """ 计算移动累积,前length-1个置0
         @param source 源序列
         @param length 均线跨度
-        @return 移动平均序列
+        @return 移动累积序列
     """
     if(len(source) == 0):
         return source.copy()
@@ -280,10 +280,10 @@ def msum(source,length):
     return rev
 
 def msum2(source,length):   
-    """ 计算移动累积,前length-1个置为0-当前位置的累积
+    """ 计算移动累积,前length-1个置为0至当前位置的累积
         @param source 源序列
         @param length 均线跨度
-        @return 移动平均序列
+        @return 移动累积序列
     """
     if(len(source) == 0):
         return source.copy()

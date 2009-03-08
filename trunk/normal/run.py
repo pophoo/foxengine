@@ -15,6 +15,10 @@ logger = logging.getLogger('wolfox.fengine.normal.run')
 def prepare_temp_configs(seller,pman=None,dman=None):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
+    configs.append(config(buyer=fcustom(vama2,fast=  2,slow= 27,pre_length=151,ma_standard=225))) 	#balance=9395,times= 23
+    configs.append(config(buyer=fcustom(svama2c,fast=  1,slow= 21,sma= 51,ma_standard= 45,threshold=7500))) 	#balance=6323,times= 98 #A 3/2  2/1
+    configs.append(config(buyer=fcustom(svama2c,fast=  1,slow= 14,sma= 51,ma_standard= 41,threshold=7500))) 	#balance=6447,times=158 #A 2/9  1/3
+    
     return configs
 
 def prepare_configs_A(seller,pman,dman):    #R>=1000
@@ -355,14 +359,14 @@ def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
     if lbegin == 0:
         lbegin = end - 5
 
-    configs_a = prepare_configs_A(seller,pman,dman)
-    dtrades_a = batch_last(configs_a,sdata,dates,xbegin,cmediator=myMediator)
-    save_last('atr_last_a.txt',dtrades_a,xbegin,end,lbegin)
+    #configs_a = prepare_configs_A(seller,pman,dman)
+    #dtrades_a = batch_last(configs_a,sdata,dates,xbegin,cmediator=myMediator)
+    #save_last('atr_last_a.txt',dtrades_a,xbegin,end,lbegin)
 
 
-    #configs_b = prepare_configs_B(seller,pman,dman)
-    #dtrades_b = batch_last(configs_b,sdata,dates,xbegin,cmediator=myMediator)
-    #save_last('atr_last_b.txt',dtrades_b,xbegin,end,lbegin)
+    configs_b = prepare_configs_B(seller,pman,dman)
+    dtrades_b = batch_last(configs_b,sdata,dates,xbegin,cmediator=myMediator)
+    save_last('atr_last_b.txt',dtrades_b,xbegin,end,lbegin)
 
     tend = time()
     print u'计算耗时: %s' % (tend-tbegin)
@@ -382,19 +386,20 @@ if __name__ == '__main__':
     #begin,xbegin,end = 20040601,20050801,20071031
     #begin,xbegin,end = 20060601,20071031,20090101
     #begin,xbegin,end = 19980101,19990101,20090101
-    begin,xbegin,end,lbegin = 20070101,20080601,20090327,20081101
+    #begin,xbegin,end,lbegin = 20070101,20080601,20090327,20081101
     #begin,xbegin,end,lbegin = 20060701,20070901,20090327,20081101
+    begin,xbegin,end = 20080701,20090101,20090301
     from time import time
     tbegin = time()
     
-    dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601398'],[ref_code])        
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SZ000630'],[ref_code])        
     #dates,sdata,idata,catalogs = prepare_all(begin,end,get_codes(),[ref_code])
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,get_codes(source='SZSE'),[ref_code])
+    dates,sdata,idata,catalogs = prepare_all(begin,end,get_codes(source='SZSE'),[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SZ000792'],[ref_code])            
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600888'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SZ000020'],[ref_code])
@@ -404,10 +409,10 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
-    run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
 
     #近期工作 将svama2x/vama2x改造为syntony
 

@@ -36,8 +36,8 @@ def func_test(stock,fast,slow,base,sma=22,ma_standard=120,extend_days=5,**kwargs
 
     down_limit = tracelimit((t[OPEN]+t[LOW])/2,t[HIGH],sbuy,stock.atr,600,3000)
     
-    for x in zip(dates,sbuy,down_limit,t[LOW],t[OPEN],t[CLOSE],stock.atr*600/1000,t[OPEN]-stock.atr*600/1000):
-        print x[0],x[1],x[2],x[3],x[4],x[5],x[6],x[7]
+    #for x in zip(dates,sbuy,down_limit,t[LOW],t[OPEN],t[CLOSE],stock.atr*600/1000,t[OPEN]-stock.atr*600/1000):
+    #    print x[0],x[1],x[2],x[3],x[4],x[5],x[6],x[7]
     return sbuy
 
 def prepare_buyer(dates):
@@ -108,7 +108,7 @@ if __name__ == '__main__':
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600888'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SZ000020'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600002'],[ref_code])
-    dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600433'],[ref_code])
+    dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600433','SH600000'],[ref_code])
     tend = time()
     print u'数据准备耗时: %s' % (tend-tbegin)    
     import psyco

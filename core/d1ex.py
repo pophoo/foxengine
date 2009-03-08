@@ -662,16 +662,29 @@ def amin0(source):
     return amaxmin0(source,min,99999999)
 
 
-def transform(signal,v2index,length):
-    ''' 变形运算
+def mapping(signal,v2index,length):
+    ''' 映射运算
         以v2index中的value为index，将signal中的相应信号转换为长度为length的序列中
-        后面的信号覆盖前面的
+        后面的数值覆盖前面的. 因此不能将此用于vap/svap系列的逆运算，因为可能会导致同日的后面的0覆盖前面的信号
     '''
     assert len(signal) == len(v2index)
     assert len(v2index) == 0 or np.max(v2index) < length    #v2index中的value不能大于length,否则越界
     rev = np.zeros(length,int)
     for i in xrange(len(signal)):
         rev[v2index[i]] = signal[i]
+    return rev
+
+def transform(signal,v2index,length):
+    ''' 变形运算
+        以v2index中的value为index，将signal中的相应信号转换为长度为length的序列中
+        信号量均转换为1
+    '''
+    assert len(signal) == len(v2index)
+    assert len(v2index) == 0 or np.max(v2index) < length    #v2index中的value不能大于length,否则越界
+    rev = np.zeros(length,int)
+    ss = v2index[signal!=0]
+    if len(ss) > 0:
+        rev[ss] = 1
     return rev
 
 LIMIT_BASE = 10000

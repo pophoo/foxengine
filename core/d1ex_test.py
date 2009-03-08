@@ -361,10 +361,23 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,1,2,3,4,5,6],amin0(np.array([7,6,5,4,3,2,1])).tolist())
         self.assertEquals([0,0,2,2,4,4],amin0(np.array([4,5,3,4,1,7])).tolist())
 
+    def test_mapping(self):
+        self.assertEquals([11,51,41,0,21,0,31],mapping(np.array([11,21,31,41,51]),np.array([0,4,6,2,1]),7).tolist())
+        self.assertEquals([11,51,41,0,61,0,31],mapping(np.array([11,21,31,41,51,61]),np.array([0,4,6,2,1,4]),7).tolist())
+        self.assertEquals([71,51,41,0,61,0,31],mapping(np.array([0,21,31,41,51,61,71]),np.array([0,4,6,2,1,4,0]),7).tolist())
+        try:    
+            self.assertEquals([11,51,41,0,21,0,31],mapping(np.array([11,21,31,41,51]),np.array([0,4,6,2,1]),6).tolist())
+        except: 
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+        #空测试
+        self.assertEquals([0,0,0,0,0,0,0],mapping(np.array([]),np.array([]),7).tolist())
+
     def test_transform(self):
-        self.assertEquals([11,51,41,0,21,0,31],transform(np.array([11,21,31,41,51]),np.array([0,4,6,2,1]),7).tolist())
-        self.assertEquals([11,51,41,0,61,0,31],transform(np.array([11,21,31,41,51,61]),np.array([0,4,6,2,1,4]),7).tolist())
-        self.assertEquals([71,51,41,0,61,0,31],transform(np.array([0,21,31,41,51,61,71]),np.array([0,4,6,2,1,4,0]),7).tolist())
+        self.assertEquals([0,0,1,0,1,0,0],transform(np.array([0,1,0,1,0]),np.array([0,4,6,2,1]),7).tolist())
+        self.assertEquals([0,1,1,0,0,0,0],transform(np.array([0,1,0,0,1,0]),np.array([0,1,1,1,2,3]),7).tolist())
+        self.assertEquals([0,0,0,0,0,0,0],transform(np.array([0,0,0,0,0,0]),np.array([0,1,1,1,2,3]),7).tolist())
         try:    
             self.assertEquals([11,51,41,0,21,0,31],transform(np.array([11,21,31,41,51]),np.array([0,4,6,2,1]),6).tolist())
         except: 

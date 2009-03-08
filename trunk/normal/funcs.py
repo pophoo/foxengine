@@ -259,6 +259,7 @@ def svama2x(stock,fast,slow,base,sma=22,ma_standard=120,extend_days=5):
     xcross = band(cross(ma_base,ma_fast),trend_base)
     #sf = sfollow(msvap,xcross,extend_days)  #syntony
     sf = syntony(msvap,xcross,extend_days)
+    sup = up_under(t[HIGH],t[LOW],5,300)
     return gand(g,sf,trend_ma_standard)
 
 def vama2x(stock,fast,slow,base,pre_length=120,ma_standard=120,extend_days=5):

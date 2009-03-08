@@ -211,7 +211,8 @@ def tracelimit_old(source,sup,signal,satr,stop_times,trace_times):
 
 def tracelimit(source,sup,signal,satr,stop_times,trace_times):
     ''' 信号日起的追踪止损。自有信号起至下一个信号间以当前值-atr*trace_times的最高者和买入值-atr*stop_times的高者为止损线
-        source:买入价
+        source:首日估价。这个估价不是买入价，通常是开盘价+最低价/2。不能用收盘价，否则开盘最低到收盘涨停，同样会触发止损，而开盘涨停到收盘跌停，却不会触发
+               用开盘价，则只有跌下去的时候会触发。 
         sup:上包线，为high或close
         signal:>0为有信号
         satr:atr线

@@ -120,6 +120,8 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([700,620,700,650,700,550,980,980,692,650,710,590],tracelimit(source,shigh,signal,satr,1000,1000).tolist())
         self.assertEquals([600,620,700,650,650,550,880,880,692,650,650,590],tracelimit(source,shigh,signal,satr,1000,2000).tolist())
         self.assertEquals([700,620,700,650,700,550,980,980,692,650,710,590],tracelimit(source,shigh,signal,satr,2000,1000).tolist())
+        signal = np.array([0,1,0,0,0,0,0,0,0,0,0,0])
+        self.assertEquals([700,620,800,800,800,800,980,980,980,980,980,980],tracelimit(source,shigh,signal,satr,2000,1000).tolist())
 
     def test_tracemax(self):
         self.assertEquals([],tracemax(np.array([]),np.array([])).tolist())

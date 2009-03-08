@@ -165,8 +165,8 @@ def CSHARP(xt,y):   #变异夏普比率
     yr = np.polyval([ar,br],m_xt)
     err=sqrt(sum((yr-m_y)**2)/len(m_xt)) #标准差
     #print ar,br,err
-    csharp = int(ar/br/err * POS_BASE)
-    return csharp
+    csharp = ar/br/err * POS_BASE
+    return int(csharp) if np.isfinite(csharp) else 99999999
 
 def AVG_DECLINE(xt,y,covered=22):
     mranges = decline_ranges(y,covered)

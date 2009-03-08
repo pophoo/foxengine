@@ -20,7 +20,6 @@ def prepare_temp_configs(seller,pman=None,dman=None):
 def prepare_configs_A(seller,pman,dman):    #R>=1000
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
-    configs.append(config(buyer=fcustom(svama2c,fast=  7,slow= 86,sma= 52,ma_standard=117,threshold=6500))) 	#balance=2507,times= 29 #B  15/32   11/22    
     #svama3
     configs.append(config(buyer=fcustom(svama3,fast=6,mid=42,slow=69,sma=22,ma_standard=227,extend_days=13)))   #mm:(30880, 16830, 545, 4)  [1461,95,650] 20
     configs.append(config(buyer=fcustom(svama3,fast= 28,mid= 93,slow= 76,sma=113,ma_standard=195,extend_days=  5))) 	#balance=2854,times=  9    # [692,54,333] 9
@@ -270,9 +269,9 @@ def run_body(sdata,dates,begin,end,xbegin):
     #seller = fcustom(csc_func,threshold=100)
 
     #configs = prepare_configs(seller,pman,dman)
-    configs = prepare_temp_configs(seller,pman,dman)
-    #configs = prepare_configs_A(seller,pman,dman)
-    #configs.extend(prepare_configs_B(seller,pman,dman))
+    #configs = prepare_temp_configs(seller,pman,dman)
+    configs = prepare_configs_A(seller,pman,dman)
+    configs.extend(prepare_configs_B(seller,pman,dman))
     batch(configs,sdata,dates,xbegin,cmediator=myMediator)
 
     tend = time()
@@ -361,9 +360,9 @@ def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
     save_last('atr_last_a.txt',dtrades_a,xbegin,end,lbegin)
 
 
-    configs_b = prepare_configs_B(seller,pman,dman)
-    dtrades_b = batch_last(configs_b,sdata,dates,xbegin,cmediator=myMediator)
-    save_last('atr_last_b.txt',dtrades_b,xbegin,end,lbegin)
+    #configs_b = prepare_configs_B(seller,pman,dman)
+    #dtrades_b = batch_last(configs_b,sdata,dates,xbegin,cmediator=myMediator)
+    #save_last('atr_last_b.txt',dtrades_b,xbegin,end,lbegin)
 
     tend = time()
     print u'计算耗时: %s' % (tend-tbegin)
@@ -377,13 +376,13 @@ if __name__ == '__main__':
     #总时间段   [20000101,20010701,20090101]    #一个完整的周期+一个下降段
     #分段测试的要求，段mm > 1000-1500或抑制，总段mm > 2000
     
-    begin,xbegin,end = 20000101,20010701,20090101
+    #begin,xbegin,end = 20000101,20010701,20090101
     #begin,xbegin,end = 20000101,20010701,20050901
     #begin,xbegin,end = 19980101,19990701,20010801    
     #begin,xbegin,end = 20040601,20050801,20071031
     #begin,xbegin,end = 20060601,20071031,20090101
     #begin,xbegin,end = 19980101,19990101,20090101
-    #begin,xbegin,end,lbegin = 20070101,20080601,20090327,20080601
+    begin,xbegin,end,lbegin = 20070101,20080601,20090327,20081101
     #begin,xbegin,end,lbegin = 20060701,20070901,20090327,20081101
     from time import time
     tbegin = time()
@@ -405,10 +404,10 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
-    #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
 
     #近期工作 将svama2x/vama2x改造为syntony
 

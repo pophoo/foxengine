@@ -34,8 +34,11 @@ vama3_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-02-23 13:18:34,
 vama2_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-02-24 20:56:11,937 DEBUG Mediator:<<lambda>:pre_length=31,ma_standard=250,slow=18,fast=1:atr_seller:pre_length=31,ma_standard=250,slow=18,fast=1:make_trade_signal:B1S1>:(2050, 8385, 4089, 4)
 #wolfox.fengine.core.shortcut:log_result:145:2009-02-24 20:56:11,937 DEBUG Mediator:<<lambda>:pre_length=1,ma_standard=245,slow=38,fast=8:atr_seller:pre_length=1,ma_standard=245,slow=38,fast=8:make_trade_signal:B1S1>:(2102, 23633, 11241, 8)
 '''
-vama2x_txt = '''#wolfox.fengine.core.shortcut:judge:174:2009-03-05 21:50:22,187 DEBUG Mediator:<<lambda>:slow=81,base=50,pre_length=146,ma_standard=65,extend_days=25,fast=16:atr_seller:slow=81,base=50,pre_length=146,ma_standard=65,extend_days=25,fast=16:make_trade_signal:B1S1>:mm:(423, 550130, 1299040, 458)
-#wolfox.fengine.core.shortcut:judge:174:2009-03-05 21:51:03,858 DEBUG Mediator:<<lambda>:slow=232,base=58,pre_length=86,ma_standard=160,extend_days=19,fast=24:atr_seller:slow=232,base=58,pre_length=86,ma_standard=160,extend_days=19,fast=24:make_trade_signal:B1S1>:mm:(559, 124328, 222183, 99)
+#vama2x_txt = '''#wolfox.fengine.core.shortcut:judge:174:2009-03-05 21:50:22,187 DEBUG Mediator:<<lambda>:slow=81,base=50,pre_length=146,ma_standard=65,extend_days=25,fast=16:atr_seller:slow=81,base=50,pre_length=146,ma_standard=65,extend_days=25,fast=16:make_trade_signal:B1S1>:mm:(423, 550130, 1299040, 458)
+#wolfox.fengine.core.shortcut:judge:174:2009-03-05 21:51:03,858 DEBUG Mediator:<<lambda>:slow=232,base=58,pre_length=86,ma_standard=160,extend_days=19,fast=24:atr_seller:slow=232,base=58,pre_length=86,ma_standard=160,extend_days=19,fast=24:make_trade_signal:B1S1>:mm:(559, 124328, 222183, 99)'''
+
+vama2x_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-03-08 05:13:31,489 DEBUG Mediator:<<lambda>:pre_length=91,ma_standard=250,base=148,fast=18,slow=175:atr_seller:pre_length=91,ma_standard=250,base=148,fast=18,slow=175:make_trade_signal:B1S1>:(3033, 129088, 42558, 58)
+#wolfox.fengine.core.shortcut:log_result:145:2009-03-08 05:13:31,489 DEBUG Mediator:<<lambda>:pre_length=91,ma_standard=250,base=140,fast=18,slow=105:atr_seller:pre_length=91,ma_standard=250,base=140,fast=18,slow=105:make_trade_signal:B1S1>:(3165, 102432, 32359, 48)
 '''
 
 ma3_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-02-25 02:41:09,203 DEBUG Mediator:<<lambda>:ma_standard=195,slow=103,extend_days=31,fast=36,mid=43:atr_seller:ma_standard=195,slow=103,extend_days=31,fast=36,mid=43:make_trade_signal:B1S1>:(3256, 3244448, 996354, 782)

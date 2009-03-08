@@ -314,7 +314,7 @@ class PositionManagerTest(unittest.TestCase):
 
     def test_cur_limit(self):
         pm = PositionManager()
-        self.assertEquals(12500000,pm.cur_limit())
+        self.assertEquals(33300000,pm.cur_limit())
         pm.init_size = 10000
         pm.earning = 2000
         pm.max_proportion = 200

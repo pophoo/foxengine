@@ -70,6 +70,11 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,0,0,0,0, 0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0],sresume(source,5).tolist())
         self.assertEquals([0,0,0,0,0, 0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],sresume(source,6).tolist())
         self.assertEquals([0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],sresume(source,7).tolist())        
+        #covered=2
+        self.assertEquals([0,0,0,0,0, 0,0,0,0,0,1,1,0,1,1,0,1,1,0,0,0,0,0,1,1],sresume(source,3,2).tolist())
+        #测试covered溢出
+        self.assertEquals([0,0,0,0,0, 0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1],sresume(source,3,3).tolist())        
+        #空测试
         self.assertEquals([],sresume(np.array([])).tolist())
         
     def test_distance(self):

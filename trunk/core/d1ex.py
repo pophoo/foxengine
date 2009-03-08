@@ -183,13 +183,19 @@ def extend2next(source):
         rev[i] = cur
     return rev
 
-def sresume(source,length=5):
-    ''' 连续>=length个零的第一个非零日
+def sresume(source,length=5,covered=1):
+    ''' 连续>=length个零随后covered个非零日
     '''
     rev = np.zeros_like(source)
     nzeros = np.where(source != 0)[0]
     sdiff = nsubd(nzeros)
-    rev[nzeros[sdiff>=length]] = 1
+    indice = nzeros[sdiff>=length]
+    if len(indice) > 0:
+        rlen = len(rev)
+        for i in range(covered):
+            cur_indice = indice + i
+            cur_indice[cur_indice>=rlen] = rlen-1   #防止溢出
+            rev[cur_indice] = 1
     return rev
 
 def extend2reverse(source):

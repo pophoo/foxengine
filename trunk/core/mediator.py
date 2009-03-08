@@ -78,7 +78,7 @@ class Mediator(object):
         '''
         t = stock.transaction
         sbuy,ssell = self.trade_strategy(t,sbuy,ssell)
-        sbuy = band(sbuy,bnot(sresume(stock.transaction[VOLUME],10))) #对停牌10日以上的的股票，消除其sbuy信号
+        sbuy = band(sbuy,bnot(sresume(stock.transaction[VOLUME],10,covered=3))) #对停牌10日以上的的股票，消除其紧随3天的sbuy信号
         #logger.debug(u'sbuy,after strategy:%s',sbuy.tolist())
         #logger.debug(u'ssell,after strategy:%s',ssell.tolist())
         ssignal = self.trade_signal_maker(sbuy,ssell)

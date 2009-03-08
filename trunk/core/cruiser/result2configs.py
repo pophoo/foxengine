@@ -34,8 +34,11 @@ vama3_groups = ['fast','mid','slow','pre_length','ma_standard','extend_days']
 vama2_pattern = r'pre_length=(?P<pre_length>\d+),ma_standard=(?P<ma_standard>\d+),slow=(?P<slow>\d+),fast=(?P<fast>\d+)'
 vama2_groups = ['fast','slow','pre_length','ma_standard']
 
-vama2x_pattern = r'slow=(?P<slow>\d+),base=(?P<base>\d+),pre_length=(?P<pre_length>\d+),ma_standard=(?P<ma_standard>\d+),extend_days=(?P<extend_days>\d+),fast=(?P<fast>\d+)'
-vama2x_groups = ['fast','slow','base','pre_length','ma_standard','extend_days']
+#vama2x_pattern = r'slow=(?P<slow>\d+),base=(?P<base>\d+),pre_length=(?P<pre_length>\d+),ma_standard=(?P<ma_standard>\d+),extend_days=(?P<extend_days>\d+),fast=(?P<fast>\d+)'
+#vama2x_groups = ['fast','slow','base','pre_length','ma_standard','extend_days']
+
+vama2x_pattern = r'pre_length=(?P<pre_length>\d+),ma_standard=(?P<ma_standard>\d+),base=(?P<base>\d+),fast=(?P<fast>\d+),slow=(?P<slow>\d+)'
+vama2x_groups = ['fast','slow','base','pre_length','ma_standard']
 
 ma3_pattern = r'ma_standard=(?P<ma_standard>\d+),slow=(?P<slow>\d+),extend_days=(?P<extend_days>\d+),fast=(?P<fast>\d+),mid=(?P<mid>\d+)'
 ma3_groups = ['fast','mid','slow','ma_standard','extend_days']

@@ -20,7 +20,7 @@ import wolfox.fengine.core.utils as utils
 from wolfox.fengine.core.utils import fcustom,names,get_null_obj_number,get_obj_number
 from wolfox.fengine.core.d1 import band,bor,gand,gor,greater,smooth,smooth2,roll0,rollx
 from wolfox.fengine.core.d1ex import ma,trend,strend,cross,sfollow,syntony,transform
-from wolfox.fengine.core.d1indicator import vap_pre,vap2_pre,svap_ma,svap2_ma
+from wolfox.fengine.core.d1indicator import vap_pre,vap2_pre,svap_ma,svap2_ma,tracelimit
 from wolfox.fengine.core.d1idiom import up_under,upconfirm,downup,swingin,atr_seller,atr_seller_factory
 from wolfox.fengine.core.d2 import dispatch,cdispatch,posort,percent_sort,npercent,percent,nincrease,c_posort,d_posort,dummy_catalogs
 from wolfox.fengine.core.base import BaseObject,CommonObject,get_all_catalogs

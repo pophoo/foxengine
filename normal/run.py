@@ -15,20 +15,6 @@ logger = logging.getLogger('wolfox.fengine.normal.run')
 def prepare_temp_configs(seller,pman=None,dman=None):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
-    configs.append(config(buyer=fcustom(svama2x,fast=  1,slow=  8,base= 82,sma= 33,ma_standard= 20))) 	#balance=3509,times= 11
-    configs.append(config(buyer=fcustom(svama2x,fast=  1,slow=  8,base=218,sma= 29,ma_standard= 20))) 	#balance=273055,times=  3#
-    configs.append(config(buyer=fcustom(svama2x,fast=  5,slow=179,base=218,sma= 29,ma_standard=250))) 	#balance=3804,times= 47
-    configs.append(config(buyer=fcustom(svama2x,fast=  5,slow=111,base=226,sma= 29,ma_standard=170))) 	#balance=7943,times= 28
-    configs.append(config(buyer=fcustom(svama2x,fast= 39,slow=130,base=216,sma= 81,ma_standard=250))) 	#balance=11489,times= 16
-    configs.append(config(buyer=fcustom(svama2x,fast= 45,slow=110,base=212,sma= 19,ma_standard=100))) 	#balance=2903,times= 32
-    configs.append(config(buyer=fcustom(vama2x,fast=  4,slow= 82,base=172,pre_length=126,ma_standard=225))) 	#balance=2117,times=118
-    configs.append(config(buyer=fcustom(vama2x,fast= 18,slow= 85,base=192,pre_length= 91,ma_standard= 90))) 	#balance=2665,times= 58
-    configs.append(config(buyer=fcustom(vama2x,fast= 21,slow= 87,base=230,pre_length= 96,ma_standard=255))) 	#balance=7994,times= 27
-    configs.append(config(buyer=fcustom(vama2x,fast= 17,slow=229,base=194,pre_length= 96,ma_standard=255))) 	#balance=3450,times= 51
-    configs.append(config(buyer=fcustom(vama2x,fast= 21,slow= 69,base=230,pre_length= 96,ma_standard=255))) 	#balance=3593,times= 32
-    configs.append(config(buyer=fcustom(vama2x,fast= 18,slow=175,base=192,pre_length= 91,ma_standard=250))) 	#balance=3309,times= 48
-    configs.append(config(buyer=fcustom(vama2x,fast= 21,slow=101,base=230,pre_length= 16,ma_standard=255))) 	#balance=3291,times= 40
-    configs.append(config(buyer=fcustom(vama2x,fast= 37,slow=101,base=164,pre_length= 96,ma_standard=255))) 	#balance=10683,times= 17
     return configs
 
 def prepare_configs_A(seller,pman,dman):    #R>=1000
@@ -80,6 +66,10 @@ def prepare_configs_A(seller,pman,dman):    #R>=1000
     configs.append(config(buyer=fcustom(svama2x,fast=  5,slow=166,base= 80,sma= 41,ma_standard=255))) 	#balance=4635,times= 34 #A
     configs.append(config(buyer=fcustom(svama2x,fast=  2,slow=150,base=220,sma= 75,ma_standard=255))) 	#balance=24141,times=  1 #A
     configs.append(config(buyer=fcustom(svama2x,fast=  2,slow= 54,base=220,sma= 75,ma_standard=255))) 	#balance=7808,times=  9 #A
+
+    configs.append(config(buyer=fcustom(svama2x,fast=  1,slow=  8,base= 82,sma= 33,ma_standard= 20))) 	#balance=3509,times= 11
+    configs.append(config(buyer=fcustom(vama2x,fast=  4,slow= 82,base=172,pre_length=126,ma_standard=225))) 	#balance=2117,times=118 #B
+
     #svama2c
     configs.append(config(buyer=fcustom(svama2c,fast=  6,slow=171,sma=105,ma_standard=244,threshold=7500))) 	#balance=2854,times=  7
     #times_all=35(0) #7000,5/10(8500)  #5359,10/12 (7500) #3428,12/20(5000)    #5409,11/14 (6000) #5359,10/12 (7000)
@@ -99,6 +89,7 @@ def prepare_configs_A(seller,pman,dman):    #R>=1000
     configs.append(config(buyer=fcustom(svama2c,fast=  1,slow= 14,sma= 51,ma_standard= 41,threshold=7500))) 	#balance=6447,times=158 #A 2/9  1/3
     configs.append(config(buyer=fcustom(svama2c,fast=  1,slow= 63,sma= 83,ma_standard= 97,threshold=7500))) 	#balance=8389,times=  9 # 5/4  2/1
     configs.append(config(buyer=fcustom(svama2c,fast=  1,slow= 55,sma= 51,ma_standard= 45,threshold=7500))) 	#balance=47126,times=  3 #A 2/3 2/3
+
     return configs
 
 def prepare_configs_B(seller,pman,dman): # 400<=R<1000
@@ -386,11 +377,11 @@ if __name__ == '__main__':
     #总时间段   [20000101,20010701,20090101]    #一个完整的周期+一个下降段
     #分段测试的要求，段mm > 1000-1500或抑制，总段mm > 2000
     
-    #begin,xbegin,end = 20000101,20010701,20090101
+    begin,xbegin,end = 20000101,20010701,20090101
     #begin,xbegin,end = 20000101,20010701,20050901
     #begin,xbegin,end = 19980101,19990701,20010801    
     #begin,xbegin,end = 20040601,20050801,20071031
-    begin,xbegin,end = 20060601,20071031,20090101
+    #begin,xbegin,end = 20060601,20071031,20090101
     #begin,xbegin,end = 19980101,19990101,20090101
     #begin,xbegin,end,lbegin = 20070101,20080601,20090327,20080601
     #begin,xbegin,end,lbegin = 20060701,20070901,20090327,20081101

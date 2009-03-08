@@ -48,7 +48,7 @@ def ma3(stock,fast,mid,slow,ma_standard=120,extend_days = 10):
 
 
 c_extractor = lambda c:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250)
-def svama2(stock,fast,slow,sma=22,ma_standard=120):
+def svama2(stock,fast,slow,sma=55,ma_standard=120):
     ''' svama两线交叉
         argnames = ['slow','fast','threshold']
         arggroups = [ [4,53,30],
@@ -82,7 +82,7 @@ def svama2(stock,fast,slow,sma=22,ma_standard=120):
     #return gand(g,msvap,trend_ma_standard,sup)
     return gand(g,msvap,trend_ma_standard)
 
-def svama2s(stock,fast,slow,sma=22,ma_standard=120,extend_days = 10):
+def svama2s(stock,fast,slow,sma=55,ma_standard=120,extend_days = 10):
     ''' svama两线交叉, 先是快线叉慢线,然后是慢线叉快线
         argnames = ['slow','fast','threshold']
         arggroups = [ [4,53,30],
@@ -117,7 +117,7 @@ def svama2s(stock,fast,slow,sma=22,ma_standard=120,extend_days = 10):
     #return gand(g,msvap,trend_ma_standard,sup)
     return gand(g,msvap,trend_ma_standard)
 
-def svama3(stock,fast,mid,slow,sma=22,ma_standard=120,extend_days=10):
+def svama3(stock,fast,mid,slow,sma=55,ma_standard=120,extend_days=10):
     ''' svama三叉
         argnames = ['slow','middle','fast','threshold']
         arglist = [(3,128,1),(2,65,1),(1,32,1),(15,76,15)]
@@ -238,7 +238,7 @@ def vama3(stock,fast,mid,slow,pre_length=120,ma_standard=120,extend_days=10):
 
 
 #svama2和vama2信号发出后的再确认
-def svama2x(stock,fast,slow,base,sma=22,ma_standard=120,extend_days=5):
+def svama2x(stock,fast,slow,base,sma=55,ma_standard=120,extend_days=5):
     ''' svama二叉,extend_days天内再有日线底线叉ma(base)
     '''
     t = stock.transaction
@@ -290,7 +290,7 @@ def vama2x(stock,fast,slow,base,pre_length=120,ma_standard=120,extend_days=5):
     return gand(g,sf,trend_ma_standard)
 
 
-def svama2c(stock,fast,slow,sma=22,ma_standard=120,threshold=7500):
+def svama2c(stock,fast,slow,sma=55,ma_standard=120,threshold=7500):
     ''' svama两线交叉
         argnames = ['slow','fast','threshold']
         arggroups = [ [4,53,30],

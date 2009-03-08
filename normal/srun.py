@@ -16,6 +16,10 @@ def func_test(stock,fast,slow,base,sma=22,ma_standard=120,extend_days=5,**kwargs
     t = stock.transaction
     g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
     svap,v2i = svap_ma(t[VOLUME],t[CLOSE],sma)
+    #print len(svap),len(v2i),len(dates)
+    print stock.code
+    for s,v in zip(svap,v2i):
+        print '%s,%s,%s' % (v,s,dates[v])
     ma_svapfast = ma(svap,fast)
     ma_svapslow = ma(svap,slow)
     trend_ma_svapfast = strend(ma_svapfast) > 0
@@ -41,7 +45,7 @@ def func_test(stock,fast,slow,base,sma=22,ma_standard=120,extend_days=5,**kwargs
     return sbuy
 
 def prepare_buyer(dates):
-    return fcustom(func_test,fast=  1,slow=  8,base= 82,sma= 33,ma_standard= 20,dates=dates)
+    return fcustom(func_test,fast=  1,slow=  8,base= 82,sma= 22,ma_standard= 20,dates=dates)
 
 def prepare_order(sdata):
     d_posort('g5',sdata,distance=5)        
@@ -71,7 +75,7 @@ def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     name,tradess = calc_trades(buyer,seller,sdata,dates,xbegin)
     result,strade = ev.evaluate_all(tradess,pman,dman)
 
-    print strade
+    #print strade
 
     tend = time()
     print u'计算耗时: %s' % (tend-tbegin)

@@ -15,6 +15,8 @@ mm_groups = ['balance','times']
 svama2_pattern = r'ma_standard=(?P<ma_standard>\d+),slow=(?P<slow>\d+),fast=(?P<fast>\d+)'
 svama2_groups = ['fast','slow','ma_standard']
 
+svama3_pattern = r'ma_standard=(?P<ma_standard>\d+),slow=(?P<slow>\d+),extend_days=(?P<extend_days>\d+),fast=(?P<fast>\d+),mid=(?P<mid>\d+)'
+svama3_groups = ['fast','mid','slow','ma_standard','extend_days']
 
 svama2c_pattern = r'threshold=(?P<threshold>\d+),ma_standard=(?P<ma_standard>\d+),slow=(?P<slow>\d+),fast=(?P<fast>\d+),sma=(?P<sma>\d+)'
 svama2c_groups = ['fast','slow','sma','ma_standard','threshold']
@@ -25,8 +27,6 @@ svama2c_groups = ['fast','slow','sma','ma_standard','threshold']
 svama2x_pattern = r'ma_standard=(?P<ma_standard>\d+),base=(?P<base>\d+),fast=(?P<fast>\d+),sma=(?P<sma>\d+),slow=(?P<slow>\d+)'
 svama2x_groups = ['fast','slow','base','sma','ma_standard']
 
-svama3_pattern = r'slow=(?P<slow>\d+),sma=(?P<sma>\d+),ma_standard=(?P<ma_standard>\d+),extend_days=(?P<extend_days>\d+),fast=(?P<fast>\d+),mid=(?P<mid>\d+)'
-svama3_groups = ['fast','mid','slow','sma','ma_standard','extend_days']
 
 svama2s_pattern = r'ma_standard=(?P<ma_standard>\d+),slow=(?P<slow>\d+),extend_days=(?P<extend_days>\d+),fast=(?P<fast>\d+),sma=(?P<sma>\d+)'
 svama2s_groups = ['fast','slow','sma','ma_standard','extend_days']

@@ -24,9 +24,10 @@ def func_test(stock,fast,slow,base,sma=55,ma_standard=120,extend_days=5,**kwargs
     trend_ma_svapslow = strend(ma_svapslow) > 0
 
     cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
-    for s,v,f,sl,c in zip(svap,v2i,ma_svapfast,ma_svapslow,cross_fast_slow):
-        print '%s,%s,%s,%s,%s' % (dates[v],s,f,sl,c)
-    print sum(cross_fast_slow.tolist())
+    #for s,v,f,sl,c in zip(svap,v2i,ma_svapfast,ma_svapslow,cross_fast_slow):
+    #    print '%s,%s,%s,%s,%s' % (dates[v],s,f,sl,c)
+    for s,v in zip(svap,v2i):
+        print '%s,%s' % (dates[v],s)
     msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
     print np.sum(msvap),np.sum(cross_fast_slow)
     ma_standard = ma(t[CLOSE],ma_standard)
@@ -41,7 +42,7 @@ def func_test(stock,fast,slow,base,sma=55,ma_standard=120,extend_days=5,**kwargs
     
     #sbuy = gand(g,sf,trend_ma_standard)
     sbuy = msvap
-    print dates[sbuy>0]
+    #print dates[sbuy>0]
     down_limit = tracelimit((t[OPEN]+t[LOW])/2,t[HIGH],sbuy,stock.atr,600,3000)
     
     #for x in zip(dates,sbuy,down_limit,t[LOW],t[OPEN],t[CLOSE],stock.atr*600/1000,t[OPEN]-stock.atr*600/1000):
@@ -100,7 +101,7 @@ if __name__ == '__main__':
     #begin,xbegin,end = 20060601,20071031,20090101
     #begin,xbegin,end = 19980101,19990101,20090101
     #begin,xbegin,end,lbegin = 20070101,20080601,20090327,20080601
-    begin,xbegin,end,lbegin = 20060701,20070901,20090327,20081101
+    begin,xbegin,end,lbegin = 19980101,20000001,20090327,20000101
     from time import time
     tbegin = time()
     
@@ -116,7 +117,8 @@ if __name__ == '__main__':
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600888'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SZ000020'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600002'],[ref_code])
-    dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600433','SH600000'],[ref_code])
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600433','SH600000'],[ref_code])
+    dates,sdata,idata,catalogs = prepare_all(begin,end,['SH000001'],[ref_code])
     tend = time()
     print u'数据准备耗时: %s' % (tend-tbegin)    
     import psyco

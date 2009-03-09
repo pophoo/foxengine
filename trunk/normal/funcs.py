@@ -48,7 +48,7 @@ def ma3(stock,fast,mid,slow,ma_standard=120,extend_days = 10):
 
 
 c_extractor = lambda c:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250)
-def svama2(stock,fast,slow,sma=55,ma_standard=120):
+def svama2(stock,fast,slow,ma_standard=120,sma=65):
     ''' svama两线交叉
         argnames = ['slow','fast','threshold']
         arggroups = [ [4,53,30],
@@ -117,7 +117,7 @@ def svama2s(stock,fast,slow,sma=55,ma_standard=120,extend_days = 10):
     #return gand(g,msvap,trend_ma_standard,sup)
     return gand(g,msvap,trend_ma_standard)
 
-def svama3(stock,fast,mid,slow,sma=55,ma_standard=120,extend_days=10):
+def svama3(stock,fast,mid,slow,ma_standard=120,extend_days=10,sma=55):
     ''' svama三叉
         argnames = ['slow','middle','fast','threshold']
         arglist = [(3,128,1),(2,65,1),(1,32,1),(15,76,15)]

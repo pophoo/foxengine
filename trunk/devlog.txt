@@ -36,10 +36,12 @@ kwargs的慎用，如果有**kwargs，并且存在有默认值的关键字参数
 
 #2009-03-07
 #1 进行run_merge
-#2 进行vama2x的第二次巡游
+#2 Finished 进行vama2x的第二次巡游
    并整理svama2x和vama2x的巡游结果 
 #3 考虑对ma120的强制约束，以及ma分类约束
 #4 考虑各选出的算法的实际含义，逐个研究每个算法选出股票的方式方法，细致观察其选出的股票
-#5 核对600433 20071204买入，次日卖出的原因
+   用excel来做
+#5 Finished 核对600433 20071204买入，次日卖出的原因  
     name:Mediator:<svama2x:ma_standard=20,base=82,fast=1,sma=33,slow=8:atr_seller:covered=10,up_sector=2,trace_times=3000,stop_times=600,buy_sector=0:make_trade_signal_advanced:B1S1>
     消除此类现象
+#6 计算板块在上升过程中前三甲的龙头股 > 8500     

@@ -9,7 +9,6 @@ logger = logging.getLogger('wolfox.fengine.normal.funcs')
 import numpy as np
 from wolfox.fengine.internal import *
 
-#后续：svama/vama系列信号发出之后，下来碰到ma55/120然后向上者
 
 def ma3(stock,fast,mid,slow,ma_standard=120,extend_days = 10):
     ''' ma三线金叉
@@ -48,7 +47,7 @@ def ma3(stock,fast,mid,slow,ma_standard=120,extend_days = 10):
 
 
 c_extractor = lambda c:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250)
-def svama2(stock,fast,slow,ma_standard=120,sma=65):
+def svama2(stock,fast,slow,ma_standard=250,sma=65):
     ''' svama两线交叉
         argnames = ['slow','fast','threshold']
         arggroups = [ [4,53,30],
@@ -74,15 +73,15 @@ def svama2(stock,fast,slow,ma_standard=120,sma=65):
     ma_svapslow = ma(svap,slow)
     trend_ma_svapfast = strend(ma_svapfast) > 0
     trend_ma_svapslow = strend(ma_svapslow) > 0
+    ma_standard = ma(svap,ma_standard)
+    trend_ma_standard = strend(ma_standard) > 0    
     cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
-    msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
-    ma_standard = ma(t[CLOSE],ma_standard)
-    trend_ma_standard = strend(ma_standard) > 0
+    vsignal = band(cross_fast_slow,trend_ma_standard)
+    msvap = transform(vsignal,v2i,len(t[VOLUME]))
     #sup = up_under(t[HIGH],t[LOW],10,300)    
-    #return gand(g,msvap,trend_ma_standard,sup)
-    return gand(g,msvap,trend_ma_standard)
+    return gand(g,msvap)
 
-def svama2s(stock,fast,slow,sma=55,ma_standard=120,extend_days = 10):
+def svama2s(stock,fast,slow,ma_standard=250,extend_days = 10,sma=55):
     ''' svama两线交叉, 先是快线叉慢线,然后是慢线叉快线
         argnames = ['slow','fast','threshold']
         arggroups = [ [4,53,30],
@@ -106,18 +105,17 @@ def svama2s(stock,fast,slow,sma=55,ma_standard=120,extend_days = 10):
     ma_svapslow = ma(svap,slow)
     trend_ma_svapfast = strend(ma_svapfast) > 0
     trend_ma_svapslow = strend(ma_svapslow) > 0
-    #cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
+    ma_standard = ma(svap,ma_standard)
+    trend_ma_standard = strend(ma_standard) > 0    
     cross_fast_slow = band(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast)
     cross_slow_fast = band(cross(ma_svapfast,ma_svapslow)>0,trend_ma_svapslow)
     synced = sfollow(cross_fast_slow,cross_slow_fast,extend_days)
-    msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
-    ma_standard = ma(t[CLOSE],ma_standard)
-    trend_ma_standard = strend(ma_standard) > 0
+    vsignal = band(synced,trend_ma_standard)
+    msvap = transform(vsignal,v2i,len(t[VOLUME]))
     #sup = up_under(t[HIGH],t[LOW],extend_days,300)    
-    #return gand(g,msvap,trend_ma_standard,sup)
-    return gand(g,msvap,trend_ma_standard)
+    return gand(g,msvap)
 
-def svama3(stock,fast,mid,slow,ma_standard=120,extend_days=10,sma=55):
+def svama3(stock,fast,mid,slow,ma_standard=250,extend_days=10,sma=55):
     ''' svama三叉
         argnames = ['slow','middle','fast','threshold']
         arglist = [(3,128,1),(2,65,1),(1,32,1),(15,76,15)]
@@ -158,87 +156,25 @@ def svama3(stock,fast,mid,slow,ma_standard=120,extend_days=10,sma=55):
     trend_ma_svapmid = strend(ma_svapmid) > 0    
     trend_ma_svapslow = strend(ma_svapslow) > 0
 
+    ma_standard = ma(svap,ma_standard)
+    trend_ma_standard = strend(ma_standard) > 0    
+
     #cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
     cross_fast_mid = band(cross(ma_svapmid,ma_svapfast)>0,trend_ma_svapfast)
     cross_fast_slow = band(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast)    
     cross_mid_slow = band(cross(ma_svapslow,ma_svapmid)>0,trend_ma_svapmid)
     sync_fast_2 = sfollow(cross_fast_mid,cross_fast_slow,extend_days)
     sync3 = sfollow(sync_fast_2,cross_mid_slow,extend_days)
-    msvap = transform(sync3,v2i,len(t[VOLUME]))
+    vsignal = band(sync3,trend_ma_standard)
+    msvap = transform(vsignal,v2i,len(t[VOLUME]))
 
-    #print 'ma_standard:',ma_standard
-    ma_standard = ma(t[CLOSE],ma_standard)
-    trend_ma_standard = strend(ma_standard) > 0
     sup = up_under(t[HIGH],t[LOW],extend_days,300)    
-    return gand(g,msvap,trend_ma_standard,sup)
-    #sbuy = gand(g,msvap,trend_ma_standard)
-    #print sum(g),sum(msvap),sum(trend_ma_standard)
-    #print 'sum sbuy:',sum(sbuy)
-    #return sbuy
+    return gand(g,msvap,sup)
 
-def vama2(stock,fast,slow,pre_length=120,ma_standard=120):
-    ''' vama双叉
-        argnames = ['slow','fast']
-        arggroups = [ [2,113],
-            [26,123],
-            [22,3],
-            [58,3] ]    
-    '''
-    t = stock.transaction
-    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
-    svap,v2i = vap_pre(t[VOLUME],t[CLOSE],pre_length)
-    ma_svapfast = ma(svap,fast)
-    ma_svapslow = ma(svap,slow)
-    trend_ma_svapfast = strend(ma_svapfast) > 0
-    trend_ma_svapslow = strend(ma_svapslow) > 0
-    #cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
-    cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapslow)
-    msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
-
-    ma_standard = ma(t[CLOSE],ma_standard)
-    trend_ma_standard = strend(ma_standard) > 0
-    #sup = up_under(t[HIGH],t[LOW],10,300)
-    #return gand(g,msvap,trend_ma_standard,sup)
-    return gand(g,msvap,trend_ma_standard)
-
-def vama3(stock,fast,mid,slow,pre_length=120,ma_standard=120,extend_days=10):
-    ''' vama三叉
-        argnames = ['vama_standard','vamamiddle','vamafast']
-            arggroups = [[116,59,12],
-            [119,64,20],
-            [100,55,29],
-            [100,45,12],
-            [124,53,25],
-            #[90,51,14],
-            [102,43,8]]
-    '''
-    t = stock.transaction
-    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
-    svap,v2i = vap_pre(t[VOLUME],t[CLOSE],pre_length)
-    ma_svapfast = ma(svap,fast)
-    ma_svapmid = ma(svap,mid)    
-    ma_svapslow = ma(svap,slow)
-    trend_ma_svapfast = strend(ma_svapfast) > 0
-    trend_ma_svapmid = strend(ma_svapmid) > 0    
-    trend_ma_svapslow = strend(ma_svapslow) > 0
-
-    #cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
-    cross_fast_mid = band(cross(ma_svapmid,ma_svapfast)>0,trend_ma_svapfast)
-    cross_fast_slow = band(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast)    
-    cross_mid_slow = band(cross(ma_svapslow,ma_svapmid)>0,trend_ma_svapmid)
-    sync_fast_2 = sfollow(cross_fast_mid,cross_fast_slow,extend_days)
-    sync3 = sfollow(sync_fast_2,cross_mid_slow,extend_days)
-    msvap = transform(sync3,v2i,len(t[VOLUME]))
-
-    ma_standard = ma(t[CLOSE],ma_standard)
-    trend_ma_standard = strend(ma_standard) > 0
-    #sup = up_under(t[HIGH],t[LOW],10,300)    
-    #return gand(g,msvap,trend_ma_standard,sup)
-    return gand(g,msvap,trend_ma_standard)
 
 
 #svama2和vama2信号发出后的再确认
-def svama2x(stock,fast,slow,base,sma=55,ma_standard=120,extend_days=5):
+def svama2x(stock,fast,slow,base,ma_standard=250,extend_days=5,sma=55):
     ''' svama二叉,extend_days天内再有日线底线叉ma(base)
     '''
     t = stock.transaction
@@ -248,10 +184,13 @@ def svama2x(stock,fast,slow,base,sma=55,ma_standard=120,extend_days=5):
     ma_svapslow = ma(svap,slow)
     trend_ma_svapfast = strend(ma_svapfast) > 0
     trend_ma_svapslow = strend(ma_svapslow) > 0
+
+    ma_standard = ma(svap,ma_standard)
+    trend_ma_standard = strend(ma_standard) > 0    
+
     cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
-    msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
-    ma_standard = ma(t[CLOSE],ma_standard)
-    trend_ma_standard = strend(ma_standard) > 0
+    vsignal = band(cross_fast_slow,trend_ma_standard)
+    msvap = transform(vsignal,v2i,len(t[VOLUME]))
 
     ma_fast = t[LOW]
     ma_base = ma(t[CLOSE],base)
@@ -259,38 +198,10 @@ def svama2x(stock,fast,slow,base,sma=55,ma_standard=120,extend_days=5):
     xcross = band(cross(ma_base,ma_fast),trend_base)
     #sf = sfollow(msvap,xcross,extend_days)  #syntony
     sf = syntony(msvap,xcross,extend_days)
-    sup = up_under(t[HIGH],t[LOW],5,300)
-    return gand(g,sf,trend_ma_standard)
+    #sup = up_under(t[HIGH],t[LOW],5,300)
+    return gand(g,sf)
 
-def vama2x(stock,fast,slow,base,pre_length=120,ma_standard=120,extend_days=5):
-    ''' vama双叉,extend_days天内再有日线底线叉ma(base)
-    '''
-    t = stock.transaction
-    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
-    svap,v2i = vap_pre(t[VOLUME],t[CLOSE],pre_length)
-    ma_svapfast = ma(svap,fast)
-    ma_svapslow = ma(svap,slow)
-    trend_ma_svapfast = strend(ma_svapfast) > 0
-    trend_ma_svapslow = strend(ma_svapslow) > 0
-    #cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
-    cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapslow)
-    msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
-
-    ma_standard = ma(t[CLOSE],ma_standard)
-    trend_ma_standard = strend(ma_standard) > 0
-    #sup = up_under(t[HIGH],t[LOW],10,300)
-
-    ma_fast = t[LOW]
-    ma_base = ma(t[CLOSE],base)
-    trend_base = strend(ma_base) > 0    
-    xcross = band(cross(ma_base,ma_fast),trend_base)
-    #sf = sfollow(msvap,xcross,extend_days) #syntony
-    sf = syntony(msvap,xcross,extend_days)    
-
-    return gand(g,sf,trend_ma_standard)
-
-
-def svama2c(stock,fast,slow,sma=55,ma_standard=120,threshold=7500):
+def svama2c(stock,fast,slow,ma_standard=120,threshold=7500,sma=55):
     ''' svama两线交叉
         argnames = ['slow','fast','threshold']
         arggroups = [ [4,53,30],
@@ -317,11 +228,105 @@ def svama2c(stock,fast,slow,sma=55,ma_standard=120,threshold=7500):
     ma_svapslow = ma(svap,slow)
     trend_ma_svapfast = strend(ma_svapfast) > 0
     trend_ma_svapslow = strend(ma_svapslow) > 0
+
+    ma_standard = ma(svap,ma_standard)
+    trend_ma_standard = strend(ma_standard) > 0    
+
     cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
-    msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
-    ma_standard = ma(t[CLOSE],ma_standard)
-    trend_ma_standard = strend(ma_standard) > 0
+    vsignal = band(cross_fast_slow,trend_ma_standard)    
+    msvap = transform(vsignal,v2i,len(t[VOLUME]))
+   
     #sup = up_under(t[HIGH],t[LOW],10,300)    
-    #return gand(g,msvap,trend_ma_standard,sup)
-    return gand(g,c,msvap,trend_ma_standard)
+    return gand(g,c,msvap)
+
+def vama2(stock,fast,slow,ma_standard=250,pre_length=67):
+    ''' vama双叉
+        argnames = ['slow','fast']
+        arggroups = [ [2,113],
+            [26,123],
+            [22,3],
+            [58,3] ]    
+    '''
+    t = stock.transaction
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    svap,v2i = vap_pre(t[VOLUME],t[CLOSE],pre_length)
+    ma_svapfast = ma(svap,fast)
+    ma_svapslow = ma(svap,slow)
+    trend_ma_svapfast = strend(ma_svapfast) > 0
+    trend_ma_svapslow = strend(ma_svapslow) > 0
+    #cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
+    cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapslow)
+
+    ma_standard = ma(svap,ma_standard)
+    trend_ma_standard = strend(ma_standard) > 0    
+    vsignal = band(cross_fast_slow,trend_ma_standard)
+    msvap = transform(vsignal,v2i,len(t[VOLUME]))
+
+    #sup = up_under(t[HIGH],t[LOW],10,300)
+    return gand(g,msvap)
+
+def vama3(stock,fast,mid,slow,ma_standard=250,extend_days=10,pre_length=67):
+    ''' vama三叉
+        argnames = ['vama_standard','vamamiddle','vamafast']
+            arggroups = [[116,59,12],
+            [119,64,20],
+            [100,55,29],
+            [100,45,12],
+            [124,53,25],
+            #[90,51,14],
+            [102,43,8]]
+    '''
+    t = stock.transaction
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    svap,v2i = vap_pre(t[VOLUME],t[CLOSE],pre_length)
+    ma_svapfast = ma(svap,fast)
+    ma_svapmid = ma(svap,mid)    
+    ma_svapslow = ma(svap,slow)
+    trend_ma_svapfast = strend(ma_svapfast) > 0
+    trend_ma_svapmid = strend(ma_svapmid) > 0    
+    trend_ma_svapslow = strend(ma_svapslow) > 0
+
+    #cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
+    cross_fast_mid = band(cross(ma_svapmid,ma_svapfast)>0,trend_ma_svapfast)
+    cross_fast_slow = band(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast)    
+    cross_mid_slow = band(cross(ma_svapslow,ma_svapmid)>0,trend_ma_svapmid)
+    sync_fast_2 = sfollow(cross_fast_mid,cross_fast_slow,extend_days)
+    sync3 = sfollow(sync_fast_2,cross_mid_slow,extend_days)
+
+    ma_standard = ma(svap,ma_standard)
+    trend_ma_standard = strend(ma_standard) > 0    
+    vsignal = band(sync3,trend_ma_standard)
+    msvap = transform(vsignal,v2i,len(t[VOLUME]))
+
+    #sup = up_under(t[HIGH],t[LOW],10,300)    
+    return gand(g,msvap)
+
+def vama2x(stock,fast,slow,base,ma_standard=250,extend_days=5,pre_length=65):
+    ''' vama双叉,extend_days天内再有日线底线叉ma(base)
+    '''
+    t = stock.transaction
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    svap,v2i = vap_pre(t[VOLUME],t[CLOSE],pre_length)
+    ma_svapfast = ma(svap,fast)
+    ma_svapslow = ma(svap,slow)
+    trend_ma_svapfast = strend(ma_svapfast) > 0
+    trend_ma_svapslow = strend(ma_svapslow) > 0
+    #cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
+    cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapslow)
+
+    ma_standard = ma(svap,ma_standard)
+    trend_ma_standard = strend(ma_standard) > 0    
+    vsignal = band(cross_fast_slow,trend_ma_standard)
+    msvap = transform(vsignal,v2i,len(t[VOLUME]))
+
+    #sup = up_under(t[HIGH],t[LOW],10,300)
+
+    ma_fast = t[LOW]
+    ma_base = ma(t[CLOSE],base)
+    trend_base = strend(ma_base) > 0    
+    xcross = band(cross(ma_base,ma_fast),trend_base)
+    #sf = sfollow(msvap,xcross,extend_days) #syntony
+    sf = syntony(msvap,xcross,extend_days)    
+
+    return gand(g,sf)
 

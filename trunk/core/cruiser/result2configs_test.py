@@ -14,9 +14,13 @@ svama2_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-03-09 03:35:22
 #wolfox.fengine.core.shortcut:log_result:145:2009-03-09 03:35:22,062 DEBUG Mediator:<<lambda>:ma_standard=250,slow=99,fast=32:atr_seller:ma_standard=250,slow=99,fast=32:make_trade_signal:B1S1>:(1144, 323767, 282858, 177)
 '''
                 
-svama3_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-02-18 14:48:35,125 DEBUG Mediator:<<lambda>:slow=196,sma=48,ma_standard=111,extend_days=6,fast=27,mid=87:atr_seller:slow=196,sma=48,ma_standard=111,extend_days=6,fast=27,mid=87:make_trade_signal:B1S1>:(2008, 28953, 14418, 11)
-##wolfox.fengine.core.shortcut:log_result:145:2009-02-18 14:48:35,125 DEBUG Mediator:<<lambda>:slow=16,sma=70,ma_standard=228,extend_days=22,fast=33,mid=6:atr_seller:slow=16,sma=70,ma_standard=228,extend_days=22,fast=33,mid=6:make_trade_signal:B1S1>:(1940, 17272, 8899, 8)
+#svama3_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-02-18 14:48:35,125 DEBUG Mediator:<<lambda>:slow=196,sma=48,ma_standard=111,extend_days=6,fast=27,mid=87:atr_seller:slow=196,sma=48,ma_standard=111,extend_days=6,fast=27,mid=87:make_trade_signal:B1S1>:(2008, 28953, 14418, 11)
+##wolfox.fengine.core.shortcut:log_result:145:2009-02-18 14:48:35,125 DEBUG Mediator:<<lambda>:slow=16,sma=70,ma_standard=228,extend_days=22,fast=33,mid=6:atr_seller:slow=16,sma=70,ma_standard=228,extend_days=22,fast=33,mid=6:make_trade_signal:B1S1>:(1940, 17272, 8899, 8)'''
+
+svama3_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-03-09 19:11:47,328 DEBUG Mediator:<<lambda>:ma_standard=67,slow=54,extend_days=25,fast=16,mid=9:atr_seller:ma_standard=67,slow=54,extend_days=25,fast=16,mid=9:make_trade_signal:B1S1>:(1213, 291035, 239852, 123)
+#wolfox.fengine.core.shortcut:log_result:145:2009-03-09 19:11:47,328 DEBUG Mediator:<<lambda>:ma_standard=250,slow=196,extend_days=23,fast=15,mid=22:atr_seller:ma_standard=250,slow=196,extend_days=23,fast=15,mid=22:make_trade_signal:B1S1>:(1215, 176026, 144823, 82)
 '''
+
 #svama2x_txt = '''#wolfox.fengine.core.shortcut:judge:174:2009-03-05 20:41:57,765 DEBUG Mediator:<<lambda>:slow=154,sma=67,base=152,ma_standard=85,extend_days=5,fast=10:atr_seller:slow=154,sma=67,base=152,ma_standard=85,extend_days=5,fast=10:make_trade_signal:B1S1>:mm:(530, 72242, 136209, 60)
 #wolfox.fengine.core.shortcut:judge:174:2009-03-05 20:42:40,046 DEBUG Mediator:<<lambda>:slow=149,sma=47,base=164,ma_standard=55,extend_days=27,fast=6:atr_seller:slow=149,sma=47,base=164,ma_standard=55,extend_days=27,fast=6:make_trade_signal:B1S1>:mm:(421, 65441, 155415, 76)'''
 

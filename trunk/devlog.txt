@@ -45,3 +45,8 @@ kwargs的慎用，如果有**kwargs，并且存在有默认值的关键字参数
     name:Mediator:<svama2x:ma_standard=20,base=82,fast=1,sma=33,slow=8:atr_seller:covered=10,up_sector=2,trace_times=3000,stop_times=600,buy_sector=0:make_trade_signal_advanced:B1S1>
     消除此类现象
 #6 计算板块在上升过程中前三甲的龙头股 > 8500     
+#7 transform重大修正之后对受影响不分的重新巡游
+   svama2,svama3,svama2s,svama2c,svama2x,vama3,vama2,vama2x, 是否逐渐淘汰掉vama系列
+
+   Finshed: svama2
+

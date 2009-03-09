@@ -8,9 +8,12 @@ logger = logging.getLogger('wolfox.fengine.core.cruiser.result2configs_test')
 
 from StringIO import StringIO
 
-svama2_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-02-18 23:04:30,875 DEBUG Mediator:<<lambda>:ma_standard=172,slow=176,fast=22,sma=9:atr_seller:ma_standard=172,slow=176,fast=22,sma=9:make_trade_signal:B1S1>:(1391, 13520, 9718, 7)
-                #wolfox.fengine.core.shortcut:log_result:145:2009-02-18 23:04:30,875 DEBUG Mediator:<<lambda>:ma_standard=241,slow=193,fast=22,sma=6:atr_seller:ma_standard=241,slow=193,fast=22,sma=6:make_trade_signal:B1S1>:(1429, 9086, 6358, 4)
+#svama2_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-02-18 23:04:30,875 DEBUG Mediator:<<lambda>:ma_standard=172,slow=176,fast=22,sma=9:atr_seller:ma_standard=172,slow=176,fast=22,sma=9:make_trade_signal:B1S1>:(1391, 13520, 9718, 7)
+                #wolfox.fengine.core.shortcut:log_result:145:2009-02-18 23:04:30,875 DEBUG Mediator:<<lambda>:ma_standard=241,slow=193,fast=22,sma=6:atr_seller:ma_standard=241,slow=193,fast=22,sma=6:make_trade_signal:B1S1>:(1429, 9086, 6358, 4)'''
+svama2_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-03-09 03:35:22,062 DEBUG Mediator:<<lambda>:ma_standard=250,slow=128,fast=16:atr_seller:ma_standard=250,slow=128,fast=16:make_trade_signal:B1S1>:(1137, 316847, 278570, 166)
+#wolfox.fengine.core.shortcut:log_result:145:2009-03-09 03:35:22,062 DEBUG Mediator:<<lambda>:ma_standard=250,slow=99,fast=32:atr_seller:ma_standard=250,slow=99,fast=32:make_trade_signal:B1S1>:(1144, 323767, 282858, 177)
 '''
+                
 svama3_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-02-18 14:48:35,125 DEBUG Mediator:<<lambda>:slow=196,sma=48,ma_standard=111,extend_days=6,fast=27,mid=87:atr_seller:slow=196,sma=48,ma_standard=111,extend_days=6,fast=27,mid=87:make_trade_signal:B1S1>:(2008, 28953, 14418, 11)
 ##wolfox.fengine.core.shortcut:log_result:145:2009-02-18 14:48:35,125 DEBUG Mediator:<<lambda>:slow=16,sma=70,ma_standard=228,extend_days=22,fast=33,mid=6:atr_seller:slow=16,sma=70,ma_standard=228,extend_days=22,fast=33,mid=6:make_trade_signal:B1S1>:(1940, 17272, 8899, 8)
 '''

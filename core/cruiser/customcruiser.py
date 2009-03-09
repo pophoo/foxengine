@@ -31,9 +31,9 @@ class Svama3MMCruiser(MM_GeneticCruiser):
     def prepare(self):
         print 'prepare:'
         self.args = dict(fast=range(1,49),mid=range(2,100),slow=range(5,260)
-                ,sma=range(3,130,2),ma_standard=range(5,260,5),extend_days=range(1,36,2)
+                ,ma_standard=(5,10,22,55,67,120,250),extend_days=range(1,36,2)
                 )
-        self.buy_func = lambda stock,fast,mid,slow,sma,ma_standard,extend_days,**kwargs:svama3(stock,fast,mid,slow,sma,ma_standard,extend_days)
+        self.buy_func = lambda stock,fast,mid,slow,ma_standard,extend_days,**kwargs:svama3(stock,fast,mid,slow,ma_standard,extend_days)
         #self.buy_func = lambda stock,fast,mid,slow,sma,ma_standard,extend_days,**kwargs:np.ones_like(stock.transaction[CLOSE])
         #kwargs用于吸收其它函数所需的参数
         #self.sell_func = csc_func
@@ -42,7 +42,7 @@ class Svama3MMCruiser(MM_GeneticCruiser):
         #        ,dict(fast=45,mid=76,slow=85,sma=51,ma_standard=65,extend_days=5)
         #        ,dict(fast=45,mid=76,slow=76,sma=51,ma_standard=65,extend_days=5)
         #        ,dict(fast=15,mid=94,slow=209,sma=24,ma_standard=202,extend_days=30)]
-        self.predefined = [dict(fast=15,mid=94,slow=209,sma=24,ma_standard=202,extend_days=30),dict(fast=45,mid=76,slow=76,sma=51,ma_standard=65,extend_days=5)]
+        self.predefined = []
         #self.sell_func = my_csc_func
         #self.trade_func = fcustom(normal_trade_func,begin=20010601)
         #self.trade_func = fcustom(my_trade_func,begin=20010601)
@@ -51,10 +51,9 @@ class Svama3MMCruiser(MM_GeneticCruiser):
 class Svama2MMCruiser(MM_GeneticCruiser):
     def prepare(self):
         print 'prepare:'
-        self.args = dict(fast=range(1,49),slow=range(5,260)
-                ,sma=range(3,130),ma_standard=range(5,260)
+        self.args = dict(fast=range(1,49),slow=range(5,260),ma_standard=(5,10,22,55,67,120,250)
                 )
-        self.buy_func = lambda stock,fast,slow,sma,ma_standard,**kwargs:svama2(stock,fast,slow,sma,ma_standard)
+        self.buy_func = lambda stock,fast,slow,ma_standard,**kwargs:svama2(stock,fast,slow,ma_standard)
         #kwargs用于吸收其它函数所需的参数
         self.sell_func = atr_seller
         self.predefined = []
@@ -176,7 +175,7 @@ if __name__ == '__main__':
     dummy_catalogs('catalog',catalogs)
     
     #cruiser = Svama3MMCruiser(psize=16,maxstep=1,goal=0)
-    #cruiser = Svama3MMCruiser(psize=100,maxstep=50,goal=2000000)    #goal不能太小
+    cruiser = Svama3MMCruiser(psize=100,maxstep=50,goal=2000000)    #goal不能太小
     #cruiser = Svama2MMCruiser(psize=100,maxstep=50,goal=2000000)
     #cruiser = Svama2sMMCruiser(psize=100,maxstep=50,goal=200000000)
     #cruiser = Vama3MMCruiser(psize=100,maxstep=50,goal=200000000)
@@ -184,7 +183,7 @@ if __name__ == '__main__':
     #cruiser = Ma3MMCruiser(psize=100,maxstep=50,goal=200000000)
     #cruiser = Svama2xMMCruiser(psize=100,maxstep=50,goal=20000000)
     #cruiser = Svama2cMMCruiser(psize=100,maxstep=50,goal=20000000)
-    cruiser = Vama2xMMCruiser(psize=100,maxstep=50,goal=20000000)
+    #cruiser = Vama2xMMCruiser(psize=100,maxstep=50,goal=20000000)
     print 'before cruiser,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
     cruiser.gcruise(sdata,dates,tbegin)
     print 'after cruiesr,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)    

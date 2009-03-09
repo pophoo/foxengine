@@ -9,8 +9,12 @@ logger = logging.getLogger('wolfox.fengine.core.cruiser.result2configs_test')
 mm_pattern = r'\(-?(?P<balance>\d+), -?\d+, -?\d+, (?P<times>\d+)\)'
 mm_groups = ['balance','times']
 
-svama2_pattern = r'ma_standard=(?P<ma_standard>\d+),slow=(?P<slow>\d+),fast=(?P<fast>\d+),sma=(?P<sma>\d+)'
-svama2_groups = ['fast','slow','sma','ma_standard']
+#svama2_pattern = r'ma_standard=(?P<ma_standard>\d+),slow=(?P<slow>\d+),fast=(?P<fast>\d+),sma=(?P<sma>\d+)'
+#svama2_groups = ['fast','slow','sma','ma_standard']
+
+svama2_pattern = r'ma_standard=(?P<ma_standard>\d+),slow=(?P<slow>\d+),fast=(?P<fast>\d+)'
+svama2_groups = ['fast','slow','ma_standard']
+
 
 svama2c_pattern = r'threshold=(?P<threshold>\d+),ma_standard=(?P<ma_standard>\d+),slow=(?P<slow>\d+),fast=(?P<fast>\d+),sma=(?P<sma>\d+)'
 svama2c_groups = ['fast','slow','sma','ma_standard','threshold']
@@ -100,6 +104,7 @@ def transform(line,pattern,groups):
 import optparse
 if __name__ == '__main__':
     #python result2configs.py -t svama2 -i custom_cruiser_mm_svama2.txt -o svama2_configs.txt     
+    #python result2configs.py -t svama2 -i nsvama2.txt -o nsvama2_configs.txt
     logging.basicConfig(filename="r2c.log",level=logging.DEBUG,format='#%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
     parser = optparse.OptionParser()
     parser.add_option('--type','-t',help="转换类型")    

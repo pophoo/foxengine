@@ -9,7 +9,7 @@ import logging
 logger = logging.getLogger('wolfox.fengine.normal.run')    
 
 
-def func_test(stock,fast,slow,base,sma=22,ma_standard=120,extend_days=5,**kwargs):
+def func_test(stock,fast,slow,base,sma=55,ma_standard=120,extend_days=5,**kwargs):
     ''' svama二叉,extend_days天内再有日线底线叉ma(base)
     '''
     dates = kwargs['dates'] #打印输出用
@@ -18,14 +18,17 @@ def func_test(stock,fast,slow,base,sma=22,ma_standard=120,extend_days=5,**kwargs
     svap,v2i = svap_ma(t[VOLUME],t[CLOSE],sma)
     #print len(svap),len(v2i),len(dates)
     print stock.code
-    for s,v in zip(svap,v2i):
-        print '%s,%s,%s' % (v,s,dates[v])
     ma_svapfast = ma(svap,fast)
     ma_svapslow = ma(svap,slow)
     trend_ma_svapfast = strend(ma_svapfast) > 0
     trend_ma_svapslow = strend(ma_svapslow) > 0
+
     cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
+    for s,v,f,sl,c in zip(svap,v2i,ma_svapfast,ma_svapslow,cross_fast_slow):
+        print '%s,%s,%s,%s,%s' % (dates[v],s,f,sl,c)
+    print sum(cross_fast_slow.tolist())
     msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
+    print np.sum(msvap),np.sum(cross_fast_slow)
     ma_standard = ma(t[CLOSE],ma_standard)
     trend_ma_standard = strend(ma_standard) > 0
 
@@ -36,8 +39,9 @@ def func_test(stock,fast,slow,base,sma=22,ma_standard=120,extend_days=5,**kwargs
     #sf = sfollow(msvap,xcross,extend_days)  #syntony
     sf = syntony(msvap,xcross,extend_days)
     
-    sbuy = gand(g,sf,trend_ma_standard)
-
+    #sbuy = gand(g,sf,trend_ma_standard)
+    sbuy = msvap
+    print dates[sbuy>0]
     down_limit = tracelimit((t[OPEN]+t[LOW])/2,t[HIGH],sbuy,stock.atr,600,3000)
     
     #for x in zip(dates,sbuy,down_limit,t[LOW],t[OPEN],t[CLOSE],stock.atr*600/1000,t[OPEN]-stock.atr*600/1000):
@@ -45,7 +49,7 @@ def func_test(stock,fast,slow,base,sma=22,ma_standard=120,extend_days=5,**kwargs
     return sbuy
 
 def prepare_buyer(dates):
-    return fcustom(func_test,fast=  1,slow=  8,base= 82,sma= 22,ma_standard= 20,dates=dates)
+    return fcustom(func_test,fast=  120,slow=  250,base= 82,sma= 55,ma_standard= 20,dates=dates)
 
 def prepare_order(sdata):
     d_posort('g5',sdata,distance=5)        
@@ -75,7 +79,7 @@ def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     name,tradess = calc_trades(buyer,seller,sdata,dates,xbegin)
     result,strade = ev.evaluate_all(tradess,pman,dman)
 
-    #print strade
+    print strade
 
     tend = time()
     print u'计算耗时: %s' % (tend-tbegin)

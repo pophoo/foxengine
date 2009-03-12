@@ -13,18 +13,6 @@ from wolfox.fengine.internal import *
 def ma3(stock,fast,mid,slow,ma_standard=120,extend_days = 10):
     ''' ma三线金叉
         不要求最慢的那条线在被快线交叉时趋势必须向上，但要求被中线交叉时趋势向上
-        argnames= ['slow','middle','fast']
-        arggroups = [   #[21,5,1],
-                #[55,21,3],
-                #[30,20,10],
-                #[40,30,20],
-                [25,47,29],
-                [88,45,4],
-                [69,34,2],
-                [70,45,8]#,
-                #[70,45,3]
-                ]
-        
     '''
     #logger.debug('ma3 calc: %s ' % stock.code)    
     t = stock.transaction
@@ -49,20 +37,6 @@ def ma3(stock,fast,mid,slow,ma_standard=120,extend_days = 10):
 c_extractor = lambda c:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250)
 def svama2(stock,fast,slow,ma_standard=250,sma=65):
     ''' svama两线交叉
-        argnames = ['slow','fast','threshold']
-        arggroups = [ [4,53,30],
-            [108,53,15],
-            [61,16,15],
-            [62,7,15],
-            [46,16,15],
-            [9,35,15],
-            [126,14,15],
-            [4,29,15],
-            [98,5,75],
-            [68,5,75],
-            [88,14,75],
-            [71,8,75]
-        ]
     '''
     t = stock.transaction
     g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
@@ -83,20 +57,6 @@ def svama2(stock,fast,slow,ma_standard=250,sma=65):
 
 def svama2s(stock,fast,slow,ma_standard=250,extend_days = 10,sma=55):
     ''' svama两线交叉, 先是快线叉慢线,然后是慢线叉快线
-        argnames = ['slow','fast','threshold']
-        arggroups = [ [4,53,30],
-            [108,53,15],
-            [61,16,15],
-            [62,7,15],
-            [46,16,15],
-            [9,35,15],
-            [126,14,15],
-            [4,29,15],
-            [98,5,75],
-            [68,5,75],
-            [88,14,75],
-            [71,8,75]
-        ]
     '''
     t = stock.transaction
     g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
@@ -117,28 +77,6 @@ def svama2s(stock,fast,slow,ma_standard=250,extend_days = 10,sma=55):
 
 def svama3(stock,fast,mid,slow,ma_standard=250,extend_days=10,sma=55):
     ''' svama三叉
-        argnames = ['slow','middle','fast','threshold']
-        arglist = [(3,128,1),(2,65,1),(1,32,1),(15,76,15)]
-        arggroups = [
-            [119,55,12,15],
-            [103,62,12,45],
-            [111,57,19,15],
-            [120,64,23,15],
-            [127,60,12,45],
-            [127,42,12,45],
-            [92,57,17,45],
-            #[123,64,12,15],
-            [31,57,30,15],
-            [23,61,30,30],
-            [31,56,28,15],
-            [18,52,22,75],
-            [20,60,25,30],
-            [43,26,31,60],
-            [68,64,28,75],
-            [44,61,7,75],
-            [20,48,30,60]
-        ]    
-
         可以考虑信号发出n天内，突然放水10-20%到下位支撑(20,55,120)[附近]然后向上
             或者强势盘整幅度越来越小    见600117 20030115的信号(6,12,69,ex=13,ma=227,sma=21)
             另四线理顺也是启动的强势附件
@@ -203,20 +141,6 @@ def svama2x(stock,fast,slow,base,ma_standard=250,extend_days=5,sma=55):
 
 def svama2c(stock,fast,slow,ma_standard=120,threshold=7500,sma=55):
     ''' svama两线交叉
-        argnames = ['slow','fast','threshold']
-        arggroups = [ [4,53,30],
-            [108,53,15],
-            [61,16,15],
-            [62,7,15],
-            [46,16,15],
-            [9,35,15],
-            [126,14,15],
-            [4,29,15],
-            [98,5,75],
-            [68,5,75],
-            [88,14,75],
-            [71,8,75]
-        ]
     '''
     c_extractor = lambda c:c.g20>=threshold
     t = stock.transaction
@@ -241,11 +165,6 @@ def svama2c(stock,fast,slow,ma_standard=120,threshold=7500,sma=55):
 
 def vama2(stock,fast,slow,ma_standard=250,pre_length=67):
     ''' vama双叉
-        argnames = ['slow','fast']
-        arggroups = [ [2,113],
-            [26,123],
-            [22,3],
-            [58,3] ]    
     '''
     t = stock.transaction
     g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
@@ -267,14 +186,6 @@ def vama2(stock,fast,slow,ma_standard=250,pre_length=67):
 
 def vama3(stock,fast,mid,slow,ma_standard=250,extend_days=10,pre_length=67):
     ''' vama三叉
-        argnames = ['vama_standard','vamamiddle','vamafast']
-            arggroups = [[116,59,12],
-            [119,64,20],
-            [100,55,29],
-            [100,45,12],
-            [124,53,25],
-            #[90,51,14],
-            [102,43,8]]
     '''
     t = stock.transaction
     g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)

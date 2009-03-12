@@ -214,7 +214,8 @@ def atr_sell_func(sbuy,trans,satr,stop_times=3*BASE/2,trace_times=2*BASE,covered
     '''
     #down_limit = tmax(trans[HIGH] - satr * times / BASE,covered)    #最近covered天波动下限的最大值
     down_limit = tracelimit((trans[OPEN]+trans[LOW])/2,trans[up_sector],sbuy,satr,stop_times,trace_times)
-    sdown = equals(cross(down_limit,trans[LOW]),-1)     #触及
+    #sdown = equals(cross(down_limit,trans[LOW]),-1)     #触及
+    sdown = under_cross(sbuy,down_limit,trans[LOW])
     #return band(sdown,sellconfirm(trans[OPEN],trans[CLOSE],trans[HIGH],trans[LOW])),down_limit
     return sdown,down_limit
 
@@ -223,7 +224,8 @@ def atr_sell_func_old(sbuy,trans,satr,times=BASE,covered=10,sector=LOW):
         times为以0.001为单位的倍数
     '''
     down_limit = tmax(trans[HIGH] - satr * times / BASE,covered)    #最近covered天波动下限的最大值
-    sdown = equals(cross(down_limit,trans[sector]),-1)     #最低价触及
+    #sdown = equals(cross(down_limit,trans[sector]),-1)     #最低价触及
+    sdown = under_cross(sbuy,down_limit,trans[sector])
     return band(sdown,sellconfirm(trans[OPEN],trans[CLOSE],trans[HIGH],trans[LOW])),down_limit
 
 def atr_seller(stock,buy_signal,stop_times=3*BASE/2,trace_times=2*BASE,covered=10,up_sector=HIGH,**kwargs): 

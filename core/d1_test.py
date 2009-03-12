@@ -145,6 +145,16 @@ class ModuleTest(unittest.TestCase):
         #做点无聊事情的双参数用法
         self.assertEquals([0,2,0,1,0],smooth(ss,vv1,vv3,sfunc=lambda x,y:x+y).tolist())
 
+    def test_smooth_simple(self):
+        #简单用法
+        ss = np.array([0,1,0,1,0])
+        vv1 = np.array([1,0,1,1,1])
+        self.assertEquals([0,1,0,1,0],smooth_simple(ss,vv1).tolist())
+        vv2 = np.array([0,1,0,1,1])
+        self.assertEquals([0,1,0,1,0],smooth_simple(ss,vv2).tolist())
+        vv3 = np.array([0,1,0,0,1])
+        self.assertEquals([0,1,0,0,0],smooth_simple(ss,vv3).tolist())
+
     def test_smooth2(self):
         ss = np.array([0,1,0,1,0])
         vv1 = np.array([1,0,1,1,1])

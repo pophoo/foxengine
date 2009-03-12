@@ -55,23 +55,34 @@ class ModuleTest(unittest.TestCase):
         self.assertTrue(True)
 
     def test_limit_adjuster(self):
-        from wolfox.fengine.core.d1idiom import _limit_adjuster
+        from wolfox.fengine.core.d1idiom import _limit_adjuster_deprecated as _limit_adjuster
         self.assertEquals([],_limit_adjuster(np.array([]),np.array([]),3).tolist())
         css = np.array([1,0,0,1,0,1,0,0])
         cls = np.array([1,1,0,0,0,1,1,1])
         self.assertEquals([0,0,1,0,0,0,0,0],_limit_adjuster(css,cls,3).tolist())
         self.assertEquals([0,0,0,1,0,0,0,0],_limit_adjuster(css,cls,2).tolist())
 
+    def test_limit_adjust_deprecated(self):
+        self.assertEquals([],limit_adjust_deprecated(np.array([]),np.array([]),np.array([]),3).tolist())
+        css = np.array([1,0,0,1,0,1,0,0])
+        cls = np.array([1,1,0,0,0,1,1,1])
+        ts0 = np.array([0,0,0,0,0,0,0,0])
+        ts1 = np.array([1,1,1,1,1,1,1,1])
+        ts2 = np.array([1,1,0,0,1,1,1,1])
+        self.assertEquals([0,0,0,0,0,0,0,0],limit_adjust_deprecated(css,cls,ts0).tolist())
+        self.assertEquals([0,0,1,0,0,0,0,0],limit_adjust_deprecated(css,cls,ts1).tolist())
+        self.assertEquals([0,0,0,1,0,0,0,0],limit_adjust_deprecated(css,cls,ts1,covered=2).tolist())
+        self.assertEquals([0,0,0,0,1,0,0,0],limit_adjust_deprecated(css,cls,ts2).tolist())
+
     def test_limit_adjust(self):
-        self.assertEquals([],limit_adjust(np.array([]),np.array([]),np.array([]),3).tolist())
+        self.assertEquals([],limit_adjust(np.array([]),np.array([]),np.array([])).tolist())
         css = np.array([1,0,0,1,0,1,0,0])
         cls = np.array([1,1,0,0,0,1,1,1])
         ts0 = np.array([0,0,0,0,0,0,0,0])
         ts1 = np.array([1,1,1,1,1,1,1,1])
         ts2 = np.array([1,1,0,0,1,1,1,1])
         self.assertEquals([0,0,0,0,0,0,0,0],limit_adjust(css,cls,ts0).tolist())
-        self.assertEquals([0,0,1,0,0,0,0,0],limit_adjust(css,cls,ts1).tolist())
-        self.assertEquals([0,0,0,1,0,0,0,0],limit_adjust(css,cls,ts1,covered=2).tolist())
+        self.assertEquals([0,0,1,1,0,0,0,0],limit_adjust(css,cls,ts1).tolist())
         self.assertEquals([0,0,0,0,1,0,0,0],limit_adjust(css,cls,ts2).tolist())
 
     def test_BS_DUMMY(self):
@@ -113,8 +124,8 @@ class ModuleTest(unittest.TestCase):
         sbuy = np.array([1,0,1,1])
         ssell = np.array([1,0,1,0])
         lb,ls = B1S0(trans,sbuy,ssell)
-        self.assertEquals([0,0,0,1],lb.tolist())
-        self.assertEquals([1,0,0,0],ls.tolist())
+        self.assertEquals([0,0,0,1],lb.tolist()) #第二天涨停，第三天停牌
+        self.assertEquals([1,0,0,1],ls.tolist())
 
     def test_B0S1(self):
         #空测试
@@ -127,8 +138,8 @@ class ModuleTest(unittest.TestCase):
         sbuy = np.array([1,0,1,1])
         ssell = np.array([1,0,1,0])
         lb,ls = B0S1(trans,sbuy,ssell)
-        self.assertEquals([1,0,0,0],lb.tolist())
-        self.assertEquals([0,1,0,0],ls.tolist())
+        self.assertEquals([1,0,0,1],lb.tolist())
+        self.assertEquals([0,1,0,0],ls.tolist()) #最后一天为一线跌停日
 
     def test_B0S0(self):
         #空测试
@@ -141,8 +152,8 @@ class ModuleTest(unittest.TestCase):
         sbuy = np.array([1,0,1,1])
         ssell = np.array([1,0,1,0])
         lb,ls = B0S0(trans,sbuy,ssell)
-        self.assertEquals([1,0,0,0],lb.tolist())
-        self.assertEquals([1,0,0,0],ls.tolist())
+        self.assertEquals([1,0,0,1],lb.tolist())
+        self.assertEquals([1,0,0,1],ls.tolist())
 
     def test_atr_sell_func(self):   #通路测试
         empty_trans = np.array([(),(),(),(),(),(),()])

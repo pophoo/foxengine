@@ -82,6 +82,7 @@ def last_trade(stock,signal,tdate,tpositive,tnegative
     ''' 返回值为[x]形式(无时为[])
     '''
     assert len(tpositive) == len(tnegative) == len(signal)
+    #for t,s in zip(tdate,signal):print t,s
     sis = signal.nonzero()[0]  #非0信号的index
     tbegin = tdate.searchsorted(begin)
     ibegin = sis.searchsorted(tbegin)   #tbegin在非0索引中的插入位置

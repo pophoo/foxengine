@@ -5,7 +5,7 @@
 
 import numpy as np
 from collections import deque
-from wolfox.fengine.core.d1 import BASE,band,gand,nsubd,rollx
+from wolfox.fengine.core.d1 import BASE,band,gand,nsubd,rollx,equals,greater_equals
 
 def ma(source,length):    #使用numpy，array更加的惯用法
     """ 计算移动平均线
@@ -108,6 +108,15 @@ def cross(target,follow):
     np.putmask(s2,flag,signal)
     rev = np.concatenate((np.array([0]),s2))
     return rev
+
+def under_cross(signal,source,follow):
+    ''' 信号日低于或下叉
+        不仅仅给出下叉信号,而且还给出ssource日follow是否低于source
+    '''
+    sd = equals(cross(source,follow),-1)
+    indices = (signal > 0)
+    sd[indices] = greater_equals(source[indices],follow[indices])
+    return sd
 
 def cover(source,interval=1): #interval必须大于0
     ''' 信号延伸，length为延伸值，发生日为length,逐日递减(小于0则都为0)，直至另一个发生日.

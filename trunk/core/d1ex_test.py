@@ -30,6 +30,14 @@ class ModuleTest(unittest.TestCase):
         cross(np.array([]),np.array([]))
         self.assertTrue(True)
 
+    def test_under_cross(self):
+        target = np.array([10,20,30,40,50,40,30,20,10,12,11,12])
+        follow = np.array([5,15,35,41,60,50,25,26,8,12,13,12])
+        self.assertEquals([1,1,0,0,0,0,1,0,1,1,0,0],under_cross(np.array([1,1,1,0,0,0,0,0,0,1,1,0]),target,follow).tolist())
+        #空测试
+        cross(np.array([]),np.array([]))
+        self.assertTrue(True)
+
     def test_cover(self):
         source = np.array([0,0,5,0,-5,0,0,0,0,0,1,0,0,3,0,0,-1,1,2,0,0,0,0,6,0])
         self.assertEquals([0,0,1,0,1,0,0,0,0,0,1,0,0,1,0,0,1,1,1,0,0,0,0,1,0],cover(source,1).tolist())        

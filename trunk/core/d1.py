@@ -76,11 +76,6 @@ def sync(source,signal):
     rev[bsignal] = source
     return rev
 
-def smooth2(signal,src1,src2):
-    ''' 同时处理两个独立source的smooth的快捷方式
-    ''' 
-    return smooth(signal,src1),smooth(signal,src2)
-
 DEFAULT_SMOOTH_FUNC = lambda *args:args[0] if len(args)==1 else gand(*args) #如果只有一个参数就直接返回
 def smooth(signal,*sources,**kwargs):
     ''' 将sources中的各序列按照signal非空压缩后，调用sfunc进行处理，然后将处理结果展开并返回
@@ -90,6 +85,7 @@ def smooth(signal,*sources,**kwargs):
             其中source必须是正的信号序列,signal中非0为有信号,在返回值中该正信号被标准化为1
             相当于sync(desyncs(source,signal),signal)
         实际上对于默认的函数来说,相当于sync(desyncs(source,signal),signal)
+        这个现在看来没啥用处
     '''
     assert sources
     sfunc = kwargs.get('sfunc',DEFAULT_SMOOTH_FUNC)        #默认参数的另一种方法，避免对位置参数的污染
@@ -102,7 +98,12 @@ def smooth(signal,*sources,**kwargs):
     rev[bsignal] = sfunc(*tmp)
     return rev
 
-def smooth_deprecated(signal,source):   #最早的简单实现,已经废弃
+def smooth2(signal,src1,src2):
+    ''' 同时处理两个独立source的smooth的快捷方式
+    ''' 
+    return smooth_simple(signal,src1),smooth(signal,src2)
+
+def smooth_simple(signal,source):   #最早的简单实现,已经废弃
     ''' 把source中signal为0位置的信号延续到其后最近的signal为1的位置
         其中source必须是正的信号序列,signal中非0为有信号,在返回值中该正信号被标准化为1
         相当于sync(desyncs(source,signal),signal)

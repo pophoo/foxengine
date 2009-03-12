@@ -118,26 +118,35 @@ def downup(source1,source2,belowdays,crossdays=3):
     sdown_up = sfollow(sdown,s2_gt_1,belowdays)  #belowdays之内回去
     return sdown_up
 
-def _limit_adjuster(css,cls,covered):#covered不能大于127否则会溢出, np.sign(bool array)返回的是int8数组
+def _limit_adjuster_deprecated(css,cls,covered):#covered不能大于127否则会溢出, np.sign(bool array)返回的是int8数组
     ''' css:压缩后的source_signal,cls:压缩后的limit_signal
         屏蔽cls非空日的那些css信号,使其延后到covered之内的非停板日,或者取消(后面的covered日都停板)
         返回处理后的css
+        这里的做法是先按covered段展开信号，挖空其停板日，然后再进行derepeat。这个做法太无聊了，废弃
         存在问题是信号的吸收，本来相隔covered-1有2个卖出信号，后一个信号本来应该延续covered个位置,但这里被忽略了. 
             这个忽略因为是在covered之内的新信号,当covered较小时,不会有实质影响(因为可能这个间隔还没出现卖出信号,故此新买入为无效信号)
             如果采用cover来替代repeat,使得这类信号延续,则转换后会因为停板的存在导致中间断开从而这个信号被推迟,更为不妥
     '''
     css_covered = repeat(css,covered)
     #print css,cls,css_covered,derepeat(band(css_covered>0,bnot(cls)))
+    #print '_ad',band(css_covered > 0,bnot(cls))[-20:-5].tolist(),derepeat(band(css_covered > 0,bnot(cls)),covered)[-20:-5].tolist()
     return derepeat(band(css_covered > 0,bnot(cls)),covered)    
     
-def limit_adjust(source_signal,limit_signal,trans_signal,covered=10):#covered不能大于127否则会溢出, np.sign(bool array)返回的是int8数组
+def limit_adjust_deprecated(source_signal,limit_signal,trans_signal,covered=10):#covered不能大于127否则会溢出, np.sign(bool array)返回的是int8数组
     ''' 根据停板信号limit_signal和交易日信号trans_signal调整原始信号，使原始信号避开停板到开板日
         可能因covered的原因导致连续非停板日中间出现停板日后,信号多发. 但这个可由makke_trade之类的函数处理掉
         只有covered=2时,不会出现这个情况
         covered=10，最多10个停板，超过则可能导致跌停情况下卖出信号被忽略
     '''
-    adjuster = fcustom(_limit_adjuster,covered=covered)
+    adjuster = fcustom(_limit_adjuster_deprecated,covered=covered)
     return smooth(trans_signal,source_signal,limit_signal,sfunc=adjuster)
+
+def limit_adjust(source_signal,limit_signal,trans_signal):
+    ''' 根据停板信号limit_signal和交易日信号trans_signal调整原始信号，使原始信号避开停板到开板日
+        将停板日也视同停牌日
+    '''
+    signal2 = band(trans_signal,limit_signal==0) #交易日必须满足不是同向停板日
+    return smooth_simple(signal2,source_signal)
 
 def BS_DUMMY(trans,sbuy,ssell):
     return sbuy,ssell
@@ -152,7 +161,9 @@ def B0S0(trans,sbuy,ssell):
     down_limit_line = limitdown1(trans[CLOSE])
     #print 'begin adjust:',up_limit_line,down_limit_line
     sbuy = limit_adjust(sbuy,up_limit_line,trans[VOLUME])
+    #print ssell[-20:-5].tolist(),down_limit_line[-20:-5]
     ssell = limit_adjust(ssell,down_limit_line,trans[VOLUME])
+    #print ssell[-20:-5].tolist()
     #print 'end adjust:',ssell
     return sbuy,ssell
 
@@ -165,7 +176,7 @@ def B0S1(trans,sbuy,ssell):
     #print 'input rolled:',sbuy,ssell
     up_limit_line = limitup1(trans[CLOSE])
     down_limit_line = limitdown2(trans[HIGH],trans[LOW])
-    #print 'begin adjust:',up_limit_line,down_limit_line
+    #print 'begin adjust:',up_limit_line,down_limit_line,trans[VOLUME]
     sbuy = limit_adjust(sbuy,up_limit_line,trans[VOLUME])
     ssell = limit_adjust(ssell,down_limit_line,trans[VOLUME])
     #print 'end adjust:',ssell
@@ -183,7 +194,7 @@ def B1S0(trans,sbuy,ssell):
     #print 'input rolled:',sbuy,ssell
     up_limit_line = limitup2(trans[HIGH],trans[LOW])
     down_limit_line = limitdown1(trans[CLOSE])
-    #print 'begin adjust:',up_limit_line,down_limit_line
+    print 'begin adjust:',up_limit_line,down_limit_line,trans[VOLUME],sbuy
     sbuy = limit_adjust(sbuy,up_limit_line,trans[VOLUME])
     ssell = limit_adjust(ssell,down_limit_line,trans[VOLUME])
     #print 'after limit adjust:%s',sbuy.tolist()    

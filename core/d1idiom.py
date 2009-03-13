@@ -194,7 +194,7 @@ def B1S0(trans,sbuy,ssell):
     #print 'input rolled:',sbuy,ssell
     up_limit_line = limitup2(trans[HIGH],trans[LOW])
     down_limit_line = limitdown1(trans[CLOSE])
-    print 'begin adjust:',up_limit_line,down_limit_line,trans[VOLUME],sbuy
+    #print 'begin adjust:',up_limit_line,down_limit_line,trans[VOLUME],sbuy
     sbuy = limit_adjust(sbuy,up_limit_line,trans[VOLUME])
     ssell = limit_adjust(ssell,down_limit_line,trans[VOLUME])
     #print 'after limit adjust:%s',sbuy.tolist()    

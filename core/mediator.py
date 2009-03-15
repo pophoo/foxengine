@@ -107,13 +107,13 @@ oo_pricer = (lambda s : s.transaction[OPEN],lambda s : s.transaction[OPEN])
 co_pricer = (lambda s : s.transaction[CLOSE],lambda s : s.transaction[OPEN])
 
 #定制的Mediator
-#一次买入一次买出，买入信号次日有效，卖出信号当日起效
-Mediator10 = fcustom(Mediator,trade_strategy=B1S0,pricer = cl_pricer)
-#允许连续买入一次卖出，买入信号次日有效，卖出信号当日起效
+#一次买入一次买出，买入信号次日有效(开盘买入)，卖出信号当日起效
+Mediator10 = fcustom(Mediator,trade_strategy=B1S0,pricer = ol_pricer)
+#允许连续买入一次卖出，买入信号次日有效(开盘买入)，卖出信号当日起效
 CMediator10 = fcustom(Mediator,trade_signal_maker=make_trade_signal_advanced
-        ,trade_strategy=B1S0,pricer = cl_pricer)
+        ,trade_strategy=B1S0,pricer = ol_pricer)
 OMediator10 = fcustom(Mediator,trade_signal_maker=make_trade_signal_advanced
-        ,trade_strategy=B1S0,pricer = cl_pricer)
+        ,trade_strategy=B1S0,pricer = ol_pricer)
 
 def mediator_factory(trade_signal_maker=make_trade_signal_advanced,trade_strategy=B1S0,pricer = cl_pricer):
     return fcustom(Mediator,trade_signal_maker = trade_signal_maker,trade_strategy = trade_strategy,pricer=pricer)

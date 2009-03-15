@@ -46,7 +46,42 @@ kwargs的慎用，如果有**kwargs，并且存在有默认值的关键字参数
     消除此类现象
 #6 计算板块在上升过程中前三甲的龙头股 > 8500     
 #7 transform重大修正之后对受影响不分的重新巡游
-   svama2,svama3,svama2s,svama2c,svama2x,vama3,vama2,vama2x, 是否逐渐淘汰掉vama系列
+   Finshed: svama2,svama3,svama2s,svama2c,svama2x,vama3,vama2,vama2x, 是否逐渐淘汰掉vama系列
 
-   Finshed: svama2
+
+#2009-03-12
+#诡异
+begin,xbegin,end,lbegin = 20060101,20070901,20090327,20081101
+name:Mediator:<vama3:ma_standard=500,slow=45,extend_days=17,fast=32,mid=79:atr_seller:up_sector=2,trace_times=3000,stop_times=600,covered=10:make_trade_signal_advanced:B0S0>
+应当在第三天退出，但是到0312也没有卖出
+SH600370	B	20090224	price=4500	volume=1000
+bug已经修正
+
+另
+name:Mediator:<vama3:ma_standard=500,slow=50,extend_days=31,fast=30,mid=67:atr_seller:up_sector=2,trace_times=3000,stop_times=600,covered=10:make_trade_signal_advanced:B0S0>
+SH600766	B	20081224	price=3490	volume=1000
+这个是正确的
+
+#2009-03-14
+#1 catalog单项测试
+发现一个诡异的现象，渐涨板块中的龙头股(>8500)的表现不如中间股(3300-6600). 
+这里的环境是没有加持g的20,60,120,250的持续增长。单项加持c, 这之中又以c60表现最好。
+
+最佳表最先比g的单项加持要好很多，成功率从333->520,R从1025->2700,times从245->67
+
+# g与catalog共同加持，结果导致次数以2个数量级锐减，缺乏实际意义，而且结果也不如单独的c加持
+#
+#2 另一个重要发现
+以19980101为起始日，对vama3的unit计算有重大影响，大大优于20000101. 仅对
+fcustom(vama3,fast= 33,mid= 84,slow=345,ma_standard=500,extend_days= 27,dates=dates,cextractor=ext_factory(3300,6600))
+而言
+
+#3 检验g60的5和60上叉的效果
+基本确定g不能单独作为主要条件，只能做为筛选条件
+
+另对g作筛选时的
+g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+进行放宽测试，发现删除第一/第二个/第四个都会有问题
+
+但没有测试 g5>g60而绕过g20的情形,只是单纯的删除
 

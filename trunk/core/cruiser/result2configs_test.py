@@ -13,12 +13,20 @@ from StringIO import StringIO
 svama2_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-03-09 03:35:22,062 DEBUG Mediator:<<lambda>:ma_standard=250,slow=128,fast=16:atr_seller:ma_standard=250,slow=128,fast=16:make_trade_signal:B1S1>:(1137, 316847, 278570, 166)
 #wolfox.fengine.core.shortcut:log_result:145:2009-03-09 03:35:22,062 DEBUG Mediator:<<lambda>:ma_standard=250,slow=99,fast=32:atr_seller:ma_standard=250,slow=99,fast=32:make_trade_signal:B1S1>:(1144, 323767, 282858, 177)
 '''
-                
+
+csvama2_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-03-15 10:38:02,125 DEBUG Mediator:<<lambda>:slow=250,rstart=500,rend=10000,fast=5:atr_seller:slow=250,rstart=500,rend=10000,fast=5:make_trade_signal:B1S1>:(1905, 108785, 57093, 39)
+#wolfox.fengine.core.shortcut:log_result:145:2009-03-15 10:38:02,125 DEBUG Mediator:<<lambda>:slow=125,rstart=0,rend=1500,fast=13:atr_seller:slow=125,rstart=0,rend=1500,fast=13:make_trade_signal:B1S1>:(1924, 7382, 3835, 3)
+'''
+
 #svama3_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-02-18 14:48:35,125 DEBUG Mediator:<<lambda>:slow=196,sma=48,ma_standard=111,extend_days=6,fast=27,mid=87:atr_seller:slow=196,sma=48,ma_standard=111,extend_days=6,fast=27,mid=87:make_trade_signal:B1S1>:(2008, 28953, 14418, 11)
 ##wolfox.fengine.core.shortcut:log_result:145:2009-02-18 14:48:35,125 DEBUG Mediator:<<lambda>:slow=16,sma=70,ma_standard=228,extend_days=22,fast=33,mid=6:atr_seller:slow=16,sma=70,ma_standard=228,extend_days=22,fast=33,mid=6:make_trade_signal:B1S1>:(1940, 17272, 8899, 8)'''
 
 svama3_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-03-09 19:11:47,328 DEBUG Mediator:<<lambda>:ma_standard=67,slow=54,extend_days=25,fast=16,mid=9:atr_seller:ma_standard=67,slow=54,extend_days=25,fast=16,mid=9:make_trade_signal:B1S1>:(1213, 291035, 239852, 123)
 #wolfox.fengine.core.shortcut:log_result:145:2009-03-09 19:11:47,328 DEBUG Mediator:<<lambda>:ma_standard=250,slow=196,extend_days=23,fast=15,mid=22:atr_seller:ma_standard=250,slow=196,extend_days=23,fast=15,mid=22:make_trade_signal:B1S1>:(1215, 176026, 144823, 82)
+'''
+
+csvama3_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-03-15 06:11:56,500 DEBUG Mediator:<<lambda>:slow=290,rstart=2000,mid=13,fast=4,rend=8000:atr_seller:slow=290,rstart=2000,mid=13,fast=4,rend=8000:make_trade_signal:B1S1>:(1012, 59609, 58896, 23)
+#wolfox.fengine.core.shortcut:log_result:145:2009-03-15 06:11:56,500 DEBUG Mediator:<<lambda>:slow=250,rstart=2000,mid=21,fast=7,rend=8000:atr_seller:slow=250,rstart=2000,mid=21,fast=7,rend=8000:make_trade_signal:B1S1>:(1043, 39049, 37407, 16)
 '''
 
 #svama2x_txt = '''#wolfox.fengine.core.shortcut:judge:174:2009-03-05 20:41:57,765 DEBUG Mediator:<<lambda>:slow=154,sma=67,base=152,ma_standard=85,extend_days=5,fast=10:atr_seller:slow=154,sma=67,base=152,ma_standard=85,extend_days=5,fast=10:make_trade_signal:B1S1>:mm:(530, 72242, 136209, 60)
@@ -104,6 +112,14 @@ class ModuleTest(unittest.TestCase):
         rows = result.split('\n')
         self.assertEquals(3,len(rows))
 
+    def test_csvama2(self):
+        rf = StringIO(csvama2_txt)
+        wf = StringIO()
+        lines2configs('csvama2',rf,wf)
+        result = wf.getvalue()
+        rows = result.split('\n')
+        self.assertEquals(3,len(rows))
+
     def test_svama2c(self):
         rf = StringIO(svama2c_txt)
         wf = StringIO()
@@ -124,6 +140,14 @@ class ModuleTest(unittest.TestCase):
         rf = StringIO(svama3_txt)
         wf = StringIO()
         lines2configs('svama3',rf,wf)
+        result = wf.getvalue()
+        rows = result.split('\n')
+        self.assertEquals(3,len(rows))
+
+    def test_csvama3(self):
+        rf = StringIO(csvama3_txt)
+        wf = StringIO()
+        lines2configs('csvama3',rf,wf)
         result = wf.getvalue()
         rows = result.split('\n')
         self.assertEquals(3,len(rows))

@@ -84,8 +84,7 @@ def csvama3(stock,fast,mid,slow,rstart=3300,rend=6600,ma_standard=500,extend_day
     msvap = transform(vsignal,v2i,len(t[VOLUME]))
 
     cs = catalog_signal_cs(stock.c60,c_extractor)
-    #g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
-    g = gand(stock.g5 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
     
     return gand(cs,g,msvap)
 
@@ -111,8 +110,7 @@ def csvama2(stock,fast,slow,rstart=3300,rend=6600,ma_standard=500,sma=65):
     vsignal = band(cross_fast_slow,trend_ma_standard)
     msvap = transform(vsignal,v2i,len(t[VOLUME]))
     cs = catalog_signal_cs(stock.c60,c_extractor)
-    #g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
-    g = gand(stock.g5 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
     return gand(cs,g,msvap)
 
 def ma3(stock,fast,mid,slow,ma_standard=120,extend_days = 10):

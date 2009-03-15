@@ -19,7 +19,7 @@ def prepare_temp_configs(seller,pman=None,dman=None):
     configs.append(config(buyer=fcustom(csvama2,fast= 13,slow=125,rstart= 1000,rend=5000))) 	#3315-252-593-32    #9078/988
     configs.append(config(buyer=fcustom(csvama2,fast=  2,slow=250,rstart=7000,rend=9000))) 	#1625-117-500-22 #3379/792
     configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 27,slow=250,rstart=5000,rend=8000))) 	#1000-71-473-19
-    configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 27,slow=330,rstart=3000,rend=6000))) 	#5270-195-714-7
+    configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 27,slow=330,rstart=3000,rend=6000))) 	#5270-195-714-7 #1444/75
     configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 23,slow=250,rstart=6500,rend=8000))) 	#800-52-444-18
     configs.append(config(buyer=fcustom(csvama3,fast= 16,mid= 21,slow=250,rstart=7500,rend=8000))) 	#1152-53-666-6
     configs.append(config(buyer=fcustom(csvama3,fast= 16,mid= 21,slow=250,rstart=5000,rend=7500))) 	#1138-74-407-27
@@ -54,7 +54,6 @@ def prepare_configs_A(seller,pman,dman):    #R>=400,winrate>400 or R>=1000,winra
     configs.append(config(buyer=fcustom(vama3,fast= 17,mid= 46,slow= 85,ma_standard= 55,extend_days=  1))) 	#balance=1204,times= 25 #1025-81-535-28
     configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 27,slow=250,rstart=5000,rend=8000))) 	#1000-71-473-19
     configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 27,slow=330,rstart=3000,rend=6000))) 	#5270-195-714-7
-    configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 23,slow=250,rstart=6500,rend=8000))) 	#800-52-444-18
     configs.append(config(buyer=fcustom(csvama3,fast= 16,mid= 21,slow=250,rstart=5000,rend=8000))) 	#1061-69-433-30 
     configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 19,slow=250,rstart=7000,rend=8000))) 	#939-77-538-13
     

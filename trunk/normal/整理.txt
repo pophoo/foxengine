@@ -6,7 +6,6 @@
     configs.append(config(buyer=fcustom(svama3,fast= 39,mid= 71,slow=490,ma_standard=500,extend_days=  1))) 	#balance=4129,times=  3    #4421-168-600-5
     configs.append(config(buyer=fcustom(svama2x,fast=  6,slow=  5,base=240,ma_standard= 10))) 	#balance=6106,times=  5 #2886-153-666-9
     configs.append(config(buyer=fcustom(svama2x,fast= 47,slow=  5,base=168,ma_standard=500))) 	#balance=26391,times=  3 #701-80-400-5
-    configs.append(config(buyer=fcustom(vama3,fast= 30,mid= 67,slow= 50,ma_standard=500,extend_days= 23))) 	#balance=1038,times= 80 #1169-83-394-175
     configs.append(config(buyer=fcustom(vama3,fast= 30,mid= 67,slow= 50,ma_standard=500,extend_days= 31))) 	#balance=1061,times= 80 #1183-84-396-174
     configs.append(config(buyer=fcustom(vama3,fast= 16,mid= 78,slow= 45,ma_standard=500,extend_days= 13))) 	#balance=1062,times= 50 #2424-177-391-161
     configs.append(config(buyer=fcustom(vama3,fast= 32,mid= 62,slow= 45,ma_standard=500,extend_days=  1))) 	#balance=1096,times=  5 #853-76-470-17

@@ -14,10 +14,33 @@ logger = logging.getLogger('wolfox.fengine.normal.run')
 def ext_factory(sbegin,send):
     return lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s>=sbegin,s<=send)
 
-def func_test(stock,fast,mid,slow,cextractor,ma_standard=250,extend_days=10,pre_length=67,**kwargs):
+def gtest(stock,fast,slow,dates,ma_standard=120):
+    t = stock.transaction
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    g60 = stock.g60
+    ma_fast = ma(g60,fast)
+    ma_slow = ma(g60,slow)
+    trend_ma_fast = strend(ma_fast) > 0
+    trend_ma_slow = strend(ma_slow) > 0    
+    cross_fast_slow = gand(cross(ma_slow,ma_fast)>0,trend_ma_fast,trend_ma_slow)
+
+    ma_standard = ma(t[CLOSE],ma_standard)
+    trend_ma_standard = strend(ma_standard) > 0    
+ 
+    ma_120 = ma(stock.g120,5)   #平滑一下
+    ma_250 = ma(stock.g250,5)
+    trend_ma_120 = strend(ma_120) > 0
+    trend_ma_250 = strend(ma_250) > 0
+
+    print stock.code
+
+    return gand(cross_fast_slow,ma_standard,g,trend_ma_120,trend_ma_250,g60>5000,g60<8000)
+
+
+def func_test(stock,fast,mid,slow,cextractor,ma_standard=500,extend_days=10,pre_length=67,**kwargs):
     ''' vama三叉
     '''
-    #dates = kwargs['dates'] #打印输出用
+    dates = kwargs['dates'] #打印输出用
     t = stock.transaction
     #g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
     svap,v2i = vap_pre(t[VOLUME],t[CLOSE],pre_length)
@@ -57,8 +80,11 @@ def func_test(stock,fast,mid,slow,cextractor,ma_standard=250,extend_days=10,pre_
 
     #sup = up_under(t[HIGH],t[LOW],10,300)    
     #return gand(g,msvap)
+    f=file('wtSH600000.csv','w+')
+    for x in zip(dates,t[CLOSE],stock.g5,stock.g20,stock.g60,stock.g120,stock.g250):
+        print >>f,'%s,%s,%s,%s,%s,%s,%s' % (x[0],x[1],x[2],x[3],x[4],x[5],x[6])
 
-
+    f.close()
     return sbuy
 
 def func_test_old(stock,fast,slow,base,sma=55,ma_standard=120,extend_days=5,**kwargs):
@@ -105,7 +131,7 @@ def prepare_buyer(dates):
     #return fcustom(func_test,ma_standard=500,slow=50,extend_days=31,fast=30,mid=67,dates=dates)
     #return fcustom(func_test,ma_standard=500,slow=45,extend_days=17,fast=32,mid=79,dates=dates)
     #return fcustom(func_test,fast= 33,mid= 84,slow=345,ma_standard=500,extend_days= 27,dates=dates,cextractor=ext_factory(3300,6600))
-    return fcustom(cvama3,fast= 33,mid= 84,slow=345,ma_standard=500,extend_days= 27)
+    return fcustom(gtest,fast=5,slow=60,dates=dates)
 
 def prepare_order(sdata):
     d_posort('g5',sdata,distance=5)        

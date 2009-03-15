@@ -9,12 +9,17 @@ from wolfox.fengine.core.d1match import *
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.run')    
 
-def func_test(stock,fast,mid,slow,ma_standard=250,extend_days=10,pre_length=67,**kwargs):
+#c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s>=3300,s<=6600)
+
+def ext_factory(sbegin,send):
+    return lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s>=sbegin,s<=send)
+
+def func_test(stock,fast,mid,slow,cextractor,ma_standard=250,extend_days=10,pre_length=67,**kwargs):
     ''' vama三叉
     '''
-    dates = kwargs['dates'] #打印输出用
+    #dates = kwargs['dates'] #打印输出用
     t = stock.transaction
-    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    #g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
     svap,v2i = vap_pre(t[VOLUME],t[CLOSE],pre_length)
     ma_svapfast = ma(svap,fast)
     ma_svapmid = ma(svap,mid)    
@@ -34,21 +39,26 @@ def func_test(stock,fast,mid,slow,ma_standard=250,extend_days=10,pre_length=67,*
     trend_ma_standard = strend(ma_standard) > 0    
     vsignal = band(sync3,trend_ma_standard)
     msvap = transform(vsignal,v2i,len(t[VOLUME]))
-    sbuy = gand(g,msvap)
-    down_limit = tracelimit((t[OPEN]+t[LOW])/2,t[HIGH],sbuy,stock.atr,600,3000)
+    
+    cs = catalog_signal_cs(stock.c60,cextractor)
+    #cs = catalog_signal_cs(stock.c20,cextractor)
+    
 
-    seller = atr_seller_factory(stop_times=600,trace_times=3000)    
-    ssell = seller(stock,sbuy)
+    #sbuy = gand(g,cs,msvap)
+    sbuy = gand(cs,msvap)
+    #down_limit = tracelimit((t[OPEN]+t[LOW])/2,t[HIGH],sbuy,stock.atr,600,3000)
 
-    sb = make_trade_signal_advanced(sbuy,ssell)      
-    #for x in zip(dates,sbuy,down_limit,t[LOW],t[OPEN],t[CLOSE],stock.atr*600/1000,t[OPEN]-stock.atr*600/1000,ssell,sb):
+    #seller = atr_seller_factory(stop_times=600,trace_times=3000)    
+    #ssell = seller(stock,sbuy)
+
+    #sb = make_trade_signal_advanced(sbuy,ssell)      
+    #for x in zip(dates,sbuy,down_limit,t[LOW],t[OPEN],t[CLOSE],stock.atr*600/1000,t[OPEN]-stock.atr*600/1000,ssell,sb)[-80:]:
     #    print x[0],x[1],x[2],x[3],x[4],x[5],x[6],x[7],x[8],x[9]
 
     #sup = up_under(t[HIGH],t[LOW],10,300)    
     #return gand(g,msvap)
 
 
-    
     return sbuy
 
 def func_test_old(stock,fast,slow,base,sma=55,ma_standard=120,extend_days=5,**kwargs):
@@ -92,7 +102,10 @@ def func_test_old(stock,fast,slow,base,sma=55,ma_standard=120,extend_days=5,**kw
     return sbuy
 
 def prepare_buyer(dates):
-    return fcustom(func_test,ma_standard=500,slow=45,extend_days=17,fast=32,mid=79,dates=dates)
+    #return fcustom(func_test,ma_standard=500,slow=50,extend_days=31,fast=30,mid=67,dates=dates)
+    #return fcustom(func_test,ma_standard=500,slow=45,extend_days=17,fast=32,mid=79,dates=dates)
+    #return fcustom(func_test,fast= 33,mid= 84,slow=345,ma_standard=500,extend_days= 27,dates=dates,cextractor=ext_factory(3300,6600))
+    return fcustom(cvama3,fast= 33,mid= 84,slow=345,ma_standard=500,extend_days= 27)
 
 def prepare_order(sdata):
     d_posort('g5',sdata,distance=5)        
@@ -104,13 +117,13 @@ def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     prepare_order(sdata.values())
     prepare_order(catalogs)
     dummy_catalogs('catalog',catalogs)
-    
+
     from time import time
     tbegin = time()
 
     pman = AdvancedATRPositionManager()
     dman = DateManager(begin,end)
-    myMediator=mediator_factory(trade_strategy=B0S0,pricer = oo_pricer)
+    myMediator=mediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
     #seller = atr_seller_factory(stop_times=2000,trace_times=3000)
     #seller = atr_seller_factory(stop_times=1500,trace_times=3000)
     #seller = atr_seller_factory(stop_times=1000,trace_times=3000)
@@ -119,11 +132,12 @@ def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     #seller = fcustom(csc_func,threshold=100)
 
     buyer = prepare_buyer(dates)   
-    #name,tradess = calc_trades(buyer,seller,sdata,dates,xbegin)
-    #result,strade = ev.evaluate_all(tradess,pman,dman)
-    #print strade
+    name,tradess = calc_trades(buyer,seller,sdata,dates,xbegin,cmediator=myMediator)
+    result,strade = ev.evaluate_all(tradess,pman,dman)
+    print strade
 
-    tradess = myMediator(buyer,seller).calc_last(sdata,dates,xbegin)
+    #tradess = myMediator(buyer,seller).calc_last(sdata,dates,xbegin)
+    #print tradess[0]
     tend = time()
     print u'计算耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    
@@ -136,6 +150,7 @@ if __name__ == '__main__':
     #总时间段   [20000101,20010701,20090101]    #一个完整的周期+一个下降段
     #分段测试的要求，段mm > 1000-1500或抑制，总段mm > 2000
     
+    begin,xbegin,end = 19980101,20010701,20090101
     #begin,xbegin,end = 20000101,20010701,20090101
     #begin,xbegin,end = 20000101,20010701,20050901
     #begin,xbegin,end = 19980101,19990701,20010801    
@@ -143,11 +158,11 @@ if __name__ == '__main__':
     #begin,xbegin,end = 20060601,20071031,20090101
     #begin,xbegin,end = 19980101,19990101,20090101
     #begin,xbegin,end,lbegin = 20070101,20080601,20090327,20080601
-    begin,xbegin,end,lbegin = 19980101,20000001,20090327,20000101
+    #begin,xbegin,end,lbegin = 19980101,20010701,20090327,20000101
     from time import time
     tbegin = time()
     
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
+    dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
@@ -161,7 +176,11 @@ if __name__ == '__main__':
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600002'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600433','SH600000'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH000001'],[ref_code])
-    dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600067'],[ref_code])
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600067'],[ref_code])
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600766'],[ref_code])
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SZ002012'],[ref_code])
+    #c_posort('c120',catalogs,distance=120)
+    
     tend = time()
     print u'数据准备耗时: %s' % (tend-tbegin)    
     import psyco

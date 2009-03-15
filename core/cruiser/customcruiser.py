@@ -49,6 +49,18 @@ class Svama3MMCruiser(MM_GeneticCruiser):
         #self.trade_func = fcustom(my_trade_func,begin=20010601)
         self.evaluate_func = normal_evaluate
 
+class CSvama3MMCruiser(MM_GeneticCruiser):
+    def prepare(self):
+        print 'prepare:'
+        self.args = dict(fast=range(1,49),mid=range(2,100),slow=range(5,501,5)
+                ,rstart=range(0,10001,500)
+                ,rend = range(500,10001,500)
+                )
+        self.buy_func = lambda stock,fast,mid,slow,rstart,rend,**kwargs:csvama3(stock,fast,mid,slow,rstart,rend)
+        self.sell_func = atr_seller
+        self.predefined = []
+        self.evaluate_func = normal_evaluate
+
 class Svama2MMCruiser(MM_GeneticCruiser):
     def prepare(self):
         print 'prepare:'
@@ -56,6 +68,19 @@ class Svama2MMCruiser(MM_GeneticCruiser):
                 ,ma_standard=(10,22,55,67,120,250,500,800)
                 )
         self.buy_func = lambda stock,fast,slow,ma_standard,**kwargs:svama2(stock,fast,slow,ma_standard)
+        #kwargs用于吸收其它函数所需的参数
+        self.sell_func = atr_seller
+        self.predefined = []
+        self.evaluate_func = normal_evaluate
+
+class CSvama2MMCruiser(MM_GeneticCruiser):
+    def prepare(self):
+        print 'prepare:'
+        self.args = dict(fast=range(1,49),slow=range(5,501,5)
+                ,rstart=range(0,10001,500)
+                ,rend = range(500,10001,500)
+                )
+        self.buy_func = lambda stock,fast,slow,rstart,rend,**kwargs:csvama2(stock,fast,slow,rstart,rend)
         #kwargs用于吸收其它函数所需的参数
         self.sell_func = atr_seller
         self.predefined = []
@@ -156,6 +181,7 @@ if __name__ == '__main__':
 
     begin,end = 20000101,20050901
     tbegin = 20010801
+    
     dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
@@ -184,29 +210,29 @@ if __name__ == '__main__':
     #cruiser = Vama2xMMCruiser(psize=100,maxstep=50,goal=20000000)
     print 'before cruiser,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
     
-    logger.debug('*****************svama3 begin**********************')
-    cruiser = Svama3MMCruiser(psize=100,maxstep=50,goal=200000000)    #goal不能太小
+    logger.debug('*****************csvama3 begin**********************')
+    cruiser = CSvama3MMCruiser(psize=100,maxstep=50,goal=200000000)    #goal不能太小
     cruiser.gcruise(sdata,dates,tbegin)
-    logger.debug('*****************svama2 begin********************')
-    cruiser = Svama2MMCruiser(psize=100,maxstep=50,goal=200000000)
+    logger.debug('*****************csvama2 begin********************')
+    cruiser = CSvama2MMCruiser(psize=100,maxstep=50,goal=200000000)
     cruiser.gcruise(sdata,dates,tbegin)
-    logger.debug('*****************svama2s begin*******************')    
-    cruiser = Svama2sMMCruiser(psize=100,maxstep=50,goal=200000000)
-    cruiser.gcruise(sdata,dates,tbegin)
-    logger.debug('*****************svama2x begin*******************')    
-    cruiser = Svama2xMMCruiser(psize=100,maxstep=50,goal=20000000)
-    cruiser.gcruise(sdata,dates,tbegin)
-    logger.debug('*****************svama2c begin*******************')    
-    cruiser = Svama2cMMCruiser(psize=100,maxstep=50,goal=20000000)
-    cruiser.gcruise(sdata,dates,tbegin)
-    logger.debug('*****************vama3 begin*********************')    
-    cruiser = Vama3MMCruiser(psize=100,maxstep=50,goal=200000000)
-    cruiser.gcruise(sdata,dates,tbegin)
-    logger.debug('*****************vama2 begin*********************')    
-    cruiser = Vama2MMCruiser(psize=100,maxstep=50,goal=20000000)
-    cruiser.gcruise(sdata,dates,tbegin)
-    logger.debug('*****************vama2x begin********************')
-    cruiser = Vama2xMMCruiser(psize=100,maxstep=50,goal=20000000)
-    cruiser.gcruise(sdata,dates,tbegin)
+    #logger.debug('*****************svama2s begin*******************')    
+    #cruiser = Svama2sMMCruiser(psize=100,maxstep=50,goal=200000000)
+    #cruiser.gcruise(sdata,dates,tbegin)
+    #logger.debug('*****************svama2x begin*******************')    
+    #cruiser = Svama2xMMCruiser(psize=100,maxstep=50,goal=20000000)
+    #cruiser.gcruise(sdata,dates,tbegin)
+    #logger.debug('*****************svama2c begin*******************')    
+    #cruiser = Svama2cMMCruiser(psize=100,maxstep=50,goal=20000000)
+    #cruiser.gcruise(sdata,dates,tbegin)
+    #logger.debug('*****************vama3 begin*********************')    
+    #cruiser = Vama3MMCruiser(psize=100,maxstep=50,goal=200000000)
+    #cruiser.gcruise(sdata,dates,tbegin)
+    #logger.debug('*****************vama2 begin*********************')    
+    #cruiser = Vama2MMCruiser(psize=100,maxstep=50,goal=20000000)
+    #cruiser.gcruise(sdata,dates,tbegin)
+    #logger.debug('*****************vama2x begin********************')
+    #cruiser = Vama2xMMCruiser(psize=100,maxstep=50,goal=20000000)
+    #cruiser.gcruise(sdata,dates,tbegin)
 
     print 'after cruiesr,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)    

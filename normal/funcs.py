@@ -60,6 +60,11 @@ def csvama3(stock,fast,mid,slow,rstart=3300,rend=6600,ma_standard=500,extend_day
     if rstart >= rend:
         return np.zeros_like(t[CLOSE])
 
+    try:
+        stock.catalog
+    except:
+        return np.zeros_like(t[CLOSE])
+
     c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s>=rstart,s<=rend)
 
     #print stock.code,len(t[CLOSE]),sum(t[CLOSE])
@@ -95,6 +100,11 @@ def csvama2(stock,fast,slow,rstart=3300,rend=6600,ma_standard=500,sma=65):
     t = stock.transaction
 
     if rstart >= rend:
+        return np.zeros_like(t[CLOSE])
+    
+    try:
+        stock.catalog
+    except:
         return np.zeros_like(t[CLOSE])
 
     c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s>=rstart,s<=rend)

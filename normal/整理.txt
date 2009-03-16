@@ -343,6 +343,7 @@ configs.append(config(buyer=fcustom(vama2,fast= 25,slow=320,ma_standard= 22))) 	
     configs.append(config(buyer=fcustom(vama2,fast=  1,slow=305,ma_standard=500))) 	#balance=1131,times=256 #546-47-309-475    
 
 #2009-03-15
+针对地域和证监会行业的巡游
 #csvama2
     #A
     configs.append(config(buyer=fcustom(csvama2,fast= 13,slow=125,rstart= 1000,rend=5000))) 	#3315-252-593-32    #9078/988
@@ -404,3 +405,5 @@ configs.append(config(buyer=fcustom(vama2,fast= 25,slow=320,ma_standard= 22))) 	
     configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 19,slow=270,rstart=2000,rend=8000))) 	#393-24-369-46
     configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 21,slow=245,rstart=3000,rend=8000))) 	#486-35-333-39
 
+#2009-03-16
+针对地域和行业的巡游

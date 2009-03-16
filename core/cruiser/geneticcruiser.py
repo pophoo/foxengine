@@ -9,6 +9,7 @@ import time as stime
 from math import log,ceil
 from wolfox.fengine.core.utils import fcustom
 from wolfox.fengine.core.cruiser.genetic import *
+from wolfox.fengine.base.common import Evaluation
 import wolfox.fengine.core.cruiser.genetichelper as helper
 from bisect import bisect_left as locate
 
@@ -99,11 +100,15 @@ class GeneticCruiser(object):
             #print 'enter judge'
             begin = stime.time()
             args = self.genes2args(cell.genes)
-            name,ev = self.calc(sdata,dates,tbegin,evthreshold,**dict(zip(self.argnames,args)))
-            if(ev.count > 0):
-                pass
-                #logger.debug(repr(ev))
-            rv = ev.count <=3 and judge.minev or extractor(ev)
+            mykwargs = dict(zip(self.argnames,args))
+            print 'kw..........',mykwargs
+            if self.filtered(**mykwargs):
+                name = ','.join(['%s=%s' % item for item in mykwargs.items()])
+                ev = Evaluation([])
+                logger.debug('filtered:%s:%s',name,ev.count)
+            else:
+                name,ev = self.calc(sdata,dates,tbegin,evthreshold,**mykwargs)
+            rv = extractor(ev) if ev.count > 3 else judge.minev
             print rv,ev.count,zip(self.argnames,args)
             logger.debug('%s:%s:%s',name,ev.count,unicode(ev))
             #print 'array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
@@ -140,6 +145,12 @@ class GeneticCruiser(object):
         #self.ev_result[name] = ev  #移入到jduge中，因为可能值不是ev
         #print 'null list:',get_null_obj_number(list),',null tuple:',get_null_obj_number(tuple)
         return name,ev
+
+    def filtered(self,**kwargs):
+        ''' 过滤关系不合适的参数
+            即这里体现参数之间的关系逻辑
+        '''
+        return False
 
 class MM_GeneticCruiser(GeneticCruiser):
     def log_result(self):   #记录结果的mm_ratio

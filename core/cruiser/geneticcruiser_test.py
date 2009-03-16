@@ -62,6 +62,24 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
         print u'耗时: %s' % (tend-tbegin)
         logger.debug(u'耗时: %s' % (tend-tbegin))    
 
+    def test_geneticcruiser_filtered(self):
+        begin,end = 20010101,20010201
+        dates = get_ref_dates(begin,end)
+        codes = get_codes_startswith('SH600000')
+        sdata = cs.get_stocks(codes,begin,end,ref_id)
+        #idata = prepare_data(begin,end,'INDEX')
+
+        from time import time
+        d_posort('gorder',sdata.values(),distance=60)
+        tbegin = time()
+        cruiser = FilteredGeneticCruiser(psize=16,maxstep=1)
+        cruiser.gcruise(sdata,dates,20010201)
+        
+        tend = time()
+        print u'耗时: %s' % (tend-tbegin)
+        logger.debug(u'耗时: %s' % (tend-tbegin))    
+
+
     def test_mm_geneticcruiser(self):
         begin,end = 20010101,20010201
         dates = get_ref_dates(begin,end)
@@ -88,6 +106,18 @@ class ExampleGeneticCruiser(gcruiser.GeneticCruiser):
         self.sell_func = my_csc_func
         #self.trade_func = fcustom(my_trade_func,begin=20010601)
         self.evaluate_func = normal_evaluate
+
+class FilteredGeneticCruiser(gcruiser.GeneticCruiser):
+    def prepare(self):
+        self.args = {'fast':range(2,49),'slow':range(5,129)}
+        self.predefined = [dict(fast=12,slow=55),dict(fast=20,slow=120)]
+        self.buy_func = buy_func_demo
+        self.sell_func = my_csc_func
+        #self.trade_func = fcustom(my_trade_func,begin=20010601)
+        self.evaluate_func = normal_evaluate
+
+    def filtered(self,**kwargs):
+        return True
 
 class ExampleMMGeneticCruiser(gcruiser.MM_GeneticCruiser):
     def prepare(self):

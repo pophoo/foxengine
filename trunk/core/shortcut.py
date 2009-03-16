@@ -26,7 +26,7 @@ def create_evaluator():
 normal_evaluate = create_evaluator()
 
 def prepare_catalogs(sdata,distance=60):
-    ctree = cs.get_catalog_tree(sdata,['DY','ZHY'])
+    ctree = cs.get_catalog_tree(sdata,['DY','HY']) #证监会行业太过细分，不妥
     catalogs = get_all_catalogs(ctree)
     for c in catalogs:  #计算板块指数
         c.transaction = [calc_index(c.stocks)] * 7  #以单一指数冒充所有，避免extract_collect错误

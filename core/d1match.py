@@ -61,6 +61,7 @@ def make_trade_signal_double_direct(target_b,target_s):
         if tsum > 1 or tsum < -1: #连续的无匹配买入/卖出
             tsum -= cv
             s[i] = 0
+            assert tsum>-2 and tsum<2
     return s
 
 def make_trade_signal_advanced(target,follow):  

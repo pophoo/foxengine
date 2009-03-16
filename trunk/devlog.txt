@@ -88,3 +88,24 @@ g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,st
 #4 考虑对vama3族的筛选方式
 
 
+#2009-03-16
+#1 对行业选择进行调整，从之前的证监会行业调整为行业。证监会行业太过细化
+   从新评估已有的数据
+    configs.append(config(buyer=fcustom(csvama2,fast= 13,slow=125,rstart= 1000,rend=5000))) 	#3315-252-593-32    #9078/988
+    configs.append(config(buyer=fcustom(csvama2,fast=  2,slow=250,rstart=7000,rend=9000))) 	#1625-117-500-22 #3379/792
+    configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 27,slow=250,rstart=5000,rend=8000))) 	#1000-71-473-19
+    configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 27,slow=330,rstart=3000,rend=6000))) 	#5270-195-714-7
+    configs.append(config(buyer=fcustom(csvama3,fast= 16,mid= 21,slow=250,rstart=5000,rend=8000))) 	#1061-69-433-30 
+    configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 19,slow=250,rstart=7000,rend=8000))) 	#939-77-538-13
+    configs.append(config(buyer=fcustom(csvama3,fast=  8,mid= 21,slow=385,rstart=1500,rend=8000))) 	#688-64-478-23
+    configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 23,slow=250,rstart=5000,rend=8000))) 	#845-60-392-28
+    configs.append(config(buyer=fcustom(csvama3,fast= 44,mid= 23,slow=250,rstart=7500,rend=8000))) 	#1049-85-666-3
+    configs.append(config(buyer=fcustom(csvama3,fast= 10,mid= 85,slow=250,rstart=5000,rend=8000))) 	#2185-153-333-3
+    configs.append(config(buyer=fcustom(csvama2,fast= 37,slow=115,rstart=3000,rend=8000))) 	#2059-138-327-58
+    configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 27,slow=350,rstart=4500,rend=6000))) 	#913-53-375-8
+基本上这些数据已经失效,只剩下三个
+    configs.append(config(buyer=fcustom(csvama2,fast= 13,slow=125,rstart= 1000,rend=5000))) 	#2268-188-609-41    #9078/988
+    configs.append(config(buyer=fcustom(csvama3,fast= 44,mid= 23,slow=250,rstart=7500,rend=8000))) 	#1948-152-500-2 #383/78
+    configs.append(config(buyer=fcustom(csvama2,fast= 37,slow=115,rstart=3000,rend=8000))) 	#1202-95-367-68
+
+

@@ -5,6 +5,9 @@
 from wolfox.fengine.core.shortcut import *
 from wolfox.fengine.normal.funcs import *
 from wolfox.fengine.core.d1match import *
+from wolfox.fengine.core.d1indicator import cmacd
+from wolfox.foxit.base.tutils import linelog
+
 
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.run')    
@@ -58,20 +61,30 @@ def func_test(stock,fast,mid,slow,ma_standard=500,extend_days=10,pre_length=67,*
 
     ma_standard = ma(svap,ma_standard)
     trend_ma_standard = strend(ma_standard) > 0    
-    vsignal = band(sync3,trend_ma_standard)
-    msvap = transform(vsignal,v2i,len(t[VOLUME]))
     
+    diff,dea = cmacd(svap)
+    trend_macd = gand(diff>dea,strend(diff)>0,strend(dea)>0)
+    #vsignal = gand(sync3,trend_ma_standard,trend_macd)
+    vsignal = gand(sync3,trend_ma_standard,trend_macd)
+
+    msvap = transform(vsignal,v2i,len(t[VOLUME]))
+
     #cs = catalog_signal_cs(stock.c120,cextractor)
     #cs = catalog_signal_cs(stock.c20,cextractor)
-    cx = catalog_signal_c(stock.catalog, lambda c:gand(c.g20>5000,c.g20<9000,c.g20>c.g60))
+    #cx = catalog_signal_c(stock.catalog, lambda c:gand(c.g20>5000,c.g20<9000,c.g20>c.g60))
     
-    func = lambda a,b,c,d,e:gand(a>b,b>c,c>d,d>e)
-    cy = catalog_signal_m(func,stock.c5,stock.c20,stock.c60,stock.c120,stock.c250)
+    #func = lambda a,b,c,d,e:gand(a>b,b>c,c>d,d>e)
+    #cy = catalog_signal_m(func,stock.c5,stock.c20,stock.c60,stock.c120,stock.c250)
 
-    cs = gand(cx,cy)
+    #cs = gand(cx,cy)
 
+    gtrend = gand(strend(stock.g5)>0,strend(ma(stock.g20,5))>0,strend(ma(stock.g60,5))>0)
+    
+    
+    #sbuy = msvap
     #sbuy = gand(g,msvap)
-    sbuy = gand(g,cs,msvap)
+    sbuy = gand(g,gtrend,msvap,cs)
+    #sbuy = gand(g,cs,msvap)
     #down_limit = tracelimit((t[OPEN]+t[LOW])/2,t[HIGH],sbuy,stock.atr,600,3000)
 
     #seller = atr_seller_factory(stop_times=600,trace_times=3000)    
@@ -88,7 +101,7 @@ def func_test(stock,fast,mid,slow,ma_standard=500,extend_days=10,pre_length=67,*
 
     #f.close()
 
-    print stock.code,len(stock.c120)
+    linelog(stock.code)
     return sbuy
 
 def func_test_old(stock,fast,slow,base,sma=55,ma_standard=120,extend_days=5,**kwargs):
@@ -217,6 +230,4 @@ if __name__ == '__main__':
     psyco.full()
 
     run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
-
-
 

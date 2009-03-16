@@ -16,6 +16,12 @@ class BaseObject(object):
     def has_attr(self,attr_name):
         return attr_name in self.__dict__
 
+    def get_attr(self,attr_name):
+        return self.__dict__[attr_name]
+
+    def set_attr(self,attr_name,value):
+        self.__dict__[attr_name] = value
+
 class CommonObject(BaseObject):
     def __init__(self,id,**kwargs):
         BaseObject.__init__(self,**kwargs)

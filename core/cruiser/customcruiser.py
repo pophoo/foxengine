@@ -62,7 +62,7 @@ class CSvama3MMCruiser(MM_GeneticCruiser):
         self.evaluate_func = normal_evaluate
     
     def filtered(self,fast,mid,slow,rstart,rend,**kwargs):
-        if fast >= mid or mid >= slow or rstart >= rend:
+        if fast >= mid - 5 or mid >= slow - 10 or rstart >= rend:
             return True
         return False
 
@@ -92,7 +92,7 @@ class CSvama2MMCruiser(MM_GeneticCruiser):
         self.evaluate_func = normal_evaluate
     
     def filtered(self,fast,slow,rstart,rend,**kwargs):
-        if fast >= slow or rstart >= rend:
+        if fast >= slow-5 or rstart >= rend:
             return True
         return False
 

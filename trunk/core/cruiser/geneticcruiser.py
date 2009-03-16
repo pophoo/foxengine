@@ -174,11 +174,15 @@ class MM_GeneticCruiser(GeneticCruiser):
             #print 'enter judge'
             begin = stime.time()
             args = self.genes2args(cell.genes)
-            name,ev = self.calc(sdata,dates,tbegin,evthreshold,**dict(zip(self.argnames,args)))
-            if(ev.count > 0):
-                pass
-                #logger.debug(repr(ev))
-            mm = rate_mfe_mae(sdata)
+            mykwargs = dict(zip(self.argnames,args))
+            if self.filtered(**mykwargs):
+                name = ','.join(['%s=%s' % item for item in mykwargs.items()])
+                ev = Evaluation([])
+                mm = (0,0,0,0)
+                logger.debug('filtered:%s:%s',name,ev.count)
+            else:
+                name,ev = self.calc(sdata,dates,tbegin,evthreshold,**mykwargs)
+                mm = rate_mfe_mae(sdata)
             mm_ratio = mm[0]
             rv = abs(mm_ratio) if ev.count > 3 else judge.minmm
             print rv,ev.count,zip(self.argnames,args)

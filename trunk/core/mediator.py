@@ -88,7 +88,8 @@ class Mediator(object):
 
     def prepare(self,stock,atr_covered=20,mm_covered=20,**kwargs):  #kwargs吸收无用参数
         trans = stock.transaction
-        stock.atr = atr(trans[CLOSE],trans[HIGH],trans[LOW],atr_covered)
+        if not stock.has_attr('atr'):
+            stock.atr = atr(trans[CLOSE],trans[HIGH],trans[LOW],atr_covered)
         stock.mfe,stock.mae = mm_ratio(trans[CLOSE],trans[HIGH],trans[LOW],stock.atr,covered=mm_covered)
         stock.mfe_sum,stock.mae_sum,stock.mm_count = 0,0,0   #初始值
 

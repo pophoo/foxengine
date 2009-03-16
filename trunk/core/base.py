@@ -13,12 +13,13 @@ class BaseObject(object):
     def __init__(self,**kwargs):
         self.__dict__.update(kwargs)
 
+    def has_attr(self,attr_name):
+        return attr_name in self.__dict__
 
-class CommonObject(object):
+class CommonObject(BaseObject):
     def __init__(self,id,**kwargs):
+        BaseObject.__init__(self,**kwargs)
         self.id = id
-        self.__dict__.update(kwargs)
-
 
 class CatalogSubject(CommonObject):
     def __init__(self,id,name,catalogs):

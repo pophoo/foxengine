@@ -55,8 +55,13 @@ class ModuleTest(unittest.TestCase):
     def testBaseObject(self): #通路测试
         co1 = BaseObject()
         co2 = BaseObject(a=1,xx=12)
+        self.assertTrue(co2.has_attr('a'))
+        self.assertTrue(co2.has_attr('xx'))
+        self.assertFalse(co1.has_attr('a'))
+        self.assertFalse(co2.has_attr('ax'))
+        self.assertFalse(co2.has_attr('bbb'))
         self.assertTrue(True)
-    
+
     def testCommonObject(self): #通路测试
         co1 = CommonObject(1)
         co2 = CommonObject(1,xx=12)

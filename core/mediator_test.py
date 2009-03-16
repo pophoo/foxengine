@@ -128,8 +128,22 @@ class MediatorTest(unittest.TestCase):
         m = Mediator(fbuy,fsell)
         m.prepare(sa)
         self.assertEquals(2,len(sa.atr))
+        self.assertEquals([0,0],sa.atr.tolist())    #不到atr cover(默认为20)
         self.assertEquals(2,len(sa.mfe))
         self.assertEquals(2,len(sa.mae))
+
+    def test_prepare_atr(self):
+        a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
+        sa = CommonObject(id=3,code='test1',transaction=a)
+        fbuy = lambda x:np.array([1,0])
+        fsell = lambda x,y:np.array([0,1])
+        m = Mediator(fbuy,fsell)
+        sa.atr = np.array([1000,2000])
+        m.prepare(sa)
+        self.assertEquals([1000,2000],sa.atr.tolist())
+        self.assertEquals(2,len(sa.mfe))
+        self.assertEquals(2,len(sa.mae))
+
 
     def test_finishing(self):
         sbuy = np.array([0,1,1,0,1,0,0])

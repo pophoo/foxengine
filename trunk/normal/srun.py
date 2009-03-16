@@ -9,11 +9,6 @@ from wolfox.fengine.core.d1match import *
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.run')    
 
-#c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s>=3300,s<=6600)
-
-def ext_factory(sbegin,send):
-    return lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s>=sbegin,s<=send)
-
 def gtest(stock,fast,slow,dates,ma_standard=120):
     t = stock.transaction
     g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
@@ -36,13 +31,17 @@ def gtest(stock,fast,slow,dates,ma_standard=120):
 
     return gand(cross_fast_slow,ma_standard,g,trend_ma_120,trend_ma_250,g60>5000,g60<8000)
 
+#c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s>=3300,s<=6600)
 
-def func_test(stock,fast,mid,slow,cextractor,ma_standard=500,extend_days=10,pre_length=67,**kwargs):
+def ext_factory(sbegin,send):
+    return lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s>=sbegin,s<=send)
+
+def func_test(stock,fast,mid,slow,ma_standard=500,extend_days=10,pre_length=67,**kwargs):
     ''' vama三叉
     '''
     dates = kwargs['dates'] #打印输出用
     t = stock.transaction
-    #g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
     svap,v2i = vap_pre(t[VOLUME],t[CLOSE],pre_length)
     ma_svapfast = ma(svap,fast)
     ma_svapmid = ma(svap,mid)    
@@ -51,7 +50,6 @@ def func_test(stock,fast,mid,slow,cextractor,ma_standard=500,extend_days=10,pre_
     trend_ma_svapmid = strend(ma_svapmid) > 0    
     trend_ma_svapslow = strend(ma_svapslow) > 0
 
-    #cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
     cross_fast_mid = band(cross(ma_svapmid,ma_svapfast)>0,trend_ma_svapfast)
     cross_fast_slow = band(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast)    
     cross_mid_slow = band(cross(ma_svapslow,ma_svapmid)>0,trend_ma_svapmid)
@@ -63,12 +61,17 @@ def func_test(stock,fast,mid,slow,cextractor,ma_standard=500,extend_days=10,pre_
     vsignal = band(sync3,trend_ma_standard)
     msvap = transform(vsignal,v2i,len(t[VOLUME]))
     
-    cs = catalog_signal_cs(stock.c60,cextractor)
+    #cs = catalog_signal_cs(stock.c120,cextractor)
     #cs = catalog_signal_cs(stock.c20,cextractor)
+    cx = catalog_signal_c(stock.catalog, lambda c:gand(c.g20>5000,c.g20<9000,c.g20>c.g60))
     
+    func = lambda a,b,c,d,e:gand(a>b,b>c,c>d,d>e)
+    cy = catalog_signal_m(func,stock.c5,stock.c20,stock.c60,stock.c120,stock.c250)
 
-    #sbuy = gand(g,cs,msvap)
-    sbuy = gand(cs,msvap)
+    cs = gand(cx,cy)
+
+    #sbuy = gand(g,msvap)
+    sbuy = gand(g,cs,msvap)
     #down_limit = tracelimit((t[OPEN]+t[LOW])/2,t[HIGH],sbuy,stock.atr,600,3000)
 
     #seller = atr_seller_factory(stop_times=600,trace_times=3000)    
@@ -80,11 +83,12 @@ def func_test(stock,fast,mid,slow,cextractor,ma_standard=500,extend_days=10,pre_
 
     #sup = up_under(t[HIGH],t[LOW],10,300)    
     #return gand(g,msvap)
-    f=file('wtSH600000.csv','w+')
-    for x in zip(dates,t[CLOSE],stock.g5,stock.g20,stock.g60,stock.g120,stock.g250):
-        print >>f,'%s,%s,%s,%s,%s,%s,%s' % (x[0],x[1],x[2],x[3],x[4],x[5],x[6])
+    #for x in zip(dates,t[CLOSE],stock.g5,stock.g20,stock.g60,stock.g120,stock.g250):
+    #    print '%s,%s,%s,%s,%s,%s,%s' % (x[0],x[1],x[2],x[3],x[4],x[5],x[6])
 
-    f.close()
+    #f.close()
+
+    print stock.code,len(stock.c120)
     return sbuy
 
 def func_test_old(stock,fast,slow,base,sma=55,ma_standard=120,extend_days=5,**kwargs):
@@ -130,8 +134,8 @@ def func_test_old(stock,fast,slow,base,sma=55,ma_standard=120,extend_days=5,**kw
 def prepare_buyer(dates):
     #return fcustom(func_test,ma_standard=500,slow=50,extend_days=31,fast=30,mid=67,dates=dates)
     #return fcustom(func_test,ma_standard=500,slow=45,extend_days=17,fast=32,mid=79,dates=dates)
-    #return fcustom(func_test,fast= 33,mid= 84,slow=345,ma_standard=500,extend_days= 27,dates=dates,cextractor=ext_factory(3300,6600))
-    return fcustom(gtest,fast=5,slow=60,dates=dates)
+    return fcustom(func_test,fast= 33,mid= 84,slow=345,ma_standard=500,extend_days= 27,dates=dates,cextractor=ext_factory(3300,6600))
+    #return fcustom(gtest,fast=5,slow=60,dates=dates)
 
 def prepare_order(sdata):
     d_posort('g5',sdata,distance=5)        
@@ -176,8 +180,8 @@ if __name__ == '__main__':
     #总时间段   [20000101,20010701,20090101]    #一个完整的周期+一个下降段
     #分段测试的要求，段mm > 1000-1500或抑制，总段mm > 2000
     
-    begin,xbegin,end = 19980101,20010701,20090101
-    #begin,xbegin,end = 20000101,20010701,20090101
+    #begin,xbegin,end = 19980101,20010701,20090101
+    begin,xbegin,end = 20000101,20010701,20090101
     #begin,xbegin,end = 20000101,20010701,20050901
     #begin,xbegin,end = 19980101,19990701,20010801    
     #begin,xbegin,end = 20040601,20050801,20071031

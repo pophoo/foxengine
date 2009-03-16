@@ -20,9 +20,6 @@ def prepare_temp_configs(seller,pman=None,dman=None):
     configs.append(config(buyer=fcustom(csvama2,fast=  2,slow=250,rstart=7000,rend=9000))) 	#1625-117-500-22 #3379/792
     configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 27,slow=250,rstart=5000,rend=8000))) 	#1000-71-473-19
     configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 27,slow=330,rstart=3000,rend=6000))) 	#5270-195-714-7 #1444/75
-    configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 23,slow=250,rstart=6500,rend=8000))) 	#800-52-444-18
-    configs.append(config(buyer=fcustom(csvama3,fast= 16,mid= 21,slow=250,rstart=7500,rend=8000))) 	#1152-53-666-6
-    configs.append(config(buyer=fcustom(csvama3,fast= 16,mid= 21,slow=250,rstart=5000,rend=7500))) 	#1138-74-407-27
     configs.append(config(buyer=fcustom(csvama3,fast= 16,mid= 21,slow=250,rstart=5000,rend=8000))) 	#1061-69-433-30 
     configs.append(config(buyer=fcustom(csvama3,fast= 44,mid= 23,slow=250,rstart=7500,rend=8000))) 	#1049-85-666-3
     configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 19,slow=250,rstart=7000,rend=8000))) 	#939-77-538-13
@@ -56,50 +53,63 @@ def prepare_configs_A(seller,pman,dman):    #R>=400,winrate>400 or R>=1000,winra
     configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 27,slow=330,rstart=3000,rend=6000))) 	#5270-195-714-7
     configs.append(config(buyer=fcustom(csvama3,fast= 16,mid= 21,slow=250,rstart=5000,rend=8000))) 	#1061-69-433-30 
     configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 19,slow=250,rstart=7000,rend=8000))) 	#939-77-538-13
+    configs.append(config(buyer=fcustom(csvama3,fast=  8,mid= 21,slow=385,rstart=1500,rend=8000))) 	#688-64-478-23
+    configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 23,slow=250,rstart=5000,rend=8000))) 	#845-60-392-28
     
-    #存在人品问题的参数配置
-    configs.append(config(buyer=fcustom(vama3,fast=  2,mid= 83,slow= 20,ma_standard=500,extend_days=  5))) 	#balance=1129,times= 23 #1828-128-425-80 ##
-    configs.append(config(buyer=fcustom(svama2x,fast=  6,slow=  5,base=240,ma_standard= 10))) 	#balance=6106,times=  5 #2886-153-666-9
-    configs.append(config(buyer=fcustom(svama2x,fast= 47,slow=  5,base=168,ma_standard=500))) 	#balance=26391,times=  3 #701-80-400-5
-    configs.append(config(buyer=fcustom(vama3,fast= 30,mid= 67,slow= 50,ma_standard=500,extend_days= 31))) 	#balance=1061,times= 80 #1183-84-396-174
-    configs.append(config(buyer=fcustom(vama3,fast= 16,mid= 78,slow= 45,ma_standard=500,extend_days= 13))) 	#balance=1062,times= 50 #2424-177-391-161
-    configs.append(config(buyer=fcustom(vama3,fast= 32,mid= 62,slow= 45,ma_standard=500,extend_days=  1))) 	#balance=1096,times=  5 #853-76-470-17
-    configs.append(config(buyer=fcustom(vama3,fast= 16,mid= 70,slow= 45,ma_standard=500,extend_days=  9))) 	#balance=1141,times= 63 #1814-127-413-162
-    configs.append(config(buyer=fcustom(vama3,fast= 32,mid= 71,slow= 55,ma_standard=500,extend_days= 25))) 	#balance=1197,times= 68 #1144-95-401-177
-    configs.append(config(buyer=fcustom(vama3,fast=  2,mid= 67,slow= 45,ma_standard=500,extend_days= 27))) 	#balance=1209,times=133 #1746-117-429-342 ##
-    configs.append(config(buyer=fcustom(vama3,fast=  9,mid= 68,slow= 45,ma_standard=500,extend_days= 21))) 	#balance=1219,times=108 #1952-123-451-286 ##
+    return configs
+
+def prepare_configs_A1(seller,pman,dman):    #候选A1 winrate>=400且R>=800,times<5
+    config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
+    configs = []
 
     #候选A1 winrate>=400且R>=800,times<5
     configs.append(config(buyer=fcustom(svama3,fast= 23,mid= 79,slow= 10,ma_standard=120,extend_days=  1))) 	#balance=2488,times=  2#   #1000-277-1000-1
     configs.append(config(buyer=fcustom(svama2s,fast= 48,slow=500,ma_standard= 67,extend_days= 13))) 	#balance=1162,times=  2 #1843-59-500-2
-    configs.append(config(buyer=fcustom(svama2s,fast= 26,slow=430,ma_standard= 67,extend_days=  5))) 	#balance=2503,times=  4 #1000-38-1000-3
-    configs.append(config(buyer=fcustom(svama2x,fast= 11,slow=  5,base=198,ma_standard=500))) 	#balance=2672,times=  9 #1428-40-500-4
-    configs.append(config(buyer=fcustom(svama2x,fast= 18,slow=  5,base=198,ma_standard= 10))) 	#balance=30309,times=  2 #1800-99-666-3
-    configs.append(config(buyer=fcustom(svama2x,fast=  6,slow=  5,base=240,ma_standard=500))) 	#balance=218574,times=  3 #1000-148-1000-4
-    configs.append(config(buyer=fcustom(svama2x,fast= 28,slow=  5,base=240,ma_standard= 10))) 	#balance=4312,times=  5 #2328-177-500-4
+    configs.append(config(buyer=fcustom(svama2s,fast= 26,slow=430,ma_standard= 67,extend_days=  5))) 	#balance=2503,times=  4 #1000-84-1000-1
+    configs.append(config(buyer=fcustom(svama2x,fast= 11,slow=  5,base=198,ma_standard=500))) 	#1000-116-1000-1
+    configs.append(config(buyer=fcustom(svama2x,fast= 18,slow=  5,base=198,ma_standard= 10))) 	#1800-99-666-3
+    configs.append(config(buyer=fcustom(svama2x,fast=  6,slow=  5,base=240,ma_standard=500))) 	#1000-148-1000-4
+    configs.append(config(buyer=fcustom(svama2x,fast= 28,slow=  5,base=240,ma_standard= 10))) 	#2328-177-500-4
     configs.append(config(buyer=fcustom(svama2x,fast= 15,slow=  5,base=228,ma_standard=250))) 	#balance=30406,times=  5 #1000-131-1000-2
     configs.append(config(buyer=fcustom(csvama3,fast= 44,mid= 23,slow=250,rstart=7500,rend=8000))) 	#1049-85-666-3
 
     return configs
 
+def prepare_configs_A2(seller,pman,dman):    #winrate>=400且R>=600,times>5 or  R>500且winrate>500
+    config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
+    configs = []
+    
+    #存在RP问题的参数配置
+    configs.append(config(buyer=fcustom(vama3,fast=  2,mid= 83,slow= 20,ma_standard=500,extend_days=  5))) 	#balance=1129,times= 23 #1746-124-394-76 ##
+    configs.append(config(buyer=fcustom(svama2x,fast=  6,slow=  5,base=240,ma_standard= 10))) 	#balance=6106,times=  5 #2603-139-625-8
+    configs.append(config(buyer=fcustom(svama2x,fast= 47,slow=  5,base=168,ma_standard=500))) 	#balance=26391,times=  3 #701-80-400-5
+    configs.append(config(buyer=fcustom(vama3,fast= 16,mid= 78,slow= 45,ma_standard=500,extend_days= 13))) 	#2493-182-387-155
+    configs.append(config(buyer=fcustom(vama3,fast= 32,mid= 62,slow= 45,ma_standard=500,extend_days=  1))) 	#853-76-470-17
+    configs.append(config(buyer=fcustom(vama3,fast= 32,mid= 71,slow= 55,ma_standard=500,extend_days= 25))) 	#1172-95-377-172
+    configs.append(config(buyer=fcustom(vama3,fast=  2,mid= 67,slow= 45,ma_standard=500,extend_days= 27))) 	#1724-118-418-332 ##
+    configs.append(config(buyer=fcustom(vama3,fast=  9,mid= 68,slow= 45,ma_standard=500,extend_days= 21))) 	#1815-118-431-278
+    
+    return configs
+
 def prepare_configs_B(seller,pman,dman):    #R>=500,winrate<400
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
-    #候选B R>800,或R>500且winrate>400
-    configs.append(config(buyer=fcustom(vama3,fast= 29,mid= 78,slow= 65,ma_standard=500,extend_days= 29))) 	#balance=1213,times=105 #1368-104-346-277
-    configs.append(config(buyer=fcustom(vama3,fast= 25,mid= 81,slow= 65,ma_standard=500,extend_days= 29))) 	#balance=1222,times=103 #1280-96-346-274
-    configs.append(config(buyer=fcustom(vama3,fast= 31,mid= 91,slow= 65,ma_standard=500,extend_days= 25))) 	#balance=1298,times= 69 #1098-78-367-207
-    configs.append(config(buyer=fcustom(vama3,fast=  2,mid= 59,slow= 50,ma_standard=500,extend_days= 27))) 	#balance=1246,times=240 #1246-91-361-517
-    configs.append(config(buyer=fcustom(vama3,fast= 17,mid= 69,slow= 65,ma_standard=500,extend_days= 31))) 	#balance=1032,times=214 #1213-91-347-460
-    configs.append(config(buyer=fcustom(vama3,fast= 11,mid=  8,slow= 65,ma_standard=500,extend_days= 27))) 	#balance=1047,times= 77 #768-63-365-123
-    configs.append(config(buyer=fcustom(vama3,fast= 25,mid= 72,slow= 45,ma_standard=500,extend_days= 25))) 	#balance=1322,times= 64 #1214-85-333-144
-    configs.append(config(buyer=fcustom(vama3,fast= 32,mid= 79,slow= 45,ma_standard=500,extend_days= 17))) 	#balance=1325,times= 29 #1000-69-311-93
-    configs.append(config(buyer=fcustom(vama3,fast= 32,mid= 69,slow= 45,ma_standard=500,extend_days= 23))) 	#balance=1347,times= 43 #1089-73-350-117
-    configs.append(config(buyer=fcustom(vama3,fast= 32,mid= 80,slow= 45,ma_standard=500,extend_days= 29))) 	#balance=1416,times= 23 #2343-157-289-83
-    configs.append(config(buyer=fcustom(vama3,fast=  2,mid= 91,slow= 50,ma_standard=500,extend_days= 27))) 	#balance=1234,times= 79 #1000-74-363-253
-    configs.append(config(buyer=fcustom(vama3,fast=  4,mid= 78,slow= 60,ma_standard=500,extend_days= 27))) 	#balance=1114,times=139 #1131-86-345-400
+    #候选C R>800,或R>500且winrate>400
+    configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 27,slow=350,rstart=4500,rend=6000))) 	#913-53-375-8
+    configs.append(config(buyer=fcustom(vama3,fast= 29,mid= 78,slow= 65,ma_standard=500,extend_days= 29))) 	#1315-100-325-270
+    configs.append(config(buyer=fcustom(vama3,fast= 25,mid= 81,slow= 65,ma_standard=500,extend_days= 29))) 	#1259-97-348-264
+    configs.append(config(buyer=fcustom(vama3,fast= 31,mid= 91,slow= 65,ma_standard=500,extend_days= 25))) 	#1027-76-365-205
+    configs.append(config(buyer=fcustom(vama3,fast=  2,mid= 59,slow= 50,ma_standard=500,extend_days= 27))) 	#1250-90-361-501
+    configs.append(config(buyer=fcustom(vama3,fast= 17,mid= 69,slow= 65,ma_standard=500,extend_days= 31))) 	#1040-78-312-432
+    configs.append(config(buyer=fcustom(vama3,fast= 11,mid=  8,slow= 65,ma_standard=500,extend_days= 27))) 	#750-60-346-124
+    configs.append(config(buyer=fcustom(vama3,fast= 25,mid= 72,slow= 45,ma_standard=500,extend_days= 25))) 	#1257-88-298-134
+    configs.append(config(buyer=fcustom(vama3,fast= 32,mid= 80,slow= 45,ma_standard=500,extend_days= 29))) 	#2289-158-262-80
+    configs.append(config(buyer=fcustom(vama3,fast= 32,mid= 79,slow= 55,ma_standard=500,extend_days=  1))) 	#7714-270-333-3
+    configs.append(config(buyer=fcustom(vama3,fast= 32,mid= 79,slow= 45,ma_standard=500,extend_days= 17))) 	#928-65-288-90
+    configs.append(config(buyer=fcustom(vama3,fast= 32,mid= 69,slow= 45,ma_standard=500,extend_days= 23))) 	#1089-68-304-115
+    configs.append(config(buyer=fcustom(vama3,fast=  2,mid= 91,slow= 50,ma_standard=500,extend_days= 27))) 	#1000-74-350-248
+    configs.append(config(buyer=fcustom(vama3,fast=  4,mid= 78,slow= 60,ma_standard=500,extend_days= 27))) 	#1065-81-325-393
     configs.append(config(buyer=fcustom(vama3,fast= 31,mid= 68,slow= 65,ma_standard=500,extend_days= 29))) 	#balance=1000,times=176 #1076-84-359-331
-    configs.append(config(buyer=fcustom(vama3,fast= 32,mid= 79,slow= 55,ma_standard=500,extend_days=  1))) 	#balance=3550000,times=  2 #7714-270-333-3
     configs.append(config(buyer=fcustom(vama3,fast=  8,mid= 78,slow= 45,ma_standard=500,extend_days= 29))) 	#balance=1068,times= 81 #2362-163-385-231
     configs.append(config(buyer=fcustom(vama3,fast= 17,mid= 56,slow= 45,ma_standard=500,extend_days= 13))) 	#balance=1093,times=133 #1432-96-361-249
     configs.append(config(buyer=fcustom(vama3,fast= 29,mid= 78,slow= 45,ma_standard=500,extend_days= 29))) 	#balance=1039,times= 34 #2095-153-303-99
@@ -128,9 +138,6 @@ def prepare_configs_B(seller,pman,dman):    #R>=500,winrate<400
     configs.append(config(buyer=fcustom(vama2x,fast= 25,slow=  5,base=214,ma_standard=120))) 	#balance=3795,times=  8 #806-50-200-5
     configs.append(config(buyer=fcustom(svama2x,fast= 31,slow= 10,base=170,ma_standard=120))) 	#balance=1400,times= 10 #253-16-428-7
     configs.append(config(buyer=fcustom(csvama3,fast= 10,mid= 85,slow=250,rstart=5000,rend=8000))) 	#2185-153-333-3
-    configs.append(config(buyer=fcustom(csvama3,fast=  8,mid= 21,slow=385,rstart=1500,rend=8000))) 	#688-64-478-23
-    configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 27,slow=350,rstart=4500,rend=6000))) 	#913-53-375-8
-    configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 23,slow=250,rstart=5000,rend=8000))) 	#845-60-392-28
     configs.append(config(buyer=fcustom(csvama2,fast= 37,slow=115,rstart=3000,rend=8000))) 	#2059-138-327-58
 
     return configs
@@ -163,17 +170,19 @@ def run_body(sdata,dates,begin,end,xbegin):
     #seller = csc_func
     #seller = fcustom(csc_func,threshold=100)
 
-    configs = prepare_temp_configs(seller,pman,dman)
-    #configs = prepare_configs_A(seller,pman,dman)
+    #configs = prepare_temp_configs(seller,pman,dman)
+    configs = prepare_configs_A(seller,pman,dman)
     #configs = prepare_configs_B(seller,pman,dman)
-    #configs.extend(prepare_configs_B(seller,pman,dman))
+    configs.extend(prepare_configs_A1(seller,pman,dman))
+    configs.extend(prepare_configs_A2(seller,pman,dman))    
+    configs.extend(prepare_configs_B(seller,pman,dman))
     batch(configs,sdata,dates,xbegin,cmediator=myMediator)
 
     tend = time()
     print u'计算耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
-    save_configs('atr_ev_t.txt',configs,xbegin,end)
+    save_configs('atr_ev_n.txt',configs,xbegin,end)
 
 def run_merge_body(sdata,dates,begin,end,xbegin):
     
@@ -251,18 +260,25 @@ def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
     if lbegin == 0:
         lbegin = end - 5
 
-    #configs_a = prepare_configs_A(seller,pman,dman)
-    #dtrades_a = batch_last(configs_a,sdata,dates,xbegin,cmediator=myMediator)
-    #save_last('atr_last_a.txt',dtrades_a,xbegin,end,lbegin)
+    configs_a = prepare_configs_A(seller,pman,dman)
+    dtrades_a = batch_last(configs_a,sdata,dates,xbegin,cmediator=myMediator)
+    save_last('atr_last_a.txt',dtrades_a,xbegin,end,lbegin)
 
+    configs_a1 = prepare_configs_A1(seller,pman,dman)
+    dtrades_a1 = batch_last(configs_a1,sdata,dates,xbegin,cmediator=myMediator)
+    save_last('atr_last_a1.txt',dtrades_a1,xbegin,end,lbegin)
 
-    #configs_b = prepare_configs_B(seller,pman,dman)
-    #dtrades_b = batch_last(configs_b,sdata,dates,xbegin,cmediator=myMediator)
-    #save_last('atr_last_b.txt',dtrades_b,xbegin,end,lbegin)
+    configs_a2 = prepare_configs_A2(seller,pman,dman)
+    dtrades_a2 = batch_last(configs_a2,sdata,dates,xbegin,cmediator=myMediator)
+    save_last('atr_last_a2.txt',dtrades_a2,xbegin,end,lbegin)
 
-    configs_t = prepare_temp_configs(seller,pman,dman)
-    dtrades_t = batch_last(configs_t,sdata,dates,xbegin,cmediator=myMediator)
-    save_last('atr_last_t.txt',dtrades_t,xbegin,end,lbegin)
+    configs_b = prepare_configs_B(seller,pman,dman)
+    dtrades_b = batch_last(configs_b,sdata,dates,xbegin,cmediator=myMediator)
+    save_last('atr_last_b.txt',dtrades_b,xbegin,end,lbegin)
+
+    #configs_t = prepare_temp_configs(seller,pman,dman)
+    #dtrades_t = batch_last(configs_t,sdata,dates,xbegin,cmediator=myMediator)
+    #save_last('atr_last_t.txt',dtrades_t,xbegin,end,lbegin)
 
     tend = time()
     print u'计算耗时: %s' % (tend-tbegin)
@@ -284,7 +300,7 @@ if __name__ == '__main__':
     #begin,xbegin,end = 20060601,20071031,20090101
     #begin,xbegin,end = 19980101,19990101,20090101
     #begin,xbegin,end,lbegin = 20070101,20080601,20090327,20081101
-    #begin,xbegin,end,lbegin = 20060101,20070901,20090327,20081101
+    #begin,xbegin,end,lbegin = 20060101,20070901,20090327,20090201
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
     from time import time

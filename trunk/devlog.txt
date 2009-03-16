@@ -81,7 +81,10 @@ fcustom(vama3,fast= 33,mid= 84,slow=345,ma_standard=500,extend_days= 27,dates=da
 
 另对g作筛选时的
 g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
-进行放宽测试，发现删除第一/第二个/第四个都会有问题
+进行放宽测试，发现删除第一/第二个/第三/第四个都会有问题
 
 但没有测试 g5>g60而绕过g20的情形,只是单纯的删除
+
+#4 考虑对vama3族的筛选方式
+
 

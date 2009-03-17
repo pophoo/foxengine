@@ -52,7 +52,9 @@ class Svama3MMCruiser(MM_GeneticCruiser):
 class CSvama3MMCruiser(MM_GeneticCruiser):
     def prepare(self):
         print 'prepare:'
-        self.args = dict(fast=range(1,49),mid=range(2,100),slow=range(5,501,5)
+        self.args = dict(fast=range(1,10)+range(10,30,2)+range(30,80,3)+range(80,150,4)+range(150,501,5)
+                ,mid=range(2,10)+range(10,30,2)+range(30,80,3)+range(80,200,4)+range(200,800,5)+range(800,1201,10)
+                ,slow=range(5,500,5) + range(500,2001,10) 
                 ,rstart=range(0,10001,500)
                 ,rend = range(500,10001,500)
                 )
@@ -81,7 +83,8 @@ class Svama2MMCruiser(MM_GeneticCruiser):
 class CSvama2MMCruiser(MM_GeneticCruiser):
     def prepare(self):
         print 'prepare:'
-        self.args = dict(fast=range(1,49),slow=range(5,501,5)
+        self.args = dict(fast=range(1,10)+range(10,30,2)+range(30,100,3)+range(100,300,4)+range(300,1001,5)
+                ,slow=range(5,500,5) + range(500,2001,10)  
                 ,rstart=range(0,10001,500)
                 ,rend = range(500,10001,500)
                 )
@@ -187,7 +190,7 @@ class Ma3MMCruiser(MM_GeneticCruiser):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(filename="custom_cruiser_mm_2.log",level=logging.DEBUG,format='#%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
+    logging.basicConfig(filename="custom_cruiser_mm_1.log",level=logging.DEBUG,format='#%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 
     begin,end = 20000101,20050901
     tbegin = 20010801
@@ -220,11 +223,11 @@ if __name__ == '__main__':
     #cruiser = Vama2xMMCruiser(psize=100,maxstep=50,goal=20000000)
     print 'before cruiser,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
     
-    #logger.debug('*****************csvama3 begin**********************')
-    #cruiser = CSvama3MMCruiser(psize=100,maxstep=50,goal=200000000)    #goal不能太小
-    #cruiser.gcruise(sdata,dates,tbegin)
+    logger.debug('*****************csvama3 begin**********************')
+    cruiser = CSvama3MMCruiser(psize=500,maxstep=100,goal=200000000)    #goal不能太小
+    cruiser.gcruise(sdata,dates,tbegin)
     logger.debug('*****************csvama2 begin********************')
-    cruiser = CSvama2MMCruiser(psize=100,maxstep=50,goal=200000000)
+    cruiser = CSvama2MMCruiser(psize=500,maxstep=100,goal=200000000)
     cruiser.gcruise(sdata,dates,tbegin)
     #logger.debug('*****************svama2s begin*******************')    
     #cruiser = Svama2sMMCruiser(psize=100,maxstep=50,goal=200000000)

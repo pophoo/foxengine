@@ -89,9 +89,15 @@ def csvama3(stock,fast,mid,slow,rstart=3300,rend=6600,ma_standard=500,extend_day
     trend_ma_svapfast = strend(ma_svapfast) > 0
     trend_ma_svapmid = strend(ma_svapmid) > 0    
     trend_ma_svapslow = strend(ma_svapslow) > 0
-
-    ma_standard = ma(svap,ma_standard)
-    trend_ma_standard = strend(ma_standard) > 0    
+    
+    #ma_standard = ma(svap,ma_standard)
+    #trend_ma_standard = strend(ma_standard) > 0    
+    mskey = 'svap_ma_%s_%s' % (sma,ma_standard)
+    if not stock.has_attr(mskey):
+        ma_standard = ma(svap,ma_standard)
+        trend_ma_standard = strend(ma_standard) > 0    
+        stock.set_attr(mskey,trend_ma_standard)
+    trend_ma_standard = stock.get_attr(mskey)
 
     #cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
     cross_fast_mid = band(cross(ma_svapmid,ma_svapfast)>0,trend_ma_svapfast)
@@ -132,8 +138,17 @@ def csvama2(stock,fast,slow,rstart=3300,rend=6600,ma_standard=500,sma=55):
     ma_svapslow = ma(svap,slow)
     trend_ma_svapfast = strend(ma_svapfast) > 0
     trend_ma_svapslow = strend(ma_svapslow) > 0
-    ma_standard = ma(svap,ma_standard)
-    trend_ma_standard = strend(ma_standard) > 0    
+    
+    #ma_standard = ma(svap,ma_standard)
+    #trend_ma_standard = strend(ma_standard) > 0    
+    
+    mskey = 'svap_ma_%s_%s' % (sma,ma_standard)
+    if not stock.has_attr(mskey):
+        ma_standard = ma(svap,ma_standard)
+        trend_ma_standard = strend(ma_standard) > 0    
+        stock.set_attr(mskey,trend_ma_standard)
+    trend_ma_standard = stock.get_attr(mskey)
+    
     cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
     vsignal = band(cross_fast_slow,trend_ma_standard)
     msvap = transform(vsignal,v2i,len(t[VOLUME]))

@@ -29,6 +29,7 @@ class ModuleTest(unittest.TestCase):    #通路测试
         g250 = np.array([randint(0,10000) for i in range(2000)])        
         s = BaseObject(code='SH00TEST',transaction=trans,g5=g5,g20=g20,g60=g60,g120=g120,g250=g250)
         s.catalog = {s:g5}
+        s.c60 = {s:g5}
         self.stock = s
 
     def test_ma3(self):
@@ -39,12 +40,20 @@ class ModuleTest(unittest.TestCase):    #通路测试
         sbuy = svama2(self.stock,5,20)
         self.assertTrue(True)
 
+    def test_csvama2(self):
+        sbuy = csvama2(self.stock,5,20)
+        self.assertTrue(True)
+    
     def test_svama2s(self):
         sbuy = svama2s(self.stock,5,20)
         self.assertTrue(True)
 
     def test_svama3(self):
         sbuy = svama3(self.stock,5,20,120)
+        self.assertTrue(True)
+    
+    def test_csvama3(self):
+        sbuy = csvama3(self.stock,5,20,120)
         self.assertTrue(True)
     
     def test_vama2(self):

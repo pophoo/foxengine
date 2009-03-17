@@ -16,10 +16,20 @@ def cvama3(stock,fast,mid,slow,rstart=3300,rend=6600,ma_standard=500,extend_days
     t = stock.transaction
     if rstart >= rend:
         return np.zeros_like(t[CLOSE])
+    
+    try:
+        stock.catalog
+    except:
+        return np.zeros_like(t[CLOSE])
 
     c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s>=rstart,s<=rend)
 
-    svap,v2i = vap_pre(t[VOLUME],t[CLOSE],pre_length)
+    #svap,v2i = vap_pre(t[VOLUME],t[CLOSE],pre_length)
+    skey = 'svap_ma_%s' % pre_length
+    if not stock.has_attr(skey): #加速
+        stock.set_attr(skey,vap_pre(t[VOLUME],t[CLOSE],pre_length))
+    svap,v2i = stock.get_attr(skey) 
+    
     ma_svapfast = ma(svap,fast)
     ma_svapmid = ma(svap,mid)    
     ma_svapslow = ma(svap,slow)
@@ -68,7 +78,11 @@ def csvama3(stock,fast,mid,slow,rstart=3300,rend=6600,ma_standard=500,extend_day
     c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s>=rstart,s<=rend)
 
     #print stock.code,len(t[CLOSE]),sum(t[CLOSE])
-    svap,v2i = svap_ma(t[VOLUME],t[CLOSE],sma)
+    skey = 'svap_ma_%s' % sma
+    if not stock.has_attr(skey): #加速
+        stock.set_attr(skey,svap_ma(t[VOLUME],t[CLOSE],sma))
+    svap,v2i = stock.get_attr(skey)
+    
     ma_svapfast = ma(svap,fast)
     ma_svapmid = ma(svap,mid)    
     ma_svapslow = ma(svap,slow)
@@ -94,7 +108,7 @@ def csvama3(stock,fast,mid,slow,rstart=3300,rend=6600,ma_standard=500,extend_day
     return gand(cs,g,msvap)
 
 
-def csvama2(stock,fast,slow,rstart=3300,rend=6600,ma_standard=500,sma=65):
+def csvama2(stock,fast,slow,rstart=3300,rend=6600,ma_standard=500,sma=55):
     ''' svama两线交叉
     '''
     t = stock.transaction
@@ -109,7 +123,11 @@ def csvama2(stock,fast,slow,rstart=3300,rend=6600,ma_standard=500,sma=65):
 
     c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s>=rstart,s<=rend)
     
-    svap,v2i = svap_ma(t[VOLUME],t[CLOSE],sma)
+    skey = 'svap_ma_%s' % sma
+    if not stock.has_attr(skey): #加速
+        stock.set_attr(skey,svap_ma(t[VOLUME],t[CLOSE],sma))
+    svap,v2i = stock.get_attr(skey) 
+
     ma_svapfast = ma(svap,fast)
     ma_svapslow = ma(svap,slow)
     trend_ma_svapfast = strend(ma_svapfast) > 0
@@ -153,7 +171,12 @@ def svama2(stock,fast,slow,ma_standard=250,sma=65):
     t = stock.transaction
     g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
     #g = np.ones_like(stock.g5)
-    svap,v2i = svap_ma(t[VOLUME],t[CLOSE],sma)
+    
+    skey = 'svap_ma_%s' % sma
+    if not stock.has_attr(skey): #加速
+        stock.set_attr(skey,svap_ma(t[VOLUME],t[CLOSE],sma))
+    svap,v2i = stock.get_attr(skey) 
+
     ma_svapfast = ma(svap,fast)
     ma_svapslow = ma(svap,slow)
     trend_ma_svapfast = strend(ma_svapfast) > 0
@@ -171,7 +194,12 @@ def svama2s(stock,fast,slow,ma_standard=250,extend_days = 10,sma=55):
     '''
     t = stock.transaction
     g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
-    svap,v2i = svap_ma(t[VOLUME],t[CLOSE],sma)
+    #svap,v2i = svap_ma(t[VOLUME],t[CLOSE],sma)
+    skey = 'svap_ma_%s' % sma
+    if not stock.has_attr(skey): #加速
+        stock.set_attr(skey,svap_ma(t[VOLUME],t[CLOSE],sma))
+    svap,v2i = stock.get_attr(skey) 
+    
     ma_svapfast = ma(svap,fast)
     ma_svapslow = ma(svap,slow)
     trend_ma_svapfast = strend(ma_svapfast) > 0
@@ -197,7 +225,12 @@ def svama3(stock,fast,mid,slow,ma_standard=250,extend_days=10,sma=55):
     t = stock.transaction
     #print stock.code,len(t[CLOSE]),sum(t[CLOSE])
     g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
-    svap,v2i = svap_ma(t[VOLUME],t[CLOSE],sma)
+    #svap,v2i = svap_ma(t[VOLUME],t[CLOSE],sma)
+    skey = 'svap_ma_%s' % sma
+    if not stock.has_attr(skey): #加速
+        stock.set_attr(skey,svap_ma(t[VOLUME],t[CLOSE],sma))
+    svap,v2i = stock.get_attr(skey) 
+
     ma_svapfast = ma(svap,fast)
     ma_svapmid = ma(svap,mid)    
     ma_svapslow = ma(svap,slow)
@@ -228,7 +261,12 @@ def svama2x(stock,fast,slow,base,ma_standard=250,extend_days=5,sma=55):
     '''
     t = stock.transaction
     g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
-    svap,v2i = svap_ma(t[VOLUME],t[CLOSE],sma)
+    #svap,v2i = svap_ma(t[VOLUME],t[CLOSE],sma)
+    skey = 'svap_ma_%s' % sma
+    if not stock.has_attr(skey): #加速
+        stock.set_attr(skey,svap_ma(t[VOLUME],t[CLOSE],sma))
+    svap,v2i = stock.get_attr(skey) 
+    
     ma_svapfast = ma(svap,fast)
     ma_svapslow = ma(svap,slow)
     trend_ma_svapfast = strend(ma_svapfast) > 0
@@ -254,12 +292,24 @@ c_extractor = lambda c:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g
 def svama2c(stock,fast,slow,ma_standard=120,threshold=7500,sma=55):
     ''' svama两线交叉
     '''
-    c_extractor = lambda c:c.g20>=threshold
+    
     t = stock.transaction
+    
+    try:
+        stock.catalog
+    except:
+        return np.zeros_like(t[CLOSE])
+    
+    c_extractor = lambda c:c.g20>=threshold
     g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
     c = catalog_signal_c(stock.catalog,c_extractor) 
     #g = np.ones_like(stock.g5)
-    svap,v2i = svap_ma(t[VOLUME],t[CLOSE],sma)
+    #svap,v2i = svap_ma(t[VOLUME],t[CLOSE],sma)
+    skey = 'svap_ma_%s' % sma
+    if not stock.has_attr(skey): #加速
+        stock.set_attr(skey,svap_ma(t[VOLUME],t[CLOSE],sma))
+    svap,v2i = stock.get_attr(skey) 
+    
     ma_svapfast = ma(svap,fast)
     ma_svapslow = ma(svap,slow)
     trend_ma_svapfast = strend(ma_svapfast) > 0
@@ -280,7 +330,12 @@ def vama2(stock,fast,slow,ma_standard=250,pre_length=67):
     '''
     t = stock.transaction
     g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
-    svap,v2i = vap_pre(t[VOLUME],t[CLOSE],pre_length)
+    #svap,v2i = vap_pre(t[VOLUME],t[CLOSE],pre_length)
+    skey = 'vap_pre_%s' % pre_length
+    if not stock.has_attr(skey): #加速
+        stock.set_attr(skey,vap_pre(t[VOLUME],t[CLOSE],pre_length))
+    svap,v2i = stock.get_attr(skey) 
+    
     ma_svapfast = ma(svap,fast)
     ma_svapslow = ma(svap,slow)
     trend_ma_svapfast = strend(ma_svapfast) > 0
@@ -301,7 +356,12 @@ def vama3(stock,fast,mid,slow,ma_standard=250,extend_days=10,pre_length=67):
     '''
     t = stock.transaction
     g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
-    svap,v2i = vap_pre(t[VOLUME],t[CLOSE],pre_length)
+    #svap,v2i = vap_pre(t[VOLUME],t[CLOSE],pre_length)
+    skey = 'vap_pre_%s' % pre_length
+    if not stock.has_attr(skey): #加速
+        stock.set_attr(skey,vap_pre(t[VOLUME],t[CLOSE],pre_length))
+    svap,v2i = stock.get_attr(skey) 
+    
     ma_svapfast = ma(svap,fast)
     ma_svapmid = ma(svap,mid)    
     ma_svapslow = ma(svap,slow)
@@ -324,12 +384,17 @@ def vama3(stock,fast,mid,slow,ma_standard=250,extend_days=10,pre_length=67):
     #sup = up_under(t[HIGH],t[LOW],10,300)    
     return gand(g,msvap)
 
-def vama2x(stock,fast,slow,base,ma_standard=250,extend_days=5,pre_length=65):
+def vama2x(stock,fast,slow,base,ma_standard=250,extend_days=5,pre_length=55):
     ''' vama双叉,extend_days天内再有日线底线叉ma(base)
     '''
     t = stock.transaction
     g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
-    svap,v2i = vap_pre(t[VOLUME],t[CLOSE],pre_length)
+    #svap,v2i = vap_pre(t[VOLUME],t[CLOSE],pre_length)
+    skey = 'vap_pre_%s' % pre_length
+    if not stock.has_attr(skey): #加速
+        stock.set_attr(skey,vap_pre(t[VOLUME],t[CLOSE],pre_length))
+    svap,v2i = stock.get_attr(skey) 
+    
     ma_svapfast = ma(svap,fast)
     ma_svapslow = ma(svap,slow)
     trend_ma_svapfast = strend(ma_svapfast) > 0

@@ -7,7 +7,7 @@ from wolfox.fengine.normal.funcs import *
 from wolfox.fengine.core.d1match import *
 from wolfox.fengine.core.d1indicator import cmacd
 from wolfox.foxit.base.tutils import linelog
-
+from time import time
 
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.run')    
@@ -45,7 +45,12 @@ def func_test(stock,fast,mid,slow,ma_standard=500,extend_days=10,pre_length=67,*
     dates = kwargs['dates'] #打印输出用
     t = stock.transaction
     g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
-    svap,v2i = vap_pre(t[VOLUME],t[CLOSE],pre_length)
+    #svap,v2i = vap_pre(t[VOLUME],t[CLOSE],pre_length)
+    skey = 'vap_pre_%s' % pre_length
+    if not stock.has_attr(skey): #加速
+        stock.set_attr(skey,vap_pre(t[VOLUME],t[CLOSE],pre_length))
+    svap,v2i = stock.get_attr(skey) 
+    
     ma_svapfast = ma(svap,fast)
     ma_svapmid = ma(svap,mid)    
     ma_svapslow = ma(svap,slow)
@@ -161,7 +166,6 @@ def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     prepare_order(catalogs)
     dummy_catalogs('catalog',catalogs)
 
-    from time import time
     tbegin = time()
 
     pman = AdvancedATRPositionManager()

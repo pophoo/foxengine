@@ -224,7 +224,7 @@ def atr_sell_func(sbuy,trans,satr,stop_times=3*BASE/2,trace_times=2*BASE,covered
         times为以0.001为单位的倍数
     '''
     #down_limit = tmax(trans[HIGH] - satr * times / BASE,covered)    #最近covered天波动下限的最大值
-    down_limit = tracelimit((trans[OPEN]+trans[LOW])/2,trans[up_sector],sbuy,satr,stop_times,trace_times)
+    down_limit = tracelimit((trans[OPEN]+trans[LOW])/2,trans[up_sector],sbuy,satr,stop_times,trace_times) #以信号当日而非交易日(B1情况下会后移一日)的价格为线计算。因为这里无法知道交易策略。因此手工计算时也必须如此计算
     #sdown = equals(cross(down_limit,trans[LOW]),-1)     #触及
     sdown = under_cross(sbuy,down_limit,trans[LOW])
     #return band(sdown,sellconfirm(trans[OPEN],trans[CLOSE],trans[HIGH],trans[LOW])),down_limit

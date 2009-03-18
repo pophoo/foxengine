@@ -80,6 +80,18 @@ class Svama2MMCruiser(MM_GeneticCruiser):
         self.predefined = []
         self.evaluate_func = normal_evaluate
 
+class Svama2bMMCruiser(MM_GeneticCruiser):
+    def prepare(self):
+        print 'prepare:'
+        self.args = dict(fast=range(1,10)+range(10,30,2)+range(30,100,3)+range(100,300,4)+range(300,1001,5)
+                ,slow=range(5,500,5) + range(500,2001,10)
+                )
+        self.buy_func = lambda stock,fast,slow,**kwargs:svama2(stock,fast,slow)
+        #kwargs用于吸收其它函数所需的参数
+        self.sell_func = atr_seller
+        self.predefined = []
+        self.evaluate_func = normal_evaluate
+
 class CSvama2MMCruiser(MM_GeneticCruiser):
     def prepare(self):
         print 'prepare:'
@@ -223,12 +235,15 @@ if __name__ == '__main__':
     #cruiser = Vama2xMMCruiser(psize=100,maxstep=50,goal=20000000)
     print 'before cruiser,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
     
-    logger.debug('*****************csvama3 begin**********************')
-    cruiser = CSvama3MMCruiser(psize=500,maxstep=100,goal=200000000)    #goal不能太小
+    logger.debug('*****************svama2b begin*******************')    
+    cruiser = Svama2bMMCruiser(psize=500,maxstep=100,goal=200000000)
     cruiser.gcruise(sdata,dates,tbegin)
-    logger.debug('*****************csvama2 begin********************')
-    cruiser = CSvama2MMCruiser(psize=500,maxstep=100,goal=200000000)
-    cruiser.gcruise(sdata,dates,tbegin)
+    #logger.debug('*****************csvama3 begin**********************')
+    #cruiser = CSvama3MMCruiser(psize=500,maxstep=100,goal=200000000)    #goal不能太小
+    #cruiser.gcruise(sdata,dates,tbegin)
+    #logger.debug('*****************csvama2 begin********************')
+    #cruiser = CSvama2MMCruiser(psize=500,maxstep=100,goal=200000000)
+    #cruiser.gcruise(sdata,dates,tbegin)
     #logger.debug('*****************svama2s begin*******************')    
     #cruiser = Svama2sMMCruiser(psize=100,maxstep=50,goal=200000000)
     #cruiser.gcruise(sdata,dates,tbegin)

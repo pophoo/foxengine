@@ -180,7 +180,7 @@ def ma3(stock,fast,mid,slow,ma_standard=120,extend_days = 10):
     return gand(trend_ma_standard,confirm_cross,sup)
 
 
-def svama2(stock,fast,slow,ma_standard=250,sma=65):
+def svama2(stock,fast,slow,ma_standard=500,sma=65):
     ''' svama两线交叉
     '''
     t = stock.transaction
@@ -204,7 +204,7 @@ def svama2(stock,fast,slow,ma_standard=250,sma=65):
     #sup = up_under(t[HIGH],t[LOW],10,300)    
     return gand(g,msvap)
 
-def svama2s(stock,fast,slow,ma_standard=250,extend_days = 10,sma=55):
+def svama2s(stock,fast,slow,ma_standard=500,extend_days = 10,sma=55):
     ''' svama两线交叉, 先是快线叉慢线,然后是慢线叉快线
     '''
     t = stock.transaction
@@ -229,7 +229,7 @@ def svama2s(stock,fast,slow,ma_standard=250,extend_days = 10,sma=55):
     #sup = up_under(t[HIGH],t[LOW],extend_days,300)    
     return gand(g,msvap)
 
-def svama3(stock,fast,mid,slow,ma_standard=250,extend_days=10,sma=55):
+def svama3(stock,fast,mid,slow,ma_standard=500,extend_days=10,sma=55):
     ''' svama三叉
         可以考虑信号发出n天内，突然放水10-20%到下位支撑(20,55,120)[附近]然后向上
             或者强势盘整幅度越来越小    见600117 20030115的信号(6,12,69,ex=13,ma=227,sma=21)
@@ -265,13 +265,13 @@ def svama3(stock,fast,mid,slow,ma_standard=250,extend_days=10,sma=55):
     vsignal = band(sync3,trend_ma_standard)
     msvap = transform(vsignal,v2i,len(t[VOLUME]))
 
-    sup = up_under(t[HIGH],t[LOW],extend_days,300)    
-    return gand(g,msvap,sup)
+    #sup = up_under(t[HIGH],t[LOW],extend_days,300)    
+    return gand(g,msvap)    #,sup)
 
 
 
 #svama2和vama2信号发出后的再确认
-def svama2x(stock,fast,slow,base,ma_standard=250,extend_days=5,sma=55):
+def svama2x(stock,fast,slow,base,ma_standard=500,extend_days=5,sma=55):
     ''' svama二叉,extend_days天内再有日线底线叉ma(base)
     '''
     t = stock.transaction
@@ -306,6 +306,7 @@ def svama2x(stock,fast,slow,base,ma_standard=250,extend_days=5,sma=55):
 c_extractor = lambda c:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250)
 def svama2c(stock,fast,slow,ma_standard=120,threshold=7500,sma=55):
     ''' svama两线交叉
+        这个已经被csvama2取代
     '''
     
     t = stock.transaction
@@ -340,7 +341,7 @@ def svama2c(stock,fast,slow,ma_standard=120,threshold=7500,sma=55):
     #sup = up_under(t[HIGH],t[LOW],10,300)    
     return gand(g,c,msvap)
 
-def vama2(stock,fast,slow,ma_standard=250,pre_length=67):
+def vama2(stock,fast,slow,ma_standard=500,pre_length=67):
     ''' vama双叉
     '''
     t = stock.transaction
@@ -366,7 +367,7 @@ def vama2(stock,fast,slow,ma_standard=250,pre_length=67):
     #sup = up_under(t[HIGH],t[LOW],10,300)
     return gand(g,msvap)
 
-def vama3(stock,fast,mid,slow,ma_standard=250,extend_days=10,pre_length=67):
+def vama3(stock,fast,mid,slow,ma_standard=500,extend_days=10,pre_length=67):
     ''' vama三叉
     '''
     t = stock.transaction
@@ -399,7 +400,7 @@ def vama3(stock,fast,mid,slow,ma_standard=250,extend_days=10,pre_length=67):
     #sup = up_under(t[HIGH],t[LOW],10,300)    
     return gand(g,msvap)
 
-def vama2x(stock,fast,slow,base,ma_standard=250,extend_days=5,pre_length=55):
+def vama2x(stock,fast,slow,base,ma_standard=500,extend_days=5,pre_length=55):
     ''' vama双叉,extend_days天内再有日线底线叉ma(base)
     '''
     t = stock.transaction

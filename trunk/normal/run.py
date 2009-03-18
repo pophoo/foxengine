@@ -12,15 +12,12 @@ logger = logging.getLogger('wolfox.fengine.normal.run')
 #1 缩小止损，止损和跟随建议为1600/2400
 #2 信号出来后打到55/120均线附近
 
-def prepare_temp_configs_0(seller,pman=None,dman=None):
-    config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
-    configs = []
-    configs.append(config(buyer=fcustom(csvama2,fast= 11,slow=155,rstart=2000,rend=4500))) 	###2400-192-722-18
-    return configs
 
 def prepare_temp_configs(seller,pman=None,dman=None):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
+
+    configs.append(config(buyer=fcustom(csvama2,fast= 11,slow=155,rstart=0,rend=4500))) 	###1786-134-676-34 #5386/830
 
     return configs
 
@@ -42,7 +39,7 @@ def prepare_configs_A(seller,pman,dman):    #R>=400,winrate>400 or R>=1000,winra
     configs.append(config(buyer=fcustom(vama3,fast= 17,mid= 46,slow= 85,ma_standard= 55,extend_days=  1))) 	#1025-81-535-28
     configs.append(config(buyer=fcustom(csvama2,fast= 13,slow=125,rstart=  0,rend=1500))) 	##4750-76-800-5
     configs.append(config(buyer=fcustom(csvama2,fast= 25,slow=140,rstart=5000,rend=6000))) 	##2314-162-571-14
-    configs.append(config(buyer=fcustom(csvama2,fast= 11,slow=155,rstart=2000,rend=4500))) 	###2400-192-722-18
+    configs.append(config(buyer=fcustom(csvama2,fast= 11,slow=155,rstart=0,rend=4500))) 	###1786-134-676-34 #5386/830
     configs.append(config(buyer=fcustom(csvama2,fast=  1,slow=180,rstart=1000,rend=3000))) 	##1884-196-636-11
     configs.append(config(buyer=fcustom(csvama2,fast=184,slow=305,rstart=4000,rend=5500))) 	##2933-132-500-8
     configs.append(config(buyer=fcustom(csvama2,fast= 31,slow=385,rstart=3500,rend=6500))) 	##1279-87-500-30
@@ -199,8 +196,7 @@ def run_body(sdata,dates,begin,end,xbegin):
     #seller = csc_func
     #seller = fcustom(csc_func,threshold=100)
 
-    configs = prepare_temp_configs_0(seller,pman,dman)
-    #configs = prepare_temp_configs(seller,pman,dman)
+    configs = prepare_temp_configs(seller,pman,dman)
     #configs = prepare_configs_A(seller,pman,dman)
     #configs = prepare_configs_B(seller,pman,dman)
     #configs.extend(prepare_configs_A1(seller,pman,dman))
@@ -243,8 +239,7 @@ def run_mm_body(sdata,dates,begin,end,xbegin):
     #seller = fcustom(atr_seller,**kvs) #atr_seller_factory(stop_times=1500)
     seller = atr_seller_factory()
     myMediator=MM_Mediator
-    #configs = prepare_temp_configs(seller)
-    configs = prepare_temp_configs_0(seller)
+    configs = prepare_temp_configs(seller)
     #configs = prepare_configs_A(seller,None,None)
     #configs.extend(prepare_configs_B(seller,None,None))
     

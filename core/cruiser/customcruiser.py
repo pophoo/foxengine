@@ -49,6 +49,18 @@ class Svama3MMCruiser(MM_GeneticCruiser):
         #self.trade_func = fcustom(my_trade_func,begin=20010601)
         self.evaluate_func = normal_evaluate
 
+class Svama3bMMCruiser(MM_GeneticCruiser):
+    def prepare(self):
+        print 'prepare:'
+        self.args = dict(fast=range(1,10)+range(10,30,2)+range(30,80,3)+range(80,150,4)+range(150,501,5)
+                ,mid=range(2,10)+range(10,30,2)+range(30,80,3)+range(80,200,4)+range(200,800,5)+range(800,1201,10)
+                ,slow=range(5,500,5) + range(500,2001,10) 
+                )
+        self.buy_func = lambda stock,fast,mid,slow,**kwargs:svama3(stock,fast,mid,slow)
+        self.sell_func = atr_seller
+        self.predefined = []
+        self.evaluate_func = normal_evaluate
+
 class CSvama3MMCruiser(MM_GeneticCruiser):
     def prepare(self):
         print 'prepare:'
@@ -235,8 +247,11 @@ if __name__ == '__main__':
     #cruiser = Vama2xMMCruiser(psize=100,maxstep=50,goal=20000000)
     print 'before cruiser,array number:',get_obj_number(np.ndarray),',tuple number:',get_obj_number(tuple),',list number:',get_obj_number(list)
     
-    logger.debug('*****************svama2b begin*******************')    
-    cruiser = Svama2bMMCruiser(psize=500,maxstep=100,goal=200000000)
+    #logger.debug('*****************svama2b begin*******************')    
+    #cruiser = Svama2bMMCruiser(psize=500,maxstep=100,goal=200000000)
+    #cruiser.gcruise(sdata,dates,tbegin)
+    logger.debug('*****************svama3b begin**********************')
+    cruiser = Svama3bMMCruiser(psize=500,maxstep=100,goal=200000000)    #goal不能太小
     cruiser.gcruise(sdata,dates,tbegin)
     #logger.debug('*****************csvama3 begin**********************')
     #cruiser = CSvama3MMCruiser(psize=500,maxstep=100,goal=200000000)    #goal不能太小

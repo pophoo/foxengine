@@ -90,13 +90,9 @@ class Mediator(object):
         trans = stock.transaction
         if not stock.has_attr('atr'):
             stock.atr = atr(trans[CLOSE],trans[HIGH],trans[LOW],atr_covered)
-        stock.mfe,stock.mae = mm_ratio(trans[CLOSE],trans[HIGH],trans[LOW],stock.atr,covered=mm_covered)
-        stock.mfe_sum,stock.mae_sum,stock.mm_count = 0,0,0   #初始值
 
     def finishing(self,stock,sbuy,ssell):
-        stock.mfe_sum,stock.mae_sum = mm_sum_smooth(sbuy,stock.mfe,stock.mae,smooth=2)  #平滑掉两个最大值
-        stock.mm_count = int(np.sum(greater(sbuy)))
-
+        pass
 
 #收盘价买入，下限突破价卖出，必须有下限突破线
 cl_pricer = (lambda s : s.transaction[CLOSE],lambda s : s.down_limit)
@@ -132,11 +128,58 @@ class MM_Mediator(Mediator):
             try:    #捕捉某些异常，如未划入任何板块的股票在计算板块相关信号时会出错
                 self.prepare(s,**kwargs)
                 sbuy = self.buy_signal_maker(s)
-                for i in range(np.sum(sbuy)):   #假Trade数据
-                    trades.append(dummy_trades)
+                #for i in range(np.sum(sbuy)):   #假Trade数据
+                #    trades.append(dummy_trades)
                 self.finishing(s,sbuy,None)
             except Exception,inst:
                 print u'dummy mediator _calc %s except : %s' % (s.code,inst)
                 logger.exception(u'%s calc error : %s',s.code,inst)
         return trades
+
+    def prepare(self,stock,atr_covered=20,mm_covered=20,**kwargs):  #kwargs吸收无用参数
+        trans = stock.transaction
+        Mediator.prepare(self,stock,atr_covered,mm_covered,**kwargs)
+        stock.mfe,stock.mae = mm_ratio(trans[CLOSE],trans[HIGH],trans[LOW],stock.atr,covered=mm_covered)
+        stock.mfe_sum,stock.mae_sum,stock.mm_count = 0,0,0   #初始值
+
+    def finishing(self,stock,sbuy,ssell):
+        Mediator.finishing(self,stock,sbuy,ssell)
+        stock.mfe_sum,stock.mae_sum = mm_sum_smooth(sbuy,stock.mfe,stock.mae,smooth=2)  #平滑掉两个最大值
+        stock.mm_count = int(np.sum(greater(sbuy)))
+
+
+class NMediator(Mediator): 
+    ''' 对买入信号进行规范化，影响到卖出信号的生成
+        原本的Mediator没有考虑到买入信号是否当日起效的问题（实际应用中都是次日起效）
+        对MM不做如此判定
+    '''
+    def _calc(self,tmaker,sdata,dates,begin=0,**kwargs):
+        trades = []
+        ibegin = dates.searchsorted(begin)
+        for s in sdata.values():
+            try:    #捕捉某些异常，如未划入任何板块的股票在计算板块相关信号时会出错
+                self.prepare(s,**kwargs)
+                sbuy = self.buy_signal_maker(s)
+                sbuy[:ibegin] = 0   #去掉之前的信号，便于mm的对tbegin的一致性，而trade因为已经自身处理了时段，无此处也无影响
+                ssell = self.sell_signal_maker(s,self.trade_strategy.bshift(sbuy))
+                #logger.debug('sbuy:%s',sbuy.tolist())                
+                #sbuy,ssell = smooth2(s.transaction[VOLUME],sbuy,ssell) #这个处理被划入limit_adjust
+                trades.extend(self.trade_maker(tmaker,dates,s,sbuy,ssell,begin=begin))
+                self.finishing(s,sbuy,ssell)
+            except Exception,inst:
+                print u'mediator _calc %s except : %s' % (s.code,inst)
+                logger.exception(u'%s calc error : %s',s.code,inst)
+        return trades
+
+#定制的Mediator
+#一次买入一次买出，买入信号次日有效(开盘买入)，卖出信号当日起效
+NMediator10 = fcustom(NMediator,trade_strategy=B1S0,pricer = ol_pricer)
+#允许连续买入一次卖出，买入信号次日有效(开盘买入)，卖出信号当日起效
+CNMediator10 = fcustom(NMediator,trade_signal_maker=make_trade_signal_advanced
+        ,trade_strategy=B1S0,pricer = ol_pricer)
+ONMediator10 = fcustom(NMediator,trade_signal_maker=make_trade_signal_advanced
+        ,trade_strategy=B1S0,pricer = ol_pricer)
+
+def nmediator_factory(trade_signal_maker=make_trade_signal_advanced,trade_strategy=B1S0,pricer = cl_pricer):
+    return fcustom(NMediator,trade_signal_maker = trade_signal_maker,trade_strategy = trade_strategy,pricer=pricer)
 

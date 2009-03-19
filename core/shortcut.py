@@ -71,12 +71,12 @@ def batch(configs,sdata,dates,xbegin,**kwargs):
             name,tradess = calc_trades(buyer,seller,sdata,dates,xbegin,**kwargs)
             result,strade = ev.evaluate_all(tradess,pman,dman)
             config.name = name
-            config.mm = rate_mfe_mae(sdata)
+            #config.mm = rate_mfe_mae(sdata)
             config.result = result
             config.strade = strade
             tend = time()
             logger.debug(u'strade:%s',strade)
-            logger.debug(u'\nMMRatio:%s,mfe:%s,mae:%s,mm_count:%s' % config.mm)
+            #logger.debug(u'\nMMRatio:%s,mfe:%s,mae:%s,mm_count:%s' % config.mm)
             logger.debug(u'calc finished:%s,耗时:%s',config.name,tend-tbegin)
             print u'calc finished:%s,耗时:%s' % (config.name,tend-tbegin)
         except Exception,inst:
@@ -173,8 +173,8 @@ def save_configs(filename,configs,begin,end):
         r = config.result
         f.write('\nname:%s\npre_ev:%s\ngev:%s' % (config.name,r.pre_ev,r.g_ev))
         f.write('\nR:%s\nCSHARP:%s\nAVGRANGE:%s\nMAXRANGE:%s\nINRATE:%s' % (r.RPR,r.CSHARP,r.AVGRANGE,r.MAXRANGE,r.income_rate))
-        f.write('\nMMRatio:%s,mfe:%s,mae:%s,mm_count:%s' % config.mm)
-        if abs(config.mm[0]) > BASE:
+        #f.write('\nMMRatio:%s,mfe:%s,mae:%s,mm_count:%s' % config.mm)
+        if abs(r.income_rate) > 0:
             f.write('\n%s' % config.strade)
         f.write('\n**************************************************')
     f.close()

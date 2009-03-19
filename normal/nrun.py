@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 #完整的运行脚本
+#采用NMediator,结果发现成功率显然小了(次日上涨的看来挺多，导致止损比预计上移),看来需要加大atr系数
+#不过有个特点，大部分情形，选出交易数越多的方法，稳定性越好
 
 from wolfox.fengine.core.shortcut import *
 from wolfox.fengine.normal.funcs import *
@@ -17,7 +19,6 @@ def prepare_temp_configs(seller,pman=None,dman=None):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
 
-    #configs.append(config(buyer=fcustom(csvama2,fast= 11,slow=155,rstart=0,rend=4500))) 	###1786-134-676-34 #5386/830
 
     return configs
 
@@ -64,20 +65,6 @@ def prepare_configs_A(seller,pman,dman):    #R>=400,winrate>400 or R>=1000,winra
     configs.append(config(buyer=fcustom(csvama3,fast= 20,mid= 57,slow=1270,rstart=4000,rend=8500))) ##2576-152-583-12
     configs.append(config(buyer=fcustom(csvama3,fast= 14,mid= 48,slow=1440,rstart=4000,rend=8500))) ##1000-28-500-10
     configs.append(config(buyer=fcustom(csvama3,fast= 10,mid= 54,slow=1770,rstart=5000,rend=8500))) ##983-61-600-10
-    configs.append(config(buyer=fcustom(svama3,fast=150,mid=245,slow=315))) 	##1000-65-402-72
-    configs.append(config(buyer=fcustom(svama3,fast=165,mid=340,slow=1790))) 	##1071-60-478-23
-    configs.append(config(buyer=fcustom(svama3,fast=175,mid=350,slow=1790))) 	##875-56-473-19
-    configs.append(config(buyer=fcustom(svama3,fast=185,mid=260,slow=1800))) 	##921-59-533-30
-    configs.append(config(buyer=fcustom(svama3,fast=185,mid=350,slow=1790))) 	##820-55-533-15
-    configs.append(config(buyer=fcustom(svama3,fast=180,mid=340,slow=1790))) 	##777-49-500-22
-    configs.append(config(buyer=fcustom(svama3,fast=185,mid=340,slow=1790))) 	##920-58-571-21
-    configs.append(config(buyer=fcustom(svama3,fast=150,mid=245,slow=315))) 	##1000-65-402-72
-    configs.append(config(buyer=fcustom(svama3,fast=165,mid=340,slow=1790))) 	##1071-60-478-23
-    configs.append(config(buyer=fcustom(svama3,fast=175,mid=350,slow=1790))) 	##875-56-473-19
-    configs.append(config(buyer=fcustom(svama3,fast=185,mid=260,slow=1800))) 	##921-59-533-30
-    configs.append(config(buyer=fcustom(svama3,fast=185,mid=350,slow=1790))) 	##820-55-533-15
-    configs.append(config(buyer=fcustom(svama3,fast=180,mid=340,slow=1790))) 	##777-49-500-22
-    configs.append(config(buyer=fcustom(svama3,fast=185,mid=340,slow=1790))) 	##920-58-571-21
 
     return configs
 
@@ -207,27 +194,24 @@ def run_body(sdata,dates,begin,end,xbegin):
 
     pman = AdvancedATRPositionManager()
     dman = DateManager(begin,end)
-    myMediator=mediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
-    #seller = atr_seller_factory(stop_times=2000,trace_times=3000)
-    #seller = atr_seller_factory(stop_times=1500,trace_times=3000)
-    #seller = atr_seller_factory(stop_times=1000,trace_times=3000)
-    seller = atr_seller_factory(stop_times=600,trace_times=3000)
+    myMediator=nmediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
+    #seller = atr_seller_factory(stop_times=600,trace_times=3000)
+    seller = atr_seller_factory(stop_times=1000,trace_times=3000)
     #seller = csc_func
     #seller = fcustom(csc_func,threshold=100)
 
-    configs = prepare_temp_configs(seller,pman,dman)
-    #configs = prepare_configs_A(seller,pman,dman)
-    #configs = prepare_configs_B(seller,pman,dman)
-    #configs.extend(prepare_configs_A1(seller,pman,dman))
-    #configs.extend(prepare_configs_A2(seller,pman,dman))    
-    #configs.extend(prepare_configs_B(seller,pman,dman))
+    #configs = prepare_temp_configs(seller,pman,dman)
+    configs = prepare_configs_A(seller,pman,dman)
+    configs.extend(prepare_configs_A1(seller,pman,dman))
+    configs.extend(prepare_configs_A2(seller,pman,dman))    
+    configs.extend(prepare_configs_B(seller,pman,dman))
     batch(configs,sdata,dates,xbegin,cmediator=myMediator)
 
     tend = time()
     print u'计算耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
-    save_configs('atr_ev_n.txt',configs,xbegin,end)
+    save_configs('atr_ev_nm_1000.txt',configs,xbegin,end)
 
 def run_merge_body(sdata,dates,begin,end,xbegin):
     
@@ -331,20 +315,20 @@ def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(filename="run_x4a.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
+    logging.basicConfig(filename="run_x4n_1000.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
     
     #测试时间段 [19980101,19990101-20010801],[20000101,20010701-20050901],[20040601,20050801-20071031],[20060601,20071031-20090101]
     #总时间段   [20000101,20010701,20090101]    #一个完整的周期+一个下降段
     #分段测试的要求，段mm > 1000-1500或抑制，总段mm > 2000
     
-    #begin,xbegin,end = 20000101,20010701,20090101
+    begin,xbegin,end = 20000101,20010701,20090101
     #begin,xbegin,end = 19980101,20010701,20090101
     #begin,xbegin,end = 20000101,20010701,20050901
     #begin,xbegin,end = 19980101,19990701,20010801    
     #begin,xbegin,end = 20040601,20050801,20071031
     #begin,xbegin,end = 20060601,20071031,20090101
     #begin,xbegin,end = 19980101,19990101,20090101
-    begin,xbegin,end,lbegin = 20070101,20080601,20090327,20090201
+    #begin,xbegin,end,lbegin = 20070101,20080601,20090327,20090201
     #begin,xbegin,end,lbegin = 20060101,20070901,20090327,20090201
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
@@ -369,9 +353,9 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
-    run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
 
     #近期工作 将svama2x/vama2x改造为syntony

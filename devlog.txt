@@ -109,3 +109,9 @@ g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,st
     configs.append(config(buyer=fcustom(csvama2,fast= 37,slow=115,rstart=3000,rend=8000))) 	#1202-95-367-68
 
 
+#2009-03-19
+#1 考虑svap/vap的macd的筛选作用
+   macd的标的可以是ma(svap,n),而不仅仅是svap,暂定为5
+
+#2 用nmedaitor排除原先在设置atr的downlimit时不考虑B1/B0的买入信号偏移的问题
+    该问题导致B1系列下信号日次日高开时止损点离买入点距离为高开值+设定atr,而非设定atr)

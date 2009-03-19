@@ -219,6 +219,9 @@ def B1S1(trans,sbuy,ssell):
     #print sbuy,np.sum(sbuy)
     return sbuy,ssell
 
+B0S0.bshift = B0S1.bshift = lambda s : s   #bshift是对buy信号的处理,生成卖出信号用. B0系列不用偏移。
+B1S0.bshift = B1S1.bshift = lambda s : rollx(s)   #bshift是对buy信号的处理,生成卖出信号用. B1系列右移一位
+
 def atr_sell_func(sbuy,trans,satr,stop_times=3*BASE/2,trace_times=2*BASE,covered=10,up_sector=HIGH): 
     ''' 
         times为以0.001为单位的倍数

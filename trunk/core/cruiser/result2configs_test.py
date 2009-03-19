@@ -29,6 +29,10 @@ svama3_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-03-09 19:11:47
 #wolfox.fengine.core.shortcut:log_result:145:2009-03-09 19:11:47,328 DEBUG Mediator:<<lambda>:ma_standard=250,slow=196,extend_days=23,fast=15,mid=22:atr_seller:ma_standard=250,slow=196,extend_days=23,fast=15,mid=22:make_trade_signal:B1S1>:(1215, 176026, 144823, 82)
 '''
 
+svama3b_txt = '''#wolfox.fengine.core.shortcut:log_result:156:2009-03-19 16:47:01,717 DEBUG Mediator:<<lambda>:slow=365,mid=136,fast=10:atr_seller:slow=365,mid=136,fast=10:make_trade_signal:B1S1>:(1023, 146131, 142727, 104)
+#wolfox.fengine.core.shortcut:log_result:156:2009-03-19 16:47:01,717 DEBUG Mediator:<<lambda>:slow=1800,mid=510,fast=185:atr_seller:slow=1800,mid=510,fast=185:make_trade_signal:B1S1>:(1024, 13467, 13140, 9)
+'''
+
 csvama3_txt = '''#wolfox.fengine.core.shortcut:log_result:145:2009-03-15 06:11:56,500 DEBUG Mediator:<<lambda>:slow=290,rstart=2000,mid=13,fast=4,rend=8000:atr_seller:slow=290,rstart=2000,mid=13,fast=4,rend=8000:make_trade_signal:B1S1>:(1012, 59609, 58896, 23)
 #wolfox.fengine.core.shortcut:log_result:145:2009-03-15 06:11:56,500 DEBUG Mediator:<<lambda>:slow=250,rstart=2000,mid=21,fast=7,rend=8000:atr_seller:slow=250,rstart=2000,mid=21,fast=7,rend=8000:make_trade_signal:B1S1>:(1043, 39049, 37407, 16)
 '''
@@ -117,7 +121,7 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals(3,len(rows))
 
     def test_svama2b(self):
-        rf = StringIO(svama2_txt)
+        rf = StringIO(svama2b_txt)
         wf = StringIO()
         lines2configs('svama2b',rf,wf)
         result = wf.getvalue()
@@ -152,6 +156,14 @@ class ModuleTest(unittest.TestCase):
         rf = StringIO(svama3_txt)
         wf = StringIO()
         lines2configs('svama3',rf,wf)
+        result = wf.getvalue()
+        rows = result.split('\n')
+        self.assertEquals(3,len(rows))
+
+    def test_svama3b(self):
+        rf = StringIO(svama3b_txt)
+        wf = StringIO()
+        lines2configs('svama3b',rf,wf)
         result = wf.getvalue()
         rows = result.split('\n')
         self.assertEquals(3,len(rows))

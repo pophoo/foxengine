@@ -155,6 +155,13 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([1,0,0,1],lb.tolist())
         self.assertEquals([1,0,0,1],ls.tolist())
 
+    def test_bshift(self):
+        a = np.array([1,2,3,4])
+        self.assertEquals(a.tolist(),B0S0.bshift(a).tolist())
+        self.assertEquals(a.tolist(),B0S1.bshift(a).tolist())
+        self.assertEquals(rollx(a).tolist(),B1S0.bshift(a).tolist())
+        self.assertEquals(rollx(a).tolist(),B1S1.bshift(a).tolist())
+
     def test_atr_sell_func(self):   #通路测试
         empty_trans = np.array([(),(),(),(),(),(),()])
         atr_sell_func(np.array([]),empty_trans,np.array([]))

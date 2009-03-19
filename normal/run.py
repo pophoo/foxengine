@@ -17,7 +17,135 @@ def prepare_temp_configs(seller,pman=None,dman=None):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
 
-    configs.append(config(buyer=fcustom(csvama2,fast= 11,slow=155,rstart=0,rend=4500))) 	###1786-134-676-34 #5386/830
+    #configs.append(config(buyer=fcustom(csvama2,fast= 11,slow=155,rstart=0,rend=4500))) 	###1786-134-676-34 #5386/830
+    configs.append(config(buyer=fcustom(svama2,fast=  2,slow=1450))) 	#balance=1002,times= 45
+    configs.append(config(buyer=fcustom(svama2,fast=  4,slow=1460))) 	#balance=1004,times= 53
+    configs.append(config(buyer=fcustom(svama2,fast= 14,slow=1570))) 	#balance=1010,times= 64
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1590))) 	#balance=1011,times= 50
+    configs.append(config(buyer=fcustom(svama2,fast=  5,slow=1480))) 	#balance=1012,times= 57
+    configs.append(config(buyer=fcustom(svama2,fast=288,slow=1820))) 	#balance=1012,times= 56
+    configs.append(config(buyer=fcustom(svama2,fast= 12,slow=1570))) 	#balance=1014,times= 64
+    configs.append(config(buyer=fcustom(svama2,fast=184,slow=1160))) 	#balance=1014,times= 78
+    configs.append(config(buyer=fcustom(svama2,fast= 57,slow=1330))) 	#balance=1017,times= 59
+    configs.append(config(buyer=fcustom(svama2,fast=415,slow=1670))) 	#balance=1017,times= 48
+    configs.append(config(buyer=fcustom(svama2,fast=  4,slow=1450))) 	#balance=1019,times= 50
+    configs.append(config(buyer=fcustom(svama2,fast=  6,slow=1470))) 	#balance=1023,times= 57
+    configs.append(config(buyer=fcustom(svama2,fast=370,slow=1680))) 	#balance=1023,times= 49
+    configs.append(config(buyer=fcustom(svama2,fast= 22,slow=1150))) 	#balance=1025,times= 90
+    configs.append(config(buyer=fcustom(svama2,fast=  5,slow=1170))) 	#balance=1028,times= 68
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1980))) 	#balance=1030,times= 55
+    configs.append(config(buyer=fcustom(svama2,fast=  2,slow=1180))) 	#balance=1033,times= 49
+    configs.append(config(buyer=fcustom(svama2,fast=  3,slow=1490))) 	#balance=1035,times= 56
+    configs.append(config(buyer=fcustom(svama2,fast=  9,slow=1190))) 	#balance=1039,times= 66
+    configs.append(config(buyer=fcustom(svama2,fast=  8,slow=1700))) 	#balance=1040,times= 59
+    configs.append(config(buyer=fcustom(svama2,fast= 16,slow=1210))) 	#balance=1042,times= 69
+    configs.append(config(buyer=fcustom(svama2,fast=  2,slow=1580))) 	#balance=1044,times= 43
+    configs.append(config(buyer=fcustom(svama2,fast=  9,slow=1620))) 	#balance=1045,times= 68
+    configs.append(config(buyer=fcustom(svama2,fast=  5,slow=1340))) 	#balance=1048,times= 51
+    configs.append(config(buyer=fcustom(svama2,fast=  9,slow=1580))) 	#balance=1051,times= 58
+    configs.append(config(buyer=fcustom(svama2,fast= 16,slow=1850))) 	#balance=1052,times= 62
+    configs.append(config(buyer=fcustom(svama2,fast= 30,slow=1180))) 	#balance=1052,times= 81
+    configs.append(config(buyer=fcustom(svama2,fast= 14,slow=1690))) 	#balance=1059,times= 59
+    configs.append(config(buyer=fcustom(svama2,fast=365,slow=1670))) 	#balance=1060,times= 50
+    configs.append(config(buyer=fcustom(svama2,fast= 14,slow=1210))) 	#balance=1062,times= 69
+    configs.append(config(buyer=fcustom(svama2,fast=  2,slow=1980))) 	#balance=1065,times= 53
+    configs.append(config(buyer=fcustom(svama2,fast=  7,slow=1170))) 	#balance=1066,times= 77
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1570))) 	#balance=1070,times= 45
+    configs.append(config(buyer=fcustom(svama2,fast=  9,slow=1650))) 	#balance=1070,times= 64
+    configs.append(config(buyer=fcustom(svama2,fast=  4,slow=1340))) 	#balance=1072,times= 51
+    configs.append(config(buyer=fcustom(svama2,fast=  2,slow=1480))) 	#balance=1076,times= 50
+    configs.append(config(buyer=fcustom(svama2,fast=  6,slow=1340))) 	#balance=1077,times= 51
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1970))) 	#balance=1077,times= 51
+    configs.append(config(buyer=fcustom(svama2,fast= 14,slow=1660))) 	#balance=1078,times= 64
+    configs.append(config(buyer=fcustom(svama2,fast=420,slow=1670))) 	#balance=1080,times= 52
+    configs.append(config(buyer=fcustom(svama2,fast=  4,slow=1510))) 	#balance=1085,times= 53
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1430))) 	#balance=1086,times= 44
+    configs.append(config(buyer=fcustom(svama2,fast=  9,slow=1210))) 	#balance=1088,times= 67
+    configs.append(config(buyer=fcustom(svama2,fast= 12,slow=1260))) 	#balance=1089,times= 56
+    configs.append(config(buyer=fcustom(svama2,fast= 10,slow=1260))) 	#balance=1091,times= 56
+    configs.append(config(buyer=fcustom(svama2,fast=  5,slow=1690))) 	#balance=1094,times= 56
+    configs.append(config(buyer=fcustom(svama2,fast=  2,slow=1540))) 	#balance=1095,times= 42
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1230))) 	#balance=1095,times= 42
+    configs.append(config(buyer=fcustom(svama2,fast= 12,slow=1530))) 	#balance=1097,times= 65
+    configs.append(config(buyer=fcustom(svama2,fast= 12,slow=1480))) 	#balance=1099,times= 70
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1480))) 	#balance=1105,times= 48
+    configs.append(config(buyer=fcustom(svama2,fast=  9,slow=1680))) 	#balance=1106,times= 60
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1850))) 	#balance=1108,times= 50
+    configs.append(config(buyer=fcustom(svama2,fast=  9,slow=1160))) 	#balance=1110,times= 82
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1470))) 	#balance=1111,times= 45
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=2000))) 	#balance=1111,times= 42
+    configs.append(config(buyer=fcustom(svama2,fast=  7,slow=1500))) 	#balance=1115,times= 65
+    configs.append(config(buyer=fcustom(svama2,fast=  3,slow=1620))) 	#balance=1117,times= 58
+    configs.append(config(buyer=fcustom(svama2,fast= 14,slow=1250))) 	#balance=1117,times= 70
+    configs.append(config(buyer=fcustom(svama2,fast=  4,slow=1520))) 	#balance=1124,times= 54
+    configs.append(config(buyer=fcustom(svama2,fast=  4,slow=1580))) 	#balance=1131,times= 53
+    configs.append(config(buyer=fcustom(svama2,fast= 14,slow=1580))) 	#balance=1132,times= 63
+    configs.append(config(buyer=fcustom(svama2,fast=  4,slow=1620))) 	#balance=1137,times= 60
+    configs.append(config(buyer=fcustom(svama2,fast=  9,slow=1690))) 	#balance=1139,times= 61
+    configs.append(config(buyer=fcustom(svama2,fast=  2,slow=1620))) 	#balance=1145,times= 55
+    configs.append(config(buyer=fcustom(svama2,fast= 12,slow=1210))) 	#balance=1145,times= 68
+    configs.append(config(buyer=fcustom(svama2,fast=  9,slow=1530))) 	#balance=1147,times= 58
+    configs.append(config(buyer=fcustom(svama2,fast=  5,slow=1510))) 	#balance=1150,times= 53
+    configs.append(config(buyer=fcustom(svama2,fast= 12,slow=1690))) 	#balance=1151,times= 60
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1810))) 	#balance=1154,times= 50
+    configs.append(config(buyer=fcustom(svama2,fast=  7,slow=1510))) 	#balance=1161,times= 55
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1990))) 	#balance=1161,times= 48
+    configs.append(config(buyer=fcustom(svama2,fast= 12,slow=1670))) 	#balance=1161,times= 61
+    configs.append(config(buyer=fcustom(svama2,fast=  5,slow=1680))) 	#balance=1165,times= 53
+    configs.append(config(buyer=fcustom(svama2,fast=  6,slow=1690))) 	#balance=1165,times= 56
+    configs.append(config(buyer=fcustom(svama2,fast=  5,slow=1210))) 	#balance=1169,times= 57
+    configs.append(config(buyer=fcustom(svama2,fast=  9,slow=1670))) 	#balance=1170,times= 63
+    configs.append(config(buyer=fcustom(svama2,fast=  2,slow=1300))) 	#balance=1184,times= 40
+    configs.append(config(buyer=fcustom(svama2,fast=  4,slow=1130))) 	#balance=1190,times= 71
+    configs.append(config(buyer=fcustom(svama2,fast=  6,slow=1510))) 	#balance=1193,times= 54
+    configs.append(config(buyer=fcustom(svama2,fast=  2,slow=1260))) 	#balance=1197,times= 45
+    configs.append(config(buyer=fcustom(svama2,fast=  3,slow=1690))) 	#balance=1205,times= 48
+    configs.append(config(buyer=fcustom(svama2,fast=  2,slow=1690))) 	#balance=1210,times= 46
+    configs.append(config(buyer=fcustom(svama2,fast=  6,slow=1250))) 	#balance=1214,times= 61
+    configs.append(config(buyer=fcustom(svama2,fast=  4,slow=1670))) 	#balance=1218,times= 55
+    configs.append(config(buyer=fcustom(svama2,fast=  2,slow=1660))) 	#balance=1226,times= 53
+    configs.append(config(buyer=fcustom(svama2,fast= 14,slow=1220))) 	#balance=1228,times= 63
+    configs.append(config(buyer=fcustom(svama2,fast=  5,slow=1670))) 	#balance=1238,times= 59
+    configs.append(config(buyer=fcustom(svama2,fast=  2,slow=1520))) 	#balance=1256,times= 48
+    configs.append(config(buyer=fcustom(svama2,fast=  3,slow=1670))) 	#balance=1261,times= 55
+    configs.append(config(buyer=fcustom(svama2,fast=  2,slow=1680))) 	#balance=1262,times= 49
+    configs.append(config(buyer=fcustom(svama2,fast= 14,slow=1230))) 	#balance=1266,times= 60
+    configs.append(config(buyer=fcustom(svama2,fast=  2,slow=1670))) 	#balance=1270,times= 54
+    configs.append(config(buyer=fcustom(svama2,fast=  9,slow=1250))) 	#balance=1275,times= 65
+    configs.append(config(buyer=fcustom(svama2,fast=  5,slow=1250))) 	#balance=1288,times= 58
+    configs.append(config(buyer=fcustom(svama2,fast=  5,slow=1290))) 	#balance=1289,times= 52
+    configs.append(config(buyer=fcustom(svama2,fast=  3,slow=1680))) 	#balance=1291,times= 51
+    configs.append(config(buyer=fcustom(svama2,fast=  2,slow=1340))) 	#balance=1293,times= 45
+    configs.append(config(buyer=fcustom(svama2,fast=  4,slow=1290))) 	#balance=1312,times= 48
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1530))) 	#balance=1318,times= 40
+    configs.append(config(buyer=fcustom(svama2,fast= 14,slow=1620))) 	#balance=1320,times= 71
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1700))) 	#balance=1320,times= 46
+    configs.append(config(buyer=fcustom(svama2,fast=  2,slow=1250))) 	#balance=1333,times= 49
+    configs.append(config(buyer=fcustom(svama2,fast=  2,slow=1510))) 	#balance=1346,times= 46
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1510))) 	#balance=1347,times= 43
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1720))) 	#balance=1353,times= 47
+    configs.append(config(buyer=fcustom(svama2,fast=  5,slow=1330))) 	#balance=1358,times= 48
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1340))) 	#balance=1366,times= 44
+    configs.append(config(buyer=fcustom(svama2,fast=  4,slow=1330))) 	#balance=1378,times= 44
+    configs.append(config(buyer=fcustom(svama2,fast=  3,slow=1330))) 	#balance=1381,times= 45
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1520))) 	#balance=1383,times= 42
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1250))) 	#balance=1387,times= 45
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1290))) 	#balance=1394,times= 41
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1650))) 	#balance=1408,times= 49
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1270))) 	#balance=1422,times= 42
+    configs.append(config(buyer=fcustom(svama2,fast=  3,slow=1530))) 	#balance=1424,times= 47
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1730))) 	#balance=1431,times= 54
+    configs.append(config(buyer=fcustom(svama2,fast=  2,slow=1270))) 	#balance=1444,times= 44
+    configs.append(config(buyer=fcustom(svama2,fast=  3,slow=1210))) 	#balance=1446,times= 47
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1710))) 	#balance=1452,times= 46
+    configs.append(config(buyer=fcustom(svama2,fast=  2,slow=1330))) 	#balance=1466,times= 42
+    configs.append(config(buyer=fcustom(svama2,fast=  2,slow=1500))) 	#balance=1477,times= 45
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1210))) 	#balance=1506,times= 40
+    configs.append(config(buyer=fcustom(svama2,fast=  5,slow=1530))) 	#balance=1558,times= 50
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1330))) 	#balance=1592,times= 41
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1690))) 	#balance=1715,times= 43
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1670))) 	#balance=1781,times= 51
+    configs.append(config(buyer=fcustom(svama2,fast=  1,slow=1680))) 	#balance=1857,times= 45    
 
     return configs
 
@@ -249,7 +377,7 @@ def run_mm_body(sdata,dates,begin,end,xbegin):
     print u'计算耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
-    save_mm_configs('mm_ev_c.txt',configs,xbegin,end)
+    save_mm_configs('mm_ev_b.txt',configs,xbegin,end)
     #save_configs('atr_ev_mm_test.txt',configs,begin,end)
 
 def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
@@ -323,9 +451,9 @@ if __name__ == '__main__':
     #begin,xbegin,end = 20000101,20010701,20050901
     #begin,xbegin,end = 19980101,19990701,20010801    
     #begin,xbegin,end = 20040601,20050801,20071031
-    #begin,xbegin,end = 20060601,20071031,20090101
+    begin,xbegin,end = 20060601,20071031,20090101
     #begin,xbegin,end = 19980101,19990101,20090101
-    begin,xbegin,end,lbegin = 20070101,20080601,20090327,20090201
+    #begin,xbegin,end,lbegin = 20070101,20080601,20090327,20090201
     #begin,xbegin,end,lbegin = 20060101,20070901,20090327,20090201
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
@@ -352,8 +480,8 @@ if __name__ == '__main__':
 
     #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
-    #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
-    run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
 
     #近期工作 将svama2x/vama2x改造为syntony
 

@@ -60,6 +60,11 @@ class Svama3bMMCruiser(MM_GeneticCruiser):
         self.sell_func = atr_seller
         self.predefined = []
         self.evaluate_func = normal_evaluate
+    
+    def filtered(self,fast,mid,slow,**kwargs):
+        if fast >= mid - 5 or mid >= slow- 10:
+            return True
+        return False
 
 class CSvama3MMCruiser(MM_GeneticCruiser):
     def prepare(self):
@@ -103,6 +108,12 @@ class Svama2bMMCruiser(MM_GeneticCruiser):
         self.sell_func = atr_seller
         self.predefined = []
         self.evaluate_func = normal_evaluate
+
+    def filtered(self,fast,slow,**kwargs):
+        if fast >= slow-5:
+            return True
+        return False
+    
 
 class CSvama2MMCruiser(MM_GeneticCruiser):
     def prepare(self):

@@ -15,6 +15,8 @@ mm_groups = ['balance','times']
 svama2_pattern = r'ma_standard=(?P<ma_standard>\d+),slow=(?P<slow>\d+),fast=(?P<fast>\d+)'
 svama2_groups = ['fast','slow','ma_standard']
 
+svama2b_pattern = r'slow=(?P<slow>\d+),fast=(?P<fast>\d+)'
+svama2b_groups = ['fast','slow']
 
 csvama2_pattern = r'slow=(?P<slow>\d+),rstart=(?P<rstart>\d+),rend=(?P<rend>\d+),fast=(?P<fast>\d+)'
 csvama2_groups = ['fast','slow','rstart','rend']
@@ -62,6 +64,7 @@ ma3_groups = ['fast','mid','slow','ma_standard','extend_days']
 
 
 pmappings = {'svama2':BaseObject(pattern=svama2_pattern,groups=svama2_groups),
+        'svama2b':BaseObject(pattern=svama2b_pattern,groups=svama2b_groups),        
         'csvama2':BaseObject(pattern=csvama2_pattern,groups=csvama2_groups),        
         'svama2c':BaseObject(pattern=svama2c_pattern,groups=svama2c_groups),        
         'svama2x':BaseObject(pattern=svama2x_pattern,groups=svama2x_groups),        

@@ -12,7 +12,7 @@ if 'DJANGO_SETTINGS_MODULE' not in os.environ:
     setup_environ(settings)
 
 from wolfox.fengine.core.shortcut import *  #因为已经设置了测试环境，所以这里因external导致的环境将不会设置
-import wolfox.fengine.normal.run as run
+import wolfox.fengine.normal.nrun as run
 from wolfox.fengine.normal.funcs import svama3
 
 import logging
@@ -23,22 +23,20 @@ class ModuleTest(unittest.TestCase):    #保持run的有效性
         from StringIO import StringIO
         self.tmp = sys.stdout
         sys.stdout = StringIO()  #将标准I/O流重定向到buff对象，抑制输出
-        self.old_prepare_configs_A = run.prepare_configs_A  #保存run.prepare_configs，因为run/run_mm将重写它
+        self.old_prepare_configs_A1200 = run.prepare_configs_A1200  #保存run.prepare_configs，因为run/run_mm将重写它
+        self.old_prepare_configs_A2000 = run.prepare_configs_A2000  #保存run.prepare_configs，因为run/run_mm将重写它
         self.old_prepare_configs_A1 = run.prepare_configs_A1  #保存run.prepare_configs，因为run/run_mm将重写它
         self.old_prepare_configs_A2 = run.prepare_configs_A2 #保存run.prepare_configs，因为run/run_mm将重写它
-        self.old_prepare_configs_B = run.prepare_configs_B #保存run.prepare_configs，因为run/run_mm将重写它
-        self.old_prepare_configs_C = run.prepare_configs_C #保存run.prepare_configs，因为run/run_mm将重写它
 
     def tearDown(self):
         sout = sys.stdout.getvalue()
         logger.debug(u'demo测试控制台输出:%s',sout)
         sys.stdout = self.tmp        #恢复标准I/O流
         #print sout
-        run.prepare_configs_A = self.old_prepare_configs_A
+        run.prepare_configs_A1200 = self.old_prepare_configs_A1200
+        run.prepare_configs_A2000 = self.old_prepare_configs_A2000
         run.prepare_configs_A1 = self.old_prepare_configs_A1
         run.prepare_configs_A2 = self.old_prepare_configs_A2        
-        run.prepare_configs_B = self.old_prepare_configs_B        
-        run.prepare_configs_C = self.old_prepare_configs_C        
 
     def dummy_prepare_configs(self,seller,pman,dman):
         config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
@@ -51,11 +49,18 @@ class ModuleTest(unittest.TestCase):    #保持run的有效性
         configs = run.prepare_temp_configs(seller)
         self.assertTrue(len(configs) >= 0)
 
-    def test_prepare_configs_A(self):
+    def test_prepare_configs_A1200(self):
         pman = AdvancedATRPositionManager()
         dman = DateManager(20010101,20040101)
         seller = atr_seller_factory(stop_times=2000,trace_times=3000)
-        configs = run.prepare_configs_A(seller,pman,dman)
+        configs = run.prepare_configs_A1200(seller,pman,dman)
+        self.assertTrue(len(configs) > 0)
+
+    def test_prepare_configs_A2000(self):
+        pman = AdvancedATRPositionManager()
+        dman = DateManager(20010101,20040101)
+        seller = atr_seller_factory(stop_times=2000,trace_times=3000)
+        configs = run.prepare_configs_A2000(seller,pman,dman)
         self.assertTrue(len(configs) > 0)
 
     def test_prepare_configs_A1(self):
@@ -72,20 +77,6 @@ class ModuleTest(unittest.TestCase):    #保持run的有效性
         configs = run.prepare_configs_A2(seller,pman,dman)
         self.assertTrue(len(configs) >= 0)
 
-    def test_prepare_configs_B(self):
-        pman = AdvancedATRPositionManager()
-        dman = DateManager(20010101,20040101)
-        seller = atr_seller_factory(stop_times=2000,trace_times=3000)
-        configs = run.prepare_configs_B(seller,pman,dman)
-        self.assertTrue(len(configs) > 0)
-
-    def test_prepare_configs_C(self):
-        pman = AdvancedATRPositionManager()
-        dman = DateManager(20010101,20040101)
-        seller = atr_seller_factory(stop_times=2000,trace_times=3000)
-        configs = run.prepare_configs_C(seller,pman,dman)
-        self.assertTrue(len(configs) >= 0)
-
     def test_prepare_order(self):
         begin,end = 20010101,20010701
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
@@ -96,7 +87,7 @@ class ModuleTest(unittest.TestCase):    #保持run的有效性
         begin,end = 20010101,20010701
         xbegin = 20010401
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        run.prepare_configs_A = run.prepare_configs_A1 = run.prepare_configs_A2 = run.prepare_configs_B = run.prepare_configs_C = self.dummy_prepare_configs
+        run.prepare_configs_A1200 = run.prepare_configs_A2000 = run.prepare_configs_A1 = run.prepare_configs_A2 = self.dummy_prepare_configs
         run.run_main(dates,sdata,idata,catalogs,begin,end,xbegin)        
         self.assertTrue(True)
 
@@ -104,23 +95,15 @@ class ModuleTest(unittest.TestCase):    #保持run的有效性
         begin,end = 20010101,20010701
         xbegin = 20010401
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        run.prepare_configs_A = run.prepare_configs_A1 = run.prepare_configs_A2 = run.prepare_configs_B = run.prepare_configs_C = self.dummy_prepare_configs
+        run.prepare_configs_A1200 = run.prepare_configs_A2000 = run.prepare_configs_A1 = run.prepare_configs_A2 = self.dummy_prepare_configs 
         run.run_last(dates,sdata,idata,catalogs,begin,end,xbegin)        
-        self.assertTrue(True)
-
-    def test_run_mm(self):
-        begin,end = 20010101,20010701
-        xbegin = 20010401
-        dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        run.prepare_configs_A = run.prepare_configs_A1 = run.prepare_configs_A2 = run.prepare_configs_B = run.prepare_configs_C = self.dummy_prepare_configs
-        run.run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)        
         self.assertTrue(True)
 
     def test_run_merge(self):
         begin,end = 20010101,20010701
         xbegin = 20010401
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        run.prepare_configs_A = run.prepare_configs_A1 = run.prepare_configs_A2 = run.prepare_configs_B = run.prepare_configs_C = self.dummy_prepare_configs
+        run.prepare_configs_A1200 = run.prepare_configs_A2000 = run.prepare_configs_A1 = run.prepare_configs_A2 = self.dummy_prepare_configs
         run.run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)        
         self.assertTrue(True)
 

@@ -64,20 +64,7 @@ def prepare_configs_A(seller,pman,dman):    #R>=400,winrate>400 or R>=1000,winra
     configs.append(config(buyer=fcustom(csvama3,fast= 20,mid= 57,slow=1270,rstart=4000,rend=8500))) ##2576-152-583-12
     configs.append(config(buyer=fcustom(csvama3,fast= 14,mid= 48,slow=1440,rstart=4000,rend=8500))) ##1000-28-500-10
     configs.append(config(buyer=fcustom(csvama3,fast= 10,mid= 54,slow=1770,rstart=5000,rend=8500))) ##983-61-600-10
-    configs.append(config(buyer=fcustom(svama3,fast=150,mid=245,slow=315))) 	##1000-65-402-72
-    configs.append(config(buyer=fcustom(svama3,fast=165,mid=340,slow=1790))) 	##1071-60-478-23
-    configs.append(config(buyer=fcustom(svama3,fast=175,mid=350,slow=1790))) 	##875-56-473-19
-    configs.append(config(buyer=fcustom(svama3,fast=185,mid=260,slow=1800))) 	##921-59-533-30
-    configs.append(config(buyer=fcustom(svama3,fast=185,mid=350,slow=1790))) 	##820-55-533-15
-    configs.append(config(buyer=fcustom(svama3,fast=180,mid=340,slow=1790))) 	##777-49-500-22
-    configs.append(config(buyer=fcustom(svama3,fast=185,mid=340,slow=1790))) 	##920-58-571-21
-    configs.append(config(buyer=fcustom(svama3,fast=150,mid=245,slow=315))) 	##1000-65-402-72
-    configs.append(config(buyer=fcustom(svama3,fast=165,mid=340,slow=1790))) 	##1071-60-478-23
-    configs.append(config(buyer=fcustom(svama3,fast=175,mid=350,slow=1790))) 	##875-56-473-19
-    configs.append(config(buyer=fcustom(svama3,fast=185,mid=260,slow=1800))) 	##921-59-533-30
-    configs.append(config(buyer=fcustom(svama3,fast=185,mid=350,slow=1790))) 	##820-55-533-15
-    configs.append(config(buyer=fcustom(svama3,fast=180,mid=340,slow=1790))) 	##777-49-500-22
-    configs.append(config(buyer=fcustom(svama3,fast=185,mid=340,slow=1790))) 	##920-58-571-21
+    configs.append(config(buyer=fcustom(svama3,fast=165,mid=184,slow=1960))) 	##587-47-472-36
 
     return configs
 

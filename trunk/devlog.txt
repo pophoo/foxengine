@@ -115,3 +115,10 @@ g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,st
 
 #2 用nmedaitor排除原先在设置atr的downlimit时不考虑B1/B0的买入信号偏移的问题
     该问题导致B1系列下信号日次日高开时止损点离买入点距离为高开值+设定atr,而非设定atr)
+
+#3 观察，发现atr5叉20也是选股器
+    且strend(atr20)>0是筛选器,但更加有效的是strend(atr5/atr20),且<1.2,大的趋势向上(不是小向上但大一顶比一顶低)
+    
+    
+
+#4 对atr的止损进行细分，划分为1000(1200?)和2000两档

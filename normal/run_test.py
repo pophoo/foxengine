@@ -28,6 +28,7 @@ class ModuleTest(unittest.TestCase):    #保持run的有效性
         self.old_prepare_configs_A2 = run.prepare_configs_A2 #保存run.prepare_configs，因为run/run_mm将重写它
         self.old_prepare_configs_B = run.prepare_configs_B #保存run.prepare_configs，因为run/run_mm将重写它
         self.old_prepare_configs_C = run.prepare_configs_C #保存run.prepare_configs，因为run/run_mm将重写它
+        self.old_prepare_temp_configs = run.prepare_temp_configs #保存run.prepare_configs，因为run/run_mm将重写它
 
     def tearDown(self):
         sout = sys.stdout.getvalue()
@@ -39,8 +40,9 @@ class ModuleTest(unittest.TestCase):    #保持run的有效性
         run.prepare_configs_A2 = self.old_prepare_configs_A2        
         run.prepare_configs_B = self.old_prepare_configs_B        
         run.prepare_configs_C = self.old_prepare_configs_C        
+        run.prepare_temp_configs = self.old_prepare_temp_configs
 
-    def dummy_prepare_configs(self,seller,pman,dman):
+    def dummy_prepare_configs(self,seller,pman=None,dman=None):
         config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
         configs = []
         configs.append(config(buyer=fcustom(svama3,fast=6,mid=24,slow=49,sma=21,ma_standard=60,extend_days=13)))
@@ -96,7 +98,7 @@ class ModuleTest(unittest.TestCase):    #保持run的有效性
         begin,end = 20010101,20010701
         xbegin = 20010401
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        run.prepare_configs_A = run.prepare_configs_A1 = run.prepare_configs_A2 = run.prepare_configs_B = run.prepare_configs_C = self.dummy_prepare_configs
+        run.prepare_temp_configs = run.prepare_configs_A = run.prepare_configs_A1 = run.prepare_configs_A2 = run.prepare_configs_B = run.prepare_configs_C = self.dummy_prepare_configs
         run.run_main(dates,sdata,idata,catalogs,begin,end,xbegin)        
         self.assertTrue(True)
 
@@ -104,7 +106,7 @@ class ModuleTest(unittest.TestCase):    #保持run的有效性
         begin,end = 20010101,20010701
         xbegin = 20010401
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        run.prepare_configs_A = run.prepare_configs_A1 = run.prepare_configs_A2 = run.prepare_configs_B = run.prepare_configs_C = self.dummy_prepare_configs
+        run.prepare_temp_configs = run.prepare_configs_A = run.prepare_configs_A1 = run.prepare_configs_A2 = run.prepare_configs_B = run.prepare_configs_C = self.dummy_prepare_configs
         run.run_last(dates,sdata,idata,catalogs,begin,end,xbegin)        
         self.assertTrue(True)
 
@@ -112,7 +114,7 @@ class ModuleTest(unittest.TestCase):    #保持run的有效性
         begin,end = 20010101,20010701
         xbegin = 20010401
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        run.prepare_configs_A = run.prepare_configs_A1 = run.prepare_configs_A2 = run.prepare_configs_B = run.prepare_configs_C = self.dummy_prepare_configs
+        run.prepare_temp_configs = run.prepare_configs_A = run.prepare_configs_A1 = run.prepare_configs_A2 = run.prepare_configs_B = run.prepare_configs_C = self.dummy_prepare_configs
         run.run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)        
         self.assertTrue(True)
 
@@ -120,7 +122,7 @@ class ModuleTest(unittest.TestCase):    #保持run的有效性
         begin,end = 20010101,20010701
         xbegin = 20010401
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        run.prepare_configs_A = run.prepare_configs_A1 = run.prepare_configs_A2 = run.prepare_configs_B = run.prepare_configs_C = self.dummy_prepare_configs
+        run.prepare_temp_configs = run.prepare_configs_A = run.prepare_configs_A1 = run.prepare_configs_A2 = run.prepare_configs_B = run.prepare_configs_C = self.dummy_prepare_configs
         run.run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)        
         self.assertTrue(True)
 

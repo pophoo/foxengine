@@ -498,6 +498,13 @@ def ama_maker(covered=10,dfast=2,dslow=30):
         return rev
     return ama
 
+def psy(source,length=12):
+    ''' 心理线PSY:COUNT(CLOSE>REF(CLOSE,1),N)/N*100
+    '''
+    s = greater(source,rollx(source))
+    rev = (msum(s,length) * BASE + length/2)/ length
+    return rev
+
 ### emv族及vap族为Richard W. Arms发明的算法,以及改进 
 def emv(shigh,slow,sweight):#经典emv算法,sweight即为成交量(权重)
     assert len(shigh) == len(sweight) == len(sweight)

@@ -16,7 +16,7 @@ class ModuleTest(unittest.TestCase):
     def test_atr_lost(self):
         trade = BaseObject(tprice=10000,atr=200)
         self.assertEquals(20,atr_lost(trade))
-        self.assertEquals(40,atr_lost_2(trade))
+        self.assertEquals(40,atr_lost_2000(trade))
 
     def test_RPR(self):
         xt = np.arange(29)

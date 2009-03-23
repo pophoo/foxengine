@@ -131,10 +131,11 @@ class AdvancedPosition(Position):
 def ev_lost(trade): 
     return trade.parent.evaluation.lostavg
 
-def atr_lost(trade,times=1):
-    return trade.atr * times * POS_BASE / trade.tprice
+def atr_lost(trade,times=1000):
+    return trade.atr * times / trade.tprice
 
-atr_lost_2 = fcustom(atr_lost,times=2)
+atr_lost_2000 = fcustom(atr_lost,times=2000)
+atr_lost_1200 = fcustom(atr_lost,times=1200)
 
 from math import sqrt
 def RPR(xt,y):  #净值评估函数,xt为日期维x,y为相应净值
@@ -263,7 +264,8 @@ class PositionManager(object):  #只适合先买后卖，卖空和混合方式�
 
 
 AdvancedPositionManager = fcustom(PositionManager,position=AdvancedPosition)
-AdvancedATRPositionManager = fcustom(PositionManager,position=AdvancedPosition,calc_lost=atr_lost_2)
+AdvancedATRPositionManager = fcustom(PositionManager,position=AdvancedPosition,calc_lost=atr_lost_1200) #默认1.2倍atr止损
+AdvancedATRPositionManager2000 = fcustom(PositionManager,position=AdvancedPosition,calc_lost=atr_lost_2000)
 
 import datetime
 class DateManager(object):

@@ -12,6 +12,57 @@ from time import time
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.run')    
 
+
+#configs.append(config(buyer=fcustom(svama3,fast=165,mid=184,slow=1950))) 	#                   #577-63-619-42
+def psvama3(stock,fast,mid,slow,dates):
+    t = stock.transaction
+    sbuy = svama3(stock,fast,mid,slow)
+
+    #trend_psy = strend(ma(psy(t[CLOSE]),6)) > 0
+    mpsy = ma(psy(t[CLOSE],12),6)
+    #spsy = psy(t[CLOSE])
+    state_psy =  mpsy>500
+
+    logger.debug(stock.code)
+    linelog(stock.code)
+    return gand(sbuy,state_psy)
+
+def psvama2(stock,fast,slow,dates,ma_standard=500,sma=65):
+    ''' svama两线交叉
+    '''
+    t = stock.transaction
+    sbuy = svama2(stock,fast,slow)
+
+    #trend_psy = strend(ma(psy(t[CLOSE]),6)) > 0
+    mpsy = ma(psy(t[CLOSE],12),6)
+    #spsy = psy(t[CLOSE])
+    state_psy =  mpsy<300
+
+    logger.debug(stock.code)
+    linelog(stock.code)
+    return gand(sbuy,state_psy)
+
+def psy_test(stock,dates,ma_standard=60):
+    t = stock.transaction
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    g60 = stock.g60
+    spsy = psy(t[CLOSE])
+    ma_psy = ma(spsy,6)
+    trend_psy = strend(spsy) > 0
+    trend_ma_psy = strend(ma_psy) > 0    
+    cross_psy = gand(cross(ma_psy,spsy)>0,trend_psy,trend_ma_psy)
+
+    ma_standard = ma(t[CLOSE],ma_standard)
+    trend_ma_standard = strend(ma_standard) > 0    
+ 
+    sbuy = gand(cross_psy,g,trend_ma_standard)
+    #sbuy = gand(cross_psy,g)
+    print stock.code
+    for d,v,m,b,ms in zip(dates,spsy,ma_psy,sbuy,ma_standard):
+        print d,v,m,b,ms
+
+    return sbuy
+
 def gtest(stock,fast,slow,dates,ma_standard=120):
     t = stock.transaction
     g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
@@ -32,7 +83,7 @@ def gtest(stock,fast,slow,dates,ma_standard=120):
 
     print stock.code
 
-    return gand(cross_fast_slow,ma_standard,g,trend_ma_120,trend_ma_250,g60>5000,g60<8000)
+    return gand(cross_fast_slow,g,trend_ma_120,trend_ma_250,g60>5000,g60<8000)
 
 #c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s>=3300,s<=6600)
 
@@ -152,8 +203,12 @@ def func_test_old(stock,fast,slow,base,sma=55,ma_standard=120,extend_days=5,**kw
 def prepare_buyer(dates):
     #return fcustom(func_test,ma_standard=500,slow=50,extend_days=31,fast=30,mid=67,dates=dates)
     #return fcustom(func_test,ma_standard=500,slow=45,extend_days=17,fast=32,mid=79,dates=dates)
-    return fcustom(func_test,fast= 33,mid= 84,slow=345,ma_standard=500,extend_days= 27,dates=dates,cextractor=ext_factory(3300,6600))
+    #return fcustom(func_test,fast= 33,mid= 84,slow=345,ma_standard=500,extend_days= 27,dates=dates,cextractor=ext_factory(3300,6600))
     #return fcustom(gtest,fast=5,slow=60,dates=dates)
+    #return fcustom(psvama2,fast=  9,slow=1160,dates=dates) 
+    #return fcustom(psy_test,dates=dates)
+    return fcustom(psvama3,fast=165,mid=184,slow=1950,dates=dates) 
+
 
 def prepare_order(sdata):
     d_posort('g5',sdata,distance=5)        
@@ -170,7 +225,7 @@ def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
 
     pman = AdvancedATRPositionManager()
     dman = DateManager(begin,end)
-    myMediator=mediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
+    myMediator=nmediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
     #seller = atr_seller_factory(stop_times=2000,trace_times=3000)
     #seller = atr_seller_factory(stop_times=1500,trace_times=3000)
     #seller = atr_seller_factory(stop_times=1000,trace_times=3000)
@@ -181,7 +236,11 @@ def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     buyer = prepare_buyer(dates)   
     name,tradess = calc_trades(buyer,seller,sdata,dates,xbegin,cmediator=myMediator)
     result,strade = ev.evaluate_all(tradess,pman,dman)
-    print strade
+    #print strade
+
+    f = open('srun.txt','w+')
+    f.write(strade)
+    f.close()
 
     #tradess = myMediator(buyer,seller).calc_last(sdata,dates,xbegin)
     #print tradess[0]
@@ -198,7 +257,7 @@ if __name__ == '__main__':
     #分段测试的要求，段mm > 1000-1500或抑制，总段mm > 2000
     
     #begin,xbegin,end = 19980101,20010701,20090101
-    begin,xbegin,end = 20000101,20010701,20090101
+    #begin,xbegin,end = 20000101,20010701,20090101
     #begin,xbegin,end = 20000101,20010701,20050901
     #begin,xbegin,end = 19980101,19990701,20010801    
     #begin,xbegin,end = 20040601,20050801,20071031
@@ -206,7 +265,7 @@ if __name__ == '__main__':
     #begin,xbegin,end = 19980101,19990101,20090101
     #begin,xbegin,end,lbegin = 20070101,20080601,20090327,20080601
     #begin,xbegin,end,lbegin = 19980101,20010701,20090327,20000101
-    from time import time
+    begin,xbegin,end = 20000101,20010701,20091231
     tbegin = time()
     
     dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
@@ -226,6 +285,7 @@ if __name__ == '__main__':
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600067'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600766'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SZ002012'],[ref_code])
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600971'],[ref_code])
     #c_posort('c120',catalogs,distance=120)
     
     tend = time()

@@ -224,6 +224,12 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,0,0,0,0,0,0,0,0,0,6174,6189,6188,6192,6192],ama(np.array([6063,6041,6065,6078,6114,6121,6106,6101,6166,6169,6195,6222,6186,6214,6185])).tolist())
         self.assertEquals([0,0,0,0,0],ama(np.array([6063,6041,6065,6078,6114])).tolist())
 
+    def test_psy(self):
+        self.assertEquals([],psy(np.array([])).tolist())
+        source = np.array([10,20,15,18,16,19,25,22,18,27,30,33,12,36,38,12,15,17,3])
+        self.assertEquals([0,0,0,0,0,0,0,0,0,0,0,583,583,583,667,583,667,667,583],psy(source).tolist())
+        self.assertEquals([0,0,0,0,400,600,600,600,400,600,600,600,600,800,800,600,600,800,600],psy(source,5).tolist())
+
     def test_emv(self):
         self.assertEquals([],emv(np.array([]),np.array([]),np.array([])).tolist())
         self.assertEquals([0],emv(np.array([10]),np.array([5]),np.array([300])).tolist())

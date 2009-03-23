@@ -54,7 +54,7 @@ def prepare_all(begin,end,codes=[],icodes=[]):
     ctree,catalogs = prepare_catalogs(sdata)    
     return dates,sdata,idata,catalogs    
 
-def calc_trades(buyer,seller,sdata,dates,xbegin,cmediator=CMediator10,**kwargs):
+def calc_trades(buyer,seller,sdata,dates,xbegin,cmediator=CNMediator10,**kwargs):
     m = cmediator(buyer,seller)
     name = m.name()
     tradess = m.calc_matched(sdata,dates,xbegin)
@@ -85,7 +85,7 @@ def batch(configs,sdata,dates,xbegin,**kwargs):
             #traceback.print_stack()
             logger.exception('batch error:buyer name=%s,seller name=%s',buyer.__name__,seller.__name__)
 
-def batch_last(configs,sdata,dates,xbegin,cmediator=CMediator10,**kwargs):
+def batch_last(configs,sdata,dates,xbegin,cmediator=CNMediator10,**kwargs):
     ltrades = {}
     for config in configs:
         try:

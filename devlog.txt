@@ -145,3 +145,201 @@ g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,st
     c.  146-6-375-64
     d. >600,-99/-5/272/77
 
+#2009-03-23
+将基金板块纳入到行业
+select * from dune_stockcode_catalogs where catalog_id = 286
+select * from dune_catalog where subject_id = '其它板块'
+
+288	ETF基金	其它板块
+289	LOF基金	其它板块
+291	基金板块	其它板块
+292	开放基金	其它板块
+293	权证板块	其它板块
+
+#发现深圳基金居然没有在里面，找到问题，需要解决
+insert into dune_stockcode_catalogs(stockcode_id,catalog_id) 
+select id,291,* from dune_stockcode where code like 'SZ18%'
+
+#1 代码添加 
+#采用django的方法
+cs = CatalogSubject.objects.get(code='HY')
+jjbk2 = Catalog(name=u'基金板块A',subject=cs)
+jjbk2.save()
+szjjs = StockCode.objects.filter(code__startswith='SZ18')
+shjjs = StockCode.objects.filter(code__startswith='SH50')
+szetfs = StockCode.objects.filter(code__startswith='SZ159')
+shetfs = StockCode.objects.filter(code__startswith='SH510')
+jjbk2.stocks.add(*szjjs)
+jjbk2.stocks.add(*shjjs)
+jjbk2.stocks.add(*szetfs)
+jjbk2.stocks.add(*shetfs)
+
+#2 数据添加
+#原始数据已经位于dune_sdayquote中，故只需要转换
+
+因此，继续处理
+ss = [str(stock.code) for stock in jjbk2.stocks.all()]
+['SH500001', 'SH500002', 'SH500003', 'SH500005', 'SH500006', 'SH500007', 'SH500008', 'SH500009', 'SH500010', 'SH500011', 'SH500013', 'SH500015', 'SH500016', 'SH500017', 'SH500018', 'SH500019', 'SH500021', 'SH500025', 'SH500028', 'SH500029','SH500035', 'SH500038', 'SH500039', 'SH500056', 'SH500058', 'SZ184688', 'SZ184689', 'SZ184690', 'SZ184691', 'SZ184692', 'SZ184693', 'SZ184698', 'SZ184699', 'SZ184700', 'SZ184701', 'SZ184703', 'SZ184705', 'SZ184706', 'SZ184712', 'SZ184713', 'SZ184721', 'SZ184722', 'SZ184728', 'SH510050', 'SH510180', 'SH510880', 'SZ159901', 'SZ159902']
+即
+('SH500001', 'SH500002', 'SH500003', 'SH500005', 'SH500006', 'SH500007', 'SH500008', 'SH500009', 'SH500010', 'SH500011', 'SH500013', 'SH500015', 'SH500016', 'SH500017', 'SH500018', 'SH500019', 'SH500021', 'SH500025', 'SH500028', 'SH500029','SH500035', 'SH500038', 'SH500039', 'SH500056', 'SH500058', 'SZ184688', 'SZ184689', 'SZ184690', 'SZ184691', 'SZ184692', 'SZ184693', 'SZ184698', 'SZ184699', 'SZ184700', 'SZ184701', 'SZ184703', 'SZ184705', 'SZ184706', 'SZ184712', 'SZ184713', 'SZ184721', 'SZ184722', 'SZ184728', 'SH510050', 'SH510180', 'SH510880', 'SZ159901', 'SZ159902')
+#去掉上海基金的部分
+ ('SZ184688', 'SZ184689', 'SZ184690', 'SZ184691', 'SZ184692', 'SZ184693', 'SZ184698', 'SZ184699', 'SZ184700', 'SZ184701', 'SZ184703', 'SZ184705', 'SZ184706', 'SZ184712', 'SZ184713', 'SZ184721', 'SZ184722', 'SZ184728', 'SH510050', 'SH510180', 'SH510880', 'SZ159901', 'SZ159902')
+select * from dune_sdayquote where sstock in  ('SZ184688', 'SZ184689', 'SZ184690', 'SZ184691', 'SZ184692', 'SZ184693', 'SZ184698', 'SZ184699', 'SZ184700', 'SZ184701', 'SZ184703', 'SZ184705', 'SZ184706', 'SZ184712', 'SZ184713', 'SZ184721', 'SZ184722', 'SZ184728', 'SH510050', 'SH510180', 'SH510880', 'SZ159901', 'SZ159902')
+......
+
+insert into dune_xdayquote(tstock_id,tdate,topen,tclose,thigh,tlow,tavg,tvolume,tamount)
+select ds.id,tdate,topen,tclose,thigh,tlow,tavg,tvolume,tamount
+from dune_sdayquote sq
+join dune_stockcode ds on ds.code = sq.sstock
+where sq.sstock in  ('SZ184688', 'SZ184689', 'SZ184690', 'SZ184691', 'SZ184692', 'SZ184693', 'SZ184698', 'SZ184699', 'SZ184700', 'SZ184701', 'SZ184703', 'SZ184705', 'SZ184706', 'SZ184712', 'SZ184713', 'SZ184721', 'SZ184722', 'SZ184728', 'SH510050', 'SH510180', 'SH510880', 'SZ159901', 'SZ159902')
+
+
+#3 除权数据
+上海基金均已经被除权
+select * from dune_powerinfo dp
+join dune_stockcode ds on dp.tstock_id = ds.id
+where code in  ('SZ184688', 'SZ184689', 'SZ184690', 'SZ184691', 'SZ184692', 'SZ184693', 'SZ184698', 'SZ184699', 'SZ184700', 'SZ184701', 'SZ184703', 'SZ184705', 'SZ184706', 'SZ184712', 'SZ184713', 'SZ184721', 'SZ184722', 'SZ184728', 'SH510050', 'SH510180', 'SH510880', 'SZ159901', 'SZ159902')
+
+直接
+python fxjtransfer.py -x
+
+
+#2009-03-24
+#1 psy(67)的ma(22)对ma(67)的死叉，以及psy/22/67的走势背离，都是大盘改变趋势的信号，且都有提前期
+
+#2 vmacd的死叉貌似是一个卖出信号？提前期还可以，优于psy,psy太提前了
+   而且vmacd即便延后，延后也有限
+   vmacd(6,13,9)对于卖出更好 [为正常参数的一半]
+
+
+原始的组合
+def vmacd(stock,dates):
+    t = stock.transaction
+    vdiff,vdea = cmacd(t[VOLUME])
+    dcross = gand(cross(vdea,vdiff),strend(vdiff)>0,strend(vdea>0))
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    linelog(stock.code)
+    
+    #ma_standard = ma(t[CLOSE],60)
+    #trend_ma_standard = strend(ma_standard) > 0    
+    return gand(dcross,g)
+
+其效果为
+pre_ev:
+        评估:总盈亏值=-1162486,交易次数=127921  期望值=-218
+                总盈亏率(1/1000)=-1162486,平均盈亏率(1/1000)=-10,盈利交易率(1/10
+00)=262
+                赢利次数=33633,赢利总值=3211229
+                亏损次数=93614,亏损总值=4373715
+                平盘次数=674
+                闭合交易明细:
+
+
+加上
+    ma_standard = ma(t[CLOSE],60)
+    trend_ma_standard = strend(ma_standard) > 0    
+条件
+pre_ev:
+        评估:总盈亏值=-39070,交易次数=3631      期望值=-230
+                总盈亏率(1/1000)=-39070,平均盈亏率(1/1000)=-11,盈利交易率(1/1000
+)=280
+                赢利次数=1020,赢利总值=86434
+                亏损次数=2593,亏损总值=125504
+                平盘次数=18
+                闭合交易明细:
+
+将ma_standard改为120:
+pre_ev:
+        评估:总盈亏值=-16881,交易次数=2444      期望值=-143
+                总盈亏率(1/1000)=-16881,平均盈亏率(1/1000)=-7,盈利交易率(1/1000)
+=303
+                赢利次数=741,赢利总值=66605
+                亏损次数=1693,亏损总值=83486
+                平盘次数=10
+
+
+c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s>=3300,s<=6600)
+
+    cs = catalog_signal_cs(stock.c60,c_extractor)
+:
+pre_ev:
+	评估:总盈亏值=5256,交易次数=86	期望值=1173	
+		总盈亏率(1/1000)=5256,平均盈亏率(1/1000)=61,盈利交易率(1/1000)=465
+		赢利次数=40,赢利总值=7687
+		亏损次数=46,亏损总值=2431
+		平盘次数=0
+
+改为ma60:
+pre_ev:
+    评估:总盈亏值=4796,交易次数=116 期望值=911
+            总盈亏率(1/1000)=4796,平均盈亏率(1/1000)=41,盈利交易率(1/1000)=405
+            赢利次数=47,赢利总值=7967
+            亏损次数=69,亏损总值=3171
+
+
+
+弱化板块条件,去除范围
+#
+pre_ev:
+        评估:总盈亏值=5725,交易次数=208 期望值=529
+                总盈亏率(1/1000)=5725,平均盈亏率(1/1000)=27,盈利交易率(1/1000)=399
+                赢利次数=83,赢利总值=12140
+                亏损次数=125,亏损总值=6415
+                平盘次数=0
+                闭合交易明细:
+
+
+
+范围改为
+c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=3300)
+pre_ev:
+        评估:总盈亏值=461,交易次数=34   期望值=361
+                总盈亏率(1/1000)=461,平均盈亏率(1/1000)=13,盈利交易率(1/1000)=294
+                赢利次数=10,赢利总值=1345
+                亏损次数=24,亏损总值=884
+                平盘次数=0
+
+
+
+
+#发现问题所在
+			stock=SZ184703 盈亏值=519792:,盈亏率(1/1000):515666
+				SZ184703	B	20070308	price=1	volume=1000
+				SZ184703	S	20070524	price=525	volume=-1000
+修改trade的计算函数,去除这类问题
+
+
+
+#3 命令行准备脚本
+
+from wolfox.fengine.core.shortcut import *
+from wolfox.fengine.normal.funcs import *
+from wolfox.fengine.core.d1match import *
+from wolfox.fengine.core.d1indicator import cmacd
+from wolfox.foxit.base.tutils import linelog
+from time import time
+
+import logging
+logging.basicConfig(filename="srun_x4c.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
+begin,xbegin,end = 20000101,20010701,20091231
+tbegin = time()
+    
+dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
+import psyco
+psyco.full()
+
+import wolfox.fengine.normal.srun as srun
+srun.prepare_order(sdata.values())
+srun.prepare_order(catalogs)
+dummy_catalogs('catalog',catalogs)
+pman = AdvancedATRPositionManager()
+dman = DateManager(begin,end)
+myMediator=nmediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
+seller = atr_seller_factory(stop_times=600,trace_times=3000)
+
+#开始计算
+reload(srun)    #应对脚本修改
+buyer = srun.prepare_buyer(dates)   
+name,tradess = calc_trades(buyer,seller,sdata,dates,xbegin,cmediator=myMediator)
+result,strade = ev.evaluate_all(tradess,pman,dman)
+

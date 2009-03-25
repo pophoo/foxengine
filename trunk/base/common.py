@@ -41,6 +41,8 @@ class Trade(object):
             sum += trade.tvolume
         assert sum == 0
         #print balance
+        if len(trades)>0 and trades[0].tprice<=100 and balance>1000:#对因除权使得的price过低导致的高收益率，设置上限为50%.并可能因多次买入而小于该值
+            balance = trades[0].tvolume / 2
         return balance
 
 

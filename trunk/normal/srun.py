@@ -12,6 +12,37 @@ from time import time
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.run')    
 
+c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s>=3300,s<=6600)
+#c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250)
+#c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=3300)
+def vmacd(stock,dates):
+    t = stock.transaction
+    vdiff,vdea = cmacd(t[VOLUME])
+    dcross = gand(cross(vdea,vdiff),strend(vdiff)>0,strend(vdea>0))
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    linelog(stock.code)
+    
+    trend_ma_standard = strend(ma(t[CLOSE],120)) > 0    
+    cs = catalog_signal_cs(stock.c60,c_extractor)
+
+    #return dcross
+    #return gand(dcross,g,trend_ma_standard)
+    return gand(dcross,g,trend_ma_standard,cs)
+
+
+def dma(stock,dates):
+    t = stock.transaction
+    dif = ma(t[CLOSE],10) - ma(t[CLOSE],67)
+    mas = ma(dif,22)
+    dcross = gand(cross(mas,dif)>0,strend(dif)>0)
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    linelog(stock.code)
+    
+    ma_standard = ma(t[CLOSE],60)
+    trend_ma_standard = strend(ma_standard) > 0    
+
+    return gand(dcross,g,ma_standard)
+
 
 #configs.append(config(buyer=fcustom(svama3,fast=165,mid=184,slow=1950))) 	#                   #577-63-619-42
 def psvama3(stock,fast,mid,slow,dates):
@@ -43,23 +74,27 @@ def psvama2(stock,fast,slow,dates,ma_standard=500,sma=65):
     return gand(sbuy,state_psy)
 
 def psy_test(stock,dates,ma_standard=60):
+    #另，psy(55)的5X55, psy(12),psy(67)的ma5的叉
     t = stock.transaction
     g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
     g60 = stock.g60
-    spsy = psy(t[CLOSE])
-    ma_psy = ma(spsy,6)
-    trend_psy = strend(spsy) > 0
-    trend_ma_psy = strend(ma_psy) > 0    
-    cross_psy = gand(cross(ma_psy,spsy)>0,trend_psy,trend_ma_psy)
+    spsy1 = psy(t[CLOSE],67)
+    spsy2 = psy(t[CLOSE],67)
+
+    ma_psy1 = ma(spsy1,5)
+    ma_psy2 = ma(spsy2,5)
+    trend_1 = strend(ma_psy1) > 0
+    trend_2 = strend(ma_psy2) > 0    
+    cross_psy = gand(cross(ma_psy2,ma_psy1)>0,trend_1,trend_2)
 
     ma_standard = ma(t[CLOSE],ma_standard)
     trend_ma_standard = strend(ma_standard) > 0    
  
     sbuy = gand(cross_psy,g,trend_ma_standard)
     #sbuy = gand(cross_psy,g)
-    print stock.code
-    for d,v,m,b,ms in zip(dates,spsy,ma_psy,sbuy,ma_standard):
-        print d,v,m,b,ms
+    #sbuy = gand(cross_psy,g)
+    linelog(stock.code)
+    #for d,v,m,b,ms in zip(dates,ma_psy1,ma_psy2,sbuy,ma_standard):print d,v,m,b,ms
 
     return sbuy
 
@@ -207,7 +242,9 @@ def prepare_buyer(dates):
     #return fcustom(gtest,fast=5,slow=60,dates=dates)
     #return fcustom(psvama2,fast=  9,slow=1160,dates=dates) 
     #return fcustom(psy_test,dates=dates)
-    return fcustom(psvama3,fast=165,mid=184,slow=1950,dates=dates) 
+    #return fcustom(dma,dates=dates)
+    return fcustom(vmacd,dates=dates)
+    #return fcustom(psvama3,fast=165,mid=184,slow=1950,dates=dates) 
 
 
 def prepare_order(sdata):

@@ -225,6 +225,8 @@ B1S0.bshift = B1S1.bshift = lambda s : rollx(s)   #bshiftÊÇ¶ÔbuyĞÅºÅµÄ´¦Àí,Éú³ÉÂ
 def atr_sell_func(sbuy,trans,satr,stop_times=3*BASE/2,trace_times=2*BASE,covered=10,up_sector=HIGH): 
     ''' 
         timesÎªÒÔ0.001Îªµ¥Î»µÄ±¶Êı
+        ´æÔÚÎÊÌâ£ºÈç¹ûµ±ÈÕ¿ªÅÌ×îµÍÊÕÅÌÕÇÍ££¬¶øÖ®Ç°µÄatrºÜĞ¡£¬Ôò»á±»´¥·¢¡£
+        ½â¾ö·½·¨ÊÇdownlimitÑÓºóÒ»Ìì,»òÕßÅĞ¶Ïµ±ÈÕÊÇ·ñÊÇ´ËÖÖÇé¿ö¡£ÑÓºóÒ»ÌìÒ²ÓĞÎÊÌâ£¬¼´µÚÒ»ÈÕÎÊÌâ£¨Æädown_limitÎ´ĞŞÕı£©
     '''
     #down_limit = tmax(trans[HIGH] - satr * times / BASE,covered)    #×î½ücoveredÌì²¨¶¯ÏÂÏŞµÄ×î´óÖµ
     down_limit = tracelimit((trans[OPEN]+trans[CLOSE])/2,trans[up_sector],sbuy,satr,stop_times,trace_times) 

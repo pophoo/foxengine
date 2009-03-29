@@ -89,6 +89,7 @@ class ModuleTest(unittest.TestCase):
         a = np.array([1,2,3,4,5])
         self.assertEquals([0,1,1,1,1],subd(a).tolist())
         self.assertEquals([0,0,2,2,2],subd(a,2).tolist())
+        self.assertEquals([0,0,0,0,0],subd(a,0).tolist())
 
     def test_nsubd(self):
         a = np.array([1,2,3,4,5])

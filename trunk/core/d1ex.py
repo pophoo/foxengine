@@ -5,7 +5,7 @@
 
 import numpy as np
 from collections import deque
-from wolfox.fengine.core.d1 import BASE,band,gand,nsubd,rollx,equals,greater_equals
+from wolfox.fengine.core.d1 import BASE,band,gand,nsubd,rollx,equals,greater_equals,subd
 
 def ma(source,length):    #使用numpy，array更加的惯用法
     """ 计算移动平均线
@@ -49,9 +49,10 @@ def nma(source,length):    #自然ma算法，前length个元素为各自的累�
     return rev
 
 
-#简单趋势，1表示向上，-1表示向下
-def trend(source):
-    return np.concatenate((np.array([0]),np.sign(np.diff(source))))
+#简单趋势，1表示向上，-1表示向下.
+def trend(source,interval=1):
+    assert interval >= 0
+    return np.sign(subd(source,interval))
 
 def strend(source):
     ''' 简单累积趋势

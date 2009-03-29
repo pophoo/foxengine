@@ -17,6 +17,8 @@ class ModuleTest(unittest.TestCase):
     def test_trend(self):
         a = np.array([1,2,3,2,2,10,2,10,10,4])
         self.assertEquals([0,1,1,-1,0,1,-1,1,0,-1],trend(a).tolist())
+        self.assertEquals([0,0,0,0,0,0,0,0,0,0],trend(a,0).tolist())
+        self.assertEquals([0,0,1,0,-1,1,0,0,1,-1],trend(a,2).tolist())
 
     def test_strend(self):
         source = np.array([10,20,30,30,40,50,40,30,20,20,10,20])

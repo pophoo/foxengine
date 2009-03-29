@@ -28,15 +28,15 @@ def prepare_data(begin,end,type_code ='STOCK',rcode=ref_code):
 
 @wcache
 def get_codes(type_code='STOCK',source='SHSE'):
-    ss = m.StockCode.objects.filter(stype=type_code,exchange__code=source)
+    ss = m.StockCode.objects.filter(stype=type_code,exchange__code=source,is_active=1)
     return [s.code for s in ss]
 
 @wcache
 def get_codes_startswith(cond):
-    ss = m.StockCode.objects.filter(code__startswith=cond)
+    ss = m.StockCode.objects.filter(code__startswith=cond,is_active=1)
     return [s.code for s in ss]
 
-def get_stocks(codes,begin,end,rid=ref_id): 
+def get_stocks(codes,begin,end,rid=ref_id):     #这里不对is_active进行筛除
     #print 'codes:',codes
     rev = {}
     for code in codes:

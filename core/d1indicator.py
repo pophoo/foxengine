@@ -514,7 +514,7 @@ def emv(shigh,slow,sweight):#经典emv算法,sweight即为成交量(权重)
     box = shigh - slow
     swb = sweight * BASE
     md_b2 = mid_diff * BASE * BASE
-    ratio = np.where(box>0,swb/box,swb*10)
+    ratio = np.where(box>0,swb/box,swb*10)  #box不可能小于0
     rev = np.where(ratio>0,md_b2/ratio,md_b2*10)
     rev[0] = 0
     return rev

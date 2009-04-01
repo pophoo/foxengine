@@ -170,9 +170,9 @@ def ma3(stock,fast,mid,slow,ma_standard=120,extend_days = 10):
     trend_fast = strend(ma_fast) > 0
     trend_mid = strend(ma_mid) > 0    
     trend_slow = strend(ma_slow) > 0
-    cross_fast_mid = band(cross(ma_mid,ma_fast),trend_fast)
-    cross_fast_slow = band(cross(ma_slow,ma_fast),trend_fast)
-    cross_mid_slow = band(cross(ma_slow,ma_mid),trend_mid)
+    cross_fast_mid = band(cross(ma_mid,ma_fast)>0,trend_fast)
+    cross_fast_slow = band(cross(ma_slow,ma_fast)>0,trend_fast)
+    cross_mid_slow = band(cross(ma_slow,ma_mid)>0,trend_mid)
     cross_fm_fs = sfollow(cross_fast_mid,cross_fast_slow,extend_days)
     confirm_cross = sfollow(cross_fm_fs,cross_mid_slow,extend_days)
     trend_ma_standard = strend(ma(t[CLOSE],ma_standard)) > 0

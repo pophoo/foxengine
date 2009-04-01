@@ -12,7 +12,129 @@ from time import time
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.run')    
 
-c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
+c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6000)
+#c_extractor = lambda c,s:gand(c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
+
+def ma3(stock,dates):
+    ''' ma三线金叉
+        不要求最慢的那条线在被快线交叉时趋势必须向上，但要求被中线交叉时趋势向上
+    '''
+    ma_standard=120
+    extend_days = 10    
+    #logger.debug('ma3 calc: %s ' % stock.code)    
+    t = stock.transaction
+    #g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    #g对这个没效果
+    fast,mid,slow=5,10,20
+    ma_fast = ma(t[CLOSE],fast)
+    ma_mid = ma(t[CLOSE],mid)
+    ma_slow = ma(t[CLOSE],slow)
+    trend_fast = strend(ma_fast) > 0
+    trend_mid = strend(ma_mid) > 0    
+    trend_slow = strend(ma_slow) > 0
+    cross_fast_mid = band(cross(ma_mid,ma_fast)>0,trend_mid)
+    cross_fast_slow = band(cross(ma_slow,ma_fast)>0,trend_fast)
+    cross_mid_slow = band(cross(ma_slow,ma_mid)>0,trend_mid)
+    cross_fm_fs = sfollow(cross_fast_mid,cross_fast_slow,extend_days)
+    confirm_cross = sfollow(cross_fm_fs,cross_mid_slow,extend_days)
+    trend_ma_standard = strend(ma(t[CLOSE],ma_standard)) > 0
+    linelog(stock.code)
+    #cs = catalog_signal_cs(stock.c60,c_extractor)
+    
+    return gand(trend_ma_standard,confirm_cross)
+
+def xma60(stock,dates):
+    t = stock.transaction
+    if not stock.has_attr('ma'):
+        ma10 = ma(t[CLOSE],10)
+        ma20 = ma(t[CLOSE],20)
+        ma60 = ma(t[CLOSE],60)
+        ma120 = ma(t[CLOSE],120)
+        t120 = strend(ma120)>0
+        ma_above = gand(greater(ma10,ma20),greater(ma20,ma60),greater(ma60,ma120))        
+        stock.set_attr('ma',{'10':ma10,'20':ma20,'60':ma60,'120':ma120,'t120':t120,'above':ma_above})
+    t120,ma_above = stock.ma['t120'],stock.ma['above']
+    ma20,ma60,ma120 = stock.ma['20'],stock.ma['60'],stock.ma['120']
+
+    ma60 = ma(t[CLOSE],60)
+
+    water_line = ma60*115/100   #上方15处
+
+    dcross = cross(water_line,t[LOW])
+
+    up_cross = dcross > 0
+    down_cross = dcross < 0
+
+    sync = sfollow(down_cross,up_cross,7)
+
+    linelog(stock.code)
+    #g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    #g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60)
+    g = gand(stock.g5>=stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    cs = catalog_signal_cs(stock.c60,c_extractor)
+
+    return gand(g,cs,sync,t120,ma_above)
+
+def wvad(stock,dates):
+    t = stock.transaction
+    
+    vad = (t[CLOSE]-t[OPEN])*t[VOLUME]/(t[HIGH]-t[LOW]) / 10000
+    svad = msum2(vad,24)
+    ma_svad = ma(svad,6)
+
+
+    if not stock.has_attr('ma'):
+        ma10 = ma(t[CLOSE],10)
+        ma20 = ma(t[CLOSE],20)
+        ma60 = ma(t[CLOSE],60)
+        ma120 = ma(t[CLOSE],120)
+        t120 = strend(ma120)>0
+        ma_above = gand(greater(ma10,ma20),greater(ma20,ma60),greater(ma60,ma120))        
+        stock.set_attr('ma',{'10':ma10,'20':ma20,'60':ma60,'120':ma120,'t120':t120,'above':ma_above})
+    t120,ma_above = stock.ma['t120'],stock.ma['above']
+    ma20,ma60,ma120 = stock.ma['20'],stock.ma['60'],stock.ma['120']
+    g = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    cs = catalog_signal_cs(stock.c60,c_extractor)
+ 
+    ecross = gand(g,cs,cross(ma_svad,vad)>0,strend(ma_svad)>0,t120,ma_above)
+    linelog(stock.code)
+    return ecross
+
+
+
+#c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
+#ts = None
+def temv(stock,dates):
+    t = stock.transaction
+    global ts
+    if ts == None:
+        ts = np.zeros(len(t[CLOSE]),int)
+    ekey = 'emv'
+    if not stock.has_attr(ekey):
+        em = emv(t[HIGH],t[LOW],t[VOLUME])
+        mv = msum2(em,14)
+        semv = ma(mv,9)
+        stock.set_attr(ekey,{'mv':mv,'semv':semv})
+    if not stock.has_attr('ma'):
+        ma10 = ma(t[CLOSE],10)
+        ma20 = ma(t[CLOSE],20)
+        ma60 = ma(t[CLOSE],60)
+        ma120 = ma(t[CLOSE],120)
+        t120 = strend(ma120)>0
+        ma_above = gand(greater(ma10,ma20),greater(ma20,ma60),greater(ma60,ma120))        
+        stock.set_attr('ma',{'10':ma10,'20':ma20,'60':ma60,'120':ma120,'t120':t120,'above':ma_above})
+    mv,semv = stock.emv['mv'],stock.emv['semv']
+    t120,ma_above = stock.ma['t120'],stock.ma['above']
+    g = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    cs = catalog_signal_cs(stock.c60,c_extractor)
+
+    #ecross = gand(g,cs,cross(semv,mv)<0,strend(semv)>0,t120,ma_above)
+    ecross = gand(g,cs,cross(ts,mv)>0,strend(semv)>0,t120,ma_above)
+    linelog(stock.code)
+    return ecross
+    
+
+#c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
 def vmacd_ma4(stock,dates):
     t = stock.transaction
     
@@ -301,11 +423,15 @@ def prepare_buyer(dates):
     #return fcustom(vmacd,dates=dates)
     #return fcustom(psvama3,fast=165,mid=184,slow=1950,dates=dates) 
     #return fcustom(ma4,dates=dates)
-    return fcustom(vmacd_ma4,dates=dates)
-
+    #return fcustom(vmacd_ma4,dates=dates)
+    #return fcustom(temv,dates=dates)
+    #return fcustom(wvad,dates=dates)
+    #return fcustom(ma3,dates=dates)
+    return fcustom(xma60,dates=dates)
 
 def prepare_order(sdata):
-    d_posort('g5',sdata,distance=5)        
+    d_posort('g5',sdata,distance=5)
+    d_posort('g10',sdata,distance=10)    
     d_posort('g20',sdata,distance=20)    
     d_posort('g120',sdata,distance=120)     
     d_posort('g250',sdata,distance=250)     

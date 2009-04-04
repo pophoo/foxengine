@@ -4,6 +4,7 @@
 
 from wolfox.fengine.core.shortcut import *
 from wolfox.fengine.normal.funcs import *
+from wolfox.fengine.core.d1ex import tmax,derepeatc
 from wolfox.fengine.core.d1match import *
 from wolfox.fengine.core.d1indicator import cmacd
 from wolfox.foxit.base.tutils import linelog
@@ -12,8 +13,80 @@ from time import time
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.run')    
 
-c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6000)
-#c_extractor = lambda c,s:gand(c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
+#c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s>=3300,s<=6600)
+c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
+
+def gcs(stock,dates):
+    t = stock.transaction
+    linelog(stock.code)
+    
+    if not stock.has_attr('ma'):
+        ma10 = ma(t[CLOSE],10)
+        ma20 = ma(t[CLOSE],20)
+        ma60 = ma(t[CLOSE],60)
+        ma120 = ma(t[CLOSE],120)
+        t120 = strend(ma120)>0
+        ma_above = gand(greater(ma10,ma20),greater(ma20,ma60),greater(ma60,ma120))        
+        stock.set_attr('ma',{'10':ma10,'20':ma20,'60':ma60,'120':ma120,'t120':t120,'above':ma_above})
+    t120,ma_above = stock.ma['t120'],stock.ma['above']
+    ma20,ma60,ma120 = stock.ma['20'],stock.ma['60'],stock.ma['120']
+    
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    cs = catalog_signal_cs(stock.c60,c_extractor)
+
+    sbuy = gand(g,cs,t120,ma_above)
+    return derepeatc(sbuy)
+
+def pmacd(stock,dates):
+    t = stock.transaction
+    pdiff,pdea = cmacd(t[VOLUME])
+    dcross = gand(cross(pdea,pdiff),strend(pdiff)>0,strend(pdea>0))
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    linelog(stock.code)
+    
+    if not stock.has_attr('ma'):
+        ma10 = ma(t[CLOSE],10)
+        ma20 = ma(t[CLOSE],20)
+        ma60 = ma(t[CLOSE],60)
+        ma120 = ma(t[CLOSE],120)
+        t120 = strend(ma120)>0
+        ma_above = gand(greater(ma10,ma20),greater(ma20,ma60),greater(ma60,ma120))        
+        stock.set_attr('ma',{'10':ma10,'20':ma20,'60':ma60,'120':ma120,'t120':t120,'above':ma_above})
+    t120,ma_above = stock.ma['t120'],stock.ma['above']
+    ma20,ma60,ma120 = stock.ma['20'],stock.ma['60'],stock.ma['120']
+    
+    cs = catalog_signal_cs(stock.c60,c_extractor)
+
+    #return dcross
+    #return gand(dcross,g,trend_ma_standard)
+    return gand(dcross,g,t120,ma_above,cs,pdea>0,pdea<12000)
+
+
+def nhigh(stock,dates):#60高点
+    t = stock.transaction
+
+    if not stock.has_attr('ma'):
+        ma10 = ma(t[CLOSE],10)
+        ma20 = ma(t[CLOSE],20)
+        ma60 = ma(t[CLOSE],60)
+        ma120 = ma(t[CLOSE],120)
+        t120 = strend(ma120)>0
+        ma_above = gand(greater(ma10,ma20),greater(ma20,ma60),greater(ma60,ma120))        
+        stock.set_attr('ma',{'10':ma10,'20':ma20,'60':ma60,'120':ma120,'t120':t120,'above':ma_above})
+    t120,ma_above = stock.ma['t120'],stock.ma['above']
+    ma20,ma60,ma120 = stock.ma['20'],stock.ma['60'],stock.ma['120']
+    
+    mline = rollx(tmax(t[HIGH],60)) #以昨日的60高点为准
+    #dcross = band(cross(mline,t[HIGH])>0,strend(mline)>=0)    #60高点可能在向下走，退出的点正好是最高点
+    dcross = cross(mline,t[HIGH])>0    #60高点可能在向下走，退出的点正好是最高点
+    #print strend(mline).tolist()   
+    linelog(stock.code)
+
+    g = gand(stock.g5>=stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    cs = catalog_signal_cs(stock.c60,c_extractor)
+
+    return gand(g,cs,dcross,t120,ma_above)
+
 
 def ma3(stock,dates):
     ''' ma三线金叉
@@ -275,6 +348,35 @@ def psy_test(stock,dates,ma_standard=60):
 
     return sbuy
 
+def gtest2(stock,dates):
+    t = stock.transaction
+
+    if not stock.has_attr('ma'):
+        ma10 = ma(t[CLOSE],10)
+        ma20 = ma(t[CLOSE],20)
+        ma60 = ma(t[CLOSE],60)
+        ma120 = ma(t[CLOSE],120)
+        t120 = strend(ma120)>0
+        ma_above = gand(greater(ma10,ma20),greater(ma20,ma60),greater(ma60,ma120))        
+        stock.set_attr('ma',{'10':ma10,'20':ma20,'60':ma60,'120':ma120,'t120':t120,'above':ma_above})
+    t120,ma_above = stock.ma['t120'],stock.ma['above']
+    ma10,ma20,ma60,ma120 = stock.ma['10'],stock.ma['20'],stock.ma['60'],stock.ma['120']
+
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+
+    gx = stock.g250
+    ma_fast = ma(gx,10)
+    ma_slow = ma(gx,67)
+    trend_ma_fast = strend(ma_fast) > 0
+    trend_ma_slow = strend(ma_slow) > 0    
+    cross_fast_slow = gand(cross(ma_slow,ma_fast)>0,trend_ma_fast,trend_ma_slow)
+    
+    cs = catalog_signal_cs(stock.c60,c_extractor)
+
+    linelog(stock.code)
+
+    return gand(g,cs,cross_fast_slow,t120,ma_above)
+
 def gtest(stock,fast,slow,dates,ma_standard=120):
     t = stock.transaction
     g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
@@ -427,7 +529,11 @@ def prepare_buyer(dates):
     #return fcustom(temv,dates=dates)
     #return fcustom(wvad,dates=dates)
     #return fcustom(ma3,dates=dates)
-    return fcustom(xma60,dates=dates)
+    #return fcustom(xma60,dates=dates)
+    #return fcustom(nhigh,dates=dates)
+    #return fcustom(pmacd,dates=dates)
+    #return fcustom(gtest2,dates=dates)
+    return fcustom(gcs,dates=dates)
 
 def prepare_order(sdata):
     d_posort('g5',sdata,distance=5)

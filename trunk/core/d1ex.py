@@ -5,7 +5,7 @@
 
 import numpy as np
 from collections import deque
-from wolfox.fengine.core.d1 import BASE,band,gand,nsubd,rollx,equals,greater_equals,subd
+from wolfox.fengine.core.d1 import BASE,band,gand,nsubd,rollx,equals,nequals,greater_equals,subd
 
 def ma(source,length):    #使用numpy，array更加的惯用法
     """ 计算移动平均线
@@ -343,6 +343,7 @@ def emin(source):
 
 def derepeat(source,interval=1):
     ''' 去除间隔期内!=0数值的重复出现，间隔期内新信号被忽略其增强作用
+        如果不忽略，则会导致如果间隔期内持续出现信号，则除了第一个信号之外其余都为0
     '''
     rev = np.zeros_like(source)
     cover = 0
@@ -370,9 +371,10 @@ def decover(source,interval=1):
             cover -= 1
     return rev
 
-def derepeatc(source):
+def derepeatc_v(source):
     ''' 去除!=0数值的连续出现(只剩下第一个)
         c是consecutive的意思
+        保持原来的值不变
     '''
     rev = np.zeros_like(source)
     state = 0   #有信号状态
@@ -385,6 +387,13 @@ def derepeatc(source):
         else:
             state = 0
     return rev
+
+def derepeatc(source):
+    ''' 去除!=0数值的连续出现(只剩下第一个),正规化为1
+        c是consecutive的意思
+    '''
+    t = subd(nequals(source,0))
+    return equals(t,1)
 
 def sfollow(source1,source2,covered=1):
     ''' 简单追踪共振

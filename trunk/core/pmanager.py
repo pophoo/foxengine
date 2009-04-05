@@ -225,7 +225,7 @@ class PositionManager(object):  #只适合先买后卖，卖空和混合方式�
         tradess = reduce(operator.add,nts) #转换为[[...],[...],[...]]
         trades = reduce(operator.add,tradess)   #为[......]
         trades.sort(cmp=lambda x,y:x.tdate-y.tdate)
-        return trades        
+        return [trade.copy() for trade in trades]
 
     def filter(self,named_trades):
         self.run(self.organize_trades(named_trades))

@@ -1,6 +1,7 @@
 # -*-coding:utf-8 -*-
 
 from wolfox.foxit.base.common import *
+from copy import copy as ccopy
 
 class Trade(object):
     #__slots__ = 'tstock','tdate','tprice','tvolume','ttax' #不太方便，去掉, 也不再需要继承asdict(已经没有slot了)
@@ -11,6 +12,9 @@ class Trade(object):
         self.tprice = tprice if tprice > 0 else 1 #避免除权除成负/0的出现(会影响仓位计算) 600497,200509以前情形
         self.taxrate = taxrate
         self.set_volume(tvolume)
+
+    def copy(self):
+        return ccopy(self)
 
     def set_volume(self,tvolume):
         self.tvolume = tvolume
@@ -31,6 +35,9 @@ class Trade(object):
         direct = self.tvolume>0 and u'B' or u'S'
         return u'%s\t%s\t%s\tprice=%s\tvolume=%s\n' % (self.tstock,direct,self.tdate,self.tprice,self.tvolume)
 
+    def __eq__(self,t):
+        return t.tstock==self.tstock and t.tdate==self.tdate and t.tprice==self.tprice and t.tvolume==self.tvolume and t.taxrate == self.taxrate
+
     @staticmethod
     def balanceit(trades):  #计算一组trades的盈亏值
         balance = 0
@@ -46,7 +53,6 @@ class Trade(object):
         return balance
 
 
-from copy import copy as ccopy
 class Evaluation(object):
     #__slots__ = 'matchedtrades','count','balance','balances','wincount','winamount','lostcount','lostamount','deucecount','ratesum','rateavg','winrate','remark','lostavg','R'  #w赢利值inamount,亏损值lostamount都用正数表示
 

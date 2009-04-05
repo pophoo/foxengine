@@ -24,6 +24,18 @@ class TradeTest(unittest.TestCase):
         self.assertEquals(1,z.tprice)
         self.assertTrue(True)
 
+    def test_copy(self):
+        t1 = common.Trade(1,1,1000,0)
+        t2 = t1.copy()
+        self.assertEquals(t1,t2)
+
+    def test_eq(self):
+        t1 = common.Trade(1,1,1000,0)
+        t2 = common.Trade(1,1,1000,0)
+        self.assertEquals(t1,t2)
+        t3 = common.Trade(1,1,1000,0,111)
+        self.assertNotEquals(t1,t3)
+
     def test_set_volume(self):    #已经蕴含在testNormal中了
         pass 
 

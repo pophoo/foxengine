@@ -427,7 +427,7 @@ class PositionManagerTest(unittest.TestCase):
         #参数必须已经排序
         pm.run(ptrades)
         #过滤掉trade3,因为其买入价没有上升，trade4是无匹配的卖出
-        self.assertEquals([[trade1,trade2],[trade5,trade6]],pm.position.history)
+        #self.assertEquals([[trade1,trade2],[trade5,trade6]],pm.position.history)
         self.assertEquals(101664000,pm.cash)    #毛利2000,税费42*8=336,净利1664
         self.assertEquals(1664000,pm.earning)
         self.assertEquals(pm.earning,pm.cash-pm.init_size)
@@ -435,7 +435,7 @@ class PositionManagerTest(unittest.TestCase):
         trade3.tprice = 11000
         pm.clear()
         pm.run(ptrades)
-        self.assertEquals([[trade1,trade3,trade2],[trade5,trade6]],pm.position.history)
+        #self.assertEquals([[trade1,trade3,trade2],[trade5,trade6]],pm.position.history)
         #print trade1.tvolume,trade3.tvolume,trade1.calc(),trade3.calc(),trade2.tvolume,trade2.calc()
         self.assertEquals(102072000,pm.cash)    #毛利2500,税费(10+5.5+15.5*1.2+20)*8=53.5*8=428,净利2072
         self.assertEquals(2072000,pm.earning)

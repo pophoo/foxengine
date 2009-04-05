@@ -356,6 +356,7 @@ class PositionManagerTest(unittest.TestCase):
         rev = pm.organize_trades([named_trade1,named_trade2])
         self.assertEquals(6,len(rev))
         self.assertEquals([trade1,trade5,trade3,trade2,trade6,trade4],rev) 
+        self.assertNotEquals(id(trade1),id(rev[0])) #测试其返回的是拷贝，而非原始对象
         #测试有名的空交易
         named_trade3 = []
         rev = pm.organize_trades([named_trade3])

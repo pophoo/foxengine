@@ -28,7 +28,6 @@ def prepare_configs_A1200(seller,pman,dman):
     #候选A_1200 winrate>=500且R>=800,times>5 如果1200和2000都满足，优先为1200
     configs.append(config(buyer=fcustom(svama3,fast= 39,mid= 71,slow=490,ma_standard=120,extend_days=  1))) #6046-205-500-8 #5522-243-714-7    
     configs.append(config(buyer=fcustom(vama3,fast= 18,mid= 57,slow=115,ma_standard=500,extend_days=  1))) 	#4238-267-500-12    #3726-272-583-12
-    configs.append(config(buyer=fcustom(vama3,fast= 20,mid= 56,slow=105,ma_standard=500,extend_days=  1))) 	#3395-275-500-8     #2524-313-625-8
     configs.append(config(buyer=fcustom(vama3,fast= 17,mid= 46,slow= 85,ma_standard= 55,extend_days=  1))) 	#1107-62-500-28     #853-76-535-28
     configs.append(config(buyer=fcustom(csvama2,fast= 11,slow=155,rstart=0,rend=4500))) 	#1597-115-628-35    #1671-127-657-35
     configs.append(config(buyer=fcustom(csvama2,fast=  1,slow=180,rstart=1000,rend=3000))) 	#2091-205-636-11    #1805-195-636-11
@@ -41,14 +40,9 @@ def prepare_configs_A1200(seller,pman,dman):
     configs.append(config(buyer=fcustom(csvama3,fast=  6,mid= 26,slow=100,rstart=4000,rend=8500))) 	#2615-170-521-23    #2617-178-565-23
     configs.append(config(buyer=fcustom(csvama3,fast=  2,mid=705,slow=1110,rstart=  0,rend=8500))) 	#4784-244-625-8     #6100-305-750-8
     configs.append(config(buyer=fcustom(csvama3,fast=  1,mid= 92,slow=1110,rstart=8000,rend=9500)))	#1178-165-571-7     #1282-168-571-7
-    configs.append(config(buyer=fcustom(csvama3,fast= 14,mid= 48,slow=1120,rstart=4500,rend=8500)))	#1948-76-500-10     #1461-91-600-10
-    configs.append(config(buyer=fcustom(csvama3,fast=  6,mid= 48,slow=1140,rstart=4000,rend=8500))) #1425-57-538-13     #1193-74-692-13
     configs.append(config(buyer=fcustom(csvama3,fast= 20,mid= 57,slow=1270,rstart=4000,rend=8500))) #2314-125-500-12    #2540-155-600-12
-    configs.append(config(buyer=fcustom(csvama3,fast= 10,mid= 54,slow=1770,rstart=5000,rend=8500))) #880-37-500-10      #626-52-600-10
     configs.append(config(buyer=fcustom(svama3,fast=165,mid=340,slow=1790))) 	#1125-81-625-24     #1323-90-625-24
-    configs.append(config(buyer=fcustom(svama3,fast=185,mid=260,slow=1800))) 	#830-59-500-32      #638-60-593-32
     configs.append(config(buyer=fcustom(csvama3,fast= 36,mid= 78,slow=500,rstart=4000,rend=8500))) 	##1564-133-500-14   #1287-139-571-14
-    configs.append(config(buyer=fcustom(csvama3,fast= 20,mid= 33,slow=630,rstart=4000,rend=8500))) 	##946-71-500-30     #720-67-500-25
     configs.append(config(buyer=fcustom(csvama2,fast= 14,slow=170,rstart=4000,rend=6500))) 	###1545-119-500-34    #1168-118-558-34
     configs.append(config(buyer=fcustom(csvama3,fast=  2,mid= 84,slow=1110,rstart=  0,rend=8500))) 	##1792-95-500-20    #1296-83-450-20
     configs.append(config(buyer=fcustom(csvama3,fast=  1,mid= 92,slow=1120,rstart=2500,rend=9000))) ##2058-140-500-12   #1455-115-416-12
@@ -59,7 +53,6 @@ def prepare_configs_A1200(seller,pman,dman):
     
 
     return configs
-
 
 def prepare_configs_A2000(seller,pman,dman):    #R>=400,winrate>400 or R>=1000,winrate>333
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
@@ -127,7 +120,7 @@ def prepare_configs_A2(seller,pman,dman):
     
     return configs
 
-def prepare_order(sdata):
+def prepare_order(sdata):   #g60/c60在prepare_catalogs中计算
     d_posort('g5',sdata,distance=5)        
     d_posort('g20',sdata,distance=20)    
     d_posort('g120',sdata,distance=120)     
@@ -146,9 +139,9 @@ def run_body(sdata,dates,begin,end,xbegin):
     #seller = fcustom(csc_func,threshold=100)
 
     #configs = prepare_temp_configs(seller1200,pman,dman)
-    configs = prepare_temp_configs(seller2000,pman,dman)
+    #configs = prepare_temp_configs(seller2000,pman,dman)
     #configs = prepare_configs_A1200(seller1200,pman,dman)
-    ##configs = prepare_configs_A2000(seller2000,pman,dman)    
+    configs = prepare_configs_A2000(seller2000,pman,dman)    
     #configs.extend(prepare_configs_A1(seller1200,pman,dman))
     #configs.extend(prepare_configs_A2(seller1200,pman,dman))    
     batch(configs,sdata,dates,xbegin,cmediator=myMediator)
@@ -250,14 +243,14 @@ if __name__ == '__main__':
     #总时间段   [20000101,20010701,20090101]    #一个完整的周期+一个下降段
     #分段测试的要求，段mm > 1000-1500或抑制，总段mm > 2000
     
-    #begin,xbegin,end = 20000101,20010701,20090101
+    begin,xbegin,end = 20000101,20010701,20090101
     #begin,xbegin,end = 19980101,20010701,20090101
     #begin,xbegin,end = 20000101,20010701,20050901
     #begin,xbegin,end = 19980101,19990701,20010801    
     #begin,xbegin,end = 20040601,20050801,20071031
     #begin,xbegin,end = 20060601,20071031,20090101
     #begin,xbegin,end = 19980101,19990101,20090101
-    begin,xbegin,end,lbegin = 20070101,20080601,20091201,20090201
+    #begin,xbegin,end,lbegin = 20070101,20080601,20091201,20090201
     #begin,xbegin,end,lbegin = 20060101,20070901,20090327,20090201
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
@@ -282,9 +275,11 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    prepare_normal(sdata)   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
+
+    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
-    run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
 
 

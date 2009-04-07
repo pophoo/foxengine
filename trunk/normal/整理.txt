@@ -1372,6 +1372,14 @@ configs.append(config(buyer=fcustom(svama3,fast=  7,mid= 87,slow= 10,ma_standard
 
     
     #B储备  (后备即为原来的储备)
+    #不稳定部分，后期测试中被剔出A
+    configs.append(config(buyer=fcustom(csvama3,fast= 20,mid= 33,slow=630,rstart=4000,rend=8500))) 	##946-71-500-30     #720-67-500-25
+    configs.append(config(buyer=fcustom(svama3,fast=185,mid=260,slow=1800))) 	#830-59-500-32      #638-60-593-32
+    configs.append(config(buyer=fcustom(csvama3,fast= 10,mid= 54,slow=1770,rstart=5000,rend=8500))) #880-37-500-10      #626-52-600-10
+    configs.append(config(buyer=fcustom(csvama3,fast=  6,mid= 48,slow=1140,rstart=4000,rend=8500))) #1425-57-538-13     #1193-74-692-13
+    configs.append(config(buyer=fcustom(csvama3,fast= 14,mid= 48,slow=1120,rstart=4500,rend=8500)))	#1948-76-500-10     #1461-91-600-10
+    configs.append(config(buyer=fcustom(vama3,fast= 20,mid= 56,slow=105,ma_standard=500,extend_days=  1))) 	#3395-275-500-8     #2524-313-625-8
+    #
     configs.append(config(buyer=fcustom(csvama3,fast=  1,mid= 92,slow=1110,rstart=  0,rend=8500))) 	#1619-102-411-17    #1150-84-352-17
     configs.append(config(buyer=fcustom(svama3,fast=165,mid=184,slow=1960))) 	#506-40-461-39      #766-79-641-39
     configs.append(config(buyer=fcustom(svama2,fast=  9,slow=1160))) 	#630-46-382-251     #619-57-443-246

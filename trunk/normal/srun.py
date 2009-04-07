@@ -13,15 +13,101 @@ from time import time
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.run')    
 
+def check(stock,dates):
+    f = open('check.txt','a+')
+    f.write('\n#############################')
+    f.write(stock.code)
+    f.write('#############################\n')    
+    for d,g20,g60,g120 in zip(dates,stock.g20,stock.g60,stock.g120)[-30:]:
+        print >>f,d,g20,g60,g120
+    f.close()
+
+def check2(sdata,sname,dates):
+    stock = sdata[code2id[sname]]
+    f = open('check.txt','a+')
+    f.write('\n#############################')
+    f.write(stock.code)
+    f.write('#############################\n')    
+    for d,g20,g60,g120 in zip(dates,stock.g20,stock.g60,stock.g120)[-30:]:
+        print >>f,d,g20,g60,g120
+    f.close()
+
+def ctest(stock,dates):
+    fast,mid,slow,rstart,rend = 33,5,40,2000,4500
+    ma_standard=500
+    extend_days=10
+    sma=55
+    linelog('ctest:%s' % stock.code)
+    t = stock.transaction
+
+    if rstart >= rend:
+        return np.zeros_like(t[CLOSE])
+
+    try:
+        stock.catalog
+    except:
+        return np.zeros_like(t[CLOSE])
+
+    c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s>=rstart,s<=rend)
+
+    #print stock.code,len(t[CLOSE]),sum(t[CLOSE])
+    skey = 'svap_ma_%s' % sma
+    if not stock.has_attr(skey): #加速
+        stock.set_attr(skey,svap_ma(t[VOLUME],t[CLOSE],sma))
+    svap,v2i = stock.get_attr(skey)
+    
+    ma_svapfast = ma(svap,fast)
+    ma_svapmid = ma(svap,mid)    
+    ma_svapslow = ma(svap,slow)
+    trend_ma_svapfast = strend(ma_svapfast) > 0
+    trend_ma_svapmid = strend(ma_svapmid) > 0    
+    trend_ma_svapslow = strend(ma_svapslow) > 0
+    
+    #ma_standard = ma(svap,ma_standard)
+    #trend_ma_standard = strend(ma_standard) > 0    
+    mskey = 'svap_ma_%s_%s' % (sma,ma_standard)
+    if not stock.has_attr(mskey):
+        ma_standard = ma(svap,ma_standard)
+        trend_ma_standard = strend(ma_standard) > 0    
+        stock.set_attr(mskey,trend_ma_standard)
+    trend_ma_standard = stock.get_attr(mskey)
+
+    #cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
+    cross_fast_mid = band(cross(ma_svapmid,ma_svapfast)>0,trend_ma_svapfast)
+    cross_fast_slow = band(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast)    
+    cross_mid_slow = band(cross(ma_svapslow,ma_svapmid)>0,trend_ma_svapmid)
+    sync_fast_2 = sfollow(cross_fast_mid,cross_fast_slow,extend_days)
+    sync3 = sfollow(sync_fast_2,cross_mid_slow,extend_days)
+    vsignal = band(sync3,trend_ma_standard)
+    msvap = transform(vsignal,v2i,len(t[VOLUME]))
+
+    cs = catalog_signal_cs(stock.c60,c_extractor)
+    g = gand(stock.g20 >= stock.g60+1000,stock.g60 >= stock.g120+1000,stock.g20-stock.g60>=stock.g60-stock.g120,stock.g20>=3000,stock.g20<=8000)
+
+    if not stock.has_attr('ma'):
+        ma10 = ma(t[CLOSE],10)
+        ma20 = ma(t[CLOSE],20)
+        ma60 = ma(t[CLOSE],60)
+        ma120 = ma(t[CLOSE],120)
+        t120 = strend(ma120)>0
+        ma_above = gand(greater(ma10,ma20),greater(ma20,ma60),greater(ma60,ma120))        
+        stock.set_attr('ma',{'10':ma10,'20':ma20,'60':ma60,'120':ma120,'t120':t120,'above':ma_above})
+    t120,ma_above = stock.ma['t120'],stock.ma['above']
+    
+    return gand(cs,g,msvap,ma_above)
+
+
 #c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s>=3300,s<=6600)
+
+#c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
 
 #c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,s<=6600)
 
-c_extractor = lambda c,s:gand(c.g5 >= c.g20+500,c.g20>=c.g60+500,c.g60>=c.g120+500,c.g120>=c.g250+500)
+#c_extractor = lambda c,s:gand(c.g5 >= c.g20+500,c.g20>=c.g60+500,c.g60>=c.g120+500,c.g120>=c.g250+500)
 
 def svap_macd(stock,dates):
     t = stock.transaction
-    g = gand(stock.g120 >= stock.g250,stock.g20 >= stock.g60,stock.g60 >= stock.g120)
+    g = gand(stock.g20 >= stock.g60+1000,stock.g60 >= stock.g120+1000,stock.g20>=3000,stock.g20<=8000)
     #g = np.ones_like(stock.g5)
     
     skey = 'svap_ma_%s' % 65
@@ -29,12 +115,10 @@ def svap_macd(stock,dates):
         stock.set_attr(skey,svap_ma(t[VOLUME],t[CLOSE],65))
     svap,v2i = stock.get_attr(skey) 
 
-    ma_svapfast = ma(svap,fast)
-    ma_svapslow = ma(svap,slow)
-    trend_ma_svapfast = strend(ma_svapfast) > 0
-    trend_ma_svapslow = strend(ma_svapslow) > 0
-    cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
-    msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
+    diff,dea = cmacd(svap,50,120)
+    dcross = gand(cross(dea,diff)>0,strend(diff)>0,strend(dea)>0)
+
+    msvap = transform(dcross,v2i,len(t[VOLUME]))
 
     if not stock.has_attr('ma'):
         ma10 = ma(t[CLOSE],10)
@@ -46,6 +130,11 @@ def svap_macd(stock,dates):
         stock.set_attr('ma',{'10':ma10,'20':ma20,'60':ma60,'120':ma120,'t120':t120,'above':ma_above})
     t120,ma_above = stock.ma['t120'],stock.ma['above']
     ma10,ma20,ma60,ma120 = stock.ma['10'],stock.ma['20'],stock.ma['60'],stock.ma['120']
+
+    linelog(stock.code)
+
+    return gand(g,ma_above,msvap)
+
 
 c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
 def tsvama2(stock,dates):
@@ -55,10 +144,18 @@ def tsvama2(stock,dates):
     slow=100
     t = stock.transaction
     #g = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120)
+    #gma20 = ma(stock.g20,5)
+    #gma60 = ma(stock.g60,5)
+    #gma120 = ma(stock.g120,5)
     g = gand(stock.g20 >= stock.g60+1000,stock.g60 >= stock.g120+1000,stock.g20>=3000,stock.g20<=8000)
-    
+    #g = gand(gma20 >= gma60+1000,gma60 >= gma120+1000,stock.g20>=3000,stock.g20<=8000)
+    #g = gand(stock.g20 >= stock.g60+1000,stock.g60 >= stock.g120+1000,stock.g20>=3000,stock.g20<=8000)
+    #g = gand(stock.g60 >= stock.g20,stock.g60 >= stock.g120,stock.g60-stock.g20>=(stock.g60-stock.g120),stock.g60-stock.g20<=(stock.g60-stock.g120)*2,stock.g20>=3000,stock.g20<=8000)
+    #g = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g20>=3000,stock.g20<=8000,stock.g20-stock.g60<=stock.g60-stock.g120) 
+
     skey = 'svap_ma_%s' % 65
     if not stock.has_attr(skey): #加速
+        #linelog(u'第一次计算.........')
         stock.set_attr(skey,svap_ma(t[VOLUME],t[CLOSE],65))
     svap,v2i = stock.get_attr(skey) 
 
@@ -80,15 +177,15 @@ def tsvama2(stock,dates):
     t120,ma_above = stock.ma['t120'],stock.ma['above']
     ma10,ma20,ma60,ma120 = stock.ma['10'],stock.ma['20'],stock.ma['60'],stock.ma['120']
     
-    ma5 = ma(t[CLOSE],5)
 
-    linelog(stock.code)
+    linelog('%s:%s' % (tsvama2.__name__,stock.code))
     #cs = catalog_signal_cs(stock.c60,c_extractor)
     
     #return gand(g,msvap,t120,ma_above)
+    #return gand(g,cs,msvap,ma_above)
     return gand(g,msvap,ma_above)
-    #return gand(g,cs,msvap,ma_above)
-    #return gand(g,cs,msvap,ma_above)
+    #return gand(g,cs,msvap,ma_above,t120)
+    
 
 def gcs(stock,dates):
     t = stock.transaction
@@ -105,10 +202,10 @@ def gcs(stock,dates):
     t120,ma_above = stock.ma['t120'],stock.ma['above']
     ma20,ma60,ma120 = stock.ma['20'],stock.ma['60'],stock.ma['120']
     
-    g = gand(stock.g20 >= stock.g60+1000,stock.g60 >= stock.g120+1000,stock.g20>=3000,stock.g20<=8000)
-    #cs = catalog_signal_cs(stock.c60,c_extractor)
+    g = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120)
+    cs = catalog_signal_cs(stock.c60,c_extractor)
 
-    signals = gand(g,ma_above)
+    signals = gand(g,cs,ma_above)
     #sbuy = rollx(derepeatc(signals),10)
     sbuy = signals
     gcs.sum += np.sum(sbuy)
@@ -195,6 +292,7 @@ def ma3(stock,dates):
     
     return gand(trend_ma_standard,confirm_cross)
 
+#c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
 def xma60(stock,dates):
     t = stock.transaction
     if not stock.has_attr('ma'):
@@ -218,11 +316,12 @@ def xma60(stock,dates):
     sync = sfollow(down_cross,up_cross,5)
 
     linelog(stock.code)
-    g = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    #g = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120>=stock.g250)
     #g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60)
     #g = gand(stock.g5>=stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
-    cs = catalog_signal_cs(stock.c60,c_extractor)
+    #cs = catalog_signal_cs(stock.c60,c_extractor)
 
+    #return gand(sync,ma_above,g,cs,strend(ma(t[CLOSE],120))>0)
     return gand(sync,ma_above,t120)
 
 def wvad(stock,dates):
@@ -424,6 +523,34 @@ def psy_test(stock,dates,ma_standard=60):
 
     return sbuy
 
+def gtest3(stock,dates):
+    t = stock.transaction
+
+    if not stock.has_attr('ma'):
+        ma10 = ma(t[CLOSE],10)
+        ma20 = ma(t[CLOSE],20)
+        ma60 = ma(t[CLOSE],60)
+        ma120 = ma(t[CLOSE],120)
+        t120 = strend(ma120)>0
+        ma_above = gand(greater(ma10,ma20),greater(ma20,ma60),greater(ma60,ma120))        
+        stock.set_attr('ma',{'10':ma10,'20':ma20,'60':ma60,'120':ma120,'t120':t120,'above':ma_above})
+    t120,ma_above = stock.ma['t120'],stock.ma['above']
+    ma10,ma20,ma60,ma120 = stock.ma['10'],stock.ma['20'],stock.ma['60'],stock.ma['120']
+
+    g = gand(stock.g20 >= stock.g60+1000,stock.g60 >= stock.g120+1000,stock.g20>=3000,stock.g20<=8000)
+
+    gma20 = ma(stock.g20,5)
+    gma60 = ma(stock.g60,5)
+    cross_fast_slow = gand(cross(gma60,gma20)>0,strend(gma20)>0,strend(gma60)>0)
+    
+    linelog(stock.code)
+    #cs = catalog_signal_cs(stock.c60,c_extractor)
+    
+    #return gand(g,cs,cross_fast_slow,t120,ma_above)
+    #return gand(g,cross_fast_slow,ma_above)    
+    return gand(g,t120,ma_above)    
+
+
 def gtest2(stock,dates):
     t = stock.transaction
 
@@ -612,12 +739,15 @@ def prepare_buyer(dates):
     #return fcustom(pmacd,dates=dates)
     #return fcustom(gtest2,dates=dates)
     #return fcustom(gcs,dates=dates)
-    return fcustom(tsvama2,dates=dates)
+    #return fcustom(tsvama2,dates=dates)
+    return fcustom(svap_macd,dates=dates)
+    #return fcustom(gtest3,dates=dates)
+    #return fcustom(ctest,dates=dates)
 
-def prepare_order(sdata):
+def prepare_order(sdata):   #g60/c60在prepare_catalogs中计算
     d_posort('g5',sdata,distance=5)
-    d_posort('g10',sdata,distance=10)    
-    d_posort('g20',sdata,distance=20)    
+    #d_posort('g10',sdata,distance=10)    
+    d_posort('g20',sdata,distance=20)
     d_posort('g120',sdata,distance=120)     
     d_posort('g250',sdata,distance=250)     
 
@@ -642,6 +772,11 @@ def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     name,tradess = calc_trades(buyer,seller,sdata,dates,xbegin,cmediator=myMediator)
     result,strade = ev.evaluate_all(tradess,pman,dman)
     #print strade
+
+    #last_trades
+    #m = cmediator(buyer,seller)
+    #trades = m.calc_last(sdata,dates,xbegin)
+
 
     f = open('srun.txt','w+')
     f.write(strade)

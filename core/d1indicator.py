@@ -66,27 +66,27 @@ def vcexpma(source,n):
     '''
     return vexpma(source,(2*BASE+(n+1)/2)/(n+1))
 
-def macd(source):
+def macd(source,ifast=150,islow=75,isignal=200):
     ''' 按照经典定义，MACD=EXPMA(1500)-EXPMA(750)
         信号线为 EXPMA(2000)
         此时，周期分别为:  fast = 12,slow = 26,signal = 9 
         返回diff,signal(dea)
     '''
-    fast = expma(source,150)
-    slow = expma(source,75)
+    fast = expma(source,ifast)
+    slow = expma(source,islow)
     diff = fast - slow
-    signal = expma(diff,200)
+    signal = expma(diff,isignal)
     return diff,signal
 
-def cmacd(source):
+def cmacd(source,ifast=12,islow=26,idiff=9):
     ''' 国内常用的算法
         1.指数平均用cexpma来计算,周期取fast=12,slow=26,diff的指数平均周期取9
         2.信号线用dif的指数平均来计算
     '''
-    fast = cexpma(source,12)
-    slow = cexpma(source,26)
+    fast = cexpma(source,ifast)
+    slow = cexpma(source,islow)
     diff = fast - slow
-    dea = cexpma(diff,9)
+    dea = cexpma(diff,idiff)
     return diff,dea
 
 

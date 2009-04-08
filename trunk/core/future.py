@@ -51,7 +51,12 @@ def mm_sum_smooth(sbuy,smfe,smae,smooth=1):
 
 def _sum_smooth_mfe(smfe,smooth=1):
     ''' smooth是需要平滑掉的max数,平滑方式是用smooth个平均值取代头smooth个最大值
+        #numpy1.3和1.2，对于np.average(np.array([]))的返回结果是不一样的，1.3是nan,1.2返回-1.#IND
+        而这个结果在强制转换为int时，nan会报错，而-1.#IND转为0。这个是numpy1.3对nan/ind进行规范化导致的，可见其changelog
+        故要首先判断smfe的长度
     '''
+    if len(smfe) == 0:  
+        return 0
     ssmfe = np.sort(smfe)
     #print ssmfe
     if smooth > len(ssmfe):

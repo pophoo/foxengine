@@ -144,7 +144,8 @@ class MM_Mediator(Mediator):
 
     def finishing(self,stock,sbuy,ssell):
         Mediator.finishing(self,stock,sbuy,ssell)
-        stock.mfe_sum,stock.mae_sum = mm_sum_smooth(sbuy,stock.mfe,stock.mae,smooth=2)  #平滑掉两个最大值
+        #平滑掉两个最大值
+        stock.mfe_sum,stock.mae_sum = mm_sum_smooth(sbuy,stock.mfe,stock.mae,smooth=2)  
         stock.mm_count = int(np.sum(greater(sbuy)))
 
 

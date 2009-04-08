@@ -199,6 +199,19 @@ class MM_MediatorTest(unittest.TestCase):
         m.calc_matched({},np.array([]))
         self.assertTrue(True)
 
+    def test_calc_matched_except(self): #测试异常分支的正确性
+        def fbuy(s): raise Exception
+        a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
+        b = np.array([(11,12),(13,14),(15,16),(17,18),(19,110),(111,112),(113,114)])
+        sa = CommonObject(id=3,code='test1',transaction=a)
+        sb = CommonObject(id=3,code='test2',transaction=b)
+        dates = np.array([1,2])
+        sdata = {'sa':sa,'sb':sb}
+        fsell = lambda x,y:np.array([0,1])
+        m = MM_Mediator(fbuy,fsell)
+        m.calc_matched(sdata,dates)
+        self.assertTrue(True)
+
     def test__calc(self):
         a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
         b = np.array([(11,12),(13,14),(15,16),(17,18),(19,110),(111,112),(113,114)])

@@ -3,7 +3,8 @@
 import logging
 
 import unittest
-from scipy import randn
+#from scipy import randn
+from numpy.random import randn
 from wolfox.fengine.core.pmanager import *
 
 logger = logging.getLogger('wolfox.fengine.core.pmanager_test')

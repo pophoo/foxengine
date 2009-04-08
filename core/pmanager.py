@@ -8,6 +8,10 @@ import operator
 import logging
 
 import numpy as np
+from math import sqrt
+#from scipy import stats
+
+
 from wolfox.fengine.base.common import Trade
 from wolfox.fengine.core.base import BaseObject
 from wolfox.fengine.core.d1 import greater
@@ -137,7 +141,6 @@ def atr_lost(trade,times=1000):
 atr_lost_2000 = fcustom(atr_lost,times=2000)
 atr_lost_1200 = fcustom(atr_lost,times=1200)
 
-from math import sqrt
 def RPR(xt,y):  #净值评估函数,xt为日期维x,y为相应净值
     '''#根据海龟交易法则
        计算方法来自http://www.scipy.org/Cookbook/LinearRegression
@@ -145,10 +148,12 @@ def RPR(xt,y):  #净值评估函数,xt为日期维x,y为相应净值
     (ar,br)=np.polyfit(xt,y,1)  #一阶拟合
     xr = np.polyval([ar,br],xt)
     err=sqrt(sum((xr-xt)**2)/len(xt)) #标准差
-    (a_s,b_s,r,tt,stderr)=stats.linregress(xt,y)    #len(xt)必须>2，否则会有问题. 即[begin,end)包含的实际日期数必须大于2
-    year_inc_rate = int(a_s * 365 * POS_BASE/b_s)
-    logger.debug('rar:year_inc_rate=%s,a=%s,b=%s,k=a/b=%s,stderr=%s,err=%s',year_inc_rate,a_s,b_s,a_s/b_s,stderr,err)
-    logger.debug('rar:ar:%s,br:%s',ar,br)
+    #(a_s,b_s,r,tt,stderr)=stats.linregress(xt,y)    #len(xt)必须>2，否则会有问题. 即[begin,end)包含的实际日期数必须大于2
+    #year_inc_rate = int(a_s * 365 * POS_BASE/b_s)
+    year_inc_rate = int(ar * 365 * POS_BASE/br)
+    #logger.debug('rar:year_inc_rate=%s,a=%s,b=%s,k=a/b=%s,stderr=%s,err=%s',year_inc_rate,a_s,b_s,a_s/b_s,stderr,err)
+    logger.debug('rar:year_inc_rate=%s,a=%s,b=%s,k=a/b=%s,err=%s',year_inc_rate,ar,br,ar/br,err)    
+    #logger.debug('rar:ar:%s,br:%s',ar,br)
     if year_inc_rate >=0:
         pass
         #logger.debug('year_inc_rate>0,net:%s',y.tolist())
@@ -181,7 +186,6 @@ def MAX_DECLINE(xt,y):
     return decline(y)
 
 
-from scipy import stats
 class PositionManager(object):  #只适合先买后卖，卖空和混合方式都要由子类定制run实现
     def __init__(self,init_size=100000000,max_proportion=333,risk=10,calc_lost=ev_lost,position=Position):
         self.init_size = init_size     #现金,#以0.001元为单位

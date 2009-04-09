@@ -203,6 +203,13 @@ class ModuleTest(unittest.TestCase):
         sclose = np.array([150,220,150,300])
         self.assertEquals([100,100,120,250],atr(sclose,shigh,slow,1).tolist())
 
+    def test_asi(self):
+        topen = np.array([990,1016,1010,1050,1030,1035,980,1050,1040,1020,1025,1019])
+        tclose = np.array([1000,1010,1020,1030,1020,1030,1000,1000,1020,1040,1020,1030])
+        thigh = np.choose(topen>tclose,[tclose,topen])
+        tlow = np.choose(topen>tclose,[topen,tclose])
+        self.assertEquals([0,160,410,520,130,130,-187,-254,-254,-34,-68,-68],asi(topen,tclose,thigh,tlow).tolist())
+
     def test_uplines(self):
         self.assertEquals([0,1,1,1,1,0,0,0,0],uplines(np.array([1,2,3,4,5,5,4,3,2])).tolist())
         self.assertEquals([0,0,1,1,0,0,1,1],uplines(np.array([0,2,4,8,6,4,8,10]),np.array([1,2,3,4,5,6,7,8])).tolist())

@@ -5,7 +5,7 @@
 
 import numpy as np
 
-from wolfox.fengine.core.d1 import BASE,gand,gmax,greater,subd,rollx
+from wolfox.fengine.core.d1 import BASE,gand,gmax,greater,subd,rollx,roll0
 from wolfox.fengine.core.d1ex import tmax,tmin,trend,msum,ma
 
 import logging
@@ -444,6 +444,43 @@ def tr(sclose,shigh,slow):
 
 def atr(sclose,shigh,slow,length=20):
     return cexpma(tr(sclose,shigh,slow),length)
+
+def asi(sopen,sclose,shigh,slow):
+    '''
+        1.A=∣当天最高价-前一天收盘价∣
+        B=∣当天最低价-前一天收盘价∣
+        C=∣当天最高价-前一天最低价∣
+        D=∣前一天收盘价-前一天开盘价∣
+        2.比较A、B、C三数值：若A最大，R＝A＋1／2B＋1／4D；若B最大，R＝B＋1／2A十1／4D；若C最大，R=C＋1/4D
+        3.  E=当天收盘价-前一天收盘价
+            F=当天收盘价-当天开盘价
+            G=前一天收盘价-前一天开盘价
+        4.X＝E＋1／2F＋G
+        5.K=A、B之间的最大值
+        6.L＝3；SI=50*X／R*K／L；ASI=累计每日之SI值
+    1.ASI指标大部分时机都是和股价走势同步的，投资者仅能从众多股票中寻找少数产生领先突破的个股。若ASI指标领先股价，提早突破前次ASI高点或低点，则次一日之后的股价必然能突破前次高点或低点。
+    2.股价由上往下，欲穿越前一波低点的密集支撑区时，于接近低点处，尚未确定股价是否会跌破支撑之际，如果ASI领先股价，提早一步，跌破相对股价的前一波ASI低点，则次一日之后，股价将随后跌破低点支撑区。投资人可以早一步卖出股票，减少不必要的损失。
+    3.股价由下往上，欲穿越前一波的高点套牢区时，于接近高点处，尚未确定股价能否顺利穿越之际，如果ASI领先股价，提早一步，通过相对股价的前一波ASI低点，则次一日之后，股价必然能够顺利突破高点套牢区。股民可以把握ASI的领先作用，提前买入股票。
+    4.股价走势一波比一波高，而ASI却未相对创新高点形成“顶背离”时，应卖出；股价走势一波比一波低，而ASI却未相对创新低点形成“底背离”时，应买进。
+    5.ASI指标和OBV指标同样维持“N”字型的波动，并且也以突破或跌破“N”字型高低点，为观察ASI指标的主要方法。向上爬升的ASI，一旦向下跌破其前一次显著的N型转折点，一律可视为停损卖出的讯号；向下滑落的ASI，一旦向上突破其前一次的N型转折点，一律可视为果断买进的讯号。
+    #这些使用很难度量，所以其实asi只能在肉眼使用    
+    '''
+    a = np.abs(shigh - roll0(sclose))
+    b = np.abs(slow - roll0(sclose))
+    c = np.abs(shigh - roll0(slow))
+    e = subd(sclose)
+    f = sclose-sopen
+    g = roll0(f)
+    d = np.abs(g)
+    l = 3
+    
+    x = e + f/2 + g
+    k = np.choose(a>b,[b,a])   #True=1,False=0,因此a>b时True=1
+    
+    m = np.select([(a>b) & (b>c),(b>c) & (b>a),(c>a) & (c>b)],[a,b,c])
+    r = np.select([m==a,m==b,m==c],[a+b/2+d/4,b+a/2+d/4,c+d/4])
+    si = 50 * x / r * k / l    
+    return si.cumsum()
 
 def uplines(*args):
     ''' args[0]...args[-1]各个序列多头排列，其中args[0]为最快速线

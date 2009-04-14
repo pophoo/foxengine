@@ -117,6 +117,13 @@ def prepare_configs_A2(seller,pman,dman):
     #A2 存在RP问题的参数配置    atr=1200
     configs.append(config(buyer=fcustom(svama2x,fast=  6,slow=  5,base=240,ma_standard= 10))) 	#2360-118-555-9     #1160-101-555-9
     configs.append(config(buyer=fcustom(vama3,fast= 32,mid= 62,slow= 45,ma_standard=500,extend_days=  1))) 	#884-84-500-16      #629-73-500-16
+    #不稳定部分    
+    configs.append(config(buyer=fcustom(csvama3,fast= 20,mid= 33,slow=630,rstart=4000,rend=8500))) 	##946-71-500-30     #720-67-500-25
+    configs.append(config(buyer=fcustom(svama3,fast=185,mid=260,slow=1800))) 	#830-59-500-32      #638-60-593-32
+    configs.append(config(buyer=fcustom(csvama3,fast= 10,mid= 54,slow=1770,rstart=5000,rend=8500))) #880-37-500-10      #626-52-600-10
+    configs.append(config(buyer=fcustom(csvama3,fast=  6,mid= 48,slow=1140,rstart=4000,rend=8500))) #1425-57-538-13     #1193-74-692-13
+    configs.append(config(buyer=fcustom(csvama3,fast= 14,mid= 48,slow=1120,rstart=4500,rend=8500)))	#1948-76-500-10     #1461-91-600-10
+    configs.append(config(buyer=fcustom(vama3,fast= 20,mid= 56,slow=105,ma_standard=500,extend_days=  1))) 	#3395-275-500-8     #2524-313-625-8
     
     return configs
 
@@ -125,6 +132,24 @@ def prepare_order(sdata):   #g60/c60在prepare_catalogs中计算
     d_posort('g20',sdata,distance=20)    
     d_posort('g120',sdata,distance=120)     
     d_posort('g250',sdata,distance=250)     
+
+silver = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
+def prepare_common(sdata,ref):
+    for s in sdata:
+        s.ref = ref
+        c = s.transaction[CLOSE]
+        v = s.transaction[VOLUME]
+        s.ma10 = ma(c,10)
+        s.ma20 = ma(c,20)
+        s.ma60 = ma(c,60)
+        s.ma120 = ma(c,120)
+        s.t120 = strend(s.ma120) > 0
+        s.above = gand(greater(s.ma10,s.ma20),greater(s.ma20,s.ma60),greater(s.ma60,s.ma120))
+        #将golden和above分开
+        s.golden = gand(s.g20 >= s.g60+1000,s.g60 >= s.g120+1000,s.g20>=3000,s.g20<=8000)
+        s.sliver = silver
+        s.svap_ma_67 = svap_ma(v,c,67)
+        s.vap_ma_67 = vap_pre(v,c,67)
 
 def run_body(sdata,dates,begin,end,xbegin):
     from time import time
@@ -184,12 +209,14 @@ def run_merge_body(sdata,dates,begin,end,xbegin):
 def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     prepare_order(sdata.values())
     prepare_order(catalogs)
+    prepare_common(sdata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
     dummy_catalogs('catalog',catalogs)
     run_body(sdata,dates,begin,end,xbegin)
 
 def run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     prepare_order(sdata.values())
     prepare_order(catalogs)    
+    prepare_common(sdata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
     dummy_catalogs('catalog',catalogs)
     run_merge_body(sdata,dates,begin,end,xbegin)
 
@@ -197,6 +224,7 @@ def run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin):
 def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
     prepare_order(sdata.values())
     prepare_order(catalogs)    
+    prepare_common(sdata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
     dummy_catalogs('catalog',catalogs)
     from time import time
     tbegin = time()
@@ -256,8 +284,8 @@ if __name__ == '__main__':
     from time import time
     tbegin = time()
     
-    dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
+    dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601398'],[ref_code])        
@@ -273,8 +301,6 @@ if __name__ == '__main__':
     print u'数据准备耗时: %s' % (tend-tbegin)    
     import psyco
     psyco.full()
-
-    #prepare_normal(sdata)   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
 
     #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)

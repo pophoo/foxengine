@@ -2,11 +2,15 @@
 
 #指定股票的测试运行脚本
 
+#106493077@sis
+#catknight_by_MiMiP2P@18p2p@SIS@Touch99
 from wolfox.fengine.core.shortcut import *
 from wolfox.fengine.normal.funcs import *
+from wolfox.fengine.normal.nrun import prepare_order,prepare_common
 from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals
 from wolfox.fengine.core.d1match import *
 from wolfox.fengine.core.d1indicator import cmacd
+from wolfox.fengine.core.d2 import increase,extract_collect
 from wolfox.foxit.base.tutils import linelog
 from time import time
 
@@ -31,6 +35,14 @@ def check2(sdata,sname,dates,tail=30):
     for d,g20,g60,g120 in zip(dates,stock.g20,stock.g60,stock.g120)[-tail:]:
         print >>f,d,g20,g60,g120
     f.close()
+
+sbuyer = fcustom(svama3,fast=185,mid=260,slow=1800)
+def swrap(stock,dates):
+    linelog(stock.code)
+    sbuy = sbuyer(stock)
+    return sbuy
+    #g = gand(stock.g20>=3000,stock.g20<=8000)    
+    #return gand(g,sbuy)
 
 def ctest(stock,dates):
     fast,mid,slow,rstart,rend = 33,5,40,2000,4500
@@ -105,7 +117,7 @@ def ctest(stock,dates):
 
 #c_extractor = lambda c,s:gand(c.g5 >= c.g20+500,c.g20>=c.g60+500,c.g60>=c.g120+500,c.g120>=c.g250+500)
 
-def svap_macd(stock,dates):
+def svap_macd(stock,dates,gfilter):
     t = stock.transaction
     g = gand(stock.g20 >= stock.g60+1000,stock.g60 >= stock.g120+1000,stock.g20>=3000,stock.g20<=8000)
     #g = np.ones_like(stock.g5)
@@ -133,7 +145,7 @@ def svap_macd(stock,dates):
 
     linelog(stock.code)
 
-    return gand(g,ma_above,msvap)
+    return gand(g,ma_above,msvap,gfilter)
 
 
 c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
@@ -152,6 +164,8 @@ def tsvama2(stock,dates):
     #g = gand(stock.g20 >= stock.g60+1000,stock.g60 >= stock.g120+1000,stock.g20>=3000,stock.g20<=8000)
     #g = gand(stock.g60 >= stock.g20,stock.g60 >= stock.g120,stock.g60-stock.g20>=(stock.g60-stock.g120),stock.g60-stock.g20<=(stock.g60-stock.g120)*2,stock.g20>=3000,stock.g20<=8000)
     #g = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g20>=3000,stock.g20<=8000,stock.g20-stock.g60<=stock.g60-stock.g120) 
+
+    #g = gand(stock.g20 >= 9000,stock.g60 >= 9000,stock.g120>=9000)
 
     skey = 'svap_ma_%s' % 65
     if not stock.has_attr(skey): #加速
@@ -180,12 +194,13 @@ def tsvama2(stock,dates):
 
     linelog('%s:%s' % (tsvama2.__name__,stock.code))
     #cs = catalog_signal_cs(stock.c60,c_extractor)
-    
+
     #return gand(g,msvap,t120,ma_above)
     #return gand(g,cs,msvap,ma_above)
-    return gand(g,msvap,ma_above)
+    #return gand(g,msvap,ma_above)
+    #return gand(g,msvap,ma_above,gfilter)
     #return gand(g,cs,msvap,ma_above,t120)
-    
+    return gand(g,msvap,ma_above)
 
 def gcs(stock,dates):
     t = stock.transaction
@@ -739,21 +754,31 @@ def prepare_buyer(dates):
     #return fcustom(pmacd,dates=dates)
     #return fcustom(gtest2,dates=dates)
     #return fcustom(gcs,dates=dates)
-    #return fcustom(tsvama2,dates=dates)
-    return fcustom(svap_macd,dates=dates)
+    return fcustom(tsvama2,dates=dates)
+    #return fcustom(svap_macd,dates=dates)
     #return fcustom(gtest3,dates=dates)
     #return fcustom(ctest,dates=dates)
+    #return fcustom(swrap,dates=dates)
 
-def prepare_order(sdata):   #g60/c60在prepare_catalogs中计算
-    d_posort('g5',sdata,distance=5)
-    #d_posort('g10',sdata,distance=10)    
-    d_posort('g20',sdata,distance=20)
-    d_posort('g120',sdata,distance=120)     
-    d_posort('g250',sdata,distance=250)     
+
+
+def prepare_base(sdata):
+    base = BaseObject()
+    sdatas = extract_collect(sdata.values(),CLOSE)
+    base.g20 = (increase(sdatas,20)>0).sum(0)
+    return base
+
+def prepare_gfilter(ref):
+    #diff,dea = cmacd(ref.transaction[CLOSE],50,120)
+    #gfilter = greater(diff,dea)
+    gfilter = strend(ma(ref.transaction[CLOSE],250))>0
+    #gfilter = np.zeros_like(ref.transaction[CLOSE])
+    return gfilter
 
 def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     prepare_order(sdata.values())
     prepare_order(catalogs)
+    prepare_common(sdata.values(),idata[ref_id])
     dummy_catalogs('catalog',catalogs)
 
     tbegin = time()
@@ -828,6 +853,7 @@ if __name__ == '__main__':
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600971'],[ref_code])
     #c_posort('c120',catalogs,distance=120)
     
+
     tend = time()
     print u'数据准备耗时: %s' % (tend-tbegin)    
     import psyco

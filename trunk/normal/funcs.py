@@ -25,7 +25,7 @@ def cvama3(stock,fast,mid,slow,rstart=3300,rend=6600,ma_standard=500,extend_days
     c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s>=rstart,s<=rend)
 
     #svap,v2i = vap_pre(t[VOLUME],t[CLOSE],pre_length)
-    skey = 'svap_ma_%s' % pre_length
+    skey = 'vap_ma_%s' % pre_length
     if not stock.has_attr(skey): #加速
         stock.set_attr(skey,vap_pre(t[VOLUME],t[CLOSE],pre_length))
     svap,v2i = stock.get_attr(skey) 

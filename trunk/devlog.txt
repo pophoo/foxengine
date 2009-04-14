@@ -326,11 +326,13 @@ pman = AdvancedATRPositionManager()
 dman = DateManager(begin,end)
 myMediator=nmediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
 seller = atr_seller_factory(stop_times=1200,trace_times=3000)
+seller2000 = atr_seller_factory(stop_times=2000,trace_times=3000)
 
 #开始计算
 reload(srun)    #应对脚本修改
 buyer = srun.prepare_buyer(dates)   
 name,tradess = calc_trades(buyer,seller,sdata,dates,xbegin,cmediator=myMediator)
+#name,tradess = calc_trades(buyer,seller2000,sdata,dates,xbegin,cmediator=myMediator)
 result,strade = ev.evaluate_all(tradess,pman,dman)
 
 
@@ -1927,3 +1929,27 @@ pre_ev:
 
 #20090406
 #对已有的csvamax系列,因为其筛选条件类似银手指,所以不再适用金手指(会导致结果为空),只能起到事后筛选作用
+
+
+#股票120涨跌家数的线，及其5和20日均线，可以作为非常重要的撤离标志
+它在2007.09中旬就发出了显著的下跌信号
+同时，5上叉20，并一直在20日上，可作为强势信号
+为敏感计，1日上叉20也可
+
+sdatas = srun.extract_collect(sdata.values(),CLOSE)
+x120a=(increase(sdatas,120)>0).sum(0)
+x120=x120a*1000/length  #规范化为百分比
+ma120_5= ma(x120,5)
+ma120_20= ma(x120,20)
+
+惊呆，大盘的60均线向上居然和金手指暗合？至少对tsvama 20X100，对其中选出的154个交易没有筛选作用
+    gfilter = strend(ma(ref.transaction[CLOSE],60))>0
+120，250都很符合
+
+#另，尝试选择大盘大跌日实体为攻击态小阴小阳的，小阳为佳，长上影也不错
+#比如090408的抚顺特钢，上海梅林，新潮实业，长城电脑、广东甘化、西藏旅游
+并且n线理顺之后，大部分时间小阴小阳，并且总体幅度不大
+
+#或者，在裸信号发出后，要求10日内g信号也发出，否则作废。这个相当于宽松了
+
+#对排名都大于8500的，也测试一下 （中国软件20090311）

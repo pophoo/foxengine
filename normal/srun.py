@@ -148,7 +148,7 @@ def svap_macd(stock,dates,gfilter):
     return gand(g,ma_above,msvap,gfilter)
 
 
-c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
+#c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
 def tsvama2(stock,dates):
     ''' svama两线交叉
     '''
@@ -256,27 +256,18 @@ def pmacd(stock,dates):
 def nhigh(stock,dates):#60高点
     t = stock.transaction
 
-    if not stock.has_attr('ma'):
-        ma10 = ma(t[CLOSE],10)
-        ma20 = ma(t[CLOSE],20)
-        ma60 = ma(t[CLOSE],60)
-        ma120 = ma(t[CLOSE],120)
-        t120 = strend(ma120)>0
-        ma_above = gand(greater(ma10,ma20),greater(ma20,ma60),greater(ma60,ma120))        
-        stock.set_attr('ma',{'10':ma10,'20':ma20,'60':ma60,'120':ma120,'t120':t120,'above':ma_above})
-    t120,ma_above = stock.ma['t120'],stock.ma['above']
-    ma20,ma60,ma120 = stock.ma['20'],stock.ma['60'],stock.ma['120']
-    
     mline = rollx(tmax(t[HIGH],60)) #以昨日的60高点为准
     #dcross = band(cross(mline,t[HIGH])>0,strend(mline)>=0)    #60高点可能在向下走，退出的点正好是最高点
     dcross = cross(mline,t[HIGH])>0    
     #print strend(mline).tolist()   
     linelog(stock.code)
 
-    g = gand(stock.g5>=stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
-    cs = catalog_signal_cs(stock.c60,c_extractor)
+    g = gand(stock.g5>=stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20>=3000,stock.g20<=8000)
+    #g = gand(stock.g5>=stock.g20,stock.g120 >= stock.g250,stock.thumb)
+    
+    cs = catalog_signal_cs(stock.c60,stock.silver)
 
-    return gand(g,cs,dcross,strend(ma60)>0,ma_above)
+    return gand(g,cs,dcross,strend(stock.ma60)>0,stock.above)
 
 
 def ma3(stock,dates):
@@ -397,7 +388,7 @@ def temv(stock,dates):
     return ecross
     
 
-#c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
+c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
 def vmacd_ma4(stock,dates):
     t = stock.transaction
     
@@ -420,17 +411,11 @@ def vmacd_ma4(stock,dates):
 
     ma10,ma20,ma60,ma120,t120,g,dcross,vdea = stock.cma['10'],stock.cma['20'],stock.cma['60'],stock.cma['120'],stock.cma['t120'],stock.cma['g'],stock.cma['dcross'],stock.cma['vdea']
 
-    #ma_cross = gand(cross(ma10,ma5),strend(ma5)>0,strend(ma10)>0,strend(ma20)>0,strend(ma60)>0,strend(ma120)>0)
-
-
-    ma_above = gand(greater(ma10,ma20),greater(ma20,ma60),greater(ma60,ma120))
-
-
     linelog(stock.code)
 
     cs = catalog_signal_cs(stock.c60,c_extractor)
     #return gand(g,cs,dcross,ma_above,t120)
-    return gand(g,dcross,ma_above,t120,vdea>0,vdea<12000)
+    return gand(g,cs,dcross,stock.above,t120,vdea>0,vdea<12000)
     #return gand(g,dcross,ma_above)
 
 #c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250)
@@ -440,17 +425,16 @@ def ma4(stock,dates):
     g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
     
     ma5 = ma(t[CLOSE],5)
-    ma10 = ma(t[CLOSE],10)
-    ma20 = ma(t[CLOSE],20)
-    ma60 = ma(t[CLOSE],60)
-    ma120 = ma(t[CLOSE],120)
+    ma10 = stock.ma10
+    ma20 = stock.ma20
+    ma60 = stock.ma60
+    ma120 = stock.ma120
     dcross = gand(cross(ma10,ma5),strend(ma5)>0,strend(ma10)>0,strend(ma20)>0,strend(ma60)>0,strend(ma120)>0)
     #dcross = gand(cross(ma10,ma5),strend(ma5)>0,strend(ma10)>0,strend(ma20)>0,strend(ma60)>0)
-    dabove = gand(greater(ma10,ma20),greater(ma20,ma60),greater(ma60,ma120))
     #dabove = gand(greater(ma10,ma20),greater(ma20,ma60))
-    cs = catalog_signal_cs(stock.c60,c_extractor)
+    cs = catalog_signal_cs(stock.c60,stock.silver)
     linelog(stock.code)
-    return gand(g,cs,dcross,dabove)
+    return gand(g,cs,dcross,stock.above)
 
 #c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s>=3300,s<=6600)
 #c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250)
@@ -569,33 +553,22 @@ def gtest3(stock,dates):
 def gtest2(stock,dates):
     t = stock.transaction
 
-    if not stock.has_attr('ma'):
-        ma10 = ma(t[CLOSE],10)
-        ma20 = ma(t[CLOSE],20)
-        ma60 = ma(t[CLOSE],60)
-        ma120 = ma(t[CLOSE],120)
-        t120 = strend(ma120)>0
-        ma_above = gand(greater(ma10,ma20),greater(ma20,ma60),greater(ma60,ma120))        
-        stock.set_attr('ma',{'10':ma10,'20':ma20,'60':ma60,'120':ma120,'t120':t120,'above':ma_above})
-    t120,ma_above = stock.ma['t120'],stock.ma['above']
-    ma10,ma20,ma60,ma120 = stock.ma['10'],stock.ma['20'],stock.ma['60'],stock.ma['120']
-
     g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
 
-    gx = stock.g69
+    gx = stock.g60
     ma_fast = ma(gx,5)
     ma_slow = ma(gx,20)
     trend_ma_fast = strend(ma_fast) > 0
     trend_ma_slow = strend(ma_slow) > 0    
     cross_fast_slow = gand(cross(ma_slow,ma_fast)>0,trend_ma_fast,trend_ma_slow)
     
+    c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s>=3300,s<=6600)
     cs = catalog_signal_cs(stock.c60,c_extractor)
 
     linelog(stock.code)
-
     
     #return gand(g,cs,cross_fast_slow,t120,ma_above)
-    return gand(g,cs,cross_fast_slow,ma_above)    
+    return gand(g,cs,cross_fast_slow,stock.above,stock.t120)    
 
 def gtest(stock,fast,slow,dates,ma_standard=120):
     t = stock.transaction
@@ -738,7 +711,7 @@ def prepare_buyer(dates):
     #return fcustom(func_test,ma_standard=500,slow=50,extend_days=31,fast=30,mid=67,dates=dates)
     #return fcustom(func_test,ma_standard=500,slow=45,extend_days=17,fast=32,mid=79,dates=dates)
     #return fcustom(func_test,fast= 33,mid= 84,slow=345,ma_standard=500,extend_days= 27,dates=dates,cextractor=ext_factory(3300,6600))
-    #return fcustom(gtest,fast=5,slow=60,dates=dates)
+    return fcustom(gtest,fast=5,slow=60,dates=dates)
     #return fcustom(psvama2,fast=  9,slow=1160,dates=dates) 
     #return fcustom(psy_test,dates=dates)
     #return fcustom(dma,dates=dates)
@@ -754,7 +727,7 @@ def prepare_buyer(dates):
     #return fcustom(pmacd,dates=dates)
     #return fcustom(gtest2,dates=dates)
     #return fcustom(gcs,dates=dates)
-    return fcustom(tsvama2,dates=dates)
+    #return fcustom(tsvama2,dates=dates)
     #return fcustom(svap_macd,dates=dates)
     #return fcustom(gtest3,dates=dates)
     #return fcustom(ctest,dates=dates)

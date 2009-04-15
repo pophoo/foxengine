@@ -32,16 +32,17 @@ def pmacd(stock):
     dcross = gand(cross(pdea,pdiff),strend(pdiff)>0,strend(pdea>0))
     linelog(stock.code)
     cs = catalog_signal_cs(stock.c60,stock.silver)
-    return gand(dcross,stock.golden,stock.above,cs,pdea>0,pdea<12000)
-
+    #return gand(dcross,stock.golden,stock.above,cs,pdea>0,pdea<12000)
+    return gand(dcross,stock.thumb,stock.above,cs,pdea>0,pdea<12000)
 
 def nhigh(stock):#60高点
     t = stock.transaction
     mline = rollx(tmax(t[HIGH],60)) #以昨日的60高点为准
     dcross = cross(mline,t[HIGH])>0    
-    linelog(stock.code)
+    g = gand(stock.g5>=stock.g20,stock.thumb)
     cs = catalog_signal_cs(stock.c60,stock.silver)
-    return gand(stock.golden,cs,dcross,strend(stock.ma60)>0,stock.above)
+    #linelog(stock.code)
+    return gand(g,cs,dcross,strend(stock.ma60)>0,stock.above)
 
 def xma60(stock):
     ''' 碰到ma60后回升
@@ -81,7 +82,8 @@ def xma60(stock):
     sync = sfollow(down_cross,up_cross,7)
     cs = catalog_signal_cs(stock.c60,stock.silver)
     linelog(stock.code)
-    return gand(sync,stock.above,stock.t120,stock.golden,cs)
+    #return gand(sync,stock.above,stock.t120,stock.golden,cs)    
+    return gand(sync,stock.above,stock.t120,stock.thumb,cs)
 
 def wvad(stock):
     t = stock.transaction
@@ -89,7 +91,8 @@ def wvad(stock):
     svad = msum2(vad,24)
     ma_svad = ma(svad,6)
     cs = catalog_signal_cs(stock.c60,stock.silver)
-    ecross = gand(stock.golden,cs,cross(ma_svad,vad)>0,strend(ma_svad)>0,stock.t120,stock.above)
+    #ecross = gand(stock.golden,cs,cross(ma_svad,vad)>0,strend(ma_svad)>0,stock.t120,stock.above)
+    ecross = gand(stock.thumb,cs,cross(ma_svad,vad)>0,strend(ma_svad)>0,stock.t120,stock.above)
     linelog(stock.code)
     return ecross
 
@@ -98,6 +101,16 @@ def cached_zeros(n):
     return np.zeros(n,int)
 
 def temv(stock):
+    '''
+    name:Mediator:<temv:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:make_trade_signal_advanced:B1S1>
+    pre_ev:	评估:总盈亏值=2244,交易次数=14	期望值=4210	
+		总盈亏率(1/1000)=2244,平均盈亏率(1/1000)=160,盈利交易率(1/1000)=428
+		赢利次数=6,赢利总值=2555
+		亏损次数=8,亏损总值=311
+		平盘次数=0
+		闭合交易明细:
+    
+    '''
     t = stock.transaction
     ts = cached_zeros(len(t[CLOSE]))
     ekey = 'emv'
@@ -105,7 +118,7 @@ def temv(stock):
     mv = msum2(em,14)
     semv = ma(mv,9)
     cs = catalog_signal_cs(stock.c60,stock.silver)
-    ecross = gand(stock.golden,cs,cross(ts,mv)>0,strend(semv)>0,stock.t120,stock.above)
+    ecross = gand(stock.thumb,cs,cross(ts,mv)>0,strend(semv)>0,stock.t120,stock.above)
     linelog(stock.code)
     return ecross
     
@@ -113,18 +126,23 @@ def vmacd_ma4(stock):
     t = stock.transaction
     
     vdiff,vdea = cmacd(t[VOLUME])
-    dcross = gand(cross(vdea,vdiff),strend(vdiff)>0,strend(vdea>0))
+    dcross = gand(cross(vdea,vdiff)>0,strend(vdiff)>0,strend(vdea)>0)
 
-    cs = catalog_signal_cs(stock.c60,stock.silver)
-    return gand(stock.golden,dcross,stock.above,stock.t120,vdea>0,vdea<12000)
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
 
-def ma4(stock):
+    c_ex = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=8500)
+    cs = catalog_signal_cs(stock.c60,c_ex)    
+    return gand(g,cs,dcross,stock.above,strend(stock.ma60)>0,vdea>=0,vdea<=12000)
+
+def ma4(stock): #3X10
     t = stock.transaction
-    ma5 = ma(t[CLOSE],5)
-    dcross = gand(cross(stock.ma10,ma5),strend(ma5)>0,strend(stock.ma10)>0,strend(stock.ma20)>0,strend(stock.ma60)>0,stock.t120>0)
+    fma = ma(t[CLOSE],3)
+    dcross = gand(cross(stock.ma10,fma),strend(fma)>0,strend(stock.ma10)>0,strend(stock.ma20)>0,strend(stock.ma60)>0,stock.t120>0)
     cs = catalog_signal_cs(stock.c60,stock.silver)
     linelog(stock.code)
-    return gand(stock.golden,cs,dcross,stock.above,stock.t120)
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    #return gand(stock.golden,cs,dcross,stock.above,stock.t120)
+    return gand(g,cs,dcross,stock.above)    
 
 def vmacd(stock):
     t = stock.transaction
@@ -136,7 +154,7 @@ def vmacd(stock):
 
 def gx60(stock,fast=5,slow=20):
     t = stock.transaction
-    #g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
     g60 = stock.g60
     ma_fast = ma(g60,fast)
     ma_slow = ma(g60,slow)
@@ -144,31 +162,37 @@ def gx60(stock,fast=5,slow=20):
     trend_ma_slow = strend(ma_slow) > 0    
     cross_fast_slow = gand(cross(ma_slow,ma_fast)>0,trend_ma_fast,trend_ma_slow)
 
- 
+    #c_ex = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
+
+    cs = catalog_signal_cs(stock.c60,stock.silver)
+    linelog(stock.code)
+
     ma_120 = ma(stock.g120,5)   #平滑一下
     ma_250 = ma(stock.g250,5)
     trend_ma_120 = strend(ma_120) > 0
     trend_ma_250 = strend(ma_250) > 0
-    cs = catalog_signal_cs(stock.c60,stock.silver)
-    linelog(stock.code)
-    return gand(cross_fast_slow,stock.thumb,trend_ma_120,trend_ma_250,cs)
 
-def gx120(stock,fast=5,slow=67):
+    return gand(cross_fast_slow,g,cs,stock.above,stock.t120,trend_ma_120,trend_ma_250)
+
+def gx250(stock,fast=10,slow=67):
     t = stock.transaction
-    #g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
-    g120 = stock.g120
-    ma_fast = ma(g120,fast)
-    ma_slow = ma(g120,slow)
+    g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    gx = stock.g250
+    ma_fast = ma(gx,fast)
+    ma_slow = ma(gx,slow)
     trend_ma_fast = strend(ma_fast) > 0
     trend_ma_slow = strend(ma_slow) > 0    
     cross_fast_slow = gand(cross(ma_slow,ma_fast)>0,trend_ma_fast,trend_ma_slow)
 
- 
+    #c_ex = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
+
+    cs = catalog_signal_cs(stock.c60,stock.silver)
+    linelog(stock.code)
+
     ma_120 = ma(stock.g120,5)   #平滑一下
     ma_250 = ma(stock.g250,5)
     trend_ma_120 = strend(ma_120) > 0
     trend_ma_250 = strend(ma_250) > 0
-    cs = catalog_signal_cs(stock.c60,stock.silver)
-    linelog(stock.code)
-    return gand(cross_fast_slow,stock.thumb,trend_ma_120,trend_ma_250,cs)
+
+    return gand(cross_fast_slow,stock.golden,cs,stock.above,stock.t120,trend_ma_120,trend_ma_250)
 

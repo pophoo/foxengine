@@ -35,8 +35,8 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         sb = CommonObject(id=3,code='test2',transaction=b)
         sdata = {'sa':sa,'sb':sb}
         ctree,catalogs = prepare_catalogs(sdata)
-        self.assertEquals(2,len(sa.g60))
-        self.assertEquals(2,len(sb.g60))
+        #self.assertEquals(2,len(sa.g60))
+        #self.assertEquals(2,len(sb.g60))
 
     def test_calc_trades(self):
         a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])

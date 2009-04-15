@@ -4,10 +4,12 @@
 #采用NMediator,结果发现成功率显然小了(次日上涨的看来挺多，导致止损比预计上移),看来需要加大atr系数 ==>1200比较贴近之前的结果
 #不过有个特点，大部分情形，选出交易数越多的方法，稳定性越好
 
-from wolfox.fengine.core.shortcut import *
-from wolfox.fengine.normal.funcs import *
 from wolfox.fengine.core.d1 import subd
 
+from wolfox.fengine.core.shortcut import *
+from wolfox.fengine.normal.funcs import *
+import wolfox.fengine.normal.funcs as f
+import wolfox.fengine.normal.sfuncs as s
 
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.run')    
@@ -20,6 +22,20 @@ logger = logging.getLogger('wolfox.fengine.normal.run')
 def prepare_temp_configs(seller,pman=None,dman=None):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
+
+    configs.append(config(buyer=s.ma4))
+    configs.append(config(buyer=s.vmacd))
+    configs.append(config(buyer=s.temv))
+    configs.append(config(buyer=s.wvad))
+    configs.append(config(buyer=s.xma60))
+    configs.append(config(buyer=s.pmacd))
+    configs.append(config(buyer=s.gx60))
+    configs.append(config(buyer=s.gx120))
+    configs.append(config(buyer=s.gx120,fast=10))
+    configs.append(config(buyer=s.tsvama2,fast=20,slow=100))
+    configs.append(config(buyer=s.tsvama2,fast=12,slow=170))
+    
+
 
     return configs
 
@@ -150,13 +166,11 @@ def prepare_common(sdata,ref):
         s.above = gand(greater(s.ma10,s.ma20),greater(s.ma20,s.ma60),greater(s.ma60,s.ma120))
         #将golden和above分开
         s.golden = gand(s.g20 >= s.g60+1000,s.g60 >= s.g120+1000,s.g20>=3000,s.g20<=8000)
+        s.thumb = gand(s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20>=3000,s.g20<=8000)
         s.sliver = silver
         s.svap_ma_67 = svap_ma(v,c,67)
         s.vap_ma_67 = vap_pre(v,c,67)
-
-def prepare_k(ref):
-    c = ref.transaction[CLOSE]
-    ref.ks = subd(c) * BASE / rollx(c)
+        s.ks = subd(c) * BASE / rollx(c)
 
 def run_body(sdata,dates,begin,end,xbegin):
     from time import time
@@ -217,7 +231,6 @@ def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     prepare_order(sdata.values())
     prepare_order(idata.values())
     prepare_order(catalogs)
-    prepare_k(idata[ref_id])
     prepare_common(sdata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
     prepare_common(idata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
     dummy_catalogs('catalog',catalogs)
@@ -227,7 +240,6 @@ def run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     prepare_order(sdata.values())
     prepare_order(idata.values())    
     prepare_order(catalogs)    
-    prepare_k(idata[ref_id])    
     prepare_common(sdata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
     prepare_common(idata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma    
     dummy_catalogs('catalog',catalogs)
@@ -238,7 +250,6 @@ def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
     prepare_order(sdata.values())
     prepare_order(idata.values())    
     prepare_order(catalogs) 
-    prepare_k(idata[ref_id])    
     prepare_common(sdata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
     prepare_common(idata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma    
     dummy_catalogs('catalog',catalogs)

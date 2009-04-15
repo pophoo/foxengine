@@ -92,12 +92,6 @@ class ModuleTest(unittest.TestCase):    #保持run的有效性
         run.prepare_common(sdata.values(),idata[ref_id])
         self.assertTrue(True)
 
-    def test_prepare_k(self):
-        sclose = np.array([1000,1100,1050,1100,1100])
-        ref = BaseObject(transaction=[sclose,sclose])
-        run.prepare_k(ref)
-        self.assertEquals([0,100,-46,47,0],ref.ks.tolist())
-
     def test_run(self):
         begin,end = 20010101,20010701
         xbegin = 20010401

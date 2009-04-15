@@ -23,20 +23,6 @@ def prepare_temp_configs(seller,pman=None,dman=None):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
 
-    configs.append(config(buyer=s.ma4))
-    configs.append(config(buyer=s.vmacd))
-    configs.append(config(buyer=s.temv))
-    configs.append(config(buyer=s.wvad))
-    configs.append(config(buyer=s.xma60))
-    configs.append(config(buyer=s.pmacd))
-    configs.append(config(buyer=s.gx60))
-    configs.append(config(buyer=s.gx120))
-    configs.append(config(buyer=s.gx120,fast=10))
-    configs.append(config(buyer=s.tsvama2,fast=20,slow=100))
-    configs.append(config(buyer=s.tsvama2,fast=12,slow=170))
-    
-
-
     return configs
 
 def prepare_configs_A1200(seller,pman,dman):    
@@ -103,6 +89,31 @@ def prepare_configs_A2000(seller,pman,dman):    #R>=400,winrate>400 or R>=1000,w
     
     return configs
 
+def prepare_configs_A0(seller,pman,dman):    
+    ''' 手工巡游成果
+    '''
+    config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
+    configs = []
+
+    '''
+    configs.append(config(buyer=s.ma4))     #1609-600-35    #3X10
+    configs.append(config(buyer=s.wvad))    #1554-520-25    #
+    configs.append(config(buyer=s.xma60))   #5239-621-37    #
+    configs.append(config(buyer=s.pmacd))   #1179-500-52    #
+    configs.append(config(buyer=fcustom(s.tsvama2,fast=20,slow=100)))   #3724-566-157
+    configs.append(config(buyer=s.nhigh))     #1527-500-76
+    '''
+    configs.append(config(buyer=s.gx60))    #1305-516-31
+
+    configs.append(config(buyer=s.vmacd_ma4))   #2521-473-57
+    configs.append(config(buyer=s.gx250))   #12000-764-17
+
+    #舍弃
+    #configs.append(config(buyer=s.temv))    #4210-428-14   
+    #configs.append(config(buyer=fcustom(s.tsvama2,fast=12,slow=170)))   #1581-117-427
+
+    return configs
+
 def prepare_configs_A1(seller,pman,dman):   
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
@@ -155,6 +166,7 @@ def prepare_order(sdata):   #g60/c60在prepare_catalogs中计算
 silver = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
 def prepare_common(sdata,ref):
     for s in sdata:
+        #print s.code
         s.ref = ref
         c = s.transaction[CLOSE]
         v = s.transaction[VOLUME]
@@ -163,11 +175,11 @@ def prepare_common(sdata,ref):
         s.ma60 = ma(c,60)
         s.ma120 = ma(c,120)
         s.t120 = strend(s.ma120) > 0
-        s.above = gand(greater(s.ma10,s.ma20),greater(s.ma20,s.ma60),greater(s.ma60,s.ma120))
+        s.above = gand(s.ma10>=s.ma20,s.ma20>=s.ma60,s.ma60>=s.ma120)
         #将golden和above分开
         s.golden = gand(s.g20 >= s.g60+1000,s.g60 >= s.g120+1000,s.g20>=3000,s.g20<=8000)
         s.thumb = gand(s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20>=3000,s.g20<=8000)
-        s.sliver = silver
+        s.silver = silver
         s.svap_ma_67 = svap_ma(v,c,67)
         s.vap_ma_67 = vap_pre(v,c,67)
         s.ks = subd(c) * BASE / rollx(c)
@@ -184,10 +196,11 @@ def run_body(sdata,dates,begin,end,xbegin):
     #seller = csc_func
     #seller = fcustom(csc_func,threshold=100)
 
-    #configs = prepare_temp_configs(seller1200,pman,dman)
+    configs = prepare_temp_configs(seller1200,pman,dman)
     #configs = prepare_temp_configs(seller2000,pman,dman)
     #configs = prepare_configs_A1200(seller1200,pman,dman)
-    configs = prepare_configs_A2000(seller2000,pman,dman)    
+    #configs = prepare_configs_A2000(seller2000,pman,dman)    
+    #configs.extend(prepare_configs_A0(seller1200,pman,dman))    
     #configs.extend(prepare_configs_A1(seller1200,pman,dman))
     #configs.extend(prepare_configs_A2(seller1200,pman,dman))    
     batch(configs,sdata,dates,xbegin,cmediator=myMediator)
@@ -245,7 +258,6 @@ def run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     dummy_catalogs('catalog',catalogs)
     run_merge_body(sdata,dates,begin,end,xbegin)
 
-
 def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
     prepare_order(sdata.values())
     prepare_order(idata.values())    
@@ -266,6 +278,7 @@ def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
     if lbegin == 0:
         lbegin = end - 5
 
+    '''
     configs_a = prepare_configs_A1200(seller1200,pman,dman)
     dtrades_a = batch_last(configs_a,sdata,dates,xbegin,cmediator=myMediator)
     save_last('atr_last_a1200.txt',dtrades_a,xbegin,end,lbegin)
@@ -273,7 +286,11 @@ def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
     configs_a = prepare_configs_A2000(seller2000,pman,dman)
     dtrades_a = batch_last(configs_a,sdata,dates,xbegin,cmediator=myMediator)
     save_last('atr_last_a2000.txt',dtrades_a,xbegin,end,lbegin)
-
+    '''
+    configs_a0 = prepare_configs_A0(seller1200,pman,dman)
+    dtrades_a0 = batch_last(configs_a0,sdata,dates,xbegin,cmediator=myMediator)
+    save_last('atr_last_a0.txt',dtrades_a0,xbegin,end,lbegin)
+    '''
     configs_a1 = prepare_configs_A1(seller1200,pman,dman)
     dtrades_a1 = batch_last(configs_a1,sdata,dates,xbegin,cmediator=myMediator)
     save_last('atr_last_a1.txt',dtrades_a1,xbegin,end,lbegin)
@@ -281,7 +298,7 @@ def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
     configs_a2 = prepare_configs_A2(seller1200,pman,dman)
     dtrades_a2 = batch_last(configs_a2,sdata,dates,xbegin,cmediator=myMediator)
     save_last('atr_last_a2.txt',dtrades_a2,xbegin,end,lbegin)
-
+    '''
     #configs_t = prepare_temp_configs(seller1200,pman,dman)
     #dtrades_t = batch_last(configs_t,sdata,dates,xbegin,cmediator=myMediator)
     #save_last('atr_last_t.txt',dtrades_t,xbegin,end,lbegin)
@@ -311,8 +328,8 @@ if __name__ == '__main__':
     from time import time
     tbegin = time()
     
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
-    dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])
+    dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601398'],[ref_code])        

@@ -6,6 +6,8 @@
 
 from wolfox.fengine.core.shortcut import *
 from wolfox.fengine.normal.funcs import *
+from wolfox.fengine.core.d1 import subd
+
 
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.run')    
@@ -131,6 +133,7 @@ def prepare_order(sdata):   #g60/c60在prepare_catalogs中计算
     d_posort('g5',sdata,distance=5)        
     d_posort('g20',sdata,distance=20)    
     d_posort('g120',sdata,distance=120)     
+    d_posort('g60',sdata,distance=60)    
     d_posort('g250',sdata,distance=250)     
 
 silver = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
@@ -150,6 +153,10 @@ def prepare_common(sdata,ref):
         s.sliver = silver
         s.svap_ma_67 = svap_ma(v,c,67)
         s.vap_ma_67 = vap_pre(v,c,67)
+
+def prepare_k(ref):
+    c = ref.transaction[CLOSE]
+    ref.ks = subd(c) * BASE / rollx(c)
 
 def run_body(sdata,dates,begin,end,xbegin):
     from time import time
@@ -208,23 +215,32 @@ def run_merge_body(sdata,dates,begin,end,xbegin):
 
 def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     prepare_order(sdata.values())
+    prepare_order(idata.values())
     prepare_order(catalogs)
+    prepare_k(idata[ref_id])
     prepare_common(sdata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
+    prepare_common(idata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
     dummy_catalogs('catalog',catalogs)
     run_body(sdata,dates,begin,end,xbegin)
 
 def run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     prepare_order(sdata.values())
+    prepare_order(idata.values())    
     prepare_order(catalogs)    
+    prepare_k(idata[ref_id])    
     prepare_common(sdata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
+    prepare_common(idata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma    
     dummy_catalogs('catalog',catalogs)
     run_merge_body(sdata,dates,begin,end,xbegin)
 
 
 def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
     prepare_order(sdata.values())
-    prepare_order(catalogs)    
+    prepare_order(idata.values())    
+    prepare_order(catalogs) 
+    prepare_k(idata[ref_id])    
     prepare_common(sdata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
+    prepare_common(idata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma    
     dummy_catalogs('catalog',catalogs)
     from time import time
     tbegin = time()

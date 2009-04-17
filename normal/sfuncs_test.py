@@ -18,8 +18,7 @@ class ModuleTest(unittest.TestCase):    #通路测试
         trans = [sopen,sclose,svolume,shigh,savg,samount,svolume]
         vi = np.array([i for i in range(2000)])
         g = np.array([randint(0,10000) for i in range(2000)])
-        s = BaseObject(code='SH00TEST',transaction=trans,g5=g,g20=g,g60=g,g120=g,g250=g,ma10=g,ma20=g,ma60=g,t120=g,above=g,golden=g,thumb=g,svap_ma_67=(g,vi),vap_ma_67=(g,vi))
-        s.silver = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
+        s = BaseObject(code='SH00TEST',transaction=trans,silver=g,g5=g,g20=g,g60=g,g120=g,g250=g,ma10=g,ma20=g,ma60=g,t120=g,above=g,golden=g,thumb=g,svap_ma_67=(g,vi),vap_ma_67=(g,vi))
         s.catalog = {s:g}
         s.c60 = {s:g}
         self.stock = s
@@ -64,8 +63,8 @@ class ModuleTest(unittest.TestCase):    #通路测试
         sbuy = gx60(self.stock)
         self.assertTrue(True)
     
-    def test_gx120(self):
-        sbuy = gx120(self.stock)
+    def test_gx250(self):
+        sbuy = gx250(self.stock)
         self.assertTrue(True)
 
 

@@ -10,9 +10,13 @@ from wolfox.fengine.internal import *
 from wolfox.fengine.core.d1 import BASE
 from wolfox.fengine.core.d1idiom import B0S0,B0S1,B1S0,B1S1,BS_DUMMY
 from wolfox.fengine.core.trade import match_trades
-
+from wolfox.fengine.core.base import cache
 
 logger = logging.getLogger('wolfox.fengine.core.shortcut')
+
+@cache
+def cached_zeros(n):
+    return np.zeros(n,int)
 
 def csc_func(stock,buy_signal,threshold=75,**kwargs):   #kwargs目的是吸收无用参数，便于cruiser
     t = stock.transaction

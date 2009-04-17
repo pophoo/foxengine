@@ -44,6 +44,28 @@ def swrap(stock,dates):
     #g = gand(stock.g20>=3000,stock.g20<=8000)    
     #return gand(g,sbuy)
 
+def spring(stock,dates):
+    t = stock.transaction
+    linelog('spring:%s' % stock.code)
+    
+    #signals = gand(stock.ks >= -5,stock.ks<=5,stock.ref.ks<=-30)
+
+    threshold = -30
+    
+    s11 = gand(stock.ks >=-5,stock.ks<0,stock.ref.ks<=threshold)
+    s12 = gand(stock.ks >=5,stock.ks<20,stock.ref.ks<=threshold)
+    s1 = bor(s11,s12)
+    s_tt = gand(s1,stock.thumb,stock.t120)
+    s21 = gand(stock.ks>=5,stock.ks<75,stock.ref.ks<=threshold)
+    s_aa = gand(s21,stock.thumb,stock.above)
+
+    #sbuy = s_aa
+    signals = bor(s_aa,s_tt)
+
+    sbuy = gand(signals,stock.ref.above)
+
+    return sbuy
+
 def ctest(stock,dates):
     fast,mid,slow,rstart,rend = 33,5,40,2000,4500
     ma_standard=500
@@ -155,23 +177,12 @@ def tsvama2(stock,dates):
     fast=20
     slow=100
     t = stock.transaction
-    #g = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120)
-    #gma20 = ma(stock.g20,5)
-    #gma60 = ma(stock.g60,5)
-    #gma120 = ma(stock.g120,5)
-    g = gand(stock.g20 >= stock.g60+1000,stock.g60 >= stock.g120+1000,stock.g20>=3000,stock.g20<=8000)
-    #g = gand(gma20 >= gma60+1000,gma60 >= gma120+1000,stock.g20>=3000,stock.g20<=8000)
+    
     #g = gand(stock.g20 >= stock.g60+1000,stock.g60 >= stock.g120+1000,stock.g20>=3000,stock.g20<=8000)
-    #g = gand(stock.g60 >= stock.g20,stock.g60 >= stock.g120,stock.g60-stock.g20>=(stock.g60-stock.g120),stock.g60-stock.g20<=(stock.g60-stock.g120)*2,stock.g20>=3000,stock.g20<=8000)
-    #g = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g20>=3000,stock.g20<=8000,stock.g20-stock.g60<=stock.g60-stock.g120) 
 
-    #g = gand(stock.g20 >= 9000,stock.g60 >= 9000,stock.g120>=9000)
+    g = stock.golden
 
-    skey = 'svap_ma_%s' % 65
-    if not stock.has_attr(skey): #加速
-        #linelog(u'第一次计算.........')
-        stock.set_attr(skey,svap_ma(t[VOLUME],t[CLOSE],65))
-    svap,v2i = stock.get_attr(skey) 
+    svap,v2i = stock.svap_ma_67
 
     ma_svapfast = ma(svap,fast)
     ma_svapslow = ma(svap,slow)
@@ -180,53 +191,30 @@ def tsvama2(stock,dates):
     cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
     msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
 
-    if not stock.has_attr('ma'):
-        ma10 = ma(t[CLOSE],10)
-        ma20 = ma(t[CLOSE],20)
-        ma60 = ma(t[CLOSE],60)
-        ma120 = ma(t[CLOSE],120)
-        t120 = strend(ma120)>0
-        ma_above = gand(greater(ma10,ma20),greater(ma20,ma60),greater(ma60,ma120))        
-        stock.set_attr('ma',{'10':ma10,'20':ma20,'60':ma60,'120':ma120,'t120':t120,'above':ma_above})
-    t120,ma_above = stock.ma['t120'],stock.ma['above']
-    ma10,ma20,ma60,ma120 = stock.ma['10'],stock.ma['20'],stock.ma['60'],stock.ma['120']
     
-
     linelog('%s:%s' % (tsvama2.__name__,stock.code))
-    #cs = catalog_signal_cs(stock.c60,c_extractor)
-
-    #return gand(g,msvap,t120,ma_above)
-    #return gand(g,cs,msvap,ma_above)
-    #return gand(g,msvap,ma_above)
-    #return gand(g,msvap,ma_above,gfilter)
-    #return gand(g,cs,msvap,ma_above,t120)
-    return gand(g,msvap,ma_above)
+    return gand(g,msvap,stock.above)
 
 def gcs(stock,dates):
     t = stock.transaction
     linelog(stock.code)
-    
-    if not stock.has_attr('ma'):
-        ma10 = ma(t[CLOSE],10)
-        ma20 = ma(t[CLOSE],20)
-        ma60 = ma(t[CLOSE],60)
-        ma120 = ma(t[CLOSE],120)
-        t120 = strend(ma120)>0
-        ma_above = gand(greater(ma10,ma20),greater(ma20,ma60),greater(ma60,ma120))        
-        stock.set_attr('ma',{'10':ma10,'20':ma20,'60':ma60,'120':ma120,'t120':t120,'above':ma_above})
-    t120,ma_above = stock.ma['t120'],stock.ma['above']
-    ma20,ma60,ma120 = stock.ma['20'],stock.ma['60'],stock.ma['120']
-    
-    g = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120)
-    cs = catalog_signal_cs(stock.c60,c_extractor)
+    s = stock
+    #g = gand(s.g20 >= s.g60+500,s.g60 >= s.g120+500,s.g120>=s.g250)
+    #silver2 = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250)    
+    #cs = catalog_signal_cs(stock.c60,stock.silver)
+    cs = catalog_signal_cs(stock.c60,stock.silver)
 
-    signals = gand(g,cs,ma_above)
-    #sbuy = rollx(derepeatc(signals),10)
+    signals = gand(stock.thumb,cs,stock.above,stock.t120)
+    #signals = gand(stock.golden,cs,stock.t120)
+    #signals = gand(g,stock.above)
+    #sbuy = derepeatc(signals)
     sbuy = signals
     gcs.sum += np.sum(sbuy)
+    gcs.total += np.sum(t[VOLUME]>0)
     return sbuy
 
 gcs.sum=0
+gcs.total = 0
 
 def pmacd(stock,dates):
     t = stock.transaction

@@ -306,9 +306,9 @@ from time import time
 
 import logging
 logging.basicConfig(filename="srun_x4c.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
-begin,xbegin,end = 20000101,20010701,20090101
+#begin,xbegin,end = 20000101,20010701,20090101
 #begin,xbegin,end = 20000101,20010701,20091231
-#begin,xbegin,end = 20060101,20060701,20091231
+begin,xbegin,end = 20060101,20060701,20091231
 tbegin = time()
     
 #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
@@ -2494,6 +2494,69 @@ pre_ev:
                 闭合交易明细:
 
 
+        #改为    sbuy = gand(signals,greater(ref.ma10,ref.ma20),greater(ref.ma20,ref.ma60))，效果同上
+            评估:总盈亏值=40697,交易次数=129        期望值=5163
+                总盈亏率(1/1000)=40697,平均盈亏率(1/1000)=315,盈利交易率(1/1000)=620
+                赢利次数=80,赢利总值=43722
+                亏损次数=49,亏损总值=3025
+                平盘次数=0
+
+        #添加范围删除       below = (t[CLOSE] - t[LOW]) * BASE / t[CLOSE]
+            sbuy = gand(signals,greater(ref.ma10,ref.ma20),greater(ref.ma20,ref.ma60),below<10)
+            评估:总盈亏值=5753,交易次数=13  期望值=13000
+                总盈亏率(1/1000)=5753,平均盈亏率(1/1000)=442,盈利交易率(1/1000)=692
+                赢利次数=9,赢利总值=5891
+                亏损次数=4,亏损总值=138
+                平盘次数=0
+
+            #sbuy = gand(signals,greater(ref.ma10,ref.ma20),greater(ref.ma20,ref.ma60),below<20)
+            评估:总盈亏值=11835,交易次数=26 期望值=17500
+                总盈亏率(1/1000)=11835,平均盈亏率(1/1000)=455,盈利交易率(1/1000)=769
+                赢利次数=20,赢利总值=11993
+                亏损次数=6,亏损总值=158
+                平盘次数=0
+                闭合交易明细:
+            
+            #sbuy = gand(signals,greater(ref.ma10,ref.ma20),greater(ref.ma20,ref.ma60),below<50)
+            评估:总盈亏值=33137,交易次数=99 期望值=5964
+                总盈亏率(1/1000)=33137,平均盈亏率(1/1000)=334,盈利交易率(1/1000)=626
+                赢利次数=62,赢利总值=35238
+                亏损次数=37,亏损总值=2101
+                平盘次数=0
+                闭合交易明细:
+
+        #添加下影线删除     oc = np.select([t[CLOSE]<t[OPEN]],[t[CLOSE]],default=t[OPEN])
+                            below = (oc - t[LOW]) * BASE / rollx(t[CLOSE])
+        
+            sbuy = gand(signals,greater(ref.ma10,ref.ma20),greater(ref.ma20,ref.ma60),below<10)
+            评估:总盈亏值=15007,交易次数=35 期望值=7379
+                总盈亏率(1/1000)=15007,平均盈亏率(1/1000)=428,盈利交易率(1/1000)=657
+                赢利次数=23,赢利总值=15704
+                亏损次数=12,亏损总值=697
+                平盘次数=0
+
+            sbuy = gand(signals,greater(ref.ma10,ref.ma20),greater(ref.ma20,ref.ma60),below<20)
+            评估:总盈亏值=27839,交易次数=73 期望值=6927
+                总盈亏率(1/1000)=27839,平均盈亏率(1/1000)=381,盈利交易率(1/1000)=739
+                赢利次数=54,赢利总值=28885
+                亏损次数=19,亏损总值=1046
+                平盘次数=0
+
+            sbuy = gand(signals,greater(ref.ma10,ref.ma20),greater(ref.ma20,ref.ma60),below<30)
+            评估:总盈亏值=32960,交易次数=93 期望值=5900
+                总盈亏率(1/1000)=32960,平均盈亏率(1/1000)=354,盈利交易率(1/1000)=666
+                赢利次数=62,赢利总值=34836
+                亏损次数=31,亏损总值=1876
+                平盘次数=0
+
+            sbuy = gand(signals,greater(ref.ma10,ref.ma20),greater(ref.ma20,ref.ma60),below<40)
+            评估:总盈亏值=38145,交易次数=116        期望值=5655
+                总盈亏率(1/1000)=38145,平均盈亏率(1/1000)=328,盈利交易率(1/1000)=629
+                赢利次数=73,赢利总值=40644
+                亏损次数=43,亏损总值=2499
+                平盘次数=0
+                闭合交易明细:
+
 
     threshold=-25   #增加部分无意义
         评估:总盈亏值=47521,交易次数=203        期望值=3391
@@ -2538,3 +2601,4 @@ pre_ev:
 ### 探查它20090218之后的downlimit,看为什么没有卖出
 SH600565	B	20090218	price=4710	volume=1000
 
+没问题，其当日(o+c)/2=5.12, atr=0.305, 5.12-.305*1.2 = 4.75左右

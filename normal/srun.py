@@ -62,8 +62,11 @@ def spring(stock,dates):
     #sbuy = s_aa
     signals = bor(s_aa,s_tt)
 
-    sbuy = gand(signals,stock.ref.above)
 
+    ref = stock.ref
+    sbuy = gand(signals,greater(ref.ma10,ref.ma20),greater(ref.ma20,ref.ma60))
+    
+    #sbuy = signals
     return sbuy
 
 def ctest(stock,dates):

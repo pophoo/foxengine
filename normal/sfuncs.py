@@ -200,6 +200,9 @@ def gcs(stock):
 
 
 def spring(stock,threshold=-30):
+    ''' 对于结果
+        下影越短越好，close-low/close 也是越短越好
+    '''
     t = stock.transaction
     linelog('spring:%s' % stock.code)
     
@@ -212,7 +215,8 @@ def spring(stock,threshold=-30):
 
     signals = bor(s_aa,s_tt)
 
-    sbuy = gand(signals,stock.ref.above)
+    ref = stock.ref
+    sbuy = gand(signals,greater(ref.ma10,ref.ma20),greater(ref.ma20,ref.ma60))
 
     return sbuy
 

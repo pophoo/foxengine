@@ -70,6 +70,14 @@ def xma60(stock):
                 赢利次数=50,赢利总值=25929
                 亏损次数=37,亏损总值=2163
                 平盘次数=0
+
+        sync,stock.above,stock.t120,s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g5>=3000,s.g5<=8000,stock.silver
+        评估:总盈亏值=11019,交易次数=36 期望值=4781
+                总盈亏率(1/1000)=11019,平均盈亏率(1/1000)=306,盈利交易率(1/1000)=777
+                赢利次数=28,赢利总值=11535
+                亏损次数=8,亏损总值=516
+                平盘次数=0
+                
     '''
     t = stock.transaction
     water_line = stock.ma60*115/100   #上方15处
@@ -195,7 +203,7 @@ def gcs(stock):
     t = stock.transaction
     ma5 = ma(t[CLOSE],5)
     linelog(stock.code)
-    sbuy = gand(stock.golden,stock.silver,stock.above,stock,ma5>stock.ma10,stock.ref.t120)
+    sbuy = gand(stock.golden,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120)
     return sbuy
 
 
@@ -219,4 +227,43 @@ def spring(stock,threshold=-30):
     sbuy = gand(signals,greater(ref.ma10,ref.ma20),greater(ref.ma20,ref.ma60))
 
     return sbuy
+
+
+def cma2(stock,fast,slow,gfrom=0,gto=8500):  
+    ''' 传统的ma2
+        5 X 20
+        评估:总盈亏值=11488,交易次数=54 期望值=3164
+                总盈亏率(1/1000)=11488,平均盈亏率(1/1000)=212,盈利交易率(1/1000)=685
+                赢利次数=37,赢利总值=12628
+                亏损次数=17,亏损总值=1140
+                平盘次数=0
+            g5: 4000-8000
+            评估:总盈亏值=10980,交易次数=38 期望值=4571
+                总盈亏率(1/1000)=10980,平均盈亏率(1/1000)=288,盈利交易率(1/1000)=763
+                赢利次数=29,赢利总值=11547
+                亏损次数=9,亏损总值=567
+                平盘次数=0
+        5 X 13
+        评估:总盈亏值=39727,交易次数=213        期望值=2952
+                总盈亏率(1/1000)=39727,平均盈亏率(1/1000)=186,盈利交易率(1/1000)=553
+                赢利次数=118,赢利总值=45746
+                亏损次数=95,亏损总值=6019
+                平盘次数=0
+            #g5:7000-8500
+            评估:总盈亏值=33922,交易次数=149        期望值=3603
+                总盈亏率(1/1000)=33922,平均盈亏率(1/1000)=227,盈利交易率(1/1000)=617
+                赢利次数=92,赢利总值=37550
+                亏损次数=57,亏损总值=3628
+                平盘次数=0
+ 
+    '''
+    t = stock.transaction
+    water_line = ma(t[CLOSE],slow)
+    dcross = cross(water_line,ma(t[CLOSE],fast))
+
+    up_cross = dcross > 0
+
+    linelog(stock.code)
+    return gand(up_cross,stock.above,stock.t120,stock.g5>=stock.g20+500,stock.g20>=stock.g60+500,stock.g60>=stock.g120,stock.g5>=gfrom,stock.g5<=gto)
+
 

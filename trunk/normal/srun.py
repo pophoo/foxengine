@@ -205,9 +205,10 @@ def gcs(stock,dates):
     #g = gand(s.g20 >= s.g60+500,s.g60 >= s.g120+500,s.g120>=s.g250)
     #silver2 = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250)    
     #cs = catalog_signal_cs(stock.c60,stock.silver)
-    cs = catalog_signal_cs(stock.c60,stock.silver)
 
-    signals = gand(stock.thumb,cs,stock.above,stock.t120)
+    ma5=ma(t[CLOSE],5)
+    signals = gand(stock.golden,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120)
+
     #signals = gand(stock.golden,cs,stock.t120)
     #signals = gand(g,stock.above)
     #sbuy = derepeatc(signals)
@@ -253,12 +254,10 @@ def nhigh(stock,dates):#60高点
     #print strend(mline).tolist()   
     linelog(stock.code)
 
-    g = gand(stock.g5>=stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20>=3000,stock.g20<=8000)
+    g = gand(stock.g5>=stock.g20,stock.thumb)
     #g = gand(stock.g5>=stock.g20,stock.g120 >= stock.g250,stock.thumb)
     
-    cs = catalog_signal_cs(stock.c60,stock.silver)
-
-    return gand(g,cs,dcross,strend(stock.ma60)>0,stock.above)
+    return gand(g,stock.silver,dcross,strend(stock.ma60)>0,stock.above)
 
 
 def ma3(stock,dates):
@@ -291,35 +290,31 @@ def ma3(stock,dates):
 
 #c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
 def xma60(stock,dates):
+
     t = stock.transaction
-    if not stock.has_attr('ma'):
-        ma10 = ma(t[CLOSE],10)
-        ma20 = ma(t[CLOSE],20)
-        ma60 = ma(t[CLOSE],60)
-        ma120 = ma(t[CLOSE],120)
-        t120 = strend(ma120)>0
-        ma_above = gand(greater(ma10,ma20),greater(ma20,ma60),greater(ma60,ma120))        
-        stock.set_attr('ma',{'10':ma10,'20':ma20,'60':ma60,'120':ma120,'t120':t120,'above':ma_above})
-    t120,ma_above = stock.ma['t120'],stock.ma['above']
-    ma20,ma60,ma120 = stock.ma['20'],stock.ma['60'],stock.ma['120']
-
-    water_line = ma60*115/100   #上方15处
-
+    water_line = stock.ma60*115/100   #上方15处
     dcross = cross(water_line,t[LOW])
+    up_cross = dcross > 0
+    down_cross = dcross < 0
+    sync = sfollow(down_cross,up_cross,7)
+    linelog(stock.code)
+    s = stock
+    #return gand(sync,stock.above,stock.t120,stock.golden,cs)    
+    return gand(sync,stock.above,stock.t120,stock.thumb,stock.silver)
+
+def cma2(stock,dates):  #传统的ma2
+    t = stock.transaction
+    #water_line = stock.ma20  #上方15处,这个位置起始有点远，但居然起作用
+    water_line = ma(t[CLOSE],20)
+    dcross = cross(water_line,ma(t[CLOSE],5))
 
     up_cross = dcross > 0
     down_cross = dcross < 0
 
-    sync = sfollow(down_cross,up_cross,5)
-
+    sync = up_cross
     linelog(stock.code)
-    #g = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120>=stock.g250)
-    #g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60)
-    #g = gand(stock.g5>=stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
-    #cs = catalog_signal_cs(stock.c60,c_extractor)
+    return gand(sync,stock.above,stock.t120,stock.g5>=stock.g20+500,stock.g20>=stock.g60+500,stock.g60>=stock.g120,stock.g5>4000,stock.g5<8000)
 
-    #return gand(sync,ma_above,g,cs,strend(ma(t[CLOSE],120))>0)
-    return gand(sync,ma_above,t120)
 
 def wvad(stock,dates):
     t = stock.transaction

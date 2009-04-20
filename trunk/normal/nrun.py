@@ -107,6 +107,9 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=s.gx250))   #12000-764-17
     configs.append(config(buyer=s.spring))  #4935-606-132
 
+    configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=13,gfrom=7000,gto=8500))) #3603-617-149   #g5-20-60差别越大越好
+    configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #4671-763-38    #g5-20-60差别越大越好
+
     #埋伏
     configs.append(config(buyer=s.gcs))   #1880-422-206
 
@@ -159,7 +162,7 @@ def prepare_configs_A2(seller,pman,dman):
     return configs
 
 def prepare_order(sdata):   #g60/c60在prepare_catalogs中计算
-    d_posort('g5',sdata,distance=5)        
+    d_posort('g5',sdata,distance=5)
     d_posort('g20',sdata,distance=20)    
     d_posort('g120',sdata,distance=120)     
     d_posort('g60',sdata,distance=60)    
@@ -284,6 +287,7 @@ def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
     if lbegin == 0:
         lbegin = end - 5
 
+    '''
     configs_a = prepare_configs_A1200(seller1200,pman,dman)
     dtrades_a = batch_last(configs_a,sdata,dates,xbegin,cmediator=myMediator)
     save_last('atr_last_a1200.txt',dtrades_a,xbegin,end,lbegin)
@@ -291,9 +295,11 @@ def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
     configs_a = prepare_configs_A2000(seller2000,pman,dman)
     dtrades_a = batch_last(configs_a,sdata,dates,xbegin,cmediator=myMediator)
     save_last('atr_last_a2000.txt',dtrades_a,xbegin,end,lbegin)
+    '''
     configs_a0 = prepare_configs_A0(seller1200,pman,dman)
     dtrades_a0 = batch_last(configs_a0,sdata,dates,xbegin,cmediator=myMediator)
     save_last('atr_last_a0.txt',dtrades_a0,xbegin,end,lbegin)
+    '''
     configs_a1 = prepare_configs_A1(seller1200,pman,dman)
     dtrades_a1 = batch_last(configs_a1,sdata,dates,xbegin,cmediator=myMediator)
     save_last('atr_last_a1.txt',dtrades_a1,xbegin,end,lbegin)
@@ -304,7 +310,7 @@ def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
     #configs_t = prepare_temp_configs(seller1200,pman,dman)
     #dtrades_t = batch_last(configs_t,sdata,dates,xbegin,cmediator=myMediator)
     #save_last('atr_last_t.txt',dtrades_t,xbegin,end,lbegin)
-
+    '''
     tend = time()
     print u'计算耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    

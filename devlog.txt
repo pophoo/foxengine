@@ -306,9 +306,9 @@ from time import time
 
 import logging
 logging.basicConfig(filename="srun_x4c.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
-#begin,xbegin,end = 20000101,20010701,20090101
+begin,xbegin,end = 20000101,20010701,20090101
 #begin,xbegin,end = 20000101,20010701,20091231
-begin,xbegin,end = 20060101,20060701,20091231
+#begin,xbegin,end = 20060101,20060701,20091231
 tbegin = time()
     
 #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
@@ -1091,6 +1091,8 @@ pre_ev:
                 赢利次数=28,赢利总值=14170
                 亏损次数=17,亏损总值=849
                 平盘次数=0
+        
+
         
         #金手指
         评估:总盈亏值=33283,交易次数=173        期望值=2493
@@ -2214,7 +2216,7 @@ pre_ev:
                 平盘次数=0
                 闭合交易明细:
 
-        #ks:[-5,0)+[5,20)   ref.ks<=-30     #####################选择A
+        #ks:[-5,0)+[5,20)   ref.ks<=-30     ########选择A
         评估:总盈亏值=26818,交易次数=74 期望值=5838
                 总盈亏率(1/1000)=26818,平均盈亏率(1/1000)=362,盈利交易率(1/1000)=621
                 赢利次数=46,赢利总值=28575

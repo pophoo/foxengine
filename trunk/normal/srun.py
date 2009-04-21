@@ -32,8 +32,8 @@ def check2(sdata,sname,dates,tail=30):
     f.write('\n#############################')
     f.write(stock.code)
     f.write('#############################\n')    
-    for d,g20,g60,g120 in zip(dates,stock.g20,stock.g60,stock.g120)[-tail:]:
-        print >>f,d,g20,g60,g120
+    for d,g5,g20,g60,g120 in zip(dates,stock.g5,stock.g20,stock.g60,stock.g120)[-tail:]:
+        print >>f,d,g5,g20,g60,g120
     f.close()
 
 sbuyer = fcustom(svama3,fast=185,mid=260,slow=1800)

@@ -32,8 +32,8 @@ def check2(sdata,sname,dates,tail=30):
     f.write('\n#############################')
     f.write(stock.code)
     f.write('#############################\n')    
-    for d,g5,g20,g60,g120 in zip(dates,stock.g5,stock.g20,stock.g60,stock.g120)[-tail:]:
-        print >>f,d,g5,g20,g60,g120
+    for d,g5,g20,g60,g120,g250 in zip(dates,stock.g5,stock.g20,stock.g60,stock.g120,stock.g250)[-tail:]:
+        print >>f,d,g5,g20,g60,g120,g250
     f.close()
 
 sbuyer = fcustom(svama3,fast=185,mid=260,slow=1800)
@@ -202,12 +202,13 @@ def gcs(stock,dates):
     t = stock.transaction
     linelog(stock.code)
     s = stock
-    #g = gand(s.g20 >= s.g60+500,s.g60 >= s.g120+500,s.g120>=s.g250)
+    g = gand(s.g20 >= s.g120+2000,s.g120 >= s.g60,s.g20>=3000,s.g20<=8000)
     #silver2 = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250)    
     #cs = catalog_signal_cs(stock.c60,stock.silver)
 
     ma5=ma(t[CLOSE],5)
-    signals = gand(stock.golden,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120)
+    #signals = gand(stock.golden,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120)
+    signals = gand(g,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120)
 
     #signals = gand(stock.golden,cs,stock.t120)
     #signals = gand(g,stock.above)

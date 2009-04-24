@@ -306,9 +306,9 @@ from time import time
 
 import logging
 logging.basicConfig(filename="srun_x4c.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
-begin,xbegin,end = 20000101,20010701,20090101
+#begin,xbegin,end = 20000101,20010701,20090101
 #begin,xbegin,end = 20000101,20010701,20091231
-#begin,xbegin,end = 20060101,20060701,20091231
+begin,xbegin,end = 20060101,20060701,20091231
 tbegin = time()
     
 #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
@@ -2604,3 +2604,7 @@ pre_ev:
 SH600565	B	20090218	price=4710	volume=1000
 
 没问题，其当日(o+c)/2=5.12, atr=0.305, 5.12-.305*1.2 = 4.75左右
+
+#2009-04-24
+#大跌后不靠spring和gcs选出的股票，尤其是vama系列(s,cs,v)选出的，很有前途
+如 0423选出的600146

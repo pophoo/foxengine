@@ -95,11 +95,15 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,1,1,1,1],subd(a).tolist())
         self.assertEquals([0,0,2,2,2],subd(a,2).tolist())
         self.assertEquals([0,0,0,0,0],subd(a,0).tolist())
+        self.assertEquals([],subd(np.array([])).tolist())
+        self.assertEquals([0],subd(np.array([1])).tolist())
 
     def test_nsubd(self):
         a = np.array([1,2,3,4,5])
         self.assertEquals([1,1,1,1,1],nsubd(a).tolist())
         self.assertEquals([1,2,2,2,2],nsubd(a,2).tolist())
+        self.assertEquals([],nsubd(np.array([])).tolist())
+        self.assertEquals([1],nsubd(np.array([1])).tolist())
 
     def test_desync(self):
         s = np.array([1,0,0,1,0])

@@ -48,6 +48,12 @@ class ModuleTest(unittest.TestCase):
         source = np.array([63750,65625,63000,62750,63250,65375,66000])
         diff,dea = cmacd(source)
 
+    def test_score(self):
+        self.assertEquals([],score(np.array([]),np.array([])).tolist())
+        sprice = np.array([700,720,900,1100,1000,999,999,720,792,793,700,990])
+        svolume = np.array([700,800,600,1100,500,699,999,999,999,900,800,801])
+        self.assertEquals([0,2,1,2,-1,-2,0,-1,1,1,-1,2],score(sprice,svolume).tolist())
+
     def test_downlimit(self):
         source = np.array([700,720,900,1100,1000,999,980,720,792,793,700,990])
         signal = np.array([0,1,0,0,0,1,0,0,1,-1,0,0])

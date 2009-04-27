@@ -90,6 +90,20 @@ def cmacd(source,ifast=12,islow=26,idiff=9):
     return diff,dea
 
 
+def score(sprice,svolume):
+    ''' 对当日进行评分
+        按照价格变化和成交量变化打分
+        价格上升    量上升  2分
+                    否则    1分
+        价格下降    量上升  -2分
+                    否则    -1分
+        价格平      0分
+    '''
+    fprice = np.sign(subd(sprice))
+    fvolume = np.choose(subd(svolume) > 0,[1,2])
+    return fprice * fvolume
+
+
 ##用于updownlimit/d的比较函数和计算函数表
 functor_map = {'down':(lambda x,y : x > y , lambda peak,factor,d45 : (peak * BASE + d45) / factor )
         ,'up':(lambda x,y : x < y , lambda peak,factor,d45 : (peak *  factor + d45) / BASE )

@@ -45,6 +45,8 @@ def gmin(*source):
     return np.array(source).min(axis=0)
 
 def subd(source,distance=1):   #偏移减法,distance必须大于0,返回结果中前distance个元素为0
+    if len(source) == 0:
+        return np.array([],int)
     if distance:
         pres = np.zeros(distance,int)
         main = source[distance:] - source[:-distance]

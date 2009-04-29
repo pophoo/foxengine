@@ -104,6 +104,13 @@ def score(sprice,svolume):
     return fprice * fvolume
 
 
+def score2(sprice,svolume):
+    si = subd(sprice) * BASE / rollx(sprice)
+    fprice = np.select([si>5,si<-5],[1,-1],default=0)
+    fvolume = np.choose(subd(svolume) > 0,[1,2])
+    return fprice * fvolume
+
+
 ##用于updownlimit/d的比较函数和计算函数表
 functor_map = {'down':(lambda x,y : x > y , lambda peak,factor,d45 : (peak * BASE + d45) / factor )
         ,'up':(lambda x,y : x < y , lambda peak,factor,d45 : (peak *  factor + d45) / BASE )

@@ -4,9 +4,9 @@
 
 from wolfox.fengine.core.shortcut import *
 from wolfox.fengine.normal.funcs import *
-from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals
+from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum
 from wolfox.fengine.core.d1match import *
-from wolfox.fengine.core.d1indicator import cmacd
+from wolfox.fengine.core.d1indicator import cmacd,score2
 from wolfox.foxit.base.tutils import linelog
 from time import time
 
@@ -206,6 +206,14 @@ def gcs(stock):
     sbuy = gand(stock.golden,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120)
     return sbuy
 
+def xgcs(stock):
+    t = stock.transaction
+    ma5 = ma(t[CLOSE],5)
+    linelog(stock.code)
+    si = score2(t[CLOSE],t[VOLUME])
+    mxi = gand(msum(si,5)>=-100,msum(si,5)<=0)
+    sbuy = gand(stock.golden,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120,mxi)
+    return sbuy
 
 def spring(stock,threshold=-30):
     ''' 对于结果

@@ -54,6 +54,12 @@ class ModuleTest(unittest.TestCase):
         svolume = np.array([700,800,600,1100,500,699,999,999,999,900,800,801])
         self.assertEquals([0,2,1,2,-1,-2,0,-1,1,1,-1,2],score(sprice,svolume).tolist())
 
+    def test_score(self):
+        self.assertEquals([],score2(np.array([]),np.array([])).tolist())
+        sprice = np.array([700,720,900,1100,1000,999,999,720,792,793,700,990])
+        svolume = np.array([700,800,600,1100,500,699,999,999,999,900,800,801])
+        self.assertEquals([0,2,1,2,-1,0,0,-1,1,0,-1,2],score2(sprice,svolume).tolist())
+
     def test_downlimit(self):
         source = np.array([700,720,900,1100,1000,999,980,720,792,793,700,990])
         signal = np.array([0,1,0,0,0,1,0,0,1,-1,0,0])

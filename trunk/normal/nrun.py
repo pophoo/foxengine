@@ -206,13 +206,13 @@ def run_body(sdata,dates,begin,end,xbegin):
     #seller = csc_func
     #seller = fcustom(csc_func,threshold=100)
 
-    configs = prepare_temp_configs(seller1200,pman,dman)
+    #configs = prepare_temp_configs(seller1200,pman,dman)
     #configs = prepare_temp_configs(seller2000,pman,dman)
-    #configs = prepare_configs_A1200(seller1200,pman,dman)
-    #configs = prepare_configs_A2000(seller2000,pman,dman)    
-    #configs.extend(prepare_configs_A0(seller1200,pman,dman))    
-    #configs.extend(prepare_configs_A1(seller1200,pman,dman))
-    #configs.extend(prepare_configs_A2(seller1200,pman,dman))    
+    configs = prepare_configs_A1200(seller1200,pman,dman)
+    configs = prepare_configs_A2000(seller2000,pman,dman)    
+    configs.extend(prepare_configs_A0(seller1200,pman,dman))    
+    configs.extend(prepare_configs_A1(seller1200,pman,dman))
+    configs.extend(prepare_configs_A2(seller1200,pman,dman))    
     batch(configs,sdata,dates,xbegin,cmediator=myMediator)
 
     tend = time()

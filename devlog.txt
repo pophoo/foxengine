@@ -306,9 +306,9 @@ from time import time
 
 import logging
 logging.basicConfig(filename="srun_x4c.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
-begin,xbegin,end = 20000101,20010701,20090101
+#begin,xbegin,end = 20000101,20010701,20090101
 #begin,xbegin,end = 20000101,20010701,20091231
-#begin,xbegin,end = 20060101,20060701,20091231
+begin,xbegin,end = 20060101,20060701,20091231
 tbegin = time()
     
 #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])

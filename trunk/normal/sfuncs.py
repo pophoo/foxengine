@@ -215,6 +215,25 @@ def xgcs(stock):
     sbuy = gand(stock.golden,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120,mxi)
     return sbuy
 
+def xgcs0(stock,dates):
+    ''' 下穿0线
+        评估:总盈亏值=23464,交易次数=81 期望值=4013
+                总盈亏率(1/1000)=23464,平均盈亏率(1/1000)=289,盈利交易率(1/1000)=617
+                赢利次数=50,赢利总值=25703
+                亏损次数=31,亏损总值=2239
+                平盘次数=0
+    '''
+    t = stock.transaction
+    ma5 = ma(t[CLOSE],5)
+    linelog(stock.code)
+
+    si = score2(t[CLOSE],t[VOLUME])
+    zs = cached_zeros(len(t[CLOSE]))
+    mxi = cross(zs,si)<0
+
+    sbuy = gand(stock.golden,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120,mxi)
+    return sbuy
+
 def spring(stock,threshold=-30):
     ''' 对于结果
         下影越短越好，close-low/close 也是越短越好

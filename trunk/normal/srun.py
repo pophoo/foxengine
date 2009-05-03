@@ -205,16 +205,19 @@ def gcs(stock,dates):
     s = stock
     #g = gand(s.g20 >= s.g120+2000,s.g120 >= s.g60,s.g20>=3000,s.g20<=8000)
     #g = gand(s.g20 >= s.g60+1000,s.g60 >= s.g120+1000,s.g120 >= s.g250,s.g120>=1000,s.g20<=2*s.g60,s.g60<=2*s.g120,s.g20>=3000,s.g20<=8000)
-    g = gand(s.g20 >= s.g60,s.g20 <= s.g60+500,s.g60 >= s.g120,s.g60<=s.g120+500,s.g120>=s.g250+500,s.g250>=1000,s.g20<=8000)
+    #g = gand(s.g20 >= s.g60,s.g20 <= s.g60+500,s.g60 >= s.g120,s.g60>=s.g120+500,s.g120>=s.g250+500,s.g250>=1000,s.g20<=8000)
     #silver2 = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250)    
     #cs = catalog_signal_cs(stock.c60,stock.silver)
+    #ks = np.abs((s.g20-s.g60) * 1000/(s.g60-s.g120))
+    g = gand(s.g20 >= s.g60-500,s.g60 >= s.g120-500,s.g20>=3000,s.g20<=8000,s.g20<=s.g120+500,s.g20>=s.g120-500)
 
     #ma5=ma(t[CLOSE],5)
     #signals = gand(stock.golden,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120)
     #signals = gand(g,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120)
     #signals = gand(g,stock.above,stock.ref.t120)
     #signals = gand(stock.golden,stock.ref.t120,strend(stock.ref.ma60)>0,strend(stock.ref.ma20)>0,strend(ma(stock.ref.transaction[CLOSE],250))>0)
-    signals = g
+    signals = gand(g,stock.ref.t120,strend(stock.ref.ma60)>0,strend(stock.ref.ma20)>0,strend(ma(stock.ref.transaction[CLOSE],250))>0)
+
 
     #signals = gand(stock.golden,cs,stock.t120)
     #signals = gand(g,stock.above)

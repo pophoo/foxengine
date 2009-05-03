@@ -215,7 +215,7 @@ def xgcs(stock):
     sbuy = gand(stock.golden,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120,mxi)
     return sbuy
 
-def xgcs0(stock,dates):
+def xgcs0(stock):
     ''' 下穿0线
         评估:总盈亏值=23464,交易次数=81 期望值=4013
                 总盈亏率(1/1000)=23464,平均盈亏率(1/1000)=289,盈利交易率(1/1000)=617

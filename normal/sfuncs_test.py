@@ -19,6 +19,7 @@ class ModuleTest(unittest.TestCase):    #通路测试
         vi = np.array([i for i in range(2000)])
         g = np.array([randint(0,10000) for i in range(2000)])
         s = BaseObject(code='SH00TEST',transaction=trans,silver=g,g5=g,g20=g,g60=g,g120=g,g250=g,ma10=g,ma20=g,ma60=g,t120=g,above=g,golden=g,thumb=g,svap_ma_67=(g,vi),vap_ma_67=(g,vi))
+        s.ref = s   #指向自己
         s.catalog = {s:g}
         s.c60 = {s:g}
         self.stock = s
@@ -65,6 +66,18 @@ class ModuleTest(unittest.TestCase):    #通路测试
     
     def test_gx250(self):
         sbuy = gx250(self.stock)
+        self.assertTrue(True)
+
+    def test_xgcs(self):
+        sbuy = xgcs(self.stock)
+        self.assertTrue(True)
+
+    def test_xgcs0(self):
+        sbuy = xgcs0(self.stock)
+        self.assertTrue(True)
+
+    def test_gcs(self):
+        sbuy = gcs(self.stock)
         self.assertTrue(True)
 
 

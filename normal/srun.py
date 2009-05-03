@@ -203,13 +203,18 @@ def gcs(stock,dates):
     t = stock.transaction
     linelog(stock.code)
     s = stock
-    g = gand(s.g20 >= s.g120+2000,s.g120 >= s.g60,s.g20>=3000,s.g20<=8000)
+    #g = gand(s.g20 >= s.g120+2000,s.g120 >= s.g60,s.g20>=3000,s.g20<=8000)
+    #g = gand(s.g20 >= s.g60+1000,s.g60 >= s.g120+1000,s.g120 >= s.g250,s.g120>=1000,s.g20<=2*s.g60,s.g60<=2*s.g120,s.g20>=3000,s.g20<=8000)
+    g = gand(s.g20 >= s.g60,s.g20 <= s.g60+500,s.g60 >= s.g120,s.g60<=s.g120+500,s.g120>=s.g250+500,s.g250>=1000,s.g20<=8000)
     #silver2 = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250)    
     #cs = catalog_signal_cs(stock.c60,stock.silver)
 
-    ma5=ma(t[CLOSE],5)
+    #ma5=ma(t[CLOSE],5)
     #signals = gand(stock.golden,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120)
-    signals = gand(g,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120)
+    #signals = gand(g,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120)
+    #signals = gand(g,stock.above,stock.ref.t120)
+    #signals = gand(stock.golden,stock.ref.t120,strend(stock.ref.ma60)>0,strend(stock.ref.ma20)>0,strend(ma(stock.ref.transaction[CLOSE],250))>0)
+    signals = g
 
     #signals = gand(stock.golden,cs,stock.t120)
     #signals = gand(g,stock.above)
@@ -235,6 +240,51 @@ def xgcs(stock,dates):
     mxi = gand(msum(si,5)>=-100,msum(si,5)<=0)
 
     sbuy = gand(stock.golden,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120,mxi)
+    return sbuy
+
+
+def xgcs0(stock,dates):
+    ''' 下穿0线
+        评估:总盈亏值=23464,交易次数=81 期望值=4013
+                总盈亏率(1/1000)=23464,平均盈亏率(1/1000)=289,盈利交易率(1/1000)=617
+                赢利次数=50,赢利总值=25703
+                亏损次数=31,亏损总值=2239
+                平盘次数=0
+    '''
+    t = stock.transaction
+    ma5 = ma(t[CLOSE],5)
+    linelog(stock.code)
+
+    si = score2(t[CLOSE],t[VOLUME])
+    #mxi = gand(msum(si,5)>=-100,msum(si,5)<=0)
+    z1 = np.ones_like(t[CLOSE])
+    z1 = z1-3
+    mxi = cross(z1,si)<0
+
+    sbuy = gand(stock.golden,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120,mxi)
+    return sbuy
+
+
+def xgcs5(stock,dates):
+    '''
+    
+    '''
+    t = stock.transaction
+    ma5 = ma(t[CLOSE],5)
+    linelog(stock.code)
+
+    si = score2(t[CLOSE],t[VOLUME])
+    zs = cached_zeros(len(t[CLOSE]))
+    mxi = cross(zs,si)<0
+    
+    s = stock
+    g = gand(s.g20 >= s.g60,s.g20 <= s.g60+500,s.g60 >= s.g120,s.g60<=s.g120+500,s.g120>=s.g250+500,s.g250>=1000,s.g20<=8000)
+
+    #sbuy = gand(stock.golden,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120,mxi)
+    #sbuy = gand(g,stock.above,stock.ref.t120,mxi)
+    signals = gand(g,mxi,stock.ref.above,stock.ref.t120,strend(stock.ref.ma60)>0,strend(stock.ref.ma10)>0,strend(stock.ref.ma20)>0,strend(ma(stock.ref.transaction[CLOSE],250))>0)
+    
+    sbuy = signals
     return sbuy
 
 
@@ -332,6 +382,23 @@ def cma2(stock,dates):  #传统的ma2
     sync = up_cross
     linelog(stock.code)
     return gand(sync,stock.above,stock.t120,stock.g5>=stock.g20+500,stock.g20>=stock.g60+500,stock.g60>=stock.g120,stock.g5>4000,stock.g5<8000)
+
+
+def cma2x(stock,dates):  #传统的ma2
+    t = stock.transaction
+    water_line = ma(t[CLOSE],20)
+    dcross = cross(water_line,ma(t[CLOSE],5))
+
+    up_cross = dcross > 0
+    down_cross = dcross < 0
+
+    sync = up_cross
+    linelog(stock.code)
+
+    s=stock
+    g = gand(s.g20 >= s.g60,s.g20 <= s.g60+500,s.g60 >= s.g120,s.g60<=s.g120+500,s.g120>=s.g250+500,s.g250>=1000,s.g20<=8000)
+
+    return gand(sync,g,stock.g5>=stock.g20+500,stock.above,stock.t120)
 
 
 def wvad(stock,dates):

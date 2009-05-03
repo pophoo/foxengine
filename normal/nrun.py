@@ -110,6 +110,7 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=13,gfrom=7000,gto=8500))) #3603-617-149   #g5-20-60差别越大越好
     configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #4671-763-38    #g5-20-60差别越大越好
     configs.append(config(buyer=s.xgcs))   #3313-545-88
+    configs.append(config(buyer=s.xgcs0))   #4013-617-81
 
     #埋伏
     configs.append(config(buyer=s.gcs))   #1880-422-206

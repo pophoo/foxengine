@@ -234,6 +234,16 @@ def xgcs0(stock):
     sbuy = gand(stock.golden,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120,mxi)
     return sbuy
 
+
+def mgcs(stock):
+    t = stock.transaction
+    linelog(stock.code)
+    s = stock
+    g = gand(s.g20 >= s.g60,s.g60 >= s.g120,s.g20>=3000,s.g20<=8000,s.g20<=s.g120+1000)     ######
+    pdiff,pdea = cmacd(t[CLOSE])
+    sbuy = gand(g,pdiff>=225,pdiff<=350,stock.above,stock.ref.t120,strend(stock.ma20)>0,strend(stock.ma60)>0,stock.t120,stock.ref.above)
+    return sbuy
+
 def spring(stock,threshold=-30):
     ''' 对于结果
         下影越短越好，close-low/close 也是越短越好

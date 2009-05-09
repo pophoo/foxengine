@@ -5,6 +5,12 @@ import unittest
 from wolfox.fengine.core.d1idiom import *
 
 class ModuleTest(unittest.TestCase):
+    def test_down_period(self):
+        s = np.array([0,1,2,3,2,0,-1,-5,10,1,2,3,4,5,12,9,10,13])
+        self.assertEquals([0,0,0,0,1,2,3,4,0,1,2,3,4,5,0,1,2,0],down_period(s,5).tolist())
+        self.assertEquals([0,0,0,0,1,2,3,4,0,1,2,0,0,0,0,1,2,0],down_period(s,2).tolist())
+        self.assertEquals([],down_period([]).tolist())
+
     def test_swingin(self):
         s = swingin(np.array([100,150,180,200,400]),np.array([100,150,180,200,400]),3,500)
         self.assertEquals([1,1,0,1,0],s.tolist())

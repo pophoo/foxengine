@@ -15,6 +15,16 @@ from wolfox.fengine.core.d1indicator import *
 from wolfox.fengine.core.d1kline import *
 
 
+def down_period(source,covered=60):
+    ''' 计算下跌周期
+        covered为计算的覆盖长度
+        如果当前点是covered日内的新高，则rev[i]=0
+        否则rev[i]=rev[i-1]+1
+    '''
+    hline = rollx(tmax(source,covered)) #以前covered日为基准
+    cline = greater_equals(source,hline)
+    return distance(cline)
+
 def swingin(shigh,slow,covered,threshold):
     ''' 测试shigh,slow最近covered天内的波动幅度小于threshold
         对任意i属于[0:len(shigh)),有shigh[i] >= slow[i]

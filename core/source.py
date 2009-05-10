@@ -74,7 +74,7 @@ def _build_catalog_tree(css,sdata):
 
 
 ####以下是工具类
-from wolfox.fengine.core.base import OPEN,CLOSE,HIGH,LOW,AVG,AMOUNT,VOLUME
+from wolfox.fengine.core.base import OPEN,CLOSE,HIGH,LOW,AVG,AMOUNT,VOLUME,T_SECTORS
 #将{name:quote_list}转化为{name:[array1,....,array7]}的形式
 def tuple2array(quotes):
     ''' 返回的是数组[topens,tcloses,thighs,tlows,tavgs,tamounts,tvolumes]，各元素都是等长数组
@@ -114,16 +114,30 @@ def normalize_body(quotes,ihead):
             pre = quotes[i-1]
             quotes[i] = pre[0],pre[1],pre[2],pre[3],pre[4],0,0
 
-#从输入stock的qarrays中抽取指定的分量，并组成集合数组。这是一个耗时的操作，故设置弱引用cache
+#故设置弱引用cache
 #@wcache
 def extract_collect(stocks,sector=CLOSE):
+    '''
+        从输入stock的qarrays中抽取指定的分量，并组成集合数组。这是一个耗时的操作，
+    '''
     #print "sector:",sector
-    if stocks:
-        return np.array([s.transaction[sector] for s in stocks])
-    else:# 输入为空列表时，必须仍然保持返回数组的维度为2，保持一致性
+    try: 
+        if stocks:
+            if sector in T_SECTORS:
+                return np.array([s.transaction[sector] for s in stocks])
+            else:
+                return np.array([s.get_attr(sector) for s in stocks])
+        else:   #输入为空列表时
+            return np.array([[]])
+    except:# 发生异常或输入为空列表时，必须仍然保持返回数组的维度为2，保持一致性
         return np.array([[]])
 
 def extract_collect1(stock,sector=CLOSE):
-    #print "sector:",sector
-    return stock.transaction[sector]
+    try:
+        if sector in T_SECTORS:
+            return stock.transaction[sector]
+        else:
+            return stock.get_attr(sector)
+    except:
+        return np.array([])
 

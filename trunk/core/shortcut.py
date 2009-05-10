@@ -39,15 +39,27 @@ def prepare_catalogs(sdata,distance=60):
     d_posort('g%s' % distance,catalogs,distance=distance)
     return ctree,catalogs   
 
+def dlimit(stocks,limit):
+    for s in stocks:
+        s.transaction[OPEN][s.transaction[OPEN]<limit] = limit
+        s.transaction[CLOSE][s.transaction[CLOSE]<limit] = limit
+        s.transaction[HIGH][s.transaction[HIGH]<limit] = limit
+        s.transaction[LOW][s.transaction[LOW]<limit] = limit
+        s.transaction[AVG][s.transaction[AVG]<limit] = limit            
+
 def prepare_all(begin,end,codes=[],icodes=[]):
     print 'start....'
     dates = get_ref_dates(begin,end)
     print 'dates finish....'
     if codes:
         sdata = cs.get_stocks(codes,begin,end,ref_id)
+        dlimit(sdata.values(),600)
     else:
         sdata = prepare_data(begin,end)
-        sdata.update(prepare_data(begin,end,'FUND'))
+        dlimit(sdata.values(),600)
+        fdata = prepare_data(begin,end,'FUND')
+        dlimit(fdata.values(),300)
+        sdata.update(fdata)
     print 'sdata finish....'
     if icodes:
         idata = cs.get_stocks(icodes,begin,end,ref_id)

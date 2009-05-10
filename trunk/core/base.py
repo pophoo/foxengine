@@ -7,6 +7,7 @@ from operator import add as oper_add
 from wolfox.fengine.base.common import *
 
 OPEN,CLOSE,HIGH,LOW,AVG,AMOUNT,VOLUME = range(0,7)  #要做数组的下标，必须从0开始
+T_SECTORS = OPEN,CLOSE,HIGH,LOW,AVG,AMOUNT,VOLUME
 LEN_TRANS = 7   #交易数据个数
 
 class BaseObject(object):

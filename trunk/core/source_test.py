@@ -60,26 +60,35 @@ class ModuleTest(unittest.TestCase):
     def test_extract_collect(self):
         a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
         b = np.array([(11,12),(13,14),(15,16),(17,18),(19,110),(111,112),(113,114)])
-        sa = CommonObject(id=3,transaction=a)
-        sb = CommonObject(id=3,transaction=b)
+        sa = CommonObject(id=3,transaction=a,xx=np.array([100,200]))
+        sb = CommonObject(id=3,transaction=b,xx=np.array([101,201]))
         #print a.transaction
         rev = extract_collect([sa,sb])
         self.assertEquals([[3,4],[13,14]],rev.tolist())
         rev_volume = extract_collect([sa,sb],VOLUME)
         self.assertEquals([[13,14],[113,114]],rev_volume.tolist())
+        rev_xx = extract_collect([sa,sb],'xx')
+        self.assertEquals([[100,200],[101,201]],rev_xx.tolist())
+        rev_none = extract_collect([sa,sb],'yy')
+        self.assertEquals([[]],rev_none.tolist())
         #print rev
         #空测试,返回数组维度必须仍然是2
+        self.assertEquals([[]],extract_collect([]).tolist())
         self.assertEquals(2,extract_collect([]).ndim)
 
     def test_extract_collect1(self):
         a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
-        sa = CommonObject(id=3,transaction=a)
+        sa = CommonObject(id=3,transaction=a,xx=np.array([100,200]))
         #print a.transaction
         rev = extract_collect1(sa)
         self.assertEquals([3,4],rev.tolist())
         rev_volume = extract_collect1(sa,VOLUME)
         self.assertEquals([13,14],rev_volume.tolist())
         #print rev
+        rev_xx = extract_collect1(sa,'xx')
+        self.assertEquals([100,200],rev_xx.tolist())
+        rev_none = extract_collect1(sa,'yy')
+        self.assertEquals([],rev_none.tolist())
 
 
 class SourceDataTest(unittest.TestCase):    #与源数据相关的测试

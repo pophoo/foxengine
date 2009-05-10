@@ -170,6 +170,23 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         save_merged('test_save_merged.txt',result,strade,20010101,20050101)
         os.remove('test_save_merged.txt')
 
+    def test_dlimit(self):
+        dummy = range(45)
+        a = np.array([dummy,dummy,dummy,dummy,dummy,dummy,dummy,dummy])
+        b = np.array([dummy,dummy,dummy,dummy,dummy,dummy,dummy,dummy])
+        sa = CommonObject(id=3,code='test1',transaction=a)
+        sb = CommonObject(id=3,code='test2',transaction=b)
+        sdata = {'sa':sa,'sb':sb}
+        print sum(a)
+        self.assertEquals(7920,np.sum(a))
+        dlimit(sdata.values(),0)
+        self.assertEquals(7920,np.sum(a))
+        dlimit(sdata.values(),20)
+        self.assertEquals(7920+210*5,np.sum(a))
+        dlimit(sdata.values(),100)
+        self.assertEquals(4500*5+990*3,np.sum(a))
+        self.assertTrue(True)
+
     def test_prepare_all(self):#只测试通路
         import wolfox.fengine.core.shortcut as sc
         fold = sc.prepare_catalogs

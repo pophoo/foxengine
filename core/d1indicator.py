@@ -254,9 +254,54 @@ def tracelimit(source,sup,signal,satr,stop_times,trace_times):
         if signal[i] > 0:
             cur_stop = cur - cur_atr * stop_times/BASE
             cur_h = cur #高点设为当前点，因为无法判断真正高点是否是在当前点之后出现
-        cur_trace = cur_h - cur_atr * trace_times/BASE
+        cur_trace = cur_h - cur_atr * trace_times/BASE  #有可能最高点-当时atr*ttimes < 当前点-当前atr*ttimes
         if cur_stop < cur_trace:
             cur_stop = cur_trace
+        rev[i] = cur_stop
+    return rev
+
+def tracelimit_r(source,sup,signal,satr,stop_times,trace_times,proportion=400):
+    ''' 信号日起的追踪止损。
+            自有信号起至下一个信号间以
+                当前值-atr*trace_times的最高者
+                买入值-atr*stop_times + (当前值-买入值)的最高者 * proportion / 1000
+                
+        source:首日估价。这个估价不是买入价，通常是开盘价+最低价/2。不能用收盘价，否则开盘最低到收盘涨停，同样会触发止损，而开盘涨停到收盘跌停，却不会触发
+               用开盘价，则只有跌下去的时候会触发。 
+        sup:上包线，为high或close
+        signal:>0为有信号
+        satr:atr线
+        stop_times为止损时的atr倍数
+        trace_times为跟踪的atr倍数
+        proportion为千分位的比例
+        按默认参数计算，效果比trace_limit差很多
+    '''
+    assert len(source) == len(sup) == len(signal) == len(satr)
+    rev = np.zeros_like(source)
+    if(len(source) == 0):
+        return rev
+    s_stop = 0
+    cur_stop = 0
+    cur_trace = 0
+    cur_max = 0
+    s_src = 0
+    for i in xrange(len(source)):
+        cur = source[i]
+        cur_h = sup[i]
+        cur_atr = satr[i]
+        if signal[i] > 0:
+            s_stop = cur - cur_atr * stop_times/BASE
+            cur_stop = s_stop
+            s_src = cur_h = cur #高点设为当前点，因为无法判断真正高点是否是在当前点之后出现
+            cur_max = cur_h
+        elif cur_max < cur_h:   #signal[i]==0
+            cur_max = cur_h
+        cur_trace = cur_h - cur_atr * trace_times/BASE
+        cur_r = s_stop + (cur_max - s_src) * proportion / BASE
+        if cur_stop < cur_trace:
+            cur_stop = cur_trace
+        if cur_stop < cur_r:
+            cur_stop = cur_r
         rev[i] = cur_stop
     return rev
 

@@ -46,7 +46,7 @@ def prepare_configs_A1200(seller,pman,dman):
     #configs.append(config(buyer=fcustom(csvama3,fast=  2,mid=705,slow=1110,rstart=  0,rend=8500))) 	#4784-244-625-8     #6100-305-750-8
     #configs.append(config(buyer=fcustom(csvama3,fast=  1,mid= 92,slow=1110,rstart=8000,rend=9500)))	#1178-165-571-7     #1282-168-571-7
     #configs.append(config(buyer=fcustom(csvama3,fast= 20,mid= 57,slow=1270,rstart=4000,rend=8500))) #2314-125-500-12    #2540-155-600-12
-    configs.append(config(buyer=fcustom(svama3,fast=165,mid=340,slow=1790))) 	#1125-81-625-24     #@1323-90-625-24
+    configs.append(config(buyer=fcustom(svama3,fast=165,mid=340,slow=1790))) 	#1125-81-625-24     #@1323-90-625-24    #对除权不稳定，解决这个问题后再处理
     #configs.append(config(buyer=fcustom(csvama3,fast= 36,mid= 78,slow=500,rstart=4000,rend=8500))) 	#1564-133-500-14   #1287-139-571-14
     #configs.append(config(buyer=fcustom(csvama2,fast= 14,slow=170,rstart=4000,rend=6500))) 	#1545-119-500-34    #1168-118-558-34
     #configs.append(config(buyer=fcustom(csvama3,fast=  2,mid= 84,slow=1110,rstart=  0,rend=8500))) 	#1792-95-500-20    #1296-83-450-20
@@ -54,7 +54,7 @@ def prepare_configs_A1200(seller,pman,dman):
     #configs.append(config(buyer=fcustom(svama3,fast=116,mid=350,slow=2000))) 	#1296-105-500-26
     #configs.append(config(buyer=fcustom(svama3,fast=150,mid=350,slow=1990))) 	#1425-114-583-24    #1607-135-583-24
     #configs.append(config(buyer=fcustom(csvama3,fast=  1,mid=460,slow=790,rstart=1000,rend=9500))) 	#7132-378-666-6 #13607-381-666-6
-    configs.append(config(buyer=fcustom(csvama2,fast= 39,slow=1300,rstart=500,rend=9000))) 	#934-57-631-19  #@793-92-736-19
+    configs.append(config(buyer=fcustom(csvama2,fast= 39,slow=1300,rstart=500,rend=9000))) 	#934-57-631-19  #@793-92-736-19     #对除权不稳定，解决这个问题后再处理
     
 
     return configs
@@ -69,7 +69,7 @@ def prepare_configs_A2000(seller,pman,dman):    #R>=400,winrate>400 or R>=1000,w
     #configs.append(config(buyer=fcustom(svama3,fast= 39,mid= 71,slow=490,ma_standard=500,extend_days=  1))) #4243-157-400-5 #3772-166-600-5
     #configs.append(config(buyer=fcustom(csvama2,fast= 25,slow=140,rstart=5000,rend=6000))) 	#2150-129-400-15    ##1975-158-600-15
     #configs.append(config(buyer=fcustom(csvama2,fast=184,slow=305,rstart=4000,rend=5500))) 	#-108   ##2716-144-666-9
-    configs.append(config(buyer=fcustom(csvama2,fast=128,slow=405,rstart=2500,rend=5500))) 	#208-14-473-19      ##1558-106-684-19
+    configs.append(config(buyer=fcustom(csvama2,fast=128,slow=405,rstart=2500,rend=5500))) 	#208-14-473-19      ##1558-106-684-19   #对除权不稳定，解决这个问题后再处理
     #configs.append(config(buyer=fcustom(csvama2,fast= 30,slow=475,rstart=5000,rend=6000))) 	#340-17-400-15      #1000-48-533-15
     #configs.append(config(buyer=fcustom(csvama2,fast= 48,slow=385,rstart=2500,rend=4000))) 	#1039-109-400-10    #1504-179-500-10
     #configs.append(config(buyer=fcustom(csvama3,fast=  8,mid= 25,slow=410,rstart=5500,rend=9000))) 	#691-47-461-13      #891-74-538-13
@@ -85,7 +85,7 @@ def prepare_configs_A2000(seller,pman,dman):    #R>=400,winrate>400 or R>=1000,w
     #configs.append(config(buyer=fcustom(csvama3,fast=  1,mid=345,slow=1030,rstart=  0,rend=9500))) 	#2648-143-300-10    ##2981-164-500-10
     #onfigs.append(config(buyer=fcustom(svama3,fast=116,mid=420,slow=1790))) 	#642-45-500-38  #985-70-583-36
     #configs.append(config(buyer=fcustom(svama3,fast= 22,mid=350,slow=1990))) 	#                   #827-67-506-83
-    configs.append(config(buyer=fcustom(svama3,fast=190,mid=350,slow=1790))) 	#691-65-650-20      ##1095-103-650-20
+    configs.append(config(buyer=fcustom(svama3,fast=190,mid=350,slow=1790))) 	#691-65-650-20      ##1095-103-650-20   #对除权不稳定，解决这个问题后再处理
     #configs.append(config(buyer=fcustom(csvama2,fast= 60,slow=670,rstart=5000,rend=6000))) 	#               #2000-72-500-8
     #configs.append(config(buyer=fcustom(csvama2,fast= 57,slow=720,rstart=2000,rend=4500))) 	#               #905-124-714-7
     
@@ -220,7 +220,8 @@ def run_body(sdata,dates,begin,end,xbegin):
     #configs = prepare_temp_configs(seller1200,pman,dman)
     #configs = prepare_temp_configs(seller2000,pman,dman)
     configs = prepare_configs_A1200(seller1200,pman,dman)
-    configs = prepare_configs_A2000(seller2000,pman,dman)    
+    #configs = prepare_configs_A2000(seller2000,pman,dman)
+    configs.extend(prepare_configs_A2000(seller2000,pman,dman))
     configs.extend(prepare_configs_A0(seller1200,pman,dman))    
     configs.extend(prepare_configs_A1(seller1200,pman,dman))
     configs.extend(prepare_configs_A2(seller1200,pman,dman))    
@@ -231,7 +232,7 @@ def run_body(sdata,dates,begin,end,xbegin):
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
     #save_configs('atr_ev_nm_1200.txt',configs,xbegin,end)
-    save_configs('atr_ev_nm_2000.txt',configs,xbegin,end)    
+    save_configs('atr_ev_nm_t.txt',configs,xbegin,end)    
 
 def run_merge_body(sdata,dates,begin,end,xbegin):
     
@@ -331,14 +332,14 @@ if __name__ == '__main__':
     #总时间段   [20000101,20010701,20090101]    #一个完整的周期+一个下降段
     #分段测试的要求，段mm > 1000-1500或抑制，总段mm > 2000
     
-    #begin,xbegin,end = 20000101,20010701,20090101
+    begin,xbegin,end = 20000101,20010701,20090101
     #begin,xbegin,end = 19980101,20010701,20090101
     #begin,xbegin,end = 20000101,20010701,20050901
     #begin,xbegin,end = 19980101,19990701,20010801    
     #begin,xbegin,end = 20040601,20050801,20071031
     #begin,xbegin,end = 20060601,20071031,20090101
     #begin,xbegin,end = 19980101,19990101,20090101
-    begin,xbegin,end,lbegin = 20070101,20080601,20091201,20090201
+    #begin,xbegin,end,lbegin = 20070101,20080601,20091201,20090201
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
     from time import time
@@ -362,9 +363,9 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
-    run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
 
 

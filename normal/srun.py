@@ -7,7 +7,7 @@
 from wolfox.fengine.core.shortcut import *
 from wolfox.fengine.normal.funcs import *
 from wolfox.fengine.normal.nrun import prepare_order,prepare_common
-from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum
+from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,tmin
 from wolfox.fengine.core.d1match import *
 from wolfox.fengine.core.d1 import lesser
 from wolfox.fengine.core.d1indicator import cmacd,score2
@@ -44,6 +44,20 @@ def swrap(stock,dates):
     return sbuy
     #g = gand(stock.g20>=3000,stock.g20<=8000)    
     #return gand(g,sbuy)
+
+def attack(stock,dates):
+    linelog(stock.code)
+    t = stock.transaction
+    o,c,h,l = t[OPEN],t[CLOSE],t[HIGH],t[LOW]
+    ldown = lesser(l - rollx(l))
+    ldown2 = equals(ldown + rollx(ldown),2)
+    hdown = lesser(h - rollx(h))
+    hdown2 = equals(hdown + rollx(hdown),2)
+    cl = lesser(c - rollx(l))   #收盘小于昨天最低
+    sprepare = gand(ldown,hdown,cl)
+    ch = greater(c - rollx(h))  #收盘大于昨天最高
+    signal = band(rollx(sprepare),ch) #连续两天下跌之后，第三天收盘超过昨日最高
+    return signal
 
 def spring(stock,dates):
     t = stock.transaction
@@ -318,19 +332,33 @@ def pmacd(stock,dates):
 
 
 def nhigh(stock,dates):#60高点
-    t = stock.transaction
-
-    mline = rollx(tmax(t[HIGH],60)) #以昨日的60高点为准
-    #dcross = band(cross(mline,t[HIGH])>0,strend(mline)>=0)    #60高点可能在向下走，退出的点正好是最高点
-    dcross = cross(mline,t[HIGH])>0    
-    #print strend(mline).tolist()   
     linelog(stock.code)
-
+    t = stock.transaction
+    mline = rollx(tmax(t[CLOSE],60)) #以昨日的60高点为准
+    dcross = cross(mline,t[CLOSE])>0    
     g = gand(stock.g5>=stock.g20,stock.thumb)
-    #g = gand(stock.g5>=stock.g20,stock.g120 >= stock.g250,stock.thumb)
-    
-    return gand(g,stock.silver,dcross,strend(stock.ma60)>0,stock.above)
+    #linelog(stock.code)
+    return gand(g,stock.silver,dcross,strend(stock.ma60)>0,stock.above,stock.t120)
 
+def shigh(stock,dates):
+    linelog(stock.code)
+    t = stock.transaction
+    #mline = rollx(tmax(t[HIGH],60)) #以昨日的60高点为准
+    #nh = greater(t[HIGH],mline)
+    mline = rollx(tmax(t[HIGH],67)) #以昨日的60高点为准
+    nh = greater(t[HIGH],mline)
+    stock.shigh = nh
+    #stock.v = greater(t[VOLUME])
+
+def slow(stock,dates):
+    linelog(stock.code)
+    t = stock.transaction
+    #mline = rollx(tmax(t[HIGH],60)) #以昨日的60高点为准
+    #nh = greater(t[HIGH],mline)
+    mline = rollx(tmin(t[LOW],67)) #以昨日的60高点为准
+    nl = lesser(t[LOW],mline)
+    stock.slow = nl
+    #stock.v = greater(t[VOLUME])
 
 def ma3(stock,dates):
     ''' ma三线金叉

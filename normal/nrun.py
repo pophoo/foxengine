@@ -23,23 +23,6 @@ def prepare_temp_configs(seller,pman=None,dman=None):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
     
-    configs.append(config(buyer=s.wvad))    #1554-520-25    #
-    configs.append(config(buyer=s.pmacd))   #1179-500-52    #
-    configs.append(config(buyer=s.nhigh))     #1527-500-76
-    configs.append(config(buyer=s.gx60))    #1305-516-31
-
-    configs.append(config(buyer=s.vmacd_ma4))   #2521-473-57
-    configs.append(config(buyer=s.gx250))   #@12000-764-17 #限底之后不稳定
-    configs.append(config(buyer=s.xgcs))   #3313-545-88
-
-    #埋伏,因为xgcs/mgcs系列的加入，暂时忽略埋伏部分
-    configs.append(config(buyer=s.gcs))   #1880-422-206
-
-    #舍弃
-    configs.append(config(buyer=s.temv))    #1014-71-600-30 ##
-    configs.append(config(buyer=fcustom(s.tsvama2,fast=12,slow=170)))   #1581-427-117
-
-
     return configs
 
 def prepare_configs_A1200(seller,pman,dman):    
@@ -107,7 +90,7 @@ def prepare_configs_A0(seller,pman,dman):
 
     configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=13,gfrom=7000,gto=8500))) #@3603-617-149   #g5-20-60差别越大越好
     configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #@4671-763-38    #g5-20-60差别越大越好
-    #configs.append(config(buyer=s.xgcs))   #3313-545-88
+    configs.append(config(buyer=s.xgcs))   #3836-234-600-65
     configs.append(config(buyer=s.xgcs0))   #@4013-617-81   #对初始条件敏感
     configs.append(config(buyer=s.mgcs))   #3577-545-229
 
@@ -172,7 +155,6 @@ def prepare_common(sdata,ref):
         except:
             s.silver = cached_zeros(len(c))
 
-
 def run_body(sdata,dates,begin,end,xbegin):
     from time import time
     tbegin = time()
@@ -185,16 +167,14 @@ def run_body(sdata,dates,begin,end,xbegin):
     #seller = csc_func
     #seller = fcustom(csc_func,threshold=100)
 
-    configs = prepare_temp_configs(seller1200,pman,dman)
+    #configs = prepare_temp_configs(seller1200,pman,dman)
     #configs = prepare_temp_configs(seller2000,pman,dman)
-    '''
     configs = prepare_configs_A1200(seller1200,pman,dman)
     #configs = prepare_configs_A2000(seller2000,pman,dman)
     configs.extend(prepare_configs_A2000(seller2000,pman,dman))
     configs.extend(prepare_configs_A0(seller1200,pman,dman))    
     configs.extend(prepare_configs_A1(seller1200,pman,dman))
     configs.extend(prepare_configs_A2(seller1200,pman,dman))    
-    '''
     batch(configs,sdata,dates,xbegin,cmediator=myMediator)
 
     tend = time()
@@ -202,7 +182,7 @@ def run_body(sdata,dates,begin,end,xbegin):
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
     #save_configs('atr_ev_nm_1200.txt',configs,xbegin,end)
-    save_configs('atr_ev_nm_v2.txt',configs,xbegin,end)    
+    save_configs('atr_ev_nm_v.txt',configs,xbegin,end)    
 
 def run_merge_body(sdata,dates,begin,end,xbegin):
     
@@ -302,14 +282,14 @@ if __name__ == '__main__':
     #总时间段   [20000101,20010701,20090101]    #一个完整的周期+一个下降段
     #分段测试的要求，段mm > 1000-1500或抑制，总段mm > 2000
     
-    begin,xbegin,end = 20000101,20010701,20090101
+    #begin,xbegin,end = 20000101,20010701,20090101
     #begin,xbegin,end = 19980101,20010701,20090101
     #begin,xbegin,end = 20000101,20010701,20050901
     #begin,xbegin,end = 19980101,19990701,20010801    
     #begin,xbegin,end = 20040601,20050801,20071031
     #begin,xbegin,end = 20060601,20071031,20090101
     #begin,xbegin,end = 19980101,19990101,20090101
-    #begin,xbegin,end,lbegin = 20070101,20080601,20091201,20090201
+    begin,xbegin,end,lbegin = 20070101,20080601,20091201,20090201
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
     from time import time
@@ -333,9 +313,9 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
-    #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
 
 

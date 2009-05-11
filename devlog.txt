@@ -308,7 +308,7 @@ import logging
 logging.basicConfig(filename="srun_x4c.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 #begin,xbegin,end = 20000101,20010701,20090101
 #begin,xbegin,end = 20000101,20010701,20091231
-begin,xbegin,end = 20060101,20060701,20091231
+begin,xbegin,end = 20050101,20060701,20091231
 tbegin = time()
     
 #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
@@ -3446,11 +3446,53 @@ signals = gand(g,stock.ref.t120,strend(stock.ref.ma60)>0,strend(stock.ref.ma20)>
 #1 从-1.2R-->3R的止损曲线处理, 如将上升的1/3用来提升止损位
    用tracelimit_r来表现 
    proportion=400时(涨幅的0.4用于提升止损位)，效果比原先的差很多，成功率和R都明显下降
-#2 新高周期,已经实现，还没找到如何应用  ##
+#2 新高周期。已经实现，还没找到如何应用,貌似简单方式没有价值.
+    down_period
 #3 60日均线上方的股票总数/60日新高家数
+   实现新高家数，以最近n(n=3?)天创新高为准
+   非常有借鉴意义
+for s in sdata.values():
+    srun.shigh(s,dates)
+from wolfox.fengine.core.source import extract_collect as ec
+nx = ec(sdata.values(),'shigh')   
+sx = np.sum(nx,0)
+xdif,xdea = cmacd(sx)
+xdif2,xdea2 = cmacd(sx,19,39,9)
+s5 = ma(sx,5)
+s60 = ma(sx,60)
+t60 = strend(s60)
+for d,i,xf,xa,i5,i60,it60 in zip(dates,sx,xdif,xdea,s5,s60,t60)[:-200]:
+    print d,i,xf,xa,i5,i60,it60
+
+    
+    上升形态中,s60拐头确认(strend=-3)是非常重要的信号(070528), 调整之后的拐头没有意义
+               diff 死叉 dea, diff拐头, dea穿越0线,都是重要信号
+               其中dea上穿0线是典型走好信号,下穿零线是典型走坏信号 (cmacd12/26/9和19/39/9单独发出的均可)
+               s5死叉/金叉s60,diff金叉/diff死叉dea和diff/dea拐头是需要验证的信号,但一旦与其它信号加强,则很重要
+               作为先导信号,则可逐步出货,但作为大盘调整同时的信号,则需立即出货
+    另, 中等尺度下创新高家数与大盘新高的背离,也是应该谨慎的信号. 
+        即大盘调整后创新高,但新高家数比上一次新高时少了
+        或者5/20日新高数高点(或极值点,续走5日后判断出极点)比上一个5/20日新高数高点要小,而大盘在创新高. 
+
+    另,其它的数据透视,新高数未创新高的周期
+from wolfox.fengine.core.d1idiom import down_period as dp
+dx = dp(sx,5)
+    新低数
+for s in sdata.values():
+    srun.slow(s,dates)
+from wolfox.fengine.core.source import extract_collect as ec
+nl = ec(sdata.values(),'slow')   
+sl = np.sum(nl,0)
+l60 = ma(sl,60)
+ldif,ldea = cmacd(sl)
+for d,i,xf,xa,i5,i60,it60,il,il60 in zip(dates,sx,xdif,xdea,s5,s60,t60,sl,l60)[:-200]:
+    print d,i,xf,xa,i5,i60,it60,il,il60
+
+sl大于1000时是短期见底信号
+
 #4 攻击日形态
    连续下跌(>=3)过程中，某日的收盘价低于前一日最低价，若次日冲破改日最高价，则为攻击日
-
+#5 macd的转向应用,以strend>3时为信号
 
 ####发现除权对算法的敏感性
 有些算法具有除权敏感性，有些比较鲁棒

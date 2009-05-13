@@ -166,15 +166,20 @@ def run_body(sdata,dates,begin,end,xbegin):
     seller2000 = atr_seller_factory(stop_times=2000,trace_times=3000)    
     #seller = csc_func
     #seller = fcustom(csc_func,threshold=100)
-
+    
     #configs = prepare_temp_configs(seller1200,pman,dman)
     #configs = prepare_temp_configs(seller2000,pman,dman)
     configs = prepare_configs_A1200(seller1200,pman,dman)
     #configs = prepare_configs_A2000(seller2000,pman,dman)
-    configs.extend(prepare_configs_A2000(seller2000,pman,dman))
+    #configs.extend(prepare_configs_A2000(seller2000,pman,dman))
     configs.extend(prepare_configs_A0(seller1200,pman,dman))    
-    configs.extend(prepare_configs_A1(seller1200,pman,dman))
-    configs.extend(prepare_configs_A2(seller1200,pman,dman))    
+    #configs.extend(prepare_configs_A1(seller1200,pman,dman))
+    #configs.extend(prepare_configs_A2(seller1200,pman,dman))    
+    
+    #seller3600 = atr_seller_factory(stop_times=600,trace_times=2000)
+    #configs = prepare_configs_A1200(seller3600,pman,dman)
+    #configs.extend(prepare_configs_A0(seller3600,pman,dman))    
+
     batch(configs,sdata,dates,xbegin,cmediator=myMediator)
 
     tend = time()
@@ -182,7 +187,7 @@ def run_body(sdata,dates,begin,end,xbegin):
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
     #save_configs('atr_ev_nm_1200.txt',configs,xbegin,end)
-    save_configs('atr_ev_nm_v_old.txt',configs,xbegin,end)    
+    save_configs('atr_ev_v.txt',configs,xbegin,end)    
 
 def run_merge_body(sdata,dates,begin,end,xbegin):
     
@@ -254,19 +259,20 @@ def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
     dtrades_a = batch_last(configs_a,sdata,dates,xbegin,cmediator=myMediator)
     save_last('atr_last_a1200.txt',dtrades_a,xbegin,end,lbegin)
 
-    configs_a = prepare_configs_A2000(seller2000,pman,dman)
-    dtrades_a = batch_last(configs_a,sdata,dates,xbegin,cmediator=myMediator)
-    save_last('atr_last_a2000.txt',dtrades_a,xbegin,end,lbegin)
+    #configs_a = prepare_configs_A2000(seller2000,pman,dman)
+    #dtrades_a = batch_last(configs_a,sdata,dates,xbegin,cmediator=myMediator)
+    #save_last('atr_last_a2000.txt',dtrades_a,xbegin,end,lbegin)
     configs_a0 = prepare_configs_A0(seller1200,pman,dman)
     dtrades_a0 = batch_last(configs_a0,sdata,dates,xbegin,cmediator=myMediator)
     save_last('atr_last_a0.txt',dtrades_a0,xbegin,end,lbegin)
-    configs_a1 = prepare_configs_A1(seller1200,pman,dman)
-    dtrades_a1 = batch_last(configs_a1,sdata,dates,xbegin,cmediator=myMediator)
-    save_last('atr_last_a1.txt',dtrades_a1,xbegin,end,lbegin)
+    
+    #configs_a1 = prepare_configs_A1(seller1200,pman,dman)
+    #dtrades_a1 = batch_last(configs_a1,sdata,dates,xbegin,cmediator=myMediator)
+    #save_last('atr_last_a1.txt',dtrades_a1,xbegin,end,lbegin)
 
-    configs_a2 = prepare_configs_A2(seller1200,pman,dman)
-    dtrades_a2 = batch_last(configs_a2,sdata,dates,xbegin,cmediator=myMediator)
-    save_last('atr_last_a2.txt',dtrades_a2,xbegin,end,lbegin)
+    #configs_a2 = prepare_configs_A2(seller1200,pman,dman)
+    #dtrades_a2 = batch_last(configs_a2,sdata,dates,xbegin,cmediator=myMediator)
+    #save_last('atr_last_a2.txt',dtrades_a2,xbegin,end,lbegin)
     #configs_t = prepare_temp_configs(seller1200,pman,dman)
     #dtrades_t = batch_last(configs_t,sdata,dates,xbegin,cmediator=myMediator)
     #save_last('atr_last_t.txt',dtrades_t,xbegin,end,lbegin)
@@ -289,9 +295,9 @@ if __name__ == '__main__':
     #begin,xbegin,end = 20040601,20050801,20071031
     #begin,xbegin,end = 20060601,20071031,20090101
     #begin,xbegin,end = 19980101,19990101,20090101
-    begin,xbegin,end,lbegin = 20070101,20080601,20091201,20090201
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
+    begin,xbegin,end,lbegin = 20070101,20080601,20091201,20090201    
     from time import time
     tbegin = time()
     

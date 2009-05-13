@@ -49,23 +49,31 @@ def attack(stock,dates):
     linelog(stock.code)
     t = stock.transaction
     o,c,h,l = t[OPEN],t[CLOSE],t[HIGH],t[LOW]
-    ldown = lesser(l - rollx(l))
+    ldown = lesser(l,rollx(l))
     ldown2 = equals(ldown + rollx(ldown),2)
-    hdown = lesser(h - rollx(h))
+    hdown = lesser(h,rollx(h))
     hdown2 = equals(hdown + rollx(hdown),2)
-    cl = lesser(c - rollx(l))   #收盘小于昨天最低
-    sprepare = gand(ldown,hdown,cl)
-    ch = greater(c - rollx(h))  #收盘大于昨天最高
+    cl = lesser(c,rollx(l))   #收盘小于昨天最低
+    sprepare = gand(ldown2,hdown2,cl)
+    ch = greater(c,rollx(h))  #收盘大于昨天最高
     signal = band(rollx(sprepare),ch) #连续两天下跌之后，第三天收盘超过昨日最高
+    sbuy = signal   #gand(signal,stock.golden,stock.above,stock.t120)
+    return sbuy
+
+def macd3(stock,dates):
+    linelog(stock.code)
+    t = stock.transaction
+    pdiff,pdea = cmacd(t[CLOSE])
+    ds = strend(pdea) - 3
+    base = cached_zeros(len(t[CLOSE]))
+    x = greater(cross(base,ds))
+    signal = gand(x,stock.thumb,stock.silver,stock.above,stock.t120)
     return signal
 
 def spring(stock,dates):
+    threshold = -30
     t = stock.transaction
     linelog('spring:%s' % stock.code)
-    
-    #signals = gand(stock.ks >= -5,stock.ks<=5,stock.ref.ks<=-30)
-
-    threshold = -30
     
     s11 = gand(stock.ks >=-5,stock.ks<0,stock.ref.ks<=threshold)
     s12 = gand(stock.ks >=5,stock.ks<20,stock.ref.ks<=threshold)
@@ -74,15 +82,41 @@ def spring(stock,dates):
     s21 = gand(stock.ks>=5,stock.ks<75,stock.ref.ks<=threshold)
     s_aa = gand(s21,stock.thumb,stock.above)
 
-    #sbuy = s_aa
     signals = bor(s_aa,s_tt)
-
 
     ref = stock.ref
     sbuy = gand(signals,greater(ref.ma10,ref.ma20),greater(ref.ma20,ref.ma60))
-    
-    #sbuy = signals
+
     return sbuy
+
+def spring2(stock,dates):
+    ''' 
+        大盘跌幅从最高点开始度量
+        t=idata[1].transaction
+        rc = rollx(t[CLOSE])
+        lhigh = np.select([rc>t[HIGH],rc<=t[HIGH]],[rc,t[HIGH]])
+        ks = (t[CLOSE]-lhigh) * BASE / lhigh
+        idata[1].ks2 = ks
+        效果不如spring
+    '''
+    threshold=-30
+    t = stock.transaction
+    linelog('spring:%s' % stock.code)
+    
+    s11 = gand(stock.ks >=-5,stock.ks<0,stock.ref.ks2<=threshold)
+    s12 = gand(stock.ks >=5,stock.ks<20,stock.ref.ks2<=threshold)
+    s1 = bor(s11,s12)
+    s_tt = gand(s1,stock.thumb,stock.t120)
+    s21 = gand(stock.ks>=5,stock.ks<75,stock.ref.ks2<=threshold)
+    s_aa = gand(s21,stock.thumb,stock.above)
+
+    signals = bor(s_aa,s_tt)
+
+    ref = stock.ref
+    sbuy = gand(signals,greater(ref.ma10,ref.ma20),greater(ref.ma20,ref.ma60))
+
+    return sbuy
+
 
 def ctest(stock,dates):
     fast,mid,slow,rstart,rend = 33,5,40,2000,4500

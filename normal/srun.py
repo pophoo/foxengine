@@ -295,6 +295,23 @@ def xgcs(stock,dates):
     return sbuy
 
 
+def xgcsx(stock,dates):
+    '''
+    '''
+    t = stock.transaction
+    ma5 = ma(t[CLOSE],5)
+    linelog(stock.code)
+
+    si = score2(t[CLOSE],t[VOLUME])
+    mxi = gand(msum(si,5)>=-100,msum(si,5)<=0)
+
+    signal = gand(stock.golden,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120,mxi)
+
+    sbuy = sfollow(signal,x30(t),10)
+    
+    return sbuy
+
+
 def xgcs0(stock,dates):
     ''' 下穿0线
         评估:总盈亏值=23464,交易次数=81 期望值=4013
@@ -435,6 +452,58 @@ def xma60(stock,dates):
     s = stock
     #return gand(sync,stock.above,stock.t120,stock.golden,cs)    
     return gand(sync,stock.above,stock.t120,stock.thumb,stock.silver)
+
+
+def x30(t):
+    water_line = ma(t[CLOSE],30)
+    dcross = cross(water_line,t[LOW])
+    up_cross = dcross > 0
+    down_cross = dcross < 0
+    sync = sfollow(down_cross,up_cross,5)
+    return sync
+
+
+def tsvama2x(stock,dates):
+    ''' svama两线交叉
+    '''
+    fast=20
+    slow=100
+    t = stock.transaction
+    
+    #g = gand(stock.g20 >= stock.g60+1000,stock.g60 >= stock.g120+1000,stock.g20>=3000,stock.g20<=8000)
+
+    g = stock.golden
+
+    svap,v2i = stock.svap_ma_67
+
+    ma_svapfast = ma(svap,fast)
+    ma_svapslow = ma(svap,slow)
+    trend_ma_svapfast = strend(ma_svapfast) > 0
+    trend_ma_svapslow = strend(ma_svapslow) > 0
+    cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
+    msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
+
+    signal = gand(g,msvap,stock.above)
+
+    sbuy = sfollow(signal,x30(t),10)
+    #sbuy = signal
+    
+    linelog('%s:%s' % (tsvama2x.__name__,stock.code))
+    return sbuy ##gand(sbuy,stock.above)
+
+
+def xma30(stock,dates):
+    t = stock.transaction
+    water_line = ma(t[CLOSE],30)
+    dcross = cross(water_line,t[LOW])
+    up_cross = dcross > 0
+    down_cross = dcross < 0
+    sync = sfollow(down_cross,up_cross,5)
+    linelog(stock.code)
+    s = stock
+    #return gand(sync,stock.above,stock.t120,stock.golden,cs)    
+    return gand(sync,stock.above,stock.t120,stock.silver)
+
 
 def cma2(stock,dates):  #传统的ma2
     t = stock.transaction

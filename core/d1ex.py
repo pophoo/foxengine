@@ -168,15 +168,11 @@ def extend(source,interval=1):#interval必须大于0
         return np.array([])
     rev = np.zeros_like(source)
     indices = np.where(source != 0)[0]
-    cur=0
     #print indices
     for i in xrange(0,len(indices)):
-        index = indices[i]
-        rev[cur:cur+interval] = source[cur]
-        cur = index
-    rev[cur:] = source[cur]
+        cur = indices[i]
+        rev[cur:cur+interval] = source[cur] #越界赋值不会出现异常
     return rev
-
 
 def extend2next(source):
     ''' 信号延伸，一直延伸到下一个信号

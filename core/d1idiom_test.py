@@ -213,6 +213,24 @@ class ModuleTest(unittest.TestCase):
         seller3(sa,bs)
         self.assertTrue(True)
 
+    def test_atr_xseller_factory(self):  #通路测试
+        a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
+        sa = CommonObject(id=3,transaction=a,atr=np.array([1,2]))
+        bs = np.array([0,1])
+        seller1 = atr_xseller_factory(1000)
+        seller2 = atr_xseller_factory(2000)
+        seller3 = atr_xseller_factory(3000,30)        
+        ss1=seller1(sa,bs)
+        ss2=seller2(sa,bs)        
+        ss3=seller3(sa,bs)
+        self.assertEquals(1,ss1[-2])
+        self.assertEquals(1,ss2[-2])
+        self.assertEquals(1,ss3[-2])        
+        b=np.array([[],[],[],[],[],[],[]])
+        sb = CommonObject(id=4,transaction=b,atr=np.array([]))
+        sb1=seller1(sb,np.array([]))
+        self.assertTrue(True)
+
 
 if __name__ == "__main__":
     import logging

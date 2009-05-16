@@ -269,3 +269,15 @@ def atr_seller(stock,buy_signal,stop_times=3*BASE/2,trace_times=2*BASE,covered=1
 
 def atr_seller_factory(stop_times=3*BASE/2,trace_times=2*BASE,covered=10,up_sector=HIGH):
     return fcustom(atr_seller,stop_times=stop_times,trace_times=trace_times,covered=covered,up_sector=up_sector)
+
+def atr_xseller_factory(stop_times=3*BASE/2,trace_times=2*BASE,covered=10,up_sector=HIGH):
+    ''' 用于评估的seller_factory
+        将倒数第二个信号位置位，使得所有开仓合约平仓
+    '''
+    inner_seller = fcustom(atr_seller,stop_times=stop_times,trace_times=trace_times,covered=covered,up_sector=up_sector)
+    def seller(stock,buy_signal,**kwargs):
+        ss = inner_seller(stock,buy_signal,*kwargs)
+        if len(ss)>1:
+            ss[-2] = 1  #平掉倒数第二个，以便最后一个卖出。
+        return ss
+    return seller

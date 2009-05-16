@@ -332,8 +332,8 @@ dummy_catalogs('catalog',catalogs)
 pman = AdvancedATRPositionManager()
 dman = DateManager(begin,end)
 myMediator=nmediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
-seller = atr_seller_factory(stop_times=1200,trace_times=3000)
-seller2000 = atr_seller_factory(stop_times=2000,trace_times=3000)
+seller = atr_xseller_factory(stop_times=1200,trace_times=3000)
+seller2000 = atr_xseller_factory(stop_times=2000,trace_times=3000)
 
 import wolfox.fengine.normal.sfuncs as s
 
@@ -3526,3 +3526,80 @@ csvama系列受到影响最大，这个对g排名也有影响。 导致gx250变�
 利用 买入后每日高点 - 当日atr* times 作为比较止损线的基准
 还是    买入后最高点 - 每日atr * times 作为比较基准
 两者区别不大。
+
+
+#2009-05-16
+#extend修正后的重新发现
+#tsvama2x: 历史表现差于tsvama2,近期表现优于tsvama2
+
+#xgcsx
+近期表现优于xgcs
+
+#cma_330:
+gand(sync,stock.above,stock.t120,stock.thumb)
+20080701->20090515
+        评估:总盈亏值=1612,交易次数=26  期望值=1050
+                总盈亏率(1/1000)=1612,平均盈亏率(1/1000)=62,盈利交易率(1/1000)=576
+                赢利次数=15,赢利总值=2266
+                亏损次数=11,亏损总值=654
+                平盘次数=0
+20010701->20090515,非常差
+        评估:总盈亏值=4813,交易次数=158 期望值=468
+                总盈亏率(1/1000)=4813,平均盈亏率(1/1000)=30,盈利交易率(1/1000)=246
+                赢利次数=39,赢利总值=12445
+                亏损次数=118,亏损总值=7632
+                平盘次数=1
+                闭合交易明细:
+
+
+#cma_30
+    water_line = ma(t[CLOSE],30)
+    dcross = cross(water_line,t[LOW])
+    up_cross = dcross > 0
+    down_cross = dcross < 0
+    sync = sfollow(down_cross,up_cross,7)
+    return gand(sync,stock.above,stock.t120,stock.thumb,stock.silver)
+    20010701-20090515
+        评估:总盈亏值=4741,交易次数=32  期望值=2901
+                总盈亏率(1/1000)=4741,平均盈亏率(1/1000)=148,盈利交易率(1/1000)=562
+                赢利次数=18,赢利总值=5461
+                亏损次数=14,亏损总值=720
+                平盘次数=0
+    20080701->
+        评估:总盈亏值=221,交易次数=8    期望值=642
+                总盈亏率(1/1000)=221,平均盈亏率(1/1000)=27,盈利交易率(1/1000)=625
+                赢利次数=5,赢利总值=347
+                亏损次数=3,亏损总值=126
+                平盘次数=0
+
+#tsvama2x:
+    fast=20
+    slow=100
+    t = stock.transaction
+    g = stock.golden
+    svap,v2i = stock.svap_ma_67
+    ma_svapfast = ma(svap,fast)
+    ma_svapslow = ma(svap,slow)
+    trend_ma_svapfast = strend(ma_svapfast) > 0
+    trend_ma_svapslow = strend(ma_svapslow) > 0
+    cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
+    msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
+    signal = msvap
+    s2 = x30(t)
+    sbuy = sfollow(signal,s2,10)
+    linelog('%s:%s' % (tsvama2x.__name__,stock.code))
+    return gand(sbuy,stock.above,stock.thumb,stock.silver)
+    20080701-->
+    评估:总盈亏值=87,交易次数=4     期望值=677
+               总盈亏率(1/1000)=87,平均盈亏率(1/1000)=21,盈利交易率(1/1000)=500
+
+               赢利次数=2,赢利总值=150
+               亏损次数=2,亏损总值=63
+               平盘次数=0
+               闭合交易明细:
+    20010701->
+        评估:总盈亏值=1910,交易次数=14  期望值=2060
+                总盈亏率(1/1000)=1910,平均盈亏率(1/1000)=136,盈利交易率(1/1000)=642
+                赢利次数=9,赢利总值=2243
+                亏损次数=5,亏损总值=333
+    

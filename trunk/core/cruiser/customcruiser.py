@@ -227,7 +227,7 @@ class Ma3MMCruiser(MM_GeneticCruiser):
 if __name__ == '__main__':
     logging.basicConfig(filename="custom_cruiser_mm_1.log",level=logging.DEBUG,format='#%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 
-    begin,end = 20000101,20050901
+    begin,end = 20000101,20081101
     tbegin = 20010801
     
     dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])

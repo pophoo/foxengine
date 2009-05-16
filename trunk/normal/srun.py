@@ -7,10 +7,11 @@
 from wolfox.fengine.core.shortcut import *
 from wolfox.fengine.normal.funcs import *
 from wolfox.fengine.normal.nrun import prepare_order,prepare_common
-from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,tmin
+from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,tmin,extend
 from wolfox.fengine.core.d1match import *
 from wolfox.fengine.core.d1 import lesser
 from wolfox.fengine.core.d1indicator import cmacd,score2
+from wolfox.fengine.core.d1idiom import down_period
 from wolfox.fengine.core.d2 import increase,extract_collect
 from wolfox.foxit.base.tutils import linelog
 from time import time
@@ -333,6 +334,28 @@ def xgcs0(stock,dates):
     sbuy = gand(stock.golden,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120,mxi)
     return sbuy
 
+def xgcs0x(stock,dates):
+    ''' 下穿0线
+        评估:总盈亏值=23464,交易次数=81 期望值=4013
+                总盈亏率(1/1000)=23464,平均盈亏率(1/1000)=289,盈利交易率(1/1000)=617
+                赢利次数=50,赢利总值=25703
+                亏损次数=31,亏损总值=2239
+                平盘次数=0
+    '''
+    t = stock.transaction
+    ma5 = ma(t[CLOSE],5)
+    linelog(stock.code)
+
+    si = score2(t[CLOSE],t[VOLUME])
+    zs = cached_zeros(len(t[CLOSE]))
+    mxi = cross(zs,si)<0
+
+    signal = gand(stock.golden,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120,mxi)
+    
+    #sbuy = signal
+    sbuy= gand(sfollow(signal,x30(t),5),stock.above)
+    return sbuy
+
 
 def xgcs5(stock,dates):
     '''
@@ -459,7 +482,7 @@ def x30(t):
     dcross = cross(water_line,t[LOW])
     up_cross = dcross > 0
     down_cross = dcross < 0
-    sync = sfollow(down_cross,up_cross,5)
+    sync = sfollow(down_cross,up_cross,7)
     return sync
 
 
@@ -483,14 +506,17 @@ def tsvama2x(stock,dates):
     cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
     msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
 
-    signal = gand(g,msvap,stock.above)
+    
+    #signal = gand(g,msvap,stock.above)
+    signal = msvap
 
-    sbuy = sfollow(signal,x30(t),10)
+    #sbuy = sfollow(signal,x30(t),10)
+    s2 = x30(t)
+    sbuy = sfollow(signal,s2,10)
     #sbuy = signal
     
     linelog('%s:%s' % (tsvama2x.__name__,stock.code))
-    return sbuy ##gand(sbuy,stock.above)
-
+    return gand(sbuy,stock.above,stock.thumb,stock.silver)
 
 def xma30(stock,dates):
     t = stock.transaction
@@ -498,11 +524,13 @@ def xma30(stock,dates):
     dcross = cross(water_line,t[LOW])
     up_cross = dcross > 0
     down_cross = dcross < 0
-    sync = sfollow(down_cross,up_cross,5)
+    sync = sfollow(down_cross,up_cross,10)
     linelog(stock.code)
     s = stock
     #return gand(sync,stock.above,stock.t120,stock.golden,cs)    
-    return gand(sync,stock.above,stock.t120,stock.silver)
+    g = gand(s.g20 >= s.g60,s.g20 <= s.g60+500,s.g60 >= s.g120,s.g60<=s.g120+500,s.g120>=s.g250+500,s.g250>=1000,s.g20<=8000)
+
+    return gand(sync,stock.above,stock.t120,g)
 
 
 def cma2(stock,dates):  #传统的ma2
@@ -517,6 +545,25 @@ def cma2(stock,dates):  #传统的ma2
     sync = up_cross
     linelog(stock.code)
     return gand(sync,stock.above,stock.t120,stock.g5>=stock.g20+500,stock.g20>=stock.g60+500,stock.g60>=stock.g120,stock.g5>4000,stock.g5<8000)
+
+
+def cma_30(stock,dates):  #
+    t = stock.transaction
+    #water_line = stock.ma20  #上方15处,这个位置起始有点远，但居然起作用
+    water_line = ma(t[CLOSE],60) * 102/100
+    dcross = cross(water_line,t[LOW])
+
+    up_cross = dcross > 0
+    down_cross = dcross < 0
+
+    #sync = up_cross
+    sync = sfollow(down_cross,up_cross,7)
+
+    dp = down_period(t[HIGH])
+    s=stock
+    linelog(stock.code)
+    
+    return gand(sync,stock.above,stock.t120,stock.thumb,stock.silver)
 
 
 def cma2x(stock,dates):  #传统的ma2
@@ -543,56 +590,26 @@ def wvad(stock,dates):
     svad = msum2(vad,24)
     ma_svad = ma(svad,6)
 
-    if not stock.has_attr('ma'):
-        ma10 = ma(t[CLOSE],10)
-        ma20 = ma(t[CLOSE],20)
-        ma60 = ma(t[CLOSE],60)
-        ma120 = ma(t[CLOSE],120)
-        t120 = strend(ma120)>0
-        ma_above = gand(greater(ma10,ma20),greater(ma20,ma60),greater(ma60,ma120))        
-        stock.set_attr('ma',{'10':ma10,'20':ma20,'60':ma60,'120':ma120,'t120':t120,'above':ma_above})
-    t120,ma_above = stock.ma['t120'],stock.ma['above']
-    ma20,ma60,ma120 = stock.ma['20'],stock.ma['60'],stock.ma['120']
-    g = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
-    cs = catalog_signal_cs(stock.c60,c_extractor)
- 
-    ecross = gand(g,cs,cross(ma_svad,vad)>0,strend(ma_svad)>0,t120,ma_above)
+    ecross = gand(stock.thumb,stock.silver,cross(ma_svad,vad)>0,strend(ma_svad)>0,stock.t120,stock.above)
     linelog(stock.code)
-    return ecross
+    sbuy = sfollow(ecross,x30(t),10)
+
+    return sbuy
 
 
 
 #c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
-#ts = None
 def temv(stock,dates):
     t = stock.transaction
-    global ts
-    if ts == None:
-        ts = np.zeros(len(t[CLOSE]),int)
+    ts = cached_zeros(len(t[CLOSE]))
     ekey = 'emv'
-    if not stock.has_attr(ekey):
-        em = emv(t[HIGH],t[LOW],t[VOLUME])
-        mv = msum2(em,14)
-        semv = ma(mv,9)
-        stock.set_attr(ekey,{'mv':mv,'semv':semv})
-    if not stock.has_attr('ma'):
-        ma10 = ma(t[CLOSE],10)
-        ma20 = ma(t[CLOSE],20)
-        ma60 = ma(t[CLOSE],60)
-        ma120 = ma(t[CLOSE],120)
-        t120 = strend(ma120)>0
-        ma_above = gand(greater(ma10,ma20),greater(ma20,ma60),greater(ma60,ma120))        
-        stock.set_attr('ma',{'10':ma10,'20':ma20,'60':ma60,'120':ma120,'t120':t120,'above':ma_above})
-    mv,semv = stock.emv['mv'],stock.emv['semv']
-    t120,ma_above = stock.ma['t120'],stock.ma['above']
-    g = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
-    cs = catalog_signal_cs(stock.c60,c_extractor)
-
-    #ecross = gand(g,cs,cross(semv,mv)<0,strend(semv)>0,t120,ma_above)
-    ecross = gand(g,cs,cross(ts,mv)>0,strend(semv)>0,t120,ma_above)
+    em = emv(t[HIGH],t[LOW],t[VOLUME])
+    mv = msum2(em,14)
+    semv = ma(mv,9)
+    ecross = gand(stock.thumb,cross(ts,mv)>0,strend(semv)>0,stock.t120,stock.above)
+    sbuy = ecross   #sfollow(ecross,x30(t),10)
     linelog(stock.code)
-    return ecross
-    
+    return sbuy
 
 c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
 def vmacd_ma4(stock,dates):

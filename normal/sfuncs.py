@@ -304,3 +304,40 @@ def cma2(stock,fast,slow,gfrom=0,gto=8500):
     return gand(up_cross,stock.above,stock.t120,stock.g5>=stock.g20+500,stock.g20>=stock.g60+500,stock.g60>=stock.g120,stock.g5>=gfrom,stock.g5<=gto)
 
 
+def cma1(stock,length=30,covered=7):  #
+    t = stock.transaction
+    
+    water_line = ma(t[CLOSE],length)
+    dcross = cross(water_line,t[LOW])
+    up_cross = dcross > 0
+    down_cross = dcross < 0
+    sync = sfollow(down_cross,up_cross,covered=7)
+    return gand(sync,stock.above,stock.t120,stock.thumb,stock.silver)
+
+
+def x30(t):
+    water_line = ma(t[CLOSE],30)
+    dcross = cross(water_line,t[LOW])
+    up_cross = dcross > 0
+    down_cross = dcross < 0
+    sync = sfollow(down_cross,up_cross,7)
+    return sync
+
+def tsvama2x(stock,fast=20,slow=100):
+    ''' svama两线交叉
+    '''
+    t = stock.transaction
+    g = stock.golden
+    svap,v2i = stock.svap_ma_67
+    ma_svapfast = ma(svap,fast)
+    ma_svapslow = ma(svap,slow)
+    trend_ma_svapfast = strend(ma_svapfast) > 0
+    trend_ma_svapslow = strend(ma_svapslow) > 0
+    cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
+    msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
+    signal = msvap
+    s2 = x30(t)
+    sbuy = sfollow(signal,s2,10)
+    linelog('%s:%s' % (tsvama2x.__name__,stock.code))
+    return gand(sbuy,stock.above,stock.thumb,stock.silver)
+

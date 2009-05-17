@@ -492,29 +492,17 @@ def tsvama2x(stock,dates):
     fast=20
     slow=100
     t = stock.transaction
-    
-    #g = gand(stock.g20 >= stock.g60+1000,stock.g60 >= stock.g120+1000,stock.g20>=3000,stock.g20<=8000)
-
     g = stock.golden
-
     svap,v2i = stock.svap_ma_67
-
     ma_svapfast = ma(svap,fast)
     ma_svapslow = ma(svap,slow)
     trend_ma_svapfast = strend(ma_svapfast) > 0
     trend_ma_svapslow = strend(ma_svapslow) > 0
     cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
     msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
-
-    
-    #signal = gand(g,msvap,stock.above)
     signal = msvap
-
-    #sbuy = sfollow(signal,x30(t),10)
     s2 = x30(t)
     sbuy = sfollow(signal,s2,10)
-    #sbuy = signal
-    
     linelog('%s:%s' % (tsvama2x.__name__,stock.code))
     return gand(sbuy,stock.above,stock.thumb,stock.silver)
 
@@ -549,20 +537,12 @@ def cma2(stock,dates):  #传统的ma2
 
 def cma_30(stock,dates):  #
     t = stock.transaction
-    #water_line = stock.ma20  #上方15处,这个位置起始有点远，但居然起作用
-    water_line = ma(t[CLOSE],60) * 102/100
+    
+    water_line = ma(t[CLOSE],30)
     dcross = cross(water_line,t[LOW])
-
     up_cross = dcross > 0
     down_cross = dcross < 0
-
-    #sync = up_cross
     sync = sfollow(down_cross,up_cross,7)
-
-    dp = down_period(t[HIGH])
-    s=stock
-    linelog(stock.code)
-    
     return gand(sync,stock.above,stock.t120,stock.thumb,stock.silver)
 
 
@@ -597,16 +577,16 @@ def wvad(stock,dates):
     return sbuy
 
 
-
+import wolfox.fengine.core.d1indicator as d1in
 #c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
 def temv(stock,dates):
     t = stock.transaction
     ts = cached_zeros(len(t[CLOSE]))
     ekey = 'emv'
-    em = emv(t[HIGH],t[LOW],t[VOLUME])
+    em = d1in.emv(t[HIGH],t[LOW],t[VOLUME])
     mv = msum2(em,14)
-    semv = ma(mv,9)
-    ecross = gand(stock.thumb,cross(ts,mv)>0,strend(semv)>0,stock.t120,stock.above)
+    ssemv = ma(mv,9)
+    ecross = gand(stock.golden,cross(ts,mv)>0,strend(ssemv)>0,stock.t120,stock.above)
     sbuy = ecross   #sfollow(ecross,x30(t),10)
     linelog(stock.code)
     return sbuy

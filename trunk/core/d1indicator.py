@@ -615,12 +615,12 @@ def emv(shigh,slow,sweight):#经典emv算法,sweight即为成交量(权重)
         return np.array([])
     mid_diff = subd((shigh + slow) / 2,1)
     box = shigh - slow
-    swb = sweight * BASE
-    md_b2 = mid_diff * BASE * BASE
+    swb = np.cast['int64'](sweight) *  BASE
+    md_b2 = np.cast['int64'](mid_diff) * BASE * BASE
     ratio = np.where(box>0,swb/box,swb*10)  #box不可能小于0
     rev = np.where(ratio>0,md_b2/ratio,md_b2*10)
     rev[0] = 0
-    return rev
+    return np.cast['int32'](rev)
 
 def emv_old(shigh,slow,sweight):#经典emv算法,sweight即为成交量(权重),为迭代算法，而非numpy性质
     assert len(shigh) == len(sweight) == len(sweight)
@@ -637,13 +637,6 @@ def emv_old(shigh,slow,sweight):#经典emv算法,sweight即为成交量(权重),
         #print (mid-premid),box,ratio,rev[i]
         premid = mid
     return rev        
-
-
-    box = shigh - slow
-    swb = sweight * BASE
-    md_b2 = mid_diff * BASE * BASE
-    ratio = np.where(box>0,swb/box,swb*10)
-    rev = np.where(ratio>0,md_b2/ratio,md_b2*10)
 
 def semv(shigh,slow,sweight,length=13):#标准化后的emv算法,length为均线长度,sweight即为成交量(权重)
     '''
@@ -662,14 +655,14 @@ def semv(shigh,slow,sweight,length=13):#标准化后的emv算法,length为均线
     dma = np.roll(ma(shigh - slow,length),1)
     mid = (shigh + slow)/2
     mid_diff = subd(mid,1)
-    mid_rate = mid_diff * BASE * BASE / mid
-    swb = sweight * BASE
+    mid_rate = np.cast['int64'](mid_diff) * BASE * BASE / mid
+    swb = np.cast['int64'](sweight) * BASE
     swr = np.where(wma,swb/wma,swb*10)
     ssb = (shigh-slow)*BASE
     wr = np.where(dma,ssb/dma,ssb*10)   #dma必然大于等于0，等于0时相当于乘10
     rev = np.where(swr>0,mid_rate * wr/swr,mid_rate*wr*10)
     rev[:length] = 0
-    return rev        
+    return np.cast['int32'](rev)        
 
 def semv_old(shigh,slow,sweight,length=13):#标准化后的emv算法,length为均线长度,sweight即为成交量(权重),迭代算法
     '''
@@ -680,6 +673,7 @@ def semv_old(shigh,slow,sweight,length=13):#标准化后的emv算法,length为�
         wave_rate = (max-min)/ma(max-min,length) * BASE
         box_rate = svolume_rate / wave_rate
         semv = mid_rate / box_rate    
+    未检查是否溢出
     '''
     assert len(shigh) == len(sweight) == len(sweight)
     rev = np.zeros_like(shigh)

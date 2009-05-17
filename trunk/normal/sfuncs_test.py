@@ -24,8 +24,16 @@ class ModuleTest(unittest.TestCase):    #通路测试
         s.c60 = {s:g}
         self.stock = s
 
+    def test_x30(self):
+        ss = x30(self.stock.transaction)
+        self.assertTrue(True)
+
     def test_tsvama2(self):
         sbuy = tsvama2(self.stock,5,20)
+        self.assertTrue(True)
+
+    def test_tsvama2x(self):
+        sbuy = tsvama2x(self.stock,5,20)
         self.assertTrue(True)
 
     def test_pmacd(self):
@@ -82,6 +90,10 @@ class ModuleTest(unittest.TestCase):    #通路测试
 
     def test_mgcs(self):
         sbuy = mgcs(self.stock)
+        self.assertTrue(True)
+
+    def test_cma1(self):
+        sbuy = cma1(self.stock)
         self.assertTrue(True)
 
 

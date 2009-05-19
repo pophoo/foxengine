@@ -14,11 +14,52 @@ from wolfox.fengine.core.source import *
 RFACTOR = 1.0   #实数转换因子
 INDEX_BASE = 1000
 
-#@wcache
-def calc_index(stocks,sector=CLOSE,weight=AMOUNT,wave = 10,alen=10):
-    ''' 计算catalog指数并返回该指数及相关成员的序列，以第一日为基础
+def calc_index_relative(stocks,sector=CLOSE,weight=AMOUNT,wave = 10,alen=10):
+    ''' 计算catalog指数并返回该指数及相关成员的序列
+        按照每日的增长计算，以保持初始日期的相对稳定性
         stocks为各成员stock的d2array数组的集合
-        返回d1的指数序列和d2array的每日百分排序(array序同传入的stocks序)
+        返回d1的指数序列和
+        对权重进行标准化,按排序分为1-wave共wave个级,停牌个股成交权重为nma(alen)
+        这个算法因为上升放量下降缩量(导致权重变化)，导致在板块整体底部上移过程中，指数会优于个股平均
+        也就是说，这个算法不具备价格稳定性
+        如一个指数由两个股票组成，其价格
+        A: 1000-->2000-->1000
+        B: 1000-->1000-->1000
+        这个过程中成交量都相等
+        设第一日指数为1000，则简化运算(原理不变)，第二日指数为 (2*0.5+1*0.5)*1000 = 1500
+          第三日指数为 (0.5*0.5 + 1*0.5) * 1500 = 1125
+          也就是说上去一趟，下来到同一位置时指数却变化了。
+          当然，一旦引入成交量因素，指数变化是必然的，但当成交量被平衡时，指数不当变化
+          这个做法还是很有问题
+    '''
+    csize = len(stocks)
+    sectors = extract_collect(stocks,sector)
+    weights = extract_collect(stocks,weight)
+    #print weights
+    scores = percent_sort(weights) / (PERCENT_BASE/wave) + 1 #0基改为1基
+    sma = nma2(scores,alen)
+    #print sma
+    #print scores
+    zero_pos = np.where(weights == 0)
+    scores[zero_pos] = sma[zero_pos]    #停牌个股
+    #print zero_pos
+    #print scores
+    s_weights = scores * RFACTOR / scores.sum(0)
+    #print s_weights
+    waves = npercent(sectors) * RFACTOR / PERCENT_BASE
+    #ori_waves = npercent(sectors) * RFACTOR / PERCENT_BASE
+    #waves = np.where(ori_waves<1.0,ori_waves*(csize-3)/(csize+3),ori_waves) #对下跌加权
+    rindex = (waves * s_weights).sum(0) #当日数针对昨日数的权后增幅
+    index = rindex.cumprod() * INDEX_BASE + 0.5
+    return np.cast['int'](index)
+
+calc_index = calc_index_relative    #取相对稳定性，舍弃上下一致性。因为catalog_index的用处主要在此
+
+def calc_index_old(stocks,sector=CLOSE,weight=AMOUNT,wave = 10,alen=10):
+    ''' 计算catalog指数并返回该指数及相关成员的序列，以第一日为基础
+        因为初始日期的不同，而导致指数不具备相对稳定性，不同初始日计算出来的指数，连续日之间的相对比例不稳定
+        stocks为各成员stock的d2array数组的集合
+        返回d1的指数序列    #和d2array的每日百分排序(array序同传入的stocks序)
         对权重进行标准化,按排序分为1-wave共wave个级,停牌个股成交权重为nma(alen)
     '''
     sectors = extract_collect(stocks,sector)
@@ -29,13 +70,38 @@ def calc_index(stocks,sector=CLOSE,weight=AMOUNT,wave = 10,alen=10):
     #print sma
     #print scores
     zero_pos = np.where(weights == 0)
-    scores[zero_pos] = sma[zero_pos]
+    scores[zero_pos] = sma[zero_pos]    #停牌个股
     #print zero_pos
     #print scores
     s_weights = scores * RFACTOR / scores.sum(0)
     waves = cmp_percent(sectors) / 1.0 / PERCENT_BASE
     index = (waves * s_weights).sum(0)* INDEX_BASE + 0.5    #以便下步取整时四舍五入
     return np.cast['int'](index)
+
+def calc_index1(stocks,sector=CLOSE,weight=AMOUNT,wave = 10,alen=10):
+    ''' 计算catalog指数并返回该指数及相关成员的序列，以一元为基准,以此实现相对稳定性
+        stocks为各成员stock的d2array数组的集合
+        返回d1的指数序列    #和d2array的每日百分排序(array序同传入的stocks序)
+        对权重进行标准化,按排序分为1-wave共wave个级,停牌个股成交权重为nma(alen)
+        但这个受到除权因素的影响, 因为无法对基准除权,导致除权后收盘价减低,从而存在可重复稳定性上的缺陷.
+            即多日之后重新计算时,结果有所不同
+    '''
+    sectors = extract_collect(stocks,sector)
+    weights = extract_collect(stocks,weight)
+    #print weights
+    scores = percent_sort(weights) / (PERCENT_BASE/wave) + 1 #0基改为1基
+    sma = nma2(scores,alen)
+    #print sma
+    #print scores
+    zero_pos = np.where(weights == 0)
+    scores[zero_pos] = sma[zero_pos]    #停牌个股
+    #print zero_pos
+    #print scores
+    s_weights = scores * RFACTOR / scores.sum(0)
+    waves = sectors
+    index = (waves * s_weights).sum(0) + 0.5    #以便下步取整时四舍五入
+    return np.cast['int'](index)
+
 
 #@wcache
 def calc_drate(stocks,distance=1,sector=CLOSE,wave=100):

@@ -152,8 +152,8 @@ class PositionTest(unittest.TestCase):
         self.assertEquals(0,trade5.ttax)
         self.assertEquals(0,v)
         self.assertEquals(2,len(p.holdings))    #未变化
-        
-    def test_push_lostavg0(self):
+
+    def test_push_lostavg0(self):        #测试trade.tprice * lostavg / POS_BASE == 0 分支
         p = Position()
         trade = Trade(0,20010101,10000,1)
         v = p.push(trade,0,10000000,999999000)

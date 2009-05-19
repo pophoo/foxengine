@@ -14,7 +14,7 @@ from wolfox.fengine.core.source import *
 RFACTOR = 1.0   #实数转换因子
 INDEX_BASE = 1000
 
-def calc_index_relative(stocks,sector=CLOSE,weight=AMOUNT,wave = 10,alen=10):
+def calc_index_relative(stocks,sector=CLOSE,weight=AMOUNT,wave = 10):
     ''' 计算catalog指数并返回该指数及相关成员的序列
         按照每日的增长计算，以保持初始日期的相对稳定性
         stocks为各成员stock的d2array数组的集合
@@ -31,23 +31,18 @@ def calc_index_relative(stocks,sector=CLOSE,weight=AMOUNT,wave = 10,alen=10):
           也就是说上去一趟，下来到同一位置时指数却变化了。
           当然，一旦引入成交量因素，指数变化是必然的，但当成交量被平衡时，指数不当变化
           这个做法还是很有问题
+        通过对下降段进行加权,减轻了价格波动稳定性. 其中1.25是经验数据
     '''
     csize = len(stocks)
     sectors = extract_collect(stocks,sector)
     weights = extract_collect(stocks,weight)
     #print weights
-    scores = percent_sort(weights) / (PERCENT_BASE/wave) + 1 #0基改为1基
-    sma = nma2(scores,alen)
-    #print sma
-    #print scores
-    zero_pos = np.where(weights == 0)
-    scores[zero_pos] = sma[zero_pos]    #停牌个股
-    #print zero_pos
-    #print scores
+    scores = percent_sort(weights) / (PERCENT_BASE/wave) + 1 #0基改为1基, 个数少时有排序失真
+    #不对停牌股进行平滑处理,是为了减轻初始日敏感性, 否则初始日停牌的个股会导致指数计算有所不同
+    waves = npercent(sectors) * RFACTOR / PERCENT_BASE
+    scores = np.where(waves<1.0,scores * 1.25 ,scores)   #对下降段进行加权
     s_weights = scores * RFACTOR / scores.sum(0)
     #print s_weights
-    waves = npercent(sectors) * RFACTOR / PERCENT_BASE
-    #ori_waves = npercent(sectors) * RFACTOR / PERCENT_BASE
     #waves = np.where(ori_waves<1.0,ori_waves*(csize-3)/(csize+3),ori_waves) #对下跌加权
     rindex = (waves * s_weights).sum(0) #当日数针对昨日数的权后增幅
     index = rindex.cumprod() * INDEX_BASE + 0.5

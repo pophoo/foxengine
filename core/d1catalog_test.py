@@ -7,18 +7,15 @@ from wolfox.fengine.core.d1catalog import *
 
 class ModuleTest(unittest.TestCase):
     def test_calc_index_relative(self):
-        a = np.array([(0,0,0,0),(500,400,800,500),(0,0,0,0),(0,0,0,0),(0,0,0,0),(5000,4000,8000,4000),(1000,1000,1000,1000)])
+        a = np.array([(0,0,0,0),(500,400,800,500),(0,0,0,0),(0,0,0,0),(0,0,0,0),(5000,4000,8000,5000),(1000,1000,1000,1000)])
         b = np.array([(0,0,0,0),(200,200,200,200),(0,0,0,0),(0,0,0,0),(0,0,0,0),(0,0,4000,4000),(0,0,2000,1000)])
         c = np.array([(0,0,0,0),(700,500,500,700),(0,0,0,0),(0,0,0,0),(0,0,0,0),(7000,5000,0,4000),(1000,1000,0,1000)])
         sa = CommonObject(id=0,transaction=a)
         sb = CommonObject(id=1,transaction=b)
         sc = CommonObject(id=2,transaction=c) 
         ss = [sa,sb,sc]
-        index = calc_index_relative(ss,alen=3)
-        self.assertEquals([1000,767,1102,1325],index.tolist())
-        index = calc_index_relative(ss,alen=2)
-        self.assertEquals([1000,767,1124,1352],index.tolist())
-        #print index
+        index = calc_index_relative(ss)
+        self.assertEquals([1000,763,1208,1060],index.tolist())
 
     def test_calc_index_old(self):
         a = np.array([(0,0,0,0),(500,400,800,400),(0,0,0,0),(0,0,0,0),(0,0,0,0),(5000,4000,8000,4000),(1000,1000,1000,1000)])

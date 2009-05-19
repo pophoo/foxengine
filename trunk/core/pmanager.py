@@ -47,7 +47,8 @@ class Position(object): #只能用于管理单边头寸(即卖出都是pop，买
             trade.set_volume(0)
             return 0
         max_size = size_limit / trade.tprice * 990 / POS_BASE #预留的tax
-        if lostavg == 0:
+        if trade.tprice * lostavg / POS_BASE == 0:
+            logger.debug('divided by zero : %s,%s,price=%s,lost_avg=%s:',trade.tstock,trade.tdate,trade.tprice,lostavg)
             wanted_size = max_size
         else:
             wanted_size = risk / (trade.tprice * lostavg / POS_BASE)

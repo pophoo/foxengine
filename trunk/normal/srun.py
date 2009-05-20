@@ -7,7 +7,7 @@
 from wolfox.fengine.core.shortcut import *
 from wolfox.fengine.normal.funcs import *
 from wolfox.fengine.normal.nrun import prepare_order,prepare_common
-from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,tmin,extend
+from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,tmin,extend,extend2next
 from wolfox.fengine.core.d1match import *
 from wolfox.fengine.core.d1 import lesser
 from wolfox.fengine.core.d1indicator import cmacd,score2
@@ -86,7 +86,7 @@ def spring(stock,dates):
     signals = bor(s_aa,s_tt)
 
     ref = stock.ref
-    sbuy = gand(signals,greater(ref.ma10,ref.ma20),greater(ref.ma20,ref.ma60))
+    sbuy = signals #gand(signals,greater(ref.ma10,ref.ma20),greater(ref.ma20,ref.ma60))
 
     return sbuy
 
@@ -591,35 +591,38 @@ def temv(stock,dates):
     linelog(stock.code)
     return sbuy
 
-c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
 def vmacd_ma4(stock,dates):
     t = stock.transaction
     
-    if not stock.has_attr('cma'): #加速
-        linelog('calc cma')
-        g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
-        vdiff,vdea = cmacd(t[VOLUME])
-        dcross = gand(cross(vdea,vdiff),strend(vdiff)>0,strend(vdea>0))
+    vdiff,vdea = cmacd(t[VOLUME])
+    dcross = gand(cross(vdea,vdiff)>0,strend(vdiff)>0,strend(vdea)>0)
 
-        #ma5 = ma(t[CLOSE],5)
-        ma10 = ma(t[CLOSE],10)
-        ma20 = ma(t[CLOSE],20)
-        ma60 = ma(t[CLOSE],60)
-        ma120 = ma(t[CLOSE],120)
-        t120 = strend(ma120)>0
+    #g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)
+    g = gand(stock.g20>=7500,stock.g60>=7500)
 
-        stock.set_attr('cma',{'10':ma10,'20':ma20,'60':ma60,'120':ma120,'t120':t120,'g':g,'dcross':dcross,'vdea':vdea})
-    else:
-        linelog('find cache......')
+    c_ex = lambda c,s:gand(c.g20>=7500,s>=8000)
+    cs = catalog_signal_cs(stock.c60,c_ex)    
+    return gand(g,cs,dcross,stock.above,strend(stock.ma60)>0,vdea>=0,vdea<=12000)
 
-    ma10,ma20,ma60,ma120,t120,g,dcross,vdea = stock.cma['10'],stock.cma['20'],stock.cma['60'],stock.cma['120'],stock.cma['t120'],stock.cma['g'],stock.cma['dcross'],stock.cma['vdea']
+def gcx(stock,dates):
+    t = stock.transaction
+    
+    #g = gand(stock.g60>=8000)
+    gma = ma(stock.g60,5)
+    waterline = cached_ints(len(t[CLOSE]),6000)
+    xs = cross(waterline,gma)
+    xs = extend2next(xs)
 
-    linelog(stock.code)
+    #ll5 = rollx(t[LOW],3)
+    #hinc = t[HIGH] * 1000 / ll5
 
-    cs = catalog_signal_cs(stock.c60,c_extractor)
-    #return gand(g,cs,dcross,ma_above,t120)
-    return gand(g,cs,dcross,stock.above,t120,vdea>0,vdea<12000)
-    #return gand(g,dcross,ma_above)
+    #c_ex = lambda c,s:gand(c.g20>=7500,s>=8000)
+    #cs = catalog_signal_cs(stock.c60,c_ex)    
+    cx = stock.c60.keys()[1].g60
+    cma = ma(cx,3)
+    xc = cross(cached_ints(len(t[CLOSE]),6000),gma)
+    xc = extend2next(xc)
+    return gand(xc>0,xc>0,stock.c60.values()[1]>8000,stock.above,stock.t120)
 
 #c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250)
 #c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s>=3300,s<=6600)

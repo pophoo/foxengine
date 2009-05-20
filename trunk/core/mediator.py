@@ -77,12 +77,16 @@ class Mediator(object):
         ''' trade_strategy是对sbuy和ssell进行预处理，如买卖都是次日交易则为B1S1 
         '''
         t = stock.transaction
+        #logger.debug('%s old ssell:%s' % (stock.code,ssell.tolist()))
         #for t,sb,ss in zip(dates,sbuy,ssell):print t,sb,ss
         sbuy,ssell = self.trade_strategy(t,sbuy,ssell)
         sbuy = band(sbuy,bnot(sresume(stock.transaction[VOLUME],10,covered=3))) #对停牌10日以上的的股票，消除其紧随3天的sbuy信号
         #logger.debug(u'sbuy,after strategy:%s',sbuy.tolist())
         #logger.debug(u'ssell,after strategy:%s',ssell.tolist())
         ssignal = self.trade_signal_maker(sbuy,ssell)
+        #print stock.code,ssignal
+        #logger.debug('%s signals:%s' % (stock.code,ssignal.tolist()))
+        #logger.debug('%s seller:%s' % (stock.code,ssell.tolist()))
         #for t,sb,ss,ssig in zip(dates,sbuy,ssell,ssignal):print t,sb,ss,ssig
         return tmaker(stock,ssignal,dates,self.buy_pricer(stock),self.sell_pricer(stock),begin=begin)
 
@@ -170,6 +174,7 @@ class NMediator(Mediator):
             except Exception,inst:
                 print u'mediator _calc %s except : %s' % (s.code,inst)
                 logger.exception(u'%s calc error : %s',s.code,inst)
+        #print trades
         return trades
 
 #定制的Mediator

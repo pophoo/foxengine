@@ -261,7 +261,7 @@ def spring(stock,threshold=-30):
     signals = bor(s_aa,s_tt)
 
     ref = stock.ref
-    sbuy = gand(signals,greater(ref.ma10,ref.ma20),greater(ref.ma20,ref.ma60))
+    sbuy = signals #gand(signals,greater(ref.ma10,ref.ma20),greater(ref.ma20,ref.ma60))
 
     return sbuy
 

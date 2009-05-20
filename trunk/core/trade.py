@@ -50,6 +50,7 @@ def make_trades(stock,signal,tdate,tpositive,tnegative
         以买入开始计算
     '''
     assert len(tpositive) == len(tnegative) == len(signal)
+    #print signal,'=signal'
     sis = signal.nonzero()[0]  #非0信号的index    
     slen = len(sis)    
     if slen == 0:
@@ -66,15 +67,17 @@ def make_trades(stock,signal,tdate,tpositive,tnegative
     #print signal[tbegin:].tolist(),sis,ibegin,tbegin
     tbegin = sis[ibegin]
     trades = []
+    #print sis
     for i in xrange(ibegin,slen):
         ci = sis[i]
         cs = signal[ci]     #通常是1/-1,只有正/负有意义，数值本身无意义
         price = tpositive[ci] if cs>0 else tnegative[ci]
         ctrade = Trade(stock.code,int(tdate[ci]),int(price),int(cs)*VOLUME_BASE,taxrate) #int强制转换，避免把numpy.int32传入trade.因为ndarray索引得到的值是numpy.intxx的，而非普通int
         trades.append(extra_func(ctrade,stock,ci))
-    if sum(signal[tbegin:]) != 0: #最后一个未平仓,不计算
+    #if sum(signal[tbegin:]) != 0: #最后一个未平仓,不计算。 这一点已经在match_trades中保证
         #print sum(signal[tbegin:]),signal[tbegin:].tolist()
-        trades.pop()
+    #    trades.pop()
+    #print trades[-1].tdate,trades[-1].tvolume,trades[-1].tprice
     return trades
 
 def last_trade(stock,signal,tdate,tpositive,tnegative
@@ -112,7 +115,9 @@ def match_trades(trades):
     matched_trades = []
     contexts = {}
     #state: 1持多仓，0空仓，-1持卖仓
+    #print trades
     for trade in trades:
+        #print trade.tprice,trade.tvolume
         if(trade.tstock in contexts):
             tsum,items = contexts[trade.tstock]
             #print trade,tsum
@@ -129,6 +134,7 @@ def match_trades(trades):
             contexts[trade.tstock] = (trade.tvolume,[trade])
     #print matched_trades
     #for matched_trade in matched_trades:logger.debug('matched trade:%s,%s',matched_trade[0],matched_trade[1])
+    #print matched_trades
     return matched_trades
 
 

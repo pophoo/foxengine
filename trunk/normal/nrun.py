@@ -23,7 +23,7 @@ def prepare_temp_configs(seller,pman=None,dman=None):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
 
-
+    configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #@3691-707-41
     
     return configs
 
@@ -61,13 +61,14 @@ def prepare_configs_A0(seller,pman,dman):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
 
-    configs.append(config(buyer=fcustom(s.tsvama2,fast=20,slow=100)))   #3230-562-183   #20080701以来萎靡
+    #configs.append(config(buyer=fcustom(s.tsvama2,fast=20,slow=100)))   #3230-562-183   #20080701以来萎靡
     configs.append(config(buyer=s.gx250))   #1695-555-9
     configs.append(config(buyer=s.spring))  #5081-626-123
     configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #@3691-707-41
     configs.append(config(buyer=s.cma1))    #1971-500-30    #593-295-44 ??
     configs.append(config(buyer=s.tsvama2x))    #1628-800-10    #1778-444-9 ??
-    
+    configs.append(config(buyer=s.xgcs0))   #2382-528-138       
+
     #configs.append(config(buyer=s.ma4))     #1111-388-54
     #configs.append(config(buyer=s.pmacd))   #671-307-78
     #configs.append(config(buyer=s.wvad))    #816-437-32
@@ -76,9 +77,8 @@ def prepare_configs_A0(seller,pman,dman):
     #configs.append(config(buyer=s.gx60))    #1205-460-76
     #configs.append(config(buyer=s.vmacd_ma4))   #267-295-115
     #configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=13,gfrom=7000,gto=8500))) #2919-589-156    #近期萎靡
-    #configs.append(config(buyer=s.xgcs))   #2030-487-123    #近期萎靡
-    #configs.append(config(buyer=s.xgcs0))   #2382-528-138   
-    #configs.append(config(buyer=s.mgcs))   #3564-504-212    #近期萎靡
+    #configs.append(config(buyer=s.xgcs))   #2030-487-123    
+    #configs.append(config(buyer=s.mgcs))   #3564-504-212    
 
     #埋伏,因为xgcs/mgcs系列的加入，暂时忽略埋伏部分
     #configs.append(config(buyer=s.gcs))   #
@@ -171,7 +171,7 @@ def run_body(sdata,dates,begin,end,xbegin):
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
     #save_configs('atr_ev_nm_1200.txt',configs,xbegin,end)
-    save_configs('atr_ev_vt.txt',configs,xbegin,end)    
+    save_configs('atr_ev_v0x.txt',configs,xbegin,end)    
 
 def run_merge_body(sdata,dates,begin,end,xbegin):
     
@@ -241,14 +241,14 @@ def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
 
     configs_a = prepare_configs_A1200(seller1200,pman,dman)
     dtrades_a = batch_last(configs_a,sdata,dates,xbegin,cmediator=myMediator)
-    save_last('atr_last_a1200N.txt',dtrades_a,xbegin,end,lbegin)
+    save_last('atr_last_a1200x.txt',dtrades_a,xbegin,end,lbegin)
 
     #configs_a = prepare_configs_A2000(seller2000,pman,dman)
     #dtrades_a = batch_last(configs_a,sdata,dates,xbegin,cmediator=myMediator)
     #save_last('atr_last_a2000.txt',dtrades_a,xbegin,end,lbegin)
     configs_a0 = prepare_configs_A0(seller1200,pman,dman)
     dtrades_a0 = batch_last(configs_a0,sdata,dates,xbegin,cmediator=myMediator)
-    save_last('atr_last_a0N.txt',dtrades_a0,xbegin,end,lbegin)
+    save_last('atr_last_a0x.txt',dtrades_a0,xbegin,end,lbegin)
     
     #configs_a1 = prepare_configs_A1(seller1200,pman,dman)
     #dtrades_a1 = batch_last(configs_a1,sdata,dates,xbegin,cmediator=myMediator)
@@ -272,16 +272,16 @@ if __name__ == '__main__':
     #总时间段   [20000101,20010701,20090101]    #一个完整的周期+一个下降段
     #分段测试的要求，段mm > 1000-1500或抑制，总段mm > 2000
     
-    begin,xbegin,end = 20000101,20010701,20090101
+    #begin,xbegin,end = 20000101,20010701,20090101
     #begin,xbegin,end = 19980101,20010701,20090101
     #begin,xbegin,end = 20000101,20010701,20050901
     #begin,xbegin,end = 19980101,19990701,20010801    
     #begin,xbegin,end = 20040601,20050801,20071031
-    #begin,xbegin,end = 20060601,20071031,20090101
+    #begin,xbegin,end =  20050101,20080701,20091201
     #begin,xbegin,end = 19980101,19990101,20090101
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
-    #begin,xbegin,end,lbegin = 20050101,20080601,20091201,20090201    
+    begin,xbegin,end,lbegin = 20070101,20080601,20091201,20090201    
     from time import time
     tbegin = time()
     

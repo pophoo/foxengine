@@ -117,7 +117,7 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([],trades)
         signal1 = np.array([0,0,1,-1,0,1,0,-1,1,0])
         trades = make_trades(stock,signal1,tdate,tbuy,tsell)
-        self.assertEquals(4,len(trades))
+        self.assertEquals(5,len(trades))
         self.assertEquals(type(1),type(trades[0].tprice))    #确认是平凡的int数据类型，非numpy.intxx
         self.assertEquals(type(1),type(trades[0].tdate))
         self.assertEquals(type(1),type(trades[0].tvolume))
@@ -129,15 +129,15 @@ class ModuleTest(unittest.TestCase):
         tsell = np.array([1101,1102,1103,1104,1105,1106,1107,1108,1109,1110])        
         signal1 = np.array([0,0,1,-1,0,1,0,-1,1,0])
         trades = make_trades(stock,signal1,tdate,tbuy,tsell,begin=20050101)
-        self.assertEquals(4,len(trades))
+        self.assertEquals(5,len(trades))
         trades = make_trades(stock,signal1,tdate,tbuy,tsell,begin=20050201)
         self.assertEquals(0,len(trades))
         trades = make_trades(stock,signal1,tdate,tbuy,tsell,begin=20050103)
-        self.assertEquals(4,len(trades))
+        self.assertEquals(5,len(trades))
         trades = make_trades(stock,signal1,tdate,tbuy,tsell,begin=20050104)
-        self.assertEquals(2,len(trades))    #舍弃20050104的第一个卖出信号
+        self.assertEquals(3,len(trades))    #舍弃20050104的第一个卖出信号
         trades = make_trades(stock,signal1,tdate,tbuy,tsell,begin=20050105)
-        self.assertEquals(2,len(trades))
+        self.assertEquals(3,len(trades))
         #特殊情况,去除第一个买入信号后，卖出信号也应该抛弃掉，即序列仍然相当于空信号
         signal2 = np.array([0,0,1,0,0,-1,0,0,0,0])
         trades = make_trades(stock,signal2,tdate,tbuy,tsell,begin=20050104)

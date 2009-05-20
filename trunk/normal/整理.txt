@@ -1487,3 +1487,354 @@ configs.append(config(buyer=fcustom(svama3,fast=  7,mid= 87,slow= 10,ma_standard
     configs.append(config(buyer=fcustom(csvama3,fast= 36,mid= 78,slow=500,rstart=4000,rend=8500))) 	#1564-133-500-14   #1287-139-571-14
     configs.append(config(buyer=fcustom(svama3,fast=150,mid=350,slow=1990))) 	#-308-500-2
     
+#2009-05-20整理
+    configs.append(config(buyer=fcustom(csvama2,fast= 13,slow=125,rstart= 1000,rend=5000))) 	#-158
+    configs.append(config(buyer=fcustom(svama3,fast= 39,mid= 71,slow=490,ma_standard=120,extend_days=  1))) #1428-333-12
+    configs.append(config(buyer=fcustom(svama3,fast= 39,mid= 71,slow=490,ma_standard=500,extend_days=  1))) #666-250-8
+    configs.append(config(buyer=fcustom(vama3,fast= 25,mid= 80,slow=145,ma_standard= 55,extend_days=  1))) 	#2367-444-9
+    configs.append(config(buyer=fcustom(vama3,fast= 20,mid= 55,slow= 95,ma_standard=500,extend_days=  1))) 	#92
+    configs.append(config(buyer=fcustom(vama3,fast= 18,mid= 57,slow=115,ma_standard=500,extend_days=  1))) 	#4328-444-9
+    #configs.append(config(buyer=fcustom(vama3,fast= 20,mid= 56,slow=105,ma_standard=500,extend_days=  1))) 	#3585-600-10
+    configs.append(config(buyer=fcustom(vama3,fast= 32,mid= 78,slow=125,ma_standard= 55,extend_days=  1))) 	#273
+    configs.append(config(buyer=fcustom(svama3,fast=  7,mid= 91,slow=300,ma_standard=500,extend_days=  1))) 	#539-666-3
+    configs.append(config(buyer=fcustom(vama3,fast= 17,mid= 46,slow= 85,ma_standard= 55,extend_days=  1))) 	#1317-444-23
+    configs.append(config(buyer=fcustom(csvama2,fast= 13,slow=125,rstart=  0,rend=1500))) 	#-723
+    configs.append(config(buyer=fcustom(csvama2,fast= 25,slow=140,rstart=5000,rend=6000))) 	#-594
+    configs.append(config(buyer=fcustom(csvama2,fast= 11,slow=155,rstart=0,rend=4500))) 	#-266
+    configs.append(config(buyer=fcustom(csvama2,fast=  1,slow=180,rstart=1000,rend=3000))) 	#-50
+    configs.append(config(buyer=fcustom(csvama2,fast=184,slow=305,rstart=4000,rend=5500))) 	#-167
+    configs.append(config(buyer=fcustom(csvama2,fast= 31,slow=385,rstart=3500,rend=6500))) 	#-104
+    configs.append(config(buyer=fcustom(csvama2,fast=128,slow=405,rstart=2500,rend=5500))) 	#47
+    configs.append(config(buyer=fcustom(csvama2,fast= 30,slow=475,rstart=5000,rend=6000))) 	#-766
+    configs.append(config(buyer=fcustom(csvama2,fast= 33,slow=670,rstart=5000,rend=6000))) 	#150
+    configs.append(config(buyer=fcustom(csvama2,fast=790,slow=810,rstart=2000,rend=4500))) 	#823-250-4
+    configs.append(config(buyer=fcustom(csvama2,fast= 33,slow=1120,rstart=1000,rend=6000))) #231
+    configs.append(config(buyer=fcustom(csvama2,fast= 48,slow=385,rstart=2500,rend=4000))) 	#-275
+    configs.append(config(buyer=fcustom(csvama2,fast= 60,slow=680,rstart=3500,rend=6000))) 	#449
+    configs.append(config(buyer=fcustom(csvama2,fast= 41,slow=360,rstart=500,rend=3000))) 	#-238
+    configs.append(config(buyer=fcustom(csvama3,fast= 33,mid=  5,slow= 40,rstart=2000,rend=4500))) 	#-1031
+    configs.append(config(buyer=fcustom(csvama3,fast= 33,mid=  9,slow= 40,rstart=2500,rend=4500))) 	#0
+    configs.append(config(buyer=fcustom(csvama3,fast= 20,mid= 45,slow= 95,rstart=1500,rend=9000))) 	#1086-395-43
+    configs.append(config(buyer=fcustom(csvama3,fast=  6,mid= 26,slow=100,rstart=4000,rend=8500))) 	#1343-433-60
+    configs.append(config(buyer=fcustom(csvama3,fast=  8,mid= 25,slow=410,rstart=5500,rend=9000))) 	#-314
+    configs.append(config(buyer=fcustom(csvama3,fast=  2,mid=705,slow=1110,rstart=  0,rend=8500))) 	#0
+    configs.append(config(buyer=fcustom(csvama3,fast=  8,mid= 63,slow=730,rstart=5000,rend=10000))) #506-250-12
+    configs.append(config(buyer=fcustom(csvama3,fast=  1,mid= 92,slow=1110,rstart=8000,rend=9500)))	#0
+    configs.append(config(buyer=fcustom(csvama3,fast= 14,mid= 48,slow=1120,rstart=4500,rend=8500)))	#-1017
+    configs.append(config(buyer=fcustom(csvama3,fast=  6,mid= 48,slow=1140,rstart=4000,rend=8500))) #-143
+    configs.append(config(buyer=fcustom(csvama3,fast= 20,mid= 57,slow=1270,rstart=4000,rend=8500))) #1511-166-6
+    configs.append(config(buyer=fcustom(csvama3,fast= 14,mid= 48,slow=1440,rstart=4000,rend=8500))) #2881-333-12
+    configs.append(config(buyer=fcustom(csvama3,fast= 10,mid= 54,slow=1770,rstart=5000,rend=8500))) #1000-1000-2
+    configs.append(config(buyer=fcustom(svama3,fast=150,mid=245,slow=315))) 	#-161
+    configs.append(config(buyer=fcustom(svama3,fast=165,mid=340,slow=1790))) 	#638-500-8
+    #configs.append(config(buyer=fcustom(svama3,fast=185,mid=260,slow=1800))) 	#840-583-12
+
+    configs.append(config(buyer=fcustom(svama3,fast= 23,mid= 79,slow= 10,ma_standard=120,extend_days=  1))) 	#0
+    configs.append(config(buyer=fcustom(svama2s,fast= 48,slow=500,ma_standard= 67,extend_days= 13))) 	#1342-500-2
+    configs.append(config(buyer=fcustom(svama2s,fast= 26,slow=430,ma_standard= 67,extend_days=  5))) 	#1000-1000-4
+    configs.append(config(buyer=fcustom(svama2x,fast= 11,slow=  5,base=198,ma_standard=500))) 	#1000-1000-1
+    configs.append(config(buyer=fcustom(svama2x,fast= 18,slow=  5,base=198,ma_standard= 10))) 	#1246-666-3     #1000-187-1000-3
+    configs.append(config(buyer=fcustom(svama2x,fast=  6,slow=  5,base=240,ma_standard=500))) 	#1000-1000-3
+    configs.append(config(buyer=fcustom(svama2x,fast= 28,slow=  5,base=240,ma_standard= 10))) 	#8979-666-3
+    configs.append(config(buyer=fcustom(svama2x,fast= 15,slow=  5,base=228,ma_standard=250))) 	#1000-1000-1
+    configs.append(config(buyer=fcustom(csvama3,fast= 44,mid= 23,slow=250,rstart=7500,rend=8000))) 	#0
+
+    configs.append(config(buyer=fcustom(csvama3,fast= 72,mid=705,slow=790,rstart=2500,rend=8500))) 	#-1000
+    configs.append(config(buyer=fcustom(csvama3,fast=  1,mid=765,slow=1110,rstart=500,rend=7000))) 	#0
+    configs.append(config(buyer=fcustom(csvama3,fast=  4,mid=655,slow=770,rstart=4000,rend=8500))) 	#-268
+    configs.append(config(buyer=fcustom(csvama3,fast=108,mid=176,slow=500,rstart=500,rend=7000))) 	#-387
+    configs.append(config(buyer=fcustom(csvama3,fast=195,mid=335,slow=1350,rstart=7000,rend=10000)))    #-485
+    configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 27,slow=270,rstart=7500,rend=8000))) 	#-87
+    configs.append(config(buyer=fcustom(csvama3,fast=  2,mid=215,slow=1050,rstart=2500,rend=9000))) #-1040
+    configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 85,slow=165,rstart=5000,rend=5500))) 	#1000-1000-1
+    #configs.append(config(buyer=fcustom(csvama3,fast=  1,mid= 76,slow=410,rstart=3500,rend=8500))) 	#838-600-10
+    configs.append(config(buyer=fcustom(csvama3,fast= 11,mid= 82,slow=410,rstart=5500,rend=6000))) 	#-1022
+    configs.append(config(buyer=fcustom(csvama3,fast=210,mid=300,slow=530,rstart=4500,rend=9500))) 	#-1000
+    configs.append(config(buyer=fcustom(csvama3,fast= 69,mid=385,slow=950,rstart=500,rend=8500))) 	#1000-1000-1
+    configs.append(config(buyer=fcustom(csvama3,fast=  1,mid=350,slow=950,rstart=8500,rend=9500))) 	#0
+    configs.append(config(buyer=fcustom(csvama3,fast=140,mid=430,slow=790,rstart=500,rend=9500))) 	#0
+    configs.append(config(buyer=fcustom(csvama3,fast=215,mid=375,slow=485,rstart=2500,rend=9000))) 	#-1000 
+    
+    configs.append(config(buyer=fcustom(vama3,fast=  2,mid= 83,slow= 20,ma_standard=500,extend_days=  5))) 	#1597-418-55
+    configs.append(config(buyer=fcustom(svama2x,fast=  6,slow=  5,base=240,ma_standard= 10))) 	#1880-454-11
+    configs.append(config(buyer=fcustom(svama2x,fast= 47,slow=  5,base=168,ma_standard=500))) 	#554-333-3
+    configs.append(config(buyer=fcustom(vama3,fast= 16,mid= 78,slow= 45,ma_standard=500,extend_days= 13))) 	#1643-291-134
+    configs.append(config(buyer=fcustom(vama3,fast= 32,mid= 62,slow= 45,ma_standard=500,extend_days=  1))) 	#1402-437-16
+    configs.append(config(buyer=fcustom(vama3,fast= 32,mid= 71,slow= 55,ma_standard=500,extend_days= 25))) 	#1213-360-150
+    configs.append(config(buyer=fcustom(vama3,fast=  2,mid= 67,slow= 45,ma_standard=500,extend_days= 27))) 	#1068-369-349
+    configs.append(config(buyer=fcustom(vama3,fast=  9,mid= 68,slow= 45,ma_standard=500,extend_days= 21))) 	#1235-386-290
+    
+    configs.append(config(buyer=fcustom(svama2,fast=  9,slow=1160))) 	#281
+    configs.append(config(buyer=fcustom(vama3,fast= 17,mid= 38,slow=125,ma_standard=500,extend_days=  1))) 	#-102
+    configs.append(config(buyer=fcustom(svama3,fast=  2,mid= 95,slow=130,ma_standard=120,extend_days=  1))) 	#-655
+    configs.append(config(buyer=fcustom(vama3,fast= 25,mid= 54,slow= 85,ma_standard= 55,extend_days=  1))) 	#358
+    configs.append(config(buyer=fcustom(csvama2,fast=  6,slow= 55,rstart=3000,rend=5000))) 	#380
+    configs.append(config(buyer=fcustom(csvama2,fast= 20,slow= 95,rstart=5000,rend=7500))) 	#420
+    configs.append(config(buyer=fcustom(csvama2,fast= 14,slow=125,rstart=4500,rend=6500))) 	#319
+    configs.append(config(buyer=fcustom(csvama2,fast=  8,slow=150,rstart=2500,rend=6000))) 	#-294
+    configs.append(config(buyer=fcustom(csvama2,fast=  9,slow=160,rstart=3000,rend=6500))) 	#-325
+    configs.append(config(buyer=fcustom(csvama2,fast= 11,slow=165,rstart=5000,rend=6500))) 	#-395
+    configs.append(config(buyer=fcustom(csvama2,fast=  4,slow=170,rstart=5000,rend=6500))) 	#253
+    configs.append(config(buyer=fcustom(csvama2,fast= 12,slow=170,rstart=3000,rend=6500))) 	#69
+    configs.append(config(buyer=fcustom(csvama2,fast=  8,slow=175,rstart=5000,rend=8000))) 	#-75
+    configs.append(config(buyer=fcustom(csvama2,fast= 14,slow=170,rstart=4000,rend=6500))) 	#214
+    configs.append(config(buyer=fcustom(csvama2,fast= 99,slow=180,rstart=500,rend=3000))) 	#328
+    configs.append(config(buyer=fcustom(csvama2,fast=116,slow=210,rstart=2000,rend=5000))) 	#-723
+    configs.append(config(buyer=fcustom(csvama2,fast=112,slow=385,rstart=2500,rend=6000))) 	#-460
+    configs.append(config(buyer=fcustom(csvama2,fast= 30,slow=395,rstart=3500,rend=5500))) 	#-339
+    configs.append(config(buyer=fcustom(csvama2,fast= 25,slow=400,rstart=5000,rend=6500))) 	#1036-222-45
+    configs.append(config(buyer=fcustom(csvama2,fast= 37,slow=400,rstart=1000,rend=6000))) 	#-167
+    configs.append(config(buyer=fcustom(csvama2,fast= 32,slow=480,rstart=5000,rend=6500))) 	#-79
+    configs.append(config(buyer=fcustom(csvama2,fast= 25,slow=480,rstart=5000,rend=6000))) 	#-728
+    configs.append(config(buyer=fcustom(csvama2,fast=128,slow=500,rstart=3500,rend=5000))) 	#161
+    configs.append(config(buyer=fcustom(csvama2,fast= 30,slow=670,rstart=3000,rend=8000))) 	#-84
+    configs.append(config(buyer=fcustom(csvama2,fast= 36,slow=670,rstart=3500,rend=6000))) 	#-47
+    configs.append(config(buyer=fcustom(csvama2,fast= 26,slow=680,rstart=2000,rend=8000))) 	#-52
+    configs.append(config(buyer=fcustom(csvama2,fast= 60,slow=720,rstart=3500,rend=6000))) 	#90
+    configs.append(config(buyer=fcustom(csvama2,fast=690,slow=980,rstart=5000,rend=9000))) 	#101
+    configs.append(config(buyer=fcustom(csvama2,fast=635,slow=1110,rstart=1500,rend=7000))) #-598
+    configs.append(config(buyer=fcustom(csvama2,fast= 26,slow=660,rstart=3000,rend=8000))) 	#-311
+    configs.append(config(buyer=fcustom(csvama3,fast=  7,mid= 30,slow= 50,rstart=4000,rend=5500))) 	#731-312
+    configs.append(config(buyer=fcustom(csvama3,fast= 36,mid= 78,slow=500,rstart=4000,rend=8500))) 	#166
+    configs.append(config(buyer=fcustom(csvama3,fast= 36,mid= 48,slow=520,rstart=4000,rend=8500))) 	#-6xx
+    configs.append(config(buyer=fcustom(csvama3,fast= 20,mid= 33,slow=630,rstart=4000,rend=8500))) 	#-4xx
+    configs.append(config(buyer=fcustom(csvama3,fast= 22,mid=325,slow=640,rstart=4000,rend=8500))) 	#-10xx
+    configs.append(config(buyer=fcustom(csvama3,fast=150,mid=260,slow=710,rstart=2000,rend=9000))) 	#-10xx
+    configs.append(config(buyer=fcustom(csvama3,fast=  8,mid= 57,slow=730,rstart=4000,rend=9000))) 	#58
+    configs.append(config(buyer=fcustom(csvama3,fast=  5,mid= 45,slow=740,rstart=4000,rend=9000))) 	#-4xx
+    configs.append(config(buyer=fcustom(csvama3,fast=  6,mid= 48,slow=740,rstart=4000,rend=8500))) 	#-4xx
+    configs.append(config(buyer=fcustom(csvama3,fast=  1,mid= 92,slow=1110,rstart=  0,rend=8500))) 	#2745-600-5
+    configs.append(config(buyer=fcustom(csvama3,fast=  2,mid= 84,slow=1110,rstart=  0,rend=8500))) 	#3759-750-4
+    configs.append(config(buyer=fcustom(csvama3,fast=  1,mid= 92,slow=1120,rstart=2500,rend=9000))) #120
+    configs.append(config(buyer=fcustom(csvama3,fast=  1,mid=345,slow=1030,rstart=  0,rend=9500))) 	#-4xx
+    configs.append(config(buyer=fcustom(svama3,fast=165,mid=184,slow=1960))) 	#792-461-13
+
+    configs.append(config(buyer=fcustom(svama3,fast=128,mid=300,slow=1790))) 	#4xx
+    configs.append(config(buyer=fcustom(svama3,fast=116,mid=420,slow=1790))) 	#-2xx
+    configs.append(config(buyer=fcustom(svama3,fast= 10,mid=136,slow=365))) 	#-1xx
+    configs.append(config(buyer=fcustom(svama3,fast=185,mid=510,slow=1800))) 	#1036-750-4
+    configs.append(config(buyer=fcustom(svama3,fast=185,mid=510,slow=1790))) 	#3923-600-5
+    configs.append(config(buyer=fcustom(svama3,fast=112,mid=490,slow=860))) 	#-6xx
+    configs.append(config(buyer=fcustom(svama3,fast=165,mid=300,slow=1750))) 	#7x
+    configs.append(config(buyer=fcustom(svama3,fast= 18,mid=340,slow=1480))) 	#791-375-16
+    configs.append(config(buyer=fcustom(svama3,fast= 18,mid=350,slow=1960))) 	#1315-500-4
+    configs.append(config(buyer=fcustom(svama3,fast=160,mid=270,slow=315))) 	#3xx
+    configs.append(config(buyer=fcustom(svama3,fast= 69,mid=295,slow=1510))) 	#-29x
+    configs.append(config(buyer=fcustom(svama3,fast=185,mid=192,slow=1980))) 	#-3xx
+    configs.append(config(buyer=fcustom(svama3,fast=116,mid=350,slow=2000))) 	#666-250
+    configs.append(config(buyer=fcustom(svama3,fast=150,mid=350,slow=1990))) 	#-289
+    configs.append(config(buyer=fcustom(svama3,fast= 22,mid=350,slow=1990))) 	#1000-1000-3
+    configs.append(config(buyer=fcustom(svama3,fast=160,mid=510,slow=1790))) 	#7928-666-3
+    configs.append(config(buyer=fcustom(svama3,fast=160,mid=510,slow=1800))) 	#2404-666-3
+    configs.append(config(buyer=fcustom(svama3,fast=165,mid=184,slow=1950))) 	#556-416-12
+    configs.append(config(buyer=fcustom(svama3,fast=  1,mid=300,slow=365))) 	#1xx
+    configs.append(config(buyer=fcustom(svama3,fast=160,mid=280,slow=1790))) 	#658-500-8
+    configs.append(config(buyer=fcustom(svama3,fast=180,mid=300,slow=1810))) 	#830-454-11
+    #configs.append(config(buyer=fcustom(svama3,fast=160,mid=300,slow=1800))) 	#927-500-12
+    configs.append(config(buyer=fcustom(svama3,fast=160,mid=310,slow=1790))) 	#869-500-8
+    configs.append(config(buyer=fcustom(svama3,fast=190,mid=350,slow=1790))) 	#1xx
+    configs.append(config(buyer=fcustom(svama2,fast=288,slow=1820))) 	#2xx
+    configs.append(config(buyer=fcustom(svama2,fast= 57,slow=1330))) 	#1xx
+    configs.append(config(buyer=fcustom(svama2,fast=370,slow=1680))) 	#1xx
+    configs.append(config(buyer=fcustom(svama2,fast=  2,slow=1180))) 	#2xx
+    configs.append(config(buyer=fcustom(svama2,fast=365,slow=1670))) 	#3xx
+    configs.append(config(buyer=fcustom(svama2,fast= 14,slow=1210))) 	#5x
+    configs.append(config(buyer=fcustom(svama2,fast=  7,slow=1170))) 	#3xx
+    configs.append(config(buyer=fcustom(svama2,fast=420,slow=1670))) 	#4xx
+    configs.append(config(buyer=fcustom(svama2,fast=  9,slow=1210))) 	#xx
+    configs.append(config(buyer=fcustom(svama2,fast= 12,slow=1260))) 	#xx
+    configs.append(config(buyer=fcustom(svama2,fast= 10,slow=1260))) 	#1xx
+    configs.append(config(buyer=fcustom(svama2,fast=  5,slow=1210))) 	#-4x
+    configs.append(config(buyer=fcustom(svama2,fast=  4,slow=1130))) 	#4xx
+    configs.append(config(buyer=fcustom(svama2,fast= 14,slow=1220))) 	#xx
+    configs.append(config(buyer=fcustom(svama2,fast= 14,slow=1230))) 	#xx
+    configs.append(config(buyer=fcustom(csvama3,fast=  4,mid= 13,slow=290,rstart=2000,rend=8000))) 	#-xx
+    configs.append(config(buyer=fcustom(csvama3,fast=  7,mid= 18,slow=245,rstart=2000,rend=7500))) 	#2xx
+    configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 21,slow=245,rstart=3000,rend=8000))) 	#xx
+    configs.append(config(buyer=fcustom(csvama3,fast=  8,mid= 21,slow=385,rstart=1500,rend=8000))) 	#648-321
+    configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 19,slow=270,rstart=2000,rend=8000))) 	#1xx
+    configs.append(config(buyer=fcustom(csvama3,fast=  4,mid= 13,slow=290,rstart=2000,rend=8000))) 	#-xx
+    configs.append(config(buyer=fcustom(csvama3,fast=  7,mid= 30,slow= 70,rstart=4000,rend=8500))) 	#3xx
+    configs.append(config(buyer=fcustom(csvama3,fast=  6,mid=  4,slow=355,rstart=  0,rend=4000))) 	#0
+    configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 25,slow=420,rstart=4000,rend=8000))) 	#xx
+    configs.append(config(buyer=fcustom(csvama3,fast= 11,mid= 24,slow=405,rstart=  0,rend=8000))) 	#4xx
+    configs.append(config(buyer=fcustom(csvama3,fast= 16,mid= 17,slow=410,rstart=1500,rend=8000))) 	#800-403-62
+    configs.append(config(buyer=fcustom(csvama3,fast=  5,mid= 24,slow=405,rstart=5500,rend=8000))) 	#1426-318-22
+    configs.append(config(buyer=fcustom(csvama3,fast=  5,mid= 25,slow=410,rstart=5500,rend=8000))) 	#xx
+    configs.append(config(buyer=fcustom(csvama3,fast= 69,mid=375,slow=820,rstart=3000,rend=10000))) #3xx
+    configs.append(config(buyer=fcustom(csvama3,fast=  2,mid=265,slow=1030,rstart=  0,rend=9500))) 	#-7xx
+    configs.append(config(buyer=fcustom(csvama3,fast= 42,mid=270,slow=1020,rstart=1500,rend=5500))) #-xxx
+    configs.append(config(buyer=fcustom(csvama3,fast=  1,mid=295,slow=950,rstart=8500,rend=9500))) 	#0
+    configs.append(config(buyer=fcustom(csvama3,fast= 72,mid= 84,slow=1350,rstart=2500,rend=9000))) #-xx
+    configs.append(config(buyer=fcustom(csvama3,fast=  1,mid=300,slow=950,rstart=500,rend=8500))) 	#-6xx
+    configs.append(config(buyer=fcustom(csvama3,fast=  1,mid=460,slow=790,rstart=1000,rend=9500))) 	#-7xx
+    configs.append(config(buyer=fcustom(csvama3,fast=  2,mid=265,slow=1030,rstart=  0,rend=8500))) 	#-7xx
+    configs.append(config(buyer=fcustom(csvama3,fast= 69,mid= 84,slow=1350,rstart=  0,rend=8500))) 	#-4xx
+    configs.append(config(buyer=fcustom(csvama3,fast=  1,mid=215,slow=1030,rstart=  0,rend=9500))) 	#-7xx
+    configs.append(config(buyer=fcustom(csvama3,fast=128,mid=705,slow=790,rstart=2500,rend=9500))) 	#0
+    configs.append(config(buyer=fcustom(csvama3,fast= 20,mid= 45,slow=640,rstart=4000,rend=9000))) 	#-1xx
+    configs.append(config(buyer=fcustom(csvama3,fast= 14,mid= 92,slow=1060,rstart=1500,rend=10000)))#-xxx
+    configs.append(config(buyer=fcustom(csvama3,fast= 20,mid= 48,slow=710,rstart=4000,rend=8500))) 	#-1xx
+    configs.append(config(buyer=fcustom(csvama3,fast= 20,mid= 75,slow= 95,rstart=1500,rend=9000))) 	#2xx
+
+    configs.append(config(buyer=fcustom(csvama3,fast= 20,mid=172,slow=630,rstart=6000,rend=8500))) 	#-xxx
+    configs.append(config(buyer=fcustom(csvama3,fast= 22,mid=172,slow=630,rstart=7000,rend=8500))) 	#-xxx
+    configs.append(config(buyer=fcustom(csvama3,fast= 20,mid=220,slow=1130,rstart=4000,rend=9000))) #0
+    configs.append(config(buyer=fcustom(csvama3,fast= 69,mid= 84,slow=1140,rstart=2500,rend=9000))) #-1xx
+    configs.append(config(buyer=fcustom(csvama3,fast= 39,mid= 48,slow=1160,rstart=4000,rend=8500))) #-3xx
+    configs.append(config(buyer=fcustom(csvama3,fast=  2,mid=148,slow=1110,rstart=500,rend=9000))) 	#-xxx
+    configs.append(config(buyer=fcustom(csvama3,fast= 10,mid= 21,slow=250,rstart=7000,rend=8500))) 	#-2xx
+    configs.append(config(buyer=fcustom(csvama3,fast= 12,mid= 21,slow=250,rstart=7500,rend=8000))) 	#-4xx
+
+    configs.append(config(buyer=fcustom(csvama2,fast= 14,slow= 20,rstart=2500,rend=4500))) 	#3xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 10,slow= 60,rstart=5000,rend=8000))) 	#3xx
+    configs.append(config(buyer=fcustom(csvama2,fast=  9,slow= 20,rstart=2500,rend=5500))) 	#3xx
+    configs.append(config(buyer=fcustom(csvama2,fast=  8,slow= 20,rstart=2500,rend=5000))) 	#3xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 14,slow= 45,rstart=7000,rend=7500))) 	#1258-319-47
+    configs.append(config(buyer=fcustom(csvama2,fast= 14,slow=130,rstart=7000,rend=8500))) 	#4xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 38,slow=475,rstart=4500,rend=7000))) 	#-1xx
+    configs.append(config(buyer=fcustom(csvama2,fast=  3,slow= 15,rstart=3000,rend=4500))) 	#-xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 23,slow=100,rstart=3500,rend=8000))) 	#2xx
+    configs.append(config(buyer=fcustom(csvama2,fast=  9,slow=160,rstart=4500,rend=8500))) 	#2x
+    configs.append(config(buyer=fcustom(csvama2,fast= 11,slow=160,rstart=2500,rend=6500))) 	#-2xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 32,slow=470,rstart=5000,rend=6000))) 	#-7xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 25,slow=475,rstart=5000,rend=6000))) 	#-6xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 45,slow=425,rstart=5000,rend=6000))) 	#-5xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 57,slow=425,rstart=4500,rend=6000))) 	#-3xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 45,slow=630,rstart=5000,rend=6000))) 	#-5xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 13,slow=125,rstart=3000,rend=9000))) 	#3xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 37,slow=115,rstart=3000,rend=9500))) 	#1xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 20,slow=195,rstart=5000,rend=7500))) 	#-xx
+    configs.append(config(buyer=fcustom(csvama2,fast=  4,slow=190,rstart=5000,rend=6500))) 	#1xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 10,slow=195,rstart=5000,rend=6500))) 	#3xx
+    configs.append(config(buyer=fcustom(csvama2,fast=  4,slow=325,rstart=4500,rend=6500))) 	#730-309-55
+    configs.append(config(buyer=fcustom(csvama2,fast=  9,slow=320,rstart=5000,rend=6500))) 	#1000-238-42
+    configs.append(config(buyer=fcustom(csvama2,fast= 51,slow=500,rstart=3500,rend=6000))) 	#-3xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 63,slow=500,rstart=4500,rend=6000))) 	#1xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 99,slow=500,rstart=3500,rend=6000))) 	#-6xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 57,slow=510,rstart=5000,rend=6000))) 	#-6xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 45,slow=510,rstart=5000,rend=6000))) 	#-6xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 11,slow=210,rstart=5000,rend=7000))) 	#-xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 11,slow=200,rstart=5000,rend=6500))) 	#3xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 14,slow=205,rstart=5000,rend=7000))) 	#0
+    configs.append(config(buyer=fcustom(csvama2,fast=  9,slow=205,rstart=4500,rend=8500))) 	#xx
+    configs.append(config(buyer=fcustom(csvama2,fast=  5,slow=200,rstart=4500,rend=6500))) 	#2xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 15,slow=215,rstart=2500,rend=5500))) 	#4xx
+    configs.append(config(buyer=fcustom(csvama2,fast=  7,slow=200,rstart=5000,rend=6500))) 	#5xx-214
+    configs.append(config(buyer=fcustom(csvama2,fast= 14,slow=210,rstart=5000,rend=6500))) 	#xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 27,slow=205,rstart=5000,rend=7000))) 	#xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 25,slow=210,rstart=5500,rend=7500))) 	#-5xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 12,slow=210,rstart=5000,rend=6500))) 	#1xx
+    configs.append(config(buyer=fcustom(csvama2,fast=  8,slow=200,rstart=5000,rend=6500))) 	#5xx-214
+    configs.append(config(buyer=fcustom(csvama2,fast=  1,slow=210,rstart=5000,rend=7500))) 	#xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 28,slow=170,rstart=5000,rend=6500))) 	#-2xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 72,slow=340,rstart=3500,rend=5500))) 	#-2xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 47,slow=400,rstart=4500,rend=6000))) 	#-2xx
+    configs.append(config(buyer=fcustom(csvama2,fast=  4,slow=180,rstart=5000,rend=6500))) 	#3xx
+    configs.append(config(buyer=fcustom(csvama2,fast=435,slow=960,rstart=2500,rend=6000))) 	#-5xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 45,slow=670,rstart=1000,rend=6000))) 	#-1xx
+    configs.append(config(buyer=fcustom(csvama2,fast=645,slow=1030,rstart=4500,rend=8000))) #-5xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 63,slow=920,rstart=2000,rend=10000))) #-3xx
+    configs.append(config(buyer=fcustom(csvama2,fast=300,slow=940,rstart=1000,rend=8500))) 	#3xx
+    configs.append(config(buyer=fcustom(csvama2,fast=525,slow=710,rstart=1000,rend=9000))) 	#-5xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 30,slow=710,rstart=3000,rend=7500))) 	#xx
+    #configs.append(config(buyer=fcustom(csvama2,fast=  9,slow=670,rstart=5000,rend=6000))) 	#625-538-14
+    configs.append(config(buyer=fcustom(csvama2,fast= 60,slow=670,rstart=5000,rend=6000))) 	#763-285
+    configs.append(config(buyer=fcustom(csvama2,fast=685,slow=720,rstart=2000,rend=8000))) 	#-1xx
+    
+    configs.append(config(buyer=fcustom(csvama2,fast= 34,slow=425,rstart=500,rend=5000))) 	#-xx
+    configs.append(config(buyer=fcustom(csvama2,fast=  5,slow=225,rstart=4500,rend=6500))) 	#4xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 15,slow=235,rstart=5000,rend=8000))) 	#-2xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 14,slow=165,rstart=5000,rend=6500))) 	#-3xx
+    configs.append(config(buyer=fcustom(csvama2,fast=  9,slow=450,rstart=5000,rend=5500))) 	#-1xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 30,slow=445,rstart=5000,rend=6500))) 	#3xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 25,slow=220,rstart=2500,rend=6500))) 	#4xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 15,slow=230,rstart=5000,rend=8500))) 	#-2xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 25,slow=475,rstart=5000,rend=6500))) 	#1xx
+    configs.append(config(buyer=fcustom(csvama2,fast=112,slow=135,rstart=2000,rend=5000))) 	#-xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 60,slow=495,rstart=500,rend=5000))) 	#-xx
+    configs.append(config(buyer=fcustom(csvama2,fast=164,slow=630,rstart=3000,rend=5500))) 	#-7xx
+    configs.append(config(buyer=fcustom(csvama2,fast=108,slow=165,rstart=2000,rend=6000))) 	#0
+    configs.append(config(buyer=fcustom(csvama2,fast= 25,slow=320,rstart=4500,rend=7000))) 	#0
+    configs.append(config(buyer=fcustom(csvama2,fast= 47,slow=325,rstart=1000,rend=3000))) 	#-2xx
+    configs.append(config(buyer=fcustom(csvama2,fast=132,slow=325,rstart=2000,rend=4000))) 	#-7xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 14,slow=285,rstart=5000,rend=6000))) 	#-9xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 60,slow=290,rstart=2000,rend=6000))) 	#-6xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 36,slow=355,rstart=2000,rend=6000))) 	#-xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 30,slow=365,rstart=5000,rend=6500))) 	#-1xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 51,slow=660,rstart=500,rend=5500))) 	#-2xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 42,slow=285,rstart=2000,rend=5000))) 	#-1xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 36,slow=175,rstart=1000,rend=8000))) 	#xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 54,slow=285,rstart=500,rend=5500))) 	#-5xx
+    configs.append(config(buyer=fcustom(csvama2,fast=132,slow=340,rstart=2000,rend=4000))) 	#-6xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 39,slow=340,rstart=2000,rend=5500))) 	#xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 33,slow=400,rstart=1000,rend=6500))) 	#xx
+    configs.append(config(buyer=fcustom(csvama2,fast=144,slow=415,rstart=1500,rend=6000))) 	#2xx
+    configs.append(config(buyer=fcustom(csvama2,fast=248,slow=395,rstart=1500,rend=3500))) 	#-1xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 57,slow=265,rstart=5000,rend=6000))) 	#-7xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 23,slow=260,rstart=3500,rend=7500))) 	#-2xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 36,slow=250,rstart=  0,rend=6500))) 	#-2xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 39,slow=1300,rstart=500,rend=9000))) 	#xx
+    configs.append(config(buyer=fcustom(csvama2,fast=140,slow=680,rstart=3500,rend=6000))) 	#-1xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 39,slow=180,rstart=1000,rend=8000))) 	#1xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 90,slow=180,rstart=500,rend=6000))) 	#-5xx
+    configs.append(config(buyer=fcustom(csvama2,fast=  7,slow=180,rstart=5000,rend=8000))) 	#xx
+    configs.append(config(buyer=fcustom(csvama2,fast=172,slow=760,rstart=2000,rend=4000))) 	#-1000
+    configs.append(config(buyer=fcustom(csvama2,fast= 57,slow=720,rstart=2000,rend=4500))) 	#2xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 60,slow=720,rstart=3500,rend=7500))) 	#1xx
+
+    configs.append(config(buyer=fcustom(svama3,fast=116,mid=350,slow=2000))) 	#666-250
+    configs.append(config(buyer=fcustom(svama3,fast=150,mid=350,slow=1990))) 	#-2xx
+    configs.append(config(buyer=fcustom(csvama3,fast=  1,mid=460,slow=790,rstart=1000,rend=9500))) 	#-7xx
+    #configs.append(config(buyer=fcustom(csvama2,fast=  9,slow=670,rstart=5000,rend=6000))) 	#625-538-13
+    configs.append(config(buyer=fcustom(csvama2,fast= 39,slow=1300,rstart=500,rend=9000))) 	#-xx
+    configs.append(config(buyer=fcustom(svama3,fast=116,mid=420,slow=1790))) 	#-2xx
+    configs.append(config(buyer=fcustom(svama3,fast= 22,mid=350,slow=1990))) 	#1000-1000-3
+    configs.append(config(buyer=fcustom(svama3,fast=190,mid=350,slow=1790))) 	#1xx
+    configs.append(config(buyer=fcustom(csvama2,fast= 60,slow=670,rstart=5000,rend=6000))) 	#763-285
+    configs.append(config(buyer=fcustom(csvama2,fast= 57,slow=720,rstart=2000,rend=4500))) 	#2xx
+    configs.append(config(buyer=fcustom(svama3,fast=165,mid=300,slow=1750))) 	#xx
+    configs.append(config(buyer=fcustom(svama3,fast=165,mid=184,slow=1950))) 	#556-416-12
+    configs.append(config(buyer=fcustom(svama3,fast=180,mid=300,slow=1810))) 	#830-454-11
+    #configs.append(config(buyer=fcustom(svama3,fast=160,mid=300,slow=1800))) 	#927-500-12
+    configs.append(config(buyer=fcustom(csvama3,fast=  5,mid= 25,slow=410,rstart=5500,rend=8000))) #xx
+    configs.append(config(buyer=fcustom(csvama3,fast= 42,mid=270,slow=1020,rstart=1500,rend=5500))) #-xxx
+    configs.append(config(buyer=fcustom(csvama3,fast=  1,mid=300,slow=950,rstart=500,rend=8500))) 	#-6xx
+    configs.append(config(buyer=fcustom(csvama3,fast=  1,mid=215,slow=1030,rstart=  0,rend=9500))) 	#-7xx
+    configs.append(config(buyer=fcustom(csvama3,fast= 22,mid=172,slow=630,rstart=7000,rend=8500))) 	#-xxx
+    configs.append(config(buyer=fcustom(csvama3,fast= 39,mid= 48,slow=1160,rstart=4000,rend=8500))) #-3xx
+
+    configs.append(config(buyer=fcustom(csvama2,fast= 14,slow=170,rstart=4000,rend=6500))) 	#214-260-73
+
+    configs.append(config(buyer=fcustom(csvama2,fast= 11,slow=165,rstart=5000,rend=6500))) 	#-395
+    configs.append(config(buyer=fcustom(csvama2,fast= 14,slow=125,rstart=4500,rend=6500))) 	#319
+    configs.append(config(buyer=fcustom(vama3,fast= 25,mid= 80,slow=145,ma_standard= 55,extend_days=  1))) 	#2367-444-9
+    configs.append(config(buyer=fcustom(vama3,fast= 18,mid= 57,slow=115,ma_standard=500,extend_days=  1))) 	#4328-444-9
+    configs.append(config(buyer=fcustom(csvama2,fast=  1,slow=180,rstart=1000,rend=3000))) 	#-50
+    configs.append(config(buyer=fcustom(csvama3,fast= 20,mid= 45,slow= 95,rstart=1500,rend=9000))) 	#1086-395-43
+    
+    #configs.append(config(buyer=fcustom(svama3,fast=185,mid=260,slow=1800))) 	#830-59-500-32      ##840-583-12
+    configs.append(config(buyer=fcustom(vama3,fast= 20,mid= 55,slow= 95,ma_standard=500,extend_days=  1))) 	#92
+    configs.append(config(buyer=fcustom(svama3,fast=160,mid=300,slow=1800))) 	#                   #927-500-12
+    
+    configs.append(config(buyer=s.ma4))     #1111-388-54
+    configs.append(config(buyer=s.pmacd))   #671-307-78
+    configs.append(config(buyer=s.wvad))    #816-437-32
+    configs.append(config(buyer=s.xma60))   #1040-390-64
+    #configs.append(config(buyer=fcustom(s.tsvama2,fast=20,slow=100)))   #3230-562-183   #20080701以来萎靡
+    configs.append(config(buyer=s.nhigh))     #720-394-147
+    configs.append(config(buyer=s.gx60))    #1205-460-76
+    configs.append(config(buyer=s.vmacd_ma4))   #267-295-115
+    #configs.append(config(buyer=s.gx250))   #1695-555-9
+    #configs.append(config(buyer=s.spring))  #5081-626-123
+    configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=13,gfrom=7000,gto=8500))) #2919-589-156    #近期萎靡
+    #configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #@3691-707-41
+    configs.append(config(buyer=s.xgcs))   #2030-487-123    #近期萎靡
+    configs.append(config(buyer=s.xgcs0))   #2382-528-138   
+    configs.append(config(buyer=s.mgcs))   #3564-504-212    #近期萎靡
+    #configs.append(config(buyer=s.cma1))    #1971-500-30    #593-295-44 ??
+    #configs.append(config(buyer=s.tsvama2x))    #1628-800-10    #1778-444-9 ??
+    configs.append(config(buyer=s.gcs))   #
+    configs.append(config(buyer=s.temv))    #575-442-70
+    configs.append(config(buyer=fcustom(s.tsvama2,fast=12,slow=170)))   #1666-451-133
+    

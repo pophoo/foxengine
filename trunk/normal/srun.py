@@ -58,7 +58,7 @@ def attack(stock,dates):
     sprepare = gand(ldown2,hdown2,cl)
     ch = greater(c,rollx(h))  #收盘大于昨天最高
     signal = band(rollx(sprepare),ch) #连续两天下跌之后，第三天收盘超过昨日最高
-    sbuy = signal   #gand(signal,stock.golden,stock.above,stock.t120)
+    sbuy = gand(signal,stock.golden,stock.above,stock.t120)
     return sbuy
 
 def macd3(stock,dates):

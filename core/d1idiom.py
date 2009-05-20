@@ -219,14 +219,17 @@ def B1S1(trans,sbuy,ssell):
     '''
     #print sbuy,np.sum(sbuy)
     sbuy,ssell = roll0(sbuy),roll0(ssell)
+    #print ssell
     #print 'input rolled:',sbuy,ssell
     up_limit_line = limitup2(trans[HIGH],trans[LOW])
     down_limit_line = limitdown2(trans[HIGH],trans[LOW])
+    #print trans[VOLUME]
     #print 'begin adjust:',up_limit_line,down_limit_line
     sbuy = limit_adjust(sbuy,up_limit_line,trans[VOLUME])
     ssell = limit_adjust(ssell,down_limit_line,trans[VOLUME])
     #print 'end adjust:',ssell
     #print sbuy,np.sum(sbuy)
+    #print ssell
     return sbuy,ssell
 
 B0S0.bshift = B0S1.bshift = lambda s : s   #bshift是对buy信号的处理,生成卖出信号用. B0系列不用偏移。
@@ -277,7 +280,8 @@ def atr_xseller_factory(stop_times=3*BASE/2,trace_times=2*BASE,covered=10,up_sec
     inner_seller = fcustom(atr_seller,stop_times=stop_times,trace_times=trace_times,covered=covered,up_sector=up_sector)
     def seller(stock,buy_signal,**kwargs):
         ss = inner_seller(stock,buy_signal,*kwargs)
-        if len(ss)>1:
-            ss[-2] = 1  #平掉倒数第二个，以便最后一个卖出。
+        twhere = np.where(stock.transaction[VOLUME] > 0)[0]
+        if len(twhere) and twhere[-1] - 1 >= 0:
+            ss[twhere[-1]-1] = 1  #最后交易日之前的那一天置位，以便最后卖出平仓。
         return ss
     return seller

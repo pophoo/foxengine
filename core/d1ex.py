@@ -504,14 +504,12 @@ def left_fill(source,empty=0):#使用左值补全源序列中为empty的点.直�
     return source
 
 def zavg(source):#求所有非零值的平均数
-    sum,count = 0,0
-    for v in source:
-        if(v != 0):
-            sum += v
-            count +=1
-    if(count == 0):
+    s = np.sum(source)
+    cz = len(np.where(source==0)[0])
+    cnz = len(source) - cz
+    if(cnz == 0):
         return 0
-    return (sum+count/2)/count
+    return (s+cnz/2)/cnz
 
 def tmaxmin(source,covered,functor,gfunctor,limit): #最近len个数据的max值
     tm = limit

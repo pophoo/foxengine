@@ -231,6 +231,15 @@ class ModuleTest(unittest.TestCase):
         sb1=seller1(sb,np.array([]))
         self.assertTrue(True)
 
+    def test_atr_xseller_factory(self): #测试最后一个为停牌日
+        a = np.array([(1,2,2),(3,4,4),(5,6,6),(7,8,8),(9,10,10),(11,12,0),(13,14,0)])
+        sa = CommonObject(id=3,transaction=a,atr=np.array([1,2,2]))
+        bs = np.array([0,1,0])
+        seller1 = atr_xseller_factory(1000)
+        ss1=seller1(sa,bs)
+        self.assertEquals(0,ss1[-2])
+        self.assertEquals(1,ss1[-3])
+
 
 if __name__ == "__main__":
     import logging

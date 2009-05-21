@@ -610,19 +610,114 @@ def gcx(stock,dates):
     #g = gand(stock.g60>=8000)
     gma = ma(stock.g60,5)
     waterline = cached_ints(len(t[CLOSE]),6000)
-    xs = cross(waterline,gma)
-    xs = extend2next(xs)
+    xs = cross(waterline,gma) 
+    #xs = extend2next(xs)
 
-    #ll5 = rollx(t[LOW],3)
-    #hinc = t[HIGH] * 1000 / ll5
+    ll5 = rollx(t[LOW],3)
+    hinc = t[HIGH] * 1000 / ll5
 
     #c_ex = lambda c,s:gand(c.g20>=7500,s>=8000)
     #cs = catalog_signal_cs(stock.c60,c_ex)    
     cx = stock.c60.keys()[1].g60
     cma = ma(cx,3)
-    xc = cross(cached_ints(len(t[CLOSE]),6000),gma)
-    xc = extend2next(xc)
-    return gand(xc>0,xc>0,stock.c60.values()[1]>8000,stock.above,stock.t120)
+    xc = cma > 6000
+    xc = extend2next(xc) > 0
+    #signal = derepeatc(gand(xs>0,xc>0))
+    #print signal
+    return gand(xs>0,xc>0,stock.c60.values()[1]>8500,stock.above,stock.t120,hinc<1200)
+
+def gmacd_old(stock,dates): #这里dea,diff是全反的,但是全反居然收益很好，成功率不错。晕倒
+    t = stock.transaction
+    
+    mdea,mdiff = cmacd(stock.g60)
+    ldea,ldiff = cmacd(stock.g120)
+    lldea,lldiff = cmacd(stock.g250)
+
+    vdea,vdiff = cmacd(t[VOLUME])
+    pdea,pdiff = cmacd(t[CLOSE])
+
+    sfilter = gand(vdiff>vdea,pdiff>pdea)
+
+    xcross = cross(mdea,mdiff) > 0
+
+    linelog(stock.code)
+
+    ll5 = rollx(t[LOW],5)
+    hinc = t[HIGH] * 1000 / ll5
+
+    ll10 = rollx(t[LOW],10)
+    hh10 = tmax(t[HIGH],10)
+    rhl10 = hh10 * 1000/ll10
+
+    ss = sfollow(xcross,sfilter,5)
+
+    signal = gand(ss,stock.above,stock.t120,t[VOLUME]>0,hinc<1200,rhl10<1500,stock.g60>4500)
+    return signal
+    #410/498/1584
+    #全部750/520
+    #需要测试中国软件/浪潮软件/000961
+    #return gand(xcross,stock.above,stock.t120,t[VOLUME]>0,stock.g60>4500,stock.g60<7500)   #94-392
+
+
+def gmacd(stock,dates): #
+    ''' ss1=sfollow(cross(mdea,mdiff) > 0,vdiff<vdea), 然后再sfollow(ss1,cross(ma(t[CLOSE],30),t[LOW]),5),2115/704/846
+        ss1=sfollow(cross(mdea,mdiff) > 0,vdiff<vdea), 然后再sfollow(ss1,cross(ma(t[CLOSE],30)<0,t[LOW]),5),2213/759/595
+            4500-8500:  2946/821/286
+        ss1=sfollow(cross(mdea,mdiff) > 0,vdiff<vdea), 然后再sfollow(ss1,cross(ma(t[CLOSE],30)<0,t[LOW]),10),2392/746/844    
+            0-3000:1457/670/273
+            3000-6000: 2709/788/402
+            6000-!: 2696/758/273
+            6000-8500: 2781/775/232
+            >8500:  2193/632/49
+            4500-8500:  3078/793/411
+            4500-7500:  2888/797/345
+            5000-8000:  2925/796/324
+            数量太多,需要进一步筛选
+        仍然无法继续甄别超级强势股,如600756,000961的启动阶段,能够通过cmacd(mdea,mdiff)>0找到初始信号,但无法从噪声中甄别出来
+        因为他们不触碰30线,需要进一步考虑
+        ss1不变.
+        x3 = gand(strend(ma(t[CLOSE],5))>0,strend(stock.ma10)>0,strend(stock.ma20)>0,strend(stock.ma60)>0)
+        ss = sfollow(ss1,x3,10)
+        
+    '''
+    t = stock.transaction
+    
+    mdiff,mdea = cmacd(stock.g60)
+    ldiff,ldea = cmacd(stock.g120)
+    lldiff,lldea = cmacd(stock.g250)
+
+    vdiff,vdea = cmacd(t[VOLUME])
+    pdiff,pdea = cmacd(t[CLOSE])
+
+
+    sfilter = vdiff<vdea
+    #sfilter = vdiff<vdea
+    #sfilter = gand(vdiff>vdea,pdiff>pdea)
+
+    xcross = cross(mdea,mdiff) > 0  
+    #xcross = cross(mdiff,mdea) > 0  
+
+    linelog(stock.code)
+
+    ll5 = rollx(t[LOW],5)
+    hinc = t[HIGH] * 1000 / ll5
+
+    ll10 = rollx(t[LOW],10)
+    hh10 = tmax(t[HIGH],10)
+    rhl10 = hh10 * 1000/ll10
+
+    ss1 = sfollow(xcross,sfilter,5)
+    #ss = derepeatc(ss)
+    
+    x2 = cross(ma(t[CLOSE],30),t[LOW]) < 0
+
+    ss = sfollow(ss1,x2,10)
+
+    signal = gand(ss,stock.above,stock.t120,t[VOLUME]>0,hinc<1200,rhl10<1500,stock.g60>4500,stock.g60<8500)
+    
+    #1151/638/886
+    return signal
+
 
 #c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250)
 #c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s>=3300,s<=6600)

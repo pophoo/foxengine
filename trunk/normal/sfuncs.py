@@ -343,19 +343,41 @@ def tsvama2x(stock,fast=20,slow=100):
 
 
 def gmacd(stock): #
-    ''' ss1=sfollow(cross(mdea,mdiff) > 0,vdiff<vdea), 然后再sfollow(ss1,cross(ma(t[CLOSE],30),t[LOW]),5),2115/704/846
-        ss1=sfollow(cross(mdea,mdiff) > 0,vdiff<vdea), 然后再sfollow(ss1,cross(ma(t[CLOSE],30)<0,t[LOW]),5),2213/759/595
-            4500-8500:  2946/821/286
-        ss1=sfollow(cross(mdea,mdiff) > 0,vdiff<vdea), 然后再sfollow(ss1,cross(ma(t[CLOSE],30)<0,t[LOW]),10),2392/746/844    
-            0-3000:1457/670/273
-            3000-6000: 2709/788/402
-            6000-!: 2696/758/273
-            6000-8500: 2781/775/232
-            >8500:  2193/632/49
-            4500-8500:  3078/793/411
-            4500-7500:  2888/797/345
-            5000-8000:  2925/796/324
+    ''' 
+        20010701-20090101效果不好，但能持平
+        20080701开始效果非常好
+        ll5 = rollx(t[LOW],5),   hinc = t[HIGH] * 1000 / ll5
+        ll10 = rollx(t[LOW],10),    hh10 = tmax(t[HIGH],10), rhl10 = hh10 * 1000/ll10
+        lfilter = hinc<1200 and rhl10<1500
+        ss1=sfollow(cross(mdea,mdiff) > 0,vdiff<vdea), 然后再sfollow(ss1,cross(ma(t[CLOSE],30),t[LOW]),5),之后+lfilter,2115/704/846
+        ss1=sfollow(cross(mdea,mdiff) > 0,vdiff<vdea), 然后再sfollow(ss1,cross(ma(t[CLOSE],30)<0,t[LOW]),5),之后+lfilter,2213/759/595
+            g60:4500-8500:  2946/821/286
+        ss1=sfollow(cross(mdea,mdiff) > 0,vdiff<vdea), 然后再sfollow(ss1,cross(ma(t[CLOSE],30)<0,t[LOW]),10),之后+lfilter,2392/746/844    
+            g60:0-3000:1457/670/273
+            g60:3000-6000: 2709/788/402
+            g60:6000-!: 2696/758/273
+            g60:6000-8500: 2781/775/232
+            g60:>8500:  2193/632/49
+            g60:4500-8500:  3078/793/411
+            g60:4500-7500:  2888/797/345
+            g60:5000-8000:  2925/796/324
             数量太多,需要进一步筛选
+        ss1=sfollow(cross(mdea,mdiff) > 0,gand(vdiff>vdea,pdiff>pdea)), 然后再sfollow(ss1,cross(ma(t[CLOSE],30)<0,t[LOW]),10),2392/746/844    
+            mdiff>=mdea
+            g60:4500-8500:3036/800/451
+            g20:4500-8500:3886/817/465  #不需要hinc<1200，只需要rhl10<1500,而且效果也有限
+            但这个滤掉了600121,600756,000961,600997等
+            g20:5000-9000:3877/845/297   
+            ####g20:5000-9500:3937/840/300    #去掉mdiff>=mdea,3571/841/416
+                添加 strend(stock.ref.ma60)>0   4063/847/295
+                above改为13>30>60>120
+                above = gand(ma(c,13) > ma30,ma30>stock.ma60,stock.ma60>stock.ma120)
+                signal = gand(ss,above,stock.t120,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,strend(stock.ref.ma60)>0)
+                4217/860/294
+            g20:5000-10000:3425/833/306
+            g20:6000-9500:3500/847/203
+            g20:5000-6000:4097/840/113
+            g20:4500-9500:3933/803/346
         仍然无法继续甄别超级强势股,如600756,000961的启动阶段,能够通过cmacd(mdea,mdiff)>0找到初始信号,但无法从噪声中甄别出来
         因为他们不触碰30线,需要进一步考虑
         ss1不变.
@@ -373,29 +395,34 @@ def gmacd(stock): #
     pdiff,pdea = cmacd(t[CLOSE])
 
 
-    sfilter = vdiff<vdea
-    #sfilter = gand(vdiff>vdea,pdiff>pdea)
+    #sfilter = vdiff<vdea
+    #sfilter = vdiff<vdea
+    sfilter = gand(vdiff>vdea,pdiff>pdea)
 
     xcross = cross(mdea,mdiff) > 0  
     #xcross = cross(mdiff,mdea) > 0  
 
     linelog(stock.code)
 
-    ll5 = rollx(t[LOW],5)
-    hinc = t[HIGH] * 1000 / ll5
 
     ll10 = rollx(t[LOW],10)
     hh10 = tmax(t[HIGH],10)
     rhl10 = hh10 * 1000/ll10
 
     ss1 = sfollow(xcross,sfilter,5)
-    #ss = derepeatc(ss)
     
     x2 = cross(ma(t[CLOSE],30),t[LOW]) < 0
-
+    
     ss = sfollow(ss1,x2,10)
 
-    signal = gand(ss,stock.above,stock.t120,t[VOLUME]>0,hinc<1200,rhl10<1500,stock.g60>4500,stock.g60<8500)
-    #1151/638/886
+    gf1 = gand(stock.g20>5000,stock.g20<9500)
+
+    c = t[CLOSE]
+    ma30 = ma(c,30)
+    above = gand(ma(c,13) > ma30,ma30>stock.ma60,stock.ma60>stock.ma120)
+
+    #signal = gand(xcross,stock.above,stock.t120,t[VOLUME]>0,hinc<1200,rhl10<1500,gfilter)
+    signal = gand(ss,above,stock.t120,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,strend(stock.ref.ma60)>0)
+    
     return signal
 

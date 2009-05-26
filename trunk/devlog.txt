@@ -308,10 +308,10 @@ from time import time
 import logging
 logging.basicConfig(filename="srun_x4c.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 #begin,xbegin,end = 19980101,20010701,20091231
-begin,xbegin,end = 20000101,20010701,20090101
+#begin,xbegin,end = 20000101,20010701,20090101
 #begin,xbegin,end = 20000101,20010701,20091231
 #begin,xbegin,end = 20050101,20060701,20091231
-#begin,xbegin,end = 20070101,20080601,20091231
+begin,xbegin,end = 20070101,20080601,20091231
 #begin,xbegin,end = 20060101,20080601,20091231
 #begin,xbegin,end = 20000101,20010701,20090101
 
@@ -3915,3 +3915,27 @@ mgcs:
 
 #2009-05-21
 #测试g60的macd
+    mdiff,mdea = cmacd(stock.g60)
+    ldiff,ldea = cmacd(stock.g120)
+    lldiff,lldea = cmacd(stock.g250)
+
+    xcross = cross(mdea,mdiff) > 0  
+
+    vma30 = ma(t[VOLUME],30)
+    vl = t[VOLUME]*1000/vma30   #<100000,消除新股头n天
+
+    gf1 = gand(stock.g20>5000,stock.g20<9500)
+
+    above = gand(ma(c,13) > ma30,ma30>stock.ma60,stock.ma60>stock.ma120)
+
+    ll10 = tmin(t[LOW],15)
+    hh10 = tmax(t[HIGH],15)
+    rhl10 = hh10 * 1000/ll10
+
+    signal = gand(ss,above,stock.t120,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,vl<1000,strend(stock.ref.ma60)>0)
+ 
+    这是个金矿，但目前还淘不出啥来
+    ma30这个条件究竟如何?
+
+
+考虑与svama2,vma等其它条件的的结合

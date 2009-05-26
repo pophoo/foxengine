@@ -69,6 +69,7 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=s.tsvama2x))    #1628-800-10    #1778-444-9 ??
     configs.append(config(buyer=s.xgcs0))   #2382-528-138       
 
+    configs.append(config(buyer=s.gmacd))
     #configs.append(config(buyer=s.ma4))     #1111-388-54
     #configs.append(config(buyer=s.pmacd))   #671-307-78
     #configs.append(config(buyer=s.wvad))    #816-437-32
@@ -304,9 +305,9 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
-    #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
 
 

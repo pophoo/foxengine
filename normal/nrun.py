@@ -68,6 +68,9 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=s.cma1))    #1971-500-30    #593-295-44 ??
     configs.append(config(buyer=s.tsvama2x))    #1628-800-10    #1778-444-9 ??
     configs.append(config(buyer=s.xgcs0))   #2382-528-138       
+    configs.append(config(buyer=fcustom(s.tsvama2a,fast=20,slow=100)))   #2714-541-24, 近期成功率升高
+    configs.append(config(buyer=fcustom(s.tsvama2b,fast=20,slow=170)))   #2630-583-12, 近期成功率升高
+
 
     configs.append(config(buyer=s.gmacd))
     #configs.append(config(buyer=s.ma4))     #1111-388-54

@@ -230,7 +230,49 @@ def tracelimit_old(source,sup,signal,satr,stop_times,trace_times):
         rev[i] = cur_stop
     return rev
 
-def tracelimit(source,sup,signal,satr,stop_times,trace_times):
+def tracelimit(source,sup,sdown,signal,satr,stop_times,trace_times):
+    ''' 信号日起的追踪止损。
+        自有信号起至下一个信号间以当前值-atr*trace_times的最高者和买入值-atr*stop_times的高者为止损线
+            但若至下一个信号日时仍未触发，则下一个信号日不作为止损重置的信号.
+            避免之前出现的因为信号连续而导致的止损不停抬高，或者两个买入之间没有卖出间隔，导致后一买入信号引起止损的迅速提高
+        source:首日估价。这个估价不是买入价，通常是开盘价+最低价/2。不能用收盘价，否则开盘最低到收盘涨停，同样会触发止损，而开盘涨停到收盘跌停，却不会触发
+               用开盘价，则只有跌下去的时候会触发。 
+        sup:上包线，为high或close
+        sdown: 触发线，若触发线<计算所得的limit，则说明已经卖出
+        signal:>0为有信号
+        satr:atr线
+        stop_times为止损时的atr倍数
+        trace_times为跟踪的atr倍数
+        避免原始的tracelimit因为从高点下来小阴小阳调整而触发的止损(atr变小)
+    '''
+    assert len(source) == len(sup) == len(signal) == len(satr)
+    rev = np.zeros_like(source)
+    if(len(source) == 0):
+        return rev
+    cur_stop = 0
+    cur_trace = 0
+    hold = False   #空仓
+    for i in xrange(len(source)):
+        cur = source[i]
+        cur_h = sup[i]
+        cur_atr = satr[i]
+        if signal[i] > 0 and not hold:
+            #print signal[i],hold
+            cur_stop = cur - cur_atr * stop_times/BASE
+            cur_h = cur #高点设为当前点，因为无法判断真正高点是否是在当前点之后出现
+            hold = True
+        cur_trace = cur_h - cur_atr * trace_times/BASE  #有可能最高点-当时atr*ttimes < 当前点-当前atr*ttimes
+        if cur_stop < cur_trace:
+            cur_stop = cur_trace
+        #print i,hold,sdown[i],cur_stop
+        if hold and sdown[i] < cur_stop:    #只有持仓时才判断. 只有低于才算卖出
+            hold = False
+            #print 'selled,hold=',hold,'cur_stop=',cur_stop
+        rev[i] = cur_stop
+    return rev
+
+
+def tracelimit_090528(source,sup,signal,satr,stop_times,trace_times):
     ''' 信号日起的追踪止损。自有信号起至下一个信号间以当前值-atr*trace_times的最高者和买入值-atr*stop_times的高者为止损线
         source:首日估价。这个估价不是买入价，通常是开盘价+最低价/2。不能用收盘价，否则开盘最低到收盘涨停，同样会触发止损，而开盘涨停到收盘跌停，却不会触发
                用开盘价，则只有跌下去的时候会触发。 

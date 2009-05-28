@@ -32,6 +32,14 @@ class ModuleTest(unittest.TestCase):    #通路测试
         sbuy = tsvama2(self.stock,5,20)
         self.assertTrue(True)
 
+    def test_tsvama2a(self):
+        sbuy = tsvama2a(self.stock,5,20)
+        self.assertTrue(True)
+
+    def test_tsvama2b(self):
+        sbuy = tsvama2b(self.stock,5,20)
+        self.assertTrue(True)
+
     def test_tsvama2x(self):
         sbuy = tsvama2x(self.stock,5,20)
         self.assertTrue(True)

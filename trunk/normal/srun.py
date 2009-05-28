@@ -224,29 +224,34 @@ def svap_macd(stock,dates,gfilter):
 
 
 #c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
-def tsvama2(stock,dates):
+def tsvama2(stock):
     ''' svama两线交叉
     '''
     fast=20
-    slow=100
+    slow=170
     t = stock.transaction
-    
-    #g = gand(stock.g20 >= stock.g60+1000,stock.g60 >= stock.g120+1000,stock.g20>=3000,stock.g20<=8000)
-
-    g = stock.golden
-
-    svap,v2i = stock.svap_ma_67
-
+    svap,v2i = stock.svap_ma_67 
     ma_svapfast = ma(svap,fast)
     ma_svapslow = ma(svap,slow)
     trend_ma_svapfast = strend(ma_svapfast) > 0
     trend_ma_svapslow = strend(ma_svapslow) > 0
     cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
-    msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
 
-    
+    sdiff,sdea = cmacd(svap)
+    ss = gand(cross_fast_slow,strend(sdiff-sdea)>0)
+    #ss = cross_fast_slow
+    msvap = transform(ss,v2i,len(t[VOLUME]))
     linelog('%s:%s' % (tsvama2.__name__,stock.code))
-    return gand(g,msvap,stock.above)
+
+    vdiff,vdea = cmacd(t[VOLUME])
+
+    vma_s = ma(t[VOLUME],13)
+    vma_l = ma(t[VOLUME],30)
+
+    vfilter = vma_s < vma_l * 7/8
+ 
+    linelog('%s:%s' % (tsvama2.__name__,stock.code))
+    return gand(stock.golden,msvap,stock.above,vfilter)
 
 def gcs(stock,dates):
     t = stock.transaction
@@ -734,10 +739,6 @@ def gmacd_s(stock): #
 
 
 def gmacd(stock): #
-    ''' 
-
-        
-    '''
     t = stock.transaction
     
     mdiff,mdea = cmacd(stock.g60)
@@ -791,9 +792,52 @@ def gmacd(stock): #
     mxi = gand(msi>=-100,msi<=0)
     
     #signal = gand(xcross,stock.above,stock.t120,t[VOLUME]>0,hinc<1200,rhl10<1500,gfilter)
-    signal = gand(ss,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,strend(stock.ref.ma60)>0,vfilter,msvap,mxi)
+    signal = gand(ss,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,strend(stock.ref.ma60)>0,vfilter,msvap,strend(vdiff-vdea)>0,strend(pdiff-pdea)>0)
     
     return signal
+
+
+def gsvama(stock): #
+    t = stock.transaction
+    
+    mdiff,mdea = cmacd(stock.g60)
+
+    vma_s = ma(t[VOLUME],13)
+    vma_l = ma(t[VOLUME],30)
+
+    vfilter = gand(vma_s > vma_l * 4/3)
+
+    c = t[CLOSE]
+    ma30 = ma(c,30)
+    above = gand(ma(c,13) > ma30,ma30>stock.ma60,stock.ma60>stock.ma120)
+    
+    ll10 = rollx(t[LOW],10)
+    hh10 = tmax(t[HIGH],10)
+    rhl10 = hh10 * 1000/ll10
+
+    svap,v2i = stock.svap_ma_67
+    sdiff,sdea = cmacd(svap)
+    ssignal = gand(sdiff < sdea,strend(sdiff)<0,strend(sdiff-sdea)>0)
+
+    s20 = ma(svap,60)
+    s50 = ma(svap,140)
+
+    #sx = gand(cross(s50,s20) > 0,ssignal)
+
+    sx = cross(s50,s20) > 0
+
+    msvap = transform(band(sx,ssignal),v2i,len(t[VOLUME]))
+
+    gf1 = gand(stock.g20>5000,stock.g20<9500)
+
+    signal = gand(msvap,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,strend(stock.ref.ma60)>0,vfilter,trend(mdiff-mdea)>0)
+
+    #signal = msvap
+    
+    linelog(stock.code)
+
+    return signal
+
 
 #c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250)
 #c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s>=3300,s<=6600)

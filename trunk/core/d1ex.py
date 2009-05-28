@@ -111,8 +111,10 @@ def cross(target,follow):
     return rev
 
 def under_cross(signal,source,follow):
-    ''' 信号日低于或下叉
-        不仅仅给出下叉信号,而且还给出ssource日follow是否低于source
+    ''' 信号日低于或下叉。source一般为downlimit,follow为low
+        不仅仅给出下叉信号,而且还给出signal日follow是否低于source
+        信号日低于，则将屏蔽买入
+        下叉则是卖出
     '''
     sd = equals(cross(source,follow),-1)
     indices = (signal > 0)

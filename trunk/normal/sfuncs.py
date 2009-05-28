@@ -48,7 +48,7 @@ def tsvama2a(stock,fast=20,slow=100):
 
     vfilter = vma_s < vma_l * 7/8
  
-    linelog('%s:%s' % (tsvama2.__name__,stock.code))
+    linelog('%s:%s' % (tsvama2a.__name__,stock.code))
     return gand(stock.golden,msvap,stock.above,vfilter)
 
 
@@ -77,7 +77,7 @@ def tsvama2b(stock,fast=20,slow=170):
 
     vfilter = vma_s < vma_l * 7/8
  
-    linelog('%s:%s' % (tsvama2.__name__,stock.code))
+    linelog('%s:%s' % (tsvama2b.__name__,stock.code))
     return gand(stock.golden,msvap,stock.above,vfilter)
 
 

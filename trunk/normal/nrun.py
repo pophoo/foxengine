@@ -155,12 +155,12 @@ def run_body(sdata,dates,begin,end,xbegin):
     #seller = csc_func
     #seller = fcustom(csc_func,threshold=100)
     
-    configs = prepare_temp_configs(seller1200,pman,dman)
+    #configs = prepare_temp_configs(seller1200,pman,dman)
     #configs = prepare_temp_configs(seller2000,pman,dman)
     #configs = prepare_configs_A2000(seller2000,pman,dman)
     #configs.extend(prepare_configs_A2000(seller2000,pman,dman))
-    #configs = prepare_configs_A1200(seller1200,pman,dman)
-    #configs.extend(prepare_configs_A0(seller1200,pman,dman))    
+    configs = prepare_configs_A1200(seller1200,pman,dman)
+    configs.extend(prepare_configs_A0(seller1200,pman,dman))    
     #configs.extend(prepare_configs_A1(seller1200,pman,dman))
     #configs.extend(prepare_configs_A2(seller1200,pman,dman))    
     
@@ -175,7 +175,7 @@ def run_body(sdata,dates,begin,end,xbegin):
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
     #save_configs('atr_ev_nm_1200.txt',configs,xbegin,end)
-    save_configs('atr_ev_v0x.txt',configs,xbegin,end)    
+    save_configs('atr_ev_v0v2.txt',configs,xbegin,end)    
 
 def run_merge_body(sdata,dates,begin,end,xbegin):
     
@@ -285,7 +285,7 @@ if __name__ == '__main__':
     #begin,xbegin,end = 19980101,19990101,20090101
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
-    begin,xbegin,end,lbegin = 20070101,20080601,20091201,20090201    
+    begin,xbegin,end,lbegin = 20070101,20080701,20091201,20090201    
     from time import time
     tbegin = time()
     

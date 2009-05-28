@@ -105,6 +105,24 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,620,700,650,650,550,550,550,692,650,650,590],stoplimit(source,signal,satr,1000).tolist())
         self.assertEquals([0,520,600,550,550,450,450,450,592,550,550,490],stoplimit(source,signal,satr,2000).tolist())
 
+    def test_tracelimit(self):
+        #self.assertEquals([],tracelimit(np.array([]),np.array([]),np.array([]),np.array([]),np.array([]),1000,1000).tolist())
+        #self.assertEquals([],tracelimit(np.array([]),np.array([]),np.array([]),np.array([]),np.array([]),2000,1000).tolist())
+        source = np.array([700,720,800,750,700,650,980,720,792,750,710,690])
+        shigh  = np.array([800,820,900,850,800,750,1080,820,892,850,810,790])
+        slow = np.array([700,700,690,700,700,600,900,700,720,720,700,680])
+        signal = np.array([0,1,1,1,0,1,0,0,1,1,0,1])
+        satr = np.array([100,100,100,100,100,100,100,100,100,100,100,100])
+        self.assertEquals([600,620,700,700,700,700,880,880,692,692,692,692],tracelimit(source,source,source,signal,satr,1000,1000).tolist())
+        self.assertEquals([600,620,700,650,650,650,880,880,692,692,692,692],tracelimit(source,source,slow,signal,satr,1000,1000).tolist())
+        self.assertEquals([500,620,620,620,620,620,780,780,692,692,692,692],tracelimit(source,source,slow,signal,satr,1000,2000).tolist())        
+        self.assertEquals([600,620,700,650,650,650,880,880,692,692,692,692],tracelimit(source,source,slow,signal,satr,2000,1000).tolist())
+        self.assertEquals([700,620,800,650,700,700,980,980,692,750,750,590],tracelimit(source,shigh,slow,signal,satr,1000,1000).tolist())
+        self.assertEquals([600,620,700,650,650,650,880,880,692,692,692,692],tracelimit(source,shigh,slow,signal,satr,1000,2000).tolist())
+        self.assertEquals([700,620,800,650,700,700,980,980,692,750,750,590],tracelimit(source,shigh,slow,signal,satr,2000,1000).tolist())
+        signal = np.array([0,1,0,0,0,0,0,0,0,0,0,0])
+        self.assertEquals([700,620,800,800,800,800,980,980,980,980,980,980],tracelimit(source,shigh,slow,signal,satr,2000,1000).tolist())
+
     def test_tracelimit_old(self):
         self.assertEquals([],tracelimit_old(np.array([]),np.array([]),np.array([]),np.array([]),1000,1000).tolist())
         self.assertEquals([],tracelimit_old(np.array([]),np.array([]),np.array([]),np.array([]),2000,1000).tolist())
@@ -119,21 +137,21 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([600,620,700,650,650,550,880,880,692,650,650,590],tracelimit_old(source,shigh,signal,satr,1000,2000).tolist())
         self.assertEquals([700,620,700,650,700,550,980,980,692,650,710,590],tracelimit_old(source,shigh,signal,satr,2000,1000).tolist())
 
-    def test_tracelimit(self):
-        self.assertEquals([],tracelimit(np.array([]),np.array([]),np.array([]),np.array([]),1000,1000).tolist())
-        self.assertEquals([],tracelimit(np.array([]),np.array([]),np.array([]),np.array([]),2000,1000).tolist())
+    def test_tracelimit_090528(self):
+        self.assertEquals([],tracelimit_090528(np.array([]),np.array([]),np.array([]),np.array([]),1000,1000).tolist())
+        self.assertEquals([],tracelimit_090528(np.array([]),np.array([]),np.array([]),np.array([]),2000,1000).tolist())
         source = np.array([700,720,800,750,700,650,980,720,792,750,710,690])
         shigh  = np.array([800,820,900,850,800,750,1080,820,892,850,810,790])
         signal = np.array([0,1,1,1,0,1,0,0,1,1,0,1])
         satr = np.array([100,100,100,100,100,100,100,100,100,100,100,100])
-        self.assertEquals([600,620,700,650,650,550,880,880,692,650,650,590],tracelimit(source,source,signal,satr,1000,1000).tolist())
-        self.assertEquals([500,620,700,650,650,550,780,780,692,650,650,590],tracelimit(source,source,signal,satr,1000,2000).tolist())        
-        self.assertEquals([600,620,700,650,650,550,880,880,692,650,650,590],tracelimit(source,source,signal,satr,2000,1000).tolist())
-        self.assertEquals([700,620,700,650,700,550,980,980,692,650,710,590],tracelimit(source,shigh,signal,satr,1000,1000).tolist())
-        self.assertEquals([600,620,700,650,650,550,880,880,692,650,650,590],tracelimit(source,shigh,signal,satr,1000,2000).tolist())
-        self.assertEquals([700,620,700,650,700,550,980,980,692,650,710,590],tracelimit(source,shigh,signal,satr,2000,1000).tolist())
+        self.assertEquals([600,620,700,650,650,550,880,880,692,650,650,590],tracelimit_090528(source,source,signal,satr,1000,1000).tolist())
+        self.assertEquals([500,620,700,650,650,550,780,780,692,650,650,590],tracelimit_090528(source,source,signal,satr,1000,2000).tolist())        
+        self.assertEquals([600,620,700,650,650,550,880,880,692,650,650,590],tracelimit_090528(source,source,signal,satr,2000,1000).tolist())
+        self.assertEquals([700,620,700,650,700,550,980,980,692,650,710,590],tracelimit_090528(source,shigh,signal,satr,1000,1000).tolist())
+        self.assertEquals([600,620,700,650,650,550,880,880,692,650,650,590],tracelimit_090528(source,shigh,signal,satr,1000,2000).tolist())
+        self.assertEquals([700,620,700,650,700,550,980,980,692,650,710,590],tracelimit_090528(source,shigh,signal,satr,2000,1000).tolist())
         signal = np.array([0,1,0,0,0,0,0,0,0,0,0,0])
-        self.assertEquals([700,620,800,800,800,800,980,980,980,980,980,980],tracelimit(source,shigh,signal,satr,2000,1000).tolist())
+        self.assertEquals([700,620,800,800,800,800,980,980,980,980,980,980],tracelimit_090528(source,shigh,signal,satr,2000,1000).tolist())
 
     def test_tracelimit_r(self):
         self.assertEquals([],tracelimit_r(np.array([]),np.array([]),np.array([]),np.array([]),1000,1000).tolist())
@@ -175,13 +193,13 @@ class ModuleTest(unittest.TestCase):
         tlow =  np.array([800,600,600,600,600,600,600,600,500,500,400,400])
         k,d,j = kdj(tclose,thigh,tlow)
         self.assertEquals([667,667,667,667,667,667,667,667,645,630,587,558],k.tolist())
-        self.assertEquals([556, 593, 618, 634, 645, 652, 657, 660, 655, 647,627,604],d.tolist())
-        self.assertEquals([334, 445, 520, 568, 601, 622, 637, 646, 675, 681,707,696],j.tolist())
+        self.assertEquals([556,593,618,634,645,652,657,660,655,647,627,604],d.tolist())
+        self.assertEquals([334,445,520,568,601,622,637,646,675,681,707,696],j.tolist())
         rsv = wms(tclose,thigh,tlow,9)
         k2,d2,j2 = kdj(tclose,thigh,tlow,rsv)
         self.assertEquals([667,667,667,667,667,667,667,667,645,630,587,558],k2.tolist())
-        self.assertEquals([556, 593, 618, 634, 645, 652, 657, 660, 655, 647,627,604],d2.tolist())
-        self.assertEquals([334, 445, 520, 568, 601, 622, 637, 646, 675, 681,707,696],j2.tolist())
+        self.assertEquals([556,593,618,634,645,652,657,660,655,647,627,604],d2.tolist())
+        self.assertEquals([334,445,520,568,601,622,637,646,675,681,707,696],j2.tolist())
 
     def test_ckdj(self):
         tclose = np.array([800,800,800,800,800,800,800,800,800,800,800,800])
@@ -189,13 +207,13 @@ class ModuleTest(unittest.TestCase):
         tlow =  np.array([800,600,600,600,600,600,600,600,500,500,400,400])
         k,d,j = ckdj(tclose,thigh,tlow)
         self.assertEquals([667,667,667,667,667,667,667,667,645,630,587,558],k.tolist())
-        self.assertEquals([556, 593, 618, 634, 645, 652, 657, 660, 655, 647,627,604],d.tolist())
-        self.assertEquals([889, 815, 765, 733, 711, 697, 687, 681, 625, 596, 507, 466],j.tolist())
+        self.assertEquals([556,593,618,634,645,652,657,660,655,647,627,604],d.tolist())
+        self.assertEquals([889,815,765,733,711,697,687,681,625,596,507,466],j.tolist())
         rsv = wms(tclose,thigh,tlow,9)
         k2,d2,j2 = ckdj(tclose,thigh,tlow,rsv)
         self.assertEquals([667,667,667,667,667,667,667,667,645,630,587,558],k2.tolist())
-        self.assertEquals([556, 593, 618, 634, 645, 652, 657, 660, 655, 647,627,604],d2.tolist())
-        self.assertEquals([889, 815, 765, 733, 711, 697, 687, 681, 625, 596, 507, 466],j2.tolist())
+        self.assertEquals([556,593,618,634,645,652,657,660,655,647,627,604],d2.tolist())
+        self.assertEquals([889,815,765,733,711,697,687,681,625,596,507,466],j2.tolist())
 
     def test_obv(self):
         tclose = np.array([1000,1010,1020,1030,1020,1030,1000,1000,1020,1030,1020,1030])
@@ -212,7 +230,7 @@ class ModuleTest(unittest.TestCase):
     def test_pvt(self):
         tclose = np.array([1000,1010,1020,1030,1020,1030,1000,1000,1020,1030,1020,1030])
         tvolume = np.array([100,100,100,100,100,100,100,100,100,100,100,100])
-        self.assertEquals([0, 1000, 1990, 2970, 1999, 2979, 66, 66, 2066, 3046, 2075, 3055],pvt(tclose,tvolume).tolist())
+        self.assertEquals([0,1000,1990,2970,1999,2979,66,66,2066,3046,2075,3055],pvt(tclose,tvolume).tolist())
         #self.assertEquals(np.cumsum(roc(tclose) * tvolume).tolist(),pvt(tclose,tvolume).tolist())   #与组合算法比较，有四舍五入顺序上的区别，故此结果有较大的误差
 
     def test_rsi(self):

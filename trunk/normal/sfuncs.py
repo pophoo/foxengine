@@ -459,11 +459,6 @@ def gmacd(stock): #
     t = stock.transaction
     
     mdiff,mdea = cmacd(stock.g60)
-    ldiff,ldea = cmacd(stock.g120)
-    lldiff,lldea = cmacd(stock.g250)
-
-    vdiff,vdea = cmacd(t[VOLUME])
-    pdiff,pdea = cmacd(t[CLOSE])
 
     vma_s = ma(t[VOLUME],13)
     vma_l = ma(t[VOLUME],30)

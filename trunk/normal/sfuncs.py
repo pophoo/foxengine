@@ -342,7 +342,7 @@ def tsvama2x(stock,fast=20,slow=100):
     return gand(sbuy,stock.above,stock.thumb,stock.silver)
 
 
-def gmacd(stock): #
+def gmacd_old(stock): #
     ''' 
         20010701-20090101效果不好，但能持平
         20080701开始效果非常好
@@ -423,6 +423,54 @@ def gmacd(stock): #
 
     #signal = gand(xcross,stock.above,stock.t120,t[VOLUME]>0,hinc<1200,rhl10<1500,gfilter)
     signal = gand(ss,above,stock.t120,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,strend(stock.ref.ma60)>0)
+    
+    return signal
+
+def gmacd(stock): #
+    t = stock.transaction
+    
+    mdiff,mdea = cmacd(stock.g60)
+    ldiff,ldea = cmacd(stock.g120)
+    lldiff,lldea = cmacd(stock.g250)
+
+    vdiff,vdea = cmacd(t[VOLUME])
+    pdiff,pdea = cmacd(t[CLOSE])
+
+    vma_s = ma(t[VOLUME],13)
+    vma_l = ma(t[VOLUME],30)
+
+    vfilter = gand(vma_s > vma_l * 4/3)
+    
+    xcross = cross(mdea,mdiff) > 0  
+
+    linelog(stock.code)
+
+    ll10 = rollx(t[LOW],10)
+    hh10 = tmax(t[HIGH],10)
+    rhl10 = hh10 * 1000/ll10
+
+    c = t[CLOSE]
+    ma30 = ma(c,30)
+    above = gand(ma(c,13) > ma30,ma30>stock.ma60,stock.ma60>stock.ma120)
+
+
+    svap,v2i = stock.svap_ma_67
+    sdiff,sdea = cmacd(svap)
+    ssignal = gand(sdiff < sdea,strend(sdiff)<0,strend(sdiff-sdea)>0)
+
+    msvap = transform(ssignal,v2i,len(t[VOLUME]))
+
+    x2 = cross(ma(t[CLOSE],30),t[LOW]) < 0
+
+    ss = sfollow(xcross,x2,10)
+    
+    gf1 = gand(stock.g20>5000,stock.g20<9500)
+
+    si = score2(t[CLOSE],t[VOLUME])
+    msi = msum(si,5)
+    mxi = gand(msi>=-100,msi<=0)
+    
+    signal = gand(ss,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,strend(stock.ref.ma60)>0,vfilter,msvap,mxi)
     
     return signal
 

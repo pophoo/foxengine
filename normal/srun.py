@@ -10,7 +10,7 @@ from wolfox.fengine.normal.nrun import prepare_order,prepare_common
 from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,tmin,extend,extend2next
 from wolfox.fengine.core.d1match import *
 from wolfox.fengine.core.d1 import lesser
-from wolfox.fengine.core.d1indicator import cmacd,score2
+from wolfox.fengine.core.d1indicator import cmacd,score2,rsi,obv
 from wolfox.fengine.core.d1idiom import down_period
 from wolfox.fengine.core.d2 import increase,extract_collect
 from wolfox.foxit.base.tutils import linelog
@@ -535,7 +535,7 @@ def cma2(stock,dates):  #传统的ma2
     return gand(sync,stock.above,stock.t120,stock.g5>=stock.g20+500,stock.g20>=stock.g60+500,stock.g60>=stock.g120,stock.g5>4000,stock.g5<8000)
 
 
-def cma_30(stock,dates):  #
+def cma_30(stock):  #
     t = stock.transaction
     
     water_line = ma(t[CLOSE],30)
@@ -626,7 +626,7 @@ def gcx(stock,dates):
     #print signal
     return gand(xs>0,xc>0,stock.c60.values()[1]>8500,stock.above,stock.t120,hinc<1200)
 
-def gmacd_old(stock,dates): #这里dea,diff是全反的,但是全反居然收益很好，成功率不错。晕倒
+def gmacd_old(stock): #这里dea,diff是全反的,但是全反居然收益很好，成功率不错。晕倒
     t = stock.transaction
     
     mdea,mdiff = cmacd(stock.g60)
@@ -659,7 +659,7 @@ def gmacd_old(stock,dates): #这里dea,diff是全反的,但是全反居然收益
     #return gand(xcross,stock.above,stock.t120,t[VOLUME]>0,stock.g60>4500,stock.g60<7500)   #94-392
 
 
-def gmacd_s(stock,dates): #
+def gmacd_s(stock): #
     ''' 
         ll5 = rollx(t[LOW],5),   hinc = t[HIGH] * 1000 / ll5
         ll10 = rollx(t[LOW],10),    hh10 = tmax(t[HIGH],10), rhl10 = hh10 * 1000/ll10
@@ -733,45 +733,9 @@ def gmacd_s(stock,dates): #
     return signal
 
 
-def gmacd(stock,dates): #
+def gmacd(stock): #
     ''' 
-        ll5 = rollx(t[LOW],5),   hinc = t[HIGH] * 1000 / ll5
-        ll10 = rollx(t[LOW],10),    hh10 = tmax(t[HIGH],10), rhl10 = hh10 * 1000/ll10
-        lfilter = hinc<1200 and rhl10<1500
-        ss1=sfollow(cross(mdea,mdiff) > 0,vdiff<vdea), 然后再sfollow(ss1,cross(ma(t[CLOSE],30),t[LOW]),5),之后+lfilter,2115/704/846
-        ss1=sfollow(cross(mdea,mdiff) > 0,vdiff<vdea), 然后再sfollow(ss1,cross(ma(t[CLOSE],30)<0,t[LOW]),5),之后+lfilter,2213/759/595
-            g60:4500-8500:  2946/821/286
-        ss1=sfollow(cross(mdea,mdiff) > 0,vdiff<vdea), 然后再sfollow(ss1,cross(ma(t[CLOSE],30)<0,t[LOW]),10),之后+lfilter,2392/746/844    
-            g60:0-3000:1457/670/273
-            g60:3000-6000: 2709/788/402
-            g60:6000-!: 2696/758/273
-            g60:6000-8500: 2781/775/232
-            g60:>8500:  2193/632/49
-            g60:4500-8500:  3078/793/411
-            g60:4500-7500:  2888/797/345
-            g60:5000-8000:  2925/796/324
-            数量太多,需要进一步筛选
-        ss1=sfollow(cross(mdea,mdiff) > 0,gand(vdiff>vdea,pdiff>pdea)), 然后再sfollow(ss1,cross(ma(t[CLOSE],30)<0,t[LOW]),10),2392/746/844    
-            mdiff>=mdea
-            g60:4500-8500:3036/800/451
-            g20:4500-8500:3886/817/465  #不需要hinc<1200，只需要rhl10<1500,而且效果也有限
-            但这个滤掉了600121,600756,000961,600997等
-            g20:5000-9000:3877/845/297   
-            ####g20:5000-9500:3937/840/300    #去掉mdiff>=mdea,3571/841/416
-                添加 strend(stock.ref.ma60)>0   4063/847/295
-                above改为13>30>60>120
-                above = gand(ma(c,13) > ma30,ma30>stock.ma60,stock.ma60>stock.ma120)
-                signal = gand(ss,above,stock.t120,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,strend(stock.ref.ma60)>0)
-                4217/860/294
-            g20:5000-10000:3425/833/306
-            g20:6000-9500:3500/847/203
-            g20:5000-6000:4097/840/113
-            g20:4500-9500:3933/803/346
-        仍然无法继续甄别超级强势股,如600756,000961的启动阶段,能够通过cmacd(mdea,mdiff)>0找到初始信号,但无法从噪声中甄别出来
-        因为他们不触碰30线,需要进一步考虑
-        ss1不变.
-        x3 = gand(strend(ma(t[CLOSE],5))>0,strend(stock.ma10)>0,strend(stock.ma20)>0,strend(stock.ma60)>0)
-        ss = sfollow(ss1,x3,10)
+
         
     '''
     t = stock.transaction
@@ -783,10 +747,14 @@ def gmacd(stock,dates): #
     vdiff,vdea = cmacd(t[VOLUME])
     pdiff,pdea = cmacd(t[CLOSE])
 
+    vma_s = ma(t[VOLUME],13)
+    vma_l = ma(t[VOLUME],30)
 
+    vfilter = gand(vma_s > vma_l * 4/3)
+    
     #sfilter = vdiff<vdea
     #sfilter = vdiff<vdea
-    sfilter = gand(vdiff>vdea,pdiff>pdea)
+    #sfilter = gand(vdiff>vdea,pdiff>pdea)
 
     xcross = cross(mdea,mdiff) > 0  
     #xcross = cross(mdiff,mdea) > 0  
@@ -800,21 +768,30 @@ def gmacd(stock,dates): #
 
     #ss1 = sfollow(xcross,sfilter,5)
     
-    x2 = cross(ma(t[CLOSE],30),t[LOW]) < 0
-    
-    ss = sfollow(xcross,x2,10)
-
-    gf1 = gand(stock.g20>5000,stock.g20<9500)
 
     c = t[CLOSE]
     ma30 = ma(c,30)
     above = gand(ma(c,13) > ma30,ma30>stock.ma60,stock.ma60>stock.ma120)
 
-    att = attack(stock,dates)
-    ss = sfollow(ss,att,5)
 
+    svap,v2i = stock.svap_ma_67
+    sdiff,sdea = cmacd(svap)
+    ssignal = gand(sdiff < sdea,strend(sdiff)<0,strend(sdiff-sdea)>0)
+
+    msvap = transform(ssignal,v2i,len(t[VOLUME]))
+
+    x2 = cross(ma(t[CLOSE],30),t[LOW]) < 0
+
+    ss = sfollow(xcross,x2,10)
+    
+    gf1 = gand(stock.g20>5000,stock.g20<9500)
+
+    si = score2(t[CLOSE],t[VOLUME])
+    msi = msum(si,5)
+    mxi = gand(msi>=-100,msi<=0)
+    
     #signal = gand(xcross,stock.above,stock.t120,t[VOLUME]>0,hinc<1200,rhl10<1500,gfilter)
-    signal = gand(ss,above,stock.t120,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,strend(stock.ref.ma60)>0,sfilter)
+    signal = gand(ss,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,strend(stock.ref.ma60)>0,vfilter,msvap,mxi)
     
     return signal
 

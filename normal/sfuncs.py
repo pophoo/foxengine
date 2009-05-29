@@ -319,7 +319,14 @@ def spring(stock,threshold=-30):
     ref = stock.ref
     sbuy = signals #gand(signals,greater(ref.ma10,ref.ma20),greater(ref.ma20,ref.ma60))
 
-    return sbuy
+    svap,v2i = stock.svap_ma_67
+    sdiff,sdea = cmacd(svap,19,39)
+    ssignal = gand(strend(sdiff)>0,strend(sdiff-sdea)>0)
+
+    msvap = transform(ssignal,v2i,len(t[VOLUME]))
+
+
+    return gand(sbuy,msvap)
 
 
 def cma2(stock,fast,slow,gfrom=0,gto=8500):  
@@ -510,7 +517,21 @@ def gmacd(stock): #
                 赢利次数=31,赢利总值=9542
                 亏损次数=79,亏损总值=5616
                 平盘次数=1
+            macd: 35,77
+            评估:总盈亏值=5074,交易次数=91  期望值=763
+                总盈亏率(1/1000)=5074,平均盈亏率(1/1000)=55,盈利交易率(1/1000)=296
+                赢利次数=27,赢利总值=9624
+                亏损次数=63,亏损总值=4550
+                平盘次数=1
+            36:78
+            评估:总盈亏值=4841,交易次数=84  期望值=780
+                总盈亏率(1/1000)=4841,平均盈亏率(1/1000)=57,盈利交易率(1/1000)=297
+                赢利次数=25,赢利总值=9103
+                亏损次数=58,亏损总值=4262
+                平盘次数=1
+        
         目前取1.33
+        改成cmacd(svap,19,39)无改进
     '''
     t = stock.transaction
     
@@ -535,7 +556,7 @@ def gmacd(stock): #
 
 
     svap,v2i = stock.svap_ma_67
-    sdiff,sdea = cmacd(svap)
+    sdiff,sdea = cmacd(svap,36,78)
     ssignal = gand(sdiff < sdea,strend(sdiff)<0,strend(sdiff-sdea)>0)
 
     msvap = transform(ssignal,v2i,len(t[VOLUME]))

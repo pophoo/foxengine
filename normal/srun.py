@@ -71,7 +71,7 @@ def macd3(stock,dates):
     signal = gand(x,stock.thumb,stock.silver,stock.above,stock.t120)
     return signal
 
-def spring(stock,dates):
+def spring(stock):
     threshold = -30
     t = stock.transaction
     linelog('spring:%s' % stock.code)
@@ -85,10 +85,16 @@ def spring(stock,dates):
 
     signals = bor(s_aa,s_tt)
 
+    svap,v2i = stock.svap_ma_67
+    sdiff,sdea = cmacd(svap,19,39)
+    ssignal = gand(strend(sdiff)>0,strend(sdiff-sdea)>0)
+
+    msvap = transform(ssignal,v2i,len(t[VOLUME]))
+
     ref = stock.ref
     sbuy = signals #gand(signals,greater(ref.ma10,ref.ma20),greater(ref.ma20,ref.ma60))
 
-    return sbuy
+    return gand(sbuy,msvap)
 
 def spring2(stock,dates):
     ''' 
@@ -742,33 +748,19 @@ def gmacd(stock): #
     t = stock.transaction
     
     mdiff,mdea = cmacd(stock.g60)
-    ldiff,ldea = cmacd(stock.g120)
-    lldiff,lldea = cmacd(stock.g250)
-
-    vdiff,vdea = cmacd(t[VOLUME])
-    pdiff,pdea = cmacd(t[CLOSE])
 
     vma_s = ma(t[VOLUME],13)
     vma_l = ma(t[VOLUME],30)
 
-    vfilter = gand(vma_s > vma_l * 4/3)
+    vfilter = gand(vma_s > vma_l * 3/2)
     
-    #sfilter = vdiff<vdea
-    #sfilter = vdiff<vdea
-    #sfilter = gand(vdiff>vdea,pdiff>pdea)
-
     xcross = cross(mdea,mdiff) > 0  
-    #xcross = cross(mdiff,mdea) > 0  
 
     linelog(stock.code)
-
 
     ll10 = rollx(t[LOW],10)
     hh10 = tmax(t[HIGH],10)
     rhl10 = hh10 * 1000/ll10
-
-    #ss1 = sfollow(xcross,sfilter,5)
-    
 
     c = t[CLOSE]
     ma30 = ma(c,30)
@@ -776,7 +768,7 @@ def gmacd(stock): #
 
 
     svap,v2i = stock.svap_ma_67
-    sdiff,sdea = cmacd(svap)
+    sdiff,sdea = cmacd(svap,19,39)
     ssignal = gand(sdiff < sdea,strend(sdiff)<0,strend(sdiff-sdea)>0)
 
     msvap = transform(ssignal,v2i,len(t[VOLUME]))
@@ -791,8 +783,7 @@ def gmacd(stock): #
     msi = msum(si,5)
     mxi = gand(msi>=-100,msi<=0)
     
-    #signal = gand(xcross,stock.above,stock.t120,t[VOLUME]>0,hinc<1200,rhl10<1500,gfilter)
-    signal = gand(ss,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,strend(stock.ref.ma60)>0,vfilter,msvap,strend(vdiff-vdea)>0,strend(pdiff-pdea)>0)
+    signal = gand(ss,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,strend(stock.ref.ma60)>0,vfilter,msvap,mxi)
     
     return signal
 

@@ -198,35 +198,62 @@ def ctest(stock,dates):
 
 #c_extractor = lambda c,s:gand(c.g5 >= c.g20+500,c.g20>=c.g60+500,c.g60>=c.g120+500,c.g120>=c.g250+500)
 
-def svap_macd(stock,dates,gfilter):
+def smacd(stock):
+    '''
+        36,78
+        评估:总盈亏值=45847,交易次数=379        期望值=1643
+                总盈亏率(1/1000)=45847,平均盈亏率(1/1000)=120,盈利交易率(1/1000)=448
+                赢利次数=170,赢利总值=61166
+                亏损次数=209,亏损总值=15319
+                平盘次数=0
+    
+        36,78,     vfilter = vma_s < vma_l 
+        评估:总盈亏值=22086,交易次数=126        期望值=2302
+                总盈亏率(1/1000)=22086,平均盈亏率(1/1000)=175,盈利交易率(1/1000)=539
+                赢利次数=68,赢利总值=26550
+                亏损次数=58,亏损总值=4464
+                平盘次数=0
+            #20080701-20090531:
+            评估:总盈亏值=811,交易次数=63   期望值=214
+                总盈亏率(1/1000)=811,平均盈亏率(1/1000)=12,盈利交易率(1/1000)=396
+                赢利次数=25,赢利总值=2976
+                亏损次数=38,亏损总值=2165
+                平盘次数=0
+            
+        36,78,     vfilter = vma_s < vma_l * 7/8
+        评估:总盈亏值=8997,交易次数=45  期望值=2618
+                总盈亏率(1/1000)=8997,平均盈亏率(1/1000)=199,盈利交易率(1/1000)=511
+                赢利次数=23,赢利总值=10690
+                亏损次数=22,亏损总值=1693
+                平盘次数=0
+                闭合交易明细:
+            #20080701-20090531:
+                评估:总盈亏值=1067,交易次数=20  期望值=1060
+                总盈亏率(1/1000)=1067,平均盈亏率(1/1000)=53,盈利交易率(1/1000)=600
+                赢利次数=12,赢利总值=1470
+                亏损次数=8,亏损总值=403
+                平盘次数=0
+
+
+    '''
     t = stock.transaction
     g = gand(stock.g20 >= stock.g60+1000,stock.g60 >= stock.g120+1000,stock.g20>=3000,stock.g20<=8000)
     #g = np.ones_like(stock.g5)
-    
-    skey = 'svap_ma_%s' % 65
-    if not stock.has_attr(skey): #加速
-        stock.set_attr(skey,svap_ma(t[VOLUME],t[CLOSE],65))
-    svap,v2i = stock.get_attr(skey) 
+ 
+    svap,v2i = stock.svap_ma_67 
 
-    diff,dea = cmacd(svap,50,120)
+    diff,dea = cmacd(svap)
     dcross = gand(cross(dea,diff)>0,strend(diff)>0,strend(dea)>0)
 
     msvap = transform(dcross,v2i,len(t[VOLUME]))
 
-    if not stock.has_attr('ma'):
-        ma10 = ma(t[CLOSE],10)
-        ma20 = ma(t[CLOSE],20)
-        ma60 = ma(t[CLOSE],60)
-        ma120 = ma(t[CLOSE],120)
-        t120 = strend(ma120)>0
-        ma_above = gand(greater(ma10,ma20),greater(ma20,ma60),greater(ma60,ma120))        
-        stock.set_attr('ma',{'10':ma10,'20':ma20,'60':ma60,'120':ma120,'t120':t120,'above':ma_above})
-    t120,ma_above = stock.ma['t120'],stock.ma['above']
-    ma10,ma20,ma60,ma120 = stock.ma['10'],stock.ma['20'],stock.ma['60'],stock.ma['120']
-
     linelog(stock.code)
+    vma_s = ma(t[VOLUME],13)
+    vma_l = ma(t[VOLUME],30)
 
-    return gand(g,ma_above,msvap,gfilter)
+    vfilter = vma_s < vma_l 
+
+    return gand(stock.golden,stock.above,msvap,vfilter)
 
 
 #c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)

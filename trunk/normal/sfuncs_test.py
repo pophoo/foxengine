@@ -112,6 +112,10 @@ class ModuleTest(unittest.TestCase):    #通路测试
         sbuy = gmacd_old(self.stock)
         self.assertTrue(True)
 
+    def test_smacd(self):
+        sbuy = smacd(self.stock)
+        self.assertTrue(True)
+
 
 if __name__ == "__main__":
     logging.basicConfig(filename="test.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')

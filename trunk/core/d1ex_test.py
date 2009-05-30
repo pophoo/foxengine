@@ -429,6 +429,34 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([],limit2(np.array([]),np.array([])).tolist())
         self.assertEquals([0,1,-1,1,0],limit2(np.array([1000,1100,990,1000,1099]),np.array([1000,1100,990,1000,1080])).tolist())
 
+    def test_cached_zoom_indices(self):
+        self.assertEquals([4,9],cached_zoom_indices(10,5,4).tolist())
+        self.assertEquals([0,5],cached_zoom_indices(10,5,0).tolist())
+        a = cached_zoom_indices(10,5,4)
+        b = cached_zoom_indices(10,5,4)
+        c = cached_zoom_indices(10,5,1)
+        self.assertEquals(id(a),id(b))
+        self.assertNotEquals(id(a),id(c))
+
+    def test_pzoom_out(self):
+        a = np.arange(10)
+        self.assertEquals([4,9],pzoom_out(a,5).tolist())
+        self.assertEquals([0,5],pzoom_out(a,5,0).tolist())
+        self.assertEquals([3,7],pzoom_out(a,4).tolist())
+        self.assertEquals([],pzoom_out(np.array([]),4).tolist())
+
+    def test_vzoom_out(self):
+        a = np.arange(10)
+        self.assertEquals([10,35],vzoom_out(a,5).tolist())
+        self.assertEquals([6,22],vzoom_out(a,4).tolist())
+        self.assertEquals([],vzoom_out(np.array([]),4).tolist())
+
+    def test_zoom_in(self):
+        zoomed = np.array([1,2])
+        self.assertEquals([0,0,1,1,2],zoom_in(zoomed,5,2).tolist())
+        self.assertEquals([0,0,0,1,1,1],zoom_in(zoomed,6,3).tolist())
+        self.assertRaises(AssertionError,zoom_in,zoomed,6,4)
+
 
 if __name__ == "__main__":
     import logging

@@ -4,6 +4,27 @@ import unittest
 from wolfox.fengine.core.d1 import * 
 
 class ModuleTest(unittest.TestCase):
+    def test_cached_zeros(self):
+        a = cached_zeros(1000)
+        b = cached_zeros(1000)
+        c = cached_zeros(1001)
+        self.assertEquals(id(a),id(b))
+        self.assertNotEquals(id(a),id(c))
+
+    def test_cached_ints(self):
+        a = cached_ints(1000)
+        b = cached_ints(1000,10)
+        c = cached_ints(1001,-10)
+        a1 = cached_ints(1000)
+        b1 = cached_ints(1000,10)
+        c1 = cached_ints(1001,-10)
+        self.assertEquals(id(a),id(a1))
+        self.assertEquals(id(b),id(b1))
+        self.assertEquals(id(c),id(c1))
+        self.assertEquals(1,a[0])
+        self.assertEquals(10,b[0])
+        self.assertEquals(-10,c[0])        
+    
     def test_band(self):
         a = np.array([10,0,-3,0,1])
         b = np.array([3,0,0,-1,1])

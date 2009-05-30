@@ -18,6 +18,14 @@ lesser_equals = lambda x,y=0:np.sign(x<=y)
 equals = lambda x,y=1:np.sign(x==y)
 nequals = lambda x,y=1:np.sign(x!=y)
 
+@cache
+def cached_zeros(n):
+    return np.zeros(n,int)
+
+@cache
+def cached_ints(n,v=1):
+    return np.ones(n,int) * v
+
 def gand(*args):
     ''' args[i]等长，返回args同位元素的and序列
         args[i]中非0为信号

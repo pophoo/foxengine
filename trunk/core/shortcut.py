@@ -14,14 +14,6 @@ from wolfox.fengine.core.base import cache
 
 logger = logging.getLogger('wolfox.fengine.core.shortcut')
 
-@cache
-def cached_zeros(n):
-    return np.zeros(n,int)
-
-@cache
-def cached_ints(n,v=1):
-    return np.ones(n,int) * v
-
 def csc_func(stock,buy_signal,threshold=75,**kwargs):   #kwargs目的是吸收无用参数，便于cruiser
     t = stock.transaction
     return d1id.confirmedsellc(buy_signal,t[OPEN],t[CLOSE],t[HIGH],t[LOW],threshold)

@@ -5,7 +5,8 @@
 
 import numpy as np
 from collections import deque
-from wolfox.fengine.core.d1 import BASE,band,gand,nsubd,rollx,equals,nequals,greater_equals,subd
+from wolfox.fengine.core.base import cache,wcache
+from wolfox.fengine.core.d1 import BASE,band,gand,nsubd,roll0,rollx,equals,nequals,greater_equals,subd
 
 def ma(source,length):    #使用numpy，array更加的惯用法
     """ 计算移动平均线
@@ -730,3 +731,38 @@ def limit2(high,low,uplimit=990,downlimit=-990):  #涨跌停板,返回值以1表
     td = limitdown2(high,low,downlimit)
     return tu - td     
 
+@cache
+def cached_zoom_indices(n,times,pos):
+    ''' 缓存同长度zoomout的indices,用在同一次遍历中 '''
+    return np.arange(pos,n,times)
+
+def pzoom_out(source,times=5,pos=-1):
+    ''' 价格系列缩小，以pos日为准
+        pos为-1或者[0:times)
+        一般而言pos日即为最后日(times-1)
+        但若需要开收盘,则pos日为第一日0
+    '''
+    pos = pos if pos >= 0 else times-1
+    indices = cached_zoom_indices(len(source),times,pos)
+    return source.take(indices)
+
+def vzoom_out(source,times=5):
+    ''' 量系列缩小,以当期累积为准'''
+    indices = cached_zoom_indices(len(source),times,times-1)
+    srev = msum(source,times)
+    return srev.take(indices)
+
+def zoom_in(zoomed,src_length,times=5):
+    ''' zoom_out的逆. 通用于p/v类型
+        src_length为放回后的长度
+        必须保证 src_length >= len(zoomed)*times
+        并且所有指标后移times位
+        因为当期指标只有在本期末才能计算得到,所以其覆盖为下期
+    '''
+    assert src_length >= len(zoomed)*times
+    rev = zoomed.repeat(times)
+    outed = src_length - len(zoomed)*times
+    #print rev,np.zeros(outed,int)    
+    if outed > 0:
+        rev = np.concatenate((rev,np.zeros(outed,int)))
+    return roll0(rev,times)

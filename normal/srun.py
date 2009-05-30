@@ -46,6 +46,33 @@ def swrap(stock,dates):
     #g = gand(stock.g20>=3000,stock.g20<=8000)    
     #return gand(g,sbuy)
 
+def breakout(stock):
+    ''' 带量突破走势,没戏
+    '''
+    t = stock.transaction
+    lma = ma(t[CLOSE],250)
+    linelog(stock.code)
+
+    sma = ma(t[CLOSE],3)
+
+    xc = cross(lma,sma) > 0
+
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+
+    vfilter = gand(svma > vma /2,svma<vma*2)
+
+    signal = gand(xc,vfilter)
+    
+    return signal
+
+def fractal(stock):
+    ''' 谐振
+    '''
+    t = stock.transaction
+
+
+
 def attack(stock,dates):
     linelog(stock.code)
     t = stock.transaction
@@ -234,7 +261,7 @@ def smacd(stock):
                 亏损次数=8,亏损总值=403
                 平盘次数=0
 
-
+        #默认参数和19,39都不是很好
     '''
     t = stock.transaction
     g = gand(stock.g20 >= stock.g60+1000,stock.g60 >= stock.g120+1000,stock.g20>=3000,stock.g20<=8000)
@@ -242,7 +269,7 @@ def smacd(stock):
  
     svap,v2i = stock.svap_ma_67 
 
-    diff,dea = cmacd(svap)
+    diff,dea = cmacd(svap,36,78)
     dcross = gand(cross(dea,diff)>0,strend(diff)>0,strend(dea)>0)
 
     msvap = transform(dcross,v2i,len(t[VOLUME]))
@@ -251,7 +278,7 @@ def smacd(stock):
     vma_s = ma(t[VOLUME],13)
     vma_l = ma(t[VOLUME],30)
 
-    vfilter = vma_s < vma_l 
+    vfilter = vma_s < vma_l * 7/8
 
     return gand(stock.golden,stock.above,msvap,vfilter)
 
@@ -320,7 +347,7 @@ gcs.sum=0
 gcs.total = 0
 
 
-def xgcs(stock,dates):
+def xgcs(stock):
     '''
     '''
     t = stock.transaction
@@ -330,7 +357,13 @@ def xgcs(stock,dates):
     si = score2(t[CLOSE],t[VOLUME])
     mxi = gand(msum(si,5)>=-100,msum(si,5)<=0)
 
-    sbuy = gand(stock.golden,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120,mxi)
+    vma_s = ma(t[VOLUME],13)
+    vma_l = ma(t[VOLUME],30)
+
+    vfilter = gand(vma_s > vma_l * 3/2)
+
+    sbuy = gand(stock.golden,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120,mxi,vfilter)
+
     return sbuy
 
 
@@ -351,7 +384,7 @@ def xgcsx(stock,dates):
     return sbuy
 
 
-def xgcs0(stock,dates):
+def xgcs0(stock):
     ''' 下穿0线
         评估:总盈亏值=23464,交易次数=81 期望值=4013
                 总盈亏率(1/1000)=23464,平均盈亏率(1/1000)=289,盈利交易率(1/1000)=617
@@ -372,7 +405,7 @@ def xgcs0(stock,dates):
     sbuy = gand(stock.golden,stock.silver,stock.above,ma5>stock.ma10,stock.ref.t120,mxi)
     return sbuy
 
-def xgcs0x(stock,dates):
+def xgcs0x(stock):
     ''' 下穿0线
         评估:总盈亏值=23464,交易次数=81 期望值=4013
                 总盈亏率(1/1000)=23464,平均盈亏率(1/1000)=289,盈利交易率(1/1000)=617

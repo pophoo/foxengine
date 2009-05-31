@@ -134,6 +134,7 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,0,-1,1,-1,0],xpeak_points(np.array([7,7,5,6,2,8]),1).tolist())
         self.assertEquals([0,1,-1,1,-1,0],xpeak_points(np.array([1,7,6,6,2,8]),1).tolist())  #[2]的6被计为底点
         self.assertEquals([0,1,-1,1,0,0],xpeak_points(np.array([1,7,6,6,6,4]),1).tolist())   #rev[4]被6被derepeat,不能计入
+        self.assertEquals([0,0,1,0,0,1,0,0],xpeak_points(np.array([0,1,5,3,4,7,6,4]),2).tolist())
 
     def test_xpeak_points_2(self):  #只测试通过性和特殊情形
         self.assertEquals([],xpeak_points_2(np.array([]),np.array([]),5).tolist())
@@ -142,7 +143,9 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,0,0],xpeak_points_2(np.array([1,3,2]),np.array([1,0,3]),1).tolist())
         #只出现底点的情形，作为参照
         self.assertEquals([0,-1,0],xpeak_points_2(np.array([1,2,3]),np.array([1,0,3]),1).tolist())
-
+        #连续的同向顶点
+        #print 'consecutive'
+        self.assertEquals([0,0,1,0,0,1,0,0],xpeak_points_2(np.array([0,1,5,3,4,7,6,4]),np.array([0,1,5,3,4,7,6,4]),2).tolist())
 
 if __name__ == "__main__":
     logging.basicConfig(filename="test.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')

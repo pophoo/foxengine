@@ -102,6 +102,14 @@ class ModuleTest(unittest.TestCase):
         signal2 = np.array([1,0,-1,0,1,0])
         self.assertEquals([10,30,30,70,50,110],rsum(source,signal2).tolist())
 
+    def test_rsum2(self):
+        self.assertEquals([],rsum2(np.array([]),np.array([])).tolist())        
+        source = np.array([10,20,30,40,50,60])
+        signal = np.array([0,0,-1,0,1,0])
+        self.assertEquals([10,30,45,55,80,85],rsum2(source,signal).tolist())
+        signal2 = np.array([1,0,-1,0,1,0])
+        self.assertEquals([5,25,40,55,80,85],rsum2(source,signal2).tolist())
+
     def test_ravg(self):
         self.assertEquals([],ravg(np.array([]),np.array([])).tolist())        
         source = np.array([10,20,30,40,50,60])

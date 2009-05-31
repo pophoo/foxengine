@@ -235,16 +235,32 @@ def distance(source):
     return rev
 
 def rsum(source,signal):
-    ''' 信号日signal之间的相对累积,signal!=0为有信号'''
+    ''' 信号日signal之间的相对累积,signal!=0为有信号
+        信号日数据为当日值
+    '''
     assert len(source) == len(signal)
     rev = np.zeros(len(source),int) #可能产生溢出，所以不能用zeros_like
     sum = 0
     for i in xrange(len(source)):
-        if(signal[i] != 0):
-            sum = source[i] + 0 #将可能的int8转换为int32,避免溢出
-        else:
-            sum += source[i] #不能采用 ?? and 0 or ?+1的方式，因为and 0是False常量
+        sum = source[i] + 0 if signal[i] != 0 else sum+source[i]    #source[i]+0是为了类型转换，将可能的int8转为int32
         rev[i] = sum
+    return rev
+
+def rsum2(source,signal):
+    ''' 信号日signal之间的相对累积,signal!=0为有信号
+        信号日数据是上一日累积值+1/2当日值，并将累积值更新为1/2当日值。即信号日段的值为头尾日值1/2+中间日值
+    '''
+    assert len(source) == len(signal)
+    rev = np.zeros(len(source),int) #可能产生溢出，所以不能用zeros_like
+    sum = 0
+    for i in xrange(len(source)):
+        if signal[i] == 0:
+            sum += source[i]
+            rev[i] = sum
+        else:
+            c = (source[i]+1)/2 #四舍五入
+            rev[i] = sum + c
+            sum = c
     return rev
 
 def ravg(source,signal):

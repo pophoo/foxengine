@@ -7,7 +7,7 @@
 from wolfox.fengine.core.shortcut import *
 from wolfox.fengine.normal.funcs import *
 from wolfox.fengine.normal.nrun import prepare_order,prepare_common
-from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,tmin,extend,extend2next
+from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,tmin,extend,extend2next,pzoom_out,vzoom_out,zoom_in
 from wolfox.fengine.core.d1match import *
 from wolfox.fengine.core.d1 import lesser
 from wolfox.fengine.core.d1indicator import cmacd,score2,rsi,obv
@@ -70,6 +70,11 @@ def fractal(stock):
     ''' 谐振
     '''
     t = stock.transaction
+    zc = pzoom_out(t[CLOSE])
+    zma_s = ma(zc,5)
+    zma_m = ma(zc,13)
+    zfilter = zoom_in(zma_s > zma_m,len(t[CLOSE]))
+
 
 
 
@@ -121,7 +126,13 @@ def spring(stock):
     ref = stock.ref
     sbuy = signals #gand(signals,greater(ref.ma10,ref.ma20),greater(ref.ma20,ref.ma60))
 
-    return gand(sbuy,msvap)
+    zc = pzoom_out(t[CLOSE])
+    zma_s = ma(zc,5)
+    zma_m = ma(zc,13)
+    zfilter = zoom_in(zma_s > zma_m,len(t[CLOSE]))
+
+
+    return gand(sbuy,msvap,zfilter)
 
 def spring2(stock,dates):
     ''' 

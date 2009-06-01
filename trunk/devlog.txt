@@ -308,11 +308,11 @@ from time import time
 import logging
 logging.basicConfig(filename="srun_x4c.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 #begin,xbegin,end = 19980101,20010701,20091231
-begin,xbegin,end = 20000101,20010701,20090101
+#begin,xbegin,end = 20000101,20010701,20090101
 #begin,xbegin,end = 20000101,20010701,20091231
 #begin,xbegin,end = 20050101,20060701,20091231
 #begin,xbegin,end = 20070101,20080601,20091231
-#begin,xbegin,end = 20060101,20080601,20091231
+begin,xbegin,end = 20060101,20080601,20091231
 #begin,xbegin,end = 20000101,20010701,20090101
 
 tbegin = time()
@@ -4514,5 +4514,77 @@ gmacd:  vfilter:4/3 无改进
 ##实现趋势力度
 缠中说禅趋势力度：前一“吻”的结束与后一“吻”开始由短线均线与长期均线相交所形成的面积。在前后两个同向趋势中,当缠中说禅趋势力度比上一次缠中说禅趋势力度要弱，就形成“背驰”。按这个定义，是最稳妥的办法，但唯一的缺点是必须等再次接吻后才能判断，这时候，走势离真正的转折点会已经有一点距离了。如何解决这个问题：第一种方法，看低一级别的图，从中按该种办法找出相应的转折点。这样和真正的低点基本没有太大的距离。
 还有一种方法，技巧比较高，首先再定义一个概念，称为缠中说禅趋势平均力度：当下与前一“吻”的结束时短线均线与长期均线形成的面积除以时间。因为这个概念是即时的，马上就可以判断当下的缠中说禅趋势平均力度与前一次缠中说禅趋势平均力度的强弱对比，一旦这次比上次弱，就可以判断“背驰”即将形成，然后再根据短线均线与长期均线的距离，一旦延伸长度缩短，就意味着真正的低部马上形成。按这种方法，真正的转折点基本就可以完全同时地抓住。但有一个缺陷，就是风险稍微大点，且需要的技巧要高点，对市场的感觉要好点。
+
+
+#2009-05-31
+#1 动力学测试
+#1.1 动力学测试1
+x=f.xpeak_points(t[HIGH],9)
+vx = de.rsum2(t[VOLUME],x)
+vxl = np.log(vx)
+cl = np.log(t[CLOSE])
+clx = de.rsub(cl,x)
+dx = de.distance2(x)
+xd = np.where(x!=0)
+e=vxl[xd]/clx[xd]/dx[xd]
+for id,ie in zip(dates[xd],e):
+    print id,ie
+e=vxl[xd]/clx[xd]/dx[xd]/dx[xd]
+for id,ie in zip(dates[xd],e):
+    print id,ie
+貌似后者更好. 数值越小越好,注意同向运动的背离和紧邻反向运动的大小比较
+后者的直观含义是 一次趋势运动中的 sum(V)/(距离*t*t)
+
+#1.2 测试2
+从 V 等效于 W
+P= W/t = fs /t = mas/t = m (2s/t/t)s/t = 2*m* ss/(ttt) = k* ss/ttt
+
+#1.3 测试3
+V 等效于 Wup + Wdown
+Wup 正比于 sum(h-min(l,last_c))
+Wdown 正比于    sum(max(o,last_c)-l)
+
+则 Vup = sum(h-min(l,last_c))/(sum(h-min(l,last_c))+sum(max(o,last_c)-l))V
+然后再套用1.1
+而且这个可以按日分配然后msum之
+
+#1.3.1 这个可以再细化
+以前日收盘和今日开盘指向的方向为运行方向
+则若指向下方,运行轨迹为 开盘-->最低-->最高-->收盘
+  若指向上方,运行轨迹为 开盘-->最高-->最低-->收盘
+平开,则顺着昨天的指向收盘的方向
+
+def supdown(sopen,sclose,shigh,slow):
+    if len(sopen) == 0:
+        return np.array([]),np.array([])
+    sc1 = rollx(sclose)
+    u_hlc = shigh-sc1+sclose-slow
+    u_lhc = shigh - slow
+    d_hlc = shigh - slow
+    d_lhc = sc1-slow+shigh-sclose
+    direct = np.sign(sopen-sc1) #1为向上，-1为向下，0为平
+    direct[0] = 1
+    direct = extend2next(direct)    #把0都给填充掉，即用昨日指向收盘的方向作为今日的方向
+    u = np.select([direct>0,direct<0],[u_hlc,u_lhc])
+    d = np.select([direct>0,direct<0],[d_hlc,d_lhc])
+    return u,d
+
+
+
+#1.4 效率
+V = abs(Wup)+abs(Wdown)
+Wup - Wdown = St = delta(close) * delta(t)
+Eup = Wup/V
+Edown = Wdown/V
+
+#1.5 W测试
+V = Fup * Sup + Fdown * Sdown
+F = m a = m* sqrt(2S/T) #每次从v=0开始
+V = m* sqrt(2Sup/Tup) * Sup + m* sqrt(2Sdown/Tdown) * Sdown
+Tup + Tdown = delta(T)
+Sup + Sdown = delta(Close)  #S有方向
+这个方程很难解,不论是S方式还是a(加速度)方式
+即便采用 Tup = jTdown, Sup = kSdown,最后仍然很难解
+
 
 

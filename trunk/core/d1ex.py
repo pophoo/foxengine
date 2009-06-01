@@ -234,6 +234,21 @@ def distance(source):
         rev[i] = curdistance
     return rev
 
+def distance2(source):
+    ''' 信号相对距离，信号日为上一信号日到此距离，次日为1，逐日递增，直至另一个信号日
+        初始序列中以非0认为是有信号
+    '''
+    rev = np.zeros(len(source),int) #可能产生溢出，所以不能用zeros_like
+    curdistance = 0 #假设前一天为信号发生，因为计算所的的值肯定小于实际距离
+    for i in xrange(len(source)):
+        if source[i]:
+            rev[i] = curdistance + 1
+            curdistance = 0
+        else:
+            curdistance = curdistance+1
+            rev[i] = curdistance
+    return rev
+
 def rsum(source,signal):
     ''' 信号日signal之间的相对累积,signal!=0为有信号
         信号日数据为当日值
@@ -254,13 +269,13 @@ def rsum2(source,signal):
     rev = np.zeros(len(source),int) #可能产生溢出，所以不能用zeros_like
     sum = 0
     for i in xrange(len(source)):
-        if signal[i] == 0:
-            sum += source[i]
-            rev[i] = sum
-        else:
+        if signal[i]:
             c = (source[i]+1)/2 #四舍五入
             rev[i] = sum + c
             sum = c
+        else:
+            sum += source[i]
+            rev[i] = sum
     return rev
 
 def ravg(source,signal):
@@ -782,3 +797,26 @@ def zoom_in(zoomed,src_length,times=5):
     if outed > 0:
         rev = np.concatenate((rev,np.zeros(outed,int)))
     return roll0(rev,times)
+
+def supdown(sopen,sclose,shigh,slow):
+    ''' 计算每日的上升行程和下降行程
+        以前一日收盘和今日开盘指向的方向为运行方向
+        则若指向下方,运行轨迹为 开盘-->最低-->最高-->收盘
+          若指向上方,运行轨迹为 开盘-->最高-->最低-->收盘
+          平开,则顺着昨天的指向收盘的方向，亦即昨日的开盘方向（每日收盘方向等于开盘方向）
+    '''
+    if len(sopen) == 0:
+        return np.array([],int),np.array([],int)
+    sc1 = rollx(sclose)
+    sc1[0] = sopen[0]   #前一日收盘价视同首日开盘价
+    u_hlc = shigh-sc1+sclose-slow
+    u_lhc = shigh - slow
+    d_hlc = shigh - slow
+    d_lhc = sc1-slow+shigh-sclose
+    direct = np.sign(sopen-sc1) #1为向上，-1为向下，0为平
+    direct[0] = 1
+    direct = extend2next(direct)    #把0都给填充掉，即用昨日指向收盘的方向作为今日的方向
+    u = np.select([direct>0,direct<0],[u_hlc,u_lhc])
+    d = np.select([direct>0,direct<0],[d_hlc,d_lhc])
+    return u,d
+

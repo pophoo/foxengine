@@ -93,6 +93,12 @@ class ModuleTest(unittest.TestCase):
     def test_distance(self):
         source = np.array([0,0,5,0,-5,0,0,0,0,0,1,0,0,3,0,0,-1,1,2,0,0,0,0,6,0])
         self.assertEquals([1,2,0,1,0,1,2,3,4,5,0,1,2,0,1,2,0,0,0,1,2,3,4,0,1],distance(source).tolist())
+        self.assertEquals([],distance(np.array([])).tolist())
+
+    def test_distance2(self):
+        source = np.array([0,0,5,0,-5,0,0,0,0,0,1,0,0,3,0,0,-1,1,2,0,0,0,0,6,0])
+        self.assertEquals([1,2,3,1,2,1,2,3,4,5,6,1,2,3,1,2,3,1,1,1,2,3,4,5,1],distance2(source).tolist())
+        self.assertEquals([],distance2(np.array([])).tolist())
 
     def test_rsum(self):
         self.assertEquals([],rsum(np.array([]),np.array([])).tolist())        
@@ -464,6 +470,19 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,0,1,1,2],zoom_in(zoomed,5,2).tolist())
         self.assertEquals([0,0,0,1,1,1],zoom_in(zoomed,6,3).tolist())
         self.assertRaises(AssertionError,zoom_in,zoomed,6,4)
+
+    def test_supdown(self):
+        na = np.array([])
+        na1,na2 = supdown(na,na,na,na)
+        self.assertEquals([],na1.tolist())
+        self.assertEquals([],na2.tolist())
+        shigh = np.array([1000,1000,1000,1000,1000,1000])
+        slow = np.array([800,800,800,800,800,800])
+        sopen = np.array([900,900,900,900,900,900])
+        sclose = np.array([950,880,900,910,900,880])
+        su,sd = supdown(sopen,sclose,shigh,slow)
+        self.assertEquals([250,200,220,210,200,200],su.tolist())
+        self.assertEquals([200,270,200,200,210,220],sd.tolist())
 
 
 if __name__ == "__main__":

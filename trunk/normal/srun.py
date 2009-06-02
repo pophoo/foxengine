@@ -78,6 +78,13 @@ def fractal(stock):
 
 def xru(stock):
     ''' 测试ru系列
+        macd_ru: svma < vma*1/2
+            评估:总盈亏值=2257,交易次数=37  期望值=1297
+                总盈亏率(1/1000)=2257,平均盈亏率(1/1000)=61,盈利交易率(1/1000)=540
+                赢利次数=20,赢利总值=3012
+                亏损次数=16,亏损总值=755
+                平盘次数=1
+                闭合交易明细:
         ru2: 成功率>500，但R<600
         ruv:    gand(svma < vma*7/8)
             评估:总盈亏值=5311,交易次数=69  期望值=1357
@@ -85,17 +92,17 @@ def xru(stock):
                 赢利次数=41,赢利总值=6889
                 亏损次数=28,亏损总值=1578
                 平盘次数=0
-        
+        越缩量越有效
             
     '''
     t = stock.transaction
-    mdiff,mdea = macd_ru(t[OPEN],t[CLOSE],t[HIGH],t[LOW])
+    mdiff,mdea = macd_ruv(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME])
     mxc = cross(mdea,mdiff) > 0
 
     vma = ma(t[VOLUME],30)
     svma = ma(t[VOLUME],3)
 
-    vfilter = gand(svma > vma*7/8)
+    vfilter = gand(svma < vma*2/3)
 
     signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma60)>0,stock.t120)
     linelog(stock.code)

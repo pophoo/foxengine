@@ -372,3 +372,16 @@ def macd_ru2(sopen,sclose,shigh,slow):
     ru = su *BASE / (su+sd)
     return cmacd(ru)
 
+def macd_ruv(sopen,sclose,shigh,slow,svolume):
+    '''
+        上升V的macd
+        vdiff,vdea = macd_ru2(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME])        
+        貌似其cross比较有效
+        特别是如果1/-1或-1/1近邻时，后面的那一个准确率大大提高
+            如果1/-1后为0，则相当于确认了1/-1信号的有效性
+        貌似没啥用
+    '''
+    su,sd = supdown2(sopen,sclose,shigh,slow)
+    ruv = su * svolume / (su+sd)
+    return cmacd(ruv)
+

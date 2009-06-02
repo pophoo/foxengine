@@ -276,6 +276,12 @@ class ModuleTest(unittest.TestCase):
         macd_ru2(a,a,a,a)
         self.assertTrue(True)
 
+    def test_macd_ruv(self):
+        na = np.array([])
+        a = np.array(np.array([1,2,2]))
+        self.assertEquals([],macd_ruv(na,na,na,na,na)[0].tolist())
+        macd_ruv(a,a,a,a,a)
+        self.assertTrue(True)
 
 
 if __name__ == "__main__":

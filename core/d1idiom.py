@@ -320,7 +320,7 @@ def xc_ru(sopen,sclose,shigh,slow,svolume,ma1=13,ma2=9):
         目前的结果是必须再等一天看看是否有反向信号
     '''
     su,sd = supdown(sopen,sclose,shigh,slow)
-    uv = svolume * su / (su+sd)
+    uv = svolume * 1.0 *su / (su+sd)
     dv = svolume - uv
     uvma=nma(uv,ma1)
     dvma=nma(dv,ma1)
@@ -335,13 +335,14 @@ def xc_ru2(sopen,sclose,shigh,slow,svolume,ma1=13,ma2=9):
         xc = xc_ru(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME])
         如果直接用 ru = uv/(uv+ud) = su/(su+sd),则信号太过频繁
         目前的结果是必须再等一天看看是否有反向信号
+        效果不如xc_ru
     '''
     su,sd = supdown2(sopen,sclose,shigh,slow)
-    uv = svolume * su / (su+sd)
+    uv = svolume * 1.0 * su / (su+sd)
     dv = svolume - uv
     uvma=nma(uv,ma1)
     dvma=nma(dv,ma1)
-    ru = uvma*1.0/(uvma+dvma)
+    ru = uvma/(uvma+dvma)
     ruma=msum2(ru,ma2)/ma2
     xc = cross(ruma,ru)
     return np.cast['int32'](xc)

@@ -240,6 +240,43 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals(0,ss1[-2])
         self.assertEquals(1,ss1[-3])
 
+    def test_vdis(self):    #只测试通路
+        na = np.array([])
+        a = np.array(np.array([1,2,2]))
+        u1,u2,d1,d2 = vdis(na,na,na,na,na)
+        self.assertEquals([],u1.tolist())
+        u1,u2,d1,d2 = vdis(a,a,a,a,a)
+        self.assertTrue(True)
+
+    def test_xc_ru(self):
+        na = np.array([])
+        a = np.array(np.array([1,2,2]))
+        self.assertEquals([],xc_ru(na,na,na,na,na).tolist())
+        xc_ru(a,a,a,a,a)
+        self.assertTrue(True)
+
+    def test_xc_ru2(self):
+        na = np.array([])
+        a = np.array(np.array([1,2,2]))
+        self.assertEquals([],xc_ru2(na,na,na,na,na).tolist())
+        xc_ru2(a,a,a,a,a)
+        self.assertTrue(True)
+
+    def test_macd_ru(self):
+        na = np.array([])
+        a = np.array(np.array([1,2,2]))
+        self.assertEquals([],macd_ru(na,na,na,na)[0].tolist())
+        macd_ru(a,a,a,a)
+        self.assertTrue(True)
+
+    def test_macd_ru2(self):
+        na = np.array([])
+        a = np.array(np.array([1,2,2]))
+        self.assertEquals([],macd_ru2(na,na,na,na)[0].tolist())
+        macd_ru2(a,a,a,a)
+        self.assertTrue(True)
+
+
 
 if __name__ == "__main__":
     import logging

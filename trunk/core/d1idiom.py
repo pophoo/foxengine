@@ -13,7 +13,8 @@ from wolfox.fengine.core.d1 import *
 from wolfox.fengine.core.d1ex import *
 from wolfox.fengine.core.d1indicator import *
 from wolfox.fengine.core.d1kline import *
-
+import wolfox.fengine.core.future as f
+import wolfox.fengine.core.d1ex as de
 
 def down_period(source,covered=60):
     ''' 计算下跌周期
@@ -285,3 +286,88 @@ def atr_xseller_factory(stop_times=3*BASE/2,trace_times=2*BASE,covered=10,up_sec
             ss[twhere[-1]-1] = 1  #最后交易日之前的那一天置位，以便最后卖出平仓。
         return ss
     return seller
+
+
+def vdis(sopen,sclose,shigh,slow,svolume):
+    ''' 功率含义的比较，但是很难应用
+        up,uf,dp,df = vdis(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME])
+    '''
+    su,sd = supdown(sopen,sclose,shigh,slow)
+    x = f.xpeak_points_2(shigh,slow,11)
+    uv = svolume * su / (su+sd)
+    dv = svolume - uv
+    uvx = de.rsum2(uv,x)
+    dvx = de.rsum2(dv,x)
+    cl = np.log(sclose)
+    clx = de.rsub(cl,x)
+    dx = de.distance2(x)
+    xd = np.where(x!=0)[0]
+    #ue1 = (uv/clx/dx)[xd]
+    #ue2 = (uv/clx/dx/dx)[xd]
+    #de1 = (dv/clx/dx)[xd]
+    #de2 = (dv/clx/dx/dx)[xd]
+    #return xd,ue1,ue2,de1,de2
+    #e1 = (np.abs((uv-dv))/clx/dx)[xd]
+    #e2 = (np.abs((uv-dv))/clx/dx/dx)[xd]
+    #return xd,e1,e2,uv-dv
+    return (uv/dx)[xd],(uv/clx)[xd],(dv/dx)[xd],(dv/clx)[xd]
+
+def xc_ru(sopen,sclose,shigh,slow,svolume,ma1=13,ma2=9):
+    '''
+        上升比例的交叉值
+        xc = xc_ru(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME])
+        如果直接用 ru = uv/(uv+ud) = su/(su+sd),则信号太过频繁
+        目前的结果是必须再等一天看看是否有反向信号
+    '''
+    su,sd = supdown(sopen,sclose,shigh,slow)
+    uv = svolume * su / (su+sd)
+    dv = svolume - uv
+    uvma=nma(uv,ma1)
+    dvma=nma(dv,ma1)
+    ru = uvma*1.0/(uvma+dvma)
+    ruma=msum2(ru,ma2)/ma2
+    xc = cross(ruma,ru)
+    return np.cast['int32'](xc)
+
+def xc_ru2(sopen,sclose,shigh,slow,svolume,ma1=13,ma2=9):
+    '''
+        上升比例的交叉值，采用supdown2
+        xc = xc_ru(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME])
+        如果直接用 ru = uv/(uv+ud) = su/(su+sd),则信号太过频繁
+        目前的结果是必须再等一天看看是否有反向信号
+    '''
+    su,sd = supdown2(sopen,sclose,shigh,slow)
+    uv = svolume * su / (su+sd)
+    dv = svolume - uv
+    uvma=nma(uv,ma1)
+    dvma=nma(dv,ma1)
+    ru = uvma*1.0/(uvma+dvma)
+    ruma=msum2(ru,ma2)/ma2
+    xc = cross(ruma,ru)
+    return np.cast['int32'](xc)
+
+
+def macd_ru(sopen,sclose,shigh,slow):
+    '''
+        上升比例的macd
+        vdiff,vdea = macd_ru(t[OPEN],t[CLOSE],t[HIGH],t[LOW])        
+        貌似没有xc_ru有效
+    '''
+    su,sd = supdown(sopen,sclose,shigh,slow)
+    ru = su *BASE / (su+sd)
+    return cmacd(ru)
+
+
+def macd_ru2(sopen,sclose,shigh,slow):
+    '''
+        上升比例的macd
+        vdiff,vdea = macd_ru2(t[OPEN],t[CLOSE],t[HIGH],t[LOW])        
+        貌似其cross比较有效
+        特别是如果1/-1或-1/1近邻时，后面的那一个准确率大大提高
+            如果1/-1后为0，则相当于确认了1/-1信号的有效性
+        比较有效
+    '''
+    su,sd = supdown2(sopen,sclose,shigh,slow)
+    ru = su *BASE / (su+sd)
+    return cmacd(ru)
+

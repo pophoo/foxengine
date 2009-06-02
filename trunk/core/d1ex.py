@@ -804,6 +804,8 @@ def supdown(sopen,sclose,shigh,slow):
         则若指向下方,运行轨迹为 开盘-->最低-->最高-->收盘
           若指向上方,运行轨迹为 开盘-->最高-->最低-->收盘
           平开,则顺着昨天的指向收盘的方向，亦即昨日的开盘方向（每日收盘方向等于开盘方向）
+        但这个方式有个问题，按理说 跳高开盘高走，应当是买力强劲，而低开高走则相对弱势
+                但在本方式的Volume的分配上，反而是后者的比例高。
     '''
     if len(sopen) == 0:
         return np.array([],int),np.array([],int)
@@ -818,5 +820,35 @@ def supdown(sopen,sclose,shigh,slow):
     direct = extend2next(direct)    #把0都给填充掉，即用昨日指向收盘的方向作为今日的方向
     u = np.select([direct>0,direct<0],[u_hlc,u_lhc])
     d = np.select([direct>0,direct<0],[d_hlc,d_lhc])
+    return u,d
+
+
+def supdown2(sopen,sclose,shigh,slow):
+    ''' 计算每日的上升行程和下降行程
+        以距离开盘价距离近的方向为运行方向
+        则若最低近,运行轨迹为 开盘-->最低-->最高-->收盘
+          若最高近,运行轨迹为 开盘-->最高-->最低-->收盘
+          平开往低走
+          另，如果开盘大于昨日收盘，则上升段 +　开盘－昨收盘
+            　小于昨日收盘，则下降段　+ 昨收盘 - 开盘
+    '''
+    if len(sopen) == 0:
+        return np.array([],int),np.array([],int)
+    sc1 = rollx(sclose)
+    sc1[0] = sopen[0]   #前一日收盘价视同首日开盘价
+    u_hlc = shigh-sopen+sclose-slow
+    u_lhc = shigh - slow
+    d_hlc = shigh - slow
+    d_lhc = sopen-slow+shigh-sclose
+    ou = np.where(sopen > sc1)
+    od = np.where(sopen < sc1)
+    doc = sopen-sc1
+    u_hlc[ou] = u_hlc[ou] + doc[ou]
+    u_lhc[ou] = u_lhc[ou] + doc[ou]
+    d_hlc[od] = d_hlc[od] - doc[od] #doc[od]<0
+    d_lhc[od] = d_lhc[od] - doc[od] #doc[od]<0
+    is_up = shigh-sopen < sopen-slow #True为向上，False为向下
+    u = np.select([is_up],[u_hlc],default=u_lhc)
+    d = np.select([is_up],[d_hlc],default=d_lhc)
     return u,d
 

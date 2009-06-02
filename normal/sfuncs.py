@@ -613,7 +613,7 @@ def smacd(stock):
                 平盘次数=0
     '''
     t = stock.transaction
-    g = gand(stock.g20 >= stock.g60+1000,stock.g60 >= stock.g120+1000,stock.g20>=3000,stock.g20<=8000)
+    #g = gand(stock.g20 >= stock.g60+1000,stock.g60 >= stock.g120+1000,stock.g20>=3000,stock.g20<=8000)
     #g = np.ones_like(stock.g5)
  
     svap,v2i = stock.svap_ma_67 

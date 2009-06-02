@@ -312,6 +312,8 @@ def vdis(sopen,sclose,shigh,slow,svolume):
     #return xd,e1,e2,uv-dv
     return (uv/dx)[xd],(uv/clx)[xd],(dv/dx)[xd],(dv/clx)[xd]
 
+
+####ru系列指标的-1信号都是重要的卖出信号，尤其是前导1无后续1的-1
 def xc_ru(sopen,sclose,shigh,slow,svolume,ma1=13,ma2=9):
     '''
         上升比例的交叉值

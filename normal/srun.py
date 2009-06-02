@@ -11,7 +11,7 @@ from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,tmin
 from wolfox.fengine.core.d1match import *
 from wolfox.fengine.core.d1 import lesser
 from wolfox.fengine.core.d1indicator import cmacd,score2,rsi,obv
-from wolfox.fengine.core.d1idiom import down_period
+from wolfox.fengine.core.d1idiom import down_period,macd_ru,macd_ru2,macd_ruv,xc_ru,xc_ru2
 from wolfox.fengine.core.d2 import increase,extract_collect
 from wolfox.foxit.base.tutils import linelog
 from time import time
@@ -75,6 +75,31 @@ def fractal(stock):
     zma_m = ma(zc,13)
     zfilter = zoom_in(zma_s > zma_m,len(t[CLOSE]))
 
+
+def xru(stock):
+    ''' 测试ru系列
+        ru2: 成功率>500，但R<600
+        ruv:    gand(svma < vma*7/8)
+            评估:总盈亏值=5311,交易次数=69  期望值=1357
+                总盈亏率(1/1000)=5311,平均盈亏率(1/1000)=76,盈利交易率(1/1000)=594
+                赢利次数=41,赢利总值=6889
+                亏损次数=28,亏损总值=1578
+                平盘次数=0
+        
+            
+    '''
+    t = stock.transaction
+    mdiff,mdea = macd_ru(t[OPEN],t[CLOSE],t[HIGH],t[LOW])
+    mxc = cross(mdea,mdiff) > 0
+
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+
+    vfilter = gand(svma > vma*7/8)
+
+    signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma60)>0,stock.t120)
+    linelog(stock.code)
+    return signal
 
 
 

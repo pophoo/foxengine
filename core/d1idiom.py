@@ -379,7 +379,7 @@ def macd_ruv(sopen,sclose,shigh,slow,svolume):
         貌似其cross比较有效
         特别是如果1/-1或-1/1近邻时，后面的那一个准确率大大提高
             如果1/-1后为0，则相当于确认了1/-1信号的有效性
-        貌似没啥用
+        貌似也有效
     '''
     su,sd = supdown2(sopen,sclose,shigh,slow)
     ruv = su * svolume / (su+sd)

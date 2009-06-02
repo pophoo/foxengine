@@ -4519,6 +4519,8 @@ gmacd:  vfilter:4/3 无改进
 #2009-05-31
 #1 动力学测试
 #1.1 动力学测试1
+import wolfox.fengine.core.future as f
+import wolfox.fengine.core.d1ex as de
 x=f.xpeak_points(t[HIGH],9)
 vx = de.rsum2(t[VOLUME],x)
 vxl = np.log(vx)
@@ -4555,6 +4557,9 @@ Wdown 正比于    sum(max(o,last_c)-l)
 平开,则顺着昨天的指向收盘的方向
 
 def supdown(sopen,sclose,shigh,slow):
+    '''
+        su,sd = supdown(t[OPEN],t[CLOSE],t[HIGH],t[LOW])
+    '''
     if len(sopen) == 0:
         return np.array([]),np.array([])
     sc1 = rollx(sclose)
@@ -4568,6 +4573,94 @@ def supdown(sopen,sclose,shigh,slow):
     u = np.select([direct>0,direct<0],[u_hlc,u_lhc])
     d = np.select([direct>0,direct<0],[d_hlc,d_lhc])
     return u,d
+
+
+import wolfox.fengine.core.future as f
+import wolfox.fengine.core.d1ex as de
+
+def vdis(sopen,sclose,shigh,slow,svolume):
+    ''' 功率含义的比较，但是很难应用
+        up,uf,dp,df = vdis(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME])
+    '''
+    su,sd = supdown(sopen,sclose,shigh,slow)
+    x = f.xpeak_points_2(shigh,slow,11)
+    uv = svolume * su / (su+sd)
+    ud = svolume - uv
+    uvx = de.rsum2(uv,x)
+    dvx = de.rsum2(dv,x)
+    cl = np.log(sclose)
+    clx = de.rsub(cl,x)
+    dx = de.distance2(x)
+    xd = np.where(x!=0)[0]
+    #ue1 = (uv/clx/dx)[xd]
+    #ue2 = (uv/clx/dx/dx)[xd]
+    #de1 = (dv/clx/dx)[xd]
+    #de2 = (dv/clx/dx/dx)[xd]
+    #return xd,ue1,ue2,de1,de2
+    #e1 = (np.abs((uv-dv))/clx/dx)[xd]
+    #e2 = (np.abs((uv-dv))/clx/dx/dx)[xd]
+    #return xd,e1,e2,uv-dv
+    return (uv/dx)[xd],(uv/clx)[xd],(dv/dx)[xd],(dv/clx)[xd]
+
+def xc_ru(sopen,sclose,shigh,slow,svolume,ma1=13,ma2=9):
+    '''
+        上升比例的交叉值
+        xc = xc_ru(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME])
+        如果直接用 ru = uv/(uv+ud) = su/(su+sd),则信号太过频繁
+        目前的结果是必须再等一天看看是否有反向信号
+    '''
+    su,sd = supdown(sopen,sclose,shigh,slow)
+    uv = svolume * su / (su+sd)
+    ud = svolume - uv
+    uvma=nma(uv,ma1)
+    dvma=nma(dv,ma1)
+    ru = uvma*1.0/(uvma+dvma)
+    ruma=msum2(ru,ma2)/ma2
+    xc = cross(ruma,ru)
+    return np.cast['int32'](xc)
+
+def xc_ru2(sopen,sclose,shigh,slow,svolume,ma1=13,ma2=9):
+    '''
+        上升比例的交叉值，采用supdown2
+        xc = xc_ru(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME])
+        如果直接用 ru = uv/(uv+ud) = su/(su+sd),则信号太过频繁
+        目前的结果是必须再等一天看看是否有反向信号
+    '''
+    su,sd = supdown2(sopen,sclose,shigh,slow)
+    uv = svolume * su / (su+sd)
+    ud = svolume - uv
+    uvma=nma(uv,ma1)
+    dvma=nma(dv,ma1)
+    ru = uvma*1.0/(uvma+dvma)
+    ruma=msum2(ru,ma2)/ma2
+    xc = cross(ruma,ru)
+    return np.cast['int32'](xc)
+
+
+def macd_ru(sopen,sclose,shigh,slow):
+    '''
+        上升比例的macd
+        vdiff,vdea = macd_ru(t[OPEN],t[CLOSE],t[HIGH],t[LOW])        
+        貌似没有xc_ru有效
+    '''
+    su,sd = supdown(sopen,sclose,shigh,slow)
+    ru = su *BASE / (su+sd)
+    return cmacd(ru)
+
+
+def macd_ru2(sopen,sclose,shigh,slow):
+    '''
+        上升比例的macd
+        vdiff,vdea = macd_ru2(t[OPEN],t[CLOSE],t[HIGH],t[LOW])        
+        貌似其cross比较有效
+        特别是如果1/-1或-1/1近邻时，后面的那一个准确率大大提高
+            如果1/-1后为0，则相当于确认了1/-1信号的有效性
+        比较有效
+    '''
+    su,sd = supdown2(sopen,sclose,shigh,slow)
+    ru = su *BASE / (su+sd)
+    return cmacd(ru)
+
 
 
 

@@ -74,6 +74,8 @@ def prepare_configs_A0(seller,pman,dman):
 
     configs.append(config(buyer=s.gmacd))
     configs.append(config(buyer=s.smacd))    #2618/511/45
+    configs.append(config(buyer=s.xru))      #4066/612/31
+    configs.append(config(buyer=s.mxru))     #1424/443/158  近期1357/594/69
     #configs.append(config(buyer=s.ma4))     #1111-388-54
     #configs.append(config(buyer=s.pmacd))   #671-307-78
     #configs.append(config(buyer=s.wvad))    #816-437-32

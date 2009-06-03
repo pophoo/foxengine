@@ -6,6 +6,7 @@ from wolfox.fengine.core.shortcut import *
 from wolfox.fengine.normal.funcs import *
 from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum
 from wolfox.fengine.core.d1match import *
+from wolfox.fengine.core.d1idiom import *
 from wolfox.fengine.core.d1indicator import cmacd,score2
 from wolfox.foxit.base.tutils import linelog
 from time import time
@@ -630,4 +631,30 @@ def smacd(stock):
     vfilter = vma_s < vma_l * 7/8
 
     return gand(stock.golden,stock.above,msvap,vfilter)
+
+
+def xru(stock):
+    ''' 成交量分配后的上叉
+    '''
+    t = stock.transaction
+    mxc = xc_ru2(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME]) > 0
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+    vfilter = gand(svma>vma*1/2,svma<vma*2/3)
+    signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma60)>0,stock.t120)
+    linelog(stock.code)
+    return signal
+
+def mxru(stock):
+    ''' 成交量分配后的macd
+    '''
+    t = stock.transaction
+    mdiff,mdea = macd_ruv(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME])
+    mxc = cross(mdea,mdiff) > 0
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+    vfilter = gand(svma>vma*1/3,svma<vma*7/8)
+    signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma60)>0,stock.t120)
+    linelog(stock.code)
+    return signal
 

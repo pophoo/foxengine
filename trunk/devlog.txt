@@ -4986,3 +4986,25 @@ macd_ruv: 1/3-7/8
                 平盘次数=0            
         
 
+#2 板块macd计算
+for c in catalogs:
+    x = c.transaction[0]
+    xdiff,xdea = cmacd(x)
+    xc = cross(xdea,xdiff)
+    c.xc = xc
+
+gmacd:
+for c in catalogs:
+    x = c.g60
+    xdiff,xdea = cmacd(x)
+    xc = cross(xdea,xdiff)
+    c.xc60 = xc
+    x = c.g20
+    xdiff,xdea = cmacd(x)
+    xc = cross(xdea,xdiff)
+    c.xc20 = xc
+
+发现问题，g20,g60这类的排名，尤其是短期的，受到起始日期影响较大，需要至少ma3一下平衡
+或者说需要平衡的是起始日期的收盘价(比较标的)。但直接平衡结果比较简单有效
+
+貌似g5的对于macd比较有意义?

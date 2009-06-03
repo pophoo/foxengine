@@ -72,7 +72,8 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.tsvama2b,fast=20,slow=170)))   #2630-583-12, 近期成功率升高
 
 
-    configs.append(config(buyer=s.gmacd))
+    configs.append(config(buyer=s.gmacd))    #842-330-115,近期5045-911-34
+    configs.append(config(buyer=s.gmacd5))   #1146-424-33,近期1000-1000-14    
     configs.append(config(buyer=s.smacd))    #2618/511/45
     configs.append(config(buyer=s.xru))      #4066/612/31
     configs.append(config(buyer=s.mxru))     #1424/443/158  近期1357/594/69
@@ -311,9 +312,9 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
-    run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
 
 

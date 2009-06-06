@@ -1303,7 +1303,7 @@ def gmacd5(stock): #
     return signal
 
 
-def x60(stock,mlen=60,glimit=3000): #
+def ldx(stock,mlen=60,glimit=3000): #
     ''' 破60日线
                 LOW
                 vfilter = gand(vma_5>vma_l*3/5,t[VOLUME] < vma_l*2/3)   
@@ -1409,7 +1409,7 @@ def x60(stock,mlen=60,glimit=3000): #
                 赢利次数=40,赢利总值=11789
                 亏损次数=24,亏损总值=1339
                 平盘次数=0
-
+        另，120有支撑，250是真破，貌似无支撑
     '''
 
     t = stock.transaction
@@ -1420,29 +1420,24 @@ def x60(stock,mlen=60,glimit=3000): #
 
     #vfilter = gand(vma_5>vma_l,t[VOLUME] < vma_5*2/3)  #1017-538-13
     #vfilter = gand(t[VOLUME] < vma_l*2/3)  #916-482-87
-    vfilter = gand(vma_5>vma_l,t[VOLUME] < vma_l*2/3)  
+    
+    #vfilter = gand(t[VOLUME] < vma_l,vma_5>vma_l*2/3)  
+    vfilter = np.ones_like(t[CLOSE])#gand(vma_5>vma_l,t[VOLUME] < vma_l)   
 
     #vdiff,vdea = cmacd(t[VOLUME])
     #vfilter = gand(vdiff<vdea,vdiff<0)
 
     linelog(stock.code)
 
-    ll10 = rollx(t[LOW],10)
-    hh10 = tmax(t[HIGH],10)
-    rhl10 = hh10 * 1000/ll10
-
     c = t[LOW]
     ma30 = ma(c,30)
     above = gand(ma(c,13) > ma30,ma30>stock.ma60,stock.ma60>stock.ma120)
     
-    mlen=60
+    #mlen=60
     ma_s = ma(t[CLOSE],mlen)
-    x2 = gand(cross(ma_s,t[CLOSE])< 0,t[CLOSE]>ma_s)
+    x2 = gand(cross(ma_s,t[LOW])< 0,t[CLOSE]>ma_s)
 
-    #gf1 = gand(stock.g60>1000,stock.g20>1000)
     gf1 = gand(stock.g60<3000)#,stock.g60>2000)
-    #gf1 = gand(stock.g60>5000,stock.g60<9500)
-    #gf1 = gand(stock.g20 > stock.g60,stock.g60>stock.g120,stock.g120>stock.g250)
 
     pdiff,pdea = stock.ref.pdiff,stock.ref.pdea
 
@@ -1452,7 +1447,8 @@ def x60(stock,mlen=60,glimit=3000): #
     
     #signal = gand(x2,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0,gf1,rhl10<1500,strend(stock.ref.ma60)>0,vfilter,mxi)
     #signal = gand(x2,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0,gf1,mxi,pdiff<pdea)
-    signal = gand(x2,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0,gf1,pdiff<pdea,vfilter,mxi)
+    #signal = gand(x2,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0,gf1,pdiff<pdea,vfilter,mxi)
+    signal = gand(x2,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0)
 
     return signal
 

@@ -77,6 +77,9 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=s.smacd))    #2618/511/45
     configs.append(config(buyer=s.xru))      #4066/612/31
     configs.append(config(buyer=s.mxru))     #1424/443/158  近期1357/594/69
+    configs.append(config(buyer=s.ldx,mlen=60,glimit=3000))     #4137/652/23 近期1618-833-84
+    configs.append(config(buyer=s.ldx,mlen=30,glimit=3333))     #3410/672/55 近期2739-826-75
+
     #configs.append(config(buyer=s.ma4))     #1111-388-54
     #configs.append(config(buyer=s.pmacd))   #671-307-78
     #configs.append(config(buyer=s.wvad))    #816-437-32
@@ -147,6 +150,9 @@ def prepare_common(sdata,ref):
         except:
             s.silver = cached_zeros(len(c))
 
+def prepare_index(index):
+    index.pdiff,index.pdea = cmacd(index.transaction[CLOSE])
+
 def run_body(sdata,dates,begin,end,xbegin):
     from time import time
     tbegin = time()
@@ -215,6 +221,7 @@ def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     prepare_order(catalogs)
     prepare_common(sdata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
     prepare_common(idata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
+    prepare_index(idata[1])
     dummy_catalogs('catalog',catalogs)
     run_body(sdata,dates,begin,end,xbegin)
 
@@ -224,6 +231,7 @@ def run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     prepare_order(catalogs)    
     prepare_common(sdata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
     prepare_common(idata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma    
+    prepare_index(idata[1])
     dummy_catalogs('catalog',catalogs)
     run_merge_body(sdata,dates,begin,end,xbegin)
 
@@ -233,6 +241,7 @@ def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
     prepare_order(catalogs) 
     prepare_common(sdata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
     prepare_common(idata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma    
+    prepare_index(idata[1])
     dummy_catalogs('catalog',catalogs)
     from time import time
     tbegin = time()

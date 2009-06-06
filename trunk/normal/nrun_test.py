@@ -99,6 +99,12 @@ class ModuleTest(unittest.TestCase):    #保持run的有效性
         run.prepare_common(sdata.values(),idata[ref_id])
         self.assertTrue(True)
 
+    def test_prepare_index(self):
+        begin,end = 20010101,20010701
+        dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        run.prepare_index(idata[1])        
+        self.assertTrue(True)
+
     def test_run(self):
         begin,end = 20010101,20010701
         xbegin = 20010401

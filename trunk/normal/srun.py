@@ -781,13 +781,13 @@ def nhigh(stock,dates):#60高点
     #linelog(stock.code)
     return gand(g,stock.silver,dcross,strend(stock.ma60)>0,stock.above,stock.t120)
 
-def shigh(stock,dates):
+def shigh(stock,dates,sector=HIGH):
     linelog(stock.code)
     t = stock.transaction
     #mline = rollx(tmax(t[HIGH],60)) #以昨日的60高点为准
     #nh = greater(t[HIGH],mline)
     mline = rollx(tmax(t[HIGH],67)) #以昨日的60高点为准
-    nh = greater(t[HIGH],mline)
+    nh = greater(t[sector],mline)
     stock.shigh = nh
     #stock.v = greater(t[VOLUME])
 
@@ -1727,7 +1727,7 @@ def func_test(stock,fast,mid,slow,ma_standard=500,extend_days=10,pre_length=67,*
     #sbuy = gand(g,cs,msvap)
     #down_limit = tracelimit((t[OPEN]+t[LOW])/2,t[HIGH],sbuy,stock.atr,600,3000)
 
-    #seller = atr_seller_factory(stop_times=600,trace_times=3000)    
+    #seller = atr_xseller_factory(stop_times=600,trace_times=3000)    
     #ssell = seller(stock,sbuy)
 
     #sb = make_trade_signal_advanced(sbuy,ssell)      
@@ -1836,10 +1836,10 @@ def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     pman = AdvancedATRPositionManager()
     dman = DateManager(begin,end)
     myMediator=nmediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
-    #seller = atr_seller_factory(stop_times=2000,trace_times=3000)
-    #seller = atr_seller_factory(stop_times=1500,trace_times=3000)
-    #seller = atr_seller_factory(stop_times=1000,trace_times=3000)
-    seller = atr_seller_factory(stop_times=600,trace_times=3000)
+    #seller = atr_xseller_factory(stop_times=2000,trace_times=3000)
+    #seller = atr_xseller_factory(stop_times=1500,trace_times=3000)
+    #seller = atr_xseller_factory(stop_times=1000,trace_times=3000)
+    seller = atr_xseller_factory(stop_times=600,trace_times=3000)
     #seller = csc_func
     #seller = fcustom(csc_func,threshold=100)
 

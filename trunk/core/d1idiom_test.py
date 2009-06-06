@@ -240,6 +240,35 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals(0,ss1[-2])
         self.assertEquals(1,ss1[-3])
 
+    def test_seller_wrapper(self):  #通路测试
+        a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
+        sa = CommonObject(id=3,transaction=a,atr=np.array([1,2]))
+        bs = np.array([0,1])
+        ##空测试
+        seller_a = sellers_wrapper([])
+        self.assertEquals([0,0],seller_a(sa,bs).tolist())
+        ##有信号测试
+        seller1 = atr_xseller_factory(1000)
+        seller2 = atr_xseller_factory(2000)
+        seller3 = atr_xseller_factory(3000,30)
+        seller_b = sellers_wrapper([seller1])
+        self.assertEquals([1,0],seller_b(sa,bs).tolist())
+        seller_b = sellers_wrapper([seller1,seller2,seller3])
+        self.assertEquals([1,0],seller_b(sa,bs).tolist())
+        ##无信号测试
+        seller4 = lambda stock,signal,**kwargs:np.zeros_like(signal)
+        seller_c = sellers_wrapper([seller4])
+        self.assertEquals([0,0],seller_c(sa,bs).tolist())
+        #彻底的空测试,参数也为空
+        b=np.array([[],[],[],[],[],[],[]])
+        sb = CommonObject(id=4,transaction=b,atr=np.array([]))
+        sb1=seller_a(sb,np.array([]))
+        sb2=seller_b(sb,np.array([]))
+        self.assertEquals([],sb1.tolist())
+        self.assertEquals([],sb2.tolist())        
+        self.assertTrue(True)
+
+
     def test_vdis(self):    #只测试通路
         na = np.array([])
         a = np.array(np.array([1,2,2]))

@@ -77,8 +77,9 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=s.smacd))    #2618/511/45
     configs.append(config(buyer=s.xru))      #4066/612/31
     configs.append(config(buyer=s.mxru))     #1424/443/158  近期1357/594/69
-    configs.append(config(buyer=s.ldx,mlen=60,glimit=3000))     #4137/652/23 近期1618-833-84
-    configs.append(config(buyer=s.ldx,mlen=30,glimit=3333))     #3410/672/55 近期2739-826-75
+    configs.append(config(buyer=fcustom(s.ldx,mlen=60,glimit=3000)))     #4137/652/23 近期1618-833-84
+    configs.append(config(buyer=fcustom(s.ldx,mlen=30,glimit=3333)))     #3410/672/55 近期2739-826-75
+    configs.append(config(buyer=fcustom(s.ldx,mlen=120,glimit=3333)))     #1456/666/12 近期1198/800/5
 
     #configs.append(config(buyer=s.ma4))     #1111-388-54
     #configs.append(config(buyer=s.pmacd))   #671-307-78
@@ -281,6 +282,15 @@ def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
     print u'计算耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
+def catalog_macd(catalogs):
+    for c in catalogs:
+        x = c.transaction[0]
+        xdiff,xdea = cmacd(x)
+        xc = cross(xdea,xdiff)
+        c.xc = xc
+        if xc[-1]==1:
+            print u'macd:',c.name
+
 
 if __name__ == '__main__':
     logging.basicConfig(filename="run_x4n_2000.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
@@ -325,5 +335,5 @@ if __name__ == '__main__':
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
-
+    catalog_macd(catalogs)
 

@@ -129,6 +129,13 @@ class ModuleTest(unittest.TestCase):    #保持run的有效性
         run.run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)        
         self.assertTrue(True)
 
+    def test_catalog_macd(self):
+        begin,end = 20010101,20010701
+        xbegin = 20010401
+        dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        run.catalog_macd(catalogs)
+        self.assertTrue(True)
+
 
 if __name__ == "__main__":
     logging.basicConfig(filename="test.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')

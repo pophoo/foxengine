@@ -175,7 +175,7 @@ def run_body(sdata,dates,begin,end,xbegin):
     #configs.extend(prepare_configs_A1(seller1200,pman,dman))
     #configs.extend(prepare_configs_A2(seller1200,pman,dman))    
     
-    #seller3600 = atr_seller_factory(stop_times=600,trace_times=2000)
+    #seller3600 = atr_xseller_factory(stop_times=600,trace_times=2000)
     #configs = prepare_configs_A1200(seller3600,pman,dman)
     #configs.extend(prepare_configs_A0(seller3600,pman,dman))    
 
@@ -207,7 +207,7 @@ def run_merge_body(sdata,dates,begin,end,xbegin):
 
     save_merged('atr_merged_1200.txt',result1200,strade1200,xbegin,end)
 
-    seller2000 = atr_seller_factory(stop_times=2000,trace_times=3000) 
+    seller2000 = atr_xseller_factory(stop_times=2000,trace_times=3000) 
     configs2000 = prepare_configs_A2000(seller2000,pman,dman)
     result2000,strade2000 = merge(configs2000,sdata,dates,xbegin,pman,dman,cmediator=myMediator)
     save_merged('atr_merged_2000.txt',result2000,strade2000,xbegin,end)

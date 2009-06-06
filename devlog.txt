@@ -3459,11 +3459,13 @@ signals = gand(g,stock.ref.t120,strend(stock.ref.ma60)>0,strend(stock.ref.ma20)>
 
 stocks = sdata.values()
 for s in stocks:
-    srun.shigh(s,dates)
+    srun.shigh(s,dates,CLOSE)
 
 from wolfox.fengine.core.source import extract_collect as ec
-nx = ec(stocks,'shigh')   
-sx = np.sum(nx,0)
+nx = ec(stocks,'shigh') 
+nv = ec(stocks,VOLUME)
+nn = (nv>0).sum(axis=0)
+sx = np.sum(nx,0) * 1000 / nn       #新高比例
 xdif,xdea = cmacd(sx)
 xdif2,xdea2 = cmacd(sx,19,39,9)
 s5 = ma(sx,5)

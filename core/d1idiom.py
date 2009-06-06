@@ -287,7 +287,15 @@ def atr_xseller_factory(stop_times=3*BASE/2,trace_times=2*BASE,covered=10,up_sec
         return ss
     return seller
 
-
+def sellers_wrapper(sellers):
+    def seller(stock,buy_signal,**kwargs):
+        ss = np.zeros_like(buy_signal)
+        for s in sellers:
+            cs = s(stock,buy_signal,**kwargs)
+            ss = bor(ss,cs)
+        return ss
+    return seller
+    
 def vdis(sopen,sclose,shigh,slow,svolume):
     ''' 功率含义的比较，但是很难应用
         up,uf,dp,df = vdis(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME])

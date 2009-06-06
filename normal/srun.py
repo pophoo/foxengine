@@ -1101,16 +1101,45 @@ def gmacd_s(stock): #
 
 
 def gmacd(stock): #
+    '''
+    #之前
+                评估:总盈亏值=6850,交易次数=115 期望值=842
+                总盈亏率(1/1000)=6850,平均盈亏率(1/1000)=59,盈利交易率(1/1000)=330
+                赢利次数=38,赢利总值=12295
+                亏损次数=77,亏损总值=5445
+                平盘次数=0
+            
+                评估:总盈亏值=7564,交易次数=34  期望值=5045
+                总盈亏率(1/1000)=7564,平均盈亏率(1/1000)=222,盈利交易率(1/1000)=911
+                赢利次数=31,赢利总值=7698
+                亏损次数=3,亏损总值=134
+                平盘次数=0
+    
+    去掉msvap
+        评估:总盈亏值=10402,交易次数=43 期望值=6025
+                总盈亏率(1/1000)=10402,平均盈亏率(1/1000)=241,盈利交易率(1/1000)=930
+                赢利次数=40,赢利总值=10523
+                亏损次数=3,亏损总值=121
+                平盘次数=0
+        评估:总盈亏值=11803,交易次数=226        期望值=764
+                总盈亏率(1/1000)=11803,平均盈亏率(1/1000)=52,盈利交易率(1/1000)=305
+                赢利次数=69,赢利总值=22487
+                亏损次数=157,亏损总值=10684
+                平盘次数=0
+        不妥
+    '''
     t = stock.transaction
     
-    mdiff,mdea = cmacd(stock.g60)
+    #mdiff,mdea = cmacd(stock.g5)   
+    mdiff,mdea = cmacd(ma(stock.g60,5)) #平滑以去掉首尾效应
+
 
     vma_s = ma(t[VOLUME],13)
     vma_l = ma(t[VOLUME],30)
 
-    vfilter = gand(vma_s > vma_l * 3/2)
+    vfilter = gand(vma_s > vma_l * 4/3)
     
-    xcross = cross(mdea,mdiff) > 0  
+    xcross = cross(mdea,mdiff) > 0
 
     linelog(stock.code)
 
@@ -1123,11 +1152,11 @@ def gmacd(stock): #
     above = gand(ma(c,13) > ma30,ma30>stock.ma60,stock.ma60>stock.ma120)
 
 
-    svap,v2i = stock.svap_ma_67
-    sdiff,sdea = cmacd(svap,19,39)
-    ssignal = gand(sdiff < sdea,strend(sdiff)<0,strend(sdiff-sdea)>0)
+    #svap,v2i = stock.svap_ma_67
+    #sdiff,sdea = cmacd(svap,36,78)
+    #ssignal = gand(sdiff < sdea,strend(sdiff)<0,strend(sdiff-sdea)>0)
 
-    msvap = transform(ssignal,v2i,len(t[VOLUME]))
+    #msvap = transform(ssignal,v2i,len(t[VOLUME]))
 
     x2 = cross(ma(t[CLOSE],30),t[LOW]) < 0
 
@@ -1139,8 +1168,292 @@ def gmacd(stock): #
     msi = msum(si,5)
     mxi = gand(msi>=-100,msi<=0)
     
-    signal = gand(ss,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,strend(stock.ref.ma60)>0,vfilter,msvap,mxi)
+    #signal = gand(ss,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,strend(stock.ref.ma60)>0,vfilter,msvap,mxi)
+    signal = gand(ss,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,strend(stock.ref.ma60)>0,vfilter,mxi)
+
+    return signal
+
+
+def gmacd5(stock): #
+    '''
+                gf1 = gand(stock.g20>5000,stock.g20<9500)
+                #使用g5,ma3
+                评估:总盈亏值=5437,交易次数=19  期望值=71500
+                    总盈亏率(1/1000)=5437,平均盈亏率(1/1000)=286,盈利交易率(1/1000)=947
+                赢利次数=18,赢利总值=5441
+                亏损次数=1,亏损总值=4
+
+                评估:总盈亏值=6564,交易次数=68  期望值=1333 #20010701-20081231
+                总盈亏率(1/1000)=6564,平均盈亏率(1/1000)=96,盈利交易率(1/1000)=397
+                赢利次数=27,赢利总值=9476
+                亏损次数=40,亏损总值=2912
+                平盘次数=1
+
+            ma5:
+                评估:总盈亏值=5764,交易次数=23  期望值=10000
+                总盈亏率(1/1000)=5764,平均盈亏率(1/1000)=250,盈利交易率(1/1000)=869
+                赢利次数=20,赢利总值=5841
+                亏损次数=3,亏损总值=77
+                平盘次数=0
     
+                评估:总盈亏值=6049,交易次数=84  期望值=888
+                总盈亏率(1/1000)=6049,平均盈亏率(1/1000)=72,盈利交易率(1/1000)=357
+                赢利次数=30,赢利总值=10372
+                亏损次数=53,亏损总值=4323
+                平盘次数=1
+            直接计算:       #近期表现绝对彪悍
+                评估:总盈亏值=3970,交易次数=14  期望值=1000
+                总盈亏率(1/1000)=3970,平均盈亏率(1/1000)=283,盈利交易率(1/1000)=1000
+                赢利次数=14,赢利总值=3970
+                亏损次数=0,亏损总值=0
+                平盘次数=0
+                
+            评估:总盈亏值=3132,交易次数=33  期望值=1146     #20010701-20081231
+                总盈亏率(1/1000)=3132,平均盈亏率(1/1000)=94,盈利交易率(1/1000)=424
+                赢利次数=14,赢利总值=4701
+                亏损次数=19,亏损总值=1569
+                平盘次数=0
+
+                msvap+g60>1000,g20>2000:
+                    评估:总盈亏值=6642,交易次数=55  期望值=1666
+                    总盈亏率(1/1000)=6642,平均盈亏率(1/1000)=120,盈利交易率(1/1000)=381
+                    赢利次数=21,赢利总值=9121
+                    亏损次数=34,亏损总值=2479
+                    平盘次数=0
+
+                    评估:总盈亏值=4840,交易次数=18  期望值=1000
+                    总盈亏率(1/1000)=4840,平均盈亏率(1/1000)=268,盈利交易率(1/1000)=1000
+                    赢利次数=18,赢利总值=4840
+                    亏损次数=0,亏损总值=0
+                    平盘次数=0
+                
+            去掉msvap:  
+                评估:总盈亏值=6936,交易次数=24  期望值=13136
+                    总盈亏率(1/1000)=6936,平均盈亏率(1/1000)=289,盈利交易率(1/1000)=958
+                    赢利次数=23,赢利总值=6958
+                    亏损次数=1,亏损总值=22
+                    平盘次数=0
+                评估:总盈亏值=6766,交易次数=83  期望值=1125
+                总盈亏率(1/1000)=6766,平均盈亏率(1/1000)=81,盈利交易率(1/1000)=373
+                赢利次数=31,赢利总值=10560
+                亏损次数=52,亏损总值=3794
+                平盘次数=0
+            再去掉ma30的触及
+                评估:总盈亏值=6313,交易次数=131 期望值=774
+                总盈亏率(1/1000)=6313,平均盈亏率(1/1000)=48,盈利交易率(1/1000)=282
+                赢利次数=37,赢利总值=12081
+                亏损次数=93,亏损总值=5768
+                平盘次数=1
+                闭合交易明细:
+            
+                评估:总盈亏值=2525,交易次数=22  期望值=1701
+                总盈亏率(1/1000)=2525,平均盈亏率(1/1000)=114,盈利交易率(1/1000)=636
+                赢利次数=14,赢利总值=3065
+                亏损次数=8,亏损总值=540
+                平盘次数=0
+
+        目前取1.33，去掉msvap
+        改成cmacd(svap,19,39)无改进
+    '''
+    t = stock.transaction
+    
+    mdiff,mdea = cmacd(stock.g5)   
+
+    vma_s = ma(t[VOLUME],13)
+    vma_l = ma(t[VOLUME],30)
+
+    vfilter = gand(vma_s > vma_l * 4/3)
+    
+    xcross = cross(mdea,mdiff) > 0
+
+    linelog(stock.code)
+
+    ll10 = rollx(t[LOW],10)
+    hh10 = tmax(t[HIGH],10)
+    rhl10 = hh10 * 1000/ll10
+
+    c = t[CLOSE]
+    ma30 = ma(c,30)
+    above = gand(ma(c,13) > ma30,ma30>stock.ma60,stock.ma60>stock.ma120)
+
+
+    
+    svap,v2i = stock.svap_ma_67
+    sdiff,sdea = cmacd(svap,36,78)
+    ssignal = gand(sdiff < sdea,strend(sdiff)<0,strend(sdiff-sdea)>0)
+
+    msvap = transform(ssignal,v2i,len(t[VOLUME]))
+
+    x2 = cross(ma(t[CLOSE],60),t[LOW]) < 0
+
+    ss = sfollow(xcross,x2,10)
+    #ss = xcross
+
+    #gf1 = gand(stock.g60>1000,stock.g20>1000)
+    gf1 = gand(stock.g20>2000)
+    #gf1 = gand(stock.g60>5000,stock.g60<9500)
+    #gf1 = gand(stock.g20 > stock.g60,stock.g60>stock.g120,stock.g120>stock.g250)
+
+    si = score2(t[CLOSE],t[VOLUME])
+    msi = msum(si,5)
+    mxi = gand(msi>=-100,msi<=0)
+    
+    signal = gand(ss,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,strend(stock.ref.ma60)>0,vfilter,mxi,msvap)
+    
+    return signal
+
+
+def x60(stock,mlen=60,glimit=3000): #
+    ''' 破60日线
+                LOW
+                vfilter = gand(vma_5>vma_l*3/5,t[VOLUME] < vma_l*2/3)   
+                gf1 = gand(stock.g60<3000)#,stock.g60>2000)                
+                signal = gand(x2,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0,gf1,pdiff<pdea,vfilter,mxi)
+                20010701-20081231
+                评估:总盈亏值=5008,交易次数=40  期望值=2358
+                总盈亏率(1/1000)=5008,平均盈亏率(1/1000)=125,盈利交易率(1/1000)=550
+                赢利次数=22,赢利总值=5979
+                亏损次数=18,亏损总值=971
+                平盘次数=0
+
+                20080701-20090605
+                评估:总盈亏值=18987,交易次数=138        期望值=2914
+                总盈亏率(1/1000)=18987,平均盈亏率(1/1000)=137,盈利交易率(1/1000)=869
+                赢利次数=120,赢利总值=19794
+                亏损次数=17,亏损总值=807
+                平盘次数=1
+            添加 t[CLOSE] < ma_s    长短期相反
+                评估:总盈亏值=161,交易次数=15   期望值=172
+                总盈亏率(1/1000)=161,平均盈亏率(1/1000)=10,盈利交易率(1/1000)=400
+                赢利次数=6,赢利总值=687
+                亏损次数=9,亏损总值=526
+                平盘次数=0
+            
+                评估:总盈亏值=11957,交易次数=62 期望值=9600
+                总盈亏率(1/1000)=11957,平均盈亏率(1/1000)=192,盈利交易率(1/1000)=935
+                赢利次数=58,赢利总值=12037
+                亏损次数=4,亏损总值=80
+                平盘次数=0
+            添加 t[CLOSE] > ma_s    长短期相反  #这个是比较均衡的结果
+                评估:总盈亏值=4858,交易次数=23  期望值=4137
+                总盈亏率(1/1000)=4858,平均盈亏率(1/1000)=211,盈利交易率(1/1000)=652
+                赢利次数=15,赢利总值=5269
+                亏损次数=8,亏损总值=411
+                平盘次数=0
+            
+                评估:总盈亏值=7552,交易次数=84  期望值=1618
+                总盈亏率(1/1000)=7552,平均盈亏率(1/1000)=89,盈利交易率(1/1000)=833
+                赢利次数=70,赢利总值=8276
+                亏损次数=13,亏损总值=724
+
+
+    #破30日线   LOW
+                gf1 = gand(stock.g60<3000)
+                ref.pdiff < ref.pdea
+                mxi
+                vfilter = gand(vma_s>vma_l,vma_s<vma_l*4/3)
+                vfilter2 = gand(vma_5<vma_s)
+                t[VOLUME]<vma_s*2/3
+                #20080701-20090605
+                评估:总盈亏值=15003,交易次数=104        期望值=2823
+                总盈亏率(1/1000)=15003,平均盈亏率(1/1000)=144,盈利交易率(1/1000)=875
+                赢利次数=91,赢利总值=15677
+                亏损次数=13,亏损总值=674
+                平盘次数=0
+                #20010701-20081231
+                评估:总盈亏值=8276,交易次数=37  期望值=3430
+                总盈亏率(1/1000)=8276,平均盈亏率(1/1000)=223,盈利交易率(1/1000)=594
+                赢利次数=22,赢利总值=9262
+                亏损次数=15,亏损总值=986
+                平盘次数=0
+
+            vfilter = gand(vma_5>vma_l*3/5,t[VOLUME] < vma_l*2/3)   
+            gf1 = gand(stock.g60<3000)#,stock.g60>2000)                
+            signal = gand(x2,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0,gf1,pdiff<pdea,vfilter,mxi)
+            t[CLOSE] > ma_s
+            评估:总盈亏值=6493,交易次数=55  期望值=1966
+                总盈亏率(1/1000)=6493,平均盈亏率(1/1000)=118,盈利交易率(1/1000)=854
+                赢利次数=47,赢利总值=6919
+                亏损次数=7,亏损总值=426
+                平盘次数=1
+
+            评估:总盈亏值=5857,交易次数=39  期望值=2631
+                总盈亏率(1/1000)=5857,平均盈亏率(1/1000)=150,盈利交易率(1/1000)=641
+                赢利次数=25,赢利总值=6655
+                亏损次数=14,亏损总值=798
+                平盘次数=0
+
+        gf1: <3333
+            20080701--
+            评估:总盈亏值=9474,交易次数=75  期望值=2739
+                总盈亏率(1/1000)=9474,平均盈亏率(1/1000)=126,盈利交易率(1/1000)=826
+                赢利次数=62,赢利总值=10026
+                亏损次数=12,亏损总值=552
+                平盘次数=1
+            20010701--
+            评估:总盈亏值=10510,交易次数=55 期望值=3410
+                总盈亏率(1/1000)=10510,平均盈亏率(1/1000)=191,盈利交易率(1/1000)=672
+                赢利次数=37,赢利总值=11529
+                亏损次数=18,亏损总值=1019
+                平盘次数=0
+        gf1:<3500:
+            20080701--
+            评估:总盈亏值=10397,交易次数=80 期望值=2744
+                总盈亏率(1/1000)=10397,平均盈亏率(1/1000)=129,盈利交易率(1/1000)=825
+                赢利次数=66,赢利总值=11014
+                亏损次数=13,亏损总值=617
+                平盘次数=1
+        
+            评估:总盈亏值=10450,交易次数=64 期望值=2963
+                总盈亏率(1/1000)=10450,平均盈亏率(1/1000)=163,盈利交易率(1/1000)=625
+                赢利次数=40,赢利总值=11789
+                亏损次数=24,亏损总值=1339
+                平盘次数=0
+
+    '''
+
+    t = stock.transaction
+    
+    #vma_s = ma(t[VOLUME],13)
+    vma_l = ma(t[VOLUME],30)
+    vma_5 = ma(t[VOLUME],5)
+
+    #vfilter = gand(vma_5>vma_l,t[VOLUME] < vma_5*2/3)  #1017-538-13
+    #vfilter = gand(t[VOLUME] < vma_l*2/3)  #916-482-87
+    vfilter = gand(vma_5>vma_l,t[VOLUME] < vma_l*2/3)  
+
+    #vdiff,vdea = cmacd(t[VOLUME])
+    #vfilter = gand(vdiff<vdea,vdiff<0)
+
+    linelog(stock.code)
+
+    ll10 = rollx(t[LOW],10)
+    hh10 = tmax(t[HIGH],10)
+    rhl10 = hh10 * 1000/ll10
+
+    c = t[LOW]
+    ma30 = ma(c,30)
+    above = gand(ma(c,13) > ma30,ma30>stock.ma60,stock.ma60>stock.ma120)
+    
+    mlen=60
+    ma_s = ma(t[CLOSE],mlen)
+    x2 = gand(cross(ma_s,t[CLOSE])< 0,t[CLOSE]>ma_s)
+
+    #gf1 = gand(stock.g60>1000,stock.g20>1000)
+    gf1 = gand(stock.g60<3000)#,stock.g60>2000)
+    #gf1 = gand(stock.g60>5000,stock.g60<9500)
+    #gf1 = gand(stock.g20 > stock.g60,stock.g60>stock.g120,stock.g120>stock.g250)
+
+    pdiff,pdea = stock.ref.pdiff,stock.ref.pdea
+
+    si = score2(t[CLOSE],t[VOLUME])
+    msi = msum(si,5)
+    mxi = gand(msi>=-100,msi<=0)
+    
+    #signal = gand(x2,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0,gf1,rhl10<1500,strend(stock.ref.ma60)>0,vfilter,mxi)
+    #signal = gand(x2,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0,gf1,mxi,pdiff<pdea)
+    signal = gand(x2,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0,gf1,pdiff<pdea,vfilter,mxi)
+
     return signal
 
 

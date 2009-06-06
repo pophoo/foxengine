@@ -245,19 +245,19 @@ class ModuleTest(unittest.TestCase):
         sa = CommonObject(id=3,transaction=a,atr=np.array([1,2]))
         bs = np.array([0,1])
         ##空测试
-        seller_a = sellers_wrapper([])
+        seller_a = sellers_wrapper()
         self.assertEquals([0,0],seller_a(sa,bs).tolist())
         ##有信号测试
         seller1 = atr_xseller_factory(1000)
         seller2 = atr_xseller_factory(2000)
         seller3 = atr_xseller_factory(3000,30)
-        seller_b = sellers_wrapper([seller1])
+        seller_b = sellers_wrapper(seller1)
         self.assertEquals([1,0],seller_b(sa,bs).tolist())
-        seller_b = sellers_wrapper([seller1,seller2,seller3])
+        seller_b = sellers_wrapper(seller1,seller2,seller3)
         self.assertEquals([1,0],seller_b(sa,bs).tolist())
         ##无信号测试
         seller4 = lambda stock,signal,**kwargs:np.zeros_like(signal)
-        seller_c = sellers_wrapper([seller4])
+        seller_c = sellers_wrapper(seller4)
         self.assertEquals([0,0],seller_c(sa,bs).tolist())
         #彻底的空测试,参数也为空
         b=np.array([[],[],[],[],[],[],[]])

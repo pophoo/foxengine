@@ -287,7 +287,7 @@ def atr_xseller_factory(stop_times=3*BASE/2,trace_times=2*BASE,covered=10,up_sec
         return ss
     return seller
 
-def sellers_wrapper(sellers):
+def sellers_wrapper(*sellers):
     def seller(stock,buy_signal,**kwargs):
         ss = np.zeros_like(buy_signal)
         for s in sellers:

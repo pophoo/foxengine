@@ -490,8 +490,8 @@ def gmacd_old(stock): #
     
     return signal
 
-def gmacd(stock): #
-    '''
+def gmacd(stock,ldown=30): #
+    ''' g60 macd的同时试探ldown均线
         mxi: (-100,0], vfilter:>1.5
                 2001.7-2008.12
                 评估:总盈亏值=3070,交易次数=57  期望值=670
@@ -596,7 +596,7 @@ def gmacd(stock): #
 
     msvap = transform(ssignal,v2i,len(t[VOLUME]))
 
-    x2 = cross(ma(t[CLOSE],30),t[LOW]) < 0
+    x2 = cross(ma(t[CLOSE],ldown),t[LOW]) < 0
 
     ss = sfollow(xcross,x2,10)
     
@@ -611,7 +611,7 @@ def gmacd(stock): #
     return signal
 
 def gmacd5(stock): #
-    '''
+    ''' g60 macd的同时试探ldown均线
                 gf1 = gand(stock.g20>5000,stock.g20<9500)
                 #使用g5,ma3
                 评估:总盈亏值=5437,交易次数=19  期望值=71500
@@ -692,7 +692,7 @@ def gmacd5(stock): #
 
     msvap = transform(ssignal,v2i,len(t[VOLUME]))
 
-    x2 = cross(ma(t[CLOSE],30),t[LOW]) < 0
+    x2 = cross(ma(t[CLOSE],ldown),t[LOW]) < 0
 
     ss = sfollow(xcross,x2,10)
     

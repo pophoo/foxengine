@@ -61,7 +61,9 @@ def prepare_configs_A0(seller,pman,dman):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
 
+    
     #configs.append(config(buyer=fcustom(s.tsvama2,fast=20,slow=100)))   #3230-562-183   #20080701以来萎靡
+    '''
     configs.append(config(buyer=s.gx250))   #1695-555-9
     configs.append(config(buyer=s.spring))  #5081-626-123
     configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #@3691-707-41
@@ -77,9 +79,10 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=s.smacd))    #2618/511/45
     configs.append(config(buyer=s.xru))      #4066/612/31
     configs.append(config(buyer=s.mxru))     #1424/443/158  近期1357/594/69 #不适合deviate,靠高风险高回报生活
+    '''
     configs.append(config(buyer=fcustom(s.ldx,mlen=60,glimit=3000)))     #4137/652/23 近期1618-833-84
-    configs.append(config(buyer=fcustom(s.ldx,mlen=30,glimit=3333)))     #3410/672/55 近期2739-826-75
-    configs.append(config(buyer=fcustom(s.ldx,mlen=120,glimit=3333)))     #1456/666/12 近期1198/800/5
+    configs.append(config(buyer=fcustom(s.ldx2,mlen=30,glimit=3333)))     #3410/672/55 近期2739-826-75
+    configs.append(config(buyer=fcustom(s.ldx2,mlen=120,glimit=3333)))     #1456/666/12 近期1198/800/5
 
     #configs.append(config(buyer=s.ma4))     #1111-388-54
     #configs.append(config(buyer=s.pmacd))   #671-307-78

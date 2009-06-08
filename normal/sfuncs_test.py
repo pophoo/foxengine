@@ -129,6 +129,10 @@ class ModuleTest(unittest.TestCase):    #通路测试
         sbuy = ldx(self.stock,30,3333)
         self.assertTrue(True)
 
+    def test_ldx2(self):
+        sbuy = ldx(self.stock)
+        sbuy = ldx(self.stock,30,3333)
+        self.assertTrue(True)
 
 if __name__ == "__main__":
     logging.basicConfig(filename="test.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')

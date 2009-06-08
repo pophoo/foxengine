@@ -9,7 +9,7 @@ from wolfox.fengine.normal.funcs import *
 from wolfox.fengine.normal.nrun import prepare_order,prepare_common
 from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,tmin,extend,extend2next,pzoom_out,vzoom_out,zoom_in
 from wolfox.fengine.core.d1match import *
-from wolfox.fengine.core.d1 import lesser
+from wolfox.fengine.core.d1 import lesser,bnot
 from wolfox.fengine.core.d1indicator import cmacd,score2,rsi,obv
 from wolfox.fengine.core.d1idiom import down_period,macd_ru,macd_ru2,macd_ruv,xc_ru,xc_ru2
 from wolfox.fengine.core.d2 import increase,extract_collect
@@ -1784,130 +1784,94 @@ def func_test_old(stock,fast,slow,base,sma=55,ma_standard=120,extend_days=5,**kw
     #    print x[0],x[1],x[2],x[3],x[4],x[5],x[6],x[7]
     return sbuy
 
-def prepare_buyer(dates):
-    #return fcustom(func_test,ma_standard=500,slow=50,extend_days=31,fast=30,mid=67,dates=dates)
-    #return fcustom(func_test,ma_standard=500,slow=45,extend_days=17,fast=32,mid=79,dates=dates)
-    #return fcustom(func_test,fast= 33,mid= 84,slow=345,ma_standard=500,extend_days= 27,dates=dates,cextractor=ext_factory(3300,6600))
-    return fcustom(gtest,fast=5,slow=60,dates=dates)
-    #return fcustom(psvama2,fast=  9,slow=1160,dates=dates) 
-    #return fcustom(psy_test,dates=dates)
-    #return fcustom(dma,dates=dates)
-    #return fcustom(vmacd,dates=dates)
-    #return fcustom(psvama3,fast=165,mid=184,slow=1950,dates=dates) 
-    #return fcustom(ma4,dates=dates)
-    #return fcustom(vmacd_ma4,dates=dates)
-    #return fcustom(temv,dates=dates)
-    #return fcustom(wvad,dates=dates)
-    #return fcustom(ma3,dates=dates)
-    #return fcustom(xma60,dates=dates)
-    #return fcustom(nhigh,dates=dates)
-    #return fcustom(pmacd,dates=dates)
-    #return fcustom(gtest2,dates=dates)
-    #return fcustom(gcs,dates=dates)
-    #return fcustom(tsvama2,dates=dates)
-    #return fcustom(svap_macd,dates=dates)
-    #return fcustom(gtest3,dates=dates)
-    #return fcustom(ctest,dates=dates)
-    #return fcustom(swrap,dates=dates)
+def svap_seller(stock,buy_signal,**kwargs):
+    t = stock.transaction
+    svap,v2i = stock.svap_ma_67 
+    fast=20
+    slow=100
+    ma_svapfast = ma(svap,fast)
+    ma_svapslow = ma(svap,slow)
+    trend_ma_svapfast = strend(ma_svapfast) < 0
+    trend_ma_svapslow = strend(ma_svapslow) < 0
+    dcross = gand(cross(ma_svapslow,ma_svapfast)<0,trend_ma_svapfast,trend_ma_svapslow)
+    msvap = transform(dcross,v2i,len(t[VOLUME]))
+    return msvap
 
 
+def x_seller(stock,buy_signal,**kwargs):
+    t = stock.transaction
+    mdif,mdea = macd_ruv(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME])
+    return cross(mdif,mdea) < 0#greater(mdif,mdea)
 
-def prepare_base(sdata):
-    base = BaseObject()
-    sdatas = extract_collect(sdata.values(),CLOSE)
-    base.g20 = (increase(sdatas,20)>0).sum(0)
-    return base
+def deviate1_seller(stock,buy_signal,covered=5,**kwargs): #背离
+    ''' a   最佳
+            是提升成功率的杀手，但是收益率会下降很快. 适合于在atr卖出信号未出现时的反复进出
+            但是只适合那种回报风险较低的，以高风险高回报方式的算法，这个seller并不合适
+                这类算法通常原始成功率小于50%，应用后大概在60%，但期望为负
+            单独使用缺乏一个完备的止损环节
+            分析确认，这个其实是放大了风险。有些成功交易原因是没有止损。
+        a. 收盘价格新高，成交量没有新高
+        最关键的是新高覆盖范围
+        其次是价格下来重新上去后，如果在重上过程中持续增强，但重上点未突破前期高点的量，也应当视同正常
+            不应被卖出。 这个应当可以通过覆盖范围大致解决
+        b. 成交量新高，价格不是新高
+        信号短期内出现两次，为卖出
 
-def prepare_gfilter(ref):
-    #diff,dea = cmacd(ref.transaction[CLOSE],50,120)
-    #gfilter = greater(diff,dea)
-    gfilter = strend(ma(ref.transaction[CLOSE],250))>0
-    #gfilter = np.zeros_like(ref.transaction[CLOSE])
-    return gfilter
+    '''
+    sector = CLOSE
+    covered=7       #最佳
+    t = stock.transaction    
+    hc = rollx(tmax(t[sector],covered)) 
+    hv = rollx(tmax(t[VOLUME],covered)) 
+    deviate1 = gand(t[sector] > hc*1.005,t[VOLUME] < hv,bnot(buy_signal))
+    deviate1[-2] = 1
+    return deviate1
 
-def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
-    prepare_order(sdata.values())
-    prepare_order(catalogs)
-    prepare_common(sdata.values(),idata[ref_id])
-    dummy_catalogs('catalog',catalogs)
+def deviate0_seller(stock,buy_signal,**kwargs): #背离
+    t = stock.transaction
+    vma = ma(t[VOLUME],13)
+    x = np.where(t[OPEN]>t[CLOSE],t[OPEN],t[CLOSE])
+    hx = rollx(x)    
+    hv = rollx(t[VOLUME]) 
+    deviate1 = gand(t[CLOSE] > hx*1.005,t[VOLUME] < hv,t[OPEN]<=t[CLOSE])
+    #d = np.where(t[OPEN]>t[CLOSE],t[CLOSE],t[OPEN])
+    #hd = rollx(d)
+    deviate2 = gand(t[CLOSE] < hx,t[VOLUME]>hv,hv>0)    #hv非停牌日
+    return gand(gor(deviate2),t[VOLUME]>vma*0.9)
 
-    tbegin = time()
+def deviate1b_seller(stock,buy_signal,covered=5,**kwargs): #背离
+    ''' b
+        a. 价格新高，成交量没有新高
+        最关键的是新高覆盖范围
+        其次是价格下来重新上去后，如果在重上过程中持续增强，但重上点未突破前期高点的量，也应当视同正常
+            不应被卖出。 这个应当可以通过覆盖范围大致解决
+        b. 成交量新高，价格不是新高
+           必须为阴线 
+        信号短期内出现两次，为卖出
 
-    pman = AdvancedATRPositionManager()
-    dman = DateManager(begin,end)
-    myMediator=nmediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
-    #seller = atr_xseller_factory(stop_times=2000,trace_times=3000)
-    #seller = atr_xseller_factory(stop_times=1500,trace_times=3000)
-    #seller = atr_xseller_factory(stop_times=1000,trace_times=3000)
-    seller = atr_xseller_factory(stop_times=600,trace_times=3000)
-    #seller = csc_func
-    #seller = fcustom(csc_func,threshold=100)
+        不如deviate1
+    '''
+    t = stock.transaction    
+    hc = rollx(t[CLOSE]) 
+    hv = rollx(t[VOLUME]) 
+    deviate1b = gand(t[CLOSE] < hc,t[VOLUME] > hv)
+    return deviate1b
 
-    buyer = prepare_buyer(dates)   
-    name,tradess = calc_trades(buyer,seller,sdata,dates,xbegin,cmediator=myMediator)
-    result,strade = ev.evaluate_all(tradess,pman,dman)
-    #print strade
+def deviate2_seller(stock,buy_signal,covered=5,length=5,**kwargs): #背离
+    ''' a+b
+        a. 价格新高，成交量没有新高
+        最关键的是新高覆盖范围
+        其次是价格下来重新上去后，如果在重上过程中持续增强，但重上点未突破前期高点的量，也应当视同正常
+            不应被卖出。 这个应当可以通过覆盖范围大致解决
+        b. 成交量新高，价格不是新高
+        信号短期内出现两次，为卖出
+        不如deviate1        
+    '''
+    d1u = deviate0_seller(stock,buy_signal)
+    d1d = deviate1b_seller(stock,buy_signal)
+    return bor(d1u,d1d)
 
-    #last_trades
-    #m = cmediator(buyer,seller)
-    #trades = m.calc_last(sdata,dates,xbegin)
-
-
-    f = open('srun.txt','w+')
-    f.write(strade)
-    f.close()
-
-    #tradess = myMediator(buyer,seller).calc_last(sdata,dates,xbegin)
-    #print tradess[0]
-    tend = time()
-    print u'计算耗时: %s' % (tend-tbegin)
-    logger.debug(u'耗时: %s' % (tend-tbegin))    
-
-
-if __name__ == '__main__':
-    logging.basicConfig(filename="srun_x4c.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
-    
-    #测试时间段 [19980101,19990101-20010801],[20000101,20010701-20050901],[20040601,20050801-20071031],[20060601,20071031-20090101]
-    #总时间段   [20000101,20010701,20090101]    #一个完整的周期+一个下降段
-    #分段测试的要求，段mm > 1000-1500或抑制，总段mm > 2000
-    
-    #begin,xbegin,end = 19980101,20010701,20090101
-    #begin,xbegin,end = 20000101,20010701,20090101
-    #begin,xbegin,end = 20000101,20010701,20050901
-    #begin,xbegin,end = 19980101,19990701,20010801    
-    #begin,xbegin,end = 20040601,20050801,20071031
-    #begin,xbegin,end = 20060601,20071031,20090101
-    #begin,xbegin,end = 19980101,19990101,20090101
-    #begin,xbegin,end,lbegin = 20070101,20080601,20090327,20080601
-    #begin,xbegin,end,lbegin = 19980101,20010701,20090327,20000101
-    begin,xbegin,end = 20000101,20010701,20091231
-    tbegin = time()
-    
-    dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601398'],[ref_code])        
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SZ000630'],[ref_code])        
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,get_codes(),[ref_code])
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,get_codes(source='SZSE'),[ref_code])
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SZ000792'],[ref_code])            
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600888'],[ref_code])
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SZ000020'],[ref_code])
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600002'],[ref_code])
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600433','SH600000'],[ref_code])
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH000001'],[ref_code])
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600067'],[ref_code])
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600766'],[ref_code])
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SZ002012'],[ref_code])
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600971'],[ref_code])
-    #c_posort('c120',catalogs,distance=120)
-    
-
-    tend = time()
-    print u'数据准备耗时: %s' % (tend-tbegin)    
-    import psyco
-    psyco.full()
-
-    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
-
+def gmacd_seller(stock,buy_signal,**kwargs):
+    mdiff,mdea = cmacd(stock.g5)
+    xcross = cross(mdea,mdiff) < 0
+    return greater(xcross)

@@ -76,7 +76,7 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=s.gmacd5))   #1146-424-33,近期1000-1000-14    
     configs.append(config(buyer=s.smacd))    #2618/511/45
     configs.append(config(buyer=s.xru))      #4066/612/31
-    configs.append(config(buyer=s.mxru))     #1424/443/158  近期1357/594/69
+    configs.append(config(buyer=s.mxru))     #1424/443/158  近期1357/594/69 #不适合deviate,靠高风险高回报生活
     configs.append(config(buyer=fcustom(s.ldx,mlen=60,glimit=3000)))     #4137/652/23 近期1618-833-84
     configs.append(config(buyer=fcustom(s.ldx,mlen=30,glimit=3333)))     #3410/672/55 近期2739-826-75
     configs.append(config(buyer=fcustom(s.ldx,mlen=120,glimit=3333)))     #1456/666/12 近期1198/800/5

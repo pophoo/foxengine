@@ -312,6 +312,20 @@ class ModuleTest(unittest.TestCase):
         macd_ruv(a,a,a,a,a)
         self.assertTrue(True)
 
+    def test_vdeviate_seller(self):  #通路测试
+        a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
+        sa = CommonObject(id=3,transaction=a,atr=np.array([1,2]))
+        bs = np.array([0,1])
+        s=vdeviate_seller(sa,bs)
+        self.assertEquals([0,0],s.tolist())
+        #空测试
+        a = np.array([(),(),(),(),(),(),()])
+        sa = CommonObject(id=3,transaction=a,atr=np.array([]))
+        bs = np.array([])
+        sn = vdeviate_seller(sa,bs)
+        self.assertEquals([],sn.tolist())
+        self.assertTrue(True)
+        
 
 if __name__ == "__main__":
     import logging

@@ -395,3 +395,41 @@ def macd_ruv(sopen,sclose,shigh,slow,svolume):
     ruv = su * svolume / (su+sd)
     return cmacd(ruv)
 
+
+def vdeviate_seller(stock,buy_signal,**kwargs): #成交量背离
+    ''' >3阳线且创60日新高，成交量未创出10日正量新高
+        是否c2足够？不是，如果是连创新高的情形，不需要放量
+        再加筛选，如果涨幅超过7.5%，是不是不受约束? 不好
+        #实际操作中，对连续上涨的情况，还需要结合前一日的情形，如果比前一日放量，则没事 #太琐碎，去掉
+        违反这个背离继续上涨的(三个交易日内没有跌破5日线)，则空间很大，需要及时买回
+        这个终究是小伎俩，容易错失大的上升，如600756-0324，上去了就买不回来
+        作废，除非给出精炼的判断
+        或者信号给出之后需要确认, 只有当n天之内确认信号出现,才可
+        确认信号可以为: 
+            1. 跳出阴线, 当天CLOSE<OPEN但大于前一日收盘,且比前10日最大量*1.1要大. 收盘前如果确认即可卖出
+            2. 下跌阴线, 当天CLOSE<前一日CLOSE,且量>前一日量
+         且确认信号的发出都在13日均线之上.之下的话直接等止损信号
+    但是必须注意,在atr没有跌破之前,这个卖出只是之后买入的一次短差!!!
+    因此，实际应用中，此seller只做目测。不介入到信号机制中
+    '''
+    t = stock.transaction
+    lc = rollx(t[CLOSE])
+    lv = rollx(t[VOLUME])
+    c1a = t[CLOSE] > lc * 1.02 #实际上升大于2%
+    lm60 = rollx(tmax(t[HIGH],60))  #最近60日高点
+    positive_v = np.where(t[CLOSE] >= lc,t[VOLUME],0)  #正量
+    lv10 = rollx(tmax(positive_v,10))   #最近10日正量高点
+    #lv10 = rollx(tmax(t[VOLUME],10))   #最近10日高点
+    c1b = gand(t[CLOSE] > lm60 * 1.005,t[VOLUME] < lv10 * 1.1)
+    mv = ma(t[VOLUME],30)
+    c2 = t[VOLUME] > mv * 3
+    first = bor(gand(c1a,c1b),c2)
+    #first = gand(c1a,c1b)
+    cc1 = gand(t[CLOSE]<t[OPEN],t[CLOSE]>lc,t[VOLUME] > lv10*1.1)
+    cc2 = gand(t[CLOSE]<lc,t[VOLUME] > lv)
+    confirm = gand(bor(cc1,cc2),t[CLOSE]>ma(t[CLOSE],13))
+    
+    confirmed = gand(rollx(first),confirm)  #发生背离后立刻确认
+
+    return confirmed
+

@@ -422,7 +422,9 @@ def vdeviate_seller(stock,buy_signal,**kwargs): #成交量背离
     #lv10 = rollx(tmax(t[VOLUME],10))   #最近10日高点
     c1b = gand(t[CLOSE] > lm60 * 1.005,t[VOLUME] < lv10 * 1.1)
     mv = ma(t[VOLUME],30)
-    c2 = t[VOLUME] > mv * 3
+    #c2 = t[VOLUME] > mv * 3
+    #c2 = gand(t[VOLUME] > mv * 2.5,bor(t[CLOSE]<t[OPEN],t[CLOSE]<lc))   #大阴量，大阳量由c1a & c1b负责
+    c2 = t[VOLUME] > mv * 2.5 #不论阴阳，只要被确认就有问题
     first = bor(gand(c1a,c1b),c2)
     #first = gand(c1a,c1b)
     cc1 = gand(t[CLOSE]<t[OPEN],t[CLOSE]>lc,t[VOLUME] > lv10*1.1)

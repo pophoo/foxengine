@@ -308,10 +308,10 @@ from time import time
 import logging
 logging.basicConfig(filename="xx4c.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 #begin,xbegin,end = 19980101,20010701,20091231
-begin,xbegin,end = 20000101,20010701,20090101
+#begin,xbegin,end = 20000101,20010701,20090101
 #####begin,xbegin,end = 20000101,20010701,20091231
 #begin,xbegin,end = 20050101,20060701,20091231
-#begin,xbegin,end = 20070101,20080601,20091231
+begin,xbegin,end = 20070101,20080601,20091231
 #begin,xbegin,end = 20060101,20080601,20091231
 #begin,xbegin,end = 20000101,20010701,20090101
 

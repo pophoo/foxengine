@@ -610,7 +610,7 @@ def gmacd(stock,ldown=30): #
     
     return signal
 
-def gmacd5(stock): #
+def gmacd5(stock,ldown=30): #
     ''' g60 macd的同时试探ldown均线
                 gf1 = gand(stock.g20>5000,stock.g20<9500)
                 #使用g5,ma3

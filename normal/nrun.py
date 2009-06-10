@@ -65,15 +65,15 @@ def prepare_configs_A0(seller,pman,dman):
     #configs.append(config(buyer=fcustom(s.tsvama2,fast=20,slow=100)))   #3230-562-183   #20080701以来萎靡
     configs.append(config(buyer=s.gx250))   #1695-555-9
     configs.append(config(buyer=s.spring))  #5081-626-123
-    configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #@3691-707-41
-    configs.append(config(buyer=s.cma1))    #1971-500-30    #593-295-44 ??
-    configs.append(config(buyer=s.tsvama2x))    #1628-800-10    #1778-444-9 ??
+    #configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #@3691-707-41
+    #configs.append(config(buyer=s.cma1))    #1971-500-30    #593-295-44 ??
+    configs.append(config(buyer=s.tsvama2x))    #1628-800-10    #1778-444-9 ??          #1/3提升率
     configs.append(config(buyer=s.xgcs0))   #2382-528-138       
     configs.append(config(buyer=fcustom(s.tsvama2a,fast=20,slow=100)))   #2714-541-24, 近期成功率升高
     configs.append(config(buyer=fcustom(s.tsvama2b,fast=20,slow=170)))   #2630-583-12, 近期成功率升高
 
 
-    configs.append(config(buyer=s.gmacd))    #842-330-115,近期5045-911-34
+    configs.append(config(buyer=s.gmacd))    #842-330-115,近期5045-911-34   #1/5提升率
     configs.append(config(buyer=s.gmacd5))   #1146-424-33,近期1000-1000-14    
     configs.append(config(buyer=s.smacd))    #2618/511/45
     configs.append(config(buyer=s.xru))      #4066/612/31
@@ -309,7 +309,7 @@ if __name__ == '__main__':
     #begin,xbegin,end = 19980101,19990101,20090101
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
-    begin,xbegin,end,lbegin = 20070101,20080701,20091201,20090201    
+    begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201    
     from time import time
     tbegin = time()
     
@@ -332,7 +332,7 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)

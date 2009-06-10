@@ -1890,27 +1890,30 @@ def vdeviate_seller(stock,buy_signal,**kwargs): #背离
             1. 跳出阴线, 当天CLOSE<OPEN但大于前一日收盘,且比前10日最大量*1.1要大. 收盘前如果确认即可卖出
             2. 下跌阴线, 当天CLOSE<前一日CLOSE,且量>前一日量
          且确认信号的发出都在13日均线之上.之下的话直接等止损信号
-    但是必须注意,在atr没有跌破之前,这个卖出只是之后买入的一次短差!!!
+    但是必须注意,在atr没有跌破之前,这个卖出只是之后买入的一次短差!!! 如果事后跌破atr，则不再买入
+        需要在7/8日线附近接回，最晚不超过13日线(如果还没跌破atr)
     因此，实际应用中，此seller只做目测。不介入到信号机制中
+    可以提升成功率. 妥善用之
     '''
     t = stock.transaction
     lc = rollx(t[CLOSE])
     lv = rollx(t[VOLUME])
-    c1a = t[CLOSE] > lc * 1.02 #实际上升大于2%
+    c1a = gand(t[CLOSE] > lc * 1.025,t[CLOSE] > ma(t[CLOSE],5)*1.025) #实际上升大于2%且离ma5有段距离
     lm60 = rollx(tmax(t[HIGH],60))  #最近60日高点
     positive_v = np.where(t[CLOSE] >= lc,t[VOLUME],0)  #正量
     lv10 = rollx(tmax(positive_v,10))   #最近10日正量高点
     #lv10 = rollx(tmax(t[VOLUME],10))   #最近10日高点
     c1b = gand(t[CLOSE] > lm60 * 1.005,t[VOLUME] < lv10 * 1.1)
     mv = ma(t[VOLUME],30)
-    #c2 = gand(t[VOLUME] > mv * 2.5,bor(t[CLOSE]<t[OPEN],t[CLOSE]<lc))   #大阴量，大阳量由c1a & c1b负责
-    c2 = gand(t[VOLUME] > mv * 2.5) #不论阴阳，只要被确认就有问题
+    c2 = gand(t[VOLUME] > mv * 2.5,bor(t[CLOSE]<t[OPEN],t[CLOSE]<lc))   #大阴量，大阳量由c1a & c1b负责
+    #c2 = gand(t[VOLUME] > mv * 2.5) #不论阴阳，只要被确认就有问题
     first = bor(gand(c1a,c1b),c2)
     #first = gand(c1a,c1b)
-    cc1 = gand(t[CLOSE]<t[OPEN],t[CLOSE]>lc,t[VOLUME] > lv10*1.1)
-    cc2 = gand(t[CLOSE]<lc,t[VOLUME] > lv)
+    cc1 = gand(t[CLOSE]<t[OPEN],t[CLOSE]>lc,t[VOLUME] > lv10)
+    cc2 = gand(bor(t[CLOSE]<lc,t[CLOSE]<t[OPEN]),t[VOLUME] > lv)
     confirm = gand(bor(cc1,cc2),t[CLOSE]>ma(t[CLOSE],13))
-    
+    #confirm = gand(bor(t[CLOSE]<t[OPEN],t[CLOSE]<lc),t[VOLUME] > lv)
+
     confirmed = gand(rollx(first),confirm)  #发生背离后立刻确认
 
     return confirmed

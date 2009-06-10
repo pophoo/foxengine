@@ -108,6 +108,10 @@ class ModuleTest(unittest.TestCase):    #通路测试
         sbuy = gmacd(self.stock)
         self.assertTrue(True)
 
+    def test_gmacd5(self):
+        sbuy = gmacd5(self.stock)
+        self.assertTrue(True)
+
     def test_gmacd_old(self):
         sbuy = gmacd_old(self.stock)
         self.assertTrue(True)

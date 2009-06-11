@@ -34,11 +34,12 @@ def prepare_configs_A1200(seller,pman,dman):
     #候选A_1200 winrate>=500且R>=800,times>5 如果1200和2000都满足，优先为1200
     #暂时停止<550,以及次数小于15的方法
 
-    configs.append(config(buyer=fcustom(vama3,fast= 20,mid= 56,slow=105,ma_standard=500,extend_days=  1))) 	#3585-600-10
-    configs.append(config(buyer=fcustom(csvama3,fast=  1,mid= 76,slow=410,rstart=3500,rend=8500))) 	#838-600-10
-    configs.append(config(buyer=fcustom(csvama2,fast=  9,slow=670,rstart=5000,rend=6000))) 	#625-538-13
-    configs.append(config(buyer=fcustom(svama3,fast=160,mid=300,slow=1800))) 	#927-500-12
-    configs.append(config(buyer=fcustom(svama3,fast=185,mid=260,slow=1800))) 	#840-583-12
+    #以下提升率都为0
+    #configs.append(config(buyer=fcustom(vama3,fast= 20,mid= 56,slow=105,ma_standard=500,extend_days=  1))) 	#3585-600-10
+    #configs.append(config(buyer=fcustom(csvama3,fast=  1,mid= 76,slow=410,rstart=3500,rend=8500))) 	#838-600-10
+    #configs.append(config(buyer=fcustom(csvama2,fast=  9,slow=670,rstart=5000,rend=6000))) 	#625-538-13
+    #configs.append(config(buyer=fcustom(svama3,fast=160,mid=300,slow=1800))) 	#927-500-12
+    #configs.append(config(buyer=fcustom(svama3,fast=185,mid=260,slow=1800))) 	#840-583-12
 
     return configs
 
@@ -64,24 +65,24 @@ def prepare_configs_A0(seller,pman,dman):
     
     #configs.append(config(buyer=fcustom(s.tsvama2,fast=20,slow=100)))   #3230-562-183   #20080701以来萎靡
     configs.append(config(buyer=s.gx250))   #1695-555-9
-    configs.append(config(buyer=s.spring))  #5081-626-123
+    configs.append(config(buyer=s.spring))  #5081-626-123       #3/14提升率
     #configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #@3691-707-41
     #configs.append(config(buyer=s.cma1))    #1971-500-30    #593-295-44 ??
-    configs.append(config(buyer=s.tsvama2x))    #1628-800-10    #1778-444-9 ??          #1/3提升率
-    configs.append(config(buyer=s.xgcs0))   #2382-528-138       
-    configs.append(config(buyer=fcustom(s.tsvama2a,fast=20,slow=100)))   #2714-541-24, 近期成功率升高
-    configs.append(config(buyer=fcustom(s.tsvama2b,fast=20,slow=170)))   #2630-583-12, 近期成功率升高
+    configs.append(config(buyer=s.tsvama2x))    #1628-800-10    #1778-444-9 ??          #次数太少
+    configs.append(config(buyer=s.xgcs0))   #2382-528-138       #1/40提升率
+    configs.append(config(buyer=fcustom(s.tsvama2a,fast=20,slow=100)))   #2714-541-24, 近期成功率升高   #1/20提升率
+    configs.append(config(buyer=fcustom(s.tsvama2b,fast=20,slow=170)))   #2630-583-12, 近期成功率升高   #1/3提升率
 
 
     configs.append(config(buyer=s.gmacd))    #842-330-115,近期5045-911-34   #1/5提升率
-    configs.append(config(buyer=s.gmacd5))   #1146-424-33,近期1000-1000-14    
-    configs.append(config(buyer=s.smacd))    #2618/511/45
-    configs.append(config(buyer=s.xru))      #4066/612/31
-    configs.append(config(buyer=s.mxru))     #1424/443/158  近期1357/594/69 #不适合deviate,靠高风险高回报生活
-    configs.append(config(buyer=fcustom(s.ldx,mlen=60,glimit=3000)))     #4137/652/23 近期1618-833-84
-    configs.append(config(buyer=fcustom(s.ldx2,mlen=30,glimit=3333)))     #3410/672/55 近期2739-826-75
-    configs.append(config(buyer=fcustom(s.ldx2,mlen=120,glimit=3333)))     #1456/666/12 近期1198/800/5
-
+    configs.append(config(buyer=s.gmacd5))   #1146-424-33,近期1000-1000-14  #3/7提升率
+    configs.append(config(buyer=s.smacd))    #2618/511/45                   #1/10提升率
+    configs.append(config(buyer=s.xru))      #4066/612/31                   #1/10提升率
+    configs.append(config(buyer=s.mxru))     #1424/443/158  近期1357/594/69 #1/10提升率
+    configs.append(config(buyer=fcustom(s.ldx,mlen=60,glimit=3000)))     #4137/652/23 近期1618-833-84   #1/40提升率，但R较高
+    configs.append(config(buyer=fcustom(s.ldx2,mlen=30,glimit=3333)))     #3410/672/55 近期2739-826-75  #4/25提升率
+    configs.append(config(buyer=fcustom(s.ldx2,mlen=120,glimit=3333)))     #1456/666/12 近期1198/800/5  #1/5提升率
+    
     #configs.append(config(buyer=s.ma4))     #1111-388-54
     #configs.append(config(buyer=s.pmacd))   #671-307-78
     #configs.append(config(buyer=s.wvad))    #816-437-32
@@ -332,7 +333,7 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)

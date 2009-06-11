@@ -28,7 +28,7 @@ def check(stock,dates,tail=30):
         print >>f,d,g20,g60,g120
     f.close()
 
-def check2(sdata,sname,dates,tail=30):
+def check2(sdata,sname,dates,tail=80):
     stock = sdata[code2id[sname]]
     f = open('check.txt','a+')
     f.write('\n#############################')

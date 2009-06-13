@@ -1347,6 +1347,38 @@ def ldx(stock,mlen=60,glimit=3000): #
                 亏损次数=13,亏损总值=724
 
 
+    '''
+    t = stock.transaction
+    
+    vma_l = ma(t[VOLUME],30)
+    vma_5 = ma(t[VOLUME],5)
+
+    vfilter = gand(vma_5>vma_l*3/5,t[VOLUME] < vma_l*2/3)   
+
+    linelog(stock.code)
+
+    c = t[LOW]
+    ma30 = ma(c,30)
+    above = gand(ma(c,13) > ma30,ma30>stock.ma60,stock.ma60>stock.ma120)
+    
+    ma_s = ma(t[CLOSE],mlen)
+    x2 = gand(cross(ma_s,t[LOW])< 0,t[CLOSE]>ma_s)
+
+    gf1 = gand(stock.g60<glimit)
+
+    pdiff,pdea = stock.ref.pdiff,stock.ref.pdea
+
+    si = score2(t[CLOSE],t[VOLUME])
+    msi = msum(si,5)
+    mxi = gand(msi>=-100,msi<=0)
+    
+    signal = gand(x2,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0,gf1,strend(pdiff-pdea)<0,vfilter,mxi)
+
+    return signal
+
+
+def ldx2(stock):
+    '''
     #破30日线   LOW
                 gf1 = gand(stock.g60<3000)
                 ref.pdiff < ref.pdea
@@ -1411,46 +1443,7 @@ def ldx(stock,mlen=60,glimit=3000): #
                 平盘次数=0
         另，120有支撑，250是真破，貌似无支撑
     '''
-
-    t = stock.transaction
-    
-    #vma_s = ma(t[VOLUME],13)
-    vma_l = ma(t[VOLUME],30)
-    vma_5 = ma(t[VOLUME],5)
-
-    #vfilter = gand(vma_5>vma_l,t[VOLUME] < vma_5*2/3)  #1017-538-13
-    #vfilter = gand(t[VOLUME] < vma_l*2/3)  #916-482-87
-    
-    #vfilter = gand(t[VOLUME] < vma_l,vma_5>vma_l*2/3)  
-    vfilter = np.ones_like(t[CLOSE])#gand(vma_5>vma_l,t[VOLUME] < vma_l)   
-
-    #vdiff,vdea = cmacd(t[VOLUME])
-    #vfilter = gand(vdiff<vdea,vdiff<0)
-
-    linelog(stock.code)
-
-    c = t[LOW]
-    ma30 = ma(c,30)
-    above = gand(ma(c,13) > ma30,ma30>stock.ma60,stock.ma60>stock.ma120)
-    
-    #mlen=60
-    ma_s = ma(t[CLOSE],mlen)
-    x2 = gand(cross(ma_s,t[LOW])< 0,t[CLOSE]>ma_s)
-
-    gf1 = gand(stock.g60<3000)#,stock.g60>2000)
-
-    pdiff,pdea = stock.ref.pdiff,stock.ref.pdea
-
-    si = score2(t[CLOSE],t[VOLUME])
-    msi = msum(si,5)
-    mxi = gand(msi>=-100,msi<=0)
-    
-    #signal = gand(x2,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0,gf1,rhl10<1500,strend(stock.ref.ma60)>0,vfilter,mxi)
-    #signal = gand(x2,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0,gf1,mxi,pdiff<pdea)
-    #signal = gand(x2,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0,gf1,pdiff<pdea,vfilter,mxi)
-    signal = gand(x2,above,stock.t120,strend(stock.ma60)>0,t[VOLUME]>0)
-
-    return signal
+    pass
 
 
 def gsvama(stock): #

@@ -750,7 +750,7 @@ def smacd(stock):
 
     vfilter = vma_s < vma_l * 7/8
 
-    return gand(stock.golden,stock.above,msvap,vfilter,t[CLOSE]>stock.ma1)
+    return gand(stock.golden,stock.above,msvap,vfilter)
 
 
 def xru(stock):

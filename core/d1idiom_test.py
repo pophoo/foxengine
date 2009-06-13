@@ -312,6 +312,13 @@ class ModuleTest(unittest.TestCase):
         macd_ruv(a,a,a,a,a)
         self.assertTrue(True)
 
+    def test_macd_ruv3(self):
+        na = np.array([])
+        a = np.array(np.array([1,2,2]))
+        self.assertEquals([],macd_ruv3(na,na,na,na,na)[0].tolist())
+        macd_ruv3(a,a,a,a,a)
+        self.assertTrue(True)
+
     def test_vdeviate_seller(self):  #通路测试
         a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
         sa = CommonObject(id=3,transaction=a,atr=np.array([1,2]))

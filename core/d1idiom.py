@@ -395,6 +395,13 @@ def macd_ruv(sopen,sclose,shigh,slow,svolume):
     ruv = su * svolume / (su+sd)
     return cmacd(ruv)
 
+def macd_ruv3(sopen,sclose,shigh,slow,svolume):
+    '''
+        上升V的macd，使用supdown3
+    '''
+    su,sd = de.supdown3(sopen,sclose,shigh,slow)
+    ruv = su * svolume / (su+sd)
+    return cmacd(ruv)
 
 def vdeviate_seller(stock,buy_signal,**kwargs): #成交量背离
     ''' >3阳线且创60日新高，成交量未创出10日正量新高

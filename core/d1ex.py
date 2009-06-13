@@ -852,3 +852,15 @@ def supdown2(sopen,sclose,shigh,slow):
     d = np.select([is_up],[d_hlc],default=d_lhc)
     return u,d
 
+
+def supdown3(sopen,sclose,shigh,slow):
+    ''' 计算每日的上升行程和下降行程
+        以最高价-收盘价为卖方能力，收盘价-最低价位买方能力
+        最简单的方式
+    '''
+    if len(sopen) == 0:
+        return np.array([],int),np.array([],int)
+    cup = sclose-slow
+    cdown = shigh - sclose
+    return cup,cdown
+    

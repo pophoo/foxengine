@@ -23,8 +23,8 @@ def prepare_temp_configs(seller,pman=None,dman=None):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
 
-    configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #@3691-707-41
-    
+    configs.append(config(buyer=s.xma60))   #1040-390-64
+
     return configs
 
 def prepare_configs_A1200(seller,pman,dman):    
@@ -68,18 +68,18 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=s.spring))  #5081-626-123       #3/14提升率
     #configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #@3691-707-41
     #configs.append(config(buyer=s.cma1))    #1971-500-30    #593-295-44 ??
-    configs.append(config(buyer=s.tsvama2x))    #1628-800-10    #1778-444-9 ??          #次数太少
+    #configs.append(config(buyer=s.tsvama2x))    #1628-800-10    #1778-444-9 ??          #次数太少
     configs.append(config(buyer=s.xgcs0))   #2382-528-138       #1/40提升率
-    configs.append(config(buyer=fcustom(s.tsvama2a,fast=20,slow=100)))   #2714-541-24, 近期成功率升高   #1/20提升率
+    #configs.append(config(buyer=fcustom(s.tsvama2a,fast=20,slow=100)))   #2714-541-24, 近期成功率升高   #1/20提升率
     configs.append(config(buyer=fcustom(s.tsvama2b,fast=20,slow=170)))   #2630-583-12, 近期成功率升高   #1/3提升率
 
 
     configs.append(config(buyer=s.gmacd))    #842-330-115,近期5045-911-34   #1/5提升率
     configs.append(config(buyer=s.gmacd5))   #1146-424-33,近期1000-1000-14  #3/7提升率
-    configs.append(config(buyer=s.smacd))    #2618/511/45                   #1/10提升率
+    #configs.append(config(buyer=s.smacd))    #2618/511/45                   #1/10提升率
     configs.append(config(buyer=s.xru))      #4066/612/31                   #1/10提升率
     configs.append(config(buyer=s.mxru))     #1424/443/158  近期1357/594/69 #1/10提升率
-    configs.append(config(buyer=fcustom(s.ldx,mlen=60,glimit=3000)))     #4137/652/23 近期1618-833-84   #1/40提升率，但R较高
+    configs.append(config(buyer=fcustom(s.ldx,mlen=60,glimit=3000)))     #4137/652/23 近期1618-833-84   #1/20提升率，但100-300较高,1/3
     configs.append(config(buyer=fcustom(s.ldx2,mlen=30,glimit=3333)))     #3410/672/55 近期2739-826-75  #4/25提升率
     configs.append(config(buyer=fcustom(s.ldx2,mlen=120,glimit=3333)))     #1456/666/12 近期1198/800/5  #1/5提升率
     
@@ -128,7 +128,7 @@ def prepare_order(sdata):   #g60/c60在prepare_catalogs中计算
     d_posort('g250',sdata,distance=250)     
 
 csilver = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
-def prepare_common(sdata,ref):
+def prepare_common_old(sdata,ref):
     for s in sdata:
         #print s.code
         s.ref = ref
@@ -153,6 +153,35 @@ def prepare_common(sdata,ref):
         except:
             s.silver = cached_zeros(len(c))
 
+def prepare_common(sdata,ref):
+    for s in sdata:
+        #print s.code
+        s.ref = ref
+        c = s.transaction[CLOSE]
+        v = s.transaction[VOLUME]
+        s.ma1= ma(c,7)
+        s.ma2 = ma(c,13)
+        s.ma3 = ma(c,30)
+        s.ma4 = ma(c,60)
+        s.ma5 = ma(c,120)
+        s.t5 = strend(s.ma5) > 0
+        s.t4 = strend(s.ma4) > 0
+        s.t3 = strend(s.ma4) > 0
+        s.t2 = strend(s.ma2) > 0
+        s.t1 = strend(s.ma1) > 0
+        s.above = gand(s.ma2>s.ma3,s.ma3>s.ma4,s.ma4>s.ma5)
+        #将golden和above分开
+        s.golden = gand(s.g20 >= s.g60+1000,s.g60 >= s.g120+1000,s.g20>=3000,s.g20<=8000)
+        s.thumb = gand(s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20>=3000,s.g20<=8000)
+        s.svap_ma_67 = svap_ma(v,c,67)
+        s.vap_ma_67 = vap_pre(v,c,67)
+        s.ks = subd(c) * BASE / rollx(c)
+        s.diff,s.dea = cmacd(c)
+        try:    #计算
+            s.silver = catalog_signal_cs(s.c60,csilver)
+        except:
+            s.silver = cached_zeros(len(c))
+
 def prepare_index(index):
     index.pdiff,index.pdea = cmacd(index.transaction[CLOSE])
 
@@ -168,12 +197,12 @@ def run_body(sdata,dates,begin,end,xbegin):
     #seller = csc_func
     #seller = fcustom(csc_func,threshold=100)
     
-    #configs = prepare_temp_configs(seller1200,pman,dman)
+    configs = prepare_temp_configs(seller1200,pman,dman)
     #configs = prepare_temp_configs(seller2000,pman,dman)
     #configs = prepare_configs_A2000(seller2000,pman,dman)
     #configs.extend(prepare_configs_A2000(seller2000,pman,dman))
-    configs = prepare_configs_A1200(seller1200,pman,dman)
-    configs.extend(prepare_configs_A0(seller1200,pman,dman))    
+    #configs = prepare_configs_A1200(seller1200,pman,dman)
+    #configs.extend(prepare_configs_A0(seller1200,pman,dman))    
     #configs.extend(prepare_configs_A1(seller1200,pman,dman))
     #configs.extend(prepare_configs_A2(seller1200,pman,dman))    
     
@@ -188,7 +217,7 @@ def run_body(sdata,dates,begin,end,xbegin):
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
     #save_configs('atr_ev_nm_1200.txt',configs,xbegin,end)
-    save_configs('atr_ev_v0v2.txt',configs,xbegin,end)    
+    save_configs('atr_ev_v0v2t2.txt',configs,xbegin,end)    
 
 def run_merge_body(sdata,dates,begin,end,xbegin):
     
@@ -301,7 +330,7 @@ if __name__ == '__main__':
     #总时间段   [20000101,20010701,20090101]    #一个完整的周期+一个下降段
     #分段测试的要求，段mm > 1000-1500或抑制，总段mm > 2000
     
-    #begin,xbegin,end = 20000101,20010701,20090101
+    begin,xbegin,end = 20000101,20010701,20090101
     #begin,xbegin,end = 19980101,20010701,20090101
     #begin,xbegin,end = 20000101,20010701,20050901
     #begin,xbegin,end = 19980101,19990701,20010801    
@@ -310,7 +339,7 @@ if __name__ == '__main__':
     #begin,xbegin,end = 19980101,19990101,20090101
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
-    begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201    
+    #begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201    
     from time import time
     tbegin = time()
     
@@ -333,9 +362,9 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
-    run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
-    catalog_macd(catalogs)
+    #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    #catalog_macd(catalogs)
 

@@ -56,7 +56,7 @@ class ModuleTest(unittest.TestCase):    #保持run的有效性
         dman = DateManager(20010101,20040101)
         seller = atr_seller_factory(stop_times=2000,trace_times=3000)
         configs = run.prepare_configs_A1200(seller,pman,dman)
-        self.assertTrue(len(configs) > 0)
+        self.assertTrue(len(configs) >= 0)
 
     def test_prepare_configs_A2000(self):
         pman = AdvancedATRPositionManager()

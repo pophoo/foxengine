@@ -774,7 +774,22 @@ def mxru(stock):
     vma = ma(t[VOLUME],30)
     svma = ma(t[VOLUME],3)
     #vfilter = gand(svma>vma*1/3,svma<vma*7/8)
-    vfilter = gand(svma<vma*7/8,svma>vma/2,t[VOLUME]<=vma,t[VOLUME]>vma*2/3,t[CLOSE]>stock.ma1)
+    vfilter = gand(svma<vma*7/8,svma>vma/2,t[VOLUME]<=vma,t[VOLUME]>vma*2/3,t[CLOSE]>stock.ma1) #cf无效果
+    signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5)
+    linelog(stock.code)
+    return signal
+
+def mxru3(stock):
+    ''' 成交量分配后的macd,采用supdown3
+    '''
+    t = stock.transaction
+    mdiff,mdea = macd_ruv3(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME])
+    mxc = cross(mdea,mdiff) > 0
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+    #cf = (t[CLOSE]-t[LOW])*1000 / (t[HIGH]-t[LOW]) < 900    #物极必反
+    cf = (t[CLOSE]-t[LOW])*1000 / (t[HIGH]-t[LOW]) < 900    #物极必反, 如果是大阳线，不能收高
+    vfilter = gand(svma<vma*7/8,svma>vma/2,t[VOLUME]<=vma,t[CLOSE]>stock.ma1,cf)
     signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5)
     linelog(stock.code)
     return signal

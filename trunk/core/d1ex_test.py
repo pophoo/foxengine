@@ -497,6 +497,20 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([200,130,200,200,220,150],su.tolist())
         self.assertEquals([150,200,180,190,200,200],sd.tolist())
 
+    def test_supdown3(self):
+        na = np.array([])
+        na1,na2 = supdown3(na,na,na,na)
+        self.assertEquals([],na1.tolist())
+        self.assertEquals([],na2.tolist())
+        shigh = np.array([1000,1000,1000,1000,1000,1000])
+        slow = np.array([800,800,800,800,800,800])
+        sopen = np.array([900,950,880,880,920,930])
+        sclose = np.array([950,880,900,910,930,880])
+        su,sd = supdown3(sopen,sclose,shigh,slow)
+        self.assertEquals([150,80,100,110,130,80],su.tolist())
+        self.assertEquals([50,120,100,90,70,120],sd.tolist())
+
+
 
 if __name__ == "__main__":
     import logging

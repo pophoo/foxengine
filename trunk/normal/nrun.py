@@ -55,7 +55,19 @@ def prepare_configs_A2000(seller,pman,dman):    #R>=400,winrate>400 or R>=1000,w
     return configs
 
 def prepare_configs_A0(seller,pman,dman):    
-    ''' 手工巡游成果
+    ''' 手工巡游成果    20010701-20081231       20080701-20090612
+        gx250	        1971-7-714-1093-138	    1000-1-1000-23-0
+        spring	        5483-96-656-33627-1997	1939-16-625-3083-503
+        xgcs0	        3529-66-621-17584-1718	761-13-466-717-299
+        tsvama2b	    1600-14-428-2598-683	1829-11-636-1141-190
+        gmacd	        842-116-336-12316-5444	4933-34-911-7704-135
+        gmacd5	        1126-35-428-4722-1593	1000-14-1000-4018-0
+        xru	            3816-37-567-9449-971	3400-35-714-6484-505
+        mxru	        1384-78-448-11774-3282	4250-40-675-5871-422
+        mxru3	        1653-76-486-12388-2930	2500-39-692-3756-419        
+        ldx	            3078-27-555-4871-616	1655-98-775-10708-1276
+        ldx2(30,3333)	3137-73-616-14972-1634	2220-87-747-10779-1055
+        ldx2(120,3333)	1000-23-521-1816-588	1966-8-750-1601-181
     '''
     #暂时停止<600,以及次数小于15的方法,但保留超过150的
     
@@ -63,26 +75,28 @@ def prepare_configs_A0(seller,pman,dman):
     configs = []
 
     
+    configs.append(config(buyer=s.gx250))   #
+    configs.append(config(buyer=s.spring))  #5/16
+    configs.append(config(buyer=s.xgcs0))   #0
+    configs.append(config(buyer=fcustom(s.tsvama2b,fast=20,slow=170)))   #2/11
+
+
+    configs.append(config(buyer=s.gmacd))    #9/34
+    configs.append(config(buyer=s.gmacd5))   #6/14
+    configs.append(config(buyer=s.xru))      #1/5
+    configs.append(config(buyer=s.mxru))     #1/10
+    configs.append(config(buyer=s.mxru3))     #1/8
+    configs.append(config(buyer=fcustom(s.ldx,mlen=60,glimit=3000)))     #7/98
+    configs.append(config(buyer=fcustom(s.ldx2,mlen=30,glimit=3333)))     #12/87
+    configs.append(config(buyer=fcustom(s.ldx2,mlen=120,glimit=3333)))     #1/8
+ 
     #configs.append(config(buyer=fcustom(s.tsvama2,fast=20,slow=100)))   #3230-562-183   #20080701以来萎靡
-    configs.append(config(buyer=s.gx250))   #1695-555-9
-    configs.append(config(buyer=s.spring))  #5081-626-123       #3/14提升率
     #configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #@3691-707-41
     #configs.append(config(buyer=s.cma1))    #1971-500-30    #593-295-44 ??
     #configs.append(config(buyer=s.tsvama2x))    #1628-800-10    #1778-444-9 ??          #次数太少
-    configs.append(config(buyer=s.xgcs0))   #2382-528-138       #1/40提升率
     #configs.append(config(buyer=fcustom(s.tsvama2a,fast=20,slow=100)))   #2714-541-24, 近期成功率升高   #1/20提升率
-    configs.append(config(buyer=fcustom(s.tsvama2b,fast=20,slow=170)))   #2630-583-12, 近期成功率升高   #1/3提升率
-
-
-    configs.append(config(buyer=s.gmacd))    #842-330-115,近期5045-911-34   #1/5提升率
-    configs.append(config(buyer=s.gmacd5))   #1146-424-33,近期1000-1000-14  #3/7提升率
     #configs.append(config(buyer=s.smacd))    #2618/511/45                   #1/10提升率
-    configs.append(config(buyer=s.xru))      #4066/612/31                   #1/10提升率
-    configs.append(config(buyer=s.mxru))     #1424/443/158  近期1357/594/69 #1/10提升率
-    configs.append(config(buyer=fcustom(s.ldx,mlen=60,glimit=3000)))     #4137/652/23 近期1618-833-84   #1/20提升率，但100-300较高,1/3
-    configs.append(config(buyer=fcustom(s.ldx2,mlen=30,glimit=3333)))     #3410/672/55 近期2739-826-75  #4/25提升率
-    configs.append(config(buyer=fcustom(s.ldx2,mlen=120,glimit=3333)))     #1456/666/12 近期1198/800/5  #1/5提升率
-    
+
     #configs.append(config(buyer=s.ma4))     #1111-388-54
     #configs.append(config(buyer=s.pmacd))   #671-307-78
     #configs.append(config(buyer=s.wvad))    #816-437-32
@@ -197,10 +211,11 @@ def run_body(sdata,dates,begin,end,xbegin):
     #seller = csc_func
     #seller = fcustom(csc_func,threshold=100)
     
-    configs = prepare_temp_configs(seller1200,pman,dman)
+    #configs = prepare_temp_configs(seller1200,pman,dman)
     #configs = prepare_temp_configs(seller2000,pman,dman)
     #configs = prepare_configs_A2000(seller2000,pman,dman)
     #configs.extend(prepare_configs_A2000(seller2000,pman,dman))
+    configs = prepare_configs_A0(seller1200,pman,dman)
     #configs = prepare_configs_A1200(seller1200,pman,dman)
     #configs.extend(prepare_configs_A0(seller1200,pman,dman))    
     #configs.extend(prepare_configs_A1(seller1200,pman,dman))
@@ -217,7 +232,7 @@ def run_body(sdata,dates,begin,end,xbegin):
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
     #save_configs('atr_ev_nm_1200.txt',configs,xbegin,end)
-    save_configs('atr_ev_v0v2t2.txt',configs,xbegin,end)    
+    save_configs('atr_ev_v0v3.txt',configs,xbegin,end)    
 
 def run_merge_body(sdata,dates,begin,end,xbegin):
     
@@ -330,7 +345,7 @@ if __name__ == '__main__':
     #总时间段   [20000101,20010701,20090101]    #一个完整的周期+一个下降段
     #分段测试的要求，段mm > 1000-1500或抑制，总段mm > 2000
     
-    begin,xbegin,end = 20000101,20010701,20090101
+    #begin,xbegin,end = 20000101,20010701,20090101
     #begin,xbegin,end = 19980101,20010701,20090101
     #begin,xbegin,end = 20000101,20010701,20050901
     #begin,xbegin,end = 19980101,19990701,20010801    
@@ -339,7 +354,7 @@ if __name__ == '__main__':
     #begin,xbegin,end = 19980101,19990101,20090101
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
-    #begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201    
+    begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201    
     from time import time
     tbegin = time()
     
@@ -365,6 +380,7 @@ if __name__ == '__main__':
     run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    
     #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
     #catalog_macd(catalogs)
 

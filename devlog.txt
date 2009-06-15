@@ -5169,6 +5169,7 @@ above调整为 13-30-60-120
 #2.1 三种循环
 小价差区间-大价差区间、区间内的移动收盘价、收盘价与开盘价
 定律1: 小区间产生大区间，大区间产生小区间
+    ???推断: 大-小-大 的趋势,通常是小是第一个大的延续,第二个大是小的反? ???
 大区间上涨趋势日，通常最低点附近开盘，最高点附近收盘。大区间下跌日子，则相反。
 潜在的大区间上涨日，如果价位一直远低于开盘价时，上涨报收的概率就大为降低。
     #在预期价格会上涨时，不要试图买进开盘后大跌的股票，并且在做多时，要卖出
@@ -5179,6 +5180,51 @@ above调整为 13-30-60-120
 最高价向收盘价的偏移代表卖方能力，收盘价减最低价的价差代表买方能力      #####用这个办法处理一下
     大多数市场的高点，会出现在以当日最高价收盘的日子
     大多数市场的低点，会出现在以当日最低价收盘的日子
+
+    U:=(CLOSE-LOW)/(HIGH-LOW);
+    MU:EMA(U,60);
+    MU2:EMA(U,200);
+    这个可用于大盘趋势,如MU>MU2,处于牛市,反之是熊市
+
+    U:=(HIGH-OPEN)/(HIGH-LOW);
+    D:=(OPEN-LOW)/(HIGH-LOW);
+    MU:EMA(U,13);
+    MD:EMA(D,13)
+    #7,13,30,60,120奇妙的分形图形,60是牛熊刻度,mu60<md60为熊,反之为牛
+
+    U:=(HIGH-OPEN+CLOSE-LOW)/(HIGH-LOW);    #上升力
+    D:=(HIGH-CLOSE+OPEN-LOW)/(HIGH-LOW);    #下降力
+    MU:EMA(U,13);
+    MD:EMA(D,13)
+
+    #奇异的买卖点
+    U:=(HIGH-OPEN)/(HIGH-LOW);  #    U:=(HIGH-OPEN+CLOSE-LOW)/(HIGH-LOW);类似
+    D:=(OPEN-LOW)/(HIGH-LOW);   #    D:=(HIGH-CLOSE+OPEN-LOW)/(HIGH-LOW);
+    MU:EMA(U,13);
+    MD:EMA(D,13);
+	MUD:MU-MD;
+	EMUD:EMA(MUD,9);
+    #奇异,MUD上叉EMUD是买入要点,下叉是卖出要点
+
+    U:=(HIGH-OPEN)/(HIGH-LOW);  #    U:=(HIGH-OPEN+CLOSE-LOW)/(HIGH-LOW);类似
+    D:=(OPEN-LOW)/(HIGH-LOW);   #    D:=(HIGH-CLOSE+OPEN-LOW)/(HIGH-LOW);
+    UV : VOL * U/(U+D);
+    DV : VOL - UV;
+    MUV:EMA(UV,13);
+    MDV:EMA(DV,13);
+    #根据MUV上叉/下叉MDV作为买卖点，不敏感但有前瞻性. 周期30更佳，60可以作为大范围的牛熊判断。120是更大范围的牛熊分界
+
+    #UV-DV的macd,DIFF/DEA的叉为买卖点，太频繁
+    U:=(HIGH-OPEN)/(HIGH-LOW);
+    D:=(OPEN-LOW)/(HIGH-LOW); 
+    UV := VOL * U/(U+D);
+	DV := VOL-UV;
+	DIF:EMA(UV-DV,12)-EMA(UV-DV,26);
+	DEA:EMA(DIF,9);
+	MACD:(DIF-DEA)*2;
+    
+
+
 
 #2.2 秘密
 交易的时段越短，赚的钱越少
@@ -5203,3 +5249,75 @@ above调整为 13-30-60-120
 在价格停止下滑前不要买进,当情绪上觉得价格会大涨时也不能买进
 
 #2.6 国债市场与股票市场的关联性
+
+#2009-06-14
+#up/down分量的共振用法
+以up/down的5/30均线为基准
+如果up5上叉up30,down5下叉down30在3天内共振发生，则上涨几率很大?
+up/down分配有三种办法,要分别尝试
+
+如果up上叉时down已经处于5<30状态,可能也是一个信号?
+
+up/down的250周期貌似是牛熊分界的好判断
+120比较敏感,可以用来逃大顶(交叉), 30日貌似也可以,但比较频繁
+
+UTR:=HIGH-OPEN;
+DTR:=OPEN-LOW;
+UATR:MA(UTR,5);
+UATR2:MA(UTR,30);
+UATR3:MA(UTR,120);
+DATR:MA(DTR,5);
+DATR2:MA(DTR,30);
+DATR3:MA(DTR,120);
+
+另,异周期up/down的比较,比如up13叉down30等
+UTR:=HIGH-OPEN;
+DTR:=OPEN-LOW;
+UATR2:MA(UTR,7);
+DATR2:MA(DTR,13);
+
+
+可以和macd互相验证,通常up7--down13比macd先行
+
+V1:=SUM(IF(TYP>REF(TYP,1),TYP*VOL,0),N)/SUM(IF(TYP<REF(TYP,1),TYP*VOL,0),N);
+DTM:=IF(OPEN<=REF(OPEN,1),0,MAX((HIGH-OPEN),(OPEN-REF(OPEN,1))));
+
+UD2:
+OC := OPEN-REF(CLOSE,1);
+U_HLC := HIGH-OPEN+CLOSE-LOW;
+U_LHC := HIGH - LOW;
+D_HLC := HIGH - LOW;
+D_LHC := OPEN-LOW+HIGH-CLOSE;
+UU_HLC := IF(OC>0,U_HLC+OC,U_HLC);
+UU_LHC := IF(OC>0,U_LHC+OC,U_LHC);
+DD_HLC := IF(OC<0,D_HLC-OC,D_HLC);
+DD_LHC := IF(OC<0,D_LHC-OC,D_LHC);
+U := IF(HIGH-OPEN<OPEN-LOW,UU_HLC,UU_LHC);
+D := IF(HIGH-OPEN<OPEN-LOW,DD_HLC,DD_LHC);
+UV := VOL * U / (U+D);
+DV := VOL * D / (U+D);
+MRU : MA(UV-DV,13)
+B0:0
+
+UD:
+SC0 := REF(CLOSE,1);
+SC := IF(SC0=0,OPEN,SC0);
+U_HLC := HIGH-SC+CLOSE-LOW;
+U_LHC := HIGH - LOW;
+D_HLC := HIGH - LOW;
+D_LHC := SC-LOW+HIGH-CLOSE;
+U:=IF(OPEN>=SC,U_HLC,U_LHC);
+D:=IF(OPEN>=SC,D_HLC,D_LHC);
+UV := VOL * U / (U+D);
+DV := VOL * D / (U+D);
+MUV : MA(UV,13);
+MDV : MA(DV,13);
+DD:MUV-MDV;
+B0:0;
+MDD:MA(DD,9)
+
+
+DIF:EMA(CLOSE,SHORT)-EMA(CLOSE,LONG);
+DEA:EMA(DIF,MID);
+MACD:(DIF-DEA)*2,COLORSTICK;
+

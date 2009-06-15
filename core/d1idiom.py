@@ -335,7 +335,7 @@ def xc_ru(sopen,sclose,shigh,slow,svolume,ma1=13,ma2=9):
     uvma=nma(uv,ma1)
     dvma=nma(dv,ma1)
     ru = uvma*1.0/(uvma+dvma)
-    ruma=msum2(ru,ma2)/ma2
+    ruma=msum2(ru,ma2)/ma2  #nma只能计算整数
     xc = cross(ruma,ru)
     return np.cast['int32'](xc)
 
@@ -353,8 +353,32 @@ def xc_ru2(sopen,sclose,shigh,slow,svolume,ma1=13,ma2=9):
     uvma=nma(uv,ma1)
     dvma=nma(dv,ma1)
     ru = uvma/(uvma+dvma)
-    ruma=msum2(ru,ma2)/ma2
+    ruma=msum2(ru,ma2)/ma2  #nma只能计算整数
     xc = cross(ruma,ru)
+    return np.cast['int32'](xc)
+
+def xc_ru0(sopen,sclose,shigh,slow,svolume,ma1=13):
+    '''
+        上升比例穿越0线
+    '''
+    su,sd = supdown(sopen,sclose,shigh,slow)
+    uv = svolume * 1.0 * su / (su+sd)
+    dv = svolume - uv
+    mru = ma(uv-dv,ma1)
+    zx = cached_zeros(len(sclose))
+    xc = cross(zx,mru)
+    return np.cast['int32'](xc)
+
+def xc_ru02(sopen,sclose,shigh,slow,svolume,ma1=13):
+    '''
+        上升比例穿越0线
+    '''
+    su,sd = supdown2(sopen,sclose,shigh,slow)
+    uv = svolume * 1.0 * su / (su+sd)
+    dv = svolume - uv
+    mru = ma(uv-dv,ma1)
+    zx = cached_zeros(len(sclose))
+    xc = cross(zx,mru)
     return np.cast['int32'](xc)
 
 

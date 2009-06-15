@@ -63,6 +63,7 @@ def prepare_configs_A0(seller,pman,dman):
         gmacd	        842-116-336-12316-5444	4933-34-911-7704-135
         gmacd5	        1126-35-428-4722-1593	1000-14-1000-4018-0
         xru	            3816-37-567-9449-971	3400-35-714-6484-505
+        xru0	        2106-31-419-5540-1202	7843-20-600-5261-227        
         mxru	        1384-78-448-11774-3282	4250-40-675-5871-422
         mxru3	        1653-76-486-12388-2930	2500-39-692-3756-419        
         ldx	            3078-27-555-4871-616	1655-98-775-10708-1276
@@ -84,6 +85,7 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=s.gmacd))    #9/34
     configs.append(config(buyer=s.gmacd5))   #6/14
     configs.append(config(buyer=s.xru))      #1/5
+    configs.append(config(buyer=s.xru0))      #1/4    
     configs.append(config(buyer=s.mxru))     #1/10
     configs.append(config(buyer=s.mxru3))     #1/8
     configs.append(config(buyer=fcustom(s.ldx,mlen=60,glimit=3000)))     #7/98
@@ -377,10 +379,10 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     
-    #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
     #catalog_macd(catalogs)
 

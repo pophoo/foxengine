@@ -291,6 +291,20 @@ class ModuleTest(unittest.TestCase):
         xc_ru2(a,a,a,a,a)
         self.assertTrue(True)
 
+    def test_xc_ru0(self):
+        na = np.array([])
+        a = np.array(np.array([1,2,2]))
+        self.assertEquals([],xc_ru0(na,na,na,na,na).tolist())
+        xc_ru0(a,a,a,a,a)
+        self.assertTrue(True)
+
+    def test_xc_ru02(self):
+        na = np.array([])
+        a = np.array(np.array([1,2,2]))
+        self.assertEquals([],xc_ru02(na,na,na,na,na).tolist())
+        xc_ru02(a,a,a,a,a)
+        self.assertTrue(True)
+
     def test_macd_ru(self):
         na = np.array([])
         a = np.array(np.array([1,2,2]))

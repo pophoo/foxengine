@@ -765,6 +765,25 @@ def xru(stock):
     linelog(stock.code)
     return signal
 
+def xru0(stock):
+    ''' 成交量分配后的上叉
+    '''
+    t = stock.transaction
+    #mxc = xc_ru2(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME]) > 0
+    mxc1 = xc_ru0(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME]) > 0
+    mxc2 = xc_ru02(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME]) > 0
+    mxc = mxc1
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+    cf = (t[OPEN]-t[LOW] + t[HIGH]-t[CLOSE])*1000 / (t[HIGH]-t[LOW])   #向下的动力  
+    #cf = (t[CLOSE]-t[LOW] + t[HIGH]-t[OPEN])*1000 / (t[HIGH]-t[LOW])   #向上的动力，如果取反，完全等效
+    mcf = ma(cf,5)
+    vfilter = gand(svma>vma*1/2,svma<vma*2/3,t[CLOSE]>stock.ma1,strend(mcf)<0)
+    #signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5)
+    signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5)
+    linelog(stock.code)
+    return signal
+
 def mxru(stock):
     ''' 成交量分配后的macd
     '''

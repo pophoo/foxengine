@@ -123,6 +123,10 @@ class ModuleTest(unittest.TestCase):    #通路测试
     def test_xru(self):
         sbuy = xru(self.stock)
         self.assertTrue(True)
+    
+    def test_xru0(self):
+        sbuy = xru0(self.stock)
+        self.assertTrue(True)
 
     def test_mxru(self):
         sbuy = mxru(self.stock)

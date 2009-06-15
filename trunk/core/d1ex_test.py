@@ -471,6 +471,32 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,0,0,1,1,1],zoom_in(zoomed,6,3).tolist())
         self.assertRaises(AssertionError,zoom_in,zoomed,6,4)
 
+    def test_supdowns(self):
+        na = np.array([])
+        na1,na2 = supdowns(na,na,na,na)
+        self.assertEquals([],na1.tolist())
+        self.assertEquals([],na2.tolist())
+        shigh = np.array([1000,1000,1000,1000,1000,1000])
+        slow = np.array([800,800,800,800,800,800])
+        sopen = np.array([900,900,900,900,900,900])
+        sclose = np.array([950,880,900,910,900,880])
+        su,sd = supdowns(sopen,sclose,shigh,slow)
+        self.assertEquals([1250,900,1000,1050,1000,900],su.tolist())
+        self.assertEquals([750,1100,1000,950,1000,1100],sd.tolist())
+
+    def test_supdownc(self):
+        na = np.array([])
+        na1,na2 = supdownc(na,na,na,na)
+        self.assertEquals([],na1.tolist())
+        self.assertEquals([],na2.tolist())
+        shigh = np.array([1000,1000,1000,1000,1000,1000])
+        slow = np.array([800,800,800,800,800,800])
+        sopen = np.array([900,900,900,900,900,900])
+        sclose = np.array([950,880,900,910,900,880])
+        su,sd = supdownc(sopen,sclose,shigh,slow)
+        self.assertEquals([1250,900,1100,1050,1000,900],su.tolist())
+        self.assertEquals([750,1350,1000,950,1050,1100],sd.tolist())
+
     def test_supdown(self):
         na = np.array([])
         na1,na2 = supdown(na,na,na,na)

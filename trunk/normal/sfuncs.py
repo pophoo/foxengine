@@ -771,7 +771,7 @@ def xru0(stock):
     t = stock.transaction
     #mxc = xc_ru2(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME]) > 0
     mxc1 = xc_ru0(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME]) > 0
-    mxc2 = xc_ru02(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME]) > 0
+    #mxc2 = xc_ru02(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME]) > 0
     mxc = mxc1
     vma = ma(t[VOLUME],30)
     svma = ma(t[VOLUME],3)

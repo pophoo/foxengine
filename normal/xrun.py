@@ -11,7 +11,7 @@ from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,tmin
 from wolfox.fengine.core.d1match import *
 from wolfox.fengine.core.d1 import lesser,bnot
 from wolfox.fengine.core.d1indicator import cmacd,score2,rsi,obv
-from wolfox.fengine.core.d1idiom import down_period,macd_ru,macd_ru2,macd_ruv,xc_ru,xc_ru2
+from wolfox.fengine.core.d1idiom import down_period,macd_ru,macd_ru2,macd_ruv,xc_ru,xc_ru2,xc0,xc02,xc0c,xc0s
 from wolfox.fengine.core.d2 import increase,extract_collect
 from wolfox.foxit.base.tutils import linelog
 from time import time
@@ -74,6 +74,20 @@ def fractal(stock):
     zma_s = ma(zc,5)
     zma_m = ma(zc,13)
     zfilter = zoom_in(zma_s > zma_m,len(t[CLOSE]))
+
+def xud(stock):
+    t = stock.transaction
+    mxc = xc0s(t[OPEN],t[CLOSE],t[HIGH],t[LOW]) > 0
+    
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+
+    vfilter = gand(svma>vma*1/3,svma<vma*1/2)
+
+    #signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma60)>0,stock.t120)
+    signal = gand(mxc)
+    linelog(stock.code)
+    return signal
 
 
 def xru(stock):

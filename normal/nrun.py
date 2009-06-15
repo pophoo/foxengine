@@ -384,5 +384,5 @@ if __name__ == '__main__':
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     
     run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
-    #catalog_macd(catalogs)
+    catalog_macd(catalogs)
 

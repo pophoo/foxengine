@@ -798,6 +798,55 @@ def zoom_in(zoomed,src_length,times=5):
         rev = np.concatenate((rev,np.zeros(outed,int)))
     return roll0(rev,times)
 
+def supdowns(sopen,sclose,shigh,slow):
+    ''' 计算每日的上升力和下降力,简版，不考虑前一日情况
+        物理含义: 能确定的必然经历的上升段,是从开盘到高点,以及从最低到收盘
+                  下降段,是从开盘到低点,和从最高到收盘
+        上升力：
+            high-open+close-low
+        下降力:
+            open-low+high-close
+        单位:
+            high - low
+    '''
+    if len(sopen) == 0:
+        return np.array([],int),np.array([],int)
+    sc1 = rollx(sclose)
+    su = shigh - sopen + sclose - slow
+    sd = sopen - slow + shigh - sclose
+    sb = shigh - slow
+    return su*BASE/sb,sd*BASE/sb,
+
+def supdownc(sopen,sclose,shigh,slow):
+    ''' 计算每日的上升力和下降力,考虑前一日的情况
+        基本上升力：
+            high-open+close-low
+        基本下降力:
+            open-low+high-close
+        基本单位:
+            high - low
+        若open>=close(-1):
+            上升力 = 基本上升力 + open - close(-1)
+        else:
+            下降力 = 基本下降力 - open + close(-1)
+        若low>close(-1):
+            单位 = 基本单位 + low - close(-1)
+        若high<close(-1):
+            单位 = 基本单位 + close(-1) - high
+    '''
+    if len(sopen) == 0:
+        return np.array([],int),np.array([],int)
+    sc1 = rollx(sclose)
+    sc1[0] = sopen[0]   #哨兵，便于处理
+    ou = shigh - sopen + sclose - slow
+    od = sopen - slow + shigh - sclose
+    ob = shigh - slow
+    su = np.where(sopen>=sc1,ou+sopen-sc1,ou)
+    sd = np.where(sopen<sc1,od-sopen+sc1,od)
+    sb1 = np.where(slow>sc1,ob+slow-sc1,ob)
+    sb = np.where(shigh<sc1,sb1+sc1-shigh,sb1)
+    return su*BASE/sb,sd*BASE/sb,
+
 def supdown(sopen,sclose,shigh,slow):
     ''' 计算每日的上升行程和下降行程
         以前一日收盘和今日开盘指向的方向为运行方向

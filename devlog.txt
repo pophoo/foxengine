@@ -5186,30 +5186,40 @@ above调整为 13-30-60-120
     MU2:EMA(U,200);
     这个可用于大盘趋势,如MU>MU2,处于牛市,反之是熊市
 
+    U:=(CLOSE-LOW)/(HIGH-LOW);
+    D:=(HIGH-CLOSE)/(HIGH-LOW);
+    MU:EMA(U,13);
+    MD:EMA(D,13)
+    #2
+
     U:=(HIGH-OPEN)/(HIGH-LOW);
     D:=(OPEN-LOW)/(HIGH-LOW);
     MU:EMA(U,13);
     MD:EMA(D,13)
     #7,13,30,60,120奇妙的分形图形,60是牛熊刻度,mu60<md60为熊,反之为牛
 
-    U:=(HIGH-OPEN+CLOSE-LOW)/(HIGH-LOW);    #上升力
+    U:=(HIGH-OPEN+CLOSE-LOW)/(HIGH-LOW);    #上升力，这个更强，更前瞻
     D:=(HIGH-CLOSE+OPEN-LOW)/(HIGH-LOW);    #下降力
     MU:EMA(U,13);
     MD:EMA(D,13)
+    #而且还可以考虑异周期穿插，如EMA(U,13)对EMA(D,30)的叉
+    #EMA比MA敏感
+    #发现U/D实际上是对称的, U+D=2
+
 
     #奇异的买卖点
     U:=(HIGH-OPEN)/(HIGH-LOW);  #    U:=(HIGH-OPEN+CLOSE-LOW)/(HIGH-LOW);类似
     D:=(OPEN-LOW)/(HIGH-LOW);   #    D:=(HIGH-CLOSE+OPEN-LOW)/(HIGH-LOW);
-    MU:EMA(U,13);
-    MD:EMA(D,13);
+    MU:=EMA(U,13);
+    MD:=EMA(D,13);
 	MUD:MU-MD;
 	EMUD:EMA(MUD,9);
     #奇异,MUD上叉EMUD是买入要点,下叉是卖出要点
 
     U:=(HIGH-OPEN)/(HIGH-LOW);  #    U:=(HIGH-OPEN+CLOSE-LOW)/(HIGH-LOW);类似
     D:=(OPEN-LOW)/(HIGH-LOW);   #    D:=(HIGH-CLOSE+OPEN-LOW)/(HIGH-LOW);
-    UV : VOL * U/(U+D);
-    DV : VOL - UV;
+    UV := VOL * U/(U+D);
+    DV := VOL - UV;
     MUV:EMA(UV,13);
     MDV:EMA(DV,13);
     #根据MUV上叉/下叉MDV作为买卖点，不敏感但有前瞻性. 周期30更佳，60可以作为大范围的牛熊判断。120是更大范围的牛熊分界
@@ -5316,8 +5326,43 @@ DD:MUV-MDV;
 B0:0;
 MDD:MA(DD,9)
 
+##这些都不如简单方式
+    U:=(HIGH-OPEN)/(HIGH-LOW);  
+    D:=(OPEN-LOW)/(HIGH-LOW);   
+    UV := VOL * U/(U+D);
+    DV := VOL - UV;
+    MUV:EMA(UV,13);
+    MDV:EMA(DV,13);
 
-DIF:EMA(CLOSE,SHORT)-EMA(CLOSE,LONG);
-DEA:EMA(DIF,MID);
-MACD:(DIF-DEA)*2,COLORSTICK;
+    #类似有
+    U:=(HIGH-OPEN+CLOSE-LOW)/(HIGH-LOW);
+    D:=(HIGH-CLOSE+OPEN-LOW)/(HIGH-LOW);
+    UV := VOL * U/(U+D);
+    DV := VOL - UV;
+    MUV:EMA(UV,13);
+    MDV:EMA(DV,13);
 
+##  supdown0的翻译,与u/v的直接版本(不考虑与昨日关系)没有本质区别
+    SC1 := REF(CLOSE,1);
+    OU := HIGH-OPEN+CLOSE-LOW;
+    OD := HIGH-CLOSE+OPEN-LOW;
+    OB := HIGH - LOW;
+    SU := IF(OPEN>SC1,OU+OPEN-SC1,OU);
+    SD := IF(OPEN<SC1,OD-OPEN+SC1,OD);
+    SB1 := IF(LOW>SC1,OB+LOW-SC1,OB);
+    SB := IF(HIGH<SC1,SB1+SC1-HIGH,SB1);
+    U := SU/SB;
+    D := SD/SB;
+    MU:EMA(U,13);
+    MD:EMA(D,13);
+
+##简版,效果好于复杂版
+    U:=(HIGH-OPEN+CLOSE-LOW)/(HIGH-LOW);
+    D:=(HIGH-CLOSE+OPEN-LOW)/(HIGH-LOW);
+    MU:EMA(U,13);
+    MD:EMA(D,13);
+
+
+
+#2009-06-15
+#今日空白

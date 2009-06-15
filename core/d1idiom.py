@@ -322,14 +322,14 @@ def vdis(sopen,sclose,shigh,slow,svolume):
 
 
 ####ru系列指标的-1信号都是重要的卖出信号，尤其是前导1无后续1的-1
-def xc_ru(sopen,sclose,shigh,slow,svolume,ma1=13,ma2=9):
+def xc_ru(sopen,sclose,shigh,slow,svolume,ma1=13,ma2=9,udfunc=supdown):
     '''
         上升比例的交叉值
         xc = xc_ru(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME])
         如果直接用 ru = uv/(uv+ud) = su/(su+sd),则信号太过频繁
         目前的结果是必须再等一天看看是否有反向信号
     '''
-    su,sd = supdown(sopen,sclose,shigh,slow)
+    su,sd = udfunc(sopen,sclose,shigh,slow)
     uv = svolume * 1.0 *su / (su+sd)
     dv = svolume - uv
     uvma=nma(uv,ma1)
@@ -347,21 +347,13 @@ def xc_ru2(sopen,sclose,shigh,slow,svolume,ma1=13,ma2=9):
         目前的结果是必须再等一天看看是否有反向信号
         效果不如xc_ru
     '''
-    su,sd = supdown2(sopen,sclose,shigh,slow)
-    uv = svolume * 1.0 * su / (su+sd)
-    dv = svolume - uv
-    uvma=nma(uv,ma1)
-    dvma=nma(dv,ma1)
-    ru = uvma/(uvma+dvma)
-    ruma=msum2(ru,ma2)/ma2  #nma只能计算整数
-    xc = cross(ruma,ru)
-    return np.cast['int32'](xc)
+    return xc_ru(sopen,sclose,shigh,slow,svolume,ma1,ma2,supdown2)    
 
-def xc_ru0(sopen,sclose,shigh,slow,svolume,ma1=13):
+def xc_ru0(sopen,sclose,shigh,slow,svolume,ma1=13,udfunc=supdown):
     '''
         上升比例穿越0线
     '''
-    su,sd = supdown(sopen,sclose,shigh,slow)
+    su,sd = udfunc(sopen,sclose,shigh,slow)
     uv = svolume * 1.0 * su / (su+sd)
     dv = svolume - uv
     mru = ma(uv-dv,ma1)
@@ -371,27 +363,58 @@ def xc_ru0(sopen,sclose,shigh,slow,svolume,ma1=13):
 
 def xc_ru02(sopen,sclose,shigh,slow,svolume,ma1=13):
     '''
+        上升比例穿越0线,supdown2
+    '''
+    return xc_ru0(sopen,sclose,shigh,slow,svolume,ma1,supdown2)
+
+def xc_ru0s(sopen,sclose,shigh,slow,svolume,ma1=13):
+    '''
+        上升比例穿越0线,supdowns
+    '''
+    return xc_ru0(sopen,sclose,shigh,slow,svolume,ma1,supdowns)    
+
+def xc_ru0c(sopen,sclose,shigh,slow,svolume,ma1=13):
+    '''
+        上升比例穿越0线,supdownc
+    '''
+    return xc_ru0(sopen,sclose,shigh,slow,svolume,ma1,supdownc)    
+
+def xc0(sopen,sclose,shigh,slow,ma1=13,udfunc=supdown):
+    '''
         上升比例穿越0线
     '''
-    su,sd = supdown2(sopen,sclose,shigh,slow)
-    uv = svolume * 1.0 * su / (su+sd)
-    dv = svolume - uv
-    mru = ma(uv-dv,ma1)
+    su,sd = udfunc(sopen,sclose,shigh,slow)
     zx = cached_zeros(len(sclose))
-    xc = cross(zx,mru)
-    return np.cast['int32'](xc)
+    xc = cross(zx,su-sd)
+    return xc
 
+def xc02(sopen,sclose,shigh,slow,ma1=13):
+    '''
+        上升比例穿越0线,supdown2
+    '''
+    return xc0(sopen,sclose,shigh,slow,ma1,supdown2)
 
-def macd_ru(sopen,sclose,shigh,slow):
+def xc0s(sopen,sclose,shigh,slow,ma1=13):
+    '''
+        上升比例穿越0线,supdowns
+    '''
+    return xc0(sopen,sclose,shigh,slow,ma1,supdowns)    
+
+def xc0c(sopen,sclose,shigh,slow,ma1=13):
+    '''
+        上升比例穿越0线,supdownc
+    '''
+    return xc0(sopen,sclose,shigh,slow,ma1,supdownc)    
+
+def macd_ru(sopen,sclose,shigh,slow,udfunc=supdown):
     '''
         上升比例的macd
         vdiff,vdea = macd_ru(t[OPEN],t[CLOSE],t[HIGH],t[LOW])        
         貌似没有xc_ru有效
     '''
-    su,sd = supdown(sopen,sclose,shigh,slow)
+    su,sd = udfunc(sopen,sclose,shigh,slow)
     ru = su *BASE / (su+sd)
     return cmacd(ru)
-
 
 def macd_ru2(sopen,sclose,shigh,slow):
     '''
@@ -402,9 +425,7 @@ def macd_ru2(sopen,sclose,shigh,slow):
             如果1/-1后为0，则相当于确认了1/-1信号的有效性
         比较有效
     '''
-    su,sd = supdown2(sopen,sclose,shigh,slow)
-    ru = su *BASE / (su+sd)
-    return cmacd(ru)
+    return macd_ru(sopen,sclose,shigh,slow,supdown2)
 
 def macd_ruv(sopen,sclose,shigh,slow,svolume):
     '''

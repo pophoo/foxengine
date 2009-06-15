@@ -268,7 +268,6 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([],sb2.tolist())        
         self.assertTrue(True)
 
-
     def test_vdis(self):    #只测试通路
         na = np.array([])
         a = np.array(np.array([1,2,2]))
@@ -303,6 +302,34 @@ class ModuleTest(unittest.TestCase):
         a = np.array(np.array([1,2,2]))
         self.assertEquals([],xc_ru02(na,na,na,na,na).tolist())
         xc_ru02(a,a,a,a,a)
+        self.assertTrue(True)
+
+    def test_xc0(self):
+        na = np.array([])
+        a = np.array(np.array([1,2,2]))
+        self.assertEquals([],xc0(na,na,na,na,na).tolist())
+        xc0(a,a,a,a,a)
+        self.assertTrue(True)
+
+    def test_xc02(self):
+        na = np.array([])
+        a = np.array(np.array([1,2,2]))
+        self.assertEquals([],xc02(na,na,na,na,na).tolist())
+        xc02(a,a,a,a,a)
+        self.assertTrue(True)
+
+    def test_xc0s(self):
+        na = np.array([])
+        a = np.array(np.array([1,2,2]))
+        self.assertEquals([],xc0s(na,na,na,na,na).tolist())
+        xc0s(a,a,a,a,a)
+        self.assertTrue(True)
+
+    def test_xc0c(self):
+        na = np.array([])
+        a = np.array(np.array([1,2,2]))
+        self.assertEquals([],xc0c(na,na,na,na,na).tolist())
+        xc0c(a,a,a,a,a)
         self.assertTrue(True)
 
     def test_macd_ru(self):

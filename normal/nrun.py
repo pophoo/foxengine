@@ -89,7 +89,7 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=s.xru0))      #1/4    
     configs.append(config(buyer=s.mxru))     #1/10
     configs.append(config(buyer=s.mxru3))     #1/8
-    configs.append(config(buyer=s.xud))      #1/5
+    configs.append(config(buyer=s.xud))      #3/8
     configs.append(config(buyer=fcustom(s.ldx,mlen=60,glimit=3000)))     #7/98
     configs.append(config(buyer=fcustom(s.ldx2,mlen=30,glimit=3333)))     #12/87
     configs.append(config(buyer=fcustom(s.ldx2,mlen=120,glimit=3333)))     #1/8

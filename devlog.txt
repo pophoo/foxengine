@@ -308,12 +308,13 @@ from time import time
 import logging
 logging.basicConfig(filename="xx4c.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 #begin,xbegin,end = 19980101,20010701,20091231
-begin,xbegin,end = 20000101,20010701,20090101
+#begin,xbegin,end = 20000101,20010701,20090101
 #####begin,xbegin,end = 20000101,20010701,20091231
 #begin,xbegin,end = 20050101,20060701,20091231
 #begin,xbegin,end = 20070101,20080601,20091231
 #begin,xbegin,end = 20060101,20080601,20091231
 #begin,xbegin,end = 20000101,20010701,20090101
+begin,xbegin,end = 19970101,19980101,20000101
 
 tbegin = time()
     
@@ -5366,3 +5367,14 @@ MDD:MA(DD,9)
 
 #2009-06-15
 #今日空白
+补充:
+xud(1/5):    600782###
+
+#2009-06-16
+mxru3(1/8):     600500##
+mxru(1/10):     000301##
+ldx2(1/8):      600179,002074##,
+gx250(NA):      600569
+ldx(7/98):      600567
+gmacd(9/34):    002266
+xgcs0(0):       600020,000544

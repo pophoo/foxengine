@@ -18,7 +18,7 @@ class ModuleTest(unittest.TestCase):    #通路测试
         trans = [sopen,sclose,svolume,shigh,savg,samount,svolume]
         vi = np.array([i for i in range(2000)])
         g = np.array([randint(0,10000) for i in range(2000)])
-        s = BaseObject(code='SH00TEST',transaction=trans,silver=g,g5=g,g20=g,g60=g,g120=g,g250=g,pdiff=g,pdea=g,ma1=g,ma2=g,ma3=g,ma4=g,ma5=g,t5=g,above=g,golden=g,thumb=g,svap_ma_67=(g,vi),vap_ma_67=(g,vi))
+        s = BaseObject(code='SH00TEST',transaction=trans,silver=g,g5=g,g20=g,g60=g,g120=g,g250=g,diff=g,dea=g,ma1=g,ma2=g,ma3=g,ma4=g,ma5=g,t5=g,above=g,golden=g,thumb=g,svap_ma_67=(g,vi),vap_ma_67=(g,vi))
         s.ref = s   #指向自己
         s.catalog = {s:g}
         s.c60 = {s:g}
@@ -141,6 +141,11 @@ class ModuleTest(unittest.TestCase):    #通路测试
         sbuy = ldx(self.stock)
         sbuy = ldx(self.stock,30,3333)
         self.assertTrue(True)
+
+    def test_xud(self):
+        sbuy = xud(self.stock)
+        self.assertTrue(True)
+
 
 if __name__ == "__main__":
     logging.basicConfig(filename="test.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')

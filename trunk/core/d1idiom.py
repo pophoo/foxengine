@@ -385,7 +385,9 @@ def xc0(sopen,sclose,shigh,slow,ma1=13,udfunc=supdown):
     '''
     su,sd = udfunc(sopen,sclose,shigh,slow)
     zx = cached_zeros(len(sclose))
-    xc = cross(zx,su-sd)
+    msu = cexpma(su,ma1)
+    msd = cexpma(sd,ma1)
+    xc = cross(zx,msu-msd)
     return xc
 
 def xc02(sopen,sclose,shigh,slow,ma1=13):

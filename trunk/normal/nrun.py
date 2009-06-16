@@ -69,6 +69,7 @@ def prepare_configs_A0(seller,pman,dman):
         ldx	            3078-27-555-4871-616	1655-98-775-10708-1276
         ldx2(30,3333)	3137-73-616-14972-1634	2220-87-747-10779-1055
         ldx2(120,3333)	1000-23-521-1816-588	1966-8-750-1601-181
+        xud             1163-15-600-2175-556    41666-24-916-6033-12
     '''
     #暂时停止<600,以及次数小于15的方法,但保留超过150的
     
@@ -88,10 +89,13 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=s.xru0))      #1/4    
     configs.append(config(buyer=s.mxru))     #1/10
     configs.append(config(buyer=s.mxru3))     #1/8
+    configs.append(config(buyer=s.xud))      #1/5
     configs.append(config(buyer=fcustom(s.ldx,mlen=60,glimit=3000)))     #7/98
     configs.append(config(buyer=fcustom(s.ldx2,mlen=30,glimit=3333)))     #12/87
     configs.append(config(buyer=fcustom(s.ldx2,mlen=120,glimit=3333)))     #1/8
  
+
+
     #configs.append(config(buyer=fcustom(s.tsvama2,fast=20,slow=100)))   #3230-562-183   #20080701以来萎靡
     #configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #@3691-707-41
     #configs.append(config(buyer=s.cma1))    #1971-500-30    #593-295-44 ??

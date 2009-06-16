@@ -11,7 +11,7 @@ from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,tmin
 from wolfox.fengine.core.d1match import *
 from wolfox.fengine.core.d1 import lesser,bnot
 from wolfox.fengine.core.d1indicator import cmacd,score2,rsi,obv
-from wolfox.fengine.core.d1idiom import down_period,macd_ru,macd_ru2,macd_ruv,xc_ru,xc_ru2,xc0,xc02,xc0c,xc0s
+from wolfox.fengine.core.d1idiom import down_period,macd_ru,macd_ru2,macd_ruv,macd_ruv3,xc_ru,xc_ru2,xc0,xc02,xc0c,xc0s
 from wolfox.fengine.core.d2 import increase,extract_collect
 from wolfox.foxit.base.tutils import linelog
 from time import time
@@ -153,7 +153,7 @@ def xud(stock):
                 亏损次数=0,亏损总值=0
                 平盘次数=0
 
-
+    这里stock.thumb的区分度并不大，如果不用thumb，则为1803-636-644-70270-11673
     '''
     t = stock.transaction
     mxc = xc0s(t[OPEN],t[CLOSE],t[HIGH],t[LOW],ma1=13) > 0
@@ -167,7 +167,7 @@ def xud(stock):
 
     stdea = strend(stock.dea)
     stdiff = strend(stock.diff)
-    st = gand(bor(stdea<=-3,stdea>=-4),bor(stdiff<=-5,stdiff>=-6))
+    st = gand(stdea<=-3,stdea>=-4,stdiff<=-5,stdiff>=-6)
 
     signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st)
     linelog(stock.code)
@@ -445,20 +445,45 @@ def xru(stock):
         
     '''
     t = stock.transaction
-    #mdiff,mdea = macd_ru2(t[OPEN],t[CLOSE],t[HIGH],t[LOW])
-    #mxc = cross(mdea,mdiff) > 0
-    mxc = xc_ru(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME]) > 0
-    
+    mxc = xc_ru2(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME]) > 0
 
     vma = ma(t[VOLUME],30)
     svma = ma(t[VOLUME],3)
-
-    vfilter = gand(svma>vma*1/3,svma<vma*1/2)
-
+    vfilter = gand(svma>vma*1/2,svma<vma*2/3,t[CLOSE]>stock.ma1)
     signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5)
     linelog(stock.code)
     return signal
 
+def mxru(stock):
+    ''' 成交量分配后的macd
+    '''
+    t = stock.transaction
+    mdiff,mdea = macd_ruv(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME])
+    mxc = cross(mdea,mdiff) > 0
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+
+    #vfilter = gand(svma>vma*1/3,svma<vma*7/8)
+    vfilter = gand(svma<vma*7/8,svma>vma/2,t[VOLUME]<=vma,t[VOLUME]>vma*2/3,t[CLOSE]>stock.ma1) #cf无效果
+    signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5)
+    linelog(stock.code)
+    return signal
+
+def mxru3(stock):
+    ''' 成交量分配后的macd,采用supdown3
+    '''
+    t = stock.transaction
+    mdiff,mdea = macd_ruv3(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME])
+    mxc = cross(mdea,mdiff) > 0
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+    
+    #cf = (t[CLOSE]-t[LOW])*1000 / (t[HIGH]-t[LOW]) < 900    #物极必反
+    cf = (t[CLOSE]-t[LOW])*1000 / (t[HIGH]-t[LOW]) < 900    #物极必反, 如果是大阳线，不能收高
+    vfilter = gand(svma<vma*7/8,svma>vma/2,t[VOLUME]<=vma,t[CLOSE]>stock.ma1,cf)
+    signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5)
+    linelog(stock.code)
+    return signal
 
 
 def attack(stock,dates):
@@ -1455,10 +1480,10 @@ def ldx(stock,mlen=60,glimit=3000): #
 
     linelog(stock.code)
 
-    c = t[LOW]
-    ma30 = ma(c,30)
-    above = gand(ma(c,13) > ma30,ma30>stock.ma4,stock.ma4>stock.ma120)
-    
+    #c = t[LOW]
+    #ma30 = ma(c,30)
+    #above = gand(ma(c,13) > ma30,ma30>stock.ma4,stock.ma4>stock.ma5)
+
     ma_s = ma(t[CLOSE],mlen)
     x2 = gand(cross(ma_s,t[LOW])< 0,t[CLOSE]>ma_s)
 
@@ -1470,12 +1495,12 @@ def ldx(stock,mlen=60,glimit=3000): #
     msi = msum(si,5)
     mxi = gand(msi>=-100,msi<=0)
     
-    signal = gand(x2,above,stock.t5,strend(stock.ma4)>0,t[VOLUME]>0,gf1,strend(pdiff-pdea)<0,vfilter,mxi)
+    signal = gand(x2,stock.above,stock.t5,strend(stock.ma4)>0,t[VOLUME]>0,gf1,strend(pdiff-pdea)<0,vfilter,mxi)
 
     return signal
 
 
-def ldx2(stock):
+def ldx2(stock,mlen=30,glimit=3333): #low down xcross
     '''
     #破30日线   LOW
                 gf1 = gand(stock.g60<3000)
@@ -1541,8 +1566,34 @@ def ldx2(stock):
                 平盘次数=0
         另，120有支撑，250是真破，貌似无支撑
     '''
-    pass
+    t = stock.transaction
+    
+    vma_l = ma(t[VOLUME],30)
+    vma_5 = ma(t[VOLUME],5)
 
+    vfilter = gand(vma_5>vma_l*3/5,t[VOLUME] < vma_l*2/3)   
+
+    linelog(stock.code)
+
+    #c = t[LOW]
+    #ma30 = ma(c,30)
+    #above = gand(ma(c,13) > ma30,ma30>stock.ma4,stock.ma4>stock.ma5)
+
+    ma_s = ma(t[CLOSE],mlen)
+    x2 = gand(cross(ma_s,t[LOW])< 0,t[CLOSE]>ma_s)
+
+    gf1 = gand(stock.g60<glimit)
+
+    pdiff,pdea = stock.ref.diff,stock.ref.dea
+
+    si = score2(t[CLOSE],t[VOLUME])
+    msi = msum(si,5)
+    mxi = gand(msi>=-100,msi<=0)
+    
+    signal = gand(x2,stock.above,stock.t5,strend(stock.ma4)>0,t[VOLUME]>0,gf1,pdiff<pdea,vfilter,mxi)
+
+    return signal
+    
 
 def gsvama(stock): #
     t = stock.transaction

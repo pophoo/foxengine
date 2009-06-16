@@ -9,6 +9,8 @@ class ModuleTest(unittest.TestCase):
         #print 'in expma'
         source = np.array([25000,24875,24781,24594,24500,24625,25219,27250])
         self.assertEquals([0,0,0,0,24698,24674,24855,25653],expma(source,333).tolist())   #相当于5日
+        self.assertEquals([],expma([],333).tolist())   #相当于5日
+        self.assertEquals([],expma([],13).tolist())   #相当于5日
         #source2 = np.array([25000000,24875000,24781000,24594000,24500000,24625000,25219000,27250000])  #溢出
         #self.assertEquals([0,0,0,0,24698527,24674043,24855514,25652878],expma(source2,333).tolist())   #相当于5日
 

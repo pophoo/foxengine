@@ -18,7 +18,6 @@ def expma(source,trate):
     ''' 指数移动平均线
         trate为今日数据在计算中所占的比重,以1/1000(1/BASE)为基数
     '''
-
     length = (2* BASE+trate/2)/trate -1
     #print 'trate:',trate,'length;',length
     rev = np.zeros_like(source)

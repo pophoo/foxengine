@@ -38,6 +38,21 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         #self.assertEquals(2,len(sa.g60))
         #self.assertEquals(2,len(sb.g60))
 
+    def test_prepare_gbjg(self):    #这里实际上没有测试循环内通道
+        a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
+        b = np.array([(11,12),(13,14),(15,16),(17,18),(19,110),(111,112),(113,114)])
+        sa = CommonObject(id=3,code='test1',transaction=a)
+        sb = CommonObject(id=4,code='test2',transaction=b)
+        sdata = {3:sa,4:sb}
+        prepare_gbjg(sdata) #测试stock_id不在sdata数据中
+        self.assertTrue(True)
+        sc = CommonObject(id=20,code='test2',transaction=b)
+        sdata = {3:sa,4:sb,20:sc}
+        prepare_gbjg(sdata) #测试stock_id不在sdata数据中
+        sdata[20].ag = 500
+        sdata[20].zgb = 1000
+        sdata[20].last_date = 200101
+
     def test_calc_trades(self):
         a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
         b = np.array([(11,12),(13,14),(15,16),(17,18),(19,110),(111,112),(113,114)])

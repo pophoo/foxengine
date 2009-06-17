@@ -1,4 +1,8 @@
 
+基本准备
+插入年报/股本测试数据tstock_id=20
+insert into dune_report(id,tstock_id,announce_day,tperiod,zgb,ag,bg,hg,mgwfplr,mggjj,mgjzc,mgsy) values(1,20,20010101,200101,1000,500,0,0,0,0,0,0)
+
 #2008-12-10
 基本确认以list内含np.array 1d为主
 只有在需要用到集合运算时，才以np.array的二维形式，但结果仍然要转换为1d
@@ -312,9 +316,9 @@ logging.basicConfig(filename="xx4c.log",level=logging.DEBUG,format='%(name)s:%(f
 #####begin,xbegin,end = 20000101,20010701,20091231
 #begin,xbegin,end = 20050101,20060701,20091231
 #begin,xbegin,end = 20070101,20080601,20091231
-#begin,xbegin,end = 20060101,20080601,20091231
+begin,xbegin,end = 20060101,20080601,20091231
 #begin,xbegin,end = 20000101,20010701,20090101
-begin,xbegin,end = 19970101,19980101,20000101
+#begin,xbegin,end = 19970101,19980101,20000101
 
 tbegin = time()
     
@@ -348,7 +352,6 @@ buyer = x.prepare_buyer(dates)
 name,tradess = calc_trades(buyer,seller,sdata,dates,xbegin,cmediator=myMediator)
 #name,tradess = calc_trades(buyer,seller2000,sdata,dates,xbegin,cmediator=myMediator)
 result,strade = ev.evaluate_all(tradess,pman,dman)
-
 
 #2009-03-28
 #ma4的测试
@@ -5378,3 +5381,23 @@ gx250(NA):      600569
 ldx(7/98):      600567
 gmacd(9/34):    002266
 xgcs0(0):       600020,000544
+
+#1 准备引入换手率
+select tstock_id,ag,max(tperiod) as tpm from dune_report  group by tstock_id
+这个是非标准的
+
+标准做法
+select x.sid,tpm,dr.ag
+from (select tstock_id as sid,ag,max(tperiod) as tpm from dune_report  group by tstock_id) as x,
+    dune_report dr on dr.tstock_id = x.sid and dr.tperiod=tpm
+
+#1.1 但也可以不用换手率,用最近3/7天的成交量比30成交量的倍数,如果超过多少倍,就封信号m天
+目标是抑制20090616 ldx2的某个最近换手天量的输出 浙富股份
+
+#2009-06-17
+#1 选股
+gmacd:  000906
+xud:    600109
+mxru3:  000005,000511,000728
+xru:    600537,000511,000737
+

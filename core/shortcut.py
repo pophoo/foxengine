@@ -35,6 +35,15 @@ def prepare_catalogs(sdata,distance=60):
     d_posort('g%s' % distance,catalogs,distance=distance)
     return ctree,catalogs   
 
+def prepare_gbjg(sdata):
+    dos = cs.get_gbjg()
+    for dobj in dos:
+        if dobj.id in sdata:
+            stock = sdata[dobj.id]
+            stock.zgb = dobj.zgb        
+            stock.ag = dobj.ag
+            stock.last_date = dobj.date
+
 def dlimit(stocks,limit):
     for s in stocks:
         s.transaction[OPEN][s.transaction[OPEN]<limit] = limit
@@ -63,6 +72,7 @@ def prepare_all(begin,end,codes=[],icodes=[]):
         idata = prepare_data(begin,end,'INDEX')
     print 'idata finish....'    
     ctree,catalogs = prepare_catalogs(sdata)    
+    prepare_gbjg(sdata)
     return dates,sdata,idata,catalogs    
 
 def calc_trades(buyer,seller,sdata,dates,xbegin,cmediator=CNMediator10,**kwargs):

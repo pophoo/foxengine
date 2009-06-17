@@ -26,6 +26,9 @@ def prepare_data(begin,end,type_code ='STOCK',rcode=ref_code):
     #print sdata
     return sdata
 
+def get_gbjg():
+    return store.gbjg(dj.connection)
+
 @wcache
 def get_codes(type_code='STOCK',source='SHSE'):
     ss = m.StockCode.objects.filter(stype=type_code,exchange__code=source,is_active=1)

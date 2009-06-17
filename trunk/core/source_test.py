@@ -103,6 +103,10 @@ class SourceDataTest(unittest.TestCase):    #与源数据相关的测试
         data = prepare_data(0,0,rcode=u'SH000001')
         self.assertTrue(True)
 
+    def test_get_gbjg(self):    #通道测试
+        dos = get_gbjg()
+        self.assertTrue(True)
+
     def test_get_codes(self):
         codes = get_codes()
         #测试空数据

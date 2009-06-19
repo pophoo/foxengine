@@ -7,7 +7,7 @@
 from wolfox.fengine.core.shortcut import *
 from wolfox.fengine.normal.funcs import *
 from wolfox.fengine.normal.nrun import prepare_order,prepare_common
-from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,tmin,extend,extend2next,pzoom_out,vzoom_out,zoom_in
+from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,tmin,extend,extend2next,pzoom_out,vzoom_out,zoom_in,cover
 from wolfox.fengine.core.d1match import *
 from wolfox.fengine.core.d1 import lesser,bnot
 from wolfox.fengine.core.d1indicator import cmacd,score2,rsi,obv
@@ -1223,7 +1223,7 @@ def gmacd_s(stock): #
     return signal
 
 
-def gmacd(stock): #
+def gmacd(stock,ldown=30): #
     '''
     #之前
                 评估:总盈亏值=6850,交易次数=115 期望值=842
@@ -1270,18 +1270,13 @@ def gmacd(stock): #
     hh10 = tmax(t[HIGH],10)
     rhl10 = hh10 * 1000/ll10
 
-    c = t[CLOSE]
-    ma30 = ma(c,30)
-    above = gand(ma(c,13) > ma30,ma30>stock.ma4,stock.ma4>stock.ma120)
+    svap,v2i = stock.svap_ma_67
+    sdiff,sdea = cmacd(svap,36,78)
+    ssignal = gand(sdiff < sdea,strend(sdiff)<0,strend(sdiff-sdea)>0)
 
+    msvap = transform(ssignal,v2i,len(t[VOLUME]))
 
-    #svap,v2i = stock.svap_ma_67
-    #sdiff,sdea = cmacd(svap,36,78)
-    #ssignal = gand(sdiff < sdea,strend(sdiff)<0,strend(sdiff-sdea)>0)
-
-    #msvap = transform(ssignal,v2i,len(t[VOLUME]))
-
-    x2 = cross(ma(t[CLOSE],30),t[LOW]) < 0
+    x2 = cross(ma(t[CLOSE],ldown),t[LOW]) < 0
 
     ss = sfollow(xcross,x2,10)
     
@@ -1291,10 +1286,10 @@ def gmacd(stock): #
     msi = msum(si,5)
     mxi = gand(msi>=-100,msi<=0)
     
-    #signal = gand(ss,above,stock.t5,strend(stock.ma4)>0,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,strend(stock.ref.ma4)>0,vfilter,msvap,mxi)
-    signal = gand(ss,above,stock.t5,strend(stock.ma4)>0,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,strend(stock.ref.ma4)>0,vfilter,mxi)
-
+    signal = gand(ss,stock.above,stock.t5,strend(stock.ma4)>0,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,strend(stock.ref.ma4)>0,vfilter,msvap,mxi)
+    
     return signal
+
 
 
 def gmacd5(stock): #
@@ -1567,7 +1562,11 @@ def ldx2(stock,mlen=30,glimit=3333): #low down xcross
         另，120有支撑，250是真破，貌似无支撑
     '''
     t = stock.transaction
-    
+
+    #xs = greater(msum2(stock.xchange,5),80000)    #5天超过80%
+    #nxs20 = bnot(cover(xs,10))
+
+
     vma_l = ma(t[VOLUME],30)
     vma_5 = ma(t[VOLUME],5)
 
@@ -1575,10 +1574,16 @@ def ldx2(stock,mlen=30,glimit=3333): #low down xcross
 
     linelog(stock.code)
 
+    r10v = rollx(vma_l,10)
+    xv = t[VOLUME] * BASE / r10v
+
+    mxv = msum2(xv,5)>20000
+    nxs20 = bnot(cover(mxv,10))
+
     #c = t[LOW]
     #ma30 = ma(c,30)
     #above = gand(ma(c,13) > ma30,ma30>stock.ma4,stock.ma4>stock.ma5)
-
+    
     ma_s = ma(t[CLOSE],mlen)
     x2 = gand(cross(ma_s,t[LOW])< 0,t[CLOSE]>ma_s)
 
@@ -1590,9 +1595,10 @@ def ldx2(stock,mlen=30,glimit=3333): #low down xcross
     msi = msum(si,5)
     mxi = gand(msi>=-100,msi<=0)
     
-    signal = gand(x2,stock.above,stock.t5,strend(stock.ma4)>0,t[VOLUME]>0,gf1,pdiff<pdea,vfilter,mxi)
+    signal = gand(x2,stock.above,stock.t5,strend(stock.ma4)>0,t[VOLUME]>0,gf1,pdiff<pdea,vfilter,mxi,nxs20)
 
     return signal
+
     
 
 def gsvama(stock): #

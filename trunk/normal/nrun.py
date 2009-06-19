@@ -201,6 +201,10 @@ def prepare_common(sdata,ref):
             s.silver = catalog_signal_cs(s.c60,csilver)
         except:
             s.silver = cached_zeros(len(c))
+        try:    #计算换手率
+            s.xchange = v*BASE/s.ag
+        except:
+            s.xchange = v / 10  #假设s.ag=10000
 
 def prepare_index(index):
     index.pdiff,index.pdea = cmacd(index.transaction[CLOSE])

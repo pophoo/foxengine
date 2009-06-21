@@ -99,7 +99,7 @@ def nhigh(stock):#60高点
     #linelog(stock.code)
     return gand(g,stock.silver,dcross,strend(stock.ma4)>0,stock.above)
 
-def xma60(stock):
+def xma60(stock,astart=45):
     ''' 碰到ma4后回升
         cs,g = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)    ##最佳
         评估:总盈亏值=13321,交易次数=45 期望值=6040
@@ -147,7 +147,7 @@ def xma60(stock):
     #return gand(sync,stock.above,stock.t5,stock.golden,cs)    
     xatr = stock.atr * BASE / t[CLOSE]     
     
-    return gand(sync,stock.above,stock.t5,stock.thumb,stock.silver,xatr>45)
+    return gand(sync,stock.above,stock.t5,stock.thumb,stock.silver,xatr>=astart)
 
 def wvad(stock):
     t = stock.transaction
@@ -822,7 +822,7 @@ def mxru3(stock,astart=50):
     cf = (t[CLOSE]-t[LOW])*1000 / (t[HIGH]-t[LOW]) < 900    #物极必反, 如果是大阳线，不能收高
     vfilter = gand(svma<vma*7/8,svma>vma/2,t[VOLUME]<=vma,t[CLOSE]>stock.ma1,cf)
     xatr = stock.atr * BASE / t[CLOSE]     
-    signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5,xatr>astart)
+    signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5,xatr>=astart)
     linelog(stock.code)
     return signal
 
@@ -971,82 +971,6 @@ def ldx2(stock,mlen=30,glimit=3333,astart=60,aend=1000): #low down xcross
 
 def xud(stock,xfunc=xc0s,astart=45):
     ''' 
-    发现和stock.diff的下降时间有关，中间段为好
-    strend(stock.diff): -5
-        20010701-20081231:
-        评估:总盈亏值=417,交易次数=10   期望值=694
-                总盈亏率(1/1000)=417,平均盈亏率(1/1000)=41,盈利交易率(1/1000)=700
-                赢利次数=7,赢利总值=594
-                亏损次数=3,亏损总值=177
-                平盘次数=0
-        20080701-20090615:
-        评估:总盈亏值=4535,交易次数=14  期望值=323000
-                总盈亏率(1/1000)=4535,平均盈亏率(1/1000)=323,盈利交易率(1/1000)=928
-                赢利次数=13,赢利总值=4536
-                亏损次数=1,亏损总值=1
-                平盘次数=0
-        
-    strend(stock.diff): [-5,-6] #将-4/-7放进来缺乏正向收益
-        20010701-20081231:
-        评估:总盈亏值=4273,交易次数=29  期望值=1729
-                总盈亏率(1/1000)=4273,平均盈亏率(1/1000)=147,盈利交易率(1/1000)=517
-                赢利次数=15,赢利总值=5470
-                亏损次数=14,亏损总值=1197
-                平盘次数=0
-        20080701-20090615:
-        评估:总盈亏值=7114,交易次数=34  期望值=6531
-                总盈亏率(1/1000)=7114,平均盈亏率(1/1000)=209,盈利交易率(1/1000)=794
-                赢利次数=27,赢利总值=7342
-                亏损次数=7,亏损总值=228
-                平盘次数=0
-
-    strend(stock.dea) : [-3,-4]
-        20010701-20081231:    
-        评估:总盈亏值=2309,交易次数=23  期望值=1086
-                总盈亏率(1/1000)=2309,平均盈亏率(1/1000)=100,盈利交易率(1/1000)=565
-                赢利次数=13,赢利总值=3237
-                亏损次数=10,亏损总值=928
-                平盘次数=0
-    
-        20080701-20090615:
-        评估:总盈亏值=6463,交易次数=30  期望值=8269
-                总盈亏率(1/1000)=6463,平均盈亏率(1/1000)=215,盈利交易率(1/1000)=866
-                赢利次数=26,赢利总值=6567
-                亏损次数=4,亏损总值=104
-                平盘次数=0
-    
-    strend(stock.dea) : [-3,-4] and strend(stock.diff): [-5,-6] ####
-        20010701-20081231:        
-        评估:总盈亏值=1619,交易次数=15  期望值=1163
-                总盈亏率(1/1000)=1619,平均盈亏率(1/1000)=107,盈利交易率(1/1000)=600
-                赢利次数=9,赢利总值=2175
-                亏损次数=6,亏损总值=556
-                平盘次数=0
-    
-        20080701-20090615:
-        评估:总盈亏值=6021,交易次数=24  期望值=41666
-                总盈亏率(1/1000)=6021,平均盈亏率(1/1000)=250,盈利交易率(1/1000)=916
-                赢利次数=22,赢利总值=6033
-                亏损次数=2,亏损总值=12
-                平盘次数=0
-    
-    strend(stock.dea) : [-4,-4] and strend(stock.diff): [-5,-5]
-        20010701-20081231:        
-        评估:总盈亏值=424,交易次数=6    期望值=2800
-                总盈亏率(1/1000)=424,平均盈亏率(1/1000)=70,盈利交易率(1/1000)=833
-                赢利次数=5,赢利总值=449
-                亏损次数=1,亏损总值=25
-                平盘次数=0
-
-        20080701-20090615:
-        评估:总盈亏值=1418,交易次数=4   期望值=1000
-                总盈亏率(1/1000)=1418,平均盈亏率(1/1000)=354,盈利交易率(1/1000)=1000
-                赢利次数=4,赢利总值=1418
-                亏损次数=0,亏损总值=0
-                平盘次数=0
-    
-    这里stock.thumb的区分度并不大，如果不用thumb，则为1803-636-644-70270-11673
-
     '''
     t = stock.transaction
     mxc = xfunc(t[OPEN],t[CLOSE],t[HIGH],t[LOW],ma1=13) > 0

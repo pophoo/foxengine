@@ -85,22 +85,22 @@ def prepare_configs_A0(seller,pman,dman):
     
     #configs.append(config(buyer=s.gx250))   #
     configs.append(config(buyer=s.spring))  #5/16
-    configs.append(config(buyer=s.xgcs0))   #0
-    configs.append(config(buyer=fcustom(s.tsvama2b,fast=20,slow=170)))   #2/11
-    configs.append(config(buyer=s.xma60))   #1040-390-64
-    configs.append(config(buyer=s.gmacd))    #9/34
-    configs.append(config(buyer=s.gmacd5))   #6/14
+    #configs.append(config(buyer=s.xgcs0))   #平均收益率太低
+    configs.append(config(buyer=fcustom(s.tsvama2b,fast=20,slow=170)))   #1/4
+    configs.append(config(buyer=s.xma60))   #
+    configs.append(config(buyer=s.gmacd))    #1/4
+    configs.append(config(buyer=s.gmacd5))   #1/3
     configs.append(config(buyer=s.xru))      #1/5
-    configs.append(config(buyer=s.xru0))      #1/4    
-    configs.append(config(buyer=s.mxru))     #1/10
-    configs.append(config(buyer=s.mxru3))     #1/8
-    configs.append(config(buyer=fcustom(s.ldx,mlen=60,glimit=3000)))     #7/98
-    configs.append(config(buyer=fcustom(s.ldx2,mlen=30,glimit=3333)))     #12/87
-    configs.append(config(buyer=fcustom(s.ldx2,mlen=120,glimit=3333,astart=0,aend=50)))     #1/8
-    configs.append(config(buyer=s.xud,astart=0))      #3/8
-    configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc0c,astart=0)))
-    configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc0,astart=0)))
-    configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc02,astart=0)))
+    configs.append(config(buyer=s.xru0))      #1/3    
+    configs.append(config(buyer=s.mxru))     #1/4
+    configs.append(config(buyer=s.mxru3))     #3/8
+    configs.append(config(buyer=fcustom(s.ldx,mlen=60,glimit=3000)))     #1/10
+    configs.append(config(buyer=fcustom(s.ldx2,mlen=30,glimit=3333)))     #2/5
+    configs.append(config(buyer=fcustom(s.ldx2,mlen=120,glimit=3333,astart=0,aend=50)))     #1/4
+    configs.append(config(buyer=fcustom(s.xud,astart=0)))      #1/2
+    configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc0c,astart=0)))  #4/9
+    #configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc0,astart=0)))  #1/5 类同xc02，但xc02更好
+    configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc02,astart=0)))  #1/5
 
     #configs.append(config(buyer=fcustom(s.tsvama2,fast=20,slow=100)))   #3230-562-183   #20080701以来萎靡
     #configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #@3691-707-41

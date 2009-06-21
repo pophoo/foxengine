@@ -53,7 +53,7 @@ def tsvama2a(stock,fast=20,slow=100):
     return gand(stock.golden,msvap,stock.above,vfilter)
 
 
-def tsvama2b(stock,fast=20,slow=170):
+def tsvama2b(stock,fast=20,slow=170,astart=40):
     ''' svama两线交叉
         另加smacd,vfilter
     '''
@@ -77,10 +77,11 @@ def tsvama2b(stock,fast=20,slow=170):
     vma_l = ma(t[VOLUME],30)
 
     vfilter = gand(vma_s < vma_l * 7/8)  #t[CLOSE]>stock.ma1无好处
+    
+    xatr = stock.atr * BASE / t[CLOSE]     
  
     linelog('%s:%s' % (tsvama2b.__name__,stock.code))
-    return gand(stock.golden,msvap,stock.above,vfilter)
-
+    return gand(stock.golden,msvap,stock.above,vfilter,xatr>=astart)
 
 def pmacd(stock):
     t = stock.transaction
@@ -144,7 +145,9 @@ def xma60(stock):
     sync = sfollow(down_cross,up_cross,7)
     linelog(stock.code)
     #return gand(sync,stock.above,stock.t5,stock.golden,cs)    
-    return gand(sync,stock.above,stock.t5,stock.thumb,stock.silver)
+    xatr = stock.atr * BASE / t[CLOSE]     
+    
+    return gand(sync,stock.above,stock.t5,stock.thumb,stock.silver,xatr>45)
 
 def wvad(stock):
     t = stock.transaction
@@ -272,7 +275,7 @@ def xgcs(stock):
     sbuy = gand(stock.golden,stock.silver,stock.above,stock.ma1>stock.ma2,stock.ref.t5,mxi)
     return sbuy
 
-def xgcs0(stock):
+def xgcs0(stock,astart=50,aend=1000):
     ''' 下穿0线
         评估:总盈亏值=23464,交易次数=81 期望值=4013
                 总盈亏率(1/1000)=23464,平均盈亏率(1/1000)=289,盈利交易率(1/1000)=617
@@ -288,7 +291,9 @@ def xgcs0(stock):
     zs = cached_zeros(len(t[CLOSE]))
     mxi = cross(zs,si)<0
 
-    sbuy = gand(stock.golden,stock.silver,stock.above,stock.ma1>stock.ma2,stock.ref.t5,mxi,t[CLOSE]<stock.ma1)
+    xatr = stock.atr * BASE / t[CLOSE]     
+
+    sbuy = gand(stock.golden,stock.silver,stock.above,stock.ma1>stock.ma2,stock.ref.t5,mxi,t[CLOSE]<stock.ma1,xatr>=astart,xatr<=aend)
     return sbuy
 
 
@@ -486,7 +491,7 @@ def gmacd_old(stock): #
     
     return signal
 
-def gmacd(stock,ldown=30): #
+def gmacd(stock,ldown=30,astart=60): #
     ''' g60 macd的同时试探ldown均线
         mxi: (-100,0], vfilter:>1.5
                 2001.7-2008.12
@@ -581,11 +586,11 @@ def gmacd(stock,ldown=30): #
     hh10 = tmax(t[HIGH],10)
     rhl10 = hh10 * 1000/ll10
 
-    svap,v2i = stock.svap_ma_67
-    sdiff,sdea = cmacd(svap,36,78)
-    ssignal = gand(sdiff < sdea,strend(sdiff)<0,strend(sdiff-sdea)>0)
+    #svap,v2i = stock.svap_ma_67
+    #sdiff,sdea = cmacd(svap,36,78)
+    #ssignal = gand(sdiff < sdea,strend(sdiff)<0,strend(sdiff-sdea)>0)
 
-    msvap = transform(ssignal,v2i,len(t[VOLUME]))
+    #msvap = transform(ssignal,v2i,len(t[VOLUME]))
 
     x2 = cross(ma(t[CLOSE],ldown),t[LOW]) < 0
 
@@ -597,11 +602,13 @@ def gmacd(stock,ldown=30): #
     msi = msum(si,5)
     mxi = gand(msi>=-100,msi<=0)
     
-    signal = gand(ss,stock.above,stock.t5,strend(stock.ma4)>0,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,strend(stock.ref.ma4)>0,vfilter,msvap,mxi)
+    xatr = stock.atr * BASE / t[CLOSE]     
+   
+    signal = gand(ss,stock.above,stock.t5,strend(stock.ma4)>0,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,strend(stock.ref.ma4)>0,vfilter,mxi,xatr>=astart)
     
     return signal
 
-def gmacd5(stock,ldown=30): #
+def gmacd5(stock,ldown=30,astart=60): #
     ''' g60 macd的同时试探ldown均线
                 gf1 = gand(stock.g20>5000,stock.g20<9500)
                 #使用g5,ma3
@@ -675,11 +682,11 @@ def gmacd5(stock,ldown=30): #
     #above = gand(stock.ma2 > stock.ma3,stock.ma3>stock.ma4,stock.ma4>stock.ma5)
 
 
-    svap,v2i = stock.svap_ma_67
-    sdiff,sdea = cmacd(svap,36,78)
-    ssignal = gand(sdiff < sdea,strend(sdiff)<0,strend(sdiff-sdea)>0)
+    #svap,v2i = stock.svap_ma_67
+    #sdiff,sdea = cmacd(svap,36,78)
+    #ssignal = gand(sdiff < sdea,strend(sdiff)<0,strend(sdiff-sdea)>0)
 
-    msvap = transform(ssignal,v2i,len(t[VOLUME]))
+    #msvap = transform(ssignal,v2i,len(t[VOLUME]))
 
     x2 = cross(ma(t[CLOSE],ldown),t[LOW]) < 0
 
@@ -691,7 +698,10 @@ def gmacd5(stock,ldown=30): #
     msi = msum(si,5)
     mxi = gand(msi>=-100,msi<=0)
     
-    signal = gand(ss,stock.above,stock.t5,strend(stock.ma4)>0,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,strend(stock.ref.ma4)>0,vfilter,msvap,mxi)
+
+    xatr = stock.atr * BASE / t[CLOSE]     
+    
+    signal = gand(ss,stock.above,stock.t5,strend(stock.ma4)>0,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,strend(stock.ref.ma4)>0,vfilter,mxi,xatr>=astart)
     #signal = gand(ss,stock.above,stock.t5,strend(stock.ma4)>0,t[VOLUME]>0,gf1,rhl10<1500,mdiff>=mdea,strend(stock.ref.ma4)>0,vfilter,mxi)
     
     return signal
@@ -765,7 +775,7 @@ def xru(stock):
     linelog(stock.code)
     return signal
 
-def xru0(stock):
+def xru0(stock,astart=45):
     ''' 成交量分配后的上叉
     '''
     t = stock.transaction
@@ -779,12 +789,13 @@ def xru0(stock):
     #cf = (t[CLOSE]-t[LOW] + t[HIGH]-t[OPEN])*1000 / (t[HIGH]-t[LOW])   #向上的动力，如果取反，完全等效
     mcf = ma(cf,5)
     vfilter = gand(svma>vma*1/2,svma<vma*2/3,t[CLOSE]>stock.ma1,strend(mcf)<0)
+    xatr = stock.atr * BASE / t[CLOSE]     
     #signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5)
-    signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5)
+    signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,xatr>=astart)
     linelog(stock.code)
     return signal
 
-def mxru(stock):
+def mxru(stock,astart=40):
     ''' 成交量分配后的macd
     '''
     t = stock.transaction
@@ -794,11 +805,12 @@ def mxru(stock):
     svma = ma(t[VOLUME],3)
     #vfilter = gand(svma>vma*1/3,svma<vma*7/8)
     vfilter = gand(svma<vma*7/8,svma>vma/2,t[VOLUME]<=vma,t[VOLUME]>vma*2/3,t[CLOSE]>stock.ma1) #cf无效果
-    signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5)
+    xatr = stock.atr * BASE / t[CLOSE]     
+    signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5,xatr>=astart)
     linelog(stock.code)
     return signal
 
-def mxru3(stock):
+def mxru3(stock,astart=50):
     ''' 成交量分配后的macd,采用supdown3
     '''
     t = stock.transaction
@@ -809,12 +821,13 @@ def mxru3(stock):
     #cf = (t[CLOSE]-t[LOW])*1000 / (t[HIGH]-t[LOW]) < 900    #物极必反
     cf = (t[CLOSE]-t[LOW])*1000 / (t[HIGH]-t[LOW]) < 900    #物极必反, 如果是大阳线，不能收高
     vfilter = gand(svma<vma*7/8,svma>vma/2,t[VOLUME]<=vma,t[CLOSE]>stock.ma1,cf)
-    signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5)
+    xatr = stock.atr * BASE / t[CLOSE]     
+    signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5,xatr>astart)
     linelog(stock.code)
     return signal
 
 
-def ldx(stock,mlen=60,glimit=3000): #low down xcross 
+def ldx(stock,mlen=60,glimit=3000,astart=60,aend=1000): #low down xcross 
     ''' 破60日线
                 20010701--
                 评估:总盈亏值=4858,交易次数=23  期望值=4137
@@ -914,12 +927,14 @@ def ldx(stock,mlen=60,glimit=3000): #low down xcross
     msi = msum(si,5)
     mxi = gand(msi>=-100,msi<=0)
     
-    signal = gand(x2,stock.above,stock.t5,strend(stock.ma4)>0,t[VOLUME]>0,gf1,strend(pdiff-pdea)<0,vfilter,mxi)
+    xatr = stock.atr * BASE / t[CLOSE]     
+
+    signal = gand(x2,stock.above,stock.t5,strend(stock.ma4)>0,t[VOLUME]>0,gf1,strend(pdiff-pdea)<0,vfilter,mxi,xatr>=astart,xatr<=aend)
 
     return signal
 
 
-def ldx2(stock,mlen=30,glimit=3333): #low down xcross
+def ldx2(stock,mlen=30,glimit=3333,astart=60,aend=1000): #low down xcross
     ''' 30日线，使用pdiff<pdea条件
     '''
 
@@ -946,13 +961,15 @@ def ldx2(stock,mlen=30,glimit=3333): #low down xcross
     si = score2(t[CLOSE],t[VOLUME])
     msi = msum(si,5)
     mxi = gand(msi>=-100,msi<=0)
-    
-    signal = gand(x2,stock.above,stock.t5,strend(stock.ma4)>0,t[VOLUME]>0,gf1,pdiff<pdea,vfilter,mxi)
+
+    xatr = stock.atr * BASE / t[CLOSE]     
+
+    signal = gand(x2,stock.above,stock.t5,strend(stock.ma4)>0,t[VOLUME]>0,gf1,pdiff<pdea,vfilter,mxi,xatr>=astart,xatr<=aend)
 
     return signal
 
 
-def xud(stock):
+def xud(stock,xfunc=xc0s,astart=45):
     ''' 
     发现和stock.diff的下降时间有关，中间段为好
     strend(stock.diff): -5
@@ -976,7 +993,6 @@ def xud(stock):
                 赢利次数=15,赢利总值=5470
                 亏损次数=14,亏损总值=1197
                 平盘次数=0
-        
         20080701-20090615:
         评估:总盈亏值=7114,交易次数=34  期望值=6531
                 总盈亏率(1/1000)=7114,平均盈亏率(1/1000)=209,盈利交易率(1/1000)=794
@@ -1033,7 +1049,7 @@ def xud(stock):
 
     '''
     t = stock.transaction
-    mxc = xc0s(t[OPEN],t[CLOSE],t[HIGH],t[LOW],ma1=13) > 0
+    mxc = xfunc(t[OPEN],t[CLOSE],t[HIGH],t[LOW],ma1=13) > 0
 
     vma = ma(t[VOLUME],30)
     svma = ma(t[VOLUME],3)
@@ -1046,6 +1062,8 @@ def xud(stock):
     stdiff = strend(stock.diff)
     st = gand(stdea<=-3,stdea>=-4,stdiff<=-5,stdiff>=-6)
 
-    signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st)
+    xatr = stock.atr * BASE / t[CLOSE]     
+
+    signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st,xatr>=astart)
     linelog(stock.code)
     return signal

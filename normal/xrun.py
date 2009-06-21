@@ -11,7 +11,7 @@ from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,tmin
 from wolfox.fengine.core.d1match import *
 from wolfox.fengine.core.d1 import lesser,bnot
 from wolfox.fengine.core.d1indicator import cmacd,score2,rsi,obv
-from wolfox.fengine.core.d1idiom import down_period,macd_ru,macd_ru2,macd_ruv,macd_ruv3,xc_ru,xc_ru2,xc0,xc02,xc0c,xc0s,xc_ru0
+from wolfox.fengine.core.d1idiom import down_period,macd_ru,macd_ru2,macd_ruv,macd_ruv3,xc_ru,xc_ru2,xc0,xc02,xc0c,xc0s,xc_ru0,xc_ru0s,xc_ru0c,xc_ru02
 from wolfox.fengine.core.d2 import increase,extract_collect
 from wolfox.foxit.base.tutils import linelog
 from time import time
@@ -171,7 +171,8 @@ def xud(stock):
 
     xatr = stock.atr * BASE / t[CLOSE]
 
-    signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st,xatr>40)
+    #signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st,xatr>40)
+    signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,xatr>40)
     linelog(stock.code)
     return signal
 
@@ -455,13 +456,12 @@ def xru(stock):
     linelog(stock.code)
     return signal
 
-
-def xru0(stock):
+def xru0(stock,astart=45):
     ''' 成交量分配后的上叉
     '''
     t = stock.transaction
     #mxc = xc_ru2(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME]) > 0
-    mxc1 = xc_ru0(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME]) > 0
+    mxc1 = xc_ru02(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME]) > 0
     #mxc2 = xc_ru02(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME]) > 0
     mxc = mxc1
     vma = ma(t[VOLUME],30)
@@ -470,9 +470,9 @@ def xru0(stock):
     #cf = (t[CLOSE]-t[LOW] + t[HIGH]-t[OPEN])*1000 / (t[HIGH]-t[LOW])   #向上的动力，如果取反，完全等效
     mcf = ma(cf,5)
     vfilter = gand(svma>vma*1/2,svma<vma*2/3,t[CLOSE]>stock.ma1,strend(mcf)<0)
+    xatr = stock.atr * BASE / t[CLOSE]     
     #signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5)
-    xatr = stock.atr * BASE / t[CLOSE]
-    signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,xatr>45)
+    signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,xatr>=astart)
     linelog(stock.code)
     return signal
 

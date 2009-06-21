@@ -764,7 +764,7 @@ def smacd(stock):
 
 
 def xru(stock):
-    ''' 成交量分配后的上叉
+    ''' 成交量分配后的移动上叉
     '''
     t = stock.transaction
     mxc = xc_ru2(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME]) > 0
@@ -775,12 +775,12 @@ def xru(stock):
     linelog(stock.code)
     return signal
 
-def xru0(stock,astart=45):
-    ''' 成交量分配后的上叉
+def xru0(stock,xfunc=xc_ru0,astart=45):
+    ''' 成交量分配后的上叉0线
     '''
     t = stock.transaction
     #mxc = xc_ru2(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME]) > 0
-    mxc1 = xc_ru0(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME]) > 0
+    mxc1 = xfunc(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME]) > 0
     #mxc2 = xc_ru02(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME]) > 0
     mxc = mxc1
     vma = ma(t[VOLUME],30)

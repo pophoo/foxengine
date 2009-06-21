@@ -91,7 +91,10 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=s.gmacd))    #1/4
     configs.append(config(buyer=s.gmacd5))   #1/3
     configs.append(config(buyer=s.xru))      #1/5
-    configs.append(config(buyer=s.xru0))      #1/3    
+    configs.append(config(buyer=s.xru0))      #1/3
+    #configs.append(config(buyer=fcustom(s.xru0,xfunc=s.xc_ru02)))      #都不够稳定
+    #configs.append(config(buyer=fcustom(s.xru0,xfunc=s.xc_ru0s)))      #1/3
+    #configs.append(config(buyer=fcustom(s.xru0,xfunc=s.xc_ru0c)))      #
     configs.append(config(buyer=s.mxru))     #1/4
     configs.append(config(buyer=s.mxru3))     #3/8
     configs.append(config(buyer=fcustom(s.ldx,mlen=60,glimit=3000)))     #1/10

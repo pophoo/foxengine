@@ -55,21 +55,26 @@ def prepare_configs_A2000(seller,pman,dman):    #R>=400,winrate>400 or R>=1000,w
     return configs
 
 def prepare_configs_A0(seller,pman,dman):    
-    ''' 手工巡游成果    20010701-20081231       20080701-20090612
-        gx250	        1971-7-714-1093-138	    1000-1-1000-23-0
-        spring	        5483-96-656-33627-1997	1939-16-625-3083-503
-        xgcs0	        3529-66-621-17584-1718	761-13-466-717-299
-        tsvama2b	    1600-14-428-2598-683	1829-11-636-1141-190
-        gmacd	        842-116-336-12316-5444	4933-34-911-7704-135
-        gmacd5	        1126-35-428-4722-1593	1000-14-1000-4018-0
-        xru	            3816-37-567-9449-971	3400-35-714-6484-505
-        xru0	        2106-31-419-5540-1202	7843-20-600-5261-227        
-        mxru	        1384-78-448-11774-3282	4250-40-675-5871-422
-        mxru3	        1653-76-486-12388-2930	2500-39-692-3756-419        
-        ldx	            3078-27-555-4871-616	1655-98-775-10708-1276
-        ldx2(30,3333)	3137-73-616-14972-1634	2220-87-747-10779-1055
-        ldx2(120,3333)	1000-23-521-1816-588	1966-8-750-1601-181
-        xud             1163-15-600-2175-556    41666-24-916-6033-12
+    ''' 实际上需要暂停平均盈亏率<100的
+        手工巡游成果    19990701-20010701       20010701-20081231           20080701-20090612
+        gx250	        1000-1-1000-9-0-9	    1971-7-71-1093-138-136	    2200-2-50-27-5-11
+        spring	        -1000-1-0-0-21—21	    5483-96-65-33627-1997-329	1927-16-62-3072-503-160
+        xgcs0	        0	                    4097-48-66-15341-1157-295	2421-6-67-628-76-92
+        tsvama2b	    0	                    1879-12-500-2598-546-171	1779-8-75-1107-136-121
+        gmacd	        -96-16-312-646-746- -6	1551-56-41-10457-2891-135	4113-39-95-8622-106-218
+        gmacd5	        -485-6-333-79-266- -32	1408-15-53-3247-808-162	    1000-17-100-4287-0-252
+        xru	            21-11-272-387-372-1	    3816-37-56-9449-971-229	    3613-37-65-6495-578-159
+        xru0	        1000-1-100-83-0-83	    5089-12-66-3657-227-285	    5197-13-85-4943-143-369
+        mxru	        0	                    1550-47-48-7722-1853-124	5313-19-73-5410-259-271
+        mxru3	        0	                    1186-19-26-3155-1205-102	1000-8-100-1908-0-238
+        xud	            1000-2-100-734-2-367	1181-12-66-2109-464-137	    1000-19-100-6140-0-323
+        xud(xc0c)	    1000-1-100-417-0-417	2262-14-57-3025-483-181	    1000-18-100-5865-0-325
+        xud(xc0)	    0	                    1510-8-50-1486-368-139	    同xc02
+        xud(xc02)	    0	                    2177-8-62-1619-239-172	    1000-10-100-1710-0-171
+        ldx	            0                   	6850-10-70-4294-180-411	    4619-32-97-6279-42-194
+        ldx2(30,3333)	0	                    4698-28-82-8616-319-296	    3769-20-80-5163-263-245
+        ldx2(120,3333)	184-2-500-52-38-7	    1020-11-27-965-402-51	    19250-4-75-1248-16-308
+        xma60	        -1000-1-0-0-96--96	    1440-53-45-7935-2178-108	7034-6-66-1285-58-204
     '''
     #暂时停止<600,以及次数小于15的方法,但保留超过150的
     
@@ -82,19 +87,19 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=s.xgcs0))   #0
     configs.append(config(buyer=fcustom(s.tsvama2b,fast=20,slow=170)))   #2/11
 
-
     configs.append(config(buyer=s.gmacd))    #9/34
     configs.append(config(buyer=s.gmacd5))   #6/14
     configs.append(config(buyer=s.xru))      #1/5
     configs.append(config(buyer=s.xru0))      #1/4    
     configs.append(config(buyer=s.mxru))     #1/10
     configs.append(config(buyer=s.mxru3))     #1/8
-    configs.append(config(buyer=s.xud))      #3/8
     configs.append(config(buyer=fcustom(s.ldx,mlen=60,glimit=3000)))     #7/98
     configs.append(config(buyer=fcustom(s.ldx2,mlen=30,glimit=3333)))     #12/87
-    configs.append(config(buyer=fcustom(s.ldx2,mlen=120,glimit=3333)))     #1/8
- 
-
+    configs.append(config(buyer=fcustom(s.ldx2,mlen=120,glimit=3333,astart=0,aend=50)))     #1/8
+    configs.append(config(buyer=s.xud))      #3/8
+    configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc0c)))
+    configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc0)))
+    configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc02)))
 
     #configs.append(config(buyer=fcustom(s.tsvama2,fast=20,slow=100)))   #3230-562-183   #20080701以来萎靡
     #configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #@3691-707-41
@@ -242,7 +247,7 @@ def run_body(sdata,dates,begin,end,xbegin):
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
     #save_configs('atr_ev_nm_1200.txt',configs,xbegin,end)
-    save_configs('atr_ev_v0v3.txt',configs,xbegin,end)    
+    save_configs('atr_ev_v0v3a.txt',configs,xbegin,end)    
 
 def run_merge_body(sdata,dates,begin,end,xbegin):
     
@@ -313,16 +318,16 @@ def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
     if lbegin == 0:
         lbegin = end - 5
 
-    configs_a = prepare_configs_A1200(seller1200,pman,dman)
-    dtrades_a = batch_last(configs_a,sdata,dates,xbegin,cmediator=myMediator)
-    save_last('atr_last_a1200x.txt',dtrades_a,xbegin,end,lbegin)
+    #configs_a = prepare_configs_A1200(seller1200,pman,dman)
+    #dtrades_a = batch_last(configs_a,sdata,dates,xbegin,cmediator=myMediator)
+    #save_last('atr_last_a1200x.txt',dtrades_a,xbegin,end,lbegin)
 
     #configs_a = prepare_configs_A2000(seller2000,pman,dman)
     #dtrades_a = batch_last(configs_a,sdata,dates,xbegin,cmediator=myMediator)
     #save_last('atr_last_a2000.txt',dtrades_a,xbegin,end,lbegin)
     configs_a0 = prepare_configs_A0(seller1200,pman,dman)
     dtrades_a0 = batch_last(configs_a0,sdata,dates,xbegin,cmediator=myMediator)
-    save_last('atr_last_a0x.txt',dtrades_a0,xbegin,end,lbegin)
+    save_last('atr_last_a0y.txt',dtrades_a0,xbegin,end,lbegin)
     
     #configs_a1 = prepare_configs_A1(seller1200,pman,dman)
     #dtrades_a1 = batch_last(configs_a1,sdata,dates,xbegin,cmediator=myMediator)
@@ -358,13 +363,13 @@ if __name__ == '__main__':
     #begin,xbegin,end = 20000101,20010701,20090101
     #begin,xbegin,end = 19980101,20010701,20090101
     #begin,xbegin,end = 20000101,20010701,20050901
-    #begin,xbegin,end = 19980101,19990701,20010801    
+    begin,xbegin,end = 19980101,19990701,20010801    
     #begin,xbegin,end = 20040601,20050801,20071031
     #begin,xbegin,end =  20050101,20080701,20091201
     #begin,xbegin,end = 19980101,19990101,20090101
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
-    begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201    
+    #begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201    
     from time import time
     tbegin = time()
     
@@ -387,10 +392,10 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     
-    run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
     catalog_macd(catalogs)
 

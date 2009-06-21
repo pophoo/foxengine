@@ -75,6 +75,7 @@ def prepare_configs_A0(seller,pman,dman):
         ldx2(30,3333)	0	                    4698-28-82-8616-319-296	    3769-20-80-5163-263-245
         ldx2(120,3333)	184-2-500-52-38-7	    1020-11-27-965-402-51	    19250-4-75-1248-16-308
         xma60	        -1000-1-0-0-96--96	    1440-53-45-7935-2178-108	7034-6-66-1285-58-204
+        这里xud系列的都是xatr>45条件下，但是应用中用xatr>0, 近期效果是一样的，后者的失败日只是买入截断引起的。        
     '''
     #暂时停止<600,以及次数小于15的方法,但保留超过150的
     
@@ -82,11 +83,11 @@ def prepare_configs_A0(seller,pman,dman):
     configs = []
 
     
-    configs.append(config(buyer=s.gx250))   #
+    #configs.append(config(buyer=s.gx250))   #
     configs.append(config(buyer=s.spring))  #5/16
     configs.append(config(buyer=s.xgcs0))   #0
     configs.append(config(buyer=fcustom(s.tsvama2b,fast=20,slow=170)))   #2/11
-
+    configs.append(config(buyer=s.xma60))   #1040-390-64
     configs.append(config(buyer=s.gmacd))    #9/34
     configs.append(config(buyer=s.gmacd5))   #6/14
     configs.append(config(buyer=s.xru))      #1/5
@@ -96,10 +97,10 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.ldx,mlen=60,glimit=3000)))     #7/98
     configs.append(config(buyer=fcustom(s.ldx2,mlen=30,glimit=3333)))     #12/87
     configs.append(config(buyer=fcustom(s.ldx2,mlen=120,glimit=3333,astart=0,aend=50)))     #1/8
-    configs.append(config(buyer=s.xud))      #3/8
-    configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc0c)))
-    configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc0)))
-    configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc02)))
+    configs.append(config(buyer=s.xud,astart=0))      #3/8
+    configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc0c,astart=0)))
+    configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc0,astart=0)))
+    configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc02,astart=0)))
 
     #configs.append(config(buyer=fcustom(s.tsvama2,fast=20,slow=100)))   #3230-562-183   #20080701以来萎靡
     #configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #@3691-707-41
@@ -111,7 +112,7 @@ def prepare_configs_A0(seller,pman,dman):
     #configs.append(config(buyer=s.ma4))     #1111-388-54
     #configs.append(config(buyer=s.pmacd))   #671-307-78
     #configs.append(config(buyer=s.wvad))    #816-437-32
-    #configs.append(config(buyer=s.xma60))   #1040-390-64
+
     #configs.append(config(buyer=s.nhigh))     #720-394-147
     #configs.append(config(buyer=s.gx60))    #1205-460-76
     #configs.append(config(buyer=s.vmacd_ma4))   #267-295-115
@@ -363,13 +364,13 @@ if __name__ == '__main__':
     #begin,xbegin,end = 20000101,20010701,20090101
     #begin,xbegin,end = 19980101,20010701,20090101
     #begin,xbegin,end = 20000101,20010701,20050901
-    begin,xbegin,end = 19980101,19990701,20010801    
+    #begin,xbegin,end = 19980101,19990701,20010801    
     #begin,xbegin,end = 20040601,20050801,20071031
     #begin,xbegin,end =  20050101,20080701,20091201
     #begin,xbegin,end = 19980101,19990101,20090101
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
-    #begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201    
+    begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201    
     from time import time
     tbegin = time()
     
@@ -392,10 +393,10 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     
-    #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
     catalog_macd(catalogs)
 

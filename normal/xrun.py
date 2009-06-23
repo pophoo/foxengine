@@ -7,7 +7,7 @@
 from wolfox.fengine.core.shortcut import *
 from wolfox.fengine.normal.funcs import *
 from wolfox.fengine.normal.nrun import prepare_order,prepare_common
-from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,tmin,extend,extend2next,pzoom_out,vzoom_out,zoom_in,cover
+from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,tmin,extend,extend2next,pzoom_out,vzoom_out,zoom_in,cover,scover
 from wolfox.fengine.core.d1match import *
 from wolfox.fengine.core.d1 import lesser,bnot
 from wolfox.fengine.core.d1indicator import cmacd,score2,rsi,obv
@@ -171,11 +171,38 @@ def xud(stock):
 
     xatr = stock.atr * BASE / t[CLOSE]
 
-    #signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st,xatr>40)
-    signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,xatr>40)
+    signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st,xatr>40)
+    #signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,st,mcf>1000,xatr>40)
+    #signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,xatr>40)
     linelog(stock.code)
     return signal
 
+def xud0(stock):
+    t = stock.transaction
+    if stock.zgb < 500000 and stock.ag <400000:
+        return cached_zeros(len(t[CLOSE]))
+    
+    mxc = xc0s(t[OPEN],t[CLOSE],t[HIGH],t[LOW],ma1=13) > 0
+
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+
+    vfilter = gand(svma<vma*2/3)
+    cf = (t[OPEN]-t[LOW] + t[HIGH]-t[CLOSE])*1000 / (t[HIGH]-t[LOW])   #向下的动力  
+    mcf = ma(cf,7)
+
+    stdea = strend(stock.dea)
+    stdiff = strend(stock.diff)
+    st = gand(stdea<=-3,stdea>=-4,stdiff<=-5,stdiff>=-6)
+
+    xatr = stock.atr * BASE / t[CLOSE]
+
+    #signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st,xatr>40)
+    #signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,st,mcf>1000,xatr>40)
+    signal = gand(mxc,stock.above,stock.t5,xatr>20,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,stock.g20 >= stock.g60,stock.g60 >= stock.g120)
+    linelog(stock.code)
+    return signal
+    
 def xru(stock):
     ''' 测试ru系列
         macd_ru: svma < vma*1/2
@@ -452,7 +479,7 @@ def xru(stock):
     svma = ma(t[VOLUME],3)
     vfilter = gand(svma>vma*1/2,svma<vma*2/3,t[CLOSE]>stock.ma1)
     xatr = stock.atr * BASE / t[CLOSE]
-    signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5,xatr>40)
+    signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5,xatr>40,stock.ma1>stock.ma2)
     linelog(stock.code)
     return signal
 

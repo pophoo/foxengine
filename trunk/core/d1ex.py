@@ -6,7 +6,7 @@
 import numpy as np
 from collections import deque
 from wolfox.fengine.core.base import cache,wcache
-from wolfox.fengine.core.d1 import BASE,band,gand,nsubd,roll0,rollx,equals,nequals,greater_equals,subd
+from wolfox.fengine.core.d1 import BASE,band,gand,nsubd,roll0,rollx,equals,nequals,greater_equals,subd,greater
 
 def ma(source,length):    #使用numpy，array更加的惯用法
     """ 计算移动平均线
@@ -122,9 +122,20 @@ def under_cross(signal,source,follow):
     sd[indices] = greater_equals(source[indices],follow[indices])
     return sd
 
+def scover(source,covered=1):
+    ''' 信号覆盖
+        对信号日开始的covered日内进行信号覆盖
+        原始序列以>0为有信号
+        输出序列以1为有信号
+    '''
+    ss = greater(source,0)
+    mss = msum2(ss,covered)
+    #print ss,mss    
+    return greater(mss,0)
+
 def cover(source,interval=1): #interval必须大于0
     ''' 信号延伸，length为延伸值，发生日为length,逐日递减(小于0则都为0)，直至另一个发生日.
-        初始序列中以>0认为是有信号(以免最普通的用法中需要先过滤掉负值)
+        初始序列中以!=0认为是有信号
         假定-1位置无信号发生
         新的信号会增强已有信号        
     '''

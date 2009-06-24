@@ -174,20 +174,72 @@ def xud(stock):
     signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st,xatr>40)
     #signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,st,mcf>1000,xatr>40)
     #signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,xatr>40)
+    #signal = gand(mxc,vfilter,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st,xatr>40)
+    
     linelog(stock.code)
     return signal
 
 def xud0(stock):
+    ''' 对大盘股
+        zgb<300000,ag<200000,xatr<=45,xc0s
+        #20080701--
+        评估:总盈亏值=2977,交易次数=24  期望值=3444
+                总盈亏率(1/1000)=2977,平均盈亏率(1/1000)=124,盈利交易率(1/1000)=958
+                赢利次数=23,赢利总值=3013
+                亏损次数=1,亏损总值=36
+                平盘次数=0
+        #20010701--
+        评估:总盈亏值=2158,交易次数=10  期望值=5810
+                总盈亏率(1/1000)=2158,平均盈亏率(1/1000)=215,盈利交易率(1/1000)=600
+                赢利次数=6,赢利总值=2307
+                亏损次数=4,亏损总值=149
+                平盘次数=0
+    '''
+    linelog(stock.code)
     t = stock.transaction
-    if stock.zgb < 500000 and stock.ag <400000:
-        return cached_zeros(len(t[CLOSE]))
+    if stock.zgb <= 300000 and stock.ag <=200000:
+        raise Exception(u'skipping ' + stock.code)
+    
+    mxc = xc0s(t[OPEN],t[CLOSE],t[HIGH],t[LOW],ma1=13) > 0
+    mxc=scover(mxc,3)
+
+    stdea = strend(stock.dea)
+    stdiff = strend(stock.diff)
+    st = gand(stdea<=-3,stdea>=-4,stdiff<=-4,stdiff>=-7)
+
+    xatr = stock.atr * BASE / t[CLOSE]
+
+    signal = gand(mxc,st,xatr<45,stock.above,stock.t5,stock.ma1<stock.ma2,stock.g20 >= stock.g60,stock.g60 >= stock.g120)    
+    return signal
+ 
+def xudj(stock):
+    ''' #20080701--
+        评估:总盈亏值=925,交易次数=9    期望值=6375
+                总盈亏率(1/1000)=925,平均盈亏率(1/1000)=102,盈利交易率(1/1000)=888
+                赢利次数=8,赢利总值=941
+                亏损次数=1,亏损总值=16
+                平盘次数=0
+    
+        #20010701--
+        评估:总盈亏值=4455,交易次数=27  期望值=2894
+                总盈亏率(1/1000)=4455,平均盈亏率(1/1000)=165,盈利交易率(1/1000)=925
+                赢利次数=25,赢利总值=4570
+                亏损次数=2,亏损总值=115
+                平盘次数=0
+    
+    '''
+    linelog(stock.code)
+    t = stock.transaction
+    if stock.code[:3] != 'SH5' and stock.code[:4]!='SZ18':    
+        #return cached_zeros(len(t[CLOSE]))
+        raise Exception(u'skipping ' + stock.code)
     
     mxc = xc0s(t[OPEN],t[CLOSE],t[HIGH],t[LOW],ma1=13) > 0
 
     vma = ma(t[VOLUME],30)
     svma = ma(t[VOLUME],3)
 
-    vfilter = gand(svma<vma*2/3)
+    vfilter = gand(svma>vma*2/3)
     cf = (t[OPEN]-t[LOW] + t[HIGH]-t[CLOSE])*1000 / (t[HIGH]-t[LOW])   #向下的动力  
     mcf = ma(cf,7)
 
@@ -197,12 +249,11 @@ def xud0(stock):
 
     xatr = stock.atr * BASE / t[CLOSE]
 
-    #signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st,xatr>40)
-    #signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,st,mcf>1000,xatr>40)
-    signal = gand(mxc,stock.above,stock.t5,xatr>20,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,stock.g20 >= stock.g60,stock.g60 >= stock.g120)
-    linelog(stock.code)
+    #signal = gand(mxc,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,stock.g20 >= stock.g60,stock.g60 >= stock.g120)
+    signal = gand(mxc,vfilter,stock.above,stock.t5,stock.ma1<stock.ma2,stock.g20 >= stock.g60,stock.g60 >= stock.g120)
     return signal
-    
+
+
 def xru(stock):
     ''' 测试ru系列
         macd_ru: svma < vma*1/2

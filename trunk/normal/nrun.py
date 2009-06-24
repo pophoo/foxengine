@@ -104,6 +104,9 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc0c,astart=0)))  #4/9
     #configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc0,astart=0)))  #1/5 类同xc02，但xc02更好
     configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc02,astart=0)))  #1/5
+    configs.append(config(buyer=s.xud0))  #蓝筹
+    configs.append(config(buyer=s.xudj))  #基金
+
 
     #configs.append(config(buyer=fcustom(s.tsvama2,fast=20,slow=100)))   #3230-562-183   #20080701以来萎靡
     #configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #@3691-707-41

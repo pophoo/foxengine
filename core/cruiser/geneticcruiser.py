@@ -46,6 +46,8 @@ class GeneticCruiser(object):
         self.ev_result = {}
 
     def gcruise(self,sdata,dates,tbegin):
+        datemap = dict((y,x) for x,y in enumerate(dates)) 
+        self.datemap = datemap
         judge = self.makejudge(sdata,dates,tbegin,self.extractor,lambda ev : self.extractor(ev) >= 0)
         nature = Nature(judge,helper.nonlinear_rank,self.selector,self.reproducer,self.goal)
         population = self.predefined_population()
@@ -104,7 +106,7 @@ class GeneticCruiser(object):
             print 'kw..........',mykwargs
             if self.filtered(**mykwargs):
                 name = ','.join(['%s=%s' % item for item in mykwargs.items()])
-                ev = Evaluation([])
+                ev = Evaluation([],self.datemap)
                 logger.debug('filtered:%s:%s',name,ev.count)
             else:
                 name,ev = self.calc(sdata,dates,tbegin,evthreshold,**mykwargs)
@@ -139,7 +141,7 @@ class GeneticCruiser(object):
         m = Mediator(buy_func,sell_func)
         name = m.name()
         trades = m.calc_matched(sdata,dates,begin=tbegin)
-        ev = self.evaluate_func(trades,**kwargs)  
+        ev = self.evaluate_func(trades,self.datemap,**kwargs)  
         if(not evthreshold(ev)):
             ev.matchedtrades,ev.balances = [],[]    #相当于先删除。为保证ev的一致性而都赋为[]。否则str(ev)中的zip(...)会出错
         #self.ev_result[name] = ev  #移入到jduge中，因为可能值不是ev
@@ -177,7 +179,7 @@ class MM_GeneticCruiser(GeneticCruiser):
             mykwargs = dict(zip(self.argnames,args))
             if self.filtered(**mykwargs):
                 name = ','.join(['%s=%s' % item for item in mykwargs.items()])
-                ev = Evaluation([])
+                ev = Evaluation([],self.datemap)
                 mm = (0,0,0,0)
                 logger.debug('filtered:%s:%s',name,ev.count)
             else:
@@ -205,7 +207,7 @@ class MM_GeneticCruiser(GeneticCruiser):
         m = MM_Mediator(buy_func,sell_func)
         name = m.name()
         trades = m.calc_matched(sdata,dates,begin=tbegin)
-        ev = self.evaluate_func(trades,**kwargs)  
+        ev = self.evaluate_func(trades,self.datemap,**kwargs)  
         if(not evthreshold(ev)):
             ev.matchedtrades,ev.balances = [],[]    #相当于先删除。为保证ev的一致性而都赋为[]。否则str(ev)中的zip(...)会出错
         #self.ev_result[name] = ev  #移入到jduge中，因为可能值不是ev

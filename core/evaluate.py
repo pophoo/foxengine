@@ -6,10 +6,10 @@ from wolfox.fengine.base.common import Quote,Trade,Evaluation
 
 logger = logging.getLogger('wolfox.fengine.core.evaulate')
 
-def evaluate(trades):
+def evaluate(trades,datemap):
     ''' 对交易进行匹配和评估
     '''
-    return Evaluation(trades)
+    return Evaluation(trades,datemap)
 
 import operator
 def DEFAULT_EVALUATE_FILTER(all_matched_trades):
@@ -23,7 +23,7 @@ def DEFAULT_EVALUATE_FILTER(all_matched_trades):
     else:
         return []
 
-def gevaluate(ori_trades,gfilter=DEFAULT_EVALUATE_FILTER):
+def gevaluate(ori_trades,datemap,gfilter=DEFAULT_EVALUATE_FILTER):
     ''' 对多个来源组的交易进行匹配、头寸管理和评估。一次交易可以允许多次买卖，以单个股票存续数量为0为交易完成标志
         ori_trades为BaseObject列表，每个BaseObject包括evaluation,trades两个属性
             evalutaion用于对trades中的交易进行风险和期望管理
@@ -49,7 +49,7 @@ def gevaluate(ori_trades,gfilter=DEFAULT_EVALUATE_FILTER):
         #print 'matched trade:%s,%s',matched_trade[0],matched_trade[1]
         #logger.debug('matched trade:%s,%s',matched_trade[0],matched_trade[1])
         pass
-    return Evaluation(matched_trades)
+    return Evaluation(matched_trades,datemap)
 
 
 import yaml
@@ -62,14 +62,14 @@ def evaluate_all(tradess,pos_manager,date_manager):
         date_manager为DateManager的实例
         返回表示结果数据的对象rev和交易输出
     '''
-    pre_ev = evaluate(tradess)
+    pre_ev = evaluate(tradess,date_manager.date_map)
 
     spre = unicode(pre_ev)
 
     #恢复干净环境，否则上一次调用时的trades还在pos_manager里面，但它们的parent已经被删除了,会在下次删除时出错
     pos_manager.clear() 
 
-    g_ev = gevaluate([BaseObject(evaluation=pre_ev,trades=tradess)],pos_manager.filter)
+    g_ev = gevaluate([BaseObject(evaluation=pre_ev,trades=tradess)],date_manager.date_map,pos_manager.filter)
     rev = BaseObject(RPR=pos_manager.calc_net_indicator(date_manager)
             ,CSHARP=pos_manager.calc_net_indicator(date_manager,CSHARP)
             ,AVGRANGE=pos_manager.calc_net_indicator(date_manager,AVG_DECLINE)
@@ -82,7 +82,9 @@ def evaluate_all(tradess,pos_manager,date_manager):
 
     #print 'types:',type(rev.RPR),type(rev.CSHARP),type(rev.AVGRANGE)
     #print type(rev.income_rate),type(rev.assets)
+    
     srev = yaml.dump(rev)
+    
     #srev = unicode(g_ev)
 
     #for trades in g_ev.matchedtrades:

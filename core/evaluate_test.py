@@ -8,7 +8,7 @@ from wolfox.fengine.core.evaluate import *
 
 class ModuleTest(unittest.TestCase):
     def test_evaluate(self):    #÷ª≤‚ ‘Õ®¬∑
-        evaluate([])
+        evaluate([],{1:0})
         self.assertTrue(True)
     
     def test_DEFAULT_EVALUATE_FILTER(self):
@@ -26,10 +26,11 @@ class ModuleTest(unittest.TestCase):
         trade3 = Trade(2,20050501,1000,1)
         trade4 = Trade(2,20050501,1100,-1)
         #trade5 = Trade(3,20050501,1100,1)        
-        nt1 = BaseObject(name='test1',evaluation=Evaluation([]),trades=[[trade1,trade2]])
-        nt2 = BaseObject(name='test1',evaluation=Evaluation([]),trades=[[trade3,trade4]])
+        datemap = {20050101:0,20050501:1}
+        nt1 = BaseObject(name='test1',evaluation=Evaluation([],datemap),trades=[[trade1,trade2]])
+        nt2 = BaseObject(name='test1',evaluation=Evaluation([],datemap),trades=[[trade3,trade4]])
         #nt3 = BaseObject(name='test1',evaluation=Evaluation([]),trades=[trade5])
-        ev = gevaluate([nt1,nt2])
+        ev = gevaluate([nt1,nt2],datemap)
         self.assertEquals([[trade1,trade2],[trade3,trade4]],ev.matchedtrades)
         self.assertEquals(nt1,trade1.parent)
         self.assertEquals(nt1,trade2.parent)

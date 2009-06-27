@@ -69,7 +69,8 @@ def raw(sdata,dates,idata=None):
         ssignal = d1m.make_trade_signal(sbuy,ssell)
         trades.extend(make_trades(s.id,ssignal,dates,t[CLOSE],t[CLOSE],20010630))
 
-    xx = evaluate(trades)
+    datemap = dict((y,x) for x,y in enumerate(dates)) 
+    xx = evaluate(trades,datemap)
 
     #print unicode(xx)
     

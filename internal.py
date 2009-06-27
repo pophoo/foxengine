@@ -32,4 +32,4 @@ from wolfox.fengine.core.trade import make_trades,last_trade
 from wolfox.fengine.core.evaluate import evaluate,gevaluate,evaluate_all
 from wolfox.fengine.core.mediator import Mediator,MM_Mediator,Mediator10,CMediator10,OMediator10,mediator_factory,oo_pricer,cl_pricer,ol_pricer,co_pricer
 from wolfox.fengine.core.mediator import NMediator,NMediator10,CNMediator10,ONMediator10,nmediator_factory
-from wolfox.fengine.core.pmanager import Position,AdvancedPosition,PositionManager,AdvancedPositionManager,AdvancedATRPositionManager,DateManager
+from wolfox.fengine.core.pmanager import Position,AdvancedPosition,PositionManager,AdvancedPositionManager,AdvancedATRPositionManager,XDateManager

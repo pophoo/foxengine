@@ -127,7 +127,7 @@ def demo(dates,sdata,begin,end,idata=None):
     demo3 = fcustom(buy_func_demo3,fast=5,slow=98)
     #pman = AdvancedPositionManager()
     pman = AdvancedATRPositionManager()
-    dman = DateManager(begin,end)
+    dman = XDateManager(dates)
 
     myMediator=mediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
 

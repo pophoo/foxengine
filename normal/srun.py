@@ -1834,7 +1834,7 @@ def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     tbegin = time()
 
     pman = AdvancedATRPositionManager()
-    dman = DateManager(begin,end)
+    dman = XDateManager(dates)
     myMediator=nmediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
     #seller = atr_xseller_factory(stop_times=2000,trace_times=3000)
     #seller = atr_xseller_factory(stop_times=1500,trace_times=3000)

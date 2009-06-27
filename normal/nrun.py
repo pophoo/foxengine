@@ -226,7 +226,7 @@ def run_body(sdata,dates,begin,end,xbegin):
     tbegin = time()
 
     pman = AdvancedATRPositionManager()
-    dman = DateManager(begin,end)
+    dman = XDateManager(dates)
     myMediator=nmediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
     seller1200 = atr_xseller_factory(stop_times=1200,trace_times=3000)
     seller2000 = atr_xseller_factory(stop_times=2000,trace_times=3000)    
@@ -262,7 +262,7 @@ def run_merge_body(sdata,dates,begin,end,xbegin):
     tbegin = time()
 
     pman = AdvancedATRPositionManager()
-    dman = DateManager(begin,end)
+    dman = XDateManager(dates)
     myMediator=mediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
     seller1200 = atr_xseller_factory(stop_times=1200,trace_times=3000) 
     #seller = csc_func
@@ -376,7 +376,8 @@ if __name__ == '__main__':
     #begin,xbegin,end = 19980101,19990101,20090101
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
-    begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201    
+    #begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201
+    begin,xbegin,end = 20090301,20090401,20090501
     from time import time
     tbegin = time()
     

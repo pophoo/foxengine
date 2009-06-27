@@ -76,7 +76,7 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         batch([],sdata,dates,20010101)    #空测试
         self.assertTrue(True)
         pman = AdvancedPositionManager()
-        dman = DateManager(20010101,20010215)
+        dman = XDateManager(range(20010101,20010215))
         buyer = lambda x:np.ones(45,int)
         c1 = BaseObject(buyer=buyer,seller=atr_seller,pman=pman,dman=dman)
         c2 = BaseObject(buyer=buyer,seller=atr_seller,pman=pman,dman=dman)
@@ -127,7 +127,7 @@ class ModuleTest(unittest.TestCase):    #只测试通道
 
     def test_merge(self):
         pman = AdvancedPositionManager()
-        dman = DateManager(20010101,20010215)
+        dman = XDateManager(range(20010101,20010215))
         dummy = range(45)
         a = np.array([dummy,dummy,dummy,dummy,dummy,dummy,dummy,dummy])
         b = np.array([dummy,dummy,dummy,dummy,dummy,dummy,dummy,dummy])

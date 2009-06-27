@@ -2193,3 +2193,15 @@ def vdeviate_seller(stock,buy_signal,**kwargs): #背离
 
     return confirmed
 
+
+def neg_seller(stock,buy_signal,**kwargs): #短线
+    t = stock.transaction
+    lc = rollx(t[CLOSE])
+    lv = rollx(t[VOLUME])
+    lvma = ma(lv,5)
+    xatr = stock.atr * BASE / t[CLOSE]     
+    mxatr = ma(xatr,7)
+    c1a = gand(t[CLOSE] < lc,t[VOLUME]>lvma,xatr<mxatr)
+    c1b = gand(t[CLOSE] < lc,t[VOLUME]>lv,xatr<mxatr)
+    return bor(c1a,c1b)
+

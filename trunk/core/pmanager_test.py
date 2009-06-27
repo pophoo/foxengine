@@ -487,7 +487,36 @@ class DateManagerTest(unittest.TestCase):
         self.assertEquals(30,len(DateManager(20070101,20070131)))
 
 
+class XDateManagerTest(unittest.TestCase):
+    def test_init(self):
+        nd = XDateManager([])
+        self.assertEquals({},nd.date_map)
+        self.assertEquals(0,nd.begin)
+        self.assertEquals(0,nd.end)        
+        self.assertEquals({20070101:0},XDateManager([20070101]).date_map)
+        xd = XDateManager([20070101,20070201])
+        self.assertEquals({20070101:0,20070201:1},xd.date_map)
+        self.assertEquals(20070101,xd.begin)
+        self.assertEquals(20070201,xd.end)
+
+    def test_get_index(self):
+        d = XDateManager([20070101,20070201,20070301])
+        self.assertEquals(0,d.get_index(20070101))
+        self.assertEquals(2,d.get_index(20070301))
+        self.assertRaises(KeyError,d.get_index,20060101)
+
+    def test_get_xdates(self):
+        dates = [20070101,20070201,20070301]
+        d = XDateManager(dates)
+        self.assertEquals(id(dates),id(d.get_xdates()))
+
+    def test_len(self):
+        self.assertEquals(0,len(DateManager(0,0)))
+        self.assertEquals(3,len(XDateManager([20070101,20070201,20070301])))
+
+
 if __name__ == "__main__":
     import logging
     logging.basicConfig(filename="test.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
     unittest.main()
+

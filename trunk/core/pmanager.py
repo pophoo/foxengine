@@ -309,3 +309,27 @@ class DateManager(object):
     def get_dates(self):
         return sorted(self.date_map.keys())
 
+
+class XDateManager(object):
+    def __init__(self,xdates):
+        self.xdates = xdates
+        self.date_map = dict((y,x) for x,y in enumerate(xdates))    #date ==> index
+        if len(xdates) > 0:
+            self.begin,self.end = xdates[0],xdates[-1]
+        else:
+            self.begin = self.end = 0
+
+    def __len__(self):
+        return len(self.xdates)
+
+    def get_index(self,date):
+        if date in self.date_map:
+            return self.date_map[date]
+        else:
+            logger.warn('%s not in curdates' % date)
+            print '%s not in curdates' % date
+            raise KeyError('%s not in curdates' % date)
+
+    def get_xdates(self):
+        return self.xdates
+

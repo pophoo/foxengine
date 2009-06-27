@@ -21,11 +21,11 @@ class ModuleTest(unittest.TestCase):    #只测试通道
 
     def test_create_evaluator(self): #只测试通路
         evf = create_evaluator()
-        evf([])
+        evf([],{})
         self.assertTrue(True)
 
     def test_normal_evaluate(self):    #只测试通路
-        normal_evaluate([])
+        normal_evaluate([],{})
         self.assertTrue(True)
 
     def test_prepare_catalogs(self):    #只测试通路

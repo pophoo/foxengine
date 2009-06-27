@@ -56,8 +56,11 @@ class Trade(object):
 class Evaluation(object):
     #__slots__ = 'matchedtrades','count','balance','balances','wincount','winamount','lostcount','lostamount','deucecount','ratesum','rateavg','winrate','remark','lostavg','R'  #w赢利值inamount,亏损值lostamount都用正数表示
 
-    def __init__(self,matchedtrades,remark=''): 
+    def __init__(self,matchedtrades,datemap,remark=''): 
+        ''' datemap为xdate==>交易日当前排序号的dict
+        '''
         self.matchedtrades = matchedtrades  
+        self.datemap = datemap
         #print matchedtrades
         self.count = len(matchedtrades) #交易次数
         self.balances,self.wincount,self.winamount,self.lostcount,self.lostamount = self.calcwinlost()
@@ -76,6 +79,7 @@ class Evaluation(object):
     def copy_header(self):
         ne = ccopy(self)
         ne.matchedtrades = []   #清除trades
+        ne.datemap = {}         #清除datemap   
         return ne
 
     def calcwinlost(self):  #内中的balance必须返回int值

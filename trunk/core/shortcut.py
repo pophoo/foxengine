@@ -19,8 +19,8 @@ def csc_func(stock,buy_signal,threshold=75,**kwargs):   #kwargs目的是吸收�
     return d1id.confirmedsellc(buy_signal,t[OPEN],t[CLOSE],t[HIGH],t[LOW],threshold)
 
 def create_evaluator():
-    def efunc(trades,**kwargs):         #kwargs目的是吸收无用参数，便于cruiser
-        return evaluate(trades)
+    def efunc(trades,datemap,**kwargs):         #kwargs目的是吸收无用参数，便于cruiser
+        return evaluate(trades,datemap)
     return efunc
 
 normal_evaluate = create_evaluator()

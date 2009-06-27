@@ -80,7 +80,8 @@ class EvaluationTest(unittest.TestCase):
         trade4 = common.Trade(2,2,1500,-1000,100)
         trade5 = common.Trade(3,1,2970,1000,100)
         trade6 = common.Trade(3,2,3030,-1000,100)
-        ev = common.Evaluation([[trade1,trade2],[trade3,trade4],[trade5,trade6]])
+        datemap = {1:0,2:1,3:2}
+        ev = common.Evaluation([[trade1,trade2],[trade3,trade4],[trade5,trade6]],datemap)
         self.assertEquals([[trade1,trade2],[trade3,trade4],[trade5,trade6]],ev.matchedtrades)
         #测试calcwinlost
         self.assertEquals(1,ev.wincount)
@@ -112,13 +113,15 @@ class EvaluationTest(unittest.TestCase):
         self.assertEquals(1010,common.Evaluation.sumtrades(trades))
 
     def test_empty(self):    #测试没有异常
-        ev = common.Evaluation([])
+        datemap = {}        
+        ev = common.Evaluation([],datemap)
         self.assertEquals(0,ev.winrate)
         self.assertTrue(True)
 
     def test_lt_gt(self): #为简单，直接修改属性
-        ev1 = common.Evaluation([])
-        ev2 = common.Evaluation([])
+        datemap = {1:0,2:1,3:2}
+        ev1 = common.Evaluation([],datemap)
+        ev2 = common.Evaluation([],datemap)
         ev1.R = 100
         ev2.R = 101
         self.assertTrue(ev1 < ev2 and ev2 > ev1)
@@ -131,9 +134,11 @@ class EvaluationTest(unittest.TestCase):
         trade4 = common.Trade(2,2,15000,-1000,100)
         trade5 = common.Trade(3,1,29700,1000,100)
         trade6 = common.Trade(3,2,30300,-1000,100)
-        e = common.Evaluation([[trade1,trade2],[trade3,trade4],[trade5,trade6]])
+        datemap = {1:0,2:1,3:2}        
+        e = common.Evaluation([[trade1,trade2],[trade3,trade4],[trade5,trade6]],datemap)
         e2 = e.copy_header()
         self.assertEquals([],e2.matchedtrades)
+        self.assertEquals({},e2.datemap)
         self.assertEquals(e.count,e2.count)
         self.assertEquals(e.balance,e2.balance)
         self.assertEquals(type(1),type(e.balance))  #balance必须返回int值，排序时简单需要

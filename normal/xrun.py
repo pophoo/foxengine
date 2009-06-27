@@ -169,13 +169,12 @@ def xud(stock):
     stdiff = strend(stock.diff)
     st = gand(stdea<=-3,stdea>=-4,stdiff<=-5,stdiff>=-6)
 
-    xatr = stock.atr * BASE / t[CLOSE]
+    xatr = stock.atr * BASE / t[CLOSE]     
+    mxatr = ma(xatr,7)
+    ratr = xatr * BASE / mxatr
 
-    signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st,xatr>40)
-    #signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,st,mcf>1000,xatr>40)
-    #signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,xatr>40)
-    #signal = gand(mxc,vfilter,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st,xatr>40)
-    
+
+    signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st,ratr>1050)
     linelog(stock.code)
     return signal
 

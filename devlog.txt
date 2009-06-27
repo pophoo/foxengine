@@ -312,11 +312,11 @@ from time import time
 import logging
 logging.basicConfig(filename="xx4c.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 #begin,xbegin,end = 19980101,20010701,20091231
-begin,xbegin,end = 20000101,20010701,20090101
+#begin,xbegin,end = 20000101,20010701,20090101
 #####begin,xbegin,end = 20000101,20010701,20091231
 #begin,xbegin,end = 20050101,20060701,20091231
 #begin,xbegin,end = 20070101,20080601,20091231
-#begin,xbegin,end = 20060101,20080601,20091231
+begin,xbegin,end = 20060101,20080601,20091231
 #begin,xbegin,end = 20000101,20010701,20090101
 #begin,xbegin,end = 19970101,19980101,20010701
 
@@ -5689,3 +5689,49 @@ xatr总是处于高低交替中
 #2009-06-23
 板块：钢铁
 无个股
+
+#2009-06-24
+板块：无
+个股: xud/xc0c: 600887
+
+貌似xatr(20)>mxatr(13/7,7比较灵敏)是一个危险信号，但如果没有别的信号确认，未必紧急。这是一个过滤信号，或者说当xatr<mxatr时，是安全的.
+确认信号之一：5日均量上穿30日均量。这个仅适用于大盘
+
+貌似XUD交叉时，XATR<MXATR也是重要的筛选方法？
+
+有意思，反而是xatr>mxatr有效，此时貌似是xatr拐头。
+用    ratr = xatr * BASE / mxatr
+      ratr >= 1050来区分
+
+#2009-06-25
+板块
+macd: 安徽
+macd: 青海
+macd: 电器
+
+股票：
+无
+
+关于止损和短差
+止损：
+1. 3ATR止损
+2. 成交量止损
+   信号：实际涨幅>2%并且创新高(>60日高点*1.005)，但成交量小于最近10日最大量的1.1倍
+   确认：上升阴线，并且成交量大于最近10日最大量的1.1倍
+        或 低收，但成交量大于前一日成交量
+   信号发出后即刻确认
+短差：
+   (阴线?)收低，成交量大于5日均线，并且xatr(20)>=mxatr(7)
+   (阴线?)收低，成交量大于前一日， 并且xatr(20)>=mxatr(7)
+
+#2009-06-26
+板块
+macd: 河北
+macd: 湖南
+macd: 江西
+macd: 山西
+macd: 陕西
+macd: 房地产
+macd: 工程建筑
+
+

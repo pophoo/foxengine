@@ -58,14 +58,16 @@ class Evaluation(object):
 
     def __init__(self,matchedtrades,datemap,remark=''): 
         ''' datemap为xdate==>交易日当前排序号的dict
+            matchedtrades中每个元素都是完整的trades,参见gevaluate
         '''
         self.matchedtrades = matchedtrades  
         self.datemap = datemap
         #print matchedtrades
         self.count = len(matchedtrades) #交易次数
-        self.balances,self.wincount,self.winamount,self.lostcount,self.lostamount = self.calcwinlost()
+        self.balances,self.wincount,self.winamount,self.lostcount,self.lostamount,self.holdings = self.calcwinlost()
         self.balance = self.winamount - self.lostamount   #总收益率
         self.deucecount = self.count - (self.wincount + self.lostcount) #平局次数
+        self.holdingavg = sum(self.holdings) / len(self.holdings) if self.holdings else 1
         #print 'calc ratesum'
         self.ratesum = self.sumrate()   
         assert int(self.ratesum) == int(self.balance) #ratesum等于balance. 因为目前balances也以收益率来计，而不是收益值
@@ -75,6 +77,7 @@ class Evaluation(object):
         self.lostavg = self.lostamount / self.lostcount if self.lostcount else 0
         self.R = self.rateavg * 1000 / self.lostavg if self.lostavg else 1000   #平均净收益/平均亏损，若没有亏损，则设为1000,即R=10
         #print '胜负次数',self.wincount,self.lostcount
+        self.E = self.rateavg * 1000 / self.holdingavg if self.holdingavg else 0    #总收益率/总持仓时间
 
     def copy_header(self):
         ne = ccopy(self)
@@ -85,6 +88,7 @@ class Evaluation(object):
     def calcwinlost(self):  #内中的balance必须返回int值
         wincount = winamount = lostcount = lostamount = 0
         balances = [0] * len(self.matchedtrades)
+        holdings = [0] * len(self.matchedtrades)
         for i in range(len(self.matchedtrades)):
             balance = int(Trade.balanceit(self.matchedtrades[i]) * 1000/self.sumtrades(self.matchedtrades[i]))  #不加转换，则当成交金额略大时，成为long类型
             #print balance,Trade.balanceit(self.matchedtrades[i]) * 1000,self.sumtrades(self.matchedtrades[i])
@@ -97,11 +101,13 @@ class Evaluation(object):
             else:   #平盘
                 pass
             balances[i] = balance
-        return balances,wincount,winamount,lostcount,lostamount            
+            holdings[i] = self.sumholding(self.matchedtrades[i],self.datemap)
+        return balances,wincount,winamount,lostcount,lostamount,holdings
 
     def header(self):
          return u'''\t评估:总盈亏值=%(balance)s,交易次数=%(count)s\t期望值=%(R)s\t%(remark)s
 \t\t总盈亏率(1/1000)=%(ratesum)s,平均盈亏率(1/1000)=%(rateavg)s,盈利交易率(1/1000)=%(winrate)s
+\t\t平均持仓时间=%(holdingavg)s,持仓效率(1/1000)=%(E)s
 \t\t赢利次数=%(wincount)s,赢利总值=%(winamount)s
 \t\t亏损次数=%(lostcount)s,亏损总值=%(lostamount)s
 \t\t平盘次数=%(deucecount)s\n''' % self.__dict__
@@ -124,6 +130,46 @@ class Evaluation(object):
         #print 'ratesum',ratesum            
         #return ratesum
         return sum(self.balances)
+
+    @staticmethod
+    def sumholding(trades,datemap): #持仓时间
+        '''
+            多次买入一次卖出
+            统算为一次交易，持仓时间按照总量折算,折算为总量的持仓时间。
+            按成交量而非成交额
+        '''
+        if len(trades) <= 1:
+            return 0
+        vsum = trades[0].tvolume    #交易量累计
+        dsum = 0    #交易量的时间累计
+        cur = pre = datemap[trades[0].tdate]
+        for trade in trades[1:-1]: #最后一个必然是反向交易，因此不须计在dsum中
+            cur = datemap[trade.tdate]
+            dsum += (cur-pre)*vsum
+            pre = cur
+            vsum += trade.tvolume
+            #print dsum,vsum
+        dsum += (datemap[trades[-1].tdate]-pre)*vsum
+        #print dsum,vsum
+        return dsum/vsum    #holding
+
+    @staticmethod
+    def sumholding_old(trades,datemap): #持仓时间
+        '''
+            多次买入一次卖出
+            假设每次买入都是一次交易且等量，因此持仓时间等于多次交易的累计持仓时间
+        '''
+        sum = 0 
+        if len(trades) <= 1:
+            return sum
+        pre = datemap[trades[0].tdate]
+        for i,trade in list(enumerate(trades))[1:]:
+            cur = datemap[trade.tdate]
+            #print sum,cur,pre,i
+            sum += (cur-pre)*i
+            pre = cur
+        return sum
+
 
     @staticmethod
     def sumtrades(trades):

@@ -91,6 +91,9 @@ class EvaluationTest(unittest.TestCase):
         self.assertEquals(3,ev.count)
         self.assertEquals(205,ev.balance)
         self.assertEquals(1,ev.deucecount)
+        self.assertEquals([1,1,1],ev.holdings)
+        self.assertEquals(1,ev.holdingavg)
+        self.assertEquals(68000,ev.E)        
         #²âÊÔratesumºÍrateavg
         self.assertEquals(205,ev.ratesum)
         self.assertEquals(68,ev.rateavg)
@@ -100,12 +103,30 @@ class EvaluationTest(unittest.TestCase):
 
     def test_sum_trades(self):
         trade1 = common.Trade(1,1,1000,1000,100)
-        trade2 = common.Trade(1,2,1500,-1000,100)
+        trade2 = common.Trade(1,2,1500,1000,100)
         trade3 = common.Trade(1,3,2000,1000,100)
-        trade4 = common.Trade(1,4,1500,-1000,100)
+        trade4 = common.Trade(1,4,1500,-3000,100)
         trades = (trade1,trade2,trade3,trade4)
-        self.assertEquals(3030000,common.Evaluation.sumtrades(trades))
-    
+        self.assertEquals(4545000,common.Evaluation.sumtrades(trades))
+
+    def test_sum_holding(self):
+        self.assertEquals(0,common.Evaluation.sumholding([],{}))
+        trade1 = common.Trade(1,1,1000,1000,100)
+        trade2 = common.Trade(1,2,1500,1000,100)
+        trade3 = common.Trade(1,3,2000,1000,100)
+        trade4 = common.Trade(1,4,1500,-3000,100)
+        trades = (trade1,trade2,trade3,trade4)
+        self.assertEquals(20,common.Evaluation.sumholding(trades,{1:0,2:10,3:20,4:30}))
+
+    def test_sum_holding_old(self):
+        self.assertEquals(0,common.Evaluation.sumholding_old([],{}))
+        trade1 = common.Trade(1,1,1000,1000,100)
+        trade2 = common.Trade(1,2,1500,1000,100)
+        trade3 = common.Trade(1,3,2000,1000,100)
+        trade4 = common.Trade(1,4,1500,-3000,100)
+        trades = (trade1,trade2,trade3,trade4)
+        self.assertEquals(6,common.Evaluation.sumholding_old(trades,{1:0,2:1,3:2,4:3}))
+ 
     def test_sum_trades_zero(self):#0==>1
         trade1 = common.Trade(1,1,0,1000,100)
         trade2 = common.Trade(1,2,1500,-1000,100)

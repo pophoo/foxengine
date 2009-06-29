@@ -828,6 +828,34 @@ def tsvama2(stock):
     linelog('%s:%s' % (tsvama2.__name__,stock.code))
     return gand(stock.golden,msvap,stock.above,vfilter)
 
+def tsvama2a(stock,fast=20,slow=100):
+    ''' svama两线交叉
+        加vfilter
+    '''
+    t = stock.transaction
+    svap,v2i = stock.svap_ma_67 
+    ma_svapfast = ma(svap,fast)
+    ma_svapslow = ma(svap,slow)
+    trend_ma_svapfast = strend(ma_svapfast) > 0
+    trend_ma_svapslow = strend(ma_svapslow) > 0
+    cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
+
+    ss = cross_fast_slow
+    msvap = transform(ss,v2i,len(t[VOLUME]))
+    linelog('%s:%s' % (tsvama2.__name__,stock.code))
+
+    vdiff,vdea = cmacd(t[VOLUME])
+
+    vma_s = ma(t[VOLUME],13)
+    vma_l = ma(t[VOLUME],30)
+
+    vfilter = vma_s < vma_l * 7/8
+    xatr = stock.atr * BASE / t[CLOSE]
+
+    linelog('%s:%s' % (tsvama2a.__name__,stock.code))
+    return gand(stock.golden,msvap,stock.above,vfilter,xatr<=30)
+    #return gand(stock.golden,msvap,stock.above,xatr<=30)
+
 def gcs(stock,dates):
     t = stock.transaction
     linelog(stock.code)

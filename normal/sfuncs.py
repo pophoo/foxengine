@@ -48,10 +48,10 @@ def tsvama2a(stock,fast=20,slow=100):
     vma_l = ma(t[VOLUME],30)
 
     vfilter = vma_s < vma_l * 7/8
- 
-    linelog('%s:%s' % (tsvama2a.__name__,stock.code))
-    return gand(stock.golden,msvap,stock.above,vfilter)
+    xatr = stock.atr * BASE / t[CLOSE]
 
+    linelog('%s:%s' % (tsvama2a.__name__,stock.code))
+    return gand(stock.golden,msvap,stock.above,vfilter,xatr<=30)
 
 def tsvama2b(stock,fast=20,slow=170,astart=40):
     ''' svama两线交叉

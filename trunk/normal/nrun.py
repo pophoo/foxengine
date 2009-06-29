@@ -82,7 +82,7 @@ def prepare_configs_A0(seller,pman,dman):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
 
-    
+    configs.append(config(buyer=fcustom(s.tsvama2a,fast=20,slow=100)))   
     #configs.append(config(buyer=s.gx250))   #
     configs.append(config(buyer=s.spring))  #5/16
     #configs.append(config(buyer=s.xgcs0))   #平均收益率太低
@@ -112,7 +112,6 @@ def prepare_configs_A0(seller,pman,dman):
     #configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #@3691-707-41
     #configs.append(config(buyer=s.cma1))    #1971-500-30    #593-295-44 ??
     #configs.append(config(buyer=s.tsvama2x))    #1628-800-10    #1778-444-9 ??          #次数太少
-    #configs.append(config(buyer=fcustom(s.tsvama2a,fast=20,slow=100)))   #2714-541-24, 近期成功率升高   #1/20提升率
     #configs.append(config(buyer=s.smacd))    #2618/511/45                   #1/10提升率
 
     #configs.append(config(buyer=s.ma4))     #1111-388-54
@@ -367,7 +366,7 @@ if __name__ == '__main__':
     #总时间段   [20000101,20010701,20090101]    #一个完整的周期+一个下降段
     #分段测试的要求，段mm > 1000-1500或抑制，总段mm > 2000
     
-    #begin,xbegin,end = 20000101,20010701,20090101
+    begin,xbegin,end = 20000101,20010701,20090101
     #begin,xbegin,end = 19980101,20010701,20090101
     #begin,xbegin,end = 20000101,20010701,20050901
     #begin,xbegin,end = 19980101,19990701,20010801    
@@ -376,7 +375,7 @@ if __name__ == '__main__':
     #begin,xbegin,end = 19980101,19990101,20090101
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
-    begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201
+    #begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201
     #begin,xbegin,end,lbegin = 20090301,20090401,20090501,20090501
     from time import time
     tbegin = time()

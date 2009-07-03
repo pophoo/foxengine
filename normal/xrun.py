@@ -2233,3 +2233,25 @@ def neg_seller(stock,buy_signal,**kwargs): #短线
     c1b = gand(t[CLOSE] < lc,t[VOLUME]>lv,xatr<mxatr)
     return bor(c1a,c1b)
 
+
+def uplain(stock):
+    '''
+        不具备长期稳定性
+    '''
+    t = stock.transaction
+    matr1 = ma(stock.atr,3)
+    matr2 = ma(stock.atr,20)
+    d2 = np.array([stock.ma1,stock.ma2,stock.ma3])
+    nmax=np.max(d2,0)
+    nmin=np.min(d2,0)
+    ndev = nmax-nmin < matr1 / 3
+    nup = gand(t[CLOSE] > nmax,t[CLOSE] - nmax < matr1 / 3)
+    nwidth = gand((t[HIGH]-t[LOW]) < matr1 *2/3,(t[HIGH]-t[LOW]) > matr1/2)
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+
+    vfilter = gand(svma<vma*2/3)
+
+    signal = gand(nup,ndev,matr1<matr2,stock.t3,stock.t4,stock.ma3>stock.ma4,stock.ma4>stock.ma5,vfilter,nwidth,stock.g20>=3333,stock.g20<=6666,stock.g5<stock.g20)
+    linelog(stock.code)
+    return signal

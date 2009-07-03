@@ -197,7 +197,7 @@ def prepare_common(sdata,ref):
         s.ma5 = ma(c,120)
         s.t5 = strend(s.ma5) > 0
         s.t4 = strend(s.ma4) > 0
-        s.t3 = strend(s.ma4) > 0
+        s.t3 = strend(s.ma3) > 0
         s.t2 = strend(s.ma2) > 0
         s.t1 = strend(s.ma1) > 0
         s.above = gand(s.ma2>s.ma3,s.ma3>s.ma4,s.ma4>s.ma5)
@@ -366,7 +366,7 @@ if __name__ == '__main__':
     #总时间段   [20000101,20010701,20090101]    #一个完整的周期+一个下降段
     #分段测试的要求，段mm > 1000-1500或抑制，总段mm > 2000
     
-    begin,xbegin,end = 20000101,20010701,20090101
+    #begin,xbegin,end = 20000101,20010701,20090101
     #begin,xbegin,end = 19980101,20010701,20090101
     #begin,xbegin,end = 20000101,20010701,20050901
     #begin,xbegin,end = 19980101,19990701,20010801    
@@ -375,7 +375,7 @@ if __name__ == '__main__':
     #begin,xbegin,end = 19980101,19990101,20090101
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
-    #begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201
+    begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201
     #begin,xbegin,end,lbegin = 20090301,20090401,20090501,20090501
     from time import time
     tbegin = time()
@@ -399,10 +399,10 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     
-    #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
     catalog_macd(catalogs)
 

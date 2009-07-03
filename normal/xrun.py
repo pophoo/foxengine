@@ -174,7 +174,7 @@ def xud(stock):
     ratr = xatr * BASE / mxatr
 
 
-    signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st,ratr>1050)
+    signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st)#,ratr>1050)
     linelog(stock.code)
     return signal
 
@@ -2234,9 +2234,31 @@ def neg_seller(stock,buy_signal,**kwargs): #短线
     return bor(c1a,c1b)
 
 
+def slow_seller(stock,buy_signal,**kwargs): #涨速删除
+    step = 7
+    gain = 30
+    t = stock.transaction
+    c1 = rollx(t[CLOSE],step)
+    i1 = (t[CLOSE]-c1) * BASE / c1
+    s1 = rollx(buy_signal,step)
+    sig1 = np.where(s1>0,i1<gain,0)
+
+    c2 = rollx(t[CLOSE],step*2)
+    i2 = (t[CLOSE]-c2) * BASE / c2
+    s2 = rollx(buy_signal,step*2)
+    sig2 = np.where(s2>0,i2<gain*2,0)
+
+    c3 = rollx(t[CLOSE],step*3)
+    i3 = (t[CLOSE]-c3) * BASE / c3
+    s3 = rollx(buy_signal,step*3)
+    sig3 = np.where(s3>0,i3<gain*3,0)
+
+
+    return gor(sig1,sig2,sig3)
+
 def uplain(stock):
     '''
-        不具备长期稳定性
+        长期稳定性不够
     '''
     t = stock.transaction
     matr1 = ma(stock.atr,3)
@@ -2244,14 +2266,36 @@ def uplain(stock):
     d2 = np.array([stock.ma1,stock.ma2,stock.ma3])
     nmax=np.max(d2,0)
     nmin=np.min(d2,0)
-    ndev = nmax-nmin < matr1 / 3
-    nup = gand(t[CLOSE] > nmax,t[CLOSE] - nmax < matr1 / 3)
-    nwidth = gand((t[HIGH]-t[LOW]) < matr1 *2/3,(t[HIGH]-t[LOW]) > matr1/2)
+    ndev = nmax-nmin < matr2 / 3
+    nup = gand(t[CLOSE] > nmax,t[CLOSE] - nmax < matr2 / 3)
+    nwidth = gand((t[HIGH]-t[LOW]) < matr2)
     vma = ma(t[VOLUME],30)
     svma = ma(t[VOLUME],3)
 
     vfilter = gand(svma<vma*2/3)
 
-    signal = gand(nup,ndev,matr1<matr2,stock.t3,stock.t4,stock.ma3>stock.ma4,stock.ma4>stock.ma5,vfilter,nwidth,stock.g20>=3333,stock.g20<=6666,stock.g5<stock.g20)
+    signal = gand(nup,ndev,matr1<matr2,stock.t3,stock.t4,stock.ma3>stock.ma4,stock.ma4>stock.ma5,vfilter,nwidth,stock.g5<stock.g20,stock.g20<stock.g60)
+    linelog(stock.code)
+    return signal
+
+def uplain2(stock):
+    t = stock.transaction
+    matr1 = ma(stock.atr,3)
+    matr2 = ma(stock.atr,20)
+    d2 = np.array([stock.ma1,stock.ma2,stock.ma3])
+    nmax=np.max(d2,0)
+    nmin=np.min(d2,0)
+    ndev = nmax-nmin < matr2 / 3
+    nup = gand(t[CLOSE] > nmax,t[CLOSE] - nmax < matr2 / 3)
+    nwidth = gand((t[HIGH]-t[LOW]) < matr2*2/3)
+    sdev = msum2(ndev,4) > 3
+    swidth = msum(nwidth,5) > 3
+
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+
+    vfilter = gand(svma<vma*2/3)
+
+    signal = gand(nup,nwidth,sdev,matr1<matr2,stock.t3,stock.t4,stock.ma3>stock.ma4,stock.ma4>stock.ma5,vfilter,stock.g5<stock.g20,stock.g20<stock.g60,stock.g20>3000,stock.g20<8000)
     linelog(stock.code)
     return signal

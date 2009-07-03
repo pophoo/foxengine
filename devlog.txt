@@ -5817,7 +5817,6 @@ NDEV:=NMAX-NMIN < MTR/3;
 NUP:=CLOSE>NMAX AND CLOSE-NMAX<MTR/3;
 NSIG:NUP AND REF(NUP,1) AND NDEV AND REF(NDEV,1) AND MTR5<MTR;
 
-
 MA30不能朝下
 MA60不能在短期均线上面,至少ma30>ma60
 
@@ -5834,6 +5833,7 @@ signal = gand(snup,sndev,matr1<matr2)
 
 
 #2009-07-02
+#1
 板块
 macd: 黑龙江
 macd: 山东
@@ -5859,3 +5859,7 @@ macd: 汽车类
 macd: 运输物流
 
 xud0: 601333
+
+#2 奇异的追求
+slow_seller
+追求持仓效率还是追求涨幅？

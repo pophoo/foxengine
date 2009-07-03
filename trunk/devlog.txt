@@ -312,11 +312,11 @@ from time import time
 import logging
 logging.basicConfig(filename="xx4c.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 #begin,xbegin,end = 19980101,20010701,20091231
-#begin,xbegin,end = 20000101,20010701,20090101
+begin,xbegin,end = 20000101,20010701,20090101
 #####begin,xbegin,end = 20000101,20010701,20091231
 #begin,xbegin,end = 20050101,20060701,20091231
 #begin,xbegin,end = 20070101,20080601,20091231
-begin,xbegin,end = 20060101,20080601,20091231
+#begin,xbegin,end = 20060101,20080601,20091231
 #begin,xbegin,end = 20000101,20010701,20090101
 #begin,xbegin,end = 19970101,19980101,20010701
 
@@ -339,7 +339,7 @@ nrun.prepare_index(idata[1])
 #nrun.prepare_order(idata.values())
 dummy_catalogs('catalog',catalogs)
 pman = AdvancedATRPositionManager()
-dman = XDateManager(begin,end)
+dman = XDateManager(dates)
 myMediator=nmediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
 seller = atr_xseller_factory(stop_times=1200,trace_times=3000)
 seller2000 = atr_xseller_factory(stop_times=2000,trace_times=3000)
@@ -5754,3 +5754,108 @@ DP:= SUM(IF(MID<REF(MID,1),REF(MID,1)-MID,0),N);
 U:IF(UP>0,UV/UP,0);
 D:IF(DP>0,DV/DP,0)
 
+
+#2009-06-29
+板块
+macd: 福建
+macd: 江苏
+macd: 辽宁
+macd: 旅游酒店
+
+个股
+无
+
+#2009-06-30
+macd: 吉林
+macd: 煤炭石油
+
+#2009-07-01
+macd: 福建
+macd: 深圳
+macd: 供水供气
+macd: 券商
+
+
+##7-13-30三线拟和，离差幅度<2%,且连续两天收盘站上高线
+XMA1:=MA(CLOSE,7);
+XMA2:=MA(CLOSE,13);
+XMA3:=MA(CLOSE,30);
+NMAXA:=MAX(XMA1,XMA2);
+NMAX:=MAX(NMAXA,XMA3);
+NMINA:=MIN(XMA1,XMA2);
+NMIN:=MIN(NMINA,XMA3);
+NDEV:=(NMAX-NMIN)/NMIN;
+NUP:=CLOSE>NMAX AND (CLOSE-NMAX)/NMAX<0.02;
+NSIG:NUP AND REF(NUP,1) AND NDEV<0.02 AND REF(NDEV,1)<0.02;
+
+修改为以atr(20)为基准：
+TR:=MAX(MAX((HIGH-LOW),ABS(REF(CLOSE,1)-HIGH)),ABS(REF(CLOSE,1)-LOW));
+MTR:=MA(TR,20);
+XMA1:=MA(CLOSE,7);
+XMA2:=MA(CLOSE,13);
+XMA3:=MA(CLOSE,30);
+NMAXA:=MAX(XMA1,XMA2);
+NMAX:=MAX(NMAXA,XMA3);
+NMINA:=MIN(XMA1,XMA2);
+NMIN:=MIN(NMINA,XMA3);
+NDEV:=NMAX-NMIN < MTR/3;
+NUP:=CLOSE>NMAX AND CLOSE-NMAX<MTR/3;
+NSIG:NUP AND REF(NUP,1) AND NDEV AND REF(NDEV,1);
+
+#atr(5)不能太大
+TR:=MAX(MAX((HIGH-LOW),ABS(REF(CLOSE,1)-HIGH)),ABS(REF(CLOSE,1)-LOW));
+MTR:=MA(TR,20);
+MTR5:=MA(TR,5);
+XMA1:=MA(CLOSE,7);
+XMA2:=MA(CLOSE,13);
+XMA3:=MA(CLOSE,30);
+NMAXA:=MAX(XMA1,XMA2);
+NMAX:=MAX(NMAXA,XMA3);
+NMINA:=MIN(XMA1,XMA2);
+NMIN:=MIN(NMINA,XMA3);
+NDEV:=NMAX-NMIN < MTR/3;
+NUP:=CLOSE>NMAX AND CLOSE-NMAX<MTR/3;
+NSIG:NUP AND REF(NUP,1) AND NDEV AND REF(NDEV,1) AND MTR5<MTR;
+
+
+MA30不能朝下
+MA60不能在短期均线上面,至少ma30>ma60
+
+#
+matr1 = ma(stock.atr,3)
+matr2 = ma(stock.atr,20)
+nmax=np.max(stock.ma1,stock.ma2,stock.ma3)
+nmin=np.min(stock.ma1,stock.ma2,stock.ma3)
+ndev = nmax-nmin < matr1 / 3
+nup = gand(t[CLOSE] > nmax,t[CLOSE] - nmax < matr1 / 3)
+snup = msum2(nup,2) == 2    #连续2天
+sndev = msum2(ndev,2) == 2  #连续2天
+signal = gand(snup,sndev,matr1<matr2)
+
+
+#2009-07-02
+板块
+macd: 黑龙江
+macd: 山东
+macd: 云南
+macd: 浙江
+macd: 电力
+macd: 外贸
+macd: 有色金属
+macd: 基金板块A
+
+个股
+xud0: 000100
+
+#2009-07-03
+macd: 海南
+macd: 河南
+macd: 湖北
+macd: 内蒙古
+macd: 上海
+macd: 新疆
+macd: 农林牧渔
+macd: 汽车类
+macd: 运输物流
+
+xud0: 601333

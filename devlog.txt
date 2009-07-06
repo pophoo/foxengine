@@ -5863,3 +5863,81 @@ xud0: 601333
 #2 奇异的追求
 slow_seller
 追求持仓效率还是追求涨幅？
+这个应该是资金管理中的策略，当无新可持选择时，继续持有，否则换股
+
+200906小结
+操作回顾
+1. 第一轮操作
+50etf,红利etf,中信银行、南风化工、中国南车
+存在问题：
+a.50etf在选出后没有及时在开盘买入，而是停顿，导致均价上升3.5%
+b.中信银行、红利etf在收到反馈后卖出，结果不佳。其中红利之后上涨10%左右，但幅度不如50etf，中信银行涨幅15%左右
+  南风化工止损卖出，
+  中国南车亦卖出
+c. 这轮操作仅保留50etf,涨幅约15%
+
+2. 第二轮操作
+凤凰光学
+该股在修整参数后不再选出，长期不动卖出.
+存在问题：
+在之后未选出时，应当立即卖出。否则会影响之后的选择。
+
+3. 第三轮操作
+国金证券
+接近开盘价买入，涨幅约20%
+存在问题：
+xud找到之后，6月国金之前有两个股票，新钢和九鼎新材。因为当时仓位和股票动作问题，没有介入。新钢涨幅近40%。
+其中新钢是xud-xc0s/xc02/xc0c的三重选择，九鼎是xc02/xc0c的选择
+
+4. 第四轮操作
+xud-xc0c的选择:*ST伊利
+存在问题:
+实质上已经止损卖出，但仍然持股。可能丧失后期机会
+
+5. 第五轮操作
+xud0选出000100,601333
+无操作
+存在问题：
+因恐高而未操作. 000100是两市倒数第二的低价股
+
+200907展望
+是否把资金分成中长线和短线两部分？
+是否追踪xud/xru系列?
+
+lmax:=max(max(max(max(max(max(ref(vol,1),ref(vol,2)),ref(vol,3)),ref(vol,4)),ref(vol,5)),ref(vol,6)),ref(vol,7));
+lmin:=min(min(min(min(min(min(ref(vol,1),ref(vol,2)),ref(vol,3)),ref(vol,4)),ref(vol,5)),ref(vol,6)),ref(vol,7));
+v30:=ma(vol,30);
+d:=lmax-lmin;
+x: (vol-lmin)/d;
+
+lmax:=max(max(max(max(max(max(max(max(max(max(max(max(ref(vol,1),ref(vol,2)),ref(vol,3)),ref(vol,4)),ref(vol,5)),ref(vol,6)),ref(vol,7)),ref(vol,8)),ref(vol,9)),ref(vol,10)),ref(vol,11)),ref(vol,12)),ref(vol,13));
+lmin:=min(min(min(min(min(min(min(min(min(min(min(min(ref(vol,1),ref(vol,2)),ref(vol,3)),ref(vol,4)),ref(vol,5)),ref(vol,6)),ref(vol,7)),ref(vol,8)),ref(vol,9)),ref(vol,10)),ref(vol,11)),ref(vol,12)),ref(vol,13));
+
+
+#2009-07-05
+#1 发现一个奇异的卖出指标，根据xud来的
+    U:=(HIGH-OPEN+CLOSE-LOW)/(HIGH-LOW);
+    D:=(HIGH-CLOSE+OPEN-LOW)/(HIGH-LOW);
+    UV := VOL * U/(U+D);
+    DV := VOL - UV;
+    MDV:MA(DV,7);
+	MDV2:MA(DV,30)*1.1;
+当mdv上叉mdv2时，卖出。
+    可以用xatr(20)/mxatr(20,7)做过滤，当xatr<mxatr时，当作没发生??
+    是这样，当该信号发生时，若xatr<mxatr，则当作没发生，但当xatr穿越mxatr时，若mdv>mdv2，则有信号？？？
+
+其中，7-13也是一个选择。貌似7-17不错，3-13/5-13也可 
+确认使用7-17
+
+7-17对xud无正向影响
+对gmacd/gmacd5影响巨大 （7-13更佳）,spring有效果
+    xgcs0有显著提升
+    ldx系列有效 (ldx2-120无效)
+xru系列无效
+tsvama2b无效
+
+总体来说效果不错
+
+#2 发现nude的效果不错，确认2001-2008情况
+    signal = gand(stock.thumb,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st)#,ratr>1050)
+

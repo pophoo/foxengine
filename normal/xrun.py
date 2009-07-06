@@ -227,13 +227,42 @@ def xudj(stock):
                 平盘次数=0
     
     '''
+    pass
+
+
+from wolfox.fengine.core.d1idiom import supdowns
+from wolfox.fengine.core.d1indicator import cexpma
+
+def xudv(stock):
+    '''
+        V1:=MA(VOL,7);
+        V2:=MA(VOL,13);
+        V3:=MA(VOL,30);
+        DV1:=ABS(VOL-REF(V1,1));
+        DV2:=ABS(VOL-REF(V2,2));
+        DV3:=ABS(VOL-REF(V3,2));
+        DV0:=ABS(VOL-REF(VOL,1));
+        TR:=MAX(MAX(MAX(DV1,DV2),DV3),DV0);
+        ATR:=MA(TR,N);
+        XATR:=ATR*100/VOL;
+        MXATR:=EMA(XATR,7);
+        DATR:XATR/MXATR;
+        ZERO:1;
+    '''    
     linelog(stock.code)
     t = stock.transaction
-    if stock.code[:3] != 'SH5' and stock.code[:4]!='SZ18':    
-        #return cached_zeros(len(t[CLOSE]))
-        raise Exception(u'skipping ' + stock.code)
-    
-    mxc = xc0s(t[OPEN],t[CLOSE],t[HIGH],t[LOW],ma1=13) > 0
+
+    ma1 = 13
+    su,sd = supdowns(t[OPEN],t[CLOSE],t[HIGH],t[LOW])
+    uv = t[VOLUME] * su / (su+sd)
+    dv = t[VOLUME] - uv
+    zx = cached_zeros(len(t[CLOSE]))
+    msu = ma(uv,ma1)
+    msd = ma(dv,ma1)
+    mxc = cross(zx,msu-msd) > 0 #居然<0效果更好
+
+
+    #mxc = xc0s(t[OPEN],t[CLOSE],t[HIGH],t[LOW],ma1=13) > 0
 
     vma = ma(t[VOLUME],30)
     svma = ma(t[VOLUME],3)
@@ -248,9 +277,52 @@ def xudj(stock):
 
     xatr = stock.atr * BASE / t[CLOSE]
 
-    #signal = gand(mxc,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,stock.g20 >= stock.g60,stock.g60 >= stock.g120)
-    signal = gand(mxc,vfilter,stock.above,stock.t5,stock.ma1<stock.ma2,stock.g20 >= stock.g60,stock.g60 >= stock.g120)
+    #signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,mcf>1000,st)#,ratr>1050)
+    signal = gand(mxc,stock.thumb,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st)#,ratr>1050)
+    
     return signal
+
+
+def nude(stock):
+    linelog(stock.code)
+    t = stock.transaction
+
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+
+    vfilter = gand(svma>vma*2/3)
+    cf = (t[OPEN]-t[LOW] + t[HIGH]-t[CLOSE])*1000 / (t[HIGH]-t[LOW])   #向下的动力  
+    mcf = ma(cf,7)
+
+    stdea = strend(stock.dea)
+    stdiff = strend(stock.diff)
+    st = gand(stdea<=-3,stdea>=-4,stdiff<=-5,stdiff>=-6)
+
+    xatr = stock.atr * BASE / t[CLOSE]
+
+    #signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,mcf>1000,st)#,ratr>1050)
+    signal = gand(stock.thumb,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st)#,ratr>1050)
+    
+    return signal
+
+def xv(stock):
+    ''' 同花顺
+        LMAX:=MAX(MAX(MAX(MAX(MAX(MAX(REF(VOL,1),REF(VOL,2)),REF(VOL,3)),REF(VOL,4)),REF(VOL,5)),REF(VOL,6)),REF(VOL,7));
+        LMIN:=MIN(MIN(MIN(MIN(MIN(MIN(REF(VOL,1),REF(VOL,2)),REF(VOL,3)),REF(VOL,4)),REF(VOL,5)),REF(VOL,6)),REF(VOL,7));
+        V30:=MA(VOL,30);
+        D:=LMAX-LMIN;
+        X:=(VOL-LMIN)/V30;
+        MX:MA(X,7);
+        MX2:MA(X,13);
+
+        lmax:=max(max(max(max(max(max(max(max(max(max(max(max(ref(vol,1),ref(vol,2)),ref(vol,3)),ref(vol,4)),ref(vol,5)),ref(vol,6)),ref(vol,7)),ref(vol,8)),ref(vol,9)),ref(vol,10)),ref(vol,11)),ref(vol,12)),ref(vol,13));
+        lmin:=min(min(min(min(min(min(min(min(min(min(min(min(ref(vol,1),ref(vol,2)),ref(vol,3)),ref(vol,4)),ref(vol,5)),ref(vol,6)),ref(vol,7)),ref(vol,8)),ref(vol,9)),ref(vol,10)),ref(vol,11)),ref(vol,12)),ref(vol,13));
+    '''
+    linelog(stock.code)
+    t = stock.transaction
+    lmax = tmax(t[VOLUME],13)
+    lmin = tmin(t[VOLUME],13)
+
 
 
 def xru(stock):
@@ -2236,7 +2308,7 @@ def neg_seller(stock,buy_signal,**kwargs): #短线
 
 def slow_seller(stock,buy_signal,**kwargs): #涨速删除
     step = 7
-    gain = 30
+    gain = 50
     t = stock.transaction
     c1 = rollx(t[CLOSE],step)
     i1 = (t[CLOSE]-c1) * BASE / c1
@@ -2248,13 +2320,49 @@ def slow_seller(stock,buy_signal,**kwargs): #涨速删除
     s2 = rollx(buy_signal,step*2)
     sig2 = np.where(s2>0,i2<gain*2,0)
 
-    c3 = rollx(t[CLOSE],step*3)
-    i3 = (t[CLOSE]-c3) * BASE / c3
-    s3 = rollx(buy_signal,step*3)
-    sig3 = np.where(s3>0,i3<gain*3,0)
+    #c3 = rollx(t[CLOSE],step*3)
+    #i3 = (t[CLOSE]-c3) * BASE / c3
+    #s3 = rollx(buy_signal,step*3)
+    #sig3 = np.where(s3>0,i3<gain*4,0)
+
+    return gor(sig1,sig2)#,sig3)
+
+def mas_seller(stock,buy_signal,**kwargs): #ma涨速删除，分段的太复杂
+    step = 20
+    gain = 100
+    t = stock.transaction
+    rc = rollx(t[CLOSE],step)
+    ri = (t[CLOSE]-rc) * BASE / rc < gain
+    ss = scover(rollx(buy_signal,-1),step)  #避免之前的卖出信号屏蔽，因为这个删除信号太频繁了
+    sig = gand(ri,bnot(ss)) #清除信号日起前step日的卖出信号 
+    #print sig * (-5) + buy_signal,buy_signal
+    return sig
+
+def ima_seller(stock,buy_signal,**kwargs): #ma涨速死叉
+    step1 = 7
+    step2 = 13
+    step3 = 30
+    t = stock.transaction
+    rc1 = t[CLOSE] * BASE / rollx(t[CLOSE],step1)
+    rc2 = t[CLOSE] * BASE / rollx(t[CLOSE],step2)
+    rc3 = t[CLOSE] * BASE / rollx(t[CLOSE],step3)
+    c12 = cross(rc2,rc1)<0
+    c23 = cross(rc3,rc2)<0
+    ss = scover(rollx(buy_signal,-1),step1)  #避免之前的卖出信号屏蔽，因为这个删除信号太频繁了    
+    #print sig * (-5) + buy_signal,buy_signal
+    return gor(c23,bnot(ss))
 
 
-    return gor(sig1,sig2,sig3)
+from wolfox.fengine.core.d1idiom import supdowns
+def vseller(stock,buy_signal,**kwargs): #下降力上升
+    t = stock.transaction
+    su,sd = supdowns(t[OPEN],t[CLOSE],t[HIGH],t[LOW])
+    uv = t[VOLUME] * su / (su+sd)
+    dv = t[VOLUME] - uv
+    mdv = ma(dv,7)
+    mdv2 = ma(dv,17) * 11 / 10
+    sig = cross(mdv2,mdv) > 0    
+    return sig
 
 def uplain(stock):
     '''

@@ -2360,7 +2360,7 @@ def vseller(stock,buy_signal,**kwargs): #下降力上升
     uv = t[VOLUME] * su / (su+sd)
     dv = t[VOLUME] - uv
     mdv = ma(dv,7)
-    mdv2 = ma(dv,17) * 11 / 10
+    mdv2 = ma(dv,17) * 110 / 100
     sig = cross(mdv2,mdv) > 0    
     return sig
 

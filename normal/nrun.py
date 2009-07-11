@@ -217,6 +217,28 @@ def prepare_common(sdata,ref):
         except:
             s.xchange = v / 10  #假设s.ag=10000
 
+def prepare_common_catalog(catalogs,ref):
+    for s in catalogs:
+        #print s.code
+        s.ref = ref
+        c = s.transaction[CLOSE]
+        s.ma1= ma(c,7)
+        s.ma2 = ma(c,13)
+        s.ma3 = ma(c,30)
+        s.ma4 = ma(c,60)
+        s.ma5 = ma(c,120)
+        s.t5 = strend(s.ma5) > 0
+        s.t4 = strend(s.ma4) > 0
+        s.t3 = strend(s.ma3) > 0
+        s.t2 = strend(s.ma2) > 0
+        s.t1 = strend(s.ma1) > 0
+        s.above = gand(s.ma2>s.ma3,s.ma3>s.ma4,s.ma4>s.ma5)
+        #将golden和above分开
+        s.golden = gand(s.g20 >= s.g60+1000,s.g60 >= s.g120+1000,s.g20>=3000,s.g20<=8000)
+        s.thumb = gand(s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20>=3000,s.g20<=8000)
+        s.ks = subd(c) * BASE / rollx(c)
+        s.diff,s.dea = cmacd(c)
+
 def prepare_index(index):
     index.pdiff,index.pdea = cmacd(index.transaction[CLOSE])
 
@@ -289,6 +311,7 @@ def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     prepare_order(catalogs)
     prepare_common(sdata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
     prepare_common(idata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
+    prepare_common_catalog(catalogs,idata[ref_id])
     prepare_index(idata[1])
     dummy_catalogs('catalog',catalogs)
     run_body(sdata,dates,begin,end,xbegin)
@@ -299,6 +322,7 @@ def run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     prepare_order(catalogs)    
     prepare_common(sdata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
     prepare_common(idata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma    
+    prepare_common_catalog(catalogs,idata[ref_id])
     prepare_index(idata[1])
     dummy_catalogs('catalog',catalogs)
     run_merge_body(sdata,dates,begin,end,xbegin)
@@ -309,6 +333,7 @@ def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
     prepare_order(catalogs) 
     prepare_common(sdata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
     prepare_common(idata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma    
+    prepare_common_catalog(catalogs,idata[ref_id])
     prepare_index(idata[1])
     dummy_catalogs('catalog',catalogs)
     from time import time

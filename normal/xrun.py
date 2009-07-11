@@ -282,6 +282,47 @@ def xudv(stock):
     
     return signal
 
+def xudx(stock,xfunc=xc0s,astart=45):
+    ''' 
+    '''
+    t = stock.transaction
+    mxc = xfunc(t[OPEN],t[CLOSE],t[HIGH],t[LOW],ma1=13) > 0
+
+    #确认mxc最近5天内的至少有4天是mu小于md(或2/3？)
+
+    su,sd = supdowns(t[OPEN],t[CLOSE],t[HIGH],t[LOW])
+    msu,msd = cexpma(su,13),cexpma(sd,13)
+    ms = msum2(msu>msd,5) ==2
+
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+
+    vfilter = gand(svma<vma*2/3)
+    cf = (t[OPEN]-t[LOW] + t[HIGH]-t[CLOSE])*1000 / (t[HIGH]-t[LOW])   #向下的动力  
+    mcf = ma(cf,7)
+
+    stdea = strend(stock.dea)
+    stdiff = strend(stock.diff)
+    st = gand(stdea<=-3,stdea>=-4,stdiff<=-5,stdiff>=-6)
+
+    xatr = stock.atr * BASE / t[CLOSE]     
+
+    lhx = tmax(t[HIGH],3)
+    llx = tmin(t[LOW],3)
+    xwave = lhx * BASE / llx - BASE
+
+    mav = np.abs(stock.ma1 * BASE / stock.ma2 - BASE)
+    xmav = tmax(mav,3)
+
+    signal = gand(mxc)#,xwave<50)#,xatr>=astart)
+    #signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,mcf>1000)#,ratr>1050)    
+    #signal = gand(mxc,stock.thumb,stock.above,stock.t5,xwave<40,t[CLOSE]>stock.ma1,ms)#,ratr>1050)
+    signal = gand(mxc,vfilter,ms,stock.silver,stock.above,stock.t5)#,ratr>1050)
+ 
+    linelog(stock.code)
+    return signal
+
+
 
 def nude(stock):
     linelog(stock.code)
@@ -300,8 +341,7 @@ def nude(stock):
 
     xatr = stock.atr * BASE / t[CLOSE]
 
-    #signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,mcf>1000,st)#,ratr>1050)
-    signal = gand(stock.thumb,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st)#,ratr>1050)
+    signal = gand(vfilter,stock.thumb,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st)#,ratr>1050)
     
     return signal
 

@@ -312,11 +312,11 @@ from time import time
 import logging
 logging.basicConfig(filename="xx4c.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 #begin,xbegin,end = 19980101,20010701,20091231
-begin,xbegin,end = 20000101,20010701,20090101
+#begin,xbegin,end = 20000101,20010701,20090101
 #####begin,xbegin,end = 20000101,20010701,20091231
 #begin,xbegin,end = 20050101,20060701,20091231
 #begin,xbegin,end = 20070101,20080601,20091231
-#begin,xbegin,end = 20060101,20080601,20091231
+begin,xbegin,end = 20060101,20080601,20091231
 #begin,xbegin,end = 20000101,20010701,20090101
 #begin,xbegin,end = 19970101,19980101,20010701
 
@@ -335,6 +335,7 @@ nrun.prepare_order(idata.values())
 nrun.prepare_order(catalogs)
 nrun.prepare_common(sdata.values(),idata[ref_id])
 nrun.prepare_common(idata.values(),idata[ref_id])
+nrun.prepare_common_catalog(catalogs,idata[ref_id])
 nrun.prepare_index(idata[1])
 #nrun.prepare_order(idata.values())
 dummy_catalogs('catalog',catalogs)
@@ -5915,7 +5916,7 @@ lmin:=min(min(min(min(min(min(min(min(min(min(min(min(ref(vol,1),ref(vol,2)),ref
 
 
 #2009-07-05
-#1 发现一个奇异的卖出指标，根据xud来的
+#1 发现一个奇异的卖出指标，根据xud来的, 命名为USS
     U:=(HIGH-OPEN+CLOSE-LOW)/(HIGH-LOW);
     D:=(HIGH-CLOSE+OPEN-LOW)/(HIGH-LOW);
     UV := VOL * U/(U+D);
@@ -5928,6 +5929,8 @@ lmin:=min(min(min(min(min(min(min(min(min(min(min(min(ref(vol,1),ref(vol,2)),ref
 
 其中，7-13也是一个选择。貌似7-17不错，3-13/5-13也可 
 确认使用7-17,*1.15
+
+60分钟线更加敏感
 
 7-17对xud无正向影响
 对gmacd/gmacd5影响巨大 （7-13更佳）,spring有效果
@@ -5975,3 +5978,20 @@ macd: 通信
 
 个股
 
+#测试xud+5日以上横向小阴阳盘整,如600059-0706,000596-0706
+    以什么来判断横盘? 连续三天波动不超过3%? 连续7天不超过6%?
+
+
+#2009-07-09
+macd: 电力设备
+macd: 计算机
+macd: 商业连锁
+macd: 仪电仪表
+
+mxru: 000586
+
+#2009-07-10
+macd: 宁夏
+macd: 西藏
+
+无个股

@@ -157,6 +157,9 @@ def xud(stock):
     '''
     t = stock.transaction
     mxc = xc0s(t[OPEN],t[CLOSE],t[HIGH],t[LOW],ma1=13) > 0
+    #su,sd = supdowns(t[OPEN],t[CLOSE],t[HIGH],t[LOW])
+    #msu,msd = cexpma(su,13),cexpma(sd,13)
+    #mxc= bor(mxc,gand(rollx(mxc),strend(msu)>0))     #第一天加后增强的后两天
 
     vma = ma(t[VOLUME],30)
     svma = ma(t[VOLUME],3)
@@ -173,8 +176,8 @@ def xud(stock):
     mxatr = ma(xatr,7)
     ratr = xatr * BASE / mxatr
 
-
-    signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st)#,ratr>1050)
+    thumb = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8500)
+    signal = gand(mxc,vfilter,thumb,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st,xatr>=45)
     linelog(stock.code)
     return signal
 
@@ -200,8 +203,11 @@ def xud0(stock):
         raise Exception(u'skipping ' + stock.code)
     
     mxc = xc0s(t[OPEN],t[CLOSE],t[HIGH],t[LOW],ma1=13) > 0
-    mxc=scover(mxc,3)
+    su,sd = supdowns(t[OPEN],t[CLOSE],t[HIGH],t[LOW])
+    msu,msd = cexpma(su,13),cexpma(sd,13)
 
+    mxc= bor(mxc,gand(rollx(scover(mxc,2)),strend(msu)>0))     #第一天加后增强的后两天
+    
     stdea = strend(stock.dea)
     stdiff = strend(stock.diff)
     st = gand(stdea<=-3,stdea>=-4,stdiff<=-4,stdiff>=-7)
@@ -282,6 +288,8 @@ def xudv(stock):
     
     return signal
 
+
+xfilter = lambda c,s:gand(strend(c.diff-c.dea)>0,c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250)
 def xudx(stock,xfunc=xc0s,astart=45):
     ''' 
     '''
@@ -314,13 +322,35 @@ def xudx(stock,xfunc=xc0s,astart=45):
     mav = np.abs(stock.ma1 * BASE / stock.ma2 - BASE)
     xmav = tmax(mav,3)
 
+    try:
+        sx = catalog_signal_cs(stock.c60,xfilter)
+    except:
+        sx = cached_zeros(len(t[CLOSE]))
+
     signal = gand(mxc)#,xwave<50)#,xatr>=astart)
     #signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,mcf>1000)#,ratr>1050)    
     #signal = gand(mxc,stock.thumb,stock.above,stock.t5,xwave<40,t[CLOSE]>stock.ma1,ms)#,ratr>1050)
-    signal = gand(mxc,vfilter,ms,stock.silver,stock.above,stock.t5)#,ratr>1050)
- 
+    signal = gand(mxc,vfilter,sx,stock.above,stock.t5)#,ratr>1050)
     linelog(stock.code)
     return signal
+
+
+xcma = lambda a,v,l : np.cast['int32'](msum2(a*1.0,l)/msum2(v,l)*100)
+def cma(stock):
+    t = stock.transaction    
+    linelog('cma:%s' % stock.code)
+    cma1 = xcma(t[AMOUNT],t[VOLUME],7)
+    cma2 = xcma(t[AMOUNT],t[VOLUME],30)
+    signal = greater(cross(cma2,cma1))
+
+    xatr = stock.atr * BASE / t[CLOSE]     
+    
+    stdea = strend(stock.dea)
+    stdiff = strend(stock.diff)
+    st = gand(stdea<=-9)
+    #thumb = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8500)
+    
+    return gand(signal,stock.thumb,stock.above,stock.t5,stock.ma1<stock.ma2)
 
 
 

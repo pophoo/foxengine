@@ -56,6 +56,7 @@ def prepare_configs_A2000(seller,pman,dman):    #R>=400,winrate>400 or R>=1000,w
 
 def prepare_configs_A0(seller,pman,dman):    
     ''' 实际上需要暂停平均盈亏率<100的
+                        期望值R(0.001) – 总次数 – 盈利交易比率(千分之一) – 盈利交易总值 – 亏损交易总值-平均盈亏率
         手工巡游成果    19990701-20010701       20010701-20081231           20080701-20090612
         gx250	        1000-1-1000-9-0-9	    1971-7-71-1093-138-136	    2200-2-50-27-5-11
         spring	        -1000-1-0-0-21—21	    5483-96-65-33627-1997-329	1927-16-62-3072-503-160
@@ -75,6 +76,15 @@ def prepare_configs_A0(seller,pman,dman):
         ldx2(30,3333)	0	                    4698-28-82-8616-319-296	    3769-20-80-5163-263-245
         ldx2(120,3333)	184-2-500-52-38-7	    1020-11-27-965-402-51	    19250-4-75-1248-16-308
         xma60	        -1000-1-0-0-96--96	    1440-53-45-7935-2178-108	7034-6-66-1285-58-204
+                        R-times-wrate-avg-effient
+                        20010701-20081231       20080701-20090612                        
+        emv1(15)		1774-153-490-126-6000	2237-93-741-132-6000
+        emv1(75)		2727-97-515-180-6206	3018-53-698-163-8150
+        emv1(98)		1893-66-500-142-6454	3063-30-733-144-6000
+        emv1(120)		1696-58-448-151-7190	2639-27-814-161-5750   
+        emv2(15,58)		1717-39-487-134-5360	2981-27-851-194-6258
+        emv2(7,30)		4031-60-533-254-9769	3777-33-696-170-56666
+        
         这里xud系列的都是xatr>45条件下，但是应用中用xatr>0, 近期效果是一样的，后者的失败日只是买入截断引起的。        
     '''
     #暂时停止<600,以及次数小于15的方法,但保留超过150的
@@ -107,13 +117,13 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=s.xud0))  #蓝筹
     configs.append(config(buyer=s.xudj))  #基金
 
-    configs.append(config(buyer=fcustom(s.emv1,fast=15)))      #
-    configs.append(config(buyer=fcustom(s.emv1,fast=75)))      #
-    configs.append(config(buyer=fcustom(s.emv1,fast=98)))      #
-    configs.append(config(buyer=fcustom(s.emv1,fast=120)))      #
+    configs.append(config(buyer=fcustom(s.emv1,fast=15)))      #1/7
+    configs.append(config(buyer=fcustom(s.emv1,fast=75)))      #1/8
+    configs.append(config(buyer=fcustom(s.emv1,fast=98)))      #1/5
+    configs.append(config(buyer=fcustom(s.emv1,fast=120)))     #2/9
 
-    configs.append(config(buyer=fcustom(s.emv2,fast=15,slow=58)))      #
-    configs.append(config(buyer=fcustom(s.emv2,fast=7,slow=30)))      #
+    configs.append(config(buyer=fcustom(s.emv2,fast=15,slow=58)))     #1/5
+    configs.append(config(buyer=fcustom(s.emv2,fast=7,slow=30)))      #1/5
 
     #configs.append(config(buyer=fcustom(s.tsvama2,fast=20,slow=100)))   #3230-562-183   #20080701以来萎靡
     #configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #@3691-707-41

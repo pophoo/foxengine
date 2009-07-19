@@ -351,8 +351,10 @@ import wolfox.fengine.normal.sfuncs as s
 reload(x)    #应对脚本修改
 buyer = x.prepare_buyer(dates)   
 name,tradess = calc_trades(buyer,seller,sdata,dates,xbegin,cmediator=myMediator)
-#name,tradess = calc_trades(buyer,seller2000,sdata,dates,xbegin,cmediator=myMediator)
 result,strade = ev.evaluate_all(tradess,pman,dman)
+
+#name,tradess = calc_trades(buyer,seller2000,sdata,dates,xbegin,cmediator=myMediator)
+
 
 #2009-03-28
 #ma4的测试
@@ -6026,3 +6028,7 @@ cma: 7,30, xatr>=55
 #2009-07-15
 macd: 有色金属
 xru:600028
+
+#2009-07-16
+无
+

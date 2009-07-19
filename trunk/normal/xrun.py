@@ -10,7 +10,7 @@ from wolfox.fengine.normal.nrun import prepare_order,prepare_common
 from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,tmin,extend,extend2next,pzoom_out,vzoom_out,zoom_in,cover,scover
 from wolfox.fengine.core.d1match import *
 from wolfox.fengine.core.d1 import lesser,bnot
-from wolfox.fengine.core.d1indicator import cmacd,score2,rsi,obv
+from wolfox.fengine.core.d1indicator import cmacd,score2,rsi,obv,emv
 from wolfox.fengine.core.d1idiom import down_period,macd_ru,macd_ru2,macd_ruv,macd_ruv3,xc_ru,xc_ru2,xc0,xc02,xc0c,xc0s,xc_ru0,xc_ru0s,xc_ru0c,xc_ru02
 from wolfox.fengine.core.d2 import increase,extract_collect
 from wolfox.foxit.base.tutils import linelog
@@ -336,7 +336,7 @@ def xudx(stock,xfunc=xc0s,astart=45):
 
 
 xcma = lambda a,v,l : np.cast['int32'](msum2(a*1.0,l)/msum2(v,l)*100)
-def cma(stock):
+def cma(stock): #考察cma无限接近
     t = stock.transaction    
     linelog('cma:%s' % stock.code)
     cma1 = xcma(t[AMOUNT],t[VOLUME],7)
@@ -944,8 +944,8 @@ def smacd(stock):
 def tsvama2(stock):
     ''' svama两线交叉
     '''
-    fast=20
-    slow=170
+    fast=70
+    slow=130
     t = stock.transaction
     svap,v2i = stock.svap_ma_67 
     ma_svapfast = ma(svap,fast)
@@ -968,6 +968,7 @@ def tsvama2(stock):
     vfilter = vma_s < vma_l * 7/8
  
     linelog('%s:%s' % (tsvama2.__name__,stock.code))
+    #return gand(stock.golden,msvap,stock.above,vfilter)
     return gand(stock.golden,msvap,stock.above,vfilter)
 
 def tsvama2a(stock,fast=20,slow=100):
@@ -2477,3 +2478,79 @@ def uplain2(stock):
     signal = gand(nup,nwidth,sdev,matr1<matr2,stock.t3,stock.t4,stock.ma3>stock.ma4,stock.ma4>stock.ma5,vfilter,stock.g5<stock.g20,stock.g20<stock.g60,stock.g20>3000,stock.g20<8000)
     linelog(stock.code)
     return signal
+
+
+def uplain3(stock):
+    t = stock.transaction
+    matr1 = ma(stock.atr,3)
+    matr2 = ma(stock.atr,20)
+    
+    d2 = np.array([t[HIGH],t[LOW]])
+    nmax=np.max(d2,0)
+    nmin=np.min(d2,0)
+    ndev = nmax-nmin < matr2 / 2
+    nup = gand(cross(stock.ma1,t[CLOSE])>0,strend(t[CLOSE])>0)
+
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+
+    vfilter = gand(svma<vma*2/3)
+
+    signal = gand(ndev,nup,stock.above,stock.t5,stock.g5<stock.g20,stock.g20<stock.g60,vfilter)
+    linelog(stock.code)
+    return signal
+
+
+def emv1(stock):
+    t = stock.transaction
+
+    ##fast = 75       #2727-97-515-180-6206, 3018-53-698-163-8150
+    ##fast = 15       #1774-153-490-126-6000,2237-93-741-132-6000
+    ##fast = 98       #1893-66-500-142-6454,3063-30-733-144-6000  
+    ##fast = 120      #1696-58-448-151-7190   2639-27-814-161-5750   
+    #fast = 170
+
+    em = emv(t[HIGH],t[LOW],t[VOLUME])
+    mv1 = msum2(em,fast)
+    
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+
+    vfilter = gand(svma<=vma*3/4)
+
+    baseline = cached_zeros(len(t[CLOSE]))
+
+    thumb = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20>=3000,stock.g20<8000)
+
+    ecross = gand(thumb,cross(baseline,mv1)>0,strend(mv1)>0,stock.t5,stock.above,vfilter)
+    linelog(stock.code)
+    return ecross
+
+
+def emv2(stock):
+    t = stock.transaction
+
+    ##fast,slow=15,58         #1717-39-487-134-5360,2981-27-851-194-6258
+    ##fast,slow=7,30          #4031-60-533-254-9769,3777-33-696-170-5666
+    #fast,slow = 17,75        #481-34-294-39-1392,1661-22-636-98-4260
+    #fast,slow = 13,67        #740-31-483-60-3333,3394-8-875-129-4300   
+    #fast,slow=7,13           #1750-91-329-112-6588,4340-48-687-191-6586  
+    #fast,slow = 5,22         #781-85-352-50-2173,2644-73-753-156-5200 
+    #fast,slow = 75,275       #-625-6-166--25--1786,0  
+    fast,slow = 15,275        #1034-10-600-90-4090,0  
+
+    em = emv(t[HIGH],t[LOW],t[VOLUME])
+    mv1 = msum2(em,fast)
+    mv2 = msum2(em,slow)
+    
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+
+    vfilter = gand(svma<=vma*3/4)
+ 
+    thumb = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
+
+    ecross = gand(thumb,cross(mv2,mv1)>0,strend(mv2)>0,stock.t5,stock.above,vfilter)
+    linelog(stock.code)
+    return ecross
+

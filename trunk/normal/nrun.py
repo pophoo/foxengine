@@ -107,6 +107,13 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=s.xud0))  #蓝筹
     configs.append(config(buyer=s.xudj))  #基金
 
+    configs.append(config(buyer=fcustom(s.emv1,fast=15)))      #
+    configs.append(config(buyer=fcustom(s.emv1,fast=75)))      #
+    configs.append(config(buyer=fcustom(s.emv1,fast=98)))      #
+    configs.append(config(buyer=fcustom(s.emv1,fast=120)))      #
+
+    configs.append(config(buyer=fcustom(s.emv2,fast=15,slow=58)))      #
+    configs.append(config(buyer=fcustom(s.emv2,fast=7,slow=30)))      #
 
     #configs.append(config(buyer=fcustom(s.tsvama2,fast=20,slow=100)))   #3230-562-183   #20080701以来萎靡
     #configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #@3691-707-41

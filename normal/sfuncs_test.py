@@ -162,6 +162,9 @@ class ModuleTest(unittest.TestCase):    #通路测试
         sbuy = emv2(self.stock)
         self.assertTrue(True)
 
+    def test_emv2s(self):
+        sbuy = emv2s(self.stock)
+        self.assertTrue(True)
 
 
 if __name__ == "__main__":

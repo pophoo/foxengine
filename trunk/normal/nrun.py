@@ -82,7 +82,7 @@ def prepare_configs_A0(seller,pman,dman):
         emv1(75)		2727-97-515-180-6206	3018-53-698-163-8150
         emv1(98)		1893-66-500-142-6454	3063-30-733-144-6000
         emv1(120)		1696-58-448-151-7190	2639-27-814-161-5750   
-        emv2(15,58)		1717-39-487-134-5360	2981-27-851-194-6258
+        #emv2(15,58)	???1717-39-487-134-5360	2981-27-851-194-6258
         emv2(7,30)		4031-60-533-254-9769	3777-33-696-170-56666
         
         这里xud系列的都是xatr>45条件下，但是应用中用xatr>0, 近期效果是一样的，后者的失败日只是买入截断引起的。        
@@ -119,11 +119,11 @@ def prepare_configs_A0(seller,pman,dman):
 
     configs.append(config(buyer=fcustom(s.emv1,fast=15)))      #1/7
     configs.append(config(buyer=fcustom(s.emv1,fast=75)))      #1/8
-    configs.append(config(buyer=fcustom(s.emv1,fast=98)))      #1/5
+    #configs.append(config(buyer=fcustom(s.emv1,fast=98)))      #1/5
     configs.append(config(buyer=fcustom(s.emv1,fast=120)))     #2/9
 
-    configs.append(config(buyer=fcustom(s.emv2,fast=15,slow=58)))     #1/5
-    configs.append(config(buyer=fcustom(s.emv2,fast=7,slow=30)))      #1/5
+    configs.append(config(buyer=fcustom(s.emv2,fast=75,slow=275)))    #1/4 
+    configs.append(config(buyer=fcustom(s.emv2s,fast=7,slow=30)))     #1/5
 
     #configs.append(config(buyer=fcustom(s.tsvama2,fast=20,slow=100)))   #3230-562-183   #20080701以来萎靡
     #configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #@3691-707-41
@@ -194,7 +194,8 @@ def prepare_common_old(sdata,ref):
         s.golden = gand(s.g20 >= s.g60+1000,s.g60 >= s.g120+1000,s.g20>=3000,s.g20<=8000)
         s.thumb = gand(s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20>=3000,s.g20<=8000)
         s.svap_ma_67 = svap_ma(v,c,67)
-        s.vap_ma_67 = vap_pre(v,c,67)
+        s.svap_ma_67_2 = svap_ma(v,c,67,weight=2)        
+        #s.vap_ma_67 = vap_pre(v,c,67)
         s.ks = subd(c) * BASE / rollx(c)
         try:    #计算
             s.silver = catalog_signal_cs(s.c60,csilver)
@@ -222,7 +223,8 @@ def prepare_common(sdata,ref):
         s.golden = gand(s.g20 >= s.g60+1000,s.g60 >= s.g120+1000,s.g20>=3000,s.g20<=8000)
         s.thumb = gand(s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20>=3000,s.g20<=8000)
         s.svap_ma_67 = svap_ma(v,c,67)
-        s.vap_ma_67 = vap_pre(v,c,67)
+        #s.vap_ma_67 = vap_pre(v,c,67)
+        s.svap_ma_67_2 = svap_ma(v,c,67,weight=2)        
         s.ks = subd(c) * BASE / rollx(c)
         s.diff,s.dea = cmacd(c)
         try:    #计算

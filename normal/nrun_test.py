@@ -86,6 +86,12 @@ class ModuleTest(unittest.TestCase):    #保持run的有效性
         configs = run.prepare_configs_A2(seller,pman,dman)
         self.assertTrue(len(configs) >= 0)
 
+    def test_prepare_next(self):
+        begin,end = 20010101,20010701
+        dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        run.prepare_next(sdata,idata,catalogs)        
+        self.assertTrue(True)
+
     def test_prepare_order(self):
         begin,end = 20010101,20010701
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])

@@ -44,7 +44,7 @@ def prepare_gbjg(sdata):
             stock.ag = dobj.ag
             stock.last_date = dobj.date
 
-def dlimit(stocks,limit):
+def dlimit(stocks,limit):#除权溢出的处理
     for s in stocks:
         s.transaction[OPEN][s.transaction[OPEN]<limit] = limit
         s.transaction[CLOSE][s.transaction[CLOSE]<limit] = limit

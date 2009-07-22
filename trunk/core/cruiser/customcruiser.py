@@ -276,7 +276,7 @@ if __name__ == '__main__':
     #cruiser = Svama2bMMCruiser(psize=500,maxstep=100,goal=200000000)
     #cruiser.gcruise(sdata,dates,tbegin)
     logger.debug('*****************svama3b begin**********************')
-    cruiser = TSvama2Cruiser(psize=500,maxstep=100,goal=200000000)    #goal不能太小
+    cruiser = TSvama2Cruiser(psize=100,maxstep=50,goal=200000000)    #goal不能太小
     cruiser.gcruise(sdata,dates,tbegin)    
     
     #cruiser = Svama3bMMCruiser(psize=500,maxstep=100,goal=200000000)    #goal不能太小

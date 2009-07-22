@@ -224,6 +224,7 @@ def prepare_common(sdata,ref):
         s.thumb = gand(s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20>=3000,s.g20<=8000)
         s.svap_ma_67 = svap_ma(v,c,67)
         #s.vap_ma_67 = vap_pre(v,c,67)
+        #s.svap_ma_67_1 = svap_ma(v,c,67,weight=1)        
         s.svap_ma_67_2 = svap_ma(v,c,67,weight=2)        
         s.ks = subd(c) * BASE / rollx(c)
         s.diff,s.dea = cmacd(c)
@@ -324,7 +325,7 @@ def run_merge_body(sdata,dates,begin,end,xbegin):
     print u'计算耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
-def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
+def prepare_next(sdata,idata,catalogs):
     prepare_order(sdata.values())
     prepare_order(idata.values())
     prepare_order(catalogs)
@@ -333,28 +334,17 @@ def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     prepare_common_catalog(catalogs,idata[ref_id])
     prepare_index(idata[1])
     dummy_catalogs('catalog',catalogs)
+
+def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
+    prepare_next(sdata,idata,catalogs)
     run_body(sdata,dates,begin,end,xbegin)
 
 def run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin):
-    prepare_order(sdata.values())
-    prepare_order(idata.values())    
-    prepare_order(catalogs)    
-    prepare_common(sdata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
-    prepare_common(idata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma    
-    prepare_common_catalog(catalogs,idata[ref_id])
-    prepare_index(idata[1])
-    dummy_catalogs('catalog',catalogs)
+    prepare_next(sdata,idata,catalogs)
     run_merge_body(sdata,dates,begin,end,xbegin)
 
 def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
-    prepare_order(sdata.values())
-    prepare_order(idata.values())    
-    prepare_order(catalogs) 
-    prepare_common(sdata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
-    prepare_common(idata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma    
-    prepare_common_catalog(catalogs,idata[ref_id])
-    prepare_index(idata[1])
-    dummy_catalogs('catalog',catalogs)
+    prepare_next(sdata,idata,catalogs)
     from time import time
     tbegin = time()
 

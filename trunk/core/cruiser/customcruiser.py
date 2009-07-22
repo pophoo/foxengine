@@ -10,9 +10,22 @@ from wolfox.fengine.core.utils import fcustom
 from wolfox.fengine.core.cruiser.geneticcruiser import *
 from wolfox.fengine.normal.funcs import *
 from wolfox.fengine.core.shortcut import *
-from wolfox.fengine.normal.run import prepare_order
+from wolfox.fengine.normal.xrun import *
+from wolfox.fengine.normal.nrun import prepare_next
 
 logger = logging.getLogger('wolfox.fengine.core.cruiser.customcruiser')
+
+class TSvama2Cruiser(GeneticCruiser):
+    def prepare(self):
+        self.args = dict(fast=range(1,60,2),slow=range(5,300,2),bxatr=range(10,90,10))
+        self.buy_func = tsvama2
+        #self.sell_func = csc_func
+        self.sell_func =  atr_seller_factory(stop_times=1200,trace_times=3000)
+        self.predefined = []
+        #self.sell_func = my_csc_func
+        #self.trade_func = fcustom(normal_trade_func,begin=20010601)
+        #self.trade_func = fcustom(my_trade_func,begin=20010601)
+        self.evaluate_func = normal_evaluate
 
 class Svama3Cruiser(GeneticCruiser):
     def prepare(self):
@@ -227,8 +240,8 @@ class Ma3MMCruiser(MM_GeneticCruiser):
 if __name__ == '__main__':
     logging.basicConfig(filename="custom_cruiser_mm_1.log",level=logging.DEBUG,format='#%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 
-    begin,end = 20000101,20081101
-    tbegin = 20010801
+    begin,end = 20000101,20090101
+    tbegin = 20010701
     
     dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])
@@ -242,9 +255,10 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    prepare_order(sdata.values())
-    prepare_order(catalogs)
-    dummy_catalogs('catalog',catalogs)
+    prepare_next(sdata,idata,catalogs)
+    #prepare_order(sdata.values())
+    #prepare_order(catalogs)
+    #dummy_catalogs('catalog',catalogs)
     
     #cruiser = Svama3MMCruiser(psize=16,maxstep=1,goal=0)
     #cruiser = Svama3MMCruiser(psize=100,maxstep=50,goal=2000000)    #goal不能太小
@@ -262,8 +276,11 @@ if __name__ == '__main__':
     #cruiser = Svama2bMMCruiser(psize=500,maxstep=100,goal=200000000)
     #cruiser.gcruise(sdata,dates,tbegin)
     logger.debug('*****************svama3b begin**********************')
-    cruiser = Svama3bMMCruiser(psize=500,maxstep=100,goal=200000000)    #goal不能太小
-    cruiser.gcruise(sdata,dates,tbegin)
+    cruiser = TSvama2Cruiser(psize=500,maxstep=100,goal=200000000)    #goal不能太小
+    cruiser.gcruise(sdata,dates,tbegin)    
+    
+    #cruiser = Svama3bMMCruiser(psize=500,maxstep=100,goal=200000000)    #goal不能太小
+    #cruiser.gcruise(sdata,dates,tbegin)
     #logger.debug('*****************csvama3 begin**********************')
     #cruiser = CSvama3MMCruiser(psize=500,maxstep=100,goal=200000000)    #goal不能太小
     #cruiser.gcruise(sdata,dates,tbegin)

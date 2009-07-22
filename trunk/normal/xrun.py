@@ -941,26 +941,23 @@ def smacd(stock):
 
 
 #c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
-def tsvama2(stock):
+def tsvama2(stock,fast=7,slow=250,bxatr=60):
     ''' svama两线交叉
     '''
-    fast=70
-    slow=130
     t = stock.transaction
-    svap,v2i = stock.svap_ma_67 
+    svap,v2i = stock.svap_ma_67_2
     ma_svapfast = ma(svap,fast)
     ma_svapslow = ma(svap,slow)
     trend_ma_svapfast = strend(ma_svapfast) > 0
     trend_ma_svapslow = strend(ma_svapslow) > 0
     cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
 
-    sdiff,sdea = cmacd(svap)
-    ss = gand(cross_fast_slow,strend(sdiff-sdea)>0)
+    #sdiff,sdea = cmacd(svap)
+    #ss = gand(cross_fast_slow,strend(sdiff-sdea)>0)
     #ss = cross_fast_slow
+    ss = cross_fast_slow
     msvap = transform(ss,v2i,len(t[VOLUME]))
     linelog('%s:%s' % (tsvama2.__name__,stock.code))
-
-    vdiff,vdea = cmacd(t[VOLUME])
 
     vma_s = ma(t[VOLUME],13)
     vma_l = ma(t[VOLUME],30)
@@ -968,8 +965,11 @@ def tsvama2(stock):
     vfilter = vma_s < vma_l * 7/8
  
     linelog('%s:%s' % (tsvama2.__name__,stock.code))
-    #return gand(stock.golden,msvap,stock.above,vfilter)
-    return gand(stock.golden,msvap,stock.above,vfilter)
+    
+    thumb = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
+    xatr = stock.atr * BASE / t[CLOSE]
+
+    return gand(msvap,stock.above,stock.t5,vfilter,thumb,xatr>bxatr)
 
 def tsvama2a(stock,fast=20,slow=100):
     ''' svama两线交叉

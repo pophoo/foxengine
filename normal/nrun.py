@@ -10,6 +10,7 @@ from wolfox.fengine.core.shortcut import *
 from wolfox.fengine.normal.funcs import *
 import wolfox.fengine.normal.funcs as f
 import wolfox.fengine.normal.sfuncs as s
+from wolfox.fengine.core.d1indicator import atr
 
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.run')    
@@ -228,6 +229,7 @@ def prepare_common(sdata,ref):
         s.svap_ma_67_2 = svap_ma(v,c,67,weight=2)        
         s.ks = subd(c) * BASE / rollx(c)
         s.diff,s.dea = cmacd(c)
+        s.atr = atr(c,s.transaction[HIGH],s.transaction[LOW],20)
         try:    #计算
             s.silver = catalog_signal_cs(s.c60,csilver)
         except:

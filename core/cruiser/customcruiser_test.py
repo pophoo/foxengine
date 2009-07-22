@@ -30,6 +30,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
     def test_svama3_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        ccruiser.prepare_next(sdata,idata,catalogs)
         d_posort('g5',sdata.values(),distance=5)        
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     
@@ -40,6 +41,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
     def test_svama3_mm_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        ccruiser.prepare_next(sdata,idata,catalogs)
         d_posort('g5',sdata.values(),distance=5)        
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     
@@ -50,6 +52,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
     def test_svama3b_mm_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        ccruiser.prepare_next(sdata,idata,catalogs)
         d_posort('g5',sdata.values(),distance=5)        
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     
@@ -60,6 +63,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
     def test_svama2_mm_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        ccruiser.prepare_next(sdata,idata,catalogs)
         d_posort('g5',sdata.values(),distance=5)        
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     
@@ -70,6 +74,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
     def test_svama2b_mm_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        ccruiser.prepare_next(sdata,idata,catalogs)
         d_posort('g5',sdata.values(),distance=5)        
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     
@@ -80,6 +85,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
     def test_csvama3_mm_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        ccruiser.prepare_next(sdata,idata,catalogs)
         d_posort('g5',sdata.values(),distance=5)        
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     
@@ -90,6 +96,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
     def test_csvama2_mm_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        ccruiser.prepare_next(sdata,idata,catalogs)
         d_posort('g5',sdata.values(),distance=5)        
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     
@@ -101,6 +108,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
     def test_svama2x_mm_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        ccruiser.prepare_next(sdata,idata,catalogs)
         d_posort('g5',sdata.values(),distance=5)        
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     
@@ -111,6 +119,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
     def test_svama2s_mm_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        ccruiser.prepare_next(sdata,idata,catalogs)
         d_posort('g5',sdata.values(),distance=5)        
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     
@@ -121,6 +130,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
     def test_Vama2_mm_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        ccruiser.prepare_next(sdata,idata,catalogs)
         d_posort('g5',sdata.values(),distance=5)        
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     
@@ -131,6 +141,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
     def test_Vama3_mm_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        ccruiser.prepare_next(sdata,idata,catalogs)
         d_posort('g5',sdata.values(),distance=5)        
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     
@@ -141,6 +152,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
     def test_Ma3_mm_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        ccruiser.prepare_next(sdata,idata,catalogs)
         d_posort('g5',sdata.values(),distance=5)        
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     

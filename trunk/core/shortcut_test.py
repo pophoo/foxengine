@@ -111,8 +111,8 @@ class ModuleTest(unittest.TestCase):    #只测试通道
         dummy = range(45)
         a = np.array([dummy,dummy,dummy,dummy,dummy,dummy,dummy,dummy])
         b = np.array([dummy,dummy,dummy,dummy,dummy,dummy,dummy,dummy])
-        sa = CommonObject(id=3,code='test1',transaction=a)
-        sb = CommonObject(id=3,code='test2',transaction=b)
+        sa = CommonObject(id=3,code='test1',transaction=a,atr=dummy)
+        sb = CommonObject(id=3,code='test2',transaction=b,atr=dummy)
         sdata = {'sa':sa,'sb':sb}
         dates = np.arange(20010101,20010146)    #45个采样点，避免在计算CSHARP中线形回归的时候报警
         mm_batch([],sdata,dates,20010101)    #空测试

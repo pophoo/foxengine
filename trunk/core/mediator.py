@@ -11,7 +11,7 @@ import logging
 from wolfox.fengine.base.common import Trade
 from wolfox.fengine.core.d1 import greater,rollx,band,bnot
 from wolfox.fengine.core.d1ex import sresume
-from wolfox.fengine.core.d1indicator import atr
+#from wolfox.fengine.core.d1indicator import atr
 from wolfox.fengine.core.future import mm_ratio,mm_sum_smooth
 from wolfox.fengine.core.d1idiom import B0S0,B0S1,B1S0,B1S1,BS_DUMMY
 from wolfox.fengine.core.d1match import make_trade_signal,make_trade_signal_advanced
@@ -92,8 +92,8 @@ class Mediator(object):
 
     def prepare(self,stock,atr_covered=20,mm_covered=20,**kwargs):  #kwargs吸收无用参数
         trans = stock.transaction
-        if not stock.has_attr('atr'):
-            stock.atr = atr(trans[CLOSE],trans[HIGH],trans[LOW],atr_covered)
+        #if not stock.has_attr('atr'):
+        #    stock.atr = atr(trans[CLOSE],trans[HIGH],trans[LOW],atr_covered)
 
     def finishing(self,stock,sbuy,ssell):
         pass

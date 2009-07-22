@@ -4,6 +4,7 @@
 
 from wolfox.fengine.core.shortcut import *
 from wolfox.fengine.normal.funcs import *
+from wolfox.fengine.core.d1indicator import atr
 
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.run')    
@@ -181,11 +182,15 @@ def prepare_configs_C(seller,pman,dman): # 0<=R<500 且winrate<400  R/avg income
     configs.append(config(buyer=fcustom(ma3,fast= 23,mid= 26,slow=150,ma_standard=240,extend_days= 31))) 	#480/25/296
     return configs
 
-def prepare_order(sdata):
-    d_posort('g5',sdata,distance=5)        
-    d_posort('g20',sdata,distance=20)    
-    d_posort('g120',sdata,distance=120)     
-    d_posort('g250',sdata,distance=250)     
+def prepare_order(stocks):
+    d_posort('g5',stocks,distance=5)        
+    d_posort('g20',stocks,distance=20)    
+    d_posort('g120',stocks,distance=120)     
+    d_posort('g250',stocks,distance=250)     
+
+def prepare_atr(stocks):
+    for s in stocks:
+        s.atr = atr(s.transaction[CLOSE],s.transaction[HIGH],s.transaction[LOW],20)
 
 def run_body(sdata,dates,begin,end,xbegin):
     
@@ -261,24 +266,28 @@ def run_mm_body(sdata,dates,begin,end,xbegin):
 def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     prepare_order(sdata.values())
     prepare_order(catalogs)
+    prepare_atr(sdata.values())
     dummy_catalogs('catalog',catalogs)
     run_body(sdata,dates,begin,end,xbegin)
 
 def run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     prepare_order(sdata.values())
     prepare_order(catalogs)    
+    prepare_atr(sdata.values())
     dummy_catalogs('catalog',catalogs)
     run_merge_body(sdata,dates,begin,end,xbegin)
 
 def run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     prepare_order(sdata.values())
     prepare_order(catalogs)    
+    prepare_atr(sdata.values())
     dummy_catalogs('catalog',catalogs)
     run_mm_body(sdata,dates,begin,end,xbegin)
 
 def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
     prepare_order(sdata.values())
-    prepare_order(catalogs)    
+    prepare_order(catalogs)
+    prepare_atr(sdata.values())    
     dummy_catalogs('catalog',catalogs)
     from time import time
     tbegin = time()

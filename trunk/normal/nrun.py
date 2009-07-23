@@ -24,7 +24,42 @@ def prepare_temp_configs(seller,pman=None,dman=None):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
 
-    configs.append(config(buyer=s.xma60))   #1040-390-64
+    configs.append(config(buyer=fcustom(s.emv1,fast=20)))
+    configs.append(config(buyer=fcustom(s.emv1,fast=124)))    
+    configs.append(config(buyer=fcustom(s.emv1,fast=64)))
+    configs.append(config(buyer=fcustom(s.emv1,fast=120)))    
+    configs.append(config(buyer=fcustom(s.emv1,fast=42)))
+    configs.append(config(buyer=fcustom(s.emv1,fast=141)))    
+    configs.append(config(buyer=fcustom(s.emv1,fast=196)))
+    configs.append(config(buyer=fcustom(s.emv1,fast=194)))    
+    configs.append(config(buyer=fcustom(s.emv1,fast=224)))
+    configs.append(config(buyer=fcustom(s.emv1,fast=248)))    
+    configs.append(config(buyer=fcustom(s.emv1,fast=103)))
+    configs.append(config(buyer=fcustom(s.emv1,fast=143)))    
+    configs.append(config(buyer=fcustom(s.emv1,fast=77)))
+    configs.append(config(buyer=fcustom(s.emv1,fast=101)))    
+    configs.append(config(buyer=fcustom(s.emv1,fast=105)))
+    configs.append(config(buyer=fcustom(s.emv1,fast=148)))    
+    configs.append(config(buyer=fcustom(s.emv1,fast=143)))
+    configs.append(config(buyer=fcustom(s.emv1,fast=101)))    
+    configs.append(config(buyer=fcustom(s.emv1,fast=105)))
+    configs.append(config(buyer=fcustom(s.emv1,fast=227)))    
+    configs.append(config(buyer=fcustom(s.emv1,fast=61)))
+    configs.append(config(buyer=fcustom(s.emv1,fast=51)))    
+    configs.append(config(buyer=fcustom(s.emv1,fast=50)))
+    configs.append(config(buyer=fcustom(s.emv1,fast=140)))    
+    configs.append(config(buyer=fcustom(s.emv1,fast=59)))
+    configs.append(config(buyer=fcustom(s.emv1,fast=47)))    
+    configs.append(config(buyer=fcustom(s.emv1,fast=30)))
+    configs.append(config(buyer=fcustom(s.emv1,fast=25)))    
+    configs.append(config(buyer=fcustom(s.emv1,fast=115)))
+    configs.append(config(buyer=fcustom(s.emv1,fast=39)))    
+    configs.append(config(buyer=fcustom(s.emv1,fast=40)))
+    configs.append(config(buyer=fcustom(s.emv1,fast=29)))    
+    configs.append(config(buyer=fcustom(s.emv1,fast=27)))    
+    
+
+    #configs.append(config(buyer=s.xma60))   #1040-390-64
 
     return configs
 
@@ -125,6 +160,14 @@ def prepare_configs_A0(seller,pman,dman):
 
     configs.append(config(buyer=fcustom(s.emv2,fast=75,slow=275)))    #1/4 
     configs.append(config(buyer=fcustom(s.emv2s,fast=7,slow=30)))     #1/5
+
+    configs.append(config(buyer=fcustom(s.tsvama2,fast=3,slow=33,bxatr=50)))    #4/15
+    configs.append(config(buyer=fcustom(s.tsvama2,fast=7,slow=61,bxatr=50)))    #3/10
+    configs.append(config(buyer=fcustom(s.tsvama2,fast=7,slow=21,bxatr=50)))    #1/3
+    configs.append(config(buyer=fcustom(s.tsvama2,fast=15,slow=75,bxatr=50)))   #1/7
+    configs.append(config(buyer=fcustom(s.tsvama2,fast=3,slow=49,bxatr=50)))    #4/14
+    configs.append(config(buyer=fcustom(s.tsvama2,fast=17,slow=105,bxatr=50)))  #1/3
+    configs.append(config(buyer=fcustom(s.tsvama2,fast=15,slow=111,bxatr=50)))  #1/7
 
     #configs.append(config(buyer=fcustom(s.tsvama2,fast=20,slow=100)))   #3230-562-183   #20080701以来萎靡
     #configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #@3691-707-41
@@ -276,11 +319,11 @@ def run_body(sdata,dates,begin,end,xbegin):
     #seller = csc_func
     #seller = fcustom(csc_func,threshold=100)
     
-    #configs = prepare_temp_configs(seller1200,pman,dman)
+    configs = prepare_temp_configs(seller1200,pman,dman)
     #configs = prepare_temp_configs(seller2000,pman,dman)
     #configs = prepare_configs_A2000(seller2000,pman,dman)
     #configs.extend(prepare_configs_A2000(seller2000,pman,dman))
-    configs = prepare_configs_A0(seller1200,pman,dman)
+    #configs = prepare_configs_A0(seller1200,pman,dman)
     #configs = prepare_configs_A1200(seller1200,pman,dman)
     #configs.extend(prepare_configs_A0(seller1200,pman,dman))    
     #configs.extend(prepare_configs_A1(seller1200,pman,dman))
@@ -435,10 +478,10 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     
-    run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
     catalog_macd(catalogs)
 

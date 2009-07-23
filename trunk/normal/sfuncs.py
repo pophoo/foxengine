@@ -14,7 +14,7 @@ from time import time
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.sfuncs')    
 
-def tsvama2(stock,fast,slow):
+def tsvama2_old(stock,fast,slow):
     t = stock.transaction
     svap,v2i = stock.svap_ma_67 
     ma_svapfast = ma(svap,fast)
@@ -25,6 +25,33 @@ def tsvama2(stock,fast,slow):
     msvap = transform(cross_fast_slow,v2i,len(t[VOLUME]))
     linelog('%s:%s' % (tsvama2.__name__,stock.code))
     return gand(stock.golden,msvap,stock.above)
+
+def tsvama2(stock,fast=3,slow=33,bxatr=50):
+    ''' svama两线交叉
+    '''
+    t = stock.transaction
+    svap,v2i = stock.svap_ma_67_2
+    ma_svapfast = ma(svap,fast)
+    ma_svapslow = ma(svap,slow)
+    trend_ma_svapfast = strend(ma_svapfast) > 0
+    trend_ma_svapslow = strend(ma_svapslow) > 0
+    cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
+
+    ss = cross_fast_slow
+    msvap = transform(ss,v2i,len(t[VOLUME]))
+    linelog('%s:%s' % (tsvama2.__name__,stock.code))
+
+    vma_s = ma(t[VOLUME],13)
+    vma_l = ma(t[VOLUME],30)
+
+    vfilter = vma_s < vma_l * 7/8
+ 
+    linelog('%s:%s' % (tsvama2.__name__,stock.code))
+    
+    thumb = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
+    xatr = stock.atr * BASE / t[CLOSE]
+
+    return gand(msvap,stock.above,stock.t5,vfilter,thumb,xatr>bxatr)
 
 def tsvama2a(stock,fast=20,slow=100):
     ''' svama两线交叉

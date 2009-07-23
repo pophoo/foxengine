@@ -1838,3 +1838,571 @@ configs.append(config(buyer=fcustom(svama3,fast=  7,mid= 87,slow= 10,ma_standard
     configs.append(config(buyer=s.temv))    #575-442-70
     configs.append(config(buyer=fcustom(s.tsvama2,fast=12,slow=170)))   #1666-451-133
     
+#2009-07-22
+tsvama2巡游
+#
+######wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,437 DEBUG Mediator:<tsvama2:bxatr=50,slow=111,fast=15:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=111,fast=15:make_trade_signal:B1S1>:	评估:总盈亏值=1173,交易次数=9	期望值=4814	
+		总盈亏率(1/1000)=1173,平均盈亏率(1/1000)=130,盈利交易率(1/1000)=777
+		平均持仓时间=30,持仓效率(1/1000000)=4333
+		赢利次数=7,赢利总值=1227
+		亏损次数=2,亏损总值=54
+		平盘次数=0
+        评估:总盈亏值=780,交易次数=7    期望值=2642
+                总盈亏率(1/1000)=780,平均盈亏率(1/1000)=111,盈利交易率(1/1000)=714
+                平均持仓时间=26,持仓效率(1/1000000)=4269
+                赢利次数=5,赢利总值=865
+                亏损次数=2,亏损总值=85
+        
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,437 DEBUG Mediator:<tsvama2:bxatr=10,slow=85,fast=43:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=10,slow=85,fast=43:make_trade_signal:B1S1>:	评估:总盈亏值=4034,交易次数=31	期望值=2280	
+		总盈亏率(1/1000)=4034,平均盈亏率(1/1000)=130,盈利交易率(1/1000)=516
+		平均持仓时间=23,持仓效率(1/1000000)=5652
+		赢利次数=16,赢利总值=4903
+		亏损次数=15,亏损总值=869
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,530 DEBUG Mediator:<tsvama2:bxatr=30,slow=35,fast=15:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=30,slow=35,fast=15:make_trade_signal:B1S1>:	评估:总盈亏值=8318,交易次数=57	期望值=2164	
+		总盈亏率(1/1000)=8318,平均盈亏率(1/1000)=145,盈利交易率(1/1000)=561
+		平均持仓时间=26,持仓效率(1/1000000)=5576
+		赢利次数=32,赢利总值=10015
+		亏损次数=25,亏损总值=1697
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,578 DEBUG Mediator:<tsvama2:bxatr=40,slow=85,fast=49:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=40,slow=85,fast=49:make_trade_signal:B1S1>:	评估:总盈亏值=2129,交易次数=13	期望值=2546	
+		总盈亏率(1/1000)=2129,平均盈亏率(1/1000)=163,盈利交易率(1/1000)=692
+		平均持仓时间=20,持仓效率(1/1000000)=8150
+		赢利次数=9,赢利总值=2385
+		亏损次数=4,亏损总值=256
+		平盘次数=0
+        评估:总盈亏值=90,交易次数=1     期望值=1000
+                总盈亏率(1/1000)=90,平均盈亏率(1/1000)=90,盈利交易率(1/1000)=1000
+                平均持仓时间=38,持仓效率(1/1000000)=2368
+                赢利次数=1,赢利总值=90
+                亏损次数=0,亏损总值=0
+                平盘次数=0
+
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,592 DEBUG Mediator:<tsvama2:bxatr=20,slow=39,fast=13:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=20,slow=39,fast=13:make_trade_signal:B1S1>:	评估:总盈亏值=10610,交易次数=64	期望值=2500	
+		总盈亏率(1/1000)=10610,平均盈亏率(1/1000)=165,盈利交易率(1/1000)=578
+		平均持仓时间=24,持仓效率(1/1000000)=6875
+		赢利次数=37,赢利总值=12410
+		亏损次数=27,亏损总值=1800
+		平盘次数=0
+        评估:总盈亏值=-205,交易次数=4   期望值=-542
+                总盈亏率(1/1000)=-205,平均盈亏率(1/1000)=-52,盈利交易率(1/1000)=250
+                平均持仓时间=9,持仓效率(1/1000000)=-5778
+                赢利次数=1,赢利总值=83
+                亏损次数=3,亏损总值=288
+                平盘次数=0
+        
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,608 DEBUG Mediator:<tsvama2:bxatr=50,slow=71,fast=59:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=71,fast=59:make_trade_signal:B1S1>:	评估:总盈亏值=1576,交易次数=9	期望值=2611	
+		总盈亏率(1/1000)=1576,平均盈亏率(1/1000)=175,盈利交易率(1/1000)=777
+		平均持仓时间=32,持仓效率(1/1000000)=5468
+		赢利次数=7,赢利总值=1711
+		亏损次数=2,亏损总值=135
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,608 DEBUG Mediator:<tsvama2:bxatr=10,slow=39,fast=45:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=10,slow=39,fast=45:make_trade_signal:B1S1>:	评估:总盈亏值=5310,交易次数=30	期望值=2298	
+		总盈亏率(1/1000)=5310,平均盈亏率(1/1000)=177,盈利交易率(1/1000)=600
+		平均持仓时间=30,持仓效率(1/1000000)=5900
+		赢利次数=18,赢利总值=6245
+		亏损次数=12,亏损总值=935
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,608 DEBUG Mediator:<tsvama2:bxatr=50,slow=69,fast=53:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=69,fast=53:make_trade_signal:B1S1>:	评估:总盈亏值=1801,交易次数=10	期望值=2222	
+		总盈亏率(1/1000)=1801,平均盈亏率(1/1000)=180,盈利交易率(1/1000)=800
+		平均持仓时间=28,持仓效率(1/1000000)=6428
+		赢利次数=8,赢利总值=1964
+		亏损次数=2,亏损总值=163
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,608 DEBUG Mediator:<tsvama2:bxatr=50,slow=63,fast=11:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=63,fast=11:make_trade_signal:B1S1>:	评估:总盈亏值=2728,交易次数=15	期望值=2262	
+		总盈亏率(1/1000)=2728,平均盈亏率(1/1000)=181,盈利交易率(1/1000)=600
+		平均持仓时间=34,持仓效率(1/1000000)=5323
+		赢利次数=9,赢利总值=3129
+		亏损次数=5,亏损总值=401
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,625 DEBUG Mediator:<tsvama2:bxatr=50,slow=11,fast=3:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=11,fast=3:make_trade_signal:B1S1>:	评估:总盈亏值=8046,交易次数=44	期望值=1978	
+		总盈亏率(1/1000)=8046,平均盈亏率(1/1000)=182,盈利交易率(1/1000)=590
+		平均持仓时间=27,持仓效率(1/1000000)=6740
+		赢利次数=26,赢利总值=9719
+		亏损次数=18,亏损总值=1673
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,625 DEBUG Mediator:<tsvama2:bxatr=30,slow=29,fast=1:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=30,slow=29,fast=1:make_trade_signal:B1S1>:	评估:总盈亏值=22190,交易次数=121	期望值=2259	
+		总盈亏率(1/1000)=22190,平均盈亏率(1/1000)=183,盈利交易率(1/1000)=561
+		平均持仓时间=29,持仓效率(1/1000000)=6310
+		赢利次数=68,赢利总值=26507
+		亏损次数=53,亏损总值=4317
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,640 DEBUG Mediator:<tsvama2:bxatr=40,slow=19,fast=7:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=40,slow=19,fast=7:make_trade_signal:B1S1>:	评估:总盈亏值=11009,交易次数=59	期望值=2188	
+		总盈亏率(1/1000)=11009,平均盈亏率(1/1000)=186,盈利交易率(1/1000)=610
+		平均持仓时间=30,持仓效率(1/1000000)=6200
+		赢利次数=36,赢利总值=12973
+		亏损次数=23,亏损总值=1964
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,655 DEBUG Mediator:<tsvama2:bxatr=10,slow=61,fast=55:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=10,slow=61,fast=55:make_trade_signal:B1S1>:	评估:总盈亏值=8392,交易次数=45	期望值=3957	
+		总盈亏率(1/1000)=8392,平均盈亏率(1/1000)=186,盈利交易率(1/1000)=533
+		平均持仓时间=27,持仓效率(1/1000000)=6888
+		赢利次数=24,赢利总值=9397
+		亏损次数=21,亏损总值=1005
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,655 DEBUG Mediator:<tsvama2:bxatr=30,slow=25,fast=5:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=30,slow=25,fast=5:make_trade_signal:B1S1>:	评估:总盈亏值=19924,交易次数=106	期望值=2280	
+		总盈亏率(1/1000)=19924,平均盈亏率(1/1000)=187,盈利交易率(1/1000)=575
+		平均持仓时间=30,持仓效率(1/1000000)=6233
+		赢利次数=61,赢利总值=23618
+		亏损次数=45,亏损总值=3694
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,671 DEBUG Mediator:<tsvama2:bxatr=50,slow=51,fast=3:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=51,fast=3:make_trade_signal:B1S1>:	评估:总盈亏值=7718,交易次数=40	期望值=2560	
+		总盈亏率(1/1000)=7718,平均盈亏率(1/1000)=192,盈利交易率(1/1000)=600
+		平均持仓时间=34,持仓效率(1/1000000)=5647
+		赢利次数=24,赢利总值=8932
+		亏损次数=16,亏损总值=1214
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,687 DEBUG Mediator:<tsvama2:bxatr=30,slow=29,fast=3:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=30,slow=29,fast=3:make_trade_signal:B1S1>:	评估:总盈亏值=19899,交易次数=103	期望值=2643	
+		总盈亏率(1/1000)=19899,平均盈亏率(1/1000)=193,盈利交易率(1/1000)=582
+		平均持仓时间=32,持仓效率(1/1000000)=6031
+		赢利次数=60,赢利总值=23061
+		亏损次数=43,亏损总值=3162
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,703 DEBUG Mediator:<tsvama2:bxatr=30,slow=37,fast=1:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=30,slow=37,fast=1:make_trade_signal:B1S1>:	评估:总盈亏值=18829,交易次数=97	期望值=2519	
+		总盈亏率(1/1000)=18829,平均盈亏率(1/1000)=194,盈利交易率(1/1000)=649
+		平均持仓时间=32,持仓效率(1/1000000)=6062
+		赢利次数=63,赢利总值=21463
+		亏损次数=34,亏损总值=2634
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,703 DEBUG Mediator:<tsvama2:bxatr=50,slow=61,fast=15:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=61,fast=15:make_trade_signal:B1S1>:	评估:总盈亏值=2916,交易次数=15	期望值=3344	
+		总盈亏率(1/1000)=2916,平均盈亏率(1/1000)=194,盈利交易率(1/1000)=533
+		平均持仓时间=31,持仓效率(1/1000000)=6258
+		赢利次数=8,赢利总值=3266
+		亏损次数=6,亏损总值=350
+		平盘次数=1
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,703 DEBUG Mediator:<tsvama2:bxatr=20,slow=33,fast=3:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=20,slow=33,fast=3:make_trade_signal:B1S1>:	评估:总盈亏值=19040,交易次数=97	期望值=2925	
+		总盈亏率(1/1000)=19040,平均盈亏率(1/1000)=196,盈利交易率(1/1000)=608
+		平均持仓时间=31,持仓效率(1/1000000)=6322
+		赢利次数=59,赢利总值=21593
+		亏损次数=38,亏损总值=2553
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,717 DEBUG Mediator:<tsvama2:bxatr=50,slow=63,fast=51:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=63,fast=51:make_trade_signal:B1S1>:	评估:总盈亏值=2192,交易次数=11	期望值=3491	
+		总盈亏率(1/1000)=2192,平均盈亏率(1/1000)=199,盈利交易率(1/1000)=636
+		平均持仓时间=37,持仓效率(1/1000000)=5378
+		赢利次数=7,赢利总值=2421
+		亏损次数=4,亏损总值=229
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,717 DEBUG Mediator:<tsvama2:bxatr=50,slow=61,fast=11:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=61,fast=11:make_trade_signal:B1S1>:	评估:总盈亏值=2803,交易次数=14	期望值=2531	
+		总盈亏率(1/1000)=2803,平均盈亏率(1/1000)=200,盈利交易率(1/1000)=642
+		平均持仓时间=36,持仓效率(1/1000000)=5555
+		赢利次数=9,赢利总值=3120
+		亏损次数=4,亏损总值=317
+		平盘次数=1
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,733 DEBUG Mediator:<tsvama2:bxatr=10,slow=67,fast=57:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=10,slow=67,fast=57:make_trade_signal:B1S1>:	评估:总盈亏值=5070,交易次数=25	期望值=3206	
+		总盈亏率(1/1000)=5070,平均盈亏率(1/1000)=202,盈利交易率(1/1000)=560
+		平均持仓时间=29,持仓效率(1/1000000)=6965
+		赢利次数=14,赢利总值=5766
+		亏损次数=11,亏损总值=696
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,733 DEBUG Mediator:<tsvama2:bxatr=40,slow=17,fast=1:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=40,slow=17,fast=1:make_trade_signal:B1S1>:	评估:总盈亏值=20563,交易次数=100	期望值=2530	
+		总盈亏率(1/1000)=20563,平均盈亏率(1/1000)=205,盈利交易率(1/1000)=580
+		平均持仓时间=29,持仓效率(1/1000000)=7068
+		赢利次数=58,赢利总值=23989
+		亏损次数=42,亏损总值=3426
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,750 DEBUG Mediator:<tsvama2:bxatr=30,slow=25,fast=3:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=30,slow=25,fast=3:make_trade_signal:B1S1>:	评估:总盈亏值=25009,交易次数=120	期望值=2567	
+		总盈亏率(1/1000)=25009,平均盈亏率(1/1000)=208,盈利交易率(1/1000)=600
+		平均持仓时间=31,持仓效率(1/1000000)=6709
+		赢利次数=72,赢利总值=28936
+		亏损次数=48,亏损总值=3927
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,765 DEBUG Mediator:<tsvama2:bxatr=50,slow=43,fast=55:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=43,fast=55:make_trade_signal:B1S1>:	评估:总盈亏值=1683,交易次数=8	期望值=3088	
+		总盈亏率(1/1000)=1683,平均盈亏率(1/1000)=210,盈利交易率(1/1000)=625
+		平均持仓时间=26,持仓效率(1/1000000)=8076
+		赢利次数=5,赢利总值=1888
+		亏损次数=3,亏损总值=205
+		平盘次数=0
+        评估:总盈亏值=158,交易次数=2    期望值=1215
+                总盈亏率(1/1000)=158,平均盈亏率(1/1000)=79,盈利交易率(1/1000)=500
+                平均持仓时间=32,持仓效率(1/1000000)=2468
+                赢利次数=1,赢利总值=223
+                亏损次数=1,亏损总值=65
+                平盘次数=0
+        
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,780 DEBUG Mediator:<tsvama2:bxatr=50,slow=53,fast=13:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=53,fast=13:make_trade_signal:B1S1>:	评估:总盈亏值=2949,交易次数=14	期望值=4772	
+		总盈亏率(1/1000)=2949,平均盈亏率(1/1000)=210,盈利交易率(1/1000)=571
+		平均持仓时间=54,持仓效率(1/1000000)=3888
+		赢利次数=8,赢利总值=3173
+		亏损次数=5,亏损总值=224
+		平盘次数=1
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,780 DEBUG Mediator:<tsvama2:bxatr=50,slow=41,fast=5:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=41,fast=5:make_trade_signal:B1S1>:	评估:总盈亏值=5319,交易次数=25	期望值=3261	
+		总盈亏率(1/1000)=5319,平均盈亏率(1/1000)=212,盈利交易率(1/1000)=680
+		平均持仓时间=38,持仓效率(1/1000000)=5578
+		赢利次数=17,赢利总值=5842
+		亏损次数=8,亏损总值=523
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,780 DEBUG Mediator:<tsvama2:bxatr=40,slow=105,fast=17:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=40,slow=105,fast=17:make_trade_signal:B1S1>:	评估:总盈亏值=4032,交易次数=19	期望值=4416	
+		总盈亏率(1/1000)=4032,平均盈亏率(1/1000)=212,盈利交易率(1/1000)=578
+		平均持仓时间=29,持仓效率(1/1000000)=7310
+		赢利次数=11,赢利总值=4419
+		亏损次数=8,亏损总值=387
+		平盘次数=0
+        评估:总盈亏值=726,交易次数=3    期望值=5148
+                总盈亏率(1/1000)=726,平均盈亏率(1/1000)=242,盈利交易率(1/1000)=666
+                平均持仓时间=36,持仓效率(1/1000000)=6722
+                赢利次数=2,赢利总值=773
+                亏损次数=1,亏损总值=47
+                平盘次数=0
+
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,780 DEBUG Mediator:<tsvama2:bxatr=50,slow=47,fast=5:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=47,fast=5:make_trade_signal:B1S1>:	评估:总盈亏值=6803,交易次数=31	期望值=3173	
+		总盈亏率(1/1000)=6803,平均盈亏率(1/1000)=219,盈利交易率(1/1000)=709
+		平均持仓时间=42,持仓效率(1/1000000)=5214
+		赢利次数=22,赢利总值=7431
+		亏损次数=9,亏损总值=628
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,796 DEBUG Mediator:<tsvama2:bxatr=50,slow=61,fast=51:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=61,fast=51:make_trade_signal:B1S1>:	评估:总盈亏值=2852,交易次数=13	期望值=3421	
+		总盈亏率(1/1000)=2852,平均盈亏率(1/1000)=219,盈利交易率(1/1000)=615
+		平均持仓时间=36,持仓效率(1/1000000)=6083
+		赢利次数=8,赢利总值=3173
+		亏损次数=5,亏损总值=321
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,796 DEBUG Mediator:<tsvama2:bxatr=50,slow=49,fast=3:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=49,fast=3:make_trade_signal:B1S1>:	评估:总盈亏值=7829,交易次数=34	期望值=2771	
+		总盈亏率(1/1000)=7829,平均盈亏率(1/1000)=230,盈利交易率(1/1000)=676
+		平均持仓时间=37,持仓效率(1/1000000)=6216
+		赢利次数=23,赢利总值=8744
+		亏损次数=11,亏损总值=915
+		平盘次数=0
+        评估:总盈亏值=2951,交易次数=14  期望值=3442
+                总盈亏率(1/1000)=2951,平均盈亏率(1/1000)=210,盈利交易率(1/1000)=571
+                平均持仓时间=33,持仓效率(1/1000000)=6363
+                赢利次数=8,赢利总值=3318
+                亏损次数=6,亏损总值=367
+
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,796 DEBUG Mediator:<tsvama2:bxatr=50,slow=65,fast=53:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=65,fast=53:make_trade_signal:B1S1>:	评估:总盈亏值=2546,交易次数=11	期望值=3347	
+		总盈亏率(1/1000)=2546,平均盈亏率(1/1000)=231,盈利交易率(1/1000)=909
+		平均持仓时间=29,持仓效率(1/1000000)=7965
+		赢利次数=10,赢利总值=2615
+		亏损次数=1,亏损总值=69
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,796 DEBUG Mediator:<tsvama2:bxatr=40,slow=35,fast=3:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=40,slow=35,fast=3:make_trade_signal:B1S1>:	评估:总盈亏值=16976,交易次数=72	期望值=3309	
+		总盈亏率(1/1000)=16976,平均盈亏率(1/1000)=235,盈利交易率(1/1000)=694
+		平均持仓时间=37,持仓效率(1/1000000)=6351
+		赢利次数=50,赢利总值=18554
+		亏损次数=22,亏损总值=1578
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,812 DEBUG Mediator:<tsvama2:bxatr=50,slow=75,fast=15:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=75,fast=15:make_trade_signal:B1S1>:	评估:总盈亏值=2129,交易次数=9	期望值=2651	
+		总盈亏率(1/1000)=2129,平均盈亏率(1/1000)=236,盈利交易率(1/1000)=777
+		平均持仓时间=41,持仓效率(1/1000000)=5756
+		赢利次数=7,赢利总值=2307
+		亏损次数=2,亏损总值=178
+		平盘次数=0
+        评估:总盈亏值=708,交易次数=7    期望值=1905
+                总盈亏率(1/1000)=708,平均盈亏率(1/1000)=101,盈利交易率(1/1000)=857
+                平均持仓时间=28,持仓效率(1/1000000)=3607
+                赢利次数=6,赢利总值=761
+                亏损次数=1,亏损总值=53
+        
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,812 DEBUG Mediator:<tsvama2:bxatr=50,slow=41,fast=1:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=41,fast=1:make_trade_signal:B1S1>:	评估:总盈亏值=10229,交易次数=43	期望值=2821	
+		总盈亏率(1/1000)=10229,平均盈亏率(1/1000)=237,盈利交易率(1/1000)=697
+		平均持仓时间=36,持仓效率(1/1000000)=6583
+		赢利次数=30,赢利总值=11325
+		亏损次数=13,亏损总值=1096
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,812 DEBUG Mediator:<tsvama2:bxatr=50,slow=65,fast=11:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=65,fast=11:make_trade_signal:B1S1>:	评估:总盈亏值=2888,交易次数=12	期望值=3200	
+		总盈亏率(1/1000)=2888,平均盈亏率(1/1000)=240,盈利交易率(1/1000)=666
+		平均持仓时间=39,持仓效率(1/1000000)=6153
+		赢利次数=8,赢利总值=3115
+		亏损次数=3,亏损总值=227
+		平盘次数=1
+        评估:总盈亏值=445,交易次数=11   期望值=754
+                总盈亏率(1/1000)=445,平均盈亏率(1/1000)=40,盈利交易率(1/1000)=454
+                平均持仓时间=21,持仓效率(1/1000000)=1904
+                赢利次数=5,赢利总值=766
+                亏损次数=6,亏损总值=321
+        
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,812 DEBUG Mediator:<tsvama2:bxatr=50,slow=45,fast=11:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=45,fast=11:make_trade_signal:B1S1>:	评估:总盈亏值=4443,交易次数=18	期望值=4730	
+		总盈亏率(1/1000)=4443,平均盈亏率(1/1000)=246,盈利交易率(1/1000)=666
+		平均持仓时间=41,持仓效率(1/1000000)=6000
+		赢利次数=12,赢利总值=4706
+		亏损次数=5,亏损总值=263
+		平盘次数=1
+        评估:总盈亏值=-430,交易次数=7   期望值=-838
+                总盈亏率(1/1000)=-430,平均盈亏率(1/1000)=-62,盈利交易率(1/1000)=142
+                平均持仓时间=13,持仓效率(1/1000000)=-4770
+                赢利次数=1,赢利总值=14
+                亏损次数=6,亏损总值=444
+        
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,828 DEBUG Mediator:<tsvama2:bxatr=50,slow=21,fast=7:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=21,fast=7:make_trade_signal:B1S1>:	评估:总盈亏值=6591,交易次数=26	期望值=4865	
+		总盈亏率(1/1000)=6591,平均盈亏率(1/1000)=253,盈利交易率(1/1000)=615
+		平均持仓时间=33,持仓效率(1/1000000)=7666
+		赢利次数=16,赢利总值=7119
+		亏损次数=10,亏损总值=528
+		平盘次数=0
+        评估:总盈亏值=1660,交易次数=9   期望值=3607
+                总盈亏率(1/1000)=1660,平均盈亏率(1/1000)=184,盈利交易率(1/1000)=555
+                平均持仓时间=32,持仓效率(1/1000000)=5750
+                赢利次数=5,赢利总值=1867
+                亏损次数=4,亏损总值=207
+                平盘次数=0
+        
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,828 DEBUG Mediator:<tsvama2:bxatr=70,slow=139,fast=3:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=70,slow=139,fast=3:make_trade_signal:B1S1>:	评估:总盈亏值=1274,交易次数=5	期望值=1000	
+		总盈亏率(1/1000)=1274,平均盈亏率(1/1000)=254,盈利交易率(1/1000)=1000
+		平均持仓时间=36,持仓效率(1/1000000)=7055
+		赢利次数=5,赢利总值=1274
+		亏损次数=0,亏损总值=0
+		平盘次数=0
+        评估:总盈亏值=443,交易次数=4    期望值=1896
+                总盈亏率(1/1000)=443,平均盈亏率(1/1000)=110,盈利交易率(1/1000)=500
+                平均持仓时间=32,持仓效率(1/1000000)=3437
+                赢利次数=2,赢利总值=559
+                亏损次数=2,亏损总值=116
+                平盘次数=0
+        
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,828 DEBUG Mediator:<tsvama2:bxatr=50,slow=61,fast=47:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=61,fast=47:make_trade_signal:B1S1>:	评估:总盈亏值=2838,交易次数=11	期望值=3265	
+		总盈亏率(1/1000)=2838,平均盈亏率(1/1000)=258,盈利交易率(1/1000)=727
+		平均持仓时间=44,持仓效率(1/1000000)=5863
+		赢利次数=8,赢利总值=3075
+		亏损次数=3,亏损总值=237
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,828 DEBUG Mediator:<tsvama2:bxatr=50,slow=45,fast=3:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=45,fast=3:make_trade_signal:B1S1>:	评估:总盈亏值=10277,交易次数=39	期望值=2988	
+		总盈亏率(1/1000)=10277,平均盈亏率(1/1000)=263,盈利交易率(1/1000)=743
+		平均持仓时间=42,持仓效率(1/1000000)=6261
+		赢利次数=29,赢利总值=11163
+		亏损次数=10,亏损总值=886
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,842 DEBUG Mediator:<tsvama2:bxatr=50,slow=45,fast=1:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=45,fast=1:make_trade_signal:B1S1>:	评估:总盈亏值=11500,交易次数=43	期望值=3178	
+		总盈亏率(1/1000)=11500,平均盈亏率(1/1000)=267,盈利交易率(1/1000)=720
+		平均持仓时间=39,持仓效率(1/1000000)=6846
+		赢利次数=31,赢利总值=12512
+		亏损次数=12,亏损总值=1012
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,842 DEBUG Mediator:<tsvama2:bxatr=50,slow=37,fast=3:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=37,fast=3:make_trade_signal:B1S1>:	评估:总盈亏值=9321,交易次数=34	期望值=3113	
+		总盈亏率(1/1000)=9321,平均盈亏率(1/1000)=274,盈利交易率(1/1000)=735
+		平均持仓时间=41,持仓效率(1/1000000)=6682
+		赢利次数=25,赢利总值=10113
+		亏损次数=9,亏损总值=792
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,842 DEBUG Mediator:<tsvama2:bxatr=50,slow=65,fast=41:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=65,fast=41:make_trade_signal:B1S1>:	评估:总盈亏值=2506,交易次数=9	期望值=3390	
+		总盈亏率(1/1000)=2506,平均盈亏率(1/1000)=278,盈利交易率(1/1000)=666
+		平均持仓时间=45,持仓效率(1/1000000)=6177
+		赢利次数=6,赢利总值=2753
+		亏损次数=3,亏损总值=247
+		平盘次数=0
+        评估:总盈亏值=399,交易次数=3    期望值=1546
+                总盈亏率(1/1000)=399,平均盈亏率(1/1000)=133,盈利交易率(1/1000)=666
+                平均持仓时间=23,持仓效率(1/1000000)=5782
+                赢利次数=2,赢利总值=485
+                亏损次数=1,亏损总值=86
+                平盘次数=0
+        
+####wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,842 DEBUG Mediator:<tsvama2:bxatr=50,slow=61,fast=7:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=61,fast=7:make_trade_signal:B1S1>:	评估:总盈亏值=3440,交易次数=12	期望值=4085	
+		总盈亏率(1/1000)=3440,平均盈亏率(1/1000)=286,盈利交易率(1/1000)=666
+		平均持仓时间=47,持仓效率(1/1000000)=6085
+		赢利次数=8,赢利总值=3721
+		亏损次数=4,亏损总值=281
+		平盘次数=0
+        评估:总盈亏值=1525,交易次数=10  期望值=3102
+                总盈亏率(1/1000)=1525,平均盈亏率(1/1000)=152,盈利交易率(1/1000)=700
+                平均持仓时间=30,持仓效率(1/1000000)=5066
+                赢利次数=7,赢利总值=1672
+                亏损次数=3,亏损总值=147
+                平盘次数=0
+        
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,858 DEBUG Mediator:<tsvama2:bxatr=50,slow=47,fast=3:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=47,fast=3:make_trade_signal:B1S1>:	评估:总盈亏值=9988,交易次数=34	期望值=3084	
+		总盈亏率(1/1000)=9988,平均盈亏率(1/1000)=293,盈利交易率(1/1000)=764
+		平均持仓时间=40,持仓效率(1/1000000)=7325
+		赢利次数=26,赢利总值=10753
+		亏损次数=8,亏损总值=765
+		平盘次数=0
+        评估:总盈亏值=2627,交易次数=15  期望值=2430
+                总盈亏率(1/1000)=2627,平均盈亏率(1/1000)=175,盈利交易率(1/1000)=533
+                平均持仓时间=32,持仓效率(1/1000000)=5468
+                赢利次数=8,赢利总值=3135
+                亏损次数=7,亏损总值=508
+                平盘次数=0
+        
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,858 DEBUG Mediator:<tsvama2:bxatr=50,slow=35,fast=1:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=35,fast=1:make_trade_signal:B1S1>:	评估:总盈亏值=12959,交易次数=43	期望值=3420	
+		总盈亏率(1/1000)=12959,平均盈亏率(1/1000)=301,盈利交易率(1/1000)=720
+		平均持仓时间=45,持仓效率(1/1000000)=6688
+		赢利次数=31,赢利总值=14015
+		亏损次数=12,亏损总值=1056
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,858 DEBUG Mediator:<tsvama2:bxatr=50,slow=21,fast=3:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=21,fast=3:make_trade_signal:B1S1>:	评估:总盈亏值=14540,交易次数=48	期望值=4136	
+		总盈亏率(1/1000)=14540,平均盈亏率(1/1000)=302,盈利交易率(1/1000)=583
+		平均持仓时间=38,持仓效率(1/1000000)=7947
+		赢利次数=28,赢利总值=16014
+		亏损次数=20,亏损总值=1474
+		平盘次数=0
+        评估:总盈亏值=591,交易次数=13   期望值=865
+                总盈亏率(1/1000)=591,平均盈亏率(1/1000)=45,盈利交易率(1/1000)=384
+                平均持仓时间=26,持仓效率(1/1000000)=1730
+                赢利次数=5,赢利总值=1008
+                亏损次数=8,亏损总值=417
+        
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,858 DEBUG Mediator:<tsvama2:bxatr=50,slow=51,fast=15:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=51,fast=15:make_trade_signal:B1S1>:	评估:总盈亏值=3655,交易次数=12	期望值=8941	
+		总盈亏率(1/1000)=3655,平均盈亏率(1/1000)=304,盈利交易率(1/1000)=666
+		平均持仓时间=44,持仓效率(1/1000000)=6909
+		赢利次数=8,赢利总值=3792
+		亏损次数=4,亏损总值=137
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,858 DEBUG Mediator:<tsvama2:bxatr=50,slow=25,fast=3:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=25,fast=3:make_trade_signal:B1S1>:	评估:总盈亏值=16963,交易次数=54	期望值=3450	
+		总盈亏率(1/1000)=16963,平均盈亏率(1/1000)=314,盈利交易率(1/1000)=666
+		平均持仓时间=41,持仓效率(1/1000000)=7658
+		赢利次数=36,赢利总值=18612
+		亏损次数=18,亏损总值=1649
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,875 DEBUG Mediator:<tsvama2:bxatr=50,slow=61,fast=59:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=61,fast=59:make_trade_signal:B1S1>:	评估:总盈亏值=2516,交易次数=8	期望值=1000	
+		总盈亏率(1/1000)=2516,平均盈亏率(1/1000)=314,盈利交易率(1/1000)=1000
+		平均持仓时间=71,持仓效率(1/1000000)=4422
+		赢利次数=8,赢利总值=2516
+		亏损次数=0,亏损总值=0
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,875 DEBUG Mediator:<tsvama2:bxatr=50,slow=17,fast=3:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=17,fast=3:make_trade_signal:B1S1>:	评估:总盈亏值=14186,交易次数=45	期望值=4500	
+		总盈亏率(1/1000)=14186,平均盈亏率(1/1000)=315,盈利交易率(1/1000)=688
+		平均持仓时间=36,持仓效率(1/1000000)=8750
+		赢利次数=31,赢利总值=15172
+		亏损次数=14,亏损总值=986
+		平盘次数=0
+        评估:总盈亏值=1846,交易次数=18  期望值=1924
+                总盈亏率(1/1000)=1846,平均盈亏率(1/1000)=102,盈利交易率(1/1000)=500
+                平均持仓时间=24,持仓效率(1/1000000)=4250
+                赢利次数=9,赢利总值=2327
+                亏损次数=9,亏损总值=481
+                平盘次数=0
+        
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,875 DEBUG Mediator:<tsvama2:bxatr=50,slow=61,fast=53:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=61,fast=53:make_trade_signal:B1S1>:	评估:总盈亏值=4444,交易次数=14	期望值=5465	
+		总盈亏率(1/1000)=4444,平均盈亏率(1/1000)=317,盈利交易率(1/1000)=785
+		平均持仓时间=42,持仓效率(1/1000000)=7547
+		赢利次数=11,赢利总值=4620
+		亏损次数=3,亏损总值=176
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,875 DEBUG Mediator:<tsvama2:bxatr=50,slow=35,fast=11:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=35,fast=11:make_trade_signal:B1S1>:	评估:总盈亏值=5133,交易次数=16	期望值=7619	
+		总盈亏率(1/1000)=5133,平均盈亏率(1/1000)=320,盈利交易率(1/1000)=750
+		平均持仓时间=37,持仓效率(1/1000000)=8648
+		赢利次数=12,赢利总值=5302
+		亏损次数=4,亏损总值=169
+		平盘次数=0
+        评估:总盈亏值=-338,交易次数=8   期望值=-559
+                总盈亏率(1/1000)=-338,平均盈亏率(1/1000)=-43,盈利交易率(1/1000)=125
+                平均持仓时间=9,持仓效率(1/1000000)=-4778
+                赢利次数=1,赢利总值=203
+                亏损次数=7,亏损总值=541
+                平盘次数=0
+        
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,875 DEBUG Mediator:<tsvama2:bxatr=50,slow=57,fast=55:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=57,fast=55:make_trade_signal:B1S1>:	评估:总盈亏值=5202,交易次数=16	期望值=4850	
+		总盈亏率(1/1000)=5202,平均盈亏率(1/1000)=325,盈利交易率(1/1000)=750
+		平均持仓时间=28,持仓效率(1/1000000)=11607
+		赢利次数=12,赢利总值=5473
+		亏损次数=4,亏损总值=271
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,875 DEBUG Mediator:<tsvama2:bxatr=50,slow=67,fast=11:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=67,fast=11:make_trade_signal:B1S1>:	评估:总盈亏值=4909,交易次数=15	期望值=4605	
+		总盈亏率(1/1000)=4909,平均盈亏率(1/1000)=327,盈利交易率(1/1000)=733
+		平均持仓时间=38,持仓效率(1/1000000)=8605
+		赢利次数=11,赢利总值=5193
+		亏损次数=4,亏损总值=284
+		平盘次数=0
+        评估:总盈亏值=927,交易次数=13   期望值=1339
+                总盈亏率(1/1000)=927,平均盈亏率(1/1000)=71,盈利交易率(1/1000)=538
+                平均持仓时间=21,持仓效率(1/1000000)=3380
+                赢利次数=7,赢利总值=1248
+                亏损次数=6,亏损总值=321
+                平盘次数=0
+
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,875 DEBUG Mediator:<tsvama2:bxatr=50,slow=29,fast=1:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=29,fast=1:make_trade_signal:B1S1>:	评估:总盈亏值=17639,交易次数=52	期望值=4643	
+		总盈亏率(1/1000)=17639,平均盈亏率(1/1000)=339,盈利交易率(1/1000)=673
+		平均持仓时间=43,持仓效率(1/1000000)=7883
+		赢利次数=35,赢利总值=18881
+		亏损次数=17,亏损总值=1242
+####wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,890 DEBUG Mediator:<tsvama2:bxatr=50,slow=33,fast=1:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=33,fast=1:make_trade_signal:B1S1>:	评估:总盈亏值=14826,交易次数=43	期望值=4586	
+		总盈亏率(1/1000)=14826,平均盈亏率(1/1000)=344,盈利交易率(1/1000)=720
+		平均持仓时间=42,持仓效率(1/1000000)=8190
+		赢利次数=31,赢利总值=15734
+		亏损次数=12,亏损总值=908
+		平盘次数=0
+        评估:总盈亏值=2473,交易次数=14  期望值=2227
+                总盈亏率(1/1000)=2473,平均盈亏率(1/1000)=176,盈利交易率(1/1000)=642
+                平均持仓时间=33,持仓效率(1/1000000)=5333
+                赢利次数=9,赢利总值=2872
+                亏损次数=5,亏损总值=399
+                平盘次数=0
+        
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,890 DEBUG Mediator:<tsvama2:bxatr=50,slow=29,fast=3:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=29,fast=3:make_trade_signal:B1S1>:	评估:总盈亏值=16246,交易次数=47	期望值=4928	
+		总盈亏率(1/1000)=16246,平均盈亏率(1/1000)=345,盈利交易率(1/1000)=723
+		平均持仓时间=45,持仓效率(1/1000000)=7666
+		赢利次数=34,赢利总值=17158
+		亏损次数=13,亏损总值=912
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,890 DEBUG Mediator:<tsvama2:bxatr=50,slow=31,fast=3:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=31,fast=3:make_trade_signal:B1S1>:	评估:总盈亏值=14432,交易次数=39	期望值=5362	
+		总盈亏率(1/1000)=14432,平均盈亏率(1/1000)=370,盈利交易率(1/1000)=769
+		平均持仓时间=48,持仓效率(1/1000000)=7708
+		赢利次数=30,赢利总值=15053
+		亏损次数=9,亏损总值=621
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,905 DEBUG Mediator:<tsvama2:bxatr=50,slow=35,fast=3:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=35,fast=3:make_trade_signal:B1S1>:	评估:总盈亏值=11887,交易次数=32	期望值=5707	
+		总盈亏率(1/1000)=11887,平均盈亏率(1/1000)=371,盈利交易率(1/1000)=812
+		平均持仓时间=52,持仓效率(1/1000000)=7134
+		赢利次数=26,赢利总值=12282
+		亏损次数=6,亏损总值=395
+		平盘次数=0
+        评估:总盈亏值=1975,交易次数=10  期望值=2213
+                总盈亏率(1/1000)=1975,平均盈亏率(1/1000)=197,盈利交易率(1/1000)=800
+                平均持仓时间=37,持仓效率(1/1000000)=5324
+                赢利次数=8,赢利总值=2153
+                亏损次数=2,亏损总值=178
+                平盘次数=0
+        
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,905 DEBUG Mediator:<tsvama2:bxatr=50,slow=63,fast=55:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=63,fast=55:make_trade_signal:B1S1>:	评估:总盈亏值=4141,交易次数=11	期望值=5449	
+		总盈亏率(1/1000)=4141,平均盈亏率(1/1000)=376,盈利交易率(1/1000)=909
+		平均持仓时间=34,持仓效率(1/1000000)=11058
+		赢利次数=10,赢利总值=4210
+		亏损次数=1,亏损总值=69
+		平盘次数=0
+        评估:总盈亏值=12,交易次数=2     期望值=1000
+                总盈亏率(1/1000)=12,平均盈亏率(1/1000)=6,盈利交易率(1/1000)=1000
+                平均持仓时间=15,持仓效率(1/1000000)=400
+                赢利次数=2,赢利总值=12
+                亏损次数=0,亏损总值=0
+                平盘次数=0
+        
+####wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,905 DEBUG Mediator:<tsvama2:bxatr=50,slow=33,fast=3:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=33,fast=3:make_trade_signal:B1S1>:	评估:总盈亏值=13199,交易次数=34	期望值=5623	
+		总盈亏率(1/1000)=13199,平均盈亏率(1/1000)=388,盈利交易率(1/1000)=764
+		平均持仓时间=48,持仓效率(1/1000000)=8083
+		赢利次数=26,赢利总值=13758
+		亏损次数=8,亏损总值=559
+		平盘次数=0
+        评估:总盈亏值=2843,交易次数=15  期望值=2554
+                总盈亏率(1/1000)=2843,平均盈亏率(1/1000)=189,盈利交易率(1/1000)=800
+                平均持仓时间=35,持仓效率(1/1000000)=5400
+                赢利次数=12,赢利总值=3067
+                亏损次数=3,亏损总值=224
+                平盘次数=0
+        
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,905 DEBUG Mediator:<tsvama2:bxatr=50,slow=65,fast=55:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=65,fast=55:make_trade_signal:B1S1>:	评估:总盈亏值=3922,交易次数=10	期望值=5681	
+		总盈亏率(1/1000)=3922,平均盈亏率(1/1000)=392,盈利交易率(1/1000)=900
+		平均持仓时间=31,持仓效率(1/1000000)=12645
+		赢利次数=9,赢利总值=3991
+		亏损次数=1,亏损总值=69
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,905 DEBUG Mediator:<tsvama2:bxatr=50,slow=59,fast=55:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=59,fast=55:make_trade_signal:B1S1>:	评估:总盈亏值=7213,交易次数=17	期望值=10095	
+		总盈亏率(1/1000)=7213,平均盈亏率(1/1000)=424,盈利交易率(1/1000)=823
+		平均持仓时间=47,持仓效率(1/1000000)=9021
+		赢利次数=14,赢利总值=7339
+		亏损次数=3,亏损总值=126
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,921 DEBUG Mediator:<tsvama2:bxatr=50,slow=65,fast=57:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=65,fast=57:make_trade_signal:B1S1>:	评估:总盈亏值=3932,交易次数=9	期望值=6318	
+		总盈亏率(1/1000)=3932,平均盈亏率(1/1000)=436,盈利交易率(1/1000)=888
+		平均持仓时间=50,持仓效率(1/1000000)=8720
+		赢利次数=8,赢利总值=4001
+		亏损次数=1,亏损总值=69
+		平盘次数=0
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,921 DEBUG Mediator:<tsvama2:bxatr=50,slow=61,fast=57:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=61,fast=57:make_trade_signal:B1S1>:	评估:总盈亏值=5658,交易次数=12	期望值=6826	
+		总盈亏率(1/1000)=5658,平均盈亏率(1/1000)=471,盈利交易率(1/1000)=916
+		平均持仓时间=64,持仓效率(1/1000000)=7359
+		赢利次数=11,赢利总值=5727
+		亏损次数=1,亏损总值=69
+		平盘次数=0
+        评估:总盈亏值=-92,交易次数=2    期望值=-460
+                总盈亏率(1/1000)=-92,平均盈亏率(1/1000)=-46,盈利交易率(1/1000)=500
+                平均持仓时间=7,持仓效率(1/1000000)=-6572
+                赢利次数=1,赢利总值=8
+                亏损次数=1,亏损总值=100
+        
+#wolfox.fengine.core.shortcut:log_result:67:2009-07-22 18:32:39,921 DEBUG Mediator:<tsvama2:bxatr=50,slow=61,fast=55:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:bxatr=50,slow=61,fast=55:make_trade_signal:B1S1>:	评估:总盈亏值=7273,交易次数=15	期望值=7014	
+		总盈亏率(1/1000)=7273,平均盈亏率(1/1000)=484,盈利交易率(1/1000)=933
+		平均持仓时间=53,持仓效率(1/1000000)=9132
+		赢利次数=14,赢利总值=7342
+		亏损次数=1,亏损总值=69
+		平盘次数=0
+        评估:总盈亏值=-36,交易次数=3    期望值=-250
+                总盈亏率(1/1000)=-36,平均盈亏率(1/1000)=-12,盈利交易率(1/1000)=666
+                平均持仓时间=15,持仓效率(1/1000000)=-800
+                赢利次数=2,赢利总值=12
+                亏损次数=1,亏损总值=48
+    

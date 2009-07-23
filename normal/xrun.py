@@ -941,7 +941,7 @@ def smacd(stock):
 
 
 #c_extractor = lambda c,s:gand(c.g5 >= c.g20,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250,s<=6600)
-def tsvama2(stock,fast=7,slow=250,bxatr=60):
+def tsvama2(stock,fast=7,slow=250,bxatr=50):
     ''' svama两线交叉
     '''
     t = stock.transaction
@@ -2501,7 +2501,7 @@ def uplain3(stock):
     return signal
 
 
-def emv1(stock):
+def emv1(stock,fast):
     t = stock.transaction
 
     ##fast = 75       #1565-44-500-108-4695, 3018-53-698-163-8150

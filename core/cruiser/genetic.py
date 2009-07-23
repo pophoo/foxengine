@@ -58,6 +58,8 @@ class Nature(object):
         if(skey not in self.judgecache):
             #print 'can not find:',skey
             self.judgecache[skey] = self.judge(cell)
+        else:
+            logger.debug('find skey in cache:%s' % skey)
         return self.judgecache[skey]
         
  

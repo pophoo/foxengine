@@ -1164,7 +1164,7 @@ def emv2(stock,fast,slow):
     linelog(stock.code)
     return ecross
 
-def emv2s(stock,fast=7,slow=30):
+def emv2s(stock,fast=7,slow=30):    #去掉g5
     t = stock.transaction
 
     #1880-33-424-141-5875,4225-25-760-169-5827

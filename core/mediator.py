@@ -90,7 +90,7 @@ class Mediator(object):
         #for t,sb,ss,ssig in zip(dates,sbuy,ssell,ssignal):print t,sb,ss,ssig
         return tmaker(stock,ssignal,dates,self.buy_pricer(stock),self.sell_pricer(stock),begin=begin)
 
-    def prepare(self,stock,atr_covered=20,mm_covered=20,**kwargs):  #kwargs吸收无用参数
+    def prepare(self,stock,mm_covered=20,**kwargs):  #kwargs吸收无用参数
         trans = stock.transaction
         #if not stock.has_attr('atr'):
         #    stock.atr = atr(trans[CLOSE],trans[HIGH],trans[LOW],atr_covered)
@@ -140,9 +140,9 @@ class MM_Mediator(Mediator):
                 logger.exception(u'%s calc error : %s',s.code,inst)
         return trades
 
-    def prepare(self,stock,atr_covered=20,mm_covered=20,**kwargs):  #kwargs吸收无用参数
+    def prepare(self,stock,mm_covered=20,**kwargs):  #kwargs吸收无用参数
         trans = stock.transaction
-        Mediator.prepare(self,stock,atr_covered,mm_covered,**kwargs)
+        Mediator.prepare(self,stock,mm_covered,**kwargs)
         stock.mfe,stock.mae = mm_ratio(trans[CLOSE],trans[HIGH],trans[LOW],stock.atr,covered=mm_covered)
         stock.mfe_sum,stock.mae_sum,stock.mm_count = 0,0,0   #初始值
 

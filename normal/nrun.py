@@ -40,9 +40,6 @@ def prepare_temp_configs(seller,pman=None,dman=None):
     configs.append(config(buyer=fcustom(s.emv1,fast=101)))    
     configs.append(config(buyer=fcustom(s.emv1,fast=105)))
     configs.append(config(buyer=fcustom(s.emv1,fast=148)))    
-    configs.append(config(buyer=fcustom(s.emv1,fast=143)))
-    configs.append(config(buyer=fcustom(s.emv1,fast=101)))    
-    configs.append(config(buyer=fcustom(s.emv1,fast=105)))
     configs.append(config(buyer=fcustom(s.emv1,fast=227)))    
     configs.append(config(buyer=fcustom(s.emv1,fast=61)))
     configs.append(config(buyer=fcustom(s.emv1,fast=51)))    
@@ -153,10 +150,15 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=s.xud0))  #蓝筹
     configs.append(config(buyer=s.xudj))  #基金
 
-    configs.append(config(buyer=fcustom(s.emv1,fast=15)))      #1/7
-    configs.append(config(buyer=fcustom(s.emv1,fast=75)))      #1/8
-    #configs.append(config(buyer=fcustom(s.emv1,fast=98)))      #1/5
-    configs.append(config(buyer=fcustom(s.emv1,fast=120)))     #2/9
+    configs.append(config(buyer=fcustom(s.emv1b,fast=15,base=120)))      #1/5
+    configs.append(config(buyer=fcustom(s.emv1b,fast=27,base=120)))      #1/4
+    configs.append(config(buyer=fcustom(s.emv1b,fast=40,base=120)))      #1/3
+    configs.append(config(buyer=fcustom(s.emv1b,fast=75,base=120)))      #1/3
+    
+    configs.append(config(buyer=fcustom(s.emv1,fast=98)))      #5/11   #emv1b,base=120更好,但排斥过多
+    configs.append(config(buyer=fcustom(s.emv1,fast=120)))     #2/5
+    configs.append(config(buyer=fcustom(s.emv1,fast=143)))     #3/8
+    configs.append(config(buyer=fcustom(s.emv1,fast=227)))     #
 
     configs.append(config(buyer=fcustom(s.emv2,fast=75,slow=275)))    #1/4 
     configs.append(config(buyer=fcustom(s.emv2s,fast=7,slow=30)))     #1/5
@@ -167,7 +169,7 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.tsvama2,fast=15,slow=75,bxatr=50)))   #1/7
     configs.append(config(buyer=fcustom(s.tsvama2,fast=3,slow=49,bxatr=50)))    #4/14
     configs.append(config(buyer=fcustom(s.tsvama2,fast=17,slow=105,bxatr=50)))  #1/3
-    configs.append(config(buyer=fcustom(s.tsvama2,fast=15,slow=111,bxatr=50)))  #1/7
+    #configs.append(config(buyer=fcustom(s.tsvama2,fast=15,slow=111,bxatr=50)))  #1/7
 
     #configs.append(config(buyer=fcustom(s.tsvama2,fast=20,slow=100)))   #3230-562-183   #20080701以来萎靡
     #configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #@3691-707-41
@@ -478,10 +480,10 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     
-    #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
     catalog_macd(catalogs)
 

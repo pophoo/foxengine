@@ -27,6 +27,18 @@ class Emv1Cruiser(GeneticCruiser):
         #self.trade_func = fcustom(my_trade_func,begin=20010601)
         self.evaluate_func = normal_evaluate
 
+class Emv2Cruiser(GeneticCruiser):
+    def prepare(self):
+        self.args = dict(fast=range(1,250),slow=range(6,300,2))
+        self.buy_func = emv2
+        #self.sell_func = csc_func
+        self.sell_func =  atr_seller_factory(stop_times=1200,trace_times=3000)
+        self.predefined = []
+        #self.sell_func = my_csc_func
+        #self.trade_func = fcustom(normal_trade_func,begin=20010601)
+        #self.trade_func = fcustom(my_trade_func,begin=20010601)
+        self.evaluate_func = normal_evaluate
+
 class TSvama2Cruiser(GeneticCruiser):
     def prepare(self):
         self.args = dict(fast=range(1,60,2),slow=range(5,300,2),bxatr=range(10,90,10))
@@ -289,7 +301,7 @@ if __name__ == '__main__':
     #cruiser.gcruise(sdata,dates,tbegin)
     #logger.debug('*****************svama3b begin**********************')
     #cruiser = TSvama2Cruiser(psize=100,maxstep=50,goal=200000000)    #goal不能太小
-    cruiser = Emv1Cruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
+    cruiser = Emv2Cruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
     cruiser.gcruise(sdata,dates,tbegin)    
     
     #cruiser = Svama3bMMCruiser(psize=500,maxstep=100,goal=200000000)    #goal不能太小

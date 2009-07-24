@@ -174,6 +174,9 @@ class ModuleTest(unittest.TestCase):    #通路测试
         sbuy = emv2s(self.stock)
         self.assertTrue(True)
 
+    def test_tsvama4(self):
+        sbuy = tsvama4(self.stock,10,20,30,40)
+        self.assertTrue(True)
 
 if __name__ == "__main__":
     logging.basicConfig(filename="test.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')

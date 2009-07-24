@@ -15,7 +15,6 @@ from wolfox.fengine.core.d1indicator import atr
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.run')    
 
-
 #1 缩小止损，止损和跟随建议为1600/2400
 #2 信号出来后打到55/120均线附近
 
@@ -23,32 +22,19 @@ logger = logging.getLogger('wolfox.fengine.normal.run')
 def prepare_temp_configs(seller,pman=None,dman=None):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
-#
-    configs.append(config(buyer=fcustom(s.emv2,slow=290,fast=126)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=290,fast=128)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=226,fast=126)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=134,fast=176)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=132,fast=194)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=292,fast=72)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=230,fast=193)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=230,fast=72)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=220,fast=165)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=84,fast=100)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=290,fast=62)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=254,fast=193)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=88,fast=17)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=116,fast=69)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=100,fast=10)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=86,fast=124)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=184,fast=127)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=190,fast=72)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=96,fast=125)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=110,fast=87)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=286,fast=64)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=76,fast=123)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=286,fast=142)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=8,fast=3)))
-    
+
+    import wolfox.fengine.normal.xrun as x 
+    configs.append(config(buyer=fcustom(x.emv2,fast=75,slow=275)))    #1/4 
+    configs.append(config(buyer=fcustom(x.emv2,fast=128,slow=290)))   #2/2  
+    configs.append(config(buyer=fcustom(x.emv2,fast=126,slow=226)))   #0/0  
+    configs.append(config(buyer=fcustom(x.emv2,fast=194,slow=132)))   #0/0  
+    configs.append(config(buyer=fcustom(x.emv2,fast=72,slow=292)))    #0/0  
+    configs.append(config(buyer=fcustom(x.emv2,fast=17,slow=88)))     #5/13  
+    configs.append(config(buyer=fcustom(x.emv2,fast=10,slow=100)))    #1/8
+    configs.append(config(buyer=fcustom(x.emv2,fast=124,slow=86)))    #1/3  
+    configs.append(config(buyer=fcustom(x.emv2,fast=125,slow=96)))    #1/2  
+    configs.append(config(buyer=fcustom(x.emv2,fast=3,slow=8)))       #3/11  
+
     #configs.append(config(buyer=s.xma60))   #1040-390-64
 
     return configs

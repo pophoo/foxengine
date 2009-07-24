@@ -2,8 +2,6 @@
 
 #指定股票的测试运行脚本
 
-#106493077@sis
-#catknight_by_MiMiP2P@18p2p@SIS@Touch99
 from wolfox.fengine.core.shortcut import *
 from wolfox.fengine.normal.funcs import *
 from wolfox.fengine.normal.nrun import prepare_order,prepare_common
@@ -964,8 +962,6 @@ def tsvama2(stock,fast=7,slow=250,bxatr=50):
 
     vfilter = vma_s < vma_l * 7/8
  
-    linelog('%s:%s' % (tsvama2.__name__,stock.code))
-    
     thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
     xatr = stock.atr * BASE / t[CLOSE]
 
@@ -2559,14 +2555,6 @@ def emv1b(stock,fast,base=300):
 def emv2(stock,fast,slow):
     t = stock.transaction
 
-    #fast,slow=15,58         #-,3477-42-857-153-5464
-    #fast,slow=7,30          #xxx,2679-49-775-142-5916
-    #fast,slow=15,98         #5xx,3727-42-785-164-5466
-    #fast,slow=7,13           #1815-89-337-118-5363,3720-59-694-160-5925
-    #fast,slow = 5,22         #1xx,2938-57-754-144-4645
-    #fast,slow = 15,75      
-    #fast,slow = 15,275        #8xx,1000-1-1000-2176-23652
-
     em = emv(t[HIGH],t[LOW],t[VOLUME])
     #mv1 = msum2(em,fast)
     #mv2 = msum2(em,slow)
@@ -2607,3 +2595,35 @@ def emv3(stock):
     ecross = gand(stock.thumb,cross(mv2,mv1)>0,strend(mv2)>0,mv2<0,stock.t5,stock.above,vfilter)
     linelog(stock.code)
     return ecross
+
+def tsvama4(stock,afast,aslow,bfast,bslow,follow=7):
+    ''' svama两线交叉
+    '''
+    t = stock.transaction
+    svap,v2i = stock.svap_ma_67_2
+    ma_svapfast_a = ma(svap,afast)
+    ma_svapslow_a = ma(svap,aslow)
+    trend_ma_svapfast_a = strend(ma_svapfast_a) > 0
+    trend_ma_svapslow_a = strend(ma_svapslow_a) > 0
+    cross_fast_slow_a = gand(cross(ma_svapslow_a,ma_svapfast_a)>0,trend_ma_svapfast_a,trend_ma_svapslow_a)
+
+
+    ma_svapfast_b = ma(svap,bfast)
+    ma_svapslow_b = ma(svap,bslow)
+    trend_ma_svapfast_b = strend(ma_svapfast_b) > 0
+    trend_ma_svapslow_b = strend(ma_svapslow_b) > 0
+    cross_fast_slow_b = gand(cross(ma_svapslow_b,ma_svapfast_b)>0,trend_ma_svapfast_b,trend_ma_svapslow_b)
+
+    ss = sfollow(cross_fast_slow_a,cross_fast_slow_b,follow)
+    msvap = transform(ss,v2i,len(t[VOLUME]))
+    linelog('%s:%s' % (tsvama4.__name__,stock.code))
+
+    #vma_s = ma(t[VOLUME],13)
+    #vma_l = ma(t[VOLUME],30)
+
+    #vfilter = vma_s < vma_l * 7/8
+ 
+    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
+
+    return gand(msvap,stock.above,stock.t5,thumb)#,vfilter)
+

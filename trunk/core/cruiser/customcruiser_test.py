@@ -40,6 +40,13 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
         ccruiser.prepare_next(sdata,idata,catalogs)
         cruiser = ccruiser.Emv2Cruiser(psize=20,maxstep=1,goal=20000)
         cruiser.gcruise(sdata,dates,20010601)    
+
+    def test_tsvama4_cruiser(self):
+        begin,end = 20010101,20010201
+        dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        ccruiser.prepare_next(sdata,idata,catalogs)
+        cruiser = ccruiser.TSvama4Cruiser(psize=20,maxstep=1,goal=20000)
+        cruiser.gcruise(sdata,dates,20010601)    
     
     def test_svama3_cruiser(self):
         begin,end = 20010101,20010201

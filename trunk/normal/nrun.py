@@ -154,7 +154,18 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.emv1,fast=227)))     #
 
     configs.append(config(buyer=fcustom(s.emv2,fast=75,slow=275)))    #1/4 
+    configs.append(config(buyer=fcustom(s.emv2,fast=128,slow=290)))   #2/2  
+    configs.append(config(buyer=fcustom(s.emv2,fast=126,slow=226)))   #0/0  
+    configs.append(config(buyer=fcustom(s.emv2,fast=194,slow=132)))   #0/0  
+    configs.append(config(buyer=fcustom(s.emv2,fast=72,slow=292)))    #0/0  
+    configs.append(config(buyer=fcustom(s.emv2,fast=17,slow=88)))     #5/13  
+    configs.append(config(buyer=fcustom(s.emv2,fast=10,slow=100)))    #1/8
+    configs.append(config(buyer=fcustom(s.emv2,fast=124,slow=86)))    #1/3  
+    configs.append(config(buyer=fcustom(s.emv2,fast=125,slow=96)))    #1/2  
+    configs.append(config(buyer=fcustom(s.emv2,fast=3,slow=8)))       #3/11  
+
     configs.append(config(buyer=fcustom(s.emv2s,fast=7,slow=30)))     #1/5
+
 
     configs.append(config(buyer=fcustom(s.tsvama2,fast=3,slow=33,bxatr=50)))    #4/15
     configs.append(config(buyer=fcustom(s.tsvama2,fast=7,slow=61,bxatr=50)))    #3/10

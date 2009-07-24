@@ -966,7 +966,7 @@ def tsvama2(stock,fast=7,slow=250,bxatr=50):
  
     linelog('%s:%s' % (tsvama2.__name__,stock.code))
     
-    thumb = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
+    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
     xatr = stock.atr * BASE / t[CLOSE]
 
     return gand(msvap,stock.above,stock.t5,vfilter,thumb,xatr>bxatr)
@@ -2528,7 +2528,35 @@ def emv1(stock,fast):
     return ecross
 
 
-def emv2(stock):
+def emv1b(stock,fast,base=300):
+    t = stock.transaction
+
+    ##fast = 75       #1565-44-500-108-4695, 3018-53-698-163-8150
+    ##fast = 15       #1684-68-470-123-6150,2237-93-741-132-6000
+    #fast = 98       #886-34-411-78-4333,3063-30-733-144-6000  
+    #fast = 120      #1246-30-533-101-5050,2639-27-814-161-5750   
+
+    em = emv(t[HIGH],t[LOW],t[VOLUME])
+    mv1 = msum2(em,fast)
+    mvbase = msum2(em,base)
+    
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+
+    vfilter = gand(svma<=vma*3/4)
+
+    baseline = cached_zeros(len(t[CLOSE]))
+
+    #thumb = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20>=3000,stock.g20<8000)
+    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120>=stock.g250,stock.g20>=3000,stock.g20<8000)
+    #stock.g5越大越好，如>g60,>g20
+    ecross = gand(thumb,cross(baseline,mv1)>0,strend(mv1)>0,stock.t5,stock.above,vfilter,strend(mvbase)>0)
+    #ecross = gand(cross(baseline,mv1)>0,strend(mv1)>0,stock.t5,stock.above,vfilter)
+    linelog(stock.code)
+    return ecross
+
+
+def emv2(stock,fast,slow):
     t = stock.transaction
 
     #fast,slow=15,58         #-,3477-42-857-153-5464
@@ -2536,7 +2564,7 @@ def emv2(stock):
     #fast,slow=15,98         #5xx,3727-42-785-164-5466
     #fast,slow=7,13           #1815-89-337-118-5363,3720-59-694-160-5925
     #fast,slow = 5,22         #1xx,2938-57-754-144-4645
-    fast,slow = 75,275      #2872-34-676-247-9880,1000-1-1000-75-3750
+    #fast,slow = 15,75      
     #fast,slow = 15,275        #8xx,1000-1-1000-2176-23652
 
     em = emv(t[HIGH],t[LOW],t[VOLUME])
@@ -2551,7 +2579,7 @@ def emv2(stock):
 
     vfilter = gand(svma<=vma*3/4)
  
-    thumb = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
+    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)#,stock.g20>=3000)
     #thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120>=stock.g250,stock.g20>=3000,stock.g20<8000)    
 
     ecross = gand(thumb,cross(mv2,mv1)>0,strend(mv2)>0,mv2<0,stock.t5,stock.above,vfilter)

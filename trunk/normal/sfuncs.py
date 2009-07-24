@@ -48,7 +48,7 @@ def tsvama2(stock,fast=3,slow=33,bxatr=50):
  
     linelog('%s:%s' % (tsvama2.__name__,stock.code))
     
-    thumb = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
+    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
     xatr = stock.atr * BASE / t[CLOSE]
 
     return gand(msvap,stock.above,stock.t5,vfilter,thumb,xatr>bxatr)
@@ -1112,11 +1112,37 @@ def emv1(stock,fast=15):
 
     baseline = cached_zeros(len(t[CLOSE]))
 
-    thumb = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20>=3000,stock.g20<8000)
+    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20>=3000,stock.g20<8000)
 
     ecross = gand(thumb,cross(baseline,mv1)>0,strend(mv1)>0,stock.t5,stock.above,vfilter)
     linelog(stock.code)
     return ecross
+
+def emv1b(stock,fast=15,base=120):
+    t = stock.transaction
+
+    ##fast = 75       #1565-44-500-108-4695, 3018-53-698-163-8150
+    ##fast = 15       #1684-68-470-123-6150,2237-93-741-132-6000
+    #fast = 98       #886-34-411-78-4333,3063-30-733-144-6000  
+    #fast = 120      #1246-30-533-101-5050,2639-27-814-161-5750   
+
+    em = emv(t[HIGH],t[LOW],t[VOLUME])
+    mv1 = msum2(em,fast)
+    mvbase = msum2(em,base)
+
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+
+    vfilter = gand(svma<=vma*3/4)
+
+    baseline = cached_zeros(len(t[CLOSE]))
+
+    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20>=3000,stock.g20<8000)
+
+    ecross = gand(thumb,cross(baseline,mv1)>0,strend(mv1)>0,stock.t5,stock.above,vfilter,strend(mvbase)>0)
+    linelog(stock.code)
+    return ecross
+
 
 def emv2(stock,fast=75,slow=275):
     t = stock.transaction
@@ -1132,7 +1158,7 @@ def emv2(stock,fast=75,slow=275):
 
     vfilter = gand(svma<=vma*3/4)
  
-    thumb = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
+    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
 
     ecross = gand(thumb,cross(mv2,mv1)>0,strend(mv2)>0,mv2<0,stock.t5,stock.above,vfilter)
     linelog(stock.code)

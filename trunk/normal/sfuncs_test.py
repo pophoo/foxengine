@@ -178,6 +178,19 @@ class ModuleTest(unittest.TestCase):    #通路测试
         sbuy = tsvama4(self.stock,10,20,30,40)
         self.assertTrue(True)
 
+    def test_tsvama3(self):
+        sbuy = tsvama3(self.stock,10,20,30)
+        self.assertTrue(True)
+
+    def test_tsvama2sb(self):
+        sbuy = tsvama2sb(self.stock,10,20)
+        self.assertTrue(True)
+
+    def test_tsvama2sbv(self):
+        sbuy = tsvama2sbv(self.stock,10,20)
+        self.assertTrue(True)
+
+
 if __name__ == "__main__":
     logging.basicConfig(filename="test.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
     unittest.main()

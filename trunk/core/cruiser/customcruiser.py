@@ -15,6 +15,54 @@ from wolfox.fengine.normal.nrun import prepare_next
 
 logger = logging.getLogger('wolfox.fengine.core.cruiser.customcruiser')
 
+class Ma2sCruiser(GeneticCruiser):
+    def prepare(self):
+        self.args = dict(fast=range(1,120),slow=range(5,300),follow=range(1,11))
+        self.buy_func = ma2s
+        #self.sell_func = csc_func
+        self.sell_func =  atr_seller_factory(stop_times=1200,trace_times=3000)
+        self.predefined = []
+        #self.sell_func = my_csc_func
+        #self.trade_func = fcustom(normal_trade_func,begin=20010601)
+        #self.trade_func = fcustom(my_trade_func,begin=20010601)
+        self.evaluate_func = normal_evaluate
+
+class TSvama2sbCruiser(GeneticCruiser):
+    def prepare(self):
+        self.args = dict(fast=range(1,200),slow=range(10,300,2),follow=range(1,11))
+        self.buy_func = tsvama2sb
+        #self.sell_func = csc_func
+        self.sell_func =  atr_seller_factory(stop_times=1200,trace_times=3000)
+        self.predefined = []
+        #self.sell_func = my_csc_func
+        #self.trade_func = fcustom(normal_trade_func,begin=20010601)
+        #self.trade_func = fcustom(my_trade_func,begin=20010601)
+        self.evaluate_func = normal_evaluate
+
+class TSvama3bCruiser(GeneticCruiser):
+    def prepare(self):
+        self.args = dict(fast=range(2,100),mid=range(5,200,2),slow=range(10,300,2),follow=range(1,13,2))
+        self.buy_func = tsvama3b
+        #self.sell_func = csc_func
+        self.sell_func =  atr_seller_factory(stop_times=1200,trace_times=3000)
+        self.predefined = []
+        #self.sell_func = my_csc_func
+        #self.trade_func = fcustom(normal_trade_func,begin=20010601)
+        #self.trade_func = fcustom(my_trade_func,begin=20010601)
+        self.evaluate_func = normal_evaluate
+
+class TSvama3Cruiser(GeneticCruiser):
+    def prepare(self):
+        self.args = dict(fast=range(1,100),mid=range(5,200,2),slow=range(10,300,2),follow=range(1,11))
+        self.buy_func = tsvama3
+        #self.sell_func = csc_func
+        self.sell_func =  atr_seller_factory(stop_times=1200,trace_times=3000)
+        self.predefined = []
+        #self.sell_func = my_csc_func
+        #self.trade_func = fcustom(normal_trade_func,begin=20010601)
+        #self.trade_func = fcustom(my_trade_func,begin=20010601)
+        self.evaluate_func = normal_evaluate
+
 class TSvama4Cruiser(GeneticCruiser):
     def prepare(self):
         self.args = dict(afast=range(1,200),aslow=range(5,300,2),bfast=range(1,200),bslow=range(5,300,2),follow=range(1,11))
@@ -274,7 +322,7 @@ class Ma3MMCruiser(MM_GeneticCruiser):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(filename="custom_cruiser_mm_1.log",level=logging.DEBUG,format='#%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
+    logging.basicConfig(filename="custom_cruiser_mm_4.log",level=logging.DEBUG,format='#%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 
     begin,end = 20000101,20090101
     tbegin = 20010701
@@ -312,8 +360,11 @@ if __name__ == '__main__':
     #cruiser = Svama2bMMCruiser(psize=500,maxstep=100,goal=200000000)
     #cruiser.gcruise(sdata,dates,tbegin)
     #logger.debug('*****************svama3b begin**********************')
-    cruiser = TSvama4Cruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
+    #cruiser = TSvama4Cruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
     #cruiser = Emv2Cruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
+    cruiser = TSvama3bCruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
+    #cruiser = TSvama2sbCruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小    
+    #cruiser = Ma2sCruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
     cruiser.gcruise(sdata,dates,tbegin)    
     
     #cruiser = Svama3bMMCruiser(psize=500,maxstep=100,goal=200000000)    #goal不能太小

@@ -49,14 +49,22 @@ class Nature(object):
                 break
             fitness = self.fitness_ranker(scores)   #确定适应度(以0.0001为单位),总和为10000
             #print scores,fitness
+            #print 'to select'
             seeds,gametes = self.selector(population,fitness)    #选出所需数目的候选种子
+            #print 'to reproduce'
             population = self.reproducer(seeds,gametes)  #交配
         return population,i 
  
-    def cached_judge(self,cell): #judge缓存
+    def cached_judge(self,cell): #judge缓存. 
+        ''' 这里存在多个基因串对应一个参数串的情形。因为基因长度取整的原因，某些参数串可能有2个基因串
+            如11个数据分布在2**4中，则3和14都对应第四个数据
+            参见geneticcruiser.genes2args
+        '''
         skey = repr(cell)
+        #print 'in cached judge:',skey
         if(skey not in self.judgecache):
             #print 'can not find:',skey
+            logger.debug('calc new cell,skey:%s' % skey)
             self.judgecache[skey] = self.judge(cell)
         else:
             logger.debug('find skey in cache:%s' % skey)

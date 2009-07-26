@@ -24,18 +24,6 @@ def prepare_temp_configs(seller,pman=None,dman=None):
     configs = []
 
     import wolfox.fengine.normal.xrun as x 
-    configs.append(config(buyer=fcustom(x.emv2,fast=75,slow=275)))    #1/4 
-    configs.append(config(buyer=fcustom(x.emv2,fast=128,slow=290)))   #2/2  
-    configs.append(config(buyer=fcustom(x.emv2,fast=126,slow=226)))   #0/0  
-    configs.append(config(buyer=fcustom(x.emv2,fast=194,slow=132)))   #0/0  
-    configs.append(config(buyer=fcustom(x.emv2,fast=72,slow=292)))    #0/0  
-    configs.append(config(buyer=fcustom(x.emv2,fast=17,slow=88)))     #5/13  
-    configs.append(config(buyer=fcustom(x.emv2,fast=10,slow=100)))    #1/8
-    configs.append(config(buyer=fcustom(x.emv2,fast=124,slow=86)))    #1/3  
-    configs.append(config(buyer=fcustom(x.emv2,fast=125,slow=96)))    #1/2  
-    configs.append(config(buyer=fcustom(x.emv2,fast=3,slow=8)))       #3/11  
-
-    #configs.append(config(buyer=s.xma60))   #1040-390-64
 
     return configs
 
@@ -99,11 +87,10 @@ def prepare_configs_A0(seller,pman,dman):
         
         这里xud系列的都是xatr>45条件下，但是应用中用xatr>0, 近期效果是一样的，后者的失败日只是买入截断引起的。        
     '''
-    #暂时停止<600,以及次数小于15的方法,但保留超过150的
     
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
-
+    
     configs.append(config(buyer=fcustom(s.tsvama2a,fast=20,slow=100)))   
     #configs.append(config(buyer=s.gx250))   #
     configs.append(config(buyer=s.spring))  #5/16
@@ -160,6 +147,25 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.tsvama2,fast=3,slow=49,bxatr=50)))    #4/14
     configs.append(config(buyer=fcustom(s.tsvama2,fast=17,slow=105,bxatr=50)))  #1/3
     #configs.append(config(buyer=fcustom(s.tsvama2,fast=15,slow=111,bxatr=50)))  #1/7
+
+    configs.append(config(buyer=fcustom(s.tsvama3,follow=6,slow=106,mid=73,fast=6)))
+    configs.append(config(buyer=fcustom(s.tsvama3,follow=4,slow=14,mid=29,fast=7)))
+    configs.append(config(buyer=fcustom(s.tsvama3,follow=10,slow=228,mid=11,fast=7)))
+    configs.append(config(buyer=fcustom(s.tsvama3,follow=5,slow=26,mid=23,fast=63)))
+    configs.append(config(buyer=fcustom(s.tsvama3,follow=6,slow=10,mid=21,fast=7)))
+    configs.append(config(buyer=fcustom(s.tsvama3,follow=10,slow=108,mid=75,fast=48)))
+    configs.append(config(buyer=fcustom(s.tsvama3,follow=7,slow=24,mid=25,fast=53)))
+
+    configs.append(config(buyer=fcustom(x.tsvama2sbv,follow=7,slow=54,fast=36)))
+    configs.append(config(buyer=fcustom(x.tsvama2sbv,follow=5,slow=28,fast=10)))
+    configs.append(config(buyer=fcustom(x.tsvama2sbv,follow=2,slow=42,fast=7)))
+    configs.append(config(buyer=fcustom(x.tsvama2sb,follow=10,slow=176,fast=8)))
+    configs.append(config(buyer=fcustom(x.tsvama2sb,follow=4,slow=178,fast=16)))
+    configs.append(config(buyer=fcustom(x.tsvama2sb,follow=3,slow=280,fast=15)))
+    configs.append(config(buyer=fcustom(x.tsvama2sb,follow=3,slow=130,fast=24)))
+    configs.append(config(buyer=fcustom(x.tsvama2sb,follow=2,slow=192,fast=6)))
+    configs.append(config(buyer=fcustom(x.tsvama2sb,follow=3,slow=174,fast=8)))
+    configs.append(config(buyer=fcustom(x.tsvama2sb,follow=2,slow=206,fast=6)))
 
     #configs.append(config(buyer=fcustom(s.tsvama2,fast=20,slow=100)))   #3230-562-183   #20080701以来萎靡
     #configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #@3691-707-41

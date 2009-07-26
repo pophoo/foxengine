@@ -205,7 +205,8 @@ def svama2(stock,fast,slow,ma_standard=500,sma=65):
     return gand(g,msvap)
 
 def svama2s(stock,fast,slow,ma_standard=500,extend_days = 10,sma=55):
-    ''' svama两线交叉, 先是快线叉慢线,然后是慢线叉快线
+    ''' svama两线交叉, 先是快线叉慢线,然后是慢线叉快线. 
+        #20090725，这个有逻辑问题，应该是先快线下叉慢线，然后再上叉回来
     '''
     t = stock.transaction
     g = gand(stock.g5 >= stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250)

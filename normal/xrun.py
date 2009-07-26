@@ -2566,8 +2566,9 @@ def emv2(stock,fast,slow):
     svma = ma(t[VOLUME],3)
 
     vfilter = gand(svma<=vma*3/4)
+    #vfilter = gand(svma<=vma*7/8)
  
-    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)#,stock.g20>=3000)
+    thumb = gand(stock.g5>stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)#,stock.g20>=3000)
     #thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120>=stock.g250,stock.g20>=3000,stock.g20<8000)    
 
     ecross = gand(thumb,cross(mv2,mv1)>0,strend(mv2)>0,mv2<0,stock.t5,stock.above,vfilter)
@@ -2597,7 +2598,7 @@ def emv3(stock):
     return ecross
 
 def tsvama4(stock,afast,aslow,bfast,bslow,follow=7):
-    ''' svama两线交叉
+    ''' svama两线交叉之双
     '''
     t = stock.transaction
     svap,v2i = stock.svap_ma_67_2
@@ -2618,12 +2619,155 @@ def tsvama4(stock,afast,aslow,bfast,bslow,follow=7):
     msvap = transform(ss,v2i,len(t[VOLUME]))
     linelog('%s:%s' % (tsvama4.__name__,stock.code))
 
-    #vma_s = ma(t[VOLUME],13)
-    #vma_l = ma(t[VOLUME],30)
+    vma_s = ma(t[VOLUME],13)
+    vma_l = ma(t[VOLUME],30)
 
-    #vfilter = vma_s < vma_l * 7/8
+    vfilter = vma_s < vma_l * 3/4
  
     thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
 
+    return gand(msvap,stock.above,stock.t5,thumb,vfilter)
+
+
+def tsvama3(stock,fast,mid,slow,follow=7):
+    ''' svama三线交叉
+    '''
+    t = stock.transaction
+    svap,v2i = stock.svap_ma_67_2
+
+    ma_svapfast = ma(svap,fast)
+    ma_svapmid = ma(svap,mid)    
+    ma_svapslow = ma(svap,slow)
+    trend_ma_svapfast = strend(ma_svapfast) > 0
+    trend_ma_svapmid = strend(ma_svapmid) > 0    
+    trend_ma_svapslow = strend(ma_svapslow) > 0
+
+    cross_fast_mid = band(cross(ma_svapmid,ma_svapfast)>0,trend_ma_svapfast)
+    cross_fast_slow = band(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast)    
+    cross_mid_slow = band(cross(ma_svapslow,ma_svapmid)>0,trend_ma_svapmid)
+    sync_fast_2 = sfollow(cross_fast_mid,cross_fast_slow,follow)
+    sync3 = sfollow(sync_fast_2,cross_mid_slow,follow)
+    
+    msvap = transform(sync3,v2i,len(t[VOLUME]))
+    linelog('%s:%s' % (tsvama3.__name__,stock.code))
+
+    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
+
+    return gand(msvap,stock.above,stock.t5,thumb)
+
+def tsvama3b(stock,fast,mid,slow,follow=7):
+    ''' svama三线交叉
+    '''
+    t = stock.transaction
+    svap,v2i = stock.svap_ma_67_2
+
+    ma_svapfast = ma(svap,fast)
+    ma_svapmid = ma(svap,mid)    
+    ma_svapslow = ma(svap,slow)
+    trend_ma_svapfast = strend(ma_svapfast) > 0
+    trend_ma_svapmid = strend(ma_svapmid) > 0    
+    trend_ma_svapslow = strend(ma_svapslow) > 0
+
+    cross_fast_mid = band(cross(ma_svapmid,ma_svapfast)>0,trend_ma_svapfast)
+    cross_fast_slow = band(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast)    
+    cross_mid_slow = band(cross(ma_svapslow,ma_svapmid)>0,trend_ma_svapmid)
+    
+    s1 = transform(cross_fast_mid,v2i,len(t[VOLUME]))
+    s2 = transform(cross_fast_slow,v2i,len(t[VOLUME]))    
+    s3 = transform(cross_mid_slow,v2i,len(t[VOLUME]))    
+
+    sync12 = sfollow(s1,s2,follow)
+    sync3 = sfollow(sync12,s3,follow)
+    
+    linelog('%s:%s' % (tsvama3b.__name__,stock.code))
+
+    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
+
+    return gand(sync3,stock.above,stock.t5,thumb)
+
+
+def tsvama2s(stock,fast,slow,follow=7):
+    ''' svama慢线下叉快线，follow个svama单位后再上叉回来
+    '''
+    t = stock.transaction
+    svap,v2i = stock.svap_ma_67_2
+
+    ma_svapfast = ma(svap,fast)
+    ma_svapslow = ma(svap,slow)
+    trend_ma_svapfast = strend(ma_svapfast)
+    trend_ma_svapslow = strend(ma_svapslow)
+
+    cross_down = band(cross(ma_svapslow,ma_svapfast)<0,trend_ma_svapfast<0)    
+    cross_up = band(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast>0)        
+    sync_down_up = sfollow(cross_down,cross_up,follow)
+    
+    msvap = transform(sync_down_up,v2i,len(t[VOLUME]))
+    linelog('%s:%s' % (tsvama2s.__name__,stock.code))
+
+    #vma_s = ma(t[VOLUME],13)
+    #vma_l = ma(t[VOLUME],30)
+
+    #vfilter = vma_s > vma_l 
+
+    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
+
     return gand(msvap,stock.above,stock.t5,thumb)#,vfilter)
+
+
+def tsvama2sb(stock,fast,slow,follow=7):
+    ''' svama慢线下叉快线，follow日后再上叉回来
+    '''
+    t = stock.transaction
+    svap,v2i = stock.svap_ma_67_2
+
+    ma_svapfast = ma(svap,fast)
+    ma_svapslow = ma(svap,slow)
+    trend_ma_svapfast = strend(ma_svapfast)
+    trend_ma_svapslow = strend(ma_svapslow)
+
+    cross_down = band(cross(ma_svapslow,ma_svapfast)<0,trend_ma_svapfast<0)    
+    cross_up = band(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast>0)        
+    
+    sdown = transform(cross_down,v2i,len(t[VOLUME]))
+    sup = transform(cross_up,v2i,len(t[VOLUME]))    
+    
+    sync_down_up = sfollow(sdown,sup,follow)
+    
+    linelog('%s:%s' % (tsvama2sb.__name__,stock.code))
+
+    vma_s = ma(t[VOLUME],13)
+    vma_l = ma(t[VOLUME],30)
+
+    vfilter = vma_s < vma_l
+
+    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
+
+    return gand(sync_down_up,stock.above,stock.t5,thumb,vfilter)
+
+
+def ma2s(stock,fast,slow,follow=7):
+    ''' svama慢线下叉快线，follow日后再上叉回来
+        buyer=fcustom(x.ma2s,slow=30,fast=7,follow=5)
+    '''
+    t = stock.transaction
+
+    ma_fast = ma(t[CLOSE],fast)
+    ma_slow = ma(t[CLOSE],slow)
+    trend_ma_fast = strend(ma_fast)
+    trend_ma_slow = strend(ma_slow)
+
+    cross_down = gand(cross(ma_slow,ma_fast)<0,trend_ma_fast<0)    
+    cross_up = gand(cross(ma_slow,ma_fast)>0,trend_ma_fast>0,trend_ma_slow>0)        
+    sync_down_up = sfollow(cross_down,cross_up,follow)
+    
+    linelog('%s:%s' % (ma2s.__name__,stock.code))
+
+    #vma_s = ma(t[VOLUME],13)
+    #vma_l = ma(t[VOLUME],30)
+
+    #vfilter = vma_s > vma_l 
+
+    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
+
+    return gand(sync_down_up,stock.above,stock.t5,thumb,stock.ma1>stock.ma3)#,vfilter)
 

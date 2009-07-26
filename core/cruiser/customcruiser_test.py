@@ -20,13 +20,27 @@ from wolfox.fengine.core.shortcut import *
 logger = logging.getLogger('wolfox.fengine.core.cruiser.customcruiser_test')
 
 class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的是保持geneticcruiser的有效性
+    def test_ma2s_cruiser(self):
+        begin,end = 20010101,20010201
+        dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        ccruiser.prepare_next(sdata,idata,catalogs)
+        cruiser = ccruiser.Ma2sCruiser(psize=20,maxstep=1,goal=20000)
+        cruiser.gcruise(sdata,dates,20010601)    
+    
     def test_tsvama2_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
         ccruiser.prepare_next(sdata,idata,catalogs)
         cruiser = ccruiser.TSvama2Cruiser(psize=20,maxstep=1,goal=20000)
         cruiser.gcruise(sdata,dates,20010601)    
-    
+
+    def test_tsvama2sb_cruiser(self):
+        begin,end = 20010101,20010201
+        dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        ccruiser.prepare_next(sdata,idata,catalogs)
+        cruiser = ccruiser.TSvama2sbCruiser(psize=20,maxstep=1,goal=20000)
+        cruiser.gcruise(sdata,dates,20010601)    
+
     def test_emv1_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
@@ -47,7 +61,21 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
         ccruiser.prepare_next(sdata,idata,catalogs)
         cruiser = ccruiser.TSvama4Cruiser(psize=20,maxstep=1,goal=20000)
         cruiser.gcruise(sdata,dates,20010601)    
-    
+ 
+    def test_tsvama3_cruiser(self):
+        begin,end = 20010101,20010201
+        dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        ccruiser.prepare_next(sdata,idata,catalogs)
+        cruiser = ccruiser.TSvama3Cruiser(psize=20,maxstep=1,goal=20000)
+        cruiser.gcruise(sdata,dates,20010601)    
+
+    def test_tsvama3b_cruiser(self):
+        begin,end = 20010101,20010201
+        dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        ccruiser.prepare_next(sdata,idata,catalogs)
+        cruiser = ccruiser.TSvama3bCruiser(psize=20,maxstep=1,goal=20000)
+        cruiser.gcruise(sdata,dates,20010601)    
+
     def test_svama3_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])

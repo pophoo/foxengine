@@ -66,13 +66,13 @@ class GeneticCruiser(object):
         for k,v in sorted(self.ev_result.items(),cmp=lambda x,y:self.extractor(x[1])-self.extractor(y[1])):  #排序
             logger.debug('%s:%s',k,v)
 
-    def genes2args(self,genes):#将基因串转化为参数值
+    def genes2args(self,genes):#将基因串转化为参数值,因为一个参数对应的表示空间是2的幂，因此可能出现2个基因串对因一个参数值
         ints = helper.bits2ints(self.bitgroups,genes)
         #print [len(pool) for pool in self.argpool],ints
         #print len(ints)
         args = []
         for i in xrange(len(ints)):
-            curv = ints[i] % len(self.argpool[i])   #对应候选pool中的位置
+            curv = ints[i] % len(self.argpool[i])   #对应候选pool中的位置，可能在两个位置，如11个数据分布在2**4中，则3和14都对应第四个数据
             #print i,len(self.argpool[i]),ints[i],curv
             args.append(self.argpool[i][curv])
         #print 'ints:%s,args:%s' % (ints,args)

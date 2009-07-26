@@ -2733,7 +2733,33 @@ def tsvama2sb(stock,fast,slow,follow=7):
     
     sync_down_up = sfollow(sdown,sup,follow)
     
-    linelog('%s:%s' % (tsvama2sb.__name__,stock.code))
+    linelog('%s:%s' % (tsvama2sbv.__name__,stock.code))
+
+    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
+
+    return gand(sync_down_up,stock.above,stock.t5,thumb)
+
+def tsvama2sbv(stock,fast,slow,follow=7):
+    ''' svama慢线下叉快线，follow日后再上叉回来
+        添加vfilter
+    '''
+    t = stock.transaction
+    svap,v2i = stock.svap_ma_67_2
+
+    ma_svapfast = ma(svap,fast)
+    ma_svapslow = ma(svap,slow)
+    trend_ma_svapfast = strend(ma_svapfast)
+    trend_ma_svapslow = strend(ma_svapslow)
+
+    cross_down = band(cross(ma_svapslow,ma_svapfast)<0,trend_ma_svapfast<0)    
+    cross_up = band(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast>0)        
+    
+    sdown = transform(cross_down,v2i,len(t[VOLUME]))
+    sup = transform(cross_up,v2i,len(t[VOLUME]))    
+    
+    sync_down_up = sfollow(sdown,sup,follow)
+    
+    linelog('%s:%s' % (tsvama2sbv.__name__,stock.code))
 
     vma_s = ma(t[VOLUME],13)
     vma_l = ma(t[VOLUME],30)

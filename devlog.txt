@@ -6512,6 +6512,7 @@ tsvama2x:   #不做
 
 
 ###tsvama2sb:
+    鉴于vfilter的特定效果,是否需要对tsvama2sbv进行巡游?
 #wolfox.fengine.core.shortcut:log_result:67:2009-07-26 21:12:18,186 DEBUG Mediator:<tsvama2sb:follow=7,slow=54,fast=36:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:follow=7,slow=54,fast=36:make_trade_signal:B1S1>:	评估:总盈亏值=11682,交易次数=105	期望值=1585	
 		总盈亏率(1/1000)=11682,平均盈亏率(1/1000)=111,盈利交易率(1/1000)=552
 		平均持仓时间=20,持仓效率(1/1000000)=5550

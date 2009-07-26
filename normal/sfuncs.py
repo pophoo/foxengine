@@ -1275,6 +1275,7 @@ def tsvama2sb(stock,fast,slow,follow=7):
 
 def tsvama2sbv(stock,fast,slow,follow=7):
     ''' svama慢线下叉快线，follow日后再上叉回来
+        添加vfilter
     '''
     t = stock.transaction
     svap,v2i = stock.svap_ma_67_2

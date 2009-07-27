@@ -167,6 +167,34 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=fcustom(x.tsvama2sb,follow=3,slow=174,fast=8)))
     configs.append(config(buyer=fcustom(x.tsvama2sb,follow=2,slow=206,fast=6)))
 
+
+    configs.append(config(buyer=fcustom(x.tsvama2sbv,follow=3,slow=28,fast=19)))
+    configs.append(config(buyer=fcustom(x.tsvama2sbv,follow=5,slow=16,fast=2)))
+    configs.append(config(buyer=fcustom(x.tsvama2sbv,follow=5,slow=70,fast=18)))
+    configs.append(config(buyer=fcustom(x.tsvama2sbv,follow=9,slow=268,fast=12)))
+    configs.append(config(buyer=fcustom(x.tsvama2sbv,follow=3,slow=28,fast=12)))
+    configs.append(config(buyer=fcustom(x.tsvama2sbv,follow=3,slow=42,fast=6)))
+    configs.append(config(buyer=fcustom(x.tsvama2sbv,follow=9,slow=26,fast=8)))
+    configs.append(config(buyer=fcustom(x.tsvama2sbv,follow=3,slow=12,fast=6)))
+    configs.append(config(buyer=fcustom(x.tsvama2sbv,follow=5,slow=282,fast=12)))
+    #configs.append(config(buyer=fcustom(x.tsvama2sbv,follow=3,slow=26,fast=4)))
+    #configs.append(config(buyer=fcustom(x.tsvama2sbv,follow=9,slow=12,fast=20)))
+    configs.append(config(buyer=fcustom(x.tsvama2sbv,follow=3,slow=10,fast=15)))
+    #configs.append(config(buyer=fcustom(x.tsvama2sbv,follow=3,slow=26,fast=8)))
+    #configs.append(config(buyer=fcustom(x.tsvama2sbv,follow=11,slow=10,fast=28)))
+    configs.append(config(buyer=fcustom(x.tsvama2sbv,follow=1,slow=26,fast=8)))
+
+    configs.append(config(buyer=fcustom(x.ma2s,follow=2,slow=16,fast=3)))
+    configs.append(config(buyer=fcustom(x.ma2sv,follow=2,slow=8,fast=1)))
+
+    configs.append(config(buyer=fcustom(x.tsvama3b,follow=1,slow=60,mid=35,fast=9)))
+    configs.append(config(buyer=fcustom(x.tsvama3b,follow=3,slow=64,mid=93,fast=11)))
+    configs.append(config(buyer=fcustom(x.tsvama3b,follow=3,slow=72,mid=107,fast=8)))
+    configs.append(config(buyer=fcustom(x.tsvama3b,follow=1,slow=60,mid=107,fast=5)))
+    configs.append(config(buyer=fcustom(x.tsvama3b,follow=1,slow=208,mid=25,fast=11)))
+    configs.append(config(buyer=fcustom(x.tsvama3b,follow=7,slow=32,mid=133,fast=7)))    
+    configs.append(config(buyer=fcustom(x.tsvama3b,follow=7,slow=32,mid=149,fast=5)))
+
     #configs.append(config(buyer=fcustom(s.tsvama2,fast=20,slow=100)))   #3230-562-183   #20080701以来萎靡
     #configs.append(config(buyer=fcustom(s.cma2,fast=5,slow=20,gfrom=4000,gto=8000))) #@3691-707-41
     #configs.append(config(buyer=s.cma1))    #1971-500-30    #593-295-44 ??

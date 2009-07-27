@@ -2768,7 +2768,7 @@ def tsvama2sb(stock,fast,slow,follow=7):
     
     sync_down_up = sfollow(sdown,sup,follow)
     
-    linelog('%s:%s' % (tsvama2sbv.__name__,stock.code))
+    linelog('%s:%s' % (tsvama2sb.__name__,stock.code))
 
     thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
 

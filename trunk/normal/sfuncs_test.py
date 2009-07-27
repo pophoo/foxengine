@@ -18,7 +18,7 @@ class ModuleTest(unittest.TestCase):    #通路测试
         trans = [sopen,sclose,svolume,shigh,savg,samount,svolume]
         vi = np.array([i for i in range(2000)])
         g = np.array([randint(0,10000) for i in range(2000)])
-        s = BaseObject(code='SH50TEST',zgb=10000000,ag=4000,transaction=trans,atr=g,silver=g,g5=g,g20=g,g60=g,g120=g,g250=g,diff=g,dea=g,ma1=g,ma2=g,ma3=g,ma4=g,ma5=g,t5=g,above=g,golden=g,thumb=g,svap_ma_67=(g,vi),svap_ma_67_2=(g,vi))
+        s = BaseObject(code='SH50TEST',zgb=10000000,ag=4000,transaction=trans,atr=g,silver=g,g5=g,g20=g,g60=g,g120=g,g250=g,diff=g,dea=g,ma1=g,ma2=g,ma3=g,ma4=g,ma5=g,t5=g,t3=g,above=g,golden=g,thumb=g,svap_ma_67=(g,vi),svap_ma_67_2=(g,vi))
         s.ref = s   #指向自己
         s.catalog = {s:g}
         s.c60 = {s:g}
@@ -190,6 +190,17 @@ class ModuleTest(unittest.TestCase):    #通路测试
         sbuy = tsvama2sbv(self.stock,10,20)
         self.assertTrue(True)
 
+    def test_tsvama3b(self):
+        sbuy = tsvama3b(self.stock,10,20,30)
+        self.assertTrue(True)
+
+    def test_ma2s(self):
+        sbuy = ma2s(self.stock,10,20)
+        self.assertTrue(True)
+
+    def test_ma2sv(self):
+        sbuy = ma2sv(self.stock,10,20)
+        self.assertTrue(True)
 
 if __name__ == "__main__":
     logging.basicConfig(filename="test.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')

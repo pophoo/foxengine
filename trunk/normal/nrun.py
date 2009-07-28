@@ -54,38 +54,193 @@ def prepare_configs_A2000(seller,pman,dman):    #R>=400,winrate>400 or R>=1000,w
     
     return configs
 
+def prepare_configs_best(seller,pman,dman):
+    ''' #wrate>=800,且clost<100
+    gmacd	4660:5744:39:948:263:53
+    gmacd5	1000:5274:18:1000:269:0
+    xru0	6760:10666:13:846:580:71
+    mxru3	2904:5300:10:900:244:73
+    xud0	7333:7542:26:961:276:36
+    xudj	9937:6360:9:888:181:16
+    ldx:glimit=3000,mlen=60	5595:5465:32:968:244:42
+    ldx2:glimit=3333,mlen=30	3518:6347:20:800:386:83
+    ldx2:glimit=3333,aend=50,astart=0,mlen=120	1000:6823:4:1000:348:0
+    xud:astart=0	1000:8541:26:1000:410:0
+    emv1b:base=120,fast=15	6631:7411:22:954:266:38
+    emv1b:base=120,fast=27	5750:7666:18:833:341:48
+    emv1b:base=120,fast=40	4076:5578:24:958:224:52
+    emv1b:base=120,fast=75	8241:11950:12:916:527:58
+    emv1:fast=98	4909:8181:12:833:335:55
+    emv1:fast=120	4447:6772:11:909:334:67
+    emv1:fast=143	3400:7620:8:875:262:65
+    emv2:slow=290,fast=128	1000:18766:2:1000:1445:0
+    emv2:slow=88,fast=17	3523:5585:13:846:283:65
+    emv2:slow=100,fast=10	4112:8588:23:826:368:71
+    emv2:slow=86,fast=124	8064:5434:15:866:294:31
+    emv2:slow=96,fast=125	19500:6348:14:928:296:14
+    emv2:slow=8,fast=3	3745:5305:55:800:252:51
+    tsvama2:bxatr=50,slow=33,fast=3	3260:6521:7:857:365:92
+    tsvama2:bxatr=50,slow=75,fast=15	2226:4068:6:833:152:53
+    tsvama3:follow=6,slow=106,mid=73,fast=6	1000:10166:5:1000:244:0
+    tsvama3:follow=4,slow=14,mid=29,fast=7	2279:6739:23:826:203:68
+    tsvama3:follow=10,slow=228,mid=11,fast=7	2932:5580:8:875:206:59
+    tsvama3:follow=6,slow=10,mid=21,fast=7	1000:6742:8:1000:236:0
+    tsvama2sb:follow=2,slow=192,fast=6	8260:5757:5:800:244:23
+    tsvama2sbv:follow=2,slow=42,fast=7	1000:6500:8:1000:221:0
+    tsvama2sbv:follow=3,slow=10,fast=15	1000:4727:10:1000:156:0
+    tsvama3b:follow=1,slow=60,mid=35,fast=9	1774:4782:6:833:145:62
+    tsvama3b:follow=3,slow=64,mid=93,fast=11	1573:3692:10:800:136:61
+    tsvama3b:follow=3,slow=72,mid=107,fast=8	1758:4541:10:700:183:62
+    tsvama3b:follow=7,slow=32,mid=133,fast=7	1000:6411:5:1000:327:0
+    '''
+    config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
+    configs = []
+    
+
+    configs.append(config(buyer=s.gmacd))
+    configs.append(config(buyer=s.gmacd5))
+    configs.append(config(buyer=s.xru0))
+    configs.append(config(buyer=s.mxru3))
+    configs.append(config(buyer=s.xud0))
+    configs.append(config(buyer=s.xudj))
+
+    configs.append(config(buyer=fcustom(s.ldx,glimit=3000,mlen=60)))
+    configs.append(config(buyer=fcustom(s.ldx2,glimit=3333,mlen=30)))
+    configs.append(config(buyer=fcustom(s.ldx2,glimit=3333,aend=50,astart=0,mlen=120)))
+    configs.append(config(buyer=fcustom(s.xud,astart=0)))
+    configs.append(config(buyer=fcustom(s.emv1b,base=120,fast=15)))
+    configs.append(config(buyer=fcustom(s.emv1b,base=120,fast=27)))
+    configs.append(config(buyer=fcustom(s.emv1b,base=120,fast=40)))
+    configs.append(config(buyer=fcustom(s.emv1b,base=120,fast=75)))
+    configs.append(config(buyer=fcustom(s.emv1,fast=98)))
+    configs.append(config(buyer=fcustom(s.emv1,fast=120)))
+    configs.append(config(buyer=fcustom(s.emv1,fast=143)))
+    configs.append(config(buyer=fcustom(s.emv2,slow=290,fast=128)))
+    configs.append(config(buyer=fcustom(s.emv2,slow=88,fast=17)))
+    configs.append(config(buyer=fcustom(s.emv2,slow=100,fast=10)))
+    configs.append(config(buyer=fcustom(s.emv2,slow=86,fast=124)))
+    configs.append(config(buyer=fcustom(s.emv2,slow=96,fast=125)))
+    configs.append(config(buyer=fcustom(s.emv2,slow=8,fast=3)))
+    configs.append(config(buyer=fcustom(s.tsvama2,bxatr=50,slow=33,fast=3)))
+    configs.append(config(buyer=fcustom(s.tsvama2,bxatr=50,slow=75,fast=15)))
+    configs.append(config(buyer=fcustom(s.tsvama3,follow=6,slow=106,mid=73,fast=6)))
+    configs.append(config(buyer=fcustom(s.tsvama3,follow=4,slow=14,mid=29,fast=7)))
+    configs.append(config(buyer=fcustom(s.tsvama3,follow=10,slow=228,mid=11,fast=7)))
+    configs.append(config(buyer=fcustom(s.tsvama3,follow=6,slow=10,mid=21,fast=7)))
+    configs.append(config(buyer=fcustom(s.tsvama2sb,follow=2,slow=192,fast=6)))
+    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=2,slow=42,fast=7)))
+    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=3,slow=10,fast=15)))
+    configs.append(config(buyer=fcustom(s.tsvama3b,follow=1,slow=60,mid=35,fast=9)))
+    configs.append(config(buyer=fcustom(s.tsvama3b,follow=3,slow=64,mid=93,fast=11)))
+    configs.append(config(buyer=fcustom(s.tsvama3b,follow=3,slow=72,mid=107,fast=8)))
+    configs.append(config(buyer=fcustom(s.tsvama3b,follow=7,slow=32,mid=133,fast=7)))
+    return configs
+
+
+
+def prepare_configs_normal(seller,pman,dman):
+    ''' #wrate>=666, 或wrate>=800且clost>100
+    xma60	2621:6653:9:666:293:66
+    xru	4814:7222:41:731:376:54
+    mxru	6764:10147:24:791:449:51
+    tsvama2a:slow=100,fast=20	2413:5285:12:750:164:46
+    tsvama2b:slow=170,fast=20	2191:4515:9:777:211:68
+    emv2:slow=275,fast=75	1000:4653:1:1000:121:0
+    emv2:slow=226,fast=126	1000:0:0:0:0:0
+    emv2:slow=132,fast=194	1000:0:0:0:0:0
+    emv2:slow=292,fast=72	1000:0:0:0:0:0
+    emv2s:slow=30,fast=7	4538:5709:26:730:256:39
+    tsvama2:bxatr=50,slow=61,fast=7	4020:5583:8:750:285:50
+    tsvama2:bxatr=50,slow=105,fast=17	6872:7511:3:666:509:47
+    tsvama3:follow=7,slow=24,mid=25,fast=53	1000:5131:5:1000:195:0
+    tsvama2sb:follow=4,slow=178,fast=16	1000:6571:3:1000:230:0
+    tsvama2sb:follow=3,slow=174,fast=8	3086:4057:10:700:222:46
+    tsvama2sb:follow=2,slow=206,fast=6	2131:5062:4:750:242:76
+    tsvama2sbv:follow=7,slow=54,fast=36	2692:5600:21:666:236:52
+    tsvama2sbv:follow=5,slow=28,fast=10	3775:8423:29:724:324:58
+    tsvama2sbv:follow=5,slow=70,fast=18	2115:4230:21:666:191:52
+    tsvama2sbv:follow=9,slow=268,fast=12	1000:0:0:0:0:0
+    tsvama2sbv:follow=3,slow=42,fast=6	2795:5480:21:714:212:49
+    tsvama2sbv:follow=9,slow=26,fast=8	2754:5840:107:728:221:53
+    tsvama2sbv:follow=5,slow=282,fast=12	1000:0:0:0:0:0
+    tsvama2sbv:follow=1,slow=26,fast=8	1000:736:1:1000:14:0
+    ma2s:follow=2,slow=16,fast=3	2000:5600:18:666:196:56
+    ma2sv:follow=2,slow=8,fast=1	3420:5516:38:736:251:50
+    tsvama3b:follow=1,slow=60,mid=107,fast=5	813:4037:3:666:230:134
+    tsvama3b:follow=7,slow=32,mid=149,fast=5	1000:6361:2:1000:229:0
+    '''
+    config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
+    configs = []
+
+    configs.append(config(buyer=s.xma60))
+    configs.append(config(buyer=s.xru))
+    configs.append(config(buyer=s.mxru))
+    configs.append(config(buyer=fcustom(s.tsvama2a,slow=100,fast=20)))
+    configs.append(config(buyer=fcustom(s.tsvama2b,slow=170,fast=20)))
+    configs.append(config(buyer=fcustom(s.emv2,slow=275,fast=75)))
+    configs.append(config(buyer=fcustom(s.emv2,slow=226,fast=126)))
+    configs.append(config(buyer=fcustom(s.emv2,slow=132,fast=194)))
+    configs.append(config(buyer=fcustom(s.emv2,slow=292,fast=72)))
+    configs.append(config(buyer=fcustom(s.emv2s,slow=30,fast=7)))
+    configs.append(config(buyer=fcustom(s.tsvama2,bxatr=50,slow=61,fast=7)))
+    configs.append(config(buyer=fcustom(s.tsvama2,bxatr=50,slow=105,fast=17)))
+    configs.append(config(buyer=fcustom(s.tsvama3,follow=7,slow=24,mid=25,fast=53)))
+    configs.append(config(buyer=fcustom(s.tsvama2sb,follow=4,slow=178,fast=16)))
+    configs.append(config(buyer=fcustom(s.tsvama2sb,follow=3,slow=174,fast=8)))
+    configs.append(config(buyer=fcustom(s.tsvama2sb,follow=2,slow=206,fast=6)))
+    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=7,slow=54,fast=36)))
+    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=5,slow=28,fast=10)))
+    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=5,slow=70,fast=18)))
+    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=9,slow=268,fast=12)))
+    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=3,slow=42,fast=6)))
+    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=9,slow=26,fast=8)))
+    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=5,slow=282,fast=12)))
+    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=1,slow=26,fast=8)))
+    configs.append(config(buyer=fcustom(s.ma2s,follow=2,slow=16,fast=3)))
+    configs.append(config(buyer=fcustom(s.ma2sv,follow=2,slow=8,fast=1)))
+    configs.append(config(buyer=fcustom(s.tsvama3b,follow=1,slow=60,mid=107,fast=5)))
+    configs.append(config(buyer=fcustom(s.tsvama3b,follow=7,slow=32,mid=149,fast=5)))
+
+    return configs
+
+
+def prepare_configs_others(seller,pman,dman):
+    ''' #剩余部分
+    spring	2216:6133:16:625:345:83
+    emv1:fast=227	1000:0:0:0:0:0
+    tsvama2:bxatr=50,slow=21,fast=7	4094:6382:8:625:379:53
+    tsvama2:bxatr=50,slow=49,fast=3	3000:5647:11:545:407:64
+    tsvama3:follow=5,slow=26,mid=23,fast=63	2301:5370:24:625:270:63
+    tsvama3:follow=10,slow=108,mid=75,fast=48	11529:14000:4:500:409:17
+    tsvama2sb:follow=10,slow=176,fast=8	3097:4233:25:600:239:41
+    tsvama2sb:follow=3,slow=280,fast=15	1000:0:0:0:0:0
+    tsvama2sb:follow=3,slow=130,fast=24	1000:6220:1:1000:423:0
+    tsvama2sbv:follow=3,slow=28,fast=19	1835:5590:9:555:275:67
+    tsvama2sbv:follow=5,slow=16,fast=2	2775:5440:118:644:238:49
+    tsvama2sbv:follow=3,slow=12,fast=6	2207:5571:68:500:287:53
+    tsvama3b:follow=1,slow=208,mid=25,fast=11	1000:8920:2:1000:223:0
+    '''
+    config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
+    configs = []
+    configs.append(config(buyer=s.spring))
+    configs.append(config(buyer=fcustom(s.emv1,fast=227)))
+    configs.append(config(buyer=fcustom(s.tsvama2,bxatr=50,slow=21,fast=7)))
+    configs.append(config(buyer=fcustom(s.tsvama2,bxatr=50,slow=49,fast=3)))
+    configs.append(config(buyer=fcustom(s.tsvama3,follow=5,slow=26,mid=23,fast=63)))
+    configs.append(config(buyer=fcustom(s.tsvama3,follow=10,slow=108,mid=75,fast=48)))
+    configs.append(config(buyer=fcustom(s.tsvama2sb,follow=10,slow=176,fast=8)))
+    configs.append(config(buyer=fcustom(s.tsvama2sb,follow=3,slow=280,fast=15)))
+    configs.append(config(buyer=fcustom(s.tsvama2sb,follow=3,slow=130,fast=24)))
+    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=3,slow=28,fast=19)))
+    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=5,slow=16,fast=2)))
+    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=3,slow=12,fast=6)))
+    configs.append(config(buyer=fcustom(s.tsvama3b,follow=1,slow=208,mid=25,fast=11)))
+    
+    return configs
+
+
 def prepare_configs_A0(seller,pman,dman):    
     ''' 实际上需要暂停平均盈亏率<100的
-                        期望值R(0.001) – 总次数 – 盈利交易比率(千分之一) – 盈利交易总值 – 亏损交易总值-平均盈亏率
-        手工巡游成果    19990701-20010701       20010701-20081231           20080701-20090612
-        gx250	        1000-1-1000-9-0-9	    1971-7-71-1093-138-136	    2200-2-50-27-5-11
-        spring	        -1000-1-0-0-21—21	    5483-96-65-33627-1997-329	1927-16-62-3072-503-160
-        xgcs0	        0	                    4097-48-66-15341-1157-295	2421-6-67-628-76-92
-        tsvama2b	    0	                    1879-12-500-2598-546-171	1779-8-75-1107-136-121
-        gmacd	        -96-16-312-646-746- -6	1551-56-41-10457-2891-135	4113-39-95-8622-106-218
-        gmacd5	        -485-6-333-79-266- -32	1408-15-53-3247-808-162	    1000-17-100-4287-0-252
-        xru	            21-11-272-387-372-1	    3816-37-56-9449-971-229	    3613-37-65-6495-578-159
-        xru0	        1000-1-100-83-0-83	    5089-12-66-3657-227-285	    5197-13-85-4943-143-369
-        mxru	        0	                    1550-47-48-7722-1853-124	5313-19-73-5410-259-271
-        mxru3	        0	                    1186-19-26-3155-1205-102	1000-8-100-1908-0-238
-        xud	            1000-2-100-734-2-367	1181-12-66-2109-464-137	    1000-19-100-6140-0-323
-        xud(xc0c)	    1000-1-100-417-0-417	2262-14-57-3025-483-181	    1000-18-100-5865-0-325
-        xud(xc0)	    0	                    1510-8-50-1486-368-139	    同xc02
-        xud(xc02)	    0	                    2177-8-62-1619-239-172	    1000-10-100-1710-0-171
-        ldx	            0                   	6850-10-70-4294-180-411	    4619-32-97-6279-42-194
-        ldx2(30,3333)	0	                    4698-28-82-8616-319-296	    3769-20-80-5163-263-245
-        ldx2(120,3333)	184-2-500-52-38-7	    1020-11-27-965-402-51	    19250-4-75-1248-16-308
-        xma60	        -1000-1-0-0-96--96	    1440-53-45-7935-2178-108	7034-6-66-1285-58-204
-                        R-times-wrate-avg-effient
-                        20010701-20081231       20080701-20090612                        
-        emv1(15)		1774-153-490-126-6000	2237-93-741-132-6000
-        emv1(75)		2727-97-515-180-6206	3018-53-698-163-8150
-        emv1(98)		1893-66-500-142-6454	3063-30-733-144-6000
-        emv1(120)		1696-58-448-151-7190	2639-27-814-161-5750   
-        #emv2(15,58)	???1717-39-487-134-5360	2981-27-851-194-6258
-        emv2(7,30)		4031-60-533-254-9769	3777-33-696-170-56666
-        
-        这里xud系列的都是xatr>45条件下，但是应用中用xatr>0, 近期效果是一样的，后者的失败日只是买入截断引起的。        
     '''
     
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
@@ -349,6 +504,10 @@ def run_body(sdata,dates,begin,end,xbegin):
     #configs = prepare_configs_A2000(seller2000,pman,dman)
     #configs.extend(prepare_configs_A2000(seller2000,pman,dman))
     configs = prepare_configs_A0(seller1200,pman,dman)
+    #configs = prepare_configs_best(seller1200,pman,dman)
+    #configs.extend(prepare_configs_normal(seller1200,pman,dman))    
+    #configs.extend(prepare_configs_others(seller1200,pman,dman))    
+    
     #configs = prepare_configs_A1200(seller1200,pman,dman)
     #configs.extend(prepare_configs_A0(seller1200,pman,dman))    
     #configs.extend(prepare_configs_A1(seller1200,pman,dman))
@@ -435,10 +594,22 @@ def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
     #configs_a = prepare_configs_A2000(seller2000,pman,dman)
     #dtrades_a = batch_last(configs_a,sdata,dates,xbegin,cmediator=myMediator)
     #save_last('atr_last_a2000.txt',dtrades_a,xbegin,end,lbegin)
-    configs_a0 = prepare_configs_A0(seller1200,pman,dman)
-    dtrades_a0 = batch_last(configs_a0,sdata,dates,xbegin,cmediator=myMediator)
-    save_last('atr_last_a0y.txt',dtrades_a0,xbegin,end,lbegin)
-    
+    #configs_a0 = prepare_configs_A0(seller1200,pman,dman)
+    #dtrades_a0 = batch_last(configs_a0,sdata,dates,xbegin,cmediator=myMediator)
+    #save_last('atr_last_a0y.txt',dtrades_a0,xbegin,end,lbegin)
+
+    configs_best = prepare_configs_best(seller1200,pman,dman)
+    dtrades_best = batch_last(configs_best,sdata,dates,xbegin,cmediator=myMediator)
+    save_last('atr_last_best.txt',dtrades_best,xbegin,end,lbegin)
+
+    configs_normal = prepare_configs_normal(seller1200,pman,dman)
+    dtrades_normal = batch_last(configs_normal,sdata,dates,xbegin,cmediator=myMediator)
+    save_last('atr_last_normal.txt',dtrades_normal,xbegin,end,lbegin)
+
+    configs_others = prepare_configs_others(seller1200,pman,dman)
+    dtrades_others = batch_last(configs_others,sdata,dates,xbegin,cmediator=myMediator)
+    save_last('atr_last_others.txt',dtrades_others,xbegin,end,lbegin)
+
     #configs_a1 = prepare_configs_A1(seller1200,pman,dman)
     #dtrades_a1 = batch_last(configs_a1,sdata,dates,xbegin,cmediator=myMediator)
     #save_last('atr_last_a1.txt',dtrades_a1,xbegin,end,lbegin)
@@ -470,7 +641,7 @@ if __name__ == '__main__':
     #总时间段   [20000101,20010701,20090101]    #一个完整的周期+一个下降段
     #分段测试的要求，段mm > 1000-1500或抑制，总段mm > 2000
     
-    begin,xbegin,end = 20000101,20010701,20090101
+    #begin,xbegin,end = 20000101,20010701,20090101
     #begin,xbegin,end = 19980101,20010701,20090101
     #begin,xbegin,end = 20000101,20010701,20050901
     #begin,xbegin,end = 19980101,19990701,20010801    
@@ -479,7 +650,7 @@ if __name__ == '__main__':
     #begin,xbegin,end = 19980101,19990101,20090101
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
-    #begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201
+    begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201
     #begin,xbegin,end,lbegin = 20090301,20090401,20090501,20090501
     from time import time
     tbegin = time()
@@ -503,10 +674,10 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     
-    #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
     catalog_macd(catalogs)
 

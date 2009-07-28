@@ -18,27 +18,27 @@ from wolfox.fengine.normal.funcs import svama3
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.run_test')
 
-class ModuleTest(unittest.TestCase):    #保持run的有效性
+class ModuleTest(unittest.TestCase):    #保持nrun的有效性
     def setUp(self):
         from StringIO import StringIO
         self.tmp = sys.stdout
         sys.stdout = StringIO()  #将标准I/O流重定向到buff对象，抑制输出
-        self.old_prepare_configs_A1200 = run.prepare_configs_A1200  #保存run.prepare_configs，因为run/run_mm将重写它
-        self.old_prepare_configs_A2000 = run.prepare_configs_A2000  #保存run.prepare_configs，因为run/run_mm将重写它
-        self.old_prepare_configs_A1 = run.prepare_configs_A1  #保存run.prepare_configs，因为run/run_mm将重写它
-        self.old_prepare_configs_A2 = run.prepare_configs_A2 #保存run.prepare_configs，因为run/run_mm将重写它
-        self.old_prepare_temp_configs = run.prepare_temp_configs #保存run.prepare_configs，因为run/run_mm将重写它
+        #self.old_prepare_configs_A1200 = run.prepare_configs_A1200  #保存run.prepare_configs，因为run/run_mm将重写它
+        #self.old_prepare_configs_A2000 = run.prepare_configs_A2000  #保存run.prepare_configs，因为run/run_mm将重写它
+        #self.old_prepare_configs_A1 = run.prepare_configs_A1  #保存run.prepare_configs，因为run/run_mm将重写它
+        #self.old_prepare_configs_A2 = run.prepare_configs_A2 #保存run.prepare_configs，因为run/run_mm将重写它
+        #self.old_prepare_temp_configs = run.prepare_temp_configs #保存run.prepare_configs，因为run/run_mm将重写它
 
     def tearDown(self):
         sout = sys.stdout.getvalue()
         logger.debug(u'demo测试控制台输出:%s',sout)
         sys.stdout = self.tmp        #恢复标准I/O流
         #print sout
-        run.prepare_configs_A1200 = self.old_prepare_configs_A1200
-        run.prepare_configs_A2000 = self.old_prepare_configs_A2000
-        run.prepare_configs_A1 = self.old_prepare_configs_A1
-        run.prepare_configs_A2 = self.old_prepare_configs_A2        
-        run.prepare_temp_configs = self.old_prepare_temp_configs
+        #run.prepare_configs_A1200 = self.old_prepare_configs_A1200
+        #run.prepare_configs_A2000 = self.old_prepare_configs_A2000
+        #run.prepare_configs_A1 = self.old_prepare_configs_A1
+        #run.prepare_configs_A2 = self.old_prepare_configs_A2        
+        #run.prepare_temp_configs = self.old_prepare_temp_configs
 
     def dummy_prepare_configs(self,seller,pman=None,dman=None):
         config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
@@ -70,6 +70,27 @@ class ModuleTest(unittest.TestCase):    #保持run的有效性
         dman = XDateManager([20010101,20040101])
         seller = atr_seller_factory(stop_times=2000,trace_times=3000)
         configs = run.prepare_configs_A0(seller,pman,dman)
+        self.assertTrue(len(configs) >= 0)
+
+    def test_prepare_configs_best(self):
+        pman = AdvancedATRPositionManager()
+        dman = XDateManager([20010101,20040101])
+        seller = atr_seller_factory(stop_times=2000,trace_times=3000)
+        configs = run.prepare_configs_best(seller,pman,dman)
+        self.assertTrue(len(configs) >= 0)
+
+    def test_prepare_configs_normal(self):
+        pman = AdvancedATRPositionManager()
+        dman = XDateManager([20010101,20040101])
+        seller = atr_seller_factory(stop_times=2000,trace_times=3000)
+        configs = run.prepare_configs_normal(seller,pman,dman)
+        self.assertTrue(len(configs) >= 0)
+
+    def test_prepare_configs_others(self):
+        pman = AdvancedATRPositionManager()
+        dman = XDateManager([20010101,20040101])
+        seller = atr_seller_factory(stop_times=2000,trace_times=3000)
+        configs = run.prepare_configs_others(seller,pman,dman)
         self.assertTrue(len(configs) >= 0)
 
     def test_prepare_configs_A1(self):

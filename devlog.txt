@@ -7055,16 +7055,40 @@ emv2:slow=8,fast=3:                     3627-185-55-800
 #2009-07-28
 用于识别评估结果的正则表达式
 
-pattern=ur'''name:Mediator:<(?P<name>[\w\d=,:]+):seller:make_trade_signal_advanced:B1S1>\n
-    pre_ev:\t评估:总盈亏值=\d+,交易次数=(?P<times>\d+)\t期望值=(?P<rvs>\d+)\t\n
-    \t\t总盈亏率\(1/1000\)=\d+,平均盈亏率\(1/1000\)=(?P<ravg>\d+),盈利交易率\(1/1000\)=(?P<wrate>\d+)\n
-    \t\t平均持仓时间=(?P<htime>\d+),持仓效率\(1/1000000\)=(?P<efficency>\d+)\n
-    \t\t赢利次数=(?P<wtimes>\d+),赢利总值=(?P<wtotal>\d+)\n
-    \t\t亏损次数=(?P<ltimes>\d+),亏损总值=(?P<ltotal>\d+)
-'''
 
+pattern=ur'''name:Mediator:<(?P<name>[\w\d=,:]+):seller:make_trade_signal_advanced:B1S1>\n
+    pre_ev:\t评估:总盈亏值=-?\d+,交易次数=(?P<times>\d+)\t期望值=(?P<rvs>-?\d+)\n
+    \t\t总盈亏率\(1/1000\)=-?\d+,平均盈亏率\(1/1000\)=(?P<ravg>-?\d+),盈利交易率\(1/1000\)=(?P<wrate>\d+)\n
+    \t\t平均持仓时间=(?P<htime>\d+),持仓效率\(1/1000000\)=(?P<efficency>-?\d+)\n
+    \t\t赢利次数=(?P<wtimes>\d+),赢利总值=(?P<wtotal>\d+)\n
+    \t\t亏损次数=(?P<ltimes>\d+),亏损总值=(?P<ltotal>\d+)'''
 
 ppat=re.compile(pattern,re.VERBOSE)
 
 ppat.findall(s)
+
+ppat.findall(s)
+
+import cStringIO
+sout = cStringIO.StringIO()
+
+for fiter in ppat.finditer(sss):
+    name = fiter.group('name')
+    R = fiter.group('rvs')
+    times = int(fiter.group('times'))
+    wrate = int(fiter.group('wrate'))
+    efficency = int(fiter.group('efficency'))
+    wtimes = int(fiter.group('wtimes'))
+    wtotal = int(fiter.group('wtotal'))
+    ltimes = int(fiter.group('ltimes'))
+    ltotal = int(fiter.group('ltotal'))
+    cwin = wtotal / wtimes if wtimes else 0
+    clost = ltotal / ltimes if ltimes else 0
+    print >>sout,'%s;%s:%s:%s:%s:%s:%s' % (name,R,efficency,times,wrate,cwin,clost)
+
+print sout.getvalue()
+sout.close()
+
+
+pattern=ur'''name:Mediator:<(?P<name>[\w\d=,:]+):seller:make_trade_signal_advanced:B1S1>\npre_ev:\t评估:总盈亏值=-?\d+,交易次数=(?P<times>\d+)\t期望值=(?P<rvs>-?\d+)\n\t\t总盈亏率\(1/1000\)=-?\d+,平均盈亏率\(1/1000\)=(?P<ravg>-?\d+),盈利交易率\(1/1000\)=(?P<wrate>\d+)\n\t\t平均持仓时间=(?P<htime>\d+),持仓效率\(1/1000000\)=(?P<efficency>-?\d+)\n\t\t赢利次数=(?P<wtimes>\d+),赢利总值=(?P<wtotal>\d+)\n\t\t亏损次数=(?P<ltimes>\d+),亏损总值=(?P<ltotal>\d+)'''
 

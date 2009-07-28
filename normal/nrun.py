@@ -156,9 +156,6 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.tsvama3,follow=10,slow=108,mid=75,fast=48)))
     configs.append(config(buyer=fcustom(s.tsvama3,follow=7,slow=24,mid=25,fast=53)))
 
-    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=7,slow=54,fast=36)))
-    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=5,slow=28,fast=10)))
-    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=2,slow=42,fast=7)))
     configs.append(config(buyer=fcustom(s.tsvama2sb,follow=10,slow=176,fast=8)))
     configs.append(config(buyer=fcustom(s.tsvama2sb,follow=4,slow=178,fast=16)))
     configs.append(config(buyer=fcustom(s.tsvama2sb,follow=3,slow=280,fast=15)))
@@ -167,12 +164,14 @@ def prepare_configs_A0(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.tsvama2sb,follow=3,slow=174,fast=8)))
     configs.append(config(buyer=fcustom(s.tsvama2sb,follow=2,slow=206,fast=6)))
 
-
+    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=7,slow=54,fast=36)))
+    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=5,slow=28,fast=10)))
+    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=2,slow=42,fast=7)))
     configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=3,slow=28,fast=19)))
     configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=5,slow=16,fast=2)))
     configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=5,slow=70,fast=18)))
     configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=9,slow=268,fast=12)))
-    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=3,slow=28,fast=12)))
+    #configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=3,slow=28,fast=12)))
     configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=3,slow=42,fast=6)))
     configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=9,slow=26,fast=8)))
     configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=3,slow=12,fast=6)))
@@ -345,11 +344,11 @@ def run_body(sdata,dates,begin,end,xbegin):
     #seller = csc_func
     #seller = fcustom(csc_func,threshold=100)
     
-    configs = prepare_temp_configs(seller1200,pman,dman)
+    #configs = prepare_temp_configs(seller1200,pman,dman)
     #configs = prepare_temp_configs(seller2000,pman,dman)
     #configs = prepare_configs_A2000(seller2000,pman,dman)
     #configs.extend(prepare_configs_A2000(seller2000,pman,dman))
-    #configs = prepare_configs_A0(seller1200,pman,dman)
+    configs = prepare_configs_A0(seller1200,pman,dman)
     #configs = prepare_configs_A1200(seller1200,pman,dman)
     #configs.extend(prepare_configs_A0(seller1200,pman,dman))    
     #configs.extend(prepare_configs_A1(seller1200,pman,dman))
@@ -471,7 +470,7 @@ if __name__ == '__main__':
     #总时间段   [20000101,20010701,20090101]    #一个完整的周期+一个下降段
     #分段测试的要求，段mm > 1000-1500或抑制，总段mm > 2000
     
-    #begin,xbegin,end = 20000101,20010701,20090101
+    begin,xbegin,end = 20000101,20010701,20090101
     #begin,xbegin,end = 19980101,20010701,20090101
     #begin,xbegin,end = 20000101,20010701,20050901
     #begin,xbegin,end = 19980101,19990701,20010801    
@@ -480,7 +479,7 @@ if __name__ == '__main__':
     #begin,xbegin,end = 19980101,19990101,20090101
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
-    begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201
+    #begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201
     #begin,xbegin,end,lbegin = 20090301,20090401,20090501,20090501
     from time import time
     tbegin = time()
@@ -504,10 +503,10 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     
-    run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
     catalog_macd(catalogs)
 

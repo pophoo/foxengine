@@ -105,7 +105,7 @@ class Evaluation(object):
         return balances,wincount,winamount,lostcount,lostamount,holdings
 
     def header(self):
-         return u'''\t评估:总盈亏值=%(balance)s,交易次数=%(count)s\t期望值=%(R)s\t%(remark)s
+         return u'''\t评估:总盈亏值=%(balance)s,交易次数=%(count)s\t期望值=%(R)s%(remark)s
 \t\t总盈亏率(1/1000)=%(ratesum)s,平均盈亏率(1/1000)=%(rateavg)s,盈利交易率(1/1000)=%(winrate)s
 \t\t平均持仓时间=%(holdingavg)s,持仓效率(1/1000000)=%(E)s
 \t\t赢利次数=%(wincount)s,赢利总值=%(winamount)s

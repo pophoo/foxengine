@@ -6369,6 +6369,8 @@ macd: 房地产
 		平盘次数=0
 
 
+        
+
 #2009-07-24
 巡游结束后，需要一次整体的重新评估
 
@@ -6891,6 +6893,13 @@ tsvama2x:   #不做
 		亏损次数=2,亏损总值=134
 		平盘次数=0
 
+        fast=10,follow=5
+        评估:总盈亏值=6423,交易次数=29  期望值=3298
+                总盈亏率(1/1000)=6423,平均盈亏率(1/1000)=221,盈利交易率(1/1000)=758
+                平均持仓时间=25,持仓效率(1/1000000)=8840
+                赢利次数=22,赢利总值=6892
+                亏损次数=7,亏损总值=469
+                平盘次数=0
 
 
 #wolfox.fengine.core.shortcut:log_result:67:2009-07-27 10:20:48,078 DEBUG Mediator:<tsvama2sbv:follow=3,slow=42,fast=6:atr_seller:up_sector=2,trace_times=3000,stop_times=1200,covered=10:follow=3,slow=42,fast=6:make_trade_signal:B1S1>:	评估:总盈亏值=9550,交易次数=56	期望值=2048	
@@ -7036,4 +7045,26 @@ tsvama3:follow=4,slow=14,mid=29,fast=7: #78.2%
 #2009-07-27
 macd:银行类
 
+tsvama3:follow=4,slow=14,mid=29,fast=7: 2800-154-23-782
+    600138
+tsvama2sbv:follow=9,slow=26,fast=8:     2754-146-107-728
+    600122
+emv2:slow=8,fast=3:                     3627-185-55-800
+    002272
+
+#2009-07-28
+用于识别评估结果的正则表达式
+
+pattern=ur'''name:Mediator:<(?P<name>[\w\d=,:]+):seller:make_trade_signal_advanced:B1S1>\n
+    pre_ev:\t评估:总盈亏值=\d+,交易次数=(?P<times>\d+)\t期望值=(?P<rvs>\d+)\t\n
+    \t\t总盈亏率\(1/1000\)=\d+,平均盈亏率\(1/1000\)=(?P<ravg>\d+),盈利交易率\(1/1000\)=(?P<wrate>\d+)\n
+    \t\t平均持仓时间=(?P<htime>\d+),持仓效率\(1/1000000\)=(?P<efficency>\d+)\n
+    \t\t赢利次数=(?P<wtimes>\d+),赢利总值=(?P<wtotal>\d+)\n
+    \t\t亏损次数=(?P<ltimes>\d+),亏损总值=(?P<ltotal>\d+)
+'''
+
+
+ppat=re.compile(pattern,re.VERBOSE)
+
+ppat.findall(s)
 

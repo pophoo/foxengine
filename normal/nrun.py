@@ -66,6 +66,8 @@ def prepare_configs_best(seller,pman,dman):
     ldx2:glimit=3333,mlen=30	3518:6347:20:800:386:83
     ldx2:glimit=3333,aend=50,astart=0,mlen=120	1000:6823:4:1000:348:0
     xud:astart=0	1000:8541:26:1000:410:0
+    xud:astart=0,xfunc=xc0c	5935:7666:24:958:387:62
+    xud:astart=0,xfunc=xc02	1000:6568:12:1000:289:0
     emv1b:base=120,fast=15	6631:7411:22:954:266:38
     emv1b:base=120,fast=27	5750:7666:18:833:341:48
     emv1b:base=120,fast=40	4076:5578:24:958:224:52
@@ -108,6 +110,9 @@ def prepare_configs_best(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.ldx2,glimit=3333,mlen=30)))
     configs.append(config(buyer=fcustom(s.ldx2,glimit=3333,aend=50,astart=0,mlen=120)))
     configs.append(config(buyer=fcustom(s.xud,astart=0)))
+    configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc0c,astart=0)))  #4/9
+    #configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc0,astart=0)))  #1/5 类同xc02，但xc02更好
+    configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc02,astart=0)))  #1/5
     configs.append(config(buyer=fcustom(s.emv1b,base=120,fast=15)))
     configs.append(config(buyer=fcustom(s.emv1b,base=120,fast=27)))
     configs.append(config(buyer=fcustom(s.emv1b,base=120,fast=40)))

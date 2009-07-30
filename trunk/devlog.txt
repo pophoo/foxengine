@@ -7092,3 +7092,22 @@ sout.close()
 
 pattern=ur'''name:Mediator:<(?P<name>[\w\d=,:]+):seller:make_trade_signal_advanced:B1S1>\npre_ev:\t评估:总盈亏值=-?\d+,交易次数=(?P<times>\d+)\t期望值=(?P<rvs>-?\d+)\n\t\t总盈亏率\(1/1000\)=-?\d+,平均盈亏率\(1/1000\)=(?P<ravg>-?\d+),盈利交易率\(1/1000\)=(?P<wrate>\d+)\n\t\t平均持仓时间=(?P<htime>\d+),持仓效率\(1/1000000\)=(?P<efficency>-?\d+)\n\t\t赢利次数=(?P<wtimes>\d+),赢利总值=(?P<wtotal>\d+)\n\t\t亏损次数=(?P<ltimes>\d+),亏损总值=(?P<ltotal>\d+)'''
 
+
+#20090728
+macd: 辽宁
+macd: 天津
+macd: 旅游酒店
+
+个股:
+best:
+    002134: tsvama3:follow=4,slow=14,mid=29,fast=7/2279:6739:23:826:203:68
+    昨日:
+    600138: tsvama3:follow=4,slow=14,mid=29,fast=7/2279:6739:23:826:203:68
+    002272: emv2:slow=8,fast=3/3745:5305:55:800:252:51
+normal:
+    000666: tsvama2sbv:follow=9,slow=26,fast=8/2754:5840:107:728:221:53
+    昨日:
+    600122: tsvama2sbv:follow=9,slow=26,fast=8/2754:5840:107:728:221:53
+
+#20090729
+今日无

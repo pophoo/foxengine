@@ -22,6 +22,11 @@ logger = logging.getLogger('wolfox.fengine.normal.run')
 def prepare_temp_configs(seller,pman=None,dman=None):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
+    configs.append(config(buyer=s.xru0))
+    configs.append(config(buyer=s.xma60))
+    configs.append(config(buyer=s.xru))
+    configs.append(config(buyer=s.mxru))
+    configs.append(config(buyer=s.mxru3))
 
     import wolfox.fengine.normal.xrun as x 
 
@@ -422,6 +427,7 @@ def prepare_common_old(sdata,ref):
         #将golden和above分开
         s.golden = gand(s.g20 >= s.g60+1000,s.g60 >= s.g120+1000,s.g20>=3000,s.g20<=8000)
         s.thumb = gand(s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20>=3000,s.g20<=8000)
+        s.magic = gand(s.g5>s.g60,s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20<8000)
         s.svap_ma_67 = svap_ma(v,c,67)
         s.svap_ma_67_2 = svap_ma(v,c,67,weight=2)        
         #s.vap_ma_67 = vap_pre(v,c,67)
@@ -451,6 +457,7 @@ def prepare_common(sdata,ref):
         #将golden和above分开
         s.golden = gand(s.g20 >= s.g60+1000,s.g60 >= s.g120+1000,s.g20>=3000,s.g20<=8000)
         s.thumb = gand(s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20>=3000,s.g20<=8000)
+        s.magic = gand(s.g5>s.g60,s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20<8000)
         s.svap_ma_67 = svap_ma(v,c,67)
         #s.vap_ma_67 = vap_pre(v,c,67)
         #s.svap_ma_67_1 = svap_ma(v,c,67,weight=1)        
@@ -486,6 +493,7 @@ def prepare_common_catalog(catalogs,ref):
         #将golden和above分开
         s.golden = gand(s.g20 >= s.g60+1000,s.g60 >= s.g120+1000,s.g20>=3000,s.g20<=8000)
         s.thumb = gand(s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20>=3000,s.g20<=8000)
+        s.magic = gand(s.g5>s.g60,s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20<8000)
         s.ks = subd(c) * BASE / rollx(c)
         s.diff,s.dea = cmacd(c)
 
@@ -504,11 +512,11 @@ def run_body(sdata,dates,begin,end,xbegin):
     #seller = csc_func
     #seller = fcustom(csc_func,threshold=100)
     
-    #configs = prepare_temp_configs(seller1200,pman,dman)
+    configs = prepare_temp_configs(seller1200,pman,dman)
     #configs = prepare_temp_configs(seller2000,pman,dman)
     #configs = prepare_configs_A2000(seller2000,pman,dman)
     #configs.extend(prepare_configs_A2000(seller2000,pman,dman))
-    configs = prepare_configs_A0(seller1200,pman,dman)
+    #configs = prepare_configs_A0(seller1200,pman,dman)
     #configs = prepare_configs_best(seller1200,pman,dman)
     #configs.extend(prepare_configs_normal(seller1200,pman,dman))    
     #configs.extend(prepare_configs_others(seller1200,pman,dman))    
@@ -646,7 +654,7 @@ if __name__ == '__main__':
     #总时间段   [20000101,20010701,20090101]    #一个完整的周期+一个下降段
     #分段测试的要求，段mm > 1000-1500或抑制，总段mm > 2000
     
-    #begin,xbegin,end = 20000101,20010701,20090101
+    begin,xbegin,end = 20000101,20010701,20090101
     #begin,xbegin,end = 19980101,20010701,20090101
     #begin,xbegin,end = 20000101,20010701,20050901
     #begin,xbegin,end = 19980101,19990701,20010801    
@@ -655,7 +663,7 @@ if __name__ == '__main__':
     #begin,xbegin,end = 19980101,19990101,20090101
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
-    begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201
+    #begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201
     #begin,xbegin,end,lbegin = 20090301,20090401,20090501,20090501
     from time import time
     tbegin = time()
@@ -679,10 +687,10 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     
-    run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
     catalog_macd(catalogs)
 

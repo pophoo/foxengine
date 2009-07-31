@@ -50,6 +50,17 @@ def calc_index_relative(stocks,sector=CLOSE,weight=AMOUNT,wave = 10):
 
 calc_index = calc_index_relative    #取相对稳定性，舍弃上下一致性。因为catalog_index的用处主要在此
 
+def calc_amount(stocks):
+    amount = extract_collect(stocks,AMOUNT) * 1.0   #避免溢出
+    sa = amount.sum(0) / BASE  #单位为十万元，避免溢出整数范围
+    return np.cast['int'](sa)
+
+def calc_indices(stocks):
+    sclose = calc_index(stocks)
+    samount = calc_amount(stocks)
+    svolume = np.cast['int'](samount * 1.0 * BASE/ sclose) #以收盘作为均价
+    return [calc_index(stocks,OPEN),sclose,calc_index(stocks,HIGH),calc_index(stocks,LOW),sclose,samount,svolume]
+
 def calc_index_old(stocks,sector=CLOSE,weight=AMOUNT,wave = 10,alen=10):
     ''' 计算catalog指数并返回该指数及相关成员的序列，以第一日为基础
         因为初始日期的不同，而导致指数不具备相对稳定性，不同初始日计算出来的指数，连续日之间的相对比例不稳定

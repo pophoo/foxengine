@@ -48,10 +48,10 @@ def tsvama2(stock,fast=3,slow=33,bxatr=50):
  
     linelog('%s:%s' % (tsvama2.__name__,stock.code))
     
-    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
+    #thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
     xatr = stock.atr * BASE / t[CLOSE]
 
-    return gand(msvap,stock.above,stock.t5,vfilter,thumb,xatr>bxatr)
+    return gand(msvap,stock.above,stock.t5,vfilter,stock.magic,xatr>bxatr)
 
 def tsvama2a(stock,fast=20,slow=100):
     ''' svama两线交叉
@@ -798,7 +798,7 @@ def xru(stock):
     vma = ma(t[VOLUME],30)
     svma = ma(t[VOLUME],3)
     vfilter = gand(svma>vma*1/2,svma<vma*2/3,t[CLOSE]>stock.ma1)
-    signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5)
+    signal = gand(mxc,vfilter,stock.magic,stock.above,strend(stock.ma4)>0,stock.t5)
     linelog(stock.code)
     return signal
 
@@ -818,7 +818,7 @@ def xru0(stock,xfunc=xc_ru0,astart=45):
     vfilter = gand(svma>vma*1/2,svma<vma*2/3,t[CLOSE]>stock.ma1,strend(mcf)<0)
     xatr = stock.atr * BASE / t[CLOSE]     
     #signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5)
-    signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,xatr>=astart)
+    signal = gand(mxc,vfilter,stock.magic,stock.above,stock.t5,xatr>=astart)
     linelog(stock.code)
     return signal
 
@@ -849,7 +849,7 @@ def mxru3(stock,astart=50):
     cf = (t[CLOSE]-t[LOW])*1000 / (t[HIGH]-t[LOW]) < 900    #物极必反, 如果是大阳线，不能收高
     vfilter = gand(svma<vma*7/8,svma>vma/2,t[VOLUME]<=vma,t[CLOSE]>stock.ma1,cf)
     xatr = stock.atr * BASE / t[CLOSE]     
-    signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5,xatr>=astart)
+    signal = gand(mxc,vfilter,stock.magic,stock.above,strend(stock.ma4)>0,stock.t5,xatr>=astart)
     linelog(stock.code)
     return signal
 
@@ -1112,9 +1112,9 @@ def emv1(stock,fast=15):
 
     baseline = cached_zeros(len(t[CLOSE]))
 
-    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20>=3000,stock.g20<8000)
+    #thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20>=3000,stock.g20<8000)
 
-    ecross = gand(thumb,cross(baseline,mv1)>0,strend(mv1)>0,stock.t5,stock.above,vfilter)
+    ecross = gand(stock.magic,cross(baseline,mv1)>0,strend(mv1)>0,stock.t5,stock.above,vfilter)
     linelog(stock.code)
     return ecross
 
@@ -1137,9 +1137,9 @@ def emv1b(stock,fast=15,base=120):
 
     baseline = cached_zeros(len(t[CLOSE]))
 
-    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20>=3000,stock.g20<8000)
+    #thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20>=3000,stock.g20<8000)
 
-    ecross = gand(thumb,cross(baseline,mv1)>0,strend(mv1)>0,stock.t5,stock.above,vfilter,strend(mvbase)>0)
+    ecross = gand(stock.magic,cross(baseline,mv1)>0,strend(mv1)>0,stock.t5,stock.above,vfilter,strend(mvbase)>0)
     linelog(stock.code)
     return ecross
 
@@ -1157,10 +1157,10 @@ def emv2(stock,fast,slow):
 
     vfilter = gand(svma<=vma*3/4)
  
-    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)#,stock.g20>=3000)
+    #thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)#,stock.g20>=3000)
     #thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120>=stock.g250,stock.g20>=3000,stock.g20<8000)    
 
-    ecross = gand(thumb,cross(mv2,mv1)>0,strend(mv2)>0,mv2<0,stock.t5,stock.above,vfilter)
+    ecross = gand(stock.magic,cross(mv2,mv1)>0,strend(mv2)>0,mv2<0,stock.t5,stock.above,vfilter)
     linelog(stock.code)
     return ecross
 
@@ -1212,9 +1212,9 @@ def tsvama4(stock,afast,aslow,bfast,bslow,follow=7):
 
     #vfilter = vma_s < vma_l * 7/8
  
-    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
+    #thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
 
-    return gand(msvap,stock.above,stock.t5,thumb)#,vfilter)
+    return gand(msvap,stock.above,stock.t5,stock.magic)#,vfilter)
 
 def tsvama3(stock,fast,mid,slow,follow=7):
     ''' svama三线交叉
@@ -1238,9 +1238,9 @@ def tsvama3(stock,fast,mid,slow,follow=7):
     msvap = transform(sync3,v2i,len(t[VOLUME]))
     linelog('%s:%s' % (tsvama3.__name__,stock.code))
 
-    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
+    #thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
 
-    return gand(msvap,stock.above,stock.t5,thumb)
+    return gand(msvap,stock.above,stock.t5,stock.magic)
 
 def tsvama2sb(stock,fast,slow,follow=7):
     ''' svama慢线下叉快线，follow日后再上叉回来
@@ -1268,9 +1268,9 @@ def tsvama2sb(stock,fast,slow,follow=7):
 
     #vfilter = vma_s > vma_l 
 
-    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
+    #thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
 
-    return gand(sync_down_up,stock.above,stock.t5,thumb)#,vfilter)
+    return gand(sync_down_up,stock.above,stock.t5,stock.magic)#,vfilter)
 
 
 def tsvama2sbv(stock,fast,slow,follow=7):
@@ -1300,9 +1300,9 @@ def tsvama2sbv(stock,fast,slow,follow=7):
 
     vfilter = vma_s < vma_l
 
-    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
+    #thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
 
-    return gand(sync_down_up,stock.above,stock.t5,thumb,vfilter)
+    return gand(sync_down_up,stock.above,stock.t5,stock.magic,vfilter)
 
 def ma2s(stock,fast,slow,follow=7):
     ''' svama慢线下叉快线，follow日后再上叉回来
@@ -1326,9 +1326,9 @@ def ma2s(stock,fast,slow,follow=7):
 
     #vfilter = vma_s > vma_l 
 
-    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
+    #thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
 
-    return gand(sync_down_up,stock.above,stock.t5,thumb,stock.ma1>stock.ma3)#,vfilter)
+    return gand(sync_down_up,stock.above,stock.t5,stock.magic,stock.ma1>stock.ma3)#,vfilter)
 
 
 def ma2sv(stock,fast,slow,follow=7):
@@ -1353,9 +1353,9 @@ def ma2sv(stock,fast,slow,follow=7):
 
     vfilter = gand(vma_s < vma_l,vma_s>vma_l*2/3)
 
-    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
+    #thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
 
-    return gand(sync_down_up,stock.above,stock.t5,thumb,stock.ma1>stock.ma3,vfilter,stock.t3)
+    return gand(sync_down_up,stock.above,stock.t5,stock.magic,stock.ma1>stock.ma3,vfilter,stock.t3)
 
 def tsvama3b(stock,fast,mid,slow,follow=7):
     ''' svama三线交叉
@@ -1383,6 +1383,6 @@ def tsvama3b(stock,fast,mid,slow,follow=7):
     
     linelog('%s:%s' % (tsvama3b.__name__,stock.code))
 
-    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
+    #thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
 
-    return gand(sync3,stock.above,stock.t5,thumb)
+    return gand(sync3,stock.above,stock.t5,stock.magic)

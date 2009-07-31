@@ -17,6 +17,23 @@ class ModuleTest(unittest.TestCase):
         index = calc_index_relative(ss)
         self.assertEquals([1000,763,1208,1060],index.tolist())
 
+    def test_calc_indices(self):
+        a = np.array([(0,0,0,0),(500,400,800,500),(0,0,0,0),(0,0,0,0),(0,0,0,0),(5000,4000,8000,5000),(1000,1000,1000,1000)])
+        b = np.array([(0,0,0,0),(200,200,200,200),(0,0,0,0),(0,0,0,0),(0,0,0,0),(0,0,4000,4000),(0,0,2000,1000)])
+        c = np.array([(0,0,0,0),(700,500,500,700),(0,0,0,0),(0,0,0,0),(0,0,0,0),(7000,5000,0,4000),(1000,1000,0,1000)])
+        sa = CommonObject(id=0,transaction=a)
+        sb = CommonObject(id=1,transaction=b)
+        sc = CommonObject(id=2,transaction=c) 
+        ss = [sa,sb,sc]
+        indices = calc_indices(ss)
+        self.assertEquals([0,0,0,0],indices[OPEN].tolist())
+        self.assertEquals([1000,763,1208,1060],indices[CLOSE].tolist())
+        self.assertEquals([0,0,0,0],indices[HIGH].tolist())
+        self.assertEquals([0,0,0,0],indices[LOW].tolist())
+        self.assertEquals([1000,763,1208,1060],indices[AVG].tolist())        
+        self.assertEquals([12,9,12,13],indices[AMOUNT].tolist())
+        self.assertEquals([12,11,9,12],indices[VOLUME].tolist())        
+
     def test_calc_index_old(self):
         a = np.array([(0,0,0,0),(500,400,800,400),(0,0,0,0),(0,0,0,0),(0,0,0,0),(5000,4000,8000,4000),(1000,1000,1000,1000)])
         b = np.array([(0,0,0,0),(200,200,200,400),(0,0,0,0),(0,0,0,0),(0,0,0,0),(0,0,4000,4000),(0,0,2000,1000)])
@@ -40,6 +57,16 @@ class ModuleTest(unittest.TestCase):
         sc = CommonObject(id=2,transaction=c) 
         avg = avg_price([sa,sb,sc])
         self.assertEquals([600,400,375,400],avg.tolist())
+
+    def test_calc_amount(self):
+        a = np.array([(0,0,0,0),(500,400,800,400),(0,0,0,0),(0,0,0,0),(0,0,0,0),(5000,4000,8000,4000),(1000,1000,1000,1000)])
+        b = np.array([(0,0,0,0),(200,200,200,400),(0,0,0,0),(0,0,0,0),(0,0,0,0),(0,0,4000,4000),(0,0,2000,1000)])
+        c = np.array([(0,0,0,0),(700,700,300,400),(0,0,0,0),(0,0,0,0),(0,0,0,0),(7000,0,3000,4000),(1000,0,1000,1000)])
+        sa = CommonObject(id=0,transaction=a)
+        sb = CommonObject(id=1,transaction=b)
+        sc = CommonObject(id=2,transaction=c) 
+        avg = calc_amount([sa,sb,sc])
+        self.assertEquals([12,4,15,12],avg.tolist())
 
     def test_calc_drate(self):
         a = np.array([(0,0,0,0),(500,400,800,400),(0,0,0,0),(0,0,0,0),(0,0,0,0),(5000,4000,8000,4000),(1000,1000,1000,1000)])

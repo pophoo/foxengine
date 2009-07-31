@@ -2803,7 +2803,7 @@ def tsvama2sbv(stock,fast,slow,follow=7):
 
     thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
 
-    return gand(sync_down_up,stock.above,stock.t5,thumb,vfilter)
+    return gand(sync_down_up,stock.above,stock.t5,thumb,vfilter)#,bnot(stock.silver))
 
 
 def ma2s(stock,fast,slow,follow=7):

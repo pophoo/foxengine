@@ -348,6 +348,9 @@ seller2000 = atr_xseller_factory(stop_times=2000,trace_times=3000)
 
 import wolfox.fengine.normal.sfuncs as s
 
+scatalog = dict([(c.name,c) for c in catalogs])
+
+
 #开始计算
 reload(x)    #应对脚本修改
 buyer = x.prepare_buyer(dates)   
@@ -356,6 +359,7 @@ result,strade = ev.evaluate_all(tradess,pman,dman)
 
 #name,tradess = calc_trades(buyer,seller2000,sdata,dates,xbegin,cmediator=myMediator)
 
+#name,tradess = calc_trades(buyer,seller,scatalog,dates,xbegin,cmediator=myMediator)
 
 #2009-03-28
 #ma4的测试
@@ -7055,8 +7059,9 @@ emv2:slow=8,fast=3:                     3627-185-55-800
 #2009-07-28
 用于识别评估结果的正则表达式
 
+import re
 
-pattern=ur'''name:Mediator:<(?P<name>[\w\d=,:]+):seller:make_trade_signal_advanced:B1S1>\n
+pattern=ur'''Mediator:<(?P<name>[\w\d=,:]+):seller:make_trade_signal_advanced:B1S1>\n
     pre_ev:\t评估:总盈亏值=-?\d+,交易次数=(?P<times>\d+)\t期望值=(?P<rvs>-?\d+)\n
     \t\t总盈亏率\(1/1000\)=-?\d+,平均盈亏率\(1/1000\)=(?P<ravg>-?\d+),盈利交易率\(1/1000\)=(?P<wrate>\d+)\n
     \t\t平均持仓时间=(?P<htime>\d+),持仓效率\(1/1000000\)=(?P<efficency>-?\d+)\n
@@ -7089,8 +7094,16 @@ for fiter in ppat.finditer(sss):
 print sout.getvalue()
 sout.close()
 
+#pattern=ur'''name:Mediator:<(?P<name>[\w\d=,:]+):seller:make_trade_signal_advanced:B1S1>\npre_ev:\t评估:总盈亏值=-?\d+,交易次数=(?P<times>\d+)\t期望值=(?P<rvs>-?\d+)\n\t\t总盈亏率\(1/1000\)=-?\d+,平均盈亏率\(1/1000\)=(?P<ravg>-?\d+),盈利交易率\(1/1000\)=(?P<wrate>\d+)\n\t\t平均持仓时间=(?P<htime>\d+),持仓效率\(1/1000000\)=(?P<efficency>-?\d+)\n\t\t赢利次数=(?P<wtimes>\d+),赢利总值=(?P<wtotal>\d+)\n\t\t亏损次数=(?P<ltimes>\d+),亏损总值=(?P<ltotal>\d+)'''
 
-pattern=ur'''name:Mediator:<(?P<name>[\w\d=,:]+):seller:make_trade_signal_advanced:B1S1>\npre_ev:\t评估:总盈亏值=-?\d+,交易次数=(?P<times>\d+)\t期望值=(?P<rvs>-?\d+)\n\t\t总盈亏率\(1/1000\)=-?\d+,平均盈亏率\(1/1000\)=(?P<ravg>-?\d+),盈利交易率\(1/1000\)=(?P<wrate>\d+)\n\t\t平均持仓时间=(?P<htime>\d+),持仓效率\(1/1000000\)=(?P<efficency>-?\d+)\n\t\t赢利次数=(?P<wtimes>\d+),赢利总值=(?P<wtotal>\d+)\n\t\t亏损次数=(?P<ltimes>\d+),亏损总值=(?P<ltotal>\d+)'''
+评估的pattern
+pattern=ur'''Mediator:<(?P<name>[\w\d=,:]+):atr_seller:[\w\d=,:]+>:
+    \t评估:总盈亏值=-?\d+,交易次数=(?P<times>\d+)\t期望值=(?P<rvs>-?\d+)\n
+    \t\t总盈亏率\(1/1000\)=-?\d+,平均盈亏率\(1/1000\)=(?P<ravg>-?\d+),盈利交易率\(1/1000\)=(?P<wrate>\d+)\n
+    \t\t平均持仓时间=(?P<htime>\d+),持仓效率\(1/1000000\)=(?P<efficency>-?\d+)\n
+    \t\t赢利次数=(?P<wtimes>\d+),赢利总值=(?P<wtotal>\d+)\n
+    \t\t亏损次数=(?P<ltimes>\d+),亏损总值=(?P<ltotal>\d+)'''
+ppat=re.compile(pattern,re.VERBOSE)
 
 
 #20090728
@@ -7123,6 +7136,77 @@ best:
 1. 重新对2009进行评估
    并考虑thumb变化带来的影响(添加g5>g60) 
         mxru貌似不利,xud也无增益
+    但从长期来看，对xru/xru0/mxru3也都不利
 2. 对ldx进行巡游
+    ？
+20010701-20090101
+ldx:aend=75,astart=50,mlen=79;6523:10960:17:647:447:42
+ldx:aend=95,astart=45,mlen=135;11166:23103:7:714:962:60
+ldx:aend=85,astart=65,mlen=92;3525:6303:4:750:297:59
+ldx:aend=80,astart=0,mlen=55;3321:8454:28:678:301:56
+ldx:aend=80,astart=50,mlen=55;3864:11000:16:750:407:74
+ldx:aend=75,astart=60,mlen=55;4674:12967:11:818:511:86
+ldx:aend=95,astart=65,mlen=39;8609:8404:5:800:451:41
+ldx:aend=95,astart=5,mlen=43;3448:8966:40:700:419:78
+ldx:aend=95,astart=55,mlen=42;4062:9750:21:809:505:96
+ldx:aend=85,astart=55,mlen=46;5926:10333:20:800:520:68
+ldx:aend=95,astart=55,mlen=47;5850:9750:19:736:498:60
+ldx:aend=85,astart=50,mlen=50;4434:9911:19:789:448:76
 
-3. 考虑抓取板块龙头股的方法
+==>
+configs.append(config(buyer=fcustom(ldx:aend=75,astart=50,mlen=79)))
+configs.append(config(buyer=fcustom(ldx:aend=95,astart=45,mlen=135)))
+configs.append(config(buyer=fcustom(ldx:aend=85,astart=65,mlen=92)))
+configs.append(config(buyer=fcustom(ldx:aend=80,astart=0,mlen=55)))
+configs.append(config(buyer=fcustom(ldx:aend=80,astart=50,mlen=55)))
+configs.append(config(buyer=fcustom(ldx:aend=75,astart=45,mlen=52)))
+configs.append(config(buyer=fcustom(ldx:aend=75,astart=60,mlen=55)))
+configs.append(config(buyer=fcustom(ldx:aend=75,astart=30,mlen=21)))
+configs.append(config(buyer=fcustom(ldx:aend=85,astart=45,mlen=21)))
+configs.append(config(buyer=fcustom(ldx:aend=80,astart=45,mlen=39)))
+configs.append(config(buyer=fcustom(ldx:aend=95,astart=65,mlen=39)))
+configs.append(config(buyer=fcustom(ldx:aend=95,astart=15,mlen=32)))
+configs.append(config(buyer=fcustom(ldx:aend=85,astart=45,mlen=43)))
+configs.append(config(buyer=fcustom(ldx:aend=80,astart=50,mlen=43)))
+configs.append(config(buyer=fcustom(ldx:aend=95,astart=5,mlen=43)))
+configs.append(config(buyer=fcustom(ldx:aend=95,astart=55,mlen=42)))
+configs.append(config(buyer=fcustom(ldx:aend=85,astart=55,mlen=46)))
+configs.append(config(buyer=fcustom(ldx:aend=95,astart=30,mlen=47)))
+configs.append(config(buyer=fcustom(ldx:aend=95,astart=55,mlen=47)))
+configs.append(config(buyer=fcustom(ldx:aend=85,astart=50,mlen=50)))
+
+.,+21s/\(ldx:aend=\d*,astart=\d*,mlen=\d*\);\d*:\d*:\d*:\d*:\d*:\d*/configs.append(config(buyer=fcustom(\1)))
+
+
+20080701-20090731
+ldx:aend=75,astart=50,mlen=79;7916:4523:36:916:210:24
+ldx:aend=95,astart=45,mlen=135;48750:4431:7:857:228:4
+ldx:aend=85,astart=65,mlen=92;5500:3384:8:875:155:24
+ldx:aend=80,astart=0,mlen=55;3113:4583:111:765:232:53
+ldx:aend=80,astart=50,mlen=55;1975:4000:42:809:223:83
+ldx:aend=75,astart=60,mlen=55;3000:4500:22:863:251:69
+ldx:aend=95,astart=65,mlen=39;5820:5820:21:952:308:50
+ldx:aend=95,astart=5,mlen=43;2763:4470:123:747:222:55
+ldx:aend=95,astart=55,mlen=42;2474:5697:40:875:295:99
+ldx:aend=85,astart=55,mlen=46;2726:5452:37:837:289:84
+ldx:aend=95,astart=55,mlen=47;3177:5837:40:875:299:79
+ldx:aend=85,astart=50,mlen=50;2441:4585:41:853:233:77
+
+
+
+3. 考虑抓取潜力板块龙头股的方法
+   板块按照潜力计算，先找出计算板块的算法，然后在其中寻找龙头股
+   龙头股必须是在它所在的所有板块的龙头股，否则不算
+
+   板块指数计算方法有问题，使得HIGH/LOW差巨大
+
+#2009-08-01
+板块：计算机
+
+catalogs ==> scatalogs: (sdata化)
+
+scatalog = {}
+for c in catalogs:
+    cs[c.name]=c
+    c.code = c.name
+

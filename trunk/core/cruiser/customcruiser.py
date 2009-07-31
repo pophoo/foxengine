@@ -15,6 +15,40 @@ from wolfox.fengine.normal.nrun import prepare_next
 
 logger = logging.getLogger('wolfox.fengine.core.cruiser.customcruiser')
 
+class LdxCruiser(GeneticCruiser):
+    def prepare(self):
+        self.args = dict(mlen=range(1,300),astart=range(0,101,5),aend=range(0,101,5))
+        self.buy_func = ldx
+        #self.sell_func = csc_func
+        self.sell_func =  atr_seller_factory(stop_times=1200,trace_times=3000)
+        self.predefined = []
+        #self.sell_func = my_csc_func
+        #self.trade_func = fcustom(normal_trade_func,begin=20010601)
+        #self.trade_func = fcustom(my_trade_func,begin=20010601)
+        self.evaluate_func = normal_evaluate
+
+    def filtered(self,mlen,astart,aend,**kwargs):
+        if astart >= aend:
+            return True
+        return False
+
+class Ldx2Cruiser(GeneticCruiser):
+    def prepare(self):
+        self.args = dict(mlen=range(1,300),astart=range(0,101,5),aend=range(0,101,5))
+        self.buy_func = ldx2
+        #self.sell_func = csc_func
+        self.sell_func =  atr_seller_factory(stop_times=1200,trace_times=3000)
+        self.predefined = []
+        #self.sell_func = my_csc_func
+        #self.trade_func = fcustom(normal_trade_func,begin=20010601)
+        #self.trade_func = fcustom(my_trade_func,begin=20010601)
+        self.evaluate_func = normal_evaluate
+
+    def filtered(self,mlen,astart,aend,**kwargs):
+        if astart >= aend:
+            return True
+        return False
+
 class Ma2sCruiser(GeneticCruiser):
     def prepare(self):
         self.args = dict(fast=range(1,120),slow=range(5,300),follow=range(1,11))
@@ -374,9 +408,10 @@ if __name__ == '__main__':
     #logger.debug('*****************svama3b begin**********************')
     #cruiser = TSvama4Cruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
     #cruiser = Emv2Cruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
-    cruiser = TSvama2sbvCruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
+    #cruiser = TSvama2sbvCruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
     #cruiser = TSvama2sbCruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小    
     #cruiser = Ma2sCruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
+    cruiser = Ldx2Cruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
     cruiser.gcruise(sdata,dates,tbegin)    
     
     #cruiser = Svama3bMMCruiser(psize=500,maxstep=100,goal=200000000)    #goal不能太小

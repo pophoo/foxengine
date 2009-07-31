@@ -22,13 +22,28 @@ logger = logging.getLogger('wolfox.fengine.normal.run')
 def prepare_temp_configs(seller,pman=None,dman=None):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
-    configs.append(config(buyer=s.xru0))
-    configs.append(config(buyer=s.xma60))
-    configs.append(config(buyer=s.xru))
-    configs.append(config(buyer=s.mxru))
-    configs.append(config(buyer=s.mxru3))
 
     import wolfox.fengine.normal.xrun as x 
+    configs.append(config(buyer=fcustom(s.ldx,aend=75,astart=50,mlen=79)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=95,astart=45,mlen=135)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=85,astart=65,mlen=92)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=80,astart=0,mlen=55)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=80,astart=50,mlen=55)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=75,astart=45,mlen=52)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=75,astart=60,mlen=55)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=75,astart=30,mlen=21)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=85,astart=45,mlen=21)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=80,astart=45,mlen=39)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=95,astart=65,mlen=39)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=95,astart=15,mlen=32)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=85,astart=45,mlen=43)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=80,astart=50,mlen=43)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=95,astart=5,mlen=43)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=95,astart=55,mlen=42)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=85,astart=55,mlen=46)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=95,astart=30,mlen=47)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=95,astart=55,mlen=47)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=85,astart=50,mlen=50)))
 
     return configs
 
@@ -477,6 +492,7 @@ def prepare_common(sdata,ref):
 def prepare_common_catalog(catalogs,ref):
     for s in catalogs:
         #print s.code
+        s.code = s.name
         s.ref = ref
         c = s.transaction[CLOSE]
         s.ma1= ma(c,7)
@@ -496,6 +512,7 @@ def prepare_common_catalog(catalogs,ref):
         s.magic = gand(s.g5>s.g60,s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20<8000)
         s.ks = subd(c) * BASE / rollx(c)
         s.diff,s.dea = cmacd(c)
+        s.atr = atr(c,s.transaction[HIGH],s.transaction[LOW],20)
 
 def prepare_index(index):
     index.pdiff,index.pdea = cmacd(index.transaction[CLOSE])
@@ -654,7 +671,7 @@ if __name__ == '__main__':
     #总时间段   [20000101,20010701,20090101]    #一个完整的周期+一个下降段
     #分段测试的要求，段mm > 1000-1500或抑制，总段mm > 2000
     
-    begin,xbegin,end = 20000101,20010701,20090101
+    #begin,xbegin,end = 20000101,20010701,20090101
     #begin,xbegin,end = 19980101,20010701,20090101
     #begin,xbegin,end = 20000101,20010701,20050901
     #begin,xbegin,end = 19980101,19990701,20010801    
@@ -663,7 +680,7 @@ if __name__ == '__main__':
     #begin,xbegin,end = 19980101,19990101,20090101
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
-    #begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201
+    begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201
     #begin,xbegin,end,lbegin = 20090301,20090401,20090501,20090501
     from time import time
     tbegin = time()

@@ -36,10 +36,13 @@ def calc_index_relative(stocks,sector=CLOSE,weight=AMOUNT,wave = 10):
     csize = len(stocks)
     sectors = extract_collect(stocks,sector)
     weights = extract_collect(stocks,weight)
+    sclose = extract_collect(stocks,CLOSE)
     #print weights
     scores = percent_sort(weights) / (PERCENT_BASE/wave) + 1 #0基改为1基, 个数少时有排序失真
     #不对停牌股进行平滑处理,是为了减轻初始日敏感性, 否则初始日停牌的个股会导致指数计算有所不同
     waves = npercent(sectors) * RFACTOR / PERCENT_BASE
+    #sclose1 = rollx2(sclose,1)
+    #waves = sectors* RFACTOR/sclose1 
     scores = np.where(waves<1.0,scores * 1.25 ,scores)   #对下降段进行加权
     s_weights = scores * RFACTOR / scores.sum(0)
     #print s_weights
@@ -56,10 +59,14 @@ def calc_amount(stocks):
     return np.cast['int'](sa)
 
 def calc_indices(stocks):
+    sopen = calc_index(stocks,OPEN)
     sclose = calc_index(stocks)
+    shigh = calc_index(stocks,HIGH)
+    slow = calc_index(stocks,LOW)
+    savg = (sopen + sclose + shigh + slow + 2) / 4  #四舍五入
     samount = calc_amount(stocks)
     svolume = np.cast['int'](samount * 1.0 * BASE/ sclose) #以收盘作为均价
-    return [calc_index(stocks,OPEN),sclose,calc_index(stocks,HIGH),calc_index(stocks,LOW),sclose,samount,svolume]
+    return [sopen,sclose,shigh,slow,savg,samount,svolume]
 
 def calc_index_old(stocks,sector=CLOSE,weight=AMOUNT,wave = 10,alen=10):
     ''' 计算catalog指数并返回该指数及相关成员的序列，以第一日为基础

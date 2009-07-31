@@ -20,6 +20,20 @@ from wolfox.fengine.core.shortcut import *
 logger = logging.getLogger('wolfox.fengine.core.cruiser.customcruiser_test')
 
 class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的是保持geneticcruiser的有效性
+    def test_ldx_cruiser(self):
+        begin,end = 20010101,20010201
+        dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        ccruiser.prepare_next(sdata,idata,catalogs)
+        cruiser = ccruiser.LdxCruiser(psize=20,maxstep=1,goal=20000)
+        cruiser.gcruise(sdata,dates,20010601)    
+ 
+    def test_ldx2_cruiser(self):
+        begin,end = 20010101,20010201
+        dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
+        ccruiser.prepare_next(sdata,idata,catalogs)
+        cruiser = ccruiser.Ldx2Cruiser(psize=20,maxstep=1,goal=20000)
+        cruiser.gcruise(sdata,dates,20010601)    
+ 
     def test_ma2s_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])

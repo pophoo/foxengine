@@ -798,7 +798,7 @@ def xru(stock):
     vma = ma(t[VOLUME],30)
     svma = ma(t[VOLUME],3)
     vfilter = gand(svma>vma*1/2,svma<vma*2/3,t[CLOSE]>stock.ma1)
-    signal = gand(mxc,vfilter,stock.magic,stock.above,strend(stock.ma4)>0,stock.t5)
+    signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5)
     linelog(stock.code)
     return signal
 
@@ -818,7 +818,7 @@ def xru0(stock,xfunc=xc_ru0,astart=45):
     vfilter = gand(svma>vma*1/2,svma<vma*2/3,t[CLOSE]>stock.ma1,strend(mcf)<0)
     xatr = stock.atr * BASE / t[CLOSE]     
     #signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5)
-    signal = gand(mxc,vfilter,stock.magic,stock.above,stock.t5,xatr>=astart)
+    signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,xatr>=astart)
     linelog(stock.code)
     return signal
 
@@ -849,7 +849,7 @@ def mxru3(stock,astart=50):
     cf = (t[CLOSE]-t[LOW])*1000 / (t[HIGH]-t[LOW]) < 900    #物极必反, 如果是大阳线，不能收高
     vfilter = gand(svma<vma*7/8,svma>vma/2,t[VOLUME]<=vma,t[CLOSE]>stock.ma1,cf)
     xatr = stock.atr * BASE / t[CLOSE]     
-    signal = gand(mxc,vfilter,stock.magic,stock.above,strend(stock.ma4)>0,stock.t5,xatr>=astart)
+    signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5,xatr>=astart)
     linelog(stock.code)
     return signal
 

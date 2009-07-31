@@ -23,22 +23,28 @@ class ModuleTest(unittest.TestCase):    #保持nrun的有效性
         from StringIO import StringIO
         self.tmp = sys.stdout
         sys.stdout = StringIO()  #将标准I/O流重定向到buff对象，抑制输出
-        #self.old_prepare_configs_A1200 = run.prepare_configs_A1200  #保存run.prepare_configs，因为run/run_mm将重写它
-        #self.old_prepare_configs_A2000 = run.prepare_configs_A2000  #保存run.prepare_configs，因为run/run_mm将重写它
-        #self.old_prepare_configs_A1 = run.prepare_configs_A1  #保存run.prepare_configs，因为run/run_mm将重写它
-        #self.old_prepare_configs_A2 = run.prepare_configs_A2 #保存run.prepare_configs，因为run/run_mm将重写它
-        #self.old_prepare_temp_configs = run.prepare_temp_configs #保存run.prepare_configs，因为run/run_mm将重写它
+        self.old_prepare_configs_A1200 = run.prepare_configs_A1200  #保存run.prepare_configs，因为run/run_mm将重写它
+        self.old_prepare_configs_A2000 = run.prepare_configs_A2000  #保存run.prepare_configs，因为run/run_mm将重写它
+        self.old_prepare_configs_A1 = run.prepare_configs_A1  #保存run.prepare_configs，因为run/run_mm将重写它
+        self.old_prepare_configs_A2 = run.prepare_configs_A2 #保存run.prepare_configs，因为run/run_mm将重写它
+        self.old_prepare_temp_configs = run.prepare_temp_configs #保存run.prepare_configs，因为run/run_mm将重写它
+        self.old_prepare_configs_best = run.prepare_configs_best  #保存run.prepare_configs，因为run/run_mm将重写它
+        self.old_prepare_configs_normal = run.prepare_configs_normal #保存run.prepare_configs，因为run/run_mm将重写它
+        self.old_prepare_configs_others = run.prepare_configs_others  #保存run.prepare_configs，因为run/run_mm将重写它
 
     def tearDown(self):
         sout = sys.stdout.getvalue()
         logger.debug(u'demo测试控制台输出:%s',sout)
         sys.stdout = self.tmp        #恢复标准I/O流
         #print sout
-        #run.prepare_configs_A1200 = self.old_prepare_configs_A1200
-        #run.prepare_configs_A2000 = self.old_prepare_configs_A2000
-        #run.prepare_configs_A1 = self.old_prepare_configs_A1
-        #run.prepare_configs_A2 = self.old_prepare_configs_A2        
-        #run.prepare_temp_configs = self.old_prepare_temp_configs
+        run.prepare_configs_A1200 = self.old_prepare_configs_A1200
+        run.prepare_configs_A2000 = self.old_prepare_configs_A2000
+        run.prepare_configs_A1 = self.old_prepare_configs_A1
+        run.prepare_configs_A2 = self.old_prepare_configs_A2        
+        run.prepare_temp_configs = self.old_prepare_temp_configs
+        run.prepare_configs_best = self.old_prepare_configs_best
+        run.prepare_configs_normal = self.old_prepare_configs_normal        
+        run.prepare_configs_others = self.old_prepare_configs_others
 
     def dummy_prepare_configs(self,seller,pman=None,dman=None):
         config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
@@ -129,8 +135,8 @@ class ModuleTest(unittest.TestCase):    #保持nrun的有效性
     def test_prepare_common_catalog(self):
         begin,end = 20010101,20010701
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        run.prepare_order(sdata.values())        
-        run.prepare_common_catalog(sdata.values(),idata[ref_id])
+        run.prepare_order(catalogs)        
+        run.prepare_common_catalog(catalogs,idata[ref_id])
         self.assertTrue(True)
 
     def test_prepare_index(self):
@@ -143,7 +149,7 @@ class ModuleTest(unittest.TestCase):    #保持nrun的有效性
         begin,end = 20010101,20010701
         xbegin = 20010401
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        run.prepare_temp_configs = run.prepare_configs_A1200 = run.prepare_configs_A2000 = run.prepare_configs_A1 = run.prepare_configs_A2 = self.dummy_prepare_configs
+        run.prepare_configs_best=run.prepare_configs_normal=prepare_configs_others=run.prepare_temp_configs = run.prepare_configs_A1200 = run.prepare_configs_A2000 = run.prepare_configs_A1 = run.prepare_configs_A2 = self.dummy_prepare_configs
         run.run_main(dates,sdata,idata,catalogs,begin,end,xbegin)        
         self.assertTrue(True)
 
@@ -151,7 +157,7 @@ class ModuleTest(unittest.TestCase):    #保持nrun的有效性
         begin,end = 20010101,20010701
         xbegin = 20010401
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        run.prepare_temp_configs = run.prepare_configs_A1200 = run.prepare_configs_A2000 = run.prepare_configs_A1 = run.prepare_configs_A2 = self.dummy_prepare_configs
+        run.prepare_configs_best=run.prepare_configs_normal=prepare_configs_others=run.prepare_temp_configs = run.prepare_configs_A1200 = run.prepare_configs_A2000 = run.prepare_configs_A1 = run.prepare_configs_A2 = self.dummy_prepare_configs
         run.run_last(dates,sdata,idata,catalogs,begin,end,xbegin)        
         self.assertTrue(True)
 
@@ -159,7 +165,7 @@ class ModuleTest(unittest.TestCase):    #保持nrun的有效性
         begin,end = 20010101,20010701
         xbegin = 20010401
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        run.prepare_temp_configs = run.prepare_configs_A1200 = run.prepare_configs_A2000 = run.prepare_configs_A1 = run.prepare_configs_A2 = self.dummy_prepare_configs
+        run.prepare_configs_best=run.prepare_configs_normal=prepare_configs_others=run.prepare_temp_configs = run.prepare_configs_A1200 = run.prepare_configs_A2000 = run.prepare_configs_A1 = run.prepare_configs_A2 = self.dummy_prepare_configs
         run.run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)        
         self.assertTrue(True)
 

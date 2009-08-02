@@ -350,8 +350,6 @@ def cma(stock): #考察cma无限接近
     
     return gand(signal,stock.thumb,stock.above,stock.t5,stock.ma1<stock.ma2)
 
-
-
 def nude(stock):
     linelog(stock.code)
     t = stock.transaction
@@ -1044,7 +1042,8 @@ def xgcs(stock):
 
     vfilter = gand(vma_s > vma_l * 3/2)
 
-    sbuy = gand(stock.golden,stock.silver,stock.above,ma5>stock.ma2,stock.ref.t5,mxi,vfilter)
+    #sbuy = gand(stock.golden,stock.silver,stock.above,ma5>stock.ma2,stock.ref.t5,mxi,vfilter)
+    sbuy = gand(stock.golden,stock.above,ma5>stock.ma2,stock.ref.t5,mxi,vfilter)
 
     return sbuy
 
@@ -1159,7 +1158,7 @@ def tsvama2b(stock,fast=20,slow=170):
     linelog('%s:%s' % (tsvama2b.__name__,stock.code))
     return gand(stock.golden,msvap,stock.above,vfilter,xatr>40)
 
-def pmacd(stock,dates):
+def pmacd(stock):
     t = stock.transaction
     pdiff,pdea = cmacd(t[VOLUME])
     dcross = gand(cross(pdea,pdiff),strend(pdiff)>0,strend(pdea>0))
@@ -1177,14 +1176,13 @@ def pmacd(stock,dates):
     t5,ma_above = stock.ma['t5'],stock.ma['above']
     ma3,ma4,ma120 = stock.ma['20'],stock.ma['60'],stock.ma['120']
     
-    cs = catalog_signal_cs(stock.c60,c_extractor)
+    #cs = catalog_signal_cs(stock.c60,c_extractor)
 
     #return dcross
     #return gand(dcross,g,trend_ma_standard)
-    return gand(dcross,g,ma_above,cs,pdea>0,pdea<12000)
+    return gand(dcross,g,ma_above,pdea>0,pdea<12000)
 
-
-def nhigh(stock,dates):#60高点
+def nhigh(stock):#60高点
     linelog(stock.code)
     t = stock.transaction
     mline = rollx(tmax(t[CLOSE],60)) #以昨日的60高点为准
@@ -1193,7 +1191,7 @@ def nhigh(stock,dates):#60高点
     #linelog(stock.code)
     return gand(g,stock.silver,dcross,strend(stock.ma4)>0,stock.above,stock.t5)
 
-def shigh(stock,dates,sector=HIGH):
+def shigh(stock,sector=HIGH):
     linelog(stock.code)
     t = stock.transaction
     #mline = rollx(tmax(t[HIGH],60)) #以昨日的60高点为准
@@ -1203,7 +1201,7 @@ def shigh(stock,dates,sector=HIGH):
     stock.shigh = nh
     #stock.v = greater(t[VOLUME])
 
-def slow(stock,dates):
+def slow(stock):
     linelog(stock.code)
     t = stock.transaction
     #mline = rollx(tmax(t[HIGH],60)) #以昨日的60高点为准
@@ -1285,7 +1283,7 @@ def tsvama2x(stock,dates):
     linelog('%s:%s' % (tsvama2x.__name__,stock.code))
     return gand(sbuy,stock.above,stock.thumb,stock.silver)
 
-def xma30(stock,dates):
+def xma30(stock):
     t = stock.transaction
     water_line = ma(t[CLOSE],30)
     dcross = cross(water_line,t[LOW])
@@ -2831,14 +2829,18 @@ def xudc(stock):
     mxatr = ma(xatr,7)
     ratr = xatr * BASE / mxatr
 
-    signal = gand(mxc)
+    signal = gand(mxc,xatr>45,stock.above,stock.t5,stock.magic,mcf>1000)    
+
     linelog(stock.code)
     return signal
+
+
+
 
 def nhighc(stock):#60高点
     linelog(stock.code)
     t = stock.transaction
-    mline = rollx(tmax(t[CLOSE],60)) #以昨日的60高点为准
+    mline = rollx(tmax(t[CLOSE],20)) #以昨日的60高点为准
     dcross = cross(mline,t[CLOSE])>0    
     g = gand(stock.g5>=stock.g20,stock.thumb)
     #linelog(stock.code)

@@ -23,28 +23,6 @@ def prepare_temp_configs(seller,pman=None,dman=None):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
 
-    import wolfox.fengine.normal.xrun as x 
-    configs.append(config(buyer=fcustom(s.ldx,aend=75,astart=50,mlen=79)))
-    configs.append(config(buyer=fcustom(s.ldx,aend=95,astart=45,mlen=135)))
-    configs.append(config(buyer=fcustom(s.ldx,aend=85,astart=65,mlen=92)))
-    configs.append(config(buyer=fcustom(s.ldx,aend=80,astart=0,mlen=55)))
-    configs.append(config(buyer=fcustom(s.ldx,aend=80,astart=50,mlen=55)))
-    configs.append(config(buyer=fcustom(s.ldx,aend=75,astart=45,mlen=52)))
-    configs.append(config(buyer=fcustom(s.ldx,aend=75,astart=60,mlen=55)))
-    configs.append(config(buyer=fcustom(s.ldx,aend=75,astart=30,mlen=21)))
-    configs.append(config(buyer=fcustom(s.ldx,aend=85,astart=45,mlen=21)))
-    configs.append(config(buyer=fcustom(s.ldx,aend=80,astart=45,mlen=39)))
-    configs.append(config(buyer=fcustom(s.ldx,aend=95,astart=65,mlen=39)))
-    configs.append(config(buyer=fcustom(s.ldx,aend=95,astart=15,mlen=32)))
-    configs.append(config(buyer=fcustom(s.ldx,aend=85,astart=45,mlen=43)))
-    configs.append(config(buyer=fcustom(s.ldx,aend=80,astart=50,mlen=43)))
-    configs.append(config(buyer=fcustom(s.ldx,aend=95,astart=5,mlen=43)))
-    configs.append(config(buyer=fcustom(s.ldx,aend=95,astart=55,mlen=42)))
-    configs.append(config(buyer=fcustom(s.ldx,aend=85,astart=55,mlen=46)))
-    configs.append(config(buyer=fcustom(s.ldx,aend=95,astart=30,mlen=47)))
-    configs.append(config(buyer=fcustom(s.ldx,aend=95,astart=55,mlen=47)))
-    configs.append(config(buyer=fcustom(s.ldx,aend=85,astart=50,mlen=50)))
-
     return configs
 
 def prepare_configs_A1200(seller,pman,dman):    
@@ -128,7 +106,14 @@ def prepare_configs_best(seller,pman,dman):
 
     configs.append(config(buyer=fcustom(s.ldx,glimit=3000,mlen=60)))
     configs.append(config(buyer=fcustom(s.ldx2,glimit=3333,mlen=30)))
-    configs.append(config(buyer=fcustom(s.ldx2,glimit=3333,aend=50,astart=0,mlen=120)))
+    #configs.append(config(buyer=fcustom(s.ldx2,glimit=3333,aend=50,astart=0,mlen=120)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=95,astart=45,mlen=135)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=85,astart=65,mlen=92)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=75,astart=60,mlen=55)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=95,astart=65,mlen=39)))
+    configs.append(config(buyer=fcustom(s.ldx2,aend=80,astart=70,mlen=41)))
+    configs.append(config(buyer=fcustom(s.ldx2,aend=100,astart=65,mlen=30)))
+ 
     configs.append(config(buyer=fcustom(s.xud,astart=0)))
     configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc0c,astart=0)))  #4/9
     #configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc0,astart=0)))  #1/5 类同xc02，但xc02更好
@@ -200,6 +185,8 @@ def prepare_configs_normal(seller,pman,dman):
     configs.append(config(buyer=s.xma60))
     configs.append(config(buyer=s.xru))
     configs.append(config(buyer=s.mxru))
+    configs.append(config(buyer=fcustom(s.ldx,aend=80,astart=0,mlen=55)))
+    configs.append(config(buyer=fcustom(s.ldx2,aend=80,astart=45,mlen=138)))
     configs.append(config(buyer=fcustom(s.tsvama2a,slow=100,fast=20)))
     configs.append(config(buyer=fcustom(s.tsvama2b,slow=170,fast=20)))
     configs.append(config(buyer=fcustom(s.emv2,slow=275,fast=75)))
@@ -704,10 +691,10 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     
-    #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
     catalog_macd(catalogs)
 

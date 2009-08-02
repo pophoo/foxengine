@@ -14,6 +14,34 @@ from wolfox.fengine.core.source import *
 RFACTOR = 1.0   #实数转换因子
 INDEX_BASE = 1000
 
+def calc_weighted_index(stocks,sector,sbase,weights):
+    ''' 根据权重计算catalog指数
+    '''
+    sectors = extract_collect(stocks,sector)
+    waves = sectors * 1.0 /sbase
+    index = (waves * weights).sum(0)* INDEX_BASE + 0.5    #以便下步取整时四舍五入
+    return np.cast['int'](index)
+
+def calc_indices_base(stocks,mlen=30):
+    ''' 计算catalog指数并返回该指数及相关成员的序列，以第一日收盘为基础
+        mlen=30 保证权重的稳定性,但30日停牌，则对指数无影响
+    '''
+    base = extract_collect(stocks,CLOSE)[:,0]   #以第一个收盘价为基准
+    sbase = base[:,np.newaxis]  #化行为列，便于除法
+    weights = nma2d(extract_collect(stocks,VOLUME),30) #保证权重的稳定性    
+    s_weights = weights * RFACTOR / weights.sum(0)
+    #scores = percent_sort(weights) / (PERCENT_BASE/10) + 1 #0基改为1基, 个数少时有排序失真
+    #s_weights = scores * RFACTOR / scores.sum(0)
+    sopen = calc_weighted_index(stocks,OPEN,sbase,s_weights)
+    sclose = calc_weighted_index(stocks,CLOSE,sbase,s_weights)
+    shigh = calc_weighted_index(stocks,HIGH,sbase,s_weights)
+    slow = calc_weighted_index(stocks,LOW,sbase,s_weights)
+    savg = calc_weighted_index(stocks,AVG,sbase,s_weights)
+    #savg = (sopen+sclose+shigh+slow+2)/4 #不必太认真
+    samount = calc_amount(stocks)
+    svolume = np.cast['int'](samount * 1.0 * BASE / savg)
+    return [sopen,sclose,shigh,slow,savg,samount,svolume]
+
 def calc_index_relative(stocks,sector=CLOSE,weight=AMOUNT,wave = 10):
     ''' 计算catalog指数并返回该指数及相关成员的序列
         按照每日的增长计算，以保持初始日期的相对稳定性
@@ -55,7 +83,7 @@ calc_index = calc_index_relative    #取相对稳定性，舍弃上下一致性。因为catalog_i
 
 def calc_amount(stocks):
     amount = extract_collect(stocks,AMOUNT) * 1.0   #避免溢出
-    sa = amount.sum(0) / BASE  #单位为十万元，避免溢出整数范围
+    sa = amount.sum(0) / BASE  #单位为十万元(百元*千)，避免溢出整数范围
     return np.cast['int'](sa)
 
 def calc_indices(stocks):

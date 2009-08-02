@@ -7153,6 +7153,39 @@ ldx:aend=85,astart=55,mlen=46;5926:10333:20:800:520:68
 ldx:aend=95,astart=55,mlen=47;5850:9750:19:736:498:60
 ldx:aend=85,astart=50,mlen=50;4434:9911:19:789:448:76
 
+
+ldx2:aend=80,astart=50,mlen=37;2048:5793:42:738:258:82
+ldx2:aend=80,astart=70,mlen=41;1000:7781:5:1000:498:0
+ldx2:aend=80,astart=55,mlen=21;4556:12075:23:695:742:106
+ldx2:aend=80,astart=65,mlen=21;7797:13367:7:714:950:84
+ldx2:aend=90,astart=60,mlen=94;9062:15000:14:714:629:48
+ldx2:aend=90,astart=70,mlen=97;17439:20428:8:750:968:41
+ldx2:aend=80,astart=45,mlen=138;10785:26964:6:666:1169:70
+ldx2:aend=90,astart=50,mlen=127;6738:21178:8:750:820:88
+ldx2:aend=90,astart=45,mlen=126;4711:16960:11:727:617:90
+ldx2:aend=80,astart=50,mlen=127;7500:23571:7:714:959:88
+ldx2:aend=80,astart=50,mlen=87;7869:13923:17:705:532:46
+ldx2:aend=90,astart=60,mlen=87;14594:16363:11:727:757:37
+ldx2:aend=80,astart=60,mlen=87;13545:17028:10:800:757:44
+ldx2:aend=80,astart=60,mlen=86;14283:21027:12:750:1027:53
+ldx2:aend=90,astart=45,mlen=30;2610:7444:65:753:293:77
+ldx2:aend=100,astart=65,mlen=30;2650:5578:20:850:264:80
+ldx2:aend=90,astart=60,mlen=32;2540:5666:23:913:251:87
+ldx2:aend=90,astart=65,mlen=29;3093:5800:19:842:290:75
+ldx2:aend=90,astart=70,mlen=29;3163:6928:11:818:377:92
+ldx2:aend=100,astart=55,mlen=110;3918:12608:18:666:473:74
+ldx2:aend=90,astart=55,mlen=101;4631:14080:15:666:567:76
+ldx2:aend=80,astart=55,mlen=101;4494:14814:13:692:617:89
+ldx2:aend=100,astart=55,mlen=106;4792:15375:15:666:592:77
+ldx2:aend=90,astart=60,mlen=109;5671:15200:14:714:559:67
+ldx2:aend=100,astart=60,mlen=109;5671:15200:14:714:559:67
+ldx2:aend=90,astart=60,mlen=103;5910:15230:13:692:603:67
+ldx2:aend=90,astart=60,mlen=98;7814:14551:14:714:613:54
+ldx2:aend=80,astart=60,mlen=109;5317:16148:12:750:609:82
+ldx2:aend=95,astart=65,mlen=103;6698:20592:9:666:875:83
+ldx2:aend=90,astart=70,mlen=106;17658:24133:7:714:1030:41
+
+
 ==>
 configs.append(config(buyer=fcustom(ldx:aend=75,astart=50,mlen=79)))
 configs.append(config(buyer=fcustom(ldx:aend=95,astart=45,mlen=135)))
@@ -7179,19 +7212,35 @@ configs.append(config(buyer=fcustom(ldx:aend=85,astart=50,mlen=50)))
 
 
 20080701-20090731
-ldx:aend=75,astart=50,mlen=79;7916:4523:36:916:210:24
 ldx:aend=95,astart=45,mlen=135;48750:4431:7:857:228:4
 ldx:aend=85,astart=65,mlen=92;5500:3384:8:875:155:24
 ldx:aend=80,astart=0,mlen=55;3113:4583:111:765:232:53
-ldx:aend=80,astart=50,mlen=55;1975:4000:42:809:223:83
 ldx:aend=75,astart=60,mlen=55;3000:4500:22:863:251:69
 ldx:aend=95,astart=65,mlen=39;5820:5820:21:952:308:50
-ldx:aend=95,astart=5,mlen=43;2763:4470:123:747:222:55
-ldx:aend=95,astart=55,mlen=42;2474:5697:40:875:295:99
-ldx:aend=85,astart=55,mlen=46;2726:5452:37:837:289:84
-ldx:aend=95,astart=55,mlen=47;3177:5837:40:875:299:79
-ldx:aend=85,astart=50,mlen=50;2441:4585:41:853:233:77
+ldx2:aend=80,astart=70,mlen=41;1000:7860:16:1000:393:0
+ldx2:aend=80,astart=45,mlen=138;18750:6000:9:777:390:16
+ldx2:aend=100,astart=65,mlen=30;11352:7568:10:900:433:34
 
+
+20010701-20090101
+ldx:aend=95,astart=45,mlen=135;9931:24166:6:666:1124:73
+ldx:aend=85,astart=65,mlen=92;2500:6969:4:750:338:92
+ldx:aend=80,astart=0,mlen=55;3385:8391:25:720:291:57
+ldx:aend=75,astart=60,mlen=55;7116:12558:10:900:481:60
+ldx:aend=95,astart=65,mlen=39;7438:9860:5:800:545:57
+ldx2:aend=80,astart=70,mlen=41;1000:8312:5:1000:532:0
+ldx2:aend=80,astart=45,mlen=138;9259:24193:6:666:1166:81
+ldx2:aend=100,astart=65,mlen=30;5697:6621:19:789:322:43
+
+19990701-20010801
+ldx:aend=95,astart=45,mlen=135;1000:0:0:0:0:0
+ldx:aend=85,astart=65,mlen=92;1000:0:0:0:0:0
+ldx:aend=80,astart=0,mlen=55;-1000:-3700:1:0:0:37
+ldx:aend=75,astart=60,mlen=55;1000:0:0:0:0:0
+ldx:aend=95,astart=65,mlen=39;1000:0:0:0:0:0
+ldx2:aend=80,astart=70,mlen=41;1000:0:0:0:0:0
+ldx2:aend=80,astart=45,mlen=138;1000:0:0:0:0:0
+ldx2:aend=100,astart=65,mlen=30;1000:0:0:0:0:0
 
 
 3. 考虑抓取潜力板块龙头股的方法
@@ -7201,7 +7250,6 @@ ldx:aend=85,astart=50,mlen=50;2441:4585:41:853:233:77
    板块指数计算方法有问题，使得HIGH/LOW差巨大
 
 #2009-08-01
-板块：计算机
 
 catalogs ==> scatalogs: (sdata化)
 
@@ -7210,3 +7258,24 @@ for c in catalogs:
     cs[c.name]=c
     c.code = c.name
 
+
+#2009-08-02
+macd: 计算机
+
+
+best:
+    #600066: tsvama3:follow=6,slow=10,mid=21,fast=7/1000:6742:8:1000:236:0
+    000858: xud0/7333:7542:26:961:276:36
+    002186: tsvama3:follow=4,slow=14,mid=29,fast=7/2279:6739:23:826:203:68
+    002200: tsvama2sbv:follow=3,slow=10,fast=15/1000:4727:10:1000:156:0
+    600290,#600386,600874:   tsvama2sb:follow=2,slow=192,fast=6/8260:5757:5:800:244:23
+normal:
+    600066: tsvama2sbv:follow=3,slow=42,fast=6/2795:5480:21:714:212:49
+    600386: tsvama2sb:follow=2,slow=206,fast=6/2131:5062:4:750:242:76
+    #002011: tsvama2sbv:follow=5,slow=28,fast=10/3775:8423:29:724:324:58 
+other:  忽略
+
+核查之后,三个个股
+600386: 目标 25%,止损5%
+002011: 目标 32%,止损6%
+600066: 目标 24%,止损5%

@@ -6,6 +6,38 @@ from wolfox.fengine.core.d1catalog import *
 
 
 class ModuleTest(unittest.TestCase):
+    def test_calc_weighted_base(self):
+        a = np.array([(0,0,0,0),(500,400,800,500),(0,0,0,0),(0,0,0,0),(500,500,500,500),(5000,4000,8000,5000),(1000,1000,1000,1000)])
+        b = np.array([(0,0,0,0),(200,200,200,200),(0,0,0,0),(0,0,0,0),(500,500,500,500),(0,0,4000,4000),(0,0,2000,1000)])
+        c = np.array([(0,0,0,0),(700,500,500,700),(0,0,0,0),(0,0,0,0),(500,500,500,500),(7000,5000,0,4000),(1000,1000,0,1000)])
+        sa = CommonObject(id=0,transaction=a)
+        sb = CommonObject(id=1,transaction=b)
+        sc = CommonObject(id=2,transaction=c) 
+        ss = [sa,sb,sc]
+        base = extract_collect(ss,CLOSE)[:,0]
+        sbase = base[:,np.newaxis]
+        weights = nma2d(extract_collect(ss,VOLUME),30)
+        s_weights = weights * RFACTOR / weights.sum(0)
+        index = calc_weighted_index(ss,CLOSE,sbase,s_weights)
+        self.assertEquals([1000,757,1175,1000],index.tolist())
+
+    def test_calc_indices_base(self):
+        a = np.array([(0,0,0,0),(500,400,800,500),(0,0,0,0),(0,0,0,0),(500,500,500,500),(5000,4000,8000,5000),(1000,1000,1000,1000)])
+        b = np.array([(0,0,0,0),(200,200,200,200),(0,0,0,0),(0,0,0,0),(500,500,500,500),(0,0,4000,4000),(0,0,2000,1000)])
+        c = np.array([(0,0,0,0),(700,500,500,700),(0,0,0,0),(0,0,0,0),(500,500,500,500),(7000,5000,0,4000),(1000,1000,0,1000)])
+        sa = CommonObject(id=0,transaction=a)
+        sb = CommonObject(id=1,transaction=b)
+        sc = CommonObject(id=2,transaction=c) 
+        ss = [sa,sb,sc]
+        indices = calc_indices_base(ss)
+        self.assertEquals([0,0,0,0],indices[OPEN].tolist())
+        self.assertEquals([1000,757,1175,1000],indices[CLOSE].tolist())
+        self.assertEquals([0,0,0,0],indices[HIGH].tolist())
+        self.assertEquals([0,0,0,0],indices[LOW].tolist())
+        self.assertEquals([857,857,1347,1364],indices[AVG].tolist())        
+        self.assertEquals([12,9,12,13],indices[AMOUNT].tolist())
+        self.assertEquals([14,10,8,9],indices[VOLUME].tolist())        
+
     def test_calc_index_relative(self):
         a = np.array([(0,0,0,0),(500,400,800,500),(0,0,0,0),(0,0,0,0),(0,0,0,0),(5000,4000,8000,5000),(1000,1000,1000,1000)])
         b = np.array([(0,0,0,0),(200,200,200,200),(0,0,0,0),(0,0,0,0),(0,0,0,0),(0,0,4000,4000),(0,0,2000,1000)])

@@ -482,6 +482,7 @@ def prepare_common_catalog(catalogs,ref):
         s.code = s.name
         s.ref = ref
         c = s.transaction[CLOSE]
+        v = s.transaction[VOLUME]        
         s.ma1= ma(c,7)
         s.ma2 = ma(c,13)
         s.ma3 = ma(c,30)
@@ -500,6 +501,8 @@ def prepare_common_catalog(catalogs,ref):
         s.ks = subd(c) * BASE / rollx(c)
         s.diff,s.dea = cmacd(c)
         s.atr = atr(c,s.transaction[HIGH],s.transaction[LOW],20)
+        s.svap_ma_67 = svap_ma(v,c,67)
+        s.svap_ma_67_2 = svap_ma(v,c,67,weight=2)
 
 def prepare_index(index):
     index.pdiff,index.pdea = cmacd(index.transaction[CLOSE])
@@ -516,14 +519,14 @@ def run_body(sdata,dates,begin,end,xbegin):
     #seller = csc_func
     #seller = fcustom(csc_func,threshold=100)
     
-    configs = prepare_temp_configs(seller1200,pman,dman)
+    #configs = prepare_temp_configs(seller1200,pman,dman)
     #configs = prepare_temp_configs(seller2000,pman,dman)
     #configs = prepare_configs_A2000(seller2000,pman,dman)
     #configs.extend(prepare_configs_A2000(seller2000,pman,dman))
     #configs = prepare_configs_A0(seller1200,pman,dman)
-    #configs = prepare_configs_best(seller1200,pman,dman)
-    #configs.extend(prepare_configs_normal(seller1200,pman,dman))    
-    #configs.extend(prepare_configs_others(seller1200,pman,dman))    
+    configs = prepare_configs_best(seller1200,pman,dman)
+    configs.extend(prepare_configs_normal(seller1200,pman,dman))    
+    configs.extend(prepare_configs_others(seller1200,pman,dman))    
     
     #configs = prepare_configs_A1200(seller1200,pman,dman)
     #configs.extend(prepare_configs_A0(seller1200,pman,dman))    
@@ -582,15 +585,12 @@ def prepare_next(sdata,idata,catalogs):
     dummy_catalogs('catalog',catalogs)
 
 def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
-    prepare_next(sdata,idata,catalogs)
     run_body(sdata,dates,begin,end,xbegin)
 
 def run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin):
-    prepare_next(sdata,idata,catalogs)
     run_merge_body(sdata,dates,begin,end,xbegin)
 
 def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
-    prepare_next(sdata,idata,catalogs)
     from time import time
     tbegin = time()
 
@@ -658,7 +658,7 @@ if __name__ == '__main__':
     #总时间段   [20000101,20010701,20090101]    #一个完整的周期+一个下降段
     #分段测试的要求，段mm > 1000-1500或抑制，总段mm > 2000
     
-    #begin,xbegin,end = 20000101,20010701,20090101
+    begin,xbegin,end = 20000101,20010701,20090101
     #begin,xbegin,end = 19980101,20010701,20090101
     #begin,xbegin,end = 20000101,20010701,20050901
     #begin,xbegin,end = 19980101,19990701,20010801    
@@ -667,13 +667,15 @@ if __name__ == '__main__':
     #begin,xbegin,end = 19980101,19990101,20090101
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
-    begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201
+    #begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201
     #begin,xbegin,end,lbegin = 20090301,20090401,20090501,20090501
     from time import time
     tbegin = time()
     
     dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
     sdata.update(idata) #合并指数
+    scatalog = dict([(c.name,c) for c in catalogs])
+    prepare_next(sdata,idata,catalogs)
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
@@ -692,9 +694,10 @@ if __name__ == '__main__':
     psyco.full()
 
     #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    run_main(dates,scatalog,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     
-    run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
     catalog_macd(catalogs)
 

@@ -18,7 +18,7 @@ logger = logging.getLogger('wolfox.fengine.core.cruiser.customcruiser')
 class LdxCruiser(GeneticCruiser):
     def prepare(self):
         self.args = dict(mlen=range(1,300),astart=range(0,101,5),aend=range(0,101,5))
-        self.buy_func = ldx
+        self.buy_func = ldxc
         #self.sell_func = csc_func
         self.sell_func =  atr_seller_factory(stop_times=1200,trace_times=3000)
         self.predefined = []
@@ -52,7 +52,7 @@ class Ldx2Cruiser(GeneticCruiser):
 class Ma2sCruiser(GeneticCruiser):
     def prepare(self):
         self.args = dict(fast=range(1,120),slow=range(5,300),follow=range(1,11))
-        self.buy_func = ma2s
+        self.buy_func = ma2c
         #self.sell_func = csc_func
         self.sell_func =  atr_seller_factory(stop_times=1200,trace_times=3000)
         self.predefined = []
@@ -148,7 +148,7 @@ class Emv2Cruiser(GeneticCruiser):
 class TSvama2Cruiser(GeneticCruiser):
     def prepare(self):
         self.args = dict(fast=range(1,60,2),slow=range(5,300,2),bxatr=range(10,90,10))
-        self.buy_func = tsvama2
+        self.buy_func = tsvama2c
         #self.sell_func = csc_func
         self.sell_func =  atr_seller_factory(stop_times=1200,trace_times=3000)
         self.predefined = []
@@ -368,7 +368,7 @@ class Ma3MMCruiser(MM_GeneticCruiser):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(filename="custom_cruiser_mm_5.log",level=logging.DEBUG,format='#%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
+    logging.basicConfig(filename="custom_cruiser_mm_6.log",level=logging.DEBUG,format='#%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 
     begin,end = 20000101,20090101
     tbegin = 20010701
@@ -411,9 +411,18 @@ if __name__ == '__main__':
     #cruiser = TSvama2sbvCruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
     #cruiser = TSvama2sbCruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小    
     #cruiser = Ma2sCruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
-    cruiser = Ldx2Cruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
-    cruiser.gcruise(sdata,dates,tbegin)    
     
+    #cruiser = Ldx2Cruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
+    #cruiser.gcruise(sdata,dates,tbegin)    
+    scatalog = dict([(c.name,c) for c in catalogs])
+
+    #cruiser = TSvama2Cruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
+    
+    cruiser = Ma2sCruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
+    cruiser.gcruise(scatalog,dates,tbegin)
+    #cruiser = LdxCruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
+    #cruiser.gcruise(scatalog,dates,tbegin)
+
     #cruiser = Svama3bMMCruiser(psize=500,maxstep=100,goal=200000000)    #goal不能太小
     #cruiser.gcruise(sdata,dates,tbegin)
     #logger.debug('*****************csvama3 begin**********************')

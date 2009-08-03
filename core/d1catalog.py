@@ -207,6 +207,17 @@ def catalog_signal_m(func,*catalogs):
     pairs = zip(*vvs)
     return gor(*[func(*pair) for pair in pairs])
 
+def catalog_signal_n(func,*catalogs):
+    ''' 对catalogs中的各个catalog，按照顺序将其第n个value取出来，作为func的参数运算，最后or这些结果
+        即gor(func(catalog1.values()[0],catalog2.values()[0],...),...,func(catalog1.values()[-1],catalog2.values()[-1]...))
+        主要用于不同周期的catalog之间的比较,如c20,c60,c120的第一分量的比较
+        这里依赖于不同dict之间同样的keys(插入序一致)的排序是一样的. 
+            经过手工测试，这个貌似是正确的。而且理论上也该如此，key的顺序应当是稳定的(至少在插入顺序一致时)
+    '''
+    vvs = [ c.values() for c in catalogs ]
+    pairs = zip(*vvs)
+    return gand(*[func(*pair) for pair in pairs])
+
 #deprecated
 def calc_index_adjacent(stocks,sector=CLOSE):
     ''' 邻接法计算catalog指数并返回该指数及相关成员的序列

@@ -14,6 +14,15 @@ from wolfox.fengine.core.base import cache
 
 logger = logging.getLogger('wolfox.fengine.core.shortcut')
 
+def signals_maker(buyers):
+    def col_buyer(stock):
+        t = stock.transaction
+        src = np.zeros_like(t[CLOSE])
+        for buyer in buyers:
+            src = bor(src,buyer(stock))
+        return src
+    return col_buyer
+
 def csc_func(stock,buy_signal,threshold=75,**kwargs):   #kwargs目的是吸收无用参数，便于cruiser
     t = stock.transaction
     return d1id.confirmedsellc(buy_signal,t[OPEN],t[CLOSE],t[HIGH],t[LOW],threshold)

@@ -182,6 +182,13 @@ def catalog_signal_cs(cata_info,extractor):
     '''
     return gor(*[extractor(c,s) for c,s in cata_info.items()])
 
+def catalog_signal_cs_and(cata_info,extractor):
+    ''' 查看cata_info中各要素信号都符合catalog符合extractor
+        cata_info:  {catalog ==> stock_order_in_catalog}
+        extractor: catalog,stock ==> signal序列的函数，如 lambda c,s:band(c.g60 > 5000,s.g60>5000)
+    '''
+    return gand(*[extractor(c,s) for c,s in cata_info.items()])
+
 def catalog_signal_c(cata_info,extractor):
     ''' 查看cata_info中是否存在catalog符合extractor的信号
         cata_info:  {catalog ==> stock_order_in_catalog}

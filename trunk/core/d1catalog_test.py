@@ -132,6 +132,15 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,1,1,1],catalog_signal_cs(cata_info,lambda c,s:band(c.gorder>=7500,s>=1000)).tolist())        
         self.assertEquals([0,0,0,0],catalog_signal_cs(cata_info,lambda c,s:band(c.gorder>=8001,s>=8001)).tolist())
 
+    def test_catalog_signal_cs_and(self):
+        c1 = CommonObject(id=1,gorder=np.array([0,0,7500,7500]))
+        c2 = CommonObject(id=1,gorder=np.array([0,7500,0,7500]))
+        c3 = CommonObject(id=1,gorder=np.array([0,7500,0,7500]))
+        cata_info = {c1:np.array([1000,1000,1000,8000]),c2:np.array([8000,8000,0,0]),c3:np.array([8000,8000,0,0])}
+        self.assertEquals([0,0,0,0],catalog_signal_cs_and(cata_info,lambda c,s:band(c.gorder>=7500,s>=7500)).tolist())
+        self.assertEquals([0,0,0,1],catalog_signal_cs_and(cata_info,lambda c,s:band(c.gorder>=7500,s>=0)).tolist())        
+        self.assertEquals([1,1,0,0],catalog_signal_cs_and(cata_info,lambda c,s:band(c.gorder>=0,s>=1000)).tolist())
+
     def test_catalog_signal_c(self):
         c1 = CommonObject(id=1,gorder=np.array([0,0,7500,7500]))
         c2 = CommonObject(id=1,gorder=np.array([0,7500,0,7500]))

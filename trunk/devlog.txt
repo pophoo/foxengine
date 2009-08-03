@@ -331,15 +331,7 @@ psyco.full()
 
 import wolfox.fengine.normal.nrun as nrun
 import wolfox.fengine.normal.xrun as x
-nrun.prepare_order(sdata.values())
-nrun.prepare_order(idata.values())
-nrun.prepare_order(catalogs)
-nrun.prepare_common(sdata.values(),idata[ref_id])
-nrun.prepare_common(idata.values(),idata[ref_id])
-nrun.prepare_common_catalog(catalogs,idata[ref_id])
-nrun.prepare_index(idata[1])
-#nrun.prepare_order(idata.values())
-dummy_catalogs('catalog',catalogs)
+nrun.prepare_next(sdata,idata,catalogs)
 pman = AdvancedATRPositionManager()
 dman = XDateManager(dates)
 myMediator=nmediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
@@ -7089,7 +7081,8 @@ for fiter in ppat.finditer(sss):
     ltotal = int(fiter.group('ltotal'))
     cwin = wtotal / wtimes if wtimes else 0
     clost = ltotal / ltimes if ltimes else 0
-    print >>sout,'%s;%s:%s:%s:%s:%s:%s' % (name,R,efficency,times,wrate,cwin,clost)
+    if times>=3 and wrate >= 666 and (clost == 0 or cwin/clost>=4):
+        print >>sout,'%s;%s:%s:%s:%s:%s:%s' % (name,R,efficency,times,wrate,cwin,clost)
 
 print sout.getvalue()
 sout.close()
@@ -7281,3 +7274,37 @@ other:  忽略
 600066: 目标 24%,止损5%
 
 发现地产指数先于大盘见顶
+
+##指数
+tsvama2c:bxatr=60,slow=161,fast=1;1000:3250:5:1000:130:0
+tsvama2c:bxatr=40,slow=93,fast=19;13944:6121:3:666:386:18
+tsvama2c:bxatr=30,slow=73,fast=49;15363:9053:8:750:687:33
+
+ma2s:follow=5,slow=11,fast=6;6742:9468:9:777:591:66
+
+ldxc:aend=85,astart=50,mlen=55;5625:5400:9:888:155:24
+ldxc:aend=100,astart=45,mlen=13;8812:7833:22:681:429:32
+
+ma2c:follow=6,slow=109,fast=93;3608:5933:3:666:437:74
+ma2c:follow=9,slow=134,fast=101;4948:6106:5:800:373:58
+ma2c:follow=10,slow=218,fast=60;6000:5523:3:666:551:58
+ma2c:follow=3,slow=121,fast=85;8018:8333:3:666:664:53
+ma2c:follow=6,slow=142,fast=82;9127:9573:4:750:1075:86
+
+
+===>
+configs.append(config(buyer=fcustom(tsvama2c:bxatr=60,slow=161,fast=1)))
+configs.append(config(buyer=fcustom(tsvama2c:bxatr=40,slow=93,fast=19)))
+configs.append(config(buyer=fcustom(tsvama2c:bxatr=30,slow=73,fast=49)))
+
+configs.append(config(buyer=fcustom(ma2s:follow=5,slow=11,fast=6)))
+
+configs.append(config(buyer=fcustom(ldxc:aend=85,astart=50,mlen=55)))
+configs.append(config(buyer=fcustom(ldxc:aend=100,astart=45,mlen=13)))
+
+configs.append(config(buyer=fcustom(ma2c:follow=6,slow=109,fast=93)))
+configs.append(config(buyer=fcustom(ma2c:follow=9,slow=134,fast=101)))
+configs.append(config(buyer=fcustom(ma2c:follow=10,slow=218,fast=60)))
+configs.append(config(buyer=fcustom(ma2c:follow=3,slow=121,fast=85)))
+configs.append(config(buyer=fcustom(ma2c:follow=6,slow=142,fast=82)))
+

@@ -165,6 +165,12 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([1,0,0,0],catalog_signal_m(lambda x,y:x>y,cata_info,cata_info2).tolist())
         self.assertEquals([0,1,1,1],catalog_signal_m(lambda x,y:x==y,cata_info,cata_info2).tolist())
 
+    def test_catalog_signal_n(self):
+        c1 = CommonObject(id=1,gorder=np.array([0,0,7500,7500]))
+        c2 = CommonObject(id=1,gorder=np.array([0,7500,0,7500]))
+        c3 = CommonObject(id=1,gorder=np.array([0,7500,0,7500]))
+        cata_info = {c1:np.array([1000,1000,1000,8000]),c2:np.array([8000,8000,0,0]),c3:np.array([8000,8000,0,0])}
+        self.assertEquals([1,1,0,0],catalog_signal_n(lambda x,y:band(x,y),cata_info,cata_info).tolist())
 
     #deprecated
     def test_calc_index_adjacent(self):

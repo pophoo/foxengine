@@ -312,12 +312,12 @@ from time import time
 import logging
 logging.basicConfig(filename="xx4c.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 #begin,xbegin,end = 19980101,20010701,20091231
-#begin,xbegin,end = 20000101,20010701,20090101
+begin,xbegin,end = 20000101,20010701,20090101
 ##begin,xbegin,end = 20000101,20010701,20091231
 #begin,xbegin,end = 20050101,20060701,20091231
 #begin,xbegin,end = 20070101,20080601,20091231
 #begin,xbegin,end = 20060101,20080601,20091231
-begin,xbegin,end = 20060101,20080701,20091201
+#begin,xbegin,end = 20060101,20080701,20091201
 #begin,xbegin,end = 20000101,20010701,20090101
 #begin,xbegin,end = 19970101,19980101,20010701
 
@@ -7081,7 +7081,8 @@ for fiter in ppat.finditer(sss):
     ltotal = int(fiter.group('ltotal'))
     cwin = wtotal / wtimes if wtimes else 0
     clost = ltotal / ltimes if ltimes else 0
-    if times>=3 and wrate >= 666 and (clost == 0 or cwin/clost>=4):
+    #if times>=3 and wrate >= 666 and (clost == 0 or cwin/clost>=4):
+    if wrate >= 666 :#and (clost == 0 or cwin/clost>=4):
         print >>sout,'%s;%s:%s:%s:%s:%s:%s' % (name,R,efficency,times,wrate,cwin,clost)
 
 print sout.getvalue()
@@ -7291,20 +7292,84 @@ ma2c:follow=10,slow=218,fast=60;6000:5523:3:666:551:58
 ma2c:follow=3,slow=121,fast=85;8018:8333:3:666:664:53
 ma2c:follow=6,slow=142,fast=82;9127:9573:4:750:1075:86
 
+ma2c:follow=1,slow=122,fast=79;6974:6044:3:666:427:39
+ma2c:follow=3,slow=25,fast=17;5385:6531:6:666:489:57
+ma2c:follow=1,slow=136,fast=65;1000:6166:3:1000:370:0
+ma2c:follow=6,slow=143,fast=75;7582:10808:3:666:796:67
+ma2c:follow=3,slow=126,fast=60;30882:6176:3:666:796:17
+ma2c:follow=6,slow=116,fast=90;10943:9062:4:750:792:53
+ma2c:follow=6,slow=113,fast=92;13226:10159:3:666:1078:53
 
 ===>
-configs.append(config(buyer=fcustom(tsvama2c:bxatr=60,slow=161,fast=1)))
-configs.append(config(buyer=fcustom(tsvama2c:bxatr=40,slow=93,fast=19)))
-configs.append(config(buyer=fcustom(tsvama2c:bxatr=30,slow=73,fast=49)))
+configs.append(config(buyer=fcustom(tsvama2c,bxatr=60,slow=161,fast=1)))
+configs.append(config(buyer=fcustom(tsvama2c,bxatr=40,slow=93,fast=19)))
+configs.append(config(buyer=fcustom(tsvama2c,bxatr=30,slow=73,fast=49)))
 
-configs.append(config(buyer=fcustom(ma2s:follow=5,slow=11,fast=6)))
+configs.append(config(buyer=fcustom(ma2s,follow=5,slow=11,fast=6)))
 
-configs.append(config(buyer=fcustom(ldxc:aend=85,astart=50,mlen=55)))
-configs.append(config(buyer=fcustom(ldxc:aend=100,astart=45,mlen=13)))
+configs.append(config(buyer=fcustom(ldxc,aend=85,astart=50,mlen=55)))
+configs.append(config(buyer=fcustom(ldxc,aend=100,astart=45,mlen=13)))
 
-configs.append(config(buyer=fcustom(ma2c:follow=6,slow=109,fast=93)))
-configs.append(config(buyer=fcustom(ma2c:follow=9,slow=134,fast=101)))
-configs.append(config(buyer=fcustom(ma2c:follow=10,slow=218,fast=60)))
-configs.append(config(buyer=fcustom(ma2c:follow=3,slow=121,fast=85)))
-configs.append(config(buyer=fcustom(ma2c:follow=6,slow=142,fast=82)))
+configs.append(config(buyer=fcustom(ma2c,follow=6,slow=109,fast=93)))
+configs.append(config(buyer=fcustom(ma2c,follow=9,slow=134,fast=101)))
+configs.append(config(buyer=fcustom(ma2c,follow=10,slow=218,fast=60)))
+configs.append(config(buyer=fcustom(ma2c,follow=3,slow=121,fast=85)))
+configs.append(config(buyer=fcustom(ma2c,follow=6,slow=142,fast=82)))
 
+configs.append(config(buyer=fcustom(ma2c,follow=1,slow=122,fast=79)))
+configs.append(config(buyer=fcustom(ma2c,follow=3,slow=25,fast=17)))
+configs.append(config(buyer=fcustom(ma2c,follow=1,slow=136,fast=65)))
+configs.append(config(buyer=fcustom(ma2c,follow=6,slow=143,fast=75)))
+configs.append(config(buyer=fcustom(ma2c,follow=3,slow=126,fast=60)))
+configs.append(config(buyer=fcustom(ma2c,follow=6,slow=116,fast=90)))
+configs.append(config(buyer=fcustom(ma2c,follow=6,slow=113,fast=92)))
+
+====>   20080701-20090803之后
+tsvama2c:bxatr=30,slow=73,fast=49;1000:5800:3:1000:377:0
+ma2s:follow=5,slow=11,fast=6;2698:5296:4:750:208:53
+ldxc:aend=85,astart=50,mlen=55;1000:6575:1:1000:434:0
+ma2c:follow=9,slow=134,fast=101;1000:3977:1:1000:346:0
+ma2c:follow=3,slow=121,fast=85;1000:4557:2:1000:319:0
+ma2c:follow=1,slow=122,fast=79;1000:4166:1:1000:175:0
+
+===>
+configs.append(config(buyer=fcustom(tsvama2c,bxatr=30,slow=73,fast=49)))
+configs.append(config(buyer=fcustom(ma2s,follow=5,slow=11,fast=6)))
+configs.append(config(buyer=fcustom(ldxc,aend=85,astart=50,mlen=55)))
+configs.append(config(buyer=fcustom(ma2c,follow=9,slow=134,fast=101)))
+configs.append(config(buyer=fcustom(ma2c,follow=3,slow=121,fast=85)))
+
+buyers=[]
+buyers.append(fcustom(x.tsvama2c,bxatr=30,slow=73,fast=49))
+buyers.append(fcustom(x.ma2s,follow=5,slow=11,fast=6))
+buyers.append(fcustom(x.ldxc,aend=85,astart=50,mlen=55))
+buyers.append(fcustom(x.ma2c,follow=9,slow=134,fast=101))
+buyers.append(fcustom(x.ma2c,follow=3,slow=121,fast=85))
+
+
+#2009-08-03
+macd: 山西
+
+个股
+best:
+    #600467: tsvama2sbv:follow=2,slow=42,fast=7/1000:6500:8:1000:221:0
+            tsvama3:follow=6,slow=10,mid=21,fast=7/1000:6742:8:1000:236:0
+    #002137: tsvama2sbv:follow=2,slow=42,fast=7/1000:6500:8:1000:221:0
+    600203: emv1:fast=98/4909:8181:12:833:335:55
+    #002055: emv1:fast=98/4909:8181:12:833:335:55
+            emv1b:base=120,fast=27/5750:7666:18:833:341:48
+            emv1b:base=120,fast=15/6631:7411:22:954:266:38
+            emv2:slow=8,fast=3/3745:5305:55:800:252:51
+    #600797: tsvama3:follow=4,slow=14,mid=29,fast=7/2279:6739:23:826:203:68
+    600962: tsvama2sbv:follow=3,slow=10,fast=15/1000:4727:10:1000:156:0
+            emv2:slow=8,fast=3/3745:5305:55:800:252:51
+    600220: tsvama2sb:follow=2,slow=192,fast=6/8260:5757:5:800:244:23
+    600981: emv1b:base=120,fast=40/4076:5578:24:958:224:52
+            emv2:slow=8,fast=3/3745:5305:55:800:252:51
+    600127: emv2:slow=8,fast=3/3745:5305:55:800:252:51
+    600290: emv2:slow=8,fast=3/3745:5305:55:800:252:51
+    #002032: emv2:slow=8,fast=3/3745:5305:55:800:252:51
+    600439: tsvama3b:follow=1,slow=60,mid=35,fast=9/1774:4782:6:833:145:62
+normal:
+    159902: ma2s:follow=2,slow=16,fast=3/2000:5600:18:666:196:56
+    余略

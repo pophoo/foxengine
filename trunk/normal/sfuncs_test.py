@@ -202,6 +202,20 @@ class ModuleTest(unittest.TestCase):    #通路测试
         sbuy = ma2sv(self.stock,10,20)
         self.assertTrue(True)
 
+    def test_ma2c(self):
+        sbuy = ma2c(self.stock,10,20)
+        self.assertTrue(True)
+
+    def test_ldxc(self):
+        sbuy = ldxc(self.stock)
+        sbuy = ldxc(self.stock,30,3333)
+        self.assertTrue(True)
+
+    def test_tsvama2c(self):
+        sbuy = tsvama2c(self.stock,5,20)
+        self.assertTrue(True)
+
+
 if __name__ == "__main__":
     logging.basicConfig(filename="test.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
     unittest.main()

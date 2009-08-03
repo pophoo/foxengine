@@ -25,7 +25,7 @@ from wolfox.fengine.core.d1idiom import up_under,upconfirm,downup,swingin,atr_se
 from wolfox.fengine.core.d2 import dispatch,cdispatch,posort,percent_sort,npercent,percent,nincrease,c_posort,d_posort,dummy_catalogs
 from wolfox.fengine.core.base import BaseObject,CommonObject,get_all_catalogs
 from wolfox.fengine.core.base import OPEN,CLOSE,HIGH,LOW,AVG,AMOUNT,VOLUME,T_SECTORS
-from wolfox.fengine.core.d1catalog import calc_index,calc_indices_base,catalog_signal,catalog_signal_cs,catalog_signal_c,catalog_signal_m
+from wolfox.fengine.core.d1catalog import calc_index,calc_indices_base,catalog_signal,catalog_signal_cs,catalog_signal_cs_and,catalog_signal_c,catalog_signal_m
 from wolfox.fengine.core.source import get_ref_dates,prepare_data,get_codes,get_codes_startswith
 from wolfox.fengine.core.d1match import make_trade_signal
 from wolfox.fengine.core.trade import make_trades,last_trade

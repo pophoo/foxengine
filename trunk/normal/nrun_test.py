@@ -78,6 +78,9 @@ class ModuleTest(unittest.TestCase):    #保持nrun的有效性
         configs = run.prepare_configs_A0(seller,pman,dman)
         self.assertTrue(len(configs) >= 0)
 
+    def test_prepare_catalog_buyers(self):
+        self.assertTrue(len(run.prepare_catalog_buyers())>0)
+
     def test_prepare_configs_best(self):
         pman = AdvancedATRPositionManager()
         dman = XDateManager([20010101,20040101])
@@ -135,7 +138,9 @@ class ModuleTest(unittest.TestCase):    #保持nrun的有效性
     def test_prepare_common_catalog(self):
         begin,end = 20010101,20010701
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        run.prepare_order(catalogs)        
+        run.prepare_order(catalogs)
+        run.prepare_order(idata.values())
+        run.prepare_common(idata.values(),idata[ref_id])
         run.prepare_common_catalog(catalogs,idata[ref_id])
         self.assertTrue(True)
 

@@ -6,6 +6,19 @@ from wolfox.fengine.core.base import CommonObject
 from wolfox.fengine.core.shortcut import *
 
 class ModuleTest(unittest.TestCase):    #只测试通道
+    def test_signals_maker(self):
+        buyer1 = lambda stock:np.array([0,1,1])
+        buyer2 = lambda stock:np.array([1,0,1])
+        buyer3 = lambda stock:np.array([0,0,1])
+        a = np.array([(1,2,1),(1,3,4),(1,5,6),(1,7,8),(1,9,10),(1,11,12),(1,13,14)])
+        sa = CommonObject(id=3,transaction=a)
+        m1 = signals_maker([buyer1,buyer2])
+        self.assertEquals([1,1,1],m1(sa).tolist())
+        m2 = signals_maker([buyer1,buyer3])
+        self.assertEquals([0,1,1],m2(sa).tolist())        
+        m3 = signals_maker([buyer2,buyer3])
+        self.assertEquals([1,0,1],m3(sa).tolist())        
+
     def test_csc_func(self):
         a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
         sa = CommonObject(id=3,transaction=a)

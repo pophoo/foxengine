@@ -23,6 +23,31 @@ def prepare_temp_configs(seller,pman=None,dman=None):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
 
+    import wolfox.fengine.normal.xrun as x
+    configs.append(config(buyer=fcustom(x.tsvama2c,bxatr=60,slow=161,fast=1)))
+    configs.append(config(buyer=fcustom(x.tsvama2c,bxatr=40,slow=93,fast=19)))
+    configs.append(config(buyer=fcustom(x.tsvama2c,bxatr=30,slow=73,fast=49)))
+
+    configs.append(config(buyer=fcustom(x.ma2s,follow=5,slow=11,fast=6)))
+
+    configs.append(config(buyer=fcustom(x.ldxc,aend=85,astart=50,mlen=55)))
+    configs.append(config(buyer=fcustom(x.ldxc,aend=100,astart=45,mlen=13)))
+
+    configs.append(config(buyer=fcustom(x.ma2c,follow=6,slow=109,fast=93)))
+    configs.append(config(buyer=fcustom(x.ma2c,follow=9,slow=134,fast=101)))
+    configs.append(config(buyer=fcustom(x.ma2c,follow=10,slow=218,fast=60)))
+    configs.append(config(buyer=fcustom(x.ma2c,follow=3,slow=121,fast=85)))
+    configs.append(config(buyer=fcustom(x.ma2c,follow=6,slow=142,fast=82)))
+
+    configs.append(config(buyer=fcustom(x.ma2c,follow=1,slow=122,fast=79)))
+    configs.append(config(buyer=fcustom(x.ma2c,follow=3,slow=25,fast=17)))
+    configs.append(config(buyer=fcustom(x.ma2c,follow=1,slow=136,fast=65)))
+    configs.append(config(buyer=fcustom(x.ma2c,follow=6,slow=143,fast=75)))
+    configs.append(config(buyer=fcustom(x.ma2c,follow=3,slow=126,fast=60)))
+    configs.append(config(buyer=fcustom(x.ma2c,follow=6,slow=116,fast=90)))
+    configs.append(config(buyer=fcustom(x.ma2c,follow=6,slow=113,fast=92)))
+
+
     return configs
 
 def prepare_configs_A1200(seller,pman,dman):    
@@ -51,6 +76,15 @@ def prepare_configs_A2000(seller,pman,dman):    #R>=400,winrate>400 or R>=1000,w
     #暂时停止<600,以及次数小于15的方法
     
     return configs
+
+def prepare_catalog_buyers():
+    buyers=[]
+    buyers.append(fcustom(s.tsvama2c,bxatr=30,slow=73,fast=49))
+    buyers.append(fcustom(s.ma2s,follow=5,slow=11,fast=6))
+    buyers.append(fcustom(s.ldxc,aend=85,astart=50,mlen=55))
+    buyers.append(fcustom(s.ma2c,follow=9,slow=134,fast=101))
+    buyers.append(fcustom(s.ma2c,follow=3,slow=121,fast=85))
+    return buyers
 
 def prepare_configs_best(seller,pman,dman):
     ''' #wrate>=800,且clost<100
@@ -477,6 +511,7 @@ def prepare_common(sdata,ref):
             s.xchange = v / 10  #假设s.ag=10000
 
 def prepare_common_catalog(catalogs,ref):
+    smaker = signals_maker(prepare_catalog_buyers())
     for s in catalogs:
         #print s.code
         s.code = s.name
@@ -503,6 +538,7 @@ def prepare_common_catalog(catalogs,ref):
         s.atr = atr(c,s.transaction[HIGH],s.transaction[LOW],20)
         s.svap_ma_67 = svap_ma(v,c,67)
         s.svap_ma_67_2 = svap_ma(v,c,67,weight=2)
+        s.csignal = smaker(s)
 
 def prepare_index(index):
     index.pdiff,index.pdea = cmacd(index.transaction[CLOSE])
@@ -519,14 +555,14 @@ def run_body(sdata,dates,begin,end,xbegin):
     #seller = csc_func
     #seller = fcustom(csc_func,threshold=100)
     
-    #configs = prepare_temp_configs(seller1200,pman,dman)
+    configs = prepare_temp_configs(seller1200,pman,dman)
     #configs = prepare_temp_configs(seller2000,pman,dman)
     #configs = prepare_configs_A2000(seller2000,pman,dman)
     #configs.extend(prepare_configs_A2000(seller2000,pman,dman))
     #configs = prepare_configs_A0(seller1200,pman,dman)
-    configs = prepare_configs_best(seller1200,pman,dman)
-    configs.extend(prepare_configs_normal(seller1200,pman,dman))    
-    configs.extend(prepare_configs_others(seller1200,pman,dman))    
+    #configs = prepare_configs_best(seller1200,pman,dman)
+    #configs.extend(prepare_configs_normal(seller1200,pman,dman))    
+    #configs.extend(prepare_configs_others(seller1200,pman,dman))    
     
     #configs = prepare_configs_A1200(seller1200,pman,dman)
     #configs.extend(prepare_configs_A0(seller1200,pman,dman))    
@@ -658,7 +694,7 @@ if __name__ == '__main__':
     #总时间段   [20000101,20010701,20090101]    #一个完整的周期+一个下降段
     #分段测试的要求，段mm > 1000-1500或抑制，总段mm > 2000
     
-    begin,xbegin,end = 20000101,20010701,20090101
+    #begin,xbegin,end = 20000101,20010701,20090101
     #begin,xbegin,end = 19980101,20010701,20090101
     #begin,xbegin,end = 20000101,20010701,20050901
     #begin,xbegin,end = 19980101,19990701,20010801    
@@ -667,7 +703,7 @@ if __name__ == '__main__':
     #begin,xbegin,end = 19980101,19990101,20090101
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
-    #begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201
+    begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201
     #begin,xbegin,end,lbegin = 20090301,20090401,20090501,20090501
     from time import time
     tbegin = time()
@@ -694,10 +730,10 @@ if __name__ == '__main__':
     psyco.full()
 
     #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
-    run_main(dates,scatalog,idata,catalogs,begin,end,xbegin)
+    #run_main(dates,scatalog,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     
-    #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
     catalog_macd(catalogs)
 

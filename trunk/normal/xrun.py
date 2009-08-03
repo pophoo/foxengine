@@ -1511,35 +1511,7 @@ def gmacd_s(stock): #
     
     return signal
 
-
 def gmacd(stock,ldown=30): #
-    '''
-    #之前
-                评估:总盈亏值=6850,交易次数=115 期望值=842
-                总盈亏率(1/1000)=6850,平均盈亏率(1/1000)=59,盈利交易率(1/1000)=330
-                赢利次数=38,赢利总值=12295
-                亏损次数=77,亏损总值=5445
-                平盘次数=0
-            
-                评估:总盈亏值=7564,交易次数=34  期望值=5045
-                总盈亏率(1/1000)=7564,平均盈亏率(1/1000)=222,盈利交易率(1/1000)=911
-                赢利次数=31,赢利总值=7698
-                亏损次数=3,亏损总值=134
-                平盘次数=0
-    
-    去掉msvap
-        评估:总盈亏值=10402,交易次数=43 期望值=6025
-                总盈亏率(1/1000)=10402,平均盈亏率(1/1000)=241,盈利交易率(1/1000)=930
-                赢利次数=40,赢利总值=10523
-                亏损次数=3,亏损总值=121
-                平盘次数=0
-        评估:总盈亏值=11803,交易次数=226        期望值=764
-                总盈亏率(1/1000)=11803,平均盈亏率(1/1000)=52,盈利交易率(1/1000)=305
-                赢利次数=69,赢利总值=22487
-                亏损次数=157,亏损总值=10684
-                平盘次数=0
-        不妥
-    '''
     t = stock.transaction
     
     #mdiff,mdea = cmacd(stock.g5)   
@@ -2817,19 +2789,7 @@ def xudc(stock):
     t = stock.transaction
     mxc = xc0s(t[OPEN],t[CLOSE],t[HIGH],t[LOW],ma1=13) > 0
 
-    vma = ma(t[VOLUME],30)
-    svma = ma(t[VOLUME],3)
-
-    vfilter = gand(svma<vma*2/3)
-    cf = (t[OPEN]-t[LOW] + t[HIGH]-t[CLOSE])*1000 / (t[HIGH]-t[LOW])   #向下的动力  
-    mcf = ma(cf,7)
-
-
-    xatr = stock.atr * BASE / t[CLOSE]     
-    mxatr = ma(xatr,7)
-    ratr = xatr * BASE / mxatr
-
-    signal = gand(mxc,xatr>45,stock.above,stock.t5,stock.magic,mcf>1000)    
+    signal = gand(mxc,stock.above,stock.t5)#,stock.magic)    
 
     linelog(stock.code)
     return signal
@@ -2896,3 +2856,11 @@ def ldxc(stock,mlen=60,astart=60,aend=1000): #low down xcross
     signal = gand(x2,stock.above,stock.t5,strend(stock.ma4)>0,t[VOLUME]>0,xatr>=astart,xatr<=aend,stock.magic)
 
     return signal
+
+#cdragon = lambda c,s:gand(c.csignal,s>6000,s<8500,c.g5 >= c.g60,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250)
+cdragon = lambda c,s:gand(c.csignal,s<3000,c.g5 >= c.g60,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250)
+def dragon(stock):
+    
+    cs = catalog_signal_cs(stock.c60,cdragon)
+    return cs
+

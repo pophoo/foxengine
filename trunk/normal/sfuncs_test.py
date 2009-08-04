@@ -216,7 +216,7 @@ class ModuleTest(unittest.TestCase):    #通路测试
         self.assertTrue(True)
 
     def test_emv1c(self):
-        sbuy = emv1c(self.stock)
+        sbuy = emv1c(self.stock,100)
         self.assertTrue(True)
 
     def test_emv2c(self):

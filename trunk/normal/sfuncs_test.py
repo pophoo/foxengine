@@ -215,6 +215,13 @@ class ModuleTest(unittest.TestCase):    #通路测试
         sbuy = tsvama2c(self.stock,5,20)
         self.assertTrue(True)
 
+    def test_emv1c(self):
+        sbuy = emv1c(self.stock)
+        self.assertTrue(True)
+
+    def test_emv2c(self):
+        sbuy = emv2c(self.stock,fast=10,slow=100)
+        self.assertTrue(True)
 
 if __name__ == "__main__":
     logging.basicConfig(filename="test.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')

@@ -1443,3 +1443,46 @@ def ldxc(stock,mlen=60,astart=60,aend=1000): #low down xcross
 
     return signal
 
+def emv1c(stock,fast):
+    t = stock.transaction
+
+    em = emv(t[HIGH],t[LOW],t[VOLUME])
+    mv1 = msum2(em,fast)
+    
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+
+    vfilter = gand(svma<=vma*3/4)
+
+    baseline = cached_zeros(len(t[CLOSE]))
+
+    thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120>=stock.g250,stock.g20>=3000,stock.g20<8000)
+
+    ecross = gand(thumb,cross(baseline,mv1)>0,strend(mv1)>0,stock.t5,stock.above)
+    
+    linelog(stock.code)
+    return ecross
+
+def emv2c(stock,fast,slow):
+    t = stock.transaction
+
+    em = emv(t[HIGH],t[LOW],t[VOLUME])
+    #mv1 = msum2(em,fast)
+    #mv2 = msum2(em,slow)
+    
+    mv1 = ma(em,fast)
+    mv2 = ma(em,slow)
+
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+
+    vfilter = gand(svma<=vma*3/4)
+    #vfilter = gand(svma<=vma*7/8)
+ 
+    thumb = gand(stock.g5>stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)#,stock.g20>=3000)
+    #thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120>=stock.g250,stock.g20>=3000,stock.g20<8000)    
+
+    ecross = gand(thumb,cross(mv2,mv1)>0,strend(mv2)>0,mv2<0,stock.t5,stock.above)
+    linelog(stock.code)
+    return ecross
+

@@ -7,7 +7,7 @@ from wolfox.fengine.normal.funcs import *
 from wolfox.fengine.normal.nrun import prepare_order,prepare_common
 from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,tmin,extend,extend2next,pzoom_out,vzoom_out,zoom_in,cover,scover
 from wolfox.fengine.core.d1match import *
-from wolfox.fengine.core.d1 import lesser,bnot
+from wolfox.fengine.core.d1 import lesser,bnot,gmax,gmin
 from wolfox.fengine.core.d1indicator import cmacd,score2,rsi,obv,emv
 from wolfox.fengine.core.d1idiom import down_period,macd_ru,macd_ru2,macd_ruv,macd_ruv3,xc_ru,xc_ru2,xc0,xc02,xc0c,xc0s,xc_ru0,xc_ru0s,xc_ru0c,xc_ru02
 from wolfox.fengine.core.d2 import increase,extract_collect
@@ -2857,10 +2857,78 @@ def ldxc(stock,mlen=60,astart=60,aend=1000): #low down xcross
 
     return signal
 
+def emv1c(stock,fast):
+    t = stock.transaction
+
+    em = emv(t[HIGH],t[LOW],t[VOLUME])
+    mv1 = msum2(em,fast)
+    
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+
+    vfilter = gand(svma<=vma*3/4)
+
+    baseline = cached_zeros(len(t[CLOSE]))
+
+    #thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120>=stock.g250,stock.g20>=3000,stock.g20<8000)
+
+    ecross = gand(cross(baseline,mv1)>0,strend(mv1)>0,stock.t5,stock.above)
+    
+    linelog(stock.code)
+    return ecross
+
+def emv2c(stock,fast,slow):
+    t = stock.transaction
+
+    em = emv(t[HIGH],t[LOW],t[VOLUME])
+    #mv1 = msum2(em,fast)
+    #mv2 = msum2(em,slow)
+    
+    mv1 = ma(em,fast)
+    mv2 = ma(em,slow)
+
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+
+    vfilter = gand(svma<=vma*3/4)
+    #vfilter = gand(svma<=vma*7/8)
+ 
+    #thumb = gand(stock.g5>stock.g20,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)#,stock.g20>=3000)
+    #thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120>=stock.g250,stock.g20>=3000,stock.g20<8000)    
+
+    ecross = gand(cross(mv2,mv1)>0,strend(mv2)>0,mv2<0,stock.t5,stock.above)
+    linelog(stock.code)
+    return ecross
+
+
 #cdragon = lambda c,s:gand(c.csignal,s>6000,s<8500,c.g5 >= c.g60,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250)
-cdragon = lambda c,s:gand(c.csignal,s<3000,c.g5 >= c.g60,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250)
+cdragon = lambda c,s:gand(c.csignal,s>2000,s<5000,c.g5 >= c.g60,c.g20>=c.g60,c.g60>=c.g120,c.g120>=c.g250)
 def dragon(stock):
     
     cs = catalog_signal_cs(stock.c60,cdragon)
     return cs
 
+
+def yql(stock):
+    linelog('yql:%s'%stock.code)
+    t = stock.transaction
+
+    m1,m2,m3,m4 = stock.ma1,stock.ma2,stock.ma3,stock.ma4
+    mmax = gmax(m1,m2,m3)
+    mmin = gmin(m1,m2,m3)
+    mtimes = mmax * BASE / mmin
+    mnh = lesser(mtimes,1021)
+    sm = msum(mnh,5)
+    rsm = rollx(sm,1)
+
+    tr = msum(stock.t1,5)
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+    vfilter = (svma > vma*2/3,svma<vma*2)
+
+
+    signal = gand(equals(sm,4),equals(rsm,5),tr>4)
+
+    xatr = stock.atr * BASE / t[CLOSE]     
+
+    return gand(signal,stock.above,xatr<34,vfilter)

@@ -24,28 +24,26 @@ def prepare_temp_configs(seller,pman=None,dman=None):
     configs = []
 
     import wolfox.fengine.normal.xrun as x
-    configs.append(config(buyer=fcustom(x.tsvama2c,bxatr=60,slow=161,fast=1)))
-    configs.append(config(buyer=fcustom(x.tsvama2c,bxatr=40,slow=93,fast=19)))
-    configs.append(config(buyer=fcustom(x.tsvama2c,bxatr=30,slow=73,fast=49)))
+    configs.append(config(buyer=fcustom(x.emv2c,slow=276,fast=64)))
+    configs.append(config(buyer=fcustom(x.emv2c,slow=42,fast=45)))
+    configs.append(config(buyer=fcustom(x.emv2c,slow=272,fast=53)))
+    configs.append(config(buyer=fcustom(x.emv2c,slow=276,fast=53)))
+    configs.append(config(buyer=fcustom(x.emv2c,slow=184,fast=43)))
+    configs.append(config(buyer=fcustom(x.emv2c,slow=266,fast=53)))
+    configs.append(config(buyer=fcustom(x.emv2c,slow=36,fast=21)))
+    configs.append(config(buyer=fcustom(x.emv2c,slow=202,fast=59)))
+    configs.append(config(buyer=fcustom(x.emv2c,slow=188,fast=178)))
+    configs.append(config(buyer=fcustom(x.emv2c,slow=152,fast=24)))
+    configs.append(config(buyer=fcustom(x.emv2c,slow=188,fast=21)))
 
-    configs.append(config(buyer=fcustom(x.ma2s,follow=5,slow=11,fast=6)))
-
-    configs.append(config(buyer=fcustom(x.ldxc,aend=85,astart=50,mlen=55)))
-    configs.append(config(buyer=fcustom(x.ldxc,aend=100,astart=45,mlen=13)))
-
-    configs.append(config(buyer=fcustom(x.ma2c,follow=6,slow=109,fast=93)))
-    configs.append(config(buyer=fcustom(x.ma2c,follow=9,slow=134,fast=101)))
-    configs.append(config(buyer=fcustom(x.ma2c,follow=10,slow=218,fast=60)))
-    configs.append(config(buyer=fcustom(x.ma2c,follow=3,slow=121,fast=85)))
-    configs.append(config(buyer=fcustom(x.ma2c,follow=6,slow=142,fast=82)))
-
-    configs.append(config(buyer=fcustom(x.ma2c,follow=1,slow=122,fast=79)))
-    configs.append(config(buyer=fcustom(x.ma2c,follow=3,slow=25,fast=17)))
-    configs.append(config(buyer=fcustom(x.ma2c,follow=1,slow=136,fast=65)))
-    configs.append(config(buyer=fcustom(x.ma2c,follow=6,slow=143,fast=75)))
-    configs.append(config(buyer=fcustom(x.ma2c,follow=3,slow=126,fast=60)))
-    configs.append(config(buyer=fcustom(x.ma2c,follow=6,slow=116,fast=90)))
-    configs.append(config(buyer=fcustom(x.ma2c,follow=6,slow=113,fast=92)))
+    configs.append(config(buyer=fcustom(x.emv1c,fast=187)))
+    configs.append(config(buyer=fcustom(x.emv1c,fast=154)))
+    configs.append(config(buyer=fcustom(x.emv1c,fast=146)))
+    configs.append(config(buyer=fcustom(x.emv1c,fast=145)))
+    configs.append(config(buyer=fcustom(x.emv1c,fast=210)))
+    configs.append(config(buyer=fcustom(x.emv1c,fast=212)))
+    configs.append(config(buyer=fcustom(x.emv1c,fast=134)))
+    configs.append(config(buyer=fcustom(x.emv1c,fast=133)))
 
 
     return configs
@@ -84,6 +82,8 @@ def prepare_catalog_buyers():
     buyers.append(fcustom(s.ldxc,aend=85,astart=50,mlen=55))
     buyers.append(fcustom(s.ma2c,follow=9,slow=134,fast=101))
     buyers.append(fcustom(s.ma2c,follow=3,slow=121,fast=85))
+    buyers.append(fcustom(s.emv1c,fast=133))
+    buyers.append(fcustom(s.emv2c,slow=36,fast=21))
     return buyers
 
 def prepare_configs_best(seller,pman,dman):

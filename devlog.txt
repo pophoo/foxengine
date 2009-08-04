@@ -7082,7 +7082,7 @@ for fiter in ppat.finditer(sss):
     cwin = wtotal / wtimes if wtimes else 0
     clost = ltotal / ltimes if ltimes else 0
     #if times>=3 and wrate >= 666 and (clost == 0 or cwin/clost>=4):
-    if wrate >= 666 :#and (clost == 0 or cwin/clost>=4):
+    if wrate >= 666:#and (clost == 0 or cwin/clost>=4):
         print >>sout,'%s;%s:%s:%s:%s:%s:%s' % (name,R,efficency,times,wrate,cwin,clost)
 
 print sout.getvalue()
@@ -7324,6 +7324,29 @@ configs.append(config(buyer=fcustom(ma2c,follow=3,slow=126,fast=60)))
 configs.append(config(buyer=fcustom(ma2c,follow=6,slow=116,fast=90)))
 configs.append(config(buyer=fcustom(ma2c,follow=6,slow=113,fast=92)))
 
+
+configs.append(config(buyer=fcustom(emv2c,slow=276,fast=64)))
+configs.append(config(buyer=fcustom(emv2c,slow=42,fast=45)))
+configs.append(config(buyer=fcustom(emv2c,slow=272,fast=53)))
+configs.append(config(buyer=fcustom(emv2c,slow=276,fast=53)))
+configs.append(config(buyer=fcustom(emv2c,slow=184,fast=43)))
+configs.append(config(buyer=fcustom(emv2c,slow=266,fast=53)))
+configs.append(config(buyer=fcustom(emv2c,slow=36,fast=21)))
+configs.append(config(buyer=fcustom(emv2c,slow=202,fast=59)))
+configs.append(config(buyer=fcustom(emv2c,slow=188,fast=178)))
+configs.append(config(buyer=fcustom(emv2c,slow=152,fast=24)))
+configs.append(config(buyer=fcustom(emv2c,slow=188,fast=21)))
+
+configs.append(config(buyer=fcustom(emv1c,fast=187)))
+configs.append(config(buyer=fcustom(emv1c,fast=154)))
+configs.append(config(buyer=fcustom(emv1c,fast=146)))
+configs.append(config(buyer=fcustom(emv1c,fast=145)))
+configs.append(config(buyer=fcustom(emv1c,fast=210)))
+configs.append(config(buyer=fcustom(emv1c,fast=212)))
+configs.append(config(buyer=fcustom(emv1c,fast=134)))
+configs.append(config(buyer=fcustom(emv1c,fast=133)))
+
+
 ====>   20080701-20090803之后
 tsvama2c:bxatr=30,slow=73,fast=49;1000:5800:3:1000:377:0
 ma2s:follow=5,slow=11,fast=6;2698:5296:4:750:208:53
@@ -7332,12 +7355,17 @@ ma2c:follow=9,slow=134,fast=101;1000:3977:1:1000:346:0
 ma2c:follow=3,slow=121,fast=85;1000:4557:2:1000:319:0
 ma2c:follow=1,slow=122,fast=79;1000:4166:1:1000:175:0
 
+emv2c:slow=36,fast=21;1000:6378:2:1000:421:0
+emv1c:fast=133;1000:5688:3:1000:256:0
+
 ===>
 configs.append(config(buyer=fcustom(tsvama2c,bxatr=30,slow=73,fast=49)))
 configs.append(config(buyer=fcustom(ma2s,follow=5,slow=11,fast=6)))
 configs.append(config(buyer=fcustom(ldxc,aend=85,astart=50,mlen=55)))
 configs.append(config(buyer=fcustom(ma2c,follow=9,slow=134,fast=101)))
 configs.append(config(buyer=fcustom(ma2c,follow=3,slow=121,fast=85)))
+configs.append(config(buyer=fcustom(emv1c,fast=133)))
+configs.append(config(buyer=fcustom(emv2c,slow=36,fast=21)))
 
 buyers=[]
 buyers.append(fcustom(x.tsvama2c,bxatr=30,slow=73,fast=49))
@@ -7345,7 +7373,8 @@ buyers.append(fcustom(x.ma2s,follow=5,slow=11,fast=6))
 buyers.append(fcustom(x.ldxc,aend=85,astart=50,mlen=55))
 buyers.append(fcustom(x.ma2c,follow=9,slow=134,fast=101))
 buyers.append(fcustom(x.ma2c,follow=3,slow=121,fast=85))
-
+buyers.append(fcustom(x.emv1c,fast=133))
+buyers.append(fcustom(x.emv2c,slow=36,fast=21))
 
 #2009-08-03
 macd: 山西
@@ -7354,13 +7383,13 @@ macd: 山西
 best:
     #600467: tsvama2sbv:follow=2,slow=42,fast=7/1000:6500:8:1000:221:0
             tsvama3:follow=6,slow=10,mid=21,fast=7/1000:6742:8:1000:236:0
-    #002137: tsvama2sbv:follow=2,slow=42,fast=7/1000:6500:8:1000:221:0
+    002137: tsvama2sbv:follow=2,slow=42,fast=7/1000:6500:8:1000:221:0
     600203: emv1:fast=98/4909:8181:12:833:335:55
     #002055: emv1:fast=98/4909:8181:12:833:335:55
             emv1b:base=120,fast=27/5750:7666:18:833:341:48
             emv1b:base=120,fast=15/6631:7411:22:954:266:38
             emv2:slow=8,fast=3/3745:5305:55:800:252:51
-    #600797: tsvama3:follow=4,slow=14,mid=29,fast=7/2279:6739:23:826:203:68
+    600797: tsvama3:follow=4,slow=14,mid=29,fast=7/2279:6739:23:826:203:68
     600962: tsvama2sbv:follow=3,slow=10,fast=15/1000:4727:10:1000:156:0
             emv2:slow=8,fast=3/3745:5305:55:800:252:51
     600220: tsvama2sb:follow=2,slow=192,fast=6/8260:5757:5:800:244:23
@@ -7373,3 +7402,4 @@ best:
 normal:
     159902: ma2s:follow=2,slow=16,fast=3/2000:5600:18:666:196:56
     余略
+以后遴选，需要选择在前期高点附近的.    

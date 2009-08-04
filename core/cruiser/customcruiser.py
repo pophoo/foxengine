@@ -124,7 +124,7 @@ class TSvama4Cruiser(GeneticCruiser):
 class Emv1Cruiser(GeneticCruiser):
     def prepare(self):
         self.args = dict(fast=range(1,250))
-        self.buy_func = emv1
+        self.buy_func = emv1c
         #self.sell_func = csc_func
         self.sell_func =  atr_seller_factory(stop_times=1200,trace_times=3000)
         self.predefined = []
@@ -136,7 +136,7 @@ class Emv1Cruiser(GeneticCruiser):
 class Emv2Cruiser(GeneticCruiser):
     def prepare(self):
         self.args = dict(fast=range(1,250),slow=range(6,300,2))
-        self.buy_func = emv2
+        self.buy_func = emv2c
         #self.sell_func = csc_func
         self.sell_func =  atr_seller_factory(stop_times=1200,trace_times=3000)
         self.predefined = []
@@ -418,10 +418,14 @@ if __name__ == '__main__':
 
     #cruiser = TSvama2Cruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
     
-    cruiser = Ma2sCruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
-    cruiser.gcruise(scatalog,dates,tbegin)
+    #cruiser = Ma2sCruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
+    #cruiser.gcruise(scatalog,dates,tbegin)
     #cruiser = LdxCruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
     #cruiser.gcruise(scatalog,dates,tbegin)
+    cruiser = Emv1Cruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小    
+    cruiser.gcruise(scatalog,dates,tbegin)
+    cruiser = Emv2Cruiser(psize=200,maxstep=50,goal=200000000)    #goal不能太小
+    cruiser.gcruise(scatalog,dates,tbegin)
 
     #cruiser = Svama3bMMCruiser(psize=500,maxstep=100,goal=200000000)    #goal不能太小
     #cruiser.gcruise(sdata,dates,tbegin)

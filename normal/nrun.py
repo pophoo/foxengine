@@ -122,8 +122,6 @@ def prepare_configs_best(seller,pman,dman):
     tsvama2sb:follow=2,slow=192,fast=6	8260:5757:5:800:244:23
     tsvama2sbv:follow=2,slow=42,fast=7	1000:6500:8:1000:221:0
     tsvama2sbv:follow=3,slow=10,fast=15	1000:4727:10:1000:156:0
-    tsvama3b:follow=1,slow=60,mid=35,fast=9	1774:4782:6:833:145:62
-    tsvama3b:follow=3,slow=64,mid=93,fast=11	1573:3692:10:800:136:61
     tsvama3b:follow=3,slow=72,mid=107,fast=8	1758:4541:10:700:183:62
     tsvama3b:follow=7,slow=32,mid=133,fast=7	1000:6411:5:1000:327:0
     '''
@@ -174,8 +172,6 @@ def prepare_configs_best(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.tsvama2sb,follow=2,slow=192,fast=6)))
     configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=2,slow=42,fast=7)))
     configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=3,slow=10,fast=15)))
-    configs.append(config(buyer=fcustom(s.tsvama3b,follow=1,slow=60,mid=35,fast=9)))
-    configs.append(config(buyer=fcustom(s.tsvama3b,follow=3,slow=64,mid=93,fast=11)))
     configs.append(config(buyer=fcustom(s.tsvama3b,follow=3,slow=72,mid=107,fast=8)))
     configs.append(config(buyer=fcustom(s.tsvama3b,follow=7,slow=32,mid=133,fast=7)))
     return configs
@@ -210,6 +206,8 @@ def prepare_configs_normal(seller,pman,dman):
     tsvama2sbv:follow=1,slow=26,fast=8	1000:736:1:1000:14:0
     ma2s:follow=2,slow=16,fast=3	2000:5600:18:666:196:56
     ma2sv:follow=2,slow=8,fast=1	3420:5516:38:736:251:50
+    tsvama3b:follow=1,slow=60,mid=35,fast=9	1774:4782:6:833:145:62
+    tsvama3b:follow=3,slow=64,mid=93,fast=11	1573:3692:10:800:136:61
     tsvama3b:follow=1,slow=60,mid=107,fast=5	813:4037:3:666:230:134
     tsvama3b:follow=7,slow=32,mid=149,fast=5	1000:6361:2:1000:229:0
     '''
@@ -244,6 +242,8 @@ def prepare_configs_normal(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=1,slow=26,fast=8)))
     configs.append(config(buyer=fcustom(s.ma2s,follow=2,slow=16,fast=3)))
     configs.append(config(buyer=fcustom(s.ma2sv,follow=2,slow=8,fast=1)))
+    configs.append(config(buyer=fcustom(s.tsvama3b,follow=1,slow=60,mid=35,fast=9)))
+    configs.append(config(buyer=fcustom(s.tsvama3b,follow=3,slow=64,mid=93,fast=11)))    
     configs.append(config(buyer=fcustom(s.tsvama3b,follow=1,slow=60,mid=107,fast=5)))
     configs.append(config(buyer=fcustom(s.tsvama3b,follow=7,slow=32,mid=149,fast=5)))
 

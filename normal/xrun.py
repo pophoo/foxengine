@@ -2914,8 +2914,8 @@ def yql(stock):
     t = stock.transaction
 
     m1,m2,m3,m4 = stock.ma1,stock.ma2,stock.ma3,stock.ma4
-    mmax = gmax(m1,m2,m3)
-    mmin = gmin(m1,m2,m3)
+    mmax = gmax(m1,m2,m3,m4)
+    mmin = gmin(m1,m2,m3,m4)
     mtimes = mmax * BASE / mmin
     mnh = lesser(mtimes,1021)
     sm = msum(mnh,5)
@@ -2924,11 +2924,11 @@ def yql(stock):
     tr = msum(stock.t1,5)
     vma = ma(t[VOLUME],30)
     svma = ma(t[VOLUME],3)
-    vfilter = (svma > vma*2/3,svma<vma*2)
+    #vfilter = gand(svma > vma*2/3,svma<vma*2)
 
 
     signal = gand(equals(sm,4),equals(rsm,5),tr>4)
 
     xatr = stock.atr * BASE / t[CLOSE]     
 
-    return gand(signal,stock.above,xatr<34,vfilter)
+    return gand(signal,stock.above)#,vfilter)

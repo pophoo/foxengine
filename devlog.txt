@@ -312,13 +312,13 @@ from time import time
 import logging
 logging.basicConfig(filename="xx4c.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 #begin,xbegin,end = 19980101,20010701,20091231
-begin,xbegin,end = 20000101,20010701,20090101
+#begin,xbegin,end = 20000101,20010701,20090101
 ##begin,xbegin,end = 20000101,20010701,20091231
 #begin,xbegin,end = 20050101,20060701,20091231
 #begin,xbegin,end = 20070101,20080601,20091231
 #begin,xbegin,end = 20060101,20080601,20091231
 #begin,xbegin,end = 20060101,20080701,20091201
-#begin,xbegin,end = 20000101,20010701,20090101
+begin,xbegin,end = 20000101,20010701,20090101
 #begin,xbegin,end = 19970101,19980101,20010701
 
 tbegin = time()
@@ -7418,4 +7418,11 @@ best:
     002134: tsvama3:follow=4,slow=14,mid=29,fast=7/2279:6739:23:826:203:68
     159902: tsvama3:follow=4,slow=14,mid=29,fast=7/2279:6739:23:826:203:68
 
+明日计划：
+002055，伺机在9.00左右
+002137, 在8.80左右
 
+xatr/mxatr如果是由于阴线而大于1，则视为无效
+
+需要确认emv系列中magic和g20<3000的问题,评估之.
+间或测试一下放松vfilter

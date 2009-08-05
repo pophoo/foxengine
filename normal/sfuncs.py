@@ -1113,8 +1113,10 @@ def emv1(stock,fast=15):
     baseline = cached_zeros(len(t[CLOSE]))
 
     #thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20>=3000,stock.g20<8000)
+    thumb = gand(stock.magic,stock.g20>3000)
+    #thumb = stock.magic
 
-    ecross = gand(stock.magic,cross(baseline,mv1)>0,strend(mv1)>0,stock.t5,stock.above,vfilter)
+    ecross = gand(thumb,cross(baseline,mv1)>0,strend(mv1)>0,stock.t5,stock.above,vfilter)
     linelog(stock.code)
     return ecross
 
@@ -1138,8 +1140,10 @@ def emv1b(stock,fast=15,base=120):
     baseline = cached_zeros(len(t[CLOSE]))
 
     #thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20>=3000,stock.g20<8000)
+    thumb = gand(stock.magic,stock.g20>3000)
+    #thumb = stock.magic    
 
-    ecross = gand(stock.magic,cross(baseline,mv1)>0,strend(mv1)>0,stock.t5,stock.above,vfilter,strend(mvbase)>0)
+    ecross = gand(thumb,cross(baseline,mv1)>0,strend(mv1)>0,stock.t5,stock.above,strend(mvbase)>0,vfilter)
     linelog(stock.code)
     return ecross
 
@@ -1159,8 +1163,10 @@ def emv2(stock,fast,slow):
  
     #thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)#,stock.g20>=3000)
     #thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120>=stock.g250,stock.g20>=3000,stock.g20<8000)    
+    thumb = gand(stock.magic,stock.g20>3000)
+    #thumb = stock.magic
 
-    ecross = gand(stock.magic,cross(mv2,mv1)>0,strend(mv2)>0,mv2<0,stock.t5,stock.above,vfilter)
+    ecross = gand(thumb,cross(mv2,mv1)>0,strend(mv2)>0,mv2<0,stock.t5,stock.above,vfilter)
     linelog(stock.code)
     return ecross
 

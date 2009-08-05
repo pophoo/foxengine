@@ -23,28 +23,26 @@ def prepare_temp_configs(seller,pman=None,dman=None):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
 
-    import wolfox.fengine.normal.xrun as x
-    configs.append(config(buyer=fcustom(x.emv2c,slow=276,fast=64)))
-    configs.append(config(buyer=fcustom(x.emv2c,slow=42,fast=45)))
-    configs.append(config(buyer=fcustom(x.emv2c,slow=272,fast=53)))
-    configs.append(config(buyer=fcustom(x.emv2c,slow=276,fast=53)))
-    configs.append(config(buyer=fcustom(x.emv2c,slow=184,fast=43)))
-    configs.append(config(buyer=fcustom(x.emv2c,slow=266,fast=53)))
-    configs.append(config(buyer=fcustom(x.emv2c,slow=36,fast=21)))
-    configs.append(config(buyer=fcustom(x.emv2c,slow=202,fast=59)))
-    configs.append(config(buyer=fcustom(x.emv2c,slow=188,fast=178)))
-    configs.append(config(buyer=fcustom(x.emv2c,slow=152,fast=24)))
-    configs.append(config(buyer=fcustom(x.emv2c,slow=188,fast=21)))
-
-    configs.append(config(buyer=fcustom(x.emv1c,fast=187)))
-    configs.append(config(buyer=fcustom(x.emv1c,fast=154)))
-    configs.append(config(buyer=fcustom(x.emv1c,fast=146)))
-    configs.append(config(buyer=fcustom(x.emv1c,fast=145)))
-    configs.append(config(buyer=fcustom(x.emv1c,fast=210)))
-    configs.append(config(buyer=fcustom(x.emv1c,fast=212)))
-    configs.append(config(buyer=fcustom(x.emv1c,fast=134)))
-    configs.append(config(buyer=fcustom(x.emv1c,fast=133)))
-
+    #import wolfox.fengine.normal.xrun as x
+    configs.append(config(buyer=fcustom(s.emv1b,base=120,fast=15)))
+    configs.append(config(buyer=fcustom(s.emv2,slow=290,fast=128)))
+    configs.append(config(buyer=fcustom(s.emv2,slow=96,fast=125)))
+    configs.append(config(buyer=fcustom(s.emv1b,base=120,fast=27)))
+    configs.append(config(buyer=fcustom(s.emv1b,base=120,fast=40)))
+    configs.append(config(buyer=fcustom(s.emv1b,base=120,fast=75)))
+    configs.append(config(buyer=fcustom(s.emv1,fast=98)))
+    configs.append(config(buyer=fcustom(s.emv1,fast=120)))
+    configs.append(config(buyer=fcustom(s.emv1,fast=143)))
+    configs.append(config(buyer=fcustom(s.emv2,slow=88,fast=17)))
+    configs.append(config(buyer=fcustom(s.emv2,slow=100,fast=10)))
+    configs.append(config(buyer=fcustom(s.emv2,slow=86,fast=124)))
+    configs.append(config(buyer=fcustom(s.emv2,slow=8,fast=3)))
+    configs.append(config(buyer=fcustom(s.emv2,slow=275,fast=75)))
+    configs.append(config(buyer=fcustom(s.emv2,slow=226,fast=126)))
+    configs.append(config(buyer=fcustom(s.emv2,slow=132,fast=194)))
+    configs.append(config(buyer=fcustom(s.emv2,slow=292,fast=72)))
+    configs.append(config(buyer=fcustom(s.emv2s,slow=30,fast=7)))
+    configs.append(config(buyer=fcustom(s.emv1,fast=227)))    
 
     return configs
 
@@ -597,7 +595,7 @@ def run_body(sdata,dates,begin,end,xbegin):
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
     #save_configs('atr_ev_nm_1200.txt',configs,xbegin,end)
-    save_configs('atr_ev_v0v3a.txt',configs,xbegin,end)    
+    save_configs('atr_ev_emvb.txt',configs,xbegin,end)    
 
 def run_merge_body(sdata,dates,begin,end,xbegin):
     
@@ -750,11 +748,11 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_main(dates,scatalog,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     
-    run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
     catalog_macd(catalogs)
 

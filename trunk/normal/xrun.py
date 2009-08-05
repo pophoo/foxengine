@@ -2363,7 +2363,7 @@ def uplain(stock):
     t = stock.transaction
     matr1 = ma(stock.atr,3)
     matr2 = ma(stock.atr,20)
-    d2 = np.array([stock.ma1,stock.ma2,stock.ma3])
+    d2 = np.array([stock.ma1,stock.ma2,stock.ma3])  #可以用gmax,gmin
     nmax=np.max(d2,0)
     nmin=np.min(d2,0)
     ndev = nmax-nmin < matr2 / 3
@@ -2932,3 +2932,25 @@ def yql(stock):
     xatr = stock.atr * BASE / t[CLOSE]     
 
     return gand(signal,stock.above)#,vfilter)
+
+def xudc2(stock):
+    t = stock.transaction
+
+    xatr = stock.atr * BASE / t[CLOSE]     
+    mxatr = ma(xatr,7)
+    xcross = cross(mxatr,xatr)>0
+    
+    yy = t[CLOSE] * BASE / t[OPEN]
+    zr = t[CLOSE] * BASE / rollx(t[CLOSE])
+
+    signal = gand(xcross,yy>980,zr>980)
+    
+    #thumb = gand(stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8500)
+
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+    vfilter = gand(svma > vma,svma<vma*2)
+    
+    signal = gand(signal,stock.t5,stock.above,vfilter,stock.magic)#stock.g5 >= stock.g60,stock.g20 >= stock.g60,stock.above,vfilter)
+    linelog(stock.code)
+    return signal

@@ -317,8 +317,8 @@ logging.basicConfig(filename="xx4c.log",level=logging.DEBUG,format='%(name)s:%(f
 #begin,xbegin,end = 20050101,20060701,20091231
 #begin,xbegin,end = 20070101,20080601,20091231
 #begin,xbegin,end = 20060101,20080601,20091231
-#begin,xbegin,end = 20060101,20080701,20091201
-begin,xbegin,end = 20000101,20010701,20090101
+begin,xbegin,end = 20060101,20080701,20091201
+#begin,xbegin,end = 20000101,20010701,20090101
 #begin,xbegin,end = 19970101,19980101,20010701
 
 tbegin = time()
@@ -7426,3 +7426,27 @@ xatr/mxatr如果是由于阴线而大于1，则视为无效
 
 需要确认emv系列中magic和g20<3000的问题,评估之.
 间或测试一下放松vfilter
+
+#2009-08-05
+macd: 河北
+macd: 黑龙江
+macd: 湖北
+macd: 山东
+macd: 交通设施
+macd: 农林牧渔
+
+1000:
+    600521: tsvama3b:follow=7,slow=32,mid=133,fast=7/1000:6411:5:1000:327:0
+            tsvama2sb:follow=4,slow=178,fast=16/
+best:
+    002272: tsvama3:follow=10,slow=228,mid=11,fast=7/2932:5580:8:875:206:59
+normal:    
+    600226: tsvama3b:follow=3,slow=72,mid=107,fast=8/1758:4541:10:700:183:62
+    600749: tsvama2sbv:follow=9,slow=26,fast=8/2754:5840:107:728:221:53
+    002251: tsvama2sbv:follow=9,slow=26,fast=8/2754:5840:107:728:221:53
+    000545: tsvama2sb:follow=3,slow=174,fast=8/3086:4057:10:700:222:46
+            tsvama2sb:follow=10,slow=176,fast=8/
+others:
+    600279: tsvama3:follow=5,slow=26,mid=23,fast=63/2301:5370:24:625:270:63
+
+    

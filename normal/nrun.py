@@ -152,7 +152,6 @@ def prepare_configs_best(seller,pman,dman):
     tsvama3:follow=4,slow=14,mid=29,fast=7	2279:6739:23:826:203:68
     tsvama3:follow=10,slow=228,mid=11,fast=7	2932:5580:8:875:206:59
     tsvama2sb:follow=2,slow=192,fast=6	8260:5757:5:800:244:23
-    tsvama3b:follow=3,slow=72,mid=107,fast=8	1758:4541:10:700:183:62
     '''
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
@@ -186,7 +185,6 @@ def prepare_configs_best(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.tsvama3,follow=4,slow=14,mid=29,fast=7)))
     configs.append(config(buyer=fcustom(s.tsvama3,follow=10,slow=228,mid=11,fast=7)))
     configs.append(config(buyer=fcustom(s.tsvama2sb,follow=2,slow=192,fast=6)))
-    configs.append(config(buyer=fcustom(s.tsvama3b,follow=3,slow=72,mid=107,fast=8)))
 
     return configs
 
@@ -224,6 +222,7 @@ def prepare_configs_normal(seller,pman,dman):
     tsvama3b:follow=3,slow=64,mid=93,fast=11	1573:3692:10:800:136:61
     tsvama3b:follow=1,slow=60,mid=107,fast=5	813:4037:3:666:230:134
     tsvama3b:follow=7,slow=32,mid=149,fast=5	1000:6361:2:1000:229:0
+    tsvama3b:follow=3,slow=72,mid=107,fast=8	1758:4541:10:700:183:62    
     '''
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
@@ -260,6 +259,7 @@ def prepare_configs_normal(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.tsvama3b,follow=3,slow=64,mid=93,fast=11)))    
     configs.append(config(buyer=fcustom(s.tsvama3b,follow=1,slow=60,mid=107,fast=5)))
     configs.append(config(buyer=fcustom(s.tsvama3b,follow=7,slow=32,mid=149,fast=5)))
+    configs.append(config(buyer=fcustom(s.tsvama3b,follow=3,slow=72,mid=107,fast=8)))
 
     return configs
 
@@ -270,14 +270,14 @@ def prepare_configs_others(seller,pman,dman):
     emv1:fast=227	1000:0:0:0:0:0
     tsvama2:bxatr=50,slow=21,fast=7	4094:6382:8:625:379:53
     tsvama2:bxatr=50,slow=49,fast=3	3000:5647:11:545:407:64
-    tsvama3:follow=5,slow=26,mid=23,fast=63	2301:5370:24:625:270:63
+    #tsvama3:follow=5,slow=26,mid=23,fast=63	2301:5370:24:625:270:63 #参数不合理
     tsvama3:follow=10,slow=108,mid=75,fast=48	11529:14000:4:500:409:17
     tsvama2sb:follow=10,slow=176,fast=8	3097:4233:25:600:239:41
     tsvama2sb:follow=3,slow=280,fast=15	1000:0:0:0:0:0
     tsvama2sb:follow=3,slow=130,fast=24	1000:6220:1:1000:423:0
-    tsvama2sbv:follow=3,slow=28,fast=19	1835:5590:9:555:275:67
+    #tsvama2sbv:follow=3,slow=28,fast=19	1835:5590:9:555:275:67  #走坏
     tsvama2sbv:follow=5,slow=16,fast=2	2775:5440:118:644:238:49
-    tsvama2sbv:follow=3,slow=12,fast=6	2207:5571:68:500:287:53
+    #tsvama2sbv:follow=3,slow=12,fast=6	2207:5571:68:500:287:53     #走坏
     tsvama3b:follow=1,slow=208,mid=25,fast=11	1000:8920:2:1000:223:0
     '''
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
@@ -286,14 +286,14 @@ def prepare_configs_others(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.emv1,fast=227)))
     configs.append(config(buyer=fcustom(s.tsvama2,bxatr=50,slow=21,fast=7)))
     configs.append(config(buyer=fcustom(s.tsvama2,bxatr=50,slow=49,fast=3)))
-    configs.append(config(buyer=fcustom(s.tsvama3,follow=5,slow=26,mid=23,fast=63)))
+    #configs.append(config(buyer=fcustom(s.tsvama3,follow=5,slow=26,mid=23,fast=63)))
     configs.append(config(buyer=fcustom(s.tsvama3,follow=10,slow=108,mid=75,fast=48)))
     configs.append(config(buyer=fcustom(s.tsvama2sb,follow=10,slow=176,fast=8)))
     configs.append(config(buyer=fcustom(s.tsvama2sb,follow=3,slow=280,fast=15)))
     configs.append(config(buyer=fcustom(s.tsvama2sb,follow=3,slow=130,fast=24)))
-    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=3,slow=28,fast=19)))
+    #configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=3,slow=28,fast=19)))
     configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=5,slow=16,fast=2)))
-    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=3,slow=12,fast=6)))
+    #configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=3,slow=12,fast=6)))
     configs.append(config(buyer=fcustom(s.tsvama3b,follow=1,slow=208,mid=25,fast=11)))
     
     return configs
@@ -748,11 +748,11 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
 
-    run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
+    #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_main(dates,scatalog,idata,catalogs,begin,end,xbegin)
     #run_merge_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     
-    #run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
     catalog_macd(catalogs)
 

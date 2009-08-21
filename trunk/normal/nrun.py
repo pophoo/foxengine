@@ -107,9 +107,9 @@ def prepare_configs_1000(seller,pman,dman):
     configs = []
 
     configs.append(config(buyer=s.gmacd5))
-    configs.append(config(buyer=fcustom(s.ldx,aend=95,astart=65,mlen=39)))
-    configs.append(config(buyer=fcustom(s.ldx2,aend=80,astart=70,mlen=41)))
-    configs.append(config(buyer=fcustom(s.ldx2,aend=100,astart=65,mlen=30)))
+    #configs.append(config(buyer=fcustom(s.ldx,aend=95,astart=65,mlen=39)))
+    #configs.append(config(buyer=fcustom(s.ldx2,aend=80,astart=70,mlen=41)))
+    #configs.append(config(buyer=fcustom(s.ldx2,aend=100,astart=65,mlen=30)))
  
     configs.append(config(buyer=fcustom(s.xud,astart=0)))
     configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc0c,astart=0)))  #4/9
@@ -121,7 +121,7 @@ def prepare_configs_1000(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.tsvama3,follow=6,slow=106,mid=73,fast=6)))
     configs.append(config(buyer=fcustom(s.tsvama3,follow=6,slow=10,mid=21,fast=7)))
     configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=2,slow=42,fast=7)))
-    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=3,slow=10,fast=15)))
+    #configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=3,slow=10,fast=15)))
     configs.append(config(buyer=fcustom(s.tsvama3b,follow=7,slow=32,mid=133,fast=7)))    
 
     return configs
@@ -182,9 +182,9 @@ def prepare_configs_best(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.emv2,slow=8,fast=3)))
     configs.append(config(buyer=fcustom(s.tsvama2,bxatr=50,slow=33,fast=3)))
     configs.append(config(buyer=fcustom(s.tsvama2,bxatr=50,slow=75,fast=15)))
-    configs.append(config(buyer=fcustom(s.tsvama3,follow=4,slow=14,mid=29,fast=7)))
-    configs.append(config(buyer=fcustom(s.tsvama3,follow=10,slow=228,mid=11,fast=7)))
-    configs.append(config(buyer=fcustom(s.tsvama2sb,follow=2,slow=192,fast=6)))
+    #configs.append(config(buyer=fcustom(s.tsvama3,follow=4,slow=14,mid=29,fast=7)))
+    #configs.append(config(buyer=fcustom(s.tsvama3,follow=10,slow=228,mid=11,fast=7)))
+    #configs.append(config(buyer=fcustom(s.tsvama2sb,follow=2,slow=192,fast=6)))
 
     return configs
 
@@ -227,7 +227,7 @@ def prepare_configs_normal(seller,pman,dman):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
 
-    configs.append(config(buyer=s.xma60))
+    #configs.append(config(buyer=s.xma60))
     configs.append(config(buyer=s.xru))
     configs.append(config(buyer=s.mxru))
     configs.append(config(buyer=fcustom(s.ldx,aend=80,astart=0,mlen=55)))
@@ -236,30 +236,30 @@ def prepare_configs_normal(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.tsvama2b,slow=170,fast=20)))
     configs.append(config(buyer=fcustom(s.emv2,slow=275,fast=75)))
     configs.append(config(buyer=fcustom(s.emv2,slow=226,fast=126)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=132,fast=194)))
+    #configs.append(config(buyer=fcustom(s.emv2,slow=132,fast=194)))
     configs.append(config(buyer=fcustom(s.emv2,slow=292,fast=72)))
     configs.append(config(buyer=fcustom(s.emv2s,slow=30,fast=7)))
     configs.append(config(buyer=fcustom(s.tsvama2,bxatr=50,slow=61,fast=7)))
     configs.append(config(buyer=fcustom(s.tsvama2,bxatr=50,slow=105,fast=17)))
     configs.append(config(buyer=fcustom(s.tsvama3,follow=7,slow=24,mid=25,fast=53)))
-    configs.append(config(buyer=fcustom(s.tsvama2sb,follow=4,slow=178,fast=16)))
-    configs.append(config(buyer=fcustom(s.tsvama2sb,follow=3,slow=174,fast=8)))
-    configs.append(config(buyer=fcustom(s.tsvama2sb,follow=2,slow=206,fast=6)))
+    #configs.append(config(buyer=fcustom(s.tsvama2sb,follow=4,slow=178,fast=16)))
+    #configs.append(config(buyer=fcustom(s.tsvama2sb,follow=3,slow=174,fast=8)))
+    #configs.append(config(buyer=fcustom(s.tsvama2sb,follow=2,slow=206,fast=6)))
     configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=7,slow=54,fast=36)))
     configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=5,slow=28,fast=10)))
-    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=5,slow=70,fast=18)))
+    #configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=5,slow=70,fast=18)))
     configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=9,slow=268,fast=12)))
-    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=3,slow=42,fast=6)))
+    #configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=3,slow=42,fast=6)))
     configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=9,slow=26,fast=8)))
     configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=5,slow=282,fast=12)))
     configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=1,slow=26,fast=8)))
-    configs.append(config(buyer=fcustom(s.ma2s,follow=2,slow=16,fast=3)))
+    #configs.append(config(buyer=fcustom(s.ma2s,follow=2,slow=16,fast=3)))
     configs.append(config(buyer=fcustom(s.ma2sv,follow=2,slow=8,fast=1)))
     configs.append(config(buyer=fcustom(s.tsvama3b,follow=1,slow=60,mid=35,fast=9)))
     configs.append(config(buyer=fcustom(s.tsvama3b,follow=3,slow=64,mid=93,fast=11)))    
-    configs.append(config(buyer=fcustom(s.tsvama3b,follow=1,slow=60,mid=107,fast=5)))
+    #configs.append(config(buyer=fcustom(s.tsvama3b,follow=1,slow=60,mid=107,fast=5)))
     configs.append(config(buyer=fcustom(s.tsvama3b,follow=7,slow=32,mid=149,fast=5)))
-    configs.append(config(buyer=fcustom(s.tsvama3b,follow=3,slow=72,mid=107,fast=8)))
+    #configs.append(config(buyer=fcustom(s.tsvama3b,follow=3,slow=72,mid=107,fast=8)))
 
     return configs
 
@@ -282,19 +282,19 @@ def prepare_configs_others(seller,pman,dman):
     '''
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
-    configs.append(config(buyer=s.spring))
+    #configs.append(config(buyer=s.spring))
     configs.append(config(buyer=fcustom(s.emv1,fast=227)))
     configs.append(config(buyer=fcustom(s.tsvama2,bxatr=50,slow=21,fast=7)))
-    configs.append(config(buyer=fcustom(s.tsvama2,bxatr=50,slow=49,fast=3)))
+    #configs.append(config(buyer=fcustom(s.tsvama2,bxatr=50,slow=49,fast=3)))
     #configs.append(config(buyer=fcustom(s.tsvama3,follow=5,slow=26,mid=23,fast=63)))
-    configs.append(config(buyer=fcustom(s.tsvama3,follow=10,slow=108,mid=75,fast=48)))
-    configs.append(config(buyer=fcustom(s.tsvama2sb,follow=10,slow=176,fast=8)))
+    #configs.append(config(buyer=fcustom(s.tsvama3,follow=10,slow=108,mid=75,fast=48)))
+    #configs.append(config(buyer=fcustom(s.tsvama2sb,follow=10,slow=176,fast=8)))
     configs.append(config(buyer=fcustom(s.tsvama2sb,follow=3,slow=280,fast=15)))
     configs.append(config(buyer=fcustom(s.tsvama2sb,follow=3,slow=130,fast=24)))
     #configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=3,slow=28,fast=19)))
     configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=5,slow=16,fast=2)))
     #configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=3,slow=12,fast=6)))
-    configs.append(config(buyer=fcustom(s.tsvama3b,follow=1,slow=208,mid=25,fast=11)))
+    #configs.append(config(buyer=fcustom(s.tsvama3b,follow=1,slow=208,mid=25,fast=11)))
     
     return configs
 
@@ -569,7 +569,7 @@ def run_body(sdata,dates,begin,end,xbegin):
     #seller = csc_func
     #seller = fcustom(csc_func,threshold=100)
     
-    configs = prepare_temp_configs(seller1200,pman,dman)
+    #configs = prepare_temp_configs(seller1200,pman,dman)
     #configs = prepare_temp_configs(seller2000,pman,dman)
     #configs = prepare_configs_A2000(seller2000,pman,dman)
     #configs.extend(prepare_configs_A2000(seller2000,pman,dman))
@@ -579,10 +579,10 @@ def run_body(sdata,dates,begin,end,xbegin):
     #configs.extend(prepare_configs_normal(seller1200,pman,dman))    
     #configs.extend(prepare_configs_others(seller1200,pman,dman))    
     
-    #configs = prepare_configs_A1200(seller1200,pman,dman)
-    #configs.extend(prepare_configs_A0(seller1200,pman,dman))    
-    #configs.extend(prepare_configs_A1(seller1200,pman,dman))
-    #configs.extend(prepare_configs_A2(seller1200,pman,dman))    
+    configs = prepare_configs_A1200(seller1200,pman,dman)
+    configs.extend(prepare_configs_A0(seller1200,pman,dman))    
+    configs.extend(prepare_configs_A1(seller1200,pman,dman))
+    configs.extend(prepare_configs_A2(seller1200,pman,dman))    
     
     #seller3600 = atr_xseller_factory(stop_times=600,trace_times=2000)
     #configs = prepare_configs_A1200(seller3600,pman,dman)

@@ -7082,8 +7082,8 @@ for fiter in ppat.finditer(sss):
     cwin = wtotal / wtimes if wtimes else 0
     clost = ltotal / ltimes if ltimes else 0
     #if times>=3 and wrate >= 666 and (clost == 0 or cwin/clost>=4):
-    if wrate >= 666:#and (clost == 0 or cwin/clost>=4):
-        print >>sout,'%s;%s:%s:%s:%s:%s:%s' % (name,R,efficency,times,wrate,cwin,clost)
+    #if wrate >= 666:#and (clost == 0 or cwin/clost>=4):
+    print >>sout,'%s;%s:%s:%s:%s:%s:%s' % (name,R,efficency,times,wrate,cwin,clost)
 
 print sout.getvalue()
 sout.close()
@@ -7507,4 +7507,82 @@ normal:
             tsvama2sbv:follow=5,slow=16,fast=2/2775:5440:118:644:238:49
 others:
     002064: tsvama3:follow=10,slow=108,mid=75,fast=48/11529:14000:4:500:409:17
-    
+
+#2009-08-12
+
+1000:
+    000565: ldx2:aend=80,astart=70,mlen=41/1000:7860:16:1000:393:0
+best:
+    600131: ldx:aend=75,astart=60,mlen=55/3000:4500:22:863:251:69
+            ldx:aend=80,astart=0,mlen=55/3113:4583:111:765:232:53
+
+#2009-08-17
+以08-04最高价起算的跌幅排名
+SZ000825 322
+SH601005 320
+SZ002110 313
+SZ000628 312
+SZ000065 311
+SZ000062 309
+SZ000821 305
+SZ000060 305
+SH600390 305
+SZ000960 304
+SZ000709 303
+SZ000612 303
+SZ000803 302
+SZ002265 301
+SH600961 301
+SH600367 301
+SZ000973 300
+SH600889 300
+SH600667 299
+SZ000698 298
+SZ000760 296
+SH600005 296
+SH600677 295
+SZ000420 294
+SH600569 293
+SH600482 293
+SZ000976 292
+SZ000815 292
+SZ000159 292
+SZ002170 291
+SZ002015 291
+SZ000758 291
+SH600808 291
+SZ002109 289
+SH600532 289
+SH600395 289
+SH600151 289
+SZ000838 288
+SH600725 288
+SH600581 288
+SH600307 288
+SH600219 288
+SZ000615 287
+SH600962 287
+SH600446 286
+SH600096 286
+SZ000959 285
+SZ000755 285
+SH600770 285
+SH600408 285
+
+#2009-08-13:
+1000:   
+        600258:     xud/已经出局
+
+#2009-08-18
+1000:
+        600483:     gmacd5/已经出局
+        #600824:    gmacd5/1547:4959:19:947:265:157
+
+#2009-08-20
+1000:
+best:
+        000410:     emv2:slow=8,fast=3/2894:4714:59:728:248:57
+        000997:     emv2:slow=8,fast=3/2894:4714:59:728:248:57
+        002186:     emv2:slow=8,fast=3/2894:4714:59:728:248:57
+
+

@@ -580,9 +580,9 @@ def run_body(sdata,dates,begin,end,xbegin):
     #configs.extend(prepare_configs_A2000(seller2000,pman,dman))
     #configs = prepare_configs_A0(seller1200,pman,dman)
     configs = prepare_configs_1000(seller1200,pman,dman)    
-    configs.extend(prepare_configs_best(seller1200,pman,dman))        
-    configs.extend(prepare_configs_normal(seller1200,pman,dman))    
-    configs.extend(prepare_configs_others(seller1200,pman,dman))    
+    #configs.extend(prepare_configs_best(seller1200,pman,dman))        
+    #configs.extend(prepare_configs_normal(seller1200,pman,dman))    
+    #configs.extend(prepare_configs_others(seller1200,pman,dman))    
     
     #configs = prepare_configs_A1200(seller1200,pman,dman)
     #configs.extend(prepare_configs_A0(seller1200,pman,dman))    
@@ -600,7 +600,7 @@ def run_body(sdata,dates,begin,end,xbegin):
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
     #save_configs('atr_ev_nm_1200.txt',configs,xbegin,end)
-    save_configs('atr_ev_emvb.txt',configs,xbegin,end)    
+    save_configs('atr_ev_emvb0908.txt',configs,xbegin,end)    
 
 def run_merge_body(sdata,dates,begin,end,xbegin):
     

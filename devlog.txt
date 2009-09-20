@@ -1,4 +1,7 @@
 
+另一个数据源
+    www.wstock.net
+
 基本准备
 插入年报/股本测试数据tstock_id=20
 insert into dune_report(id,tstock_id,announce_day,tperiod,zgb,ag,bg,hg,mgwfplr,mggjj,mgjzc,mgsy) values(1,20,20010101,200101,1000,500,0,0,0,0,0,0)

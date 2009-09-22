@@ -10,7 +10,6 @@ if 'DJANGO_SETTINGS_MODULE' not in os.environ: #如果已经设置，则不再�
 
 import numpy as np
 import django.db as dj
-from django.db import connection
 import wolfox.foxit.dune.store as s
 import wolfox.foxit.dune.models as m
 

@@ -52,6 +52,13 @@ def get_stocks(codes,begin,end,rid=ref_id):     #这里不对is_active进行筛�
         rev[sid] = vo
     return rev
 
+def get_hour(code,begin,end,rid=ref_id):
+    sid = code2id[code]
+    logger.debug('loading %s hour quote' % code)
+    quotes = store.get_refbased_hour_xquotes(dj.connection,ref_id,sid,begin,end)
+    assert len(quotes) % 4 == 0
+    return tuple2array(quotes)
+
 def get_catalog_tree(sdata,subjects=None):
     ''' sdata是 id ==> stock 的dict
         subjects为板块类别列表

@@ -132,6 +132,10 @@ class SourceDataTest(unittest.TestCase):    #与源数据相关的测试
         stocks = get_stocks([],0,99999999)
         self.assertFalse(stocks)
 
+    def test_get_hour(self):   #测试通路
+        t = get_hour('SH000001',0,22000000)
+        self.assertTrue(True)
+
     def test_get_catalog_tree(self):
         sdata = prepare_data(0,0,rcode=u'SH000001')        
         tree = get_catalog_tree(sdata)

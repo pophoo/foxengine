@@ -924,3 +924,12 @@ def supdown3(sopen,sclose,shigh,slow):
     cdown = shigh - sclose
     return cup,cdown
     
+@cache 
+def range4(length):
+    assert length % 4 == 0
+    return range(3,length,4)
+
+def hour2day(source):
+    ms = msum2(source,4)
+    return ms.take(range4(len(source)))
+    

@@ -544,6 +544,21 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([150,80,100,110,130,80],su.tolist())
         self.assertEquals([50,120,100,90,70,120],sd.tolist())
 
+    def test_range4(self):
+        self.assertEquals([],range4(0))
+        self.assertEquals([3],range4(4))
+        self.assertEquals([3,7],range4(8))        
+        self.assertEquals([3,7,11,15,19,23],range4(24))
+        x = range4(120)
+        y = range4(120)
+        self.assertEquals(id(x),id(y))
+        self.assertRaises(AssertionError,range4,13)
+
+    def test_hour2day(self):
+        self.assertEquals([],hour2day(np.array([])).tolist())
+        self.assertEquals([10],hour2day(np.array([1,2,3,4])).tolist())
+        self.assertEquals([10,26],hour2day(np.array([1,2,3,4,5,6,7,8])).tolist())
+        self.assertRaises(AssertionError,hour2day,np.array([1,2,3,4,5,6,7,8,9]))
 
 
 if __name__ == "__main__":

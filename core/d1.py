@@ -156,4 +156,3 @@ def rollx(source,shift=1):   #基本版每行数据移动，移动部分补第�
         rev[begin:] = source[-1]
     return rev
 
-

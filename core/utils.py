@@ -48,7 +48,7 @@ def get_null_obj_number(obj_type):
 def get_obj_number(obj_type):
     return sum([ isinstance(o,obj_type) and 1 or 0 for o in gc.get_objects() ])
 
-
+#设置虚拟内存分页文件为0后诡异失败,此函数只在cruiser调优过程中用到
 class memory_guard(object):
     ''' 一个用于检测memory溢出的decorate
         根据http://www.python.org/dev/peps/pep-0318/

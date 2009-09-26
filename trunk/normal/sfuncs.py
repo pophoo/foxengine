@@ -113,7 +113,7 @@ def tsvama2b(stock,fast=20,slow=170,astart=40):
 def pmacd(stock):
     t = stock.transaction
     pdiff,pdea = cmacd(t[CLOSE])
-    dcross = gand(cross(pdea,pdiff),strend(pdiff)>0,strend(pdea>0))
+    dcross = gand(cross(pdea,pdiff),strend(pdiff)>0,strend(pdea>0)) > 0
     linelog(stock.code)
     #return gand(dcross,stock.golden,stock.above,cs,pdea>0,pdea<12000)
     return gand(dcross,stock.thumb,stock.above,stock.silver,pdea>0,pdea<12000)

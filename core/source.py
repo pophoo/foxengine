@@ -54,8 +54,8 @@ def get_stocks(codes,begin,end,rid=ref_id):     #这里不对is_active进行筛�
 
 def get_hour(code,begin,end,rid=ref_id):
     sid = code2id[code]
-    logger.debug('loading %s hour quote' % code)
     quotes = store.get_refbased_hour_xquotes(dj.connection,ref_id,sid,begin,end)
+    logger.debug('loading %s hour quote,length=%s' % (code,len(quotes)))  
     assert len(quotes) % 4 == 0
     return tuple2array(quotes)
 

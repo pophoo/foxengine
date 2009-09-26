@@ -342,8 +342,11 @@ seller = atr_xseller_factory(stop_times=1200,trace_times=3000)
 seller2000 = atr_xseller_factory(stop_times=2000,trace_times=3000)
 
 import wolfox.fengine.normal.sfuncs as s
+import wolfox.fengine.normal.hfuncs as h
+
 
 scatalog = dict([(c.name,c) for c in catalogs])
+
 
 
 #开始计算

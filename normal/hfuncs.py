@@ -10,9 +10,10 @@ import logging
 logger = logging.getLogger('wolfox.fengine.normal.hfuncs')    
 
 def prepare_hour(stock,begin,end):
+    linelog('prepare hour:%s' % stock.code)
     t = get_hour(stock.code,begin,end)
     pdiff,pdea = cmacd(t[CLOSE])
-    upcross = gand(cross(pdea,pdiff)>0,strend(pdiff)>0)
+    upcross = gand(cross(pdea,pdiff)>0,strend(pdiff)>0,pdiff<0) #<0才保险
     downcross = gand(cross(pdea,pdiff)<0,strend(pdiff)<0) 
     stock.mup = hour2day(upcross)
     stock.mdown = hour2day(downcross)

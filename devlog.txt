@@ -347,6 +347,7 @@ import wolfox.fengine.normal.hfuncs as h
 
 scatalog = dict([(c.name,c) for c in catalogs])
 
+for s in sdata.values(): h.prepare_hour(s,begin,end)
 
 
 #开始计算

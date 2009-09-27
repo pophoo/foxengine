@@ -10,6 +10,7 @@ from wolfox.fengine.core.shortcut import *
 from wolfox.fengine.normal.funcs import *
 import wolfox.fengine.normal.funcs as f
 import wolfox.fengine.normal.sfuncs as s
+import wolfox.fengine.normal.hfuncs as h
 from wolfox.fengine.core.d1indicator import atr
 
 import logging
@@ -753,6 +754,8 @@ if __name__ == '__main__':
     print u'数据准备耗时: %s' % (tend-tbegin)    
     import psyco
     psyco.full()
+
+    for s in sdata.values(): h.prepare_hour(s,begin,end)
 
     #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     #run_main(dates,scatalog,idata,catalogs,begin,end,xbegin)

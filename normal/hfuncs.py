@@ -72,7 +72,7 @@ def gmacd5(stock,ldown=30,astart=60): #
     
     return signal
 
-def xmacd(stock):
+def hxud(stock):
     '''
         vfilter = gand(svma<vma*2/3)
         评估:总盈亏值=12444,交易次数=36 期望值=6764
@@ -110,7 +110,7 @@ def xmacd(stock):
     signal = gand(ss,vfilter,mcf>1000,stock.t5,stock.above,strend(stock.ma4)>0,t[VOLUME]>0,xatr>45,stock.ma1<stock.ma2,stock.ma1>stock.ma3,s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20<=8000,s.g5<s.g20,s.g20>=6500)
     return signal
 
-def hxud(stock):
+def hxud2(stock):
     signal = s.xud(stock,astart=0)
     ss = sfollow(signal,stock.hdev,30)
     return ss
@@ -178,19 +178,78 @@ def hemv1b(stock,fast=15,base=120):
     linelog(stock.code)
     return ecross
 
-def hmxru3(stock,astart=50):
+def hmxru3(stock):
     ''' 成交量分配后的macd,采用supdown3
+        评估:总盈亏值=6163,交易次数=22  期望值=3733
+                总盈亏率(1/1000)=6163,平均盈亏率(1/1000)=280,盈利交易率(1/1000)=863
+                平均持仓时间=48,持仓效率(1/1000000)=5833
+                赢利次数=19,赢利总值=6389
+                亏损次数=3,亏损总值=226
+                平盘次数=0
     '''
     t = stock.transaction
-    mdiff,mdea = macd_ruv3(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME])
     mxc = stock.xru3
     vma = ma(t[VOLUME],30)
     svma = ma(t[VOLUME],3)
-    #cf = (t[CLOSE]-t[LOW])*1000 / (t[HIGH]-t[LOW]) < 900    #物极必反
-    cf = (t[CLOSE]-t[LOW])*1000 / (t[HIGH]-t[LOW]) < 900    #物极必反, 如果是大阳线，不能收高
-    vfilter = gand(svma<vma*7/8,svma>vma/2,t[VOLUME]<=vma,t[CLOSE]>stock.ma1,cf)
+    vfilter = gand(svma<vma*2/3,svma>vma/2,t[VOLUME]<=vma*2/3)
     xatr = stock.atr * BASE / t[CLOSE]     
-    signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5,xatr>=astart)
+    
+    s = stock
+    signal = gand(s.above,mxc,vfilter,strend(stock.ma4)>0,stock.t5,xatr>=50,stock.magic,stock.ma1<stock.ma2,stock.ma1>stock.ma3)
     linelog(stock.code)
     return signal
+
+def hmxru(stock):
+    ''' 成交量分配后的macd,采用supdown
+        vfilter = svma < vma * 2/3    
+        评估:总盈亏值=4813,交易次数=14  期望值=5444
+                总盈亏率(1/1000)=4813,平均盈亏率(1/1000)=343,盈利交易率(1/1000)=928
+                平均持仓时间=50,持仓效率(1/1000000)=6860
+                赢利次数=13,赢利总值=4876
+                亏损次数=1,亏损总值=63
+                平盘次数=0
+        vfilter = gand(svma<vma*2/3,t[VOLUME]<=vma*2/3)
+        评估:总盈亏值=3810,交易次数=8   期望值=1000
+                总盈亏率(1/1000)=3810,平均盈亏率(1/1000)=476,盈利交易率(1/1000)=1000
+                平均持仓时间=65,持仓效率(1/1000000)=7323
+                赢利次数=8,赢利总值=3810
+                亏损次数=0,亏损总值=0
+                平盘次数=0
+
+    '''
+    t = stock.transaction
+    mxc = stock.xru
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+    vfilter = gand(svma<vma*2/3,t[VOLUME]<=vma*2/3)
+    #vfilter = gand(svma<vma*2/3)
+    xatr = stock.atr * BASE / t[CLOSE]     
+    
+    s = stock
+    signal = gand(mxc,stock.above,vfilter,strend(stock.ma4)>0,stock.t5,xatr>=60,stock.magic,stock.ma1<stock.ma2,stock.ma1>stock.ma3)
+    linelog(stock.code)
+    return signal
+
+def hspring(stock,threshold=-30):
+    ''' 对于结果
+        下影越短越好，close-low/close 也是越短越好
+    '''
+    t = stock.transaction
+    linelog('spring:%s' % stock.code)
+    
+    s11 = gand(stock.ks >=-5,stock.ks<0,stock.ref.ks<=threshold)
+    s12 = gand(stock.ks >=5,stock.ks<20,stock.ref.ks<=threshold)
+    s1 = bor(s11,s12)
+    s21 = gand(stock.ks>=5,stock.ks<75,stock.ref.ks<=threshold)
+
+    signals = bor(s1,s21)
+
+    ss = sfollow(signals,stock.hup,10)
+
+
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+    vfilter = gand(svma<vma*7/8,svma>vma/2,t[VOLUME]<=vma*2/3)    
+    return gand(ss,stock.magic,stock.above,vfilter)
+
 

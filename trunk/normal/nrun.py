@@ -124,6 +124,11 @@ def prepare_configs_1000(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=2,slow=42,fast=7)))
 
 
+    configs.append(config(buyer=h.hxud))
+    configs.append(config(buyer=h.hdev))
+    configs.append(config(buyer=h.hmxru3))
+    configs.append(config(buyer=h.hmxru))    
+
     return configs
 
 
@@ -735,10 +740,11 @@ if __name__ == '__main__':
     tbegin = time()
     
     dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])    
     sdata.update(idata) #合并指数
     scatalog = dict([(c.name,c) for c in catalogs])
     prepare_next(sdata,idata,catalogs)
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])
+    
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601398'],[ref_code])        
@@ -756,7 +762,7 @@ if __name__ == '__main__':
     psyco.full()
     
     tbegin = time()
-    for s in sdata.values(): h.prepare_hour(s,begin,end)
+    for st in sdata.values(): h.prepare_hour(st,begin,end)
     print u'小时数据准备耗时: %s' % (time()-tbegin)    
 
     #run_main(dates,sdata,idata,catalogs,begin,end,xbegin)

@@ -108,9 +108,9 @@ def prepare_configs_1000(seller,pman,dman):
     configs = []
 
     configs.append(config(buyer=s.gmacd5))
-    #configs.append(config(buyer=fcustom(s.ldx,aend=95,astart=65,mlen=39)))
-    #configs.append(config(buyer=fcustom(s.ldx2,aend=80,astart=70,mlen=41)))
-    #configs.append(config(buyer=fcustom(s.ldx2,aend=100,astart=65,mlen=30)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=95,astart=65,mlen=39)))
+    configs.append(config(buyer=fcustom(s.ldx2,aend=80,astart=70,mlen=41)))
+    configs.append(config(buyer=fcustom(s.ldx2,aend=100,astart=65,mlen=30)))
     configs.append(config(buyer=s.mxru3)) 
 
     configs.append(config(buyer=fcustom(s.xud,astart=0)))
@@ -127,7 +127,12 @@ def prepare_configs_1000(seller,pman,dman):
     configs.append(config(buyer=h.hxud))
     configs.append(config(buyer=h.hdev))
     configs.append(config(buyer=h.hmxru3))
-    configs.append(config(buyer=h.hmxru))    
+    configs.append(config(buyer=h.hmxru))
+    configs.append(config(buyer=h.mxru3)) 
+    configs.append(config(buyer=h.mxru)) 
+    configs.append(config(buyer=fcustom(h.emv2,slow=100,fast=10)))
+    configs.append(config(buyer=fcustom(h.emv2,slow=88,fast=17)))
+    configs.append(config(buyer=h.xud)) 
 
     return configs
 

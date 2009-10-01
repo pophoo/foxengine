@@ -20,25 +20,30 @@ def prepare_hour(stock,begin,end):
     linelog('prepare hour:%s' % stock.code)
     t = get_hour(stock.code,begin,end)
     pdiff,pdea = cmacd(t[CLOSE])
-    upcross = gand(cross(pdea,pdiff)>0,strend(pdiff)>0,pdiff<10) #<0才保险
+    upcross = gand(cross(pdea,pdiff)>0,strend(pdiff)>0,pdiff<10) #<10才保险
     downcross = gand(cross(pdea,pdiff)<0,strend(pdiff)<0) 
     stock.hup = hour2day(upcross)
     stock.hdown = hour2day(downcross)
     stock.hmxc = hour2day(xc0s(t[OPEN],t[CLOSE],t[HIGH],t[LOW],ma1=13) > 0)
-    dsub = rsub(pdiff,upcross)
-    csub = rsub(t[CLOSE],upcross)
+    upcross2 = gand(cross(pdea,pdiff)>0,strend(pdiff)>0)
+    dsub = rsub(pdiff,upcross2)
+    csub = rsub(t[CLOSE],upcross2)
     stock.hdev = hour2day(band(greater(dsub),lesser(csub)))
-    prepare_hour2(stock,begin,end)
-
-def prepare_hour2(stock,begin,end):
-    linelog('prepare hour:%s' % stock.code)
-    t = get_hour(stock.code,begin,end)
     mdiff,mdea = macd_ruv3(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME])
     mxc = cross(mdea,mdiff) > 0
     stock.xru3 = hour2day(mxc)
     mdiff,mdea = macd_ruv(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME])
     mxc = cross(mdea,mdiff) > 0
     stock.xru = hour2day(mxc)
+
+def prepare_hour(stock,begin,end):
+    linelog('prepare hour:%s' % stock.code)
+    t = get_hour(stock.code,begin,end)
+    pdiff,pdea = cmacd(t[CLOSE])
+    upcross2 = gand(cross(pdea,pdiff)>0,strend(pdiff)>0)
+    dsub = rsub(pdiff,upcross2)
+    csub = rsub(t[CLOSE],upcross2)
+    stock.hdev = hour2day(band(greater(dsub),lesser(csub)))
 
 def tsvama2_old(stock,fast,slow):
     t = stock.transaction
@@ -74,40 +79,45 @@ def gmacd5(stock,ldown=30,astart=60): #
 
 def hxud(stock):
     '''
-        vfilter = gand(svma<vma*2/3)
-        评估:总盈亏值=12444,交易次数=36 期望值=6764
-                总盈亏率(1/1000)=12444,平均盈亏率(1/1000)=345,盈利交易率(1/1000)=944
-                平均持仓时间=48,持仓效率(1/1000000)=7187
-                赢利次数=34,赢利总值=12546
-                亏损次数=2,亏损总值=102
+        vfilter = gand(svma<vma*3/5,t[VOLUME]>0,t[VOLUME]>vma*1/2)#,t[VOLUME]<vma*3/2)   #2/3    
+        评估:总盈亏值=9798,交易次数=18  期望值=9714
+                总盈亏率(1/1000)=9798,平均盈亏率(1/1000)=544,盈利交易率(1/1000)=777
+                平均持仓时间=50,持仓效率(1/1000000)=10880
+                赢利次数=14,赢利总值=10024
+                亏损次数=4,亏损总值=226
                 平盘次数=0
-        vfilter = gand(svma<vma*3/5)
-        评估:总盈亏值=9933,交易次数=26  期望值=10052
-                总盈亏率(1/1000)=9933,平均盈亏率(1/1000)=382,盈利交易率(1/1000)=961
-                平均持仓时间=53,持仓效率(1/1000000)=7207
-                赢利次数=25,赢利总值=9971
-                亏损次数=1,亏损总值=38
+        vfilter = gand(svma<vma*2/3,t[VOLUME]>0,t[VOLUME]>vma*1/2)#,t[VOLUME]<vma*3/2)  #无意义
+        评估:总盈亏值=10410,交易次数=25 期望值=6500
+                总盈亏率(1/1000)=10410,平均盈亏率(1/1000)=416,盈利交易率(1/1000)=760
+                平均持仓时间=43,持仓效率(1/1000000)=9674
+                赢利次数=19,赢利总值=10799
+                亏损次数=6,亏损总值=389
                 平盘次数=0
-                
+        vfilter = gand(svma<vma*1/2,t[VOLUME]>0,t[VOLUME]>vma*1/2)#,t[VOLUME]<vma*3/2)  #说明svma越小越好,最近越缩量越好
+        评估:总盈亏值=2785,交易次数=5   期望值=1000
+                总盈亏率(1/1000)=2785,平均盈亏率(1/1000)=557,盈利交易率(1/1000)=1000
+                平均持仓时间=57,持仓效率(1/1000000)=9771
+                赢利次数=5,赢利总值=2785
+                亏损次数=0,亏损总值=0
+                平盘次数=0
+
     '''
     t = stock.transaction
     linelog(stock.code)
     xatr = stock.atr * BASE / t[CLOSE]     
-    #mxc = xc0s(t[OPEN],t[CLOSE],t[HIGH],t[LOW],ma1=13) > 0
 
     ss = syntony(stock.hup,stock.hmxc,3)
-    #sss = sfollow(mxc,ss,3)
-    #ss = gand(stock.hup,stock.hmxc)
+    #ss = sfollow(stock.hup,stock.hmxc,3)
 
     vma = ma(t[VOLUME],30)
     svma = ma(t[VOLUME],3)
-    vfilter = gand(svma<vma*3/5)    #2/3
+    vfilter = gand(svma<vma*3/5,t[VOLUME]>0,t[VOLUME]>vma*1/2)#,t[VOLUME]<vma*3/2)   #2/3    
 
     cf = (t[OPEN]-t[LOW] + t[HIGH]-t[CLOSE])*1000 / (t[HIGH]-t[LOW])   #向下的动力  
     mcf = ma(cf,7)
 
     s=stock
-    signal = gand(ss,vfilter,mcf>1000,stock.t5,stock.above,strend(stock.ma4)>0,t[VOLUME]>0,xatr>45,stock.ma1<stock.ma2,stock.ma1>stock.ma3,s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20<=8000,s.g5<s.g20,s.g20>=6500)
+    signal = gand(ss,vfilter,mcf>1000,mcf<1050,stock.t5,stock.above,strend(stock.ma4)>0,strend(stock.ma3)>0,xatr>45,xatr<60,stock.ma1<stock.ma2,stock.ma1>stock.ma3,s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20<=8000,s.g5<s.g20,s.g20>=3000)
     return signal
 
 def hmacd(stock):
@@ -142,6 +152,8 @@ def hdev(stock):
     vma = ma(t[VOLUME],30)
     svma = ma(t[VOLUME],3)
     vfilter = gand(svma<vma*4/5)
+    #vfilter = gand(svma<vma*3/5,t[VOLUME]>0,t[VOLUME]>vma*1/2)#,t[VOLUME]<vma*3/2)   #2/3        
+
     xatr = stock.atr * BASE / t[CLOSE]
     cf = (t[OPEN]-t[LOW] + t[HIGH]-t[CLOSE])*1000 / (t[HIGH]-t[LOW])   #向下的动力  
     mcf = ma(cf,7)
@@ -374,6 +386,7 @@ def xud(stock,xfunc=xc0s,astart=45):
 
     xatr = stock.atr * BASE / t[CLOSE]     
 
+    #logger.debug('tlen,hlen=%s,%s' %(len(mxc),len(stock.hup)))
     ss = sfollow(mxc,stock.hup,20)
 
     signal = gand(ss,vfilter,stock.thumb,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st,xatr>=astart)

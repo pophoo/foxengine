@@ -591,7 +591,7 @@ def run_body(sdata,dates,begin,end,xbegin):
     #configs.extend(prepare_configs_A2000(seller2000,pman,dman))
     #configs = prepare_configs_A0(seller1200,pman,dman)
     configs = prepare_configs_1000(seller1200,pman,dman)    
-    #configs.extend(prepare_configs_best(seller1200,pman,dman))        
+    configs.extend(prepare_configs_best(seller1200,pman,dman))        
     #configs.extend(prepare_configs_normal(seller1200,pman,dman))    
     #configs.extend(prepare_configs_others(seller1200,pman,dman))    
     
@@ -611,7 +611,7 @@ def run_body(sdata,dates,begin,end,xbegin):
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
     #save_configs('atr_ev_nm_1200.txt',configs,xbegin,end)
-    save_configs('atr_ev_emvb0908.txt',configs,xbegin,end)    
+    save_configs('atr_ev_emvb1001b.txt',configs,xbegin,end)    
 
 def run_merge_body(sdata,dates,begin,end,xbegin):
     
@@ -734,8 +734,8 @@ if __name__ == '__main__':
     #begin,xbegin,end = 19980101,20010701,20090101
     #begin,xbegin,end = 20000101,20010701,20050901
     #begin,xbegin,end = 19980101,19990701,20010801    
-    #begin,xbegin,end = 20040601,20050801,20071031
-    #begin,xbegin,end =  20050101,20080701,20091201
+    #begin,xbegin,end = 20040101,20050101,20071031
+    #begin,xbegin,end = 20050101,20070701,20091201
     #begin,xbegin,end = 19980101,19990101,20090101
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301

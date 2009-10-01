@@ -323,6 +323,7 @@ logging.basicConfig(filename="xx4c.log",level=logging.DEBUG,format='%(name)s:%(f
 begin,xbegin,end = 20060101,20080701,20091201
 #begin,xbegin,end = 20000101,20010701,20090101
 #begin,xbegin,end = 19970101,19980101,20010701
+begin,xbegin,end = 20040101,20050101,20091231
 
 tbegin = time()
     
@@ -350,7 +351,7 @@ scatalog = dict([(c.name,c) for c in catalogs])
 tbegin=time()
 for s in sdata.values(): h.prepare_hour(s,begin,end)
 
-print u'数据准备耗时: %s' % (time()-tbegin)    
+print u'小时数据准备耗时: %s' % (time()-tbegin)    
 
 #开始计算
 reload(x)    #应对脚本修改

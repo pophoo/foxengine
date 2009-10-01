@@ -10,7 +10,7 @@ from wolfox.fengine.core.base import CommonObject as CDO,CatalogSubject as CSO,C
 logger = logging.getLogger('wolfox.fengine.core.source')
 
 def get_ref_dates(begin,end,rcode=ref_code):
-    rss = store.get_xquotes2(dj.connection,[rcode],begin,end)   #
+    rss = store.get_xquotes2(get_connection(),[rcode],begin,end)   #
     if not rss:
         return np.array([])
     rs = rss.values()[0]
@@ -27,7 +27,7 @@ def prepare_data(begin,end,type_code ='STOCK',rcode=ref_code):
     return sdata
 
 def get_gbjg():
-    return store.gbjg(dj.connection)
+    return store.gbjg(get_connection())
 
 @wcache
 def get_codes(type_code='STOCK',source='SHSE'):
@@ -47,14 +47,14 @@ def get_stocks(codes,begin,end,rid=ref_id):     #这里不对is_active进行筛�
         logger.debug('loading stock:%s' % code)
         #print code
         vo = CDO(id=sid,code=code)
-        vo.transaction = tuple2array(store.get_refbased_xquotes(dj.connection,ref_id,sid,begin,end))
+        vo.transaction = tuple2array(store.get_refbased_xquotes(get_connection(),ref_id,sid,begin,end))
         #t:transaction,d:data,g:global,c:catalog?
         rev[sid] = vo
     return rev
 
 def get_hour(code,begin,end,rid=ref_id):
     sid = code2id[code]
-    quotes = store.get_refbased_hour_xquotes(dj.connection,ref_id,sid,begin,end)
+    quotes = store.get_refbased_hour_xquotes(get_connection(),ref_id,sid,begin,end)
     logger.debug('loading %s hour quote,length=%s' % (code,len(quotes)))  
     assert len(quotes) % 4 == 0
     return tuple2array(quotes)

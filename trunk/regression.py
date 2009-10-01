@@ -14,6 +14,8 @@ setup_environ(settings)
 
 import sys, os, os.path, re, unittest
 
+os.environ['wolfox.db'] = settings.sqlite_db_name
+
 TEST_FILE_PATTERN = 'test\.py$' #默认的测试文件名为以test.py结尾的文件,以test开头的.py文件的pattern串为：'\Atest\w*\.py$'
 IGNORE_DIR_TYPE = ".svn,CVS"
 

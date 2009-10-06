@@ -142,12 +142,16 @@ class ModuleTest(unittest.TestCase):
 
     def test_msum(self):
         self.assertEquals([],msum(np.array([]),2).tolist())
+        self.assertEquals([10,20,30,40,50,60,70,80],msum(np.array([10,20,30,40,50,60,70,80]),1).tolist())  #normal,length < len(source)        
+        self.assertEquals([10,20,30,40,50,60,70,80],msum(np.array([10,20,30,40,50,60,70,80]),0).tolist())  #normal,length < len(source)
         self.assertEquals([0,0,60,90,120,150,180,210],msum(np.array([10,20,30,40,50,60,70,80]),3).tolist())  #normal,length < len(source)
         self.assertEquals([0,0,0,0,0,0,0,0],msum(np.array([10,20,30,40,50,60,70,80]),10).tolist())   #length > len(source)
         self.assertEquals([0,0,0,0,0,0,0,360],msum(np.array([10,20,30,40,50,60,70,80]),8).tolist())   #length = len(source)
 
     def test_msum2(self):
         self.assertEquals([],msum2(np.array([]),2).tolist())
+        self.assertEquals([10,20,30,40,50,60,70,80],msum2(np.array([10,20,30,40,50,60,70,80]),1).tolist())  #normal,length < len(source)        
+        self.assertEquals([10,20,30,40,50,60,70,80],msum2(np.array([10,20,30,40,50,60,70,80]),0).tolist())  #normal,length < len(source)
         self.assertEquals([10,30,60,90,120,150,180,210],msum2(np.array([10,20,30,40,50,60,70,80]),3).tolist())  #normal,length < len(source)
         self.assertEquals([10,30,60,100,150,210,280,360],msum2(np.array([10,20,30,40,50,60,70,80]),10).tolist())   #length > len(source)
         self.assertEquals([10,30,60,100,150,210,280,360],msum2(np.array([10,20,30,40,50,60,70,80]),8).tolist())   #length = len(source)

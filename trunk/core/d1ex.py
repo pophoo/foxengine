@@ -329,6 +329,8 @@ def msum(source,length):
     """
     if(len(source) == 0):
         return source.copy()
+    if length == 0:
+        length = 1
     acc = np.add.accumulate(source)
     dacc = np.roll(acc,length)
     dacc[:length]=0
@@ -344,6 +346,8 @@ def msum2(source,length):
     """
     if(len(source) == 0):
         return source.copy()
+    if length == 0:
+        length = 1
     acc = np.add.accumulate(source)
     dacc = np.roll(acc,length)
     dacc[:length]=0

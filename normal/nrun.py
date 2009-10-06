@@ -125,14 +125,14 @@ def prepare_configs_1000(seller,pman,dman):
 
 
     configs.append(config(buyer=h.hxud))
-    configs.append(config(buyer=h.hdev))
+    #configs.append(config(buyer=h.hdev))
     configs.append(config(buyer=h.hmxru3))
     configs.append(config(buyer=h.hmxru))
     configs.append(config(buyer=h.mxru3)) 
     configs.append(config(buyer=h.mxru)) 
     configs.append(config(buyer=fcustom(h.emv2,slow=100,fast=10)))
-    configs.append(config(buyer=fcustom(h.emv2,slow=88,fast=17)))
-    configs.append(config(buyer=h.xud)) 
+    #configs.append(config(buyer=fcustom(h.emv2,slow=88,fast=17)))
+    #configs.append(config(buyer=h.xud)) 
 
     return configs
 
@@ -746,7 +746,7 @@ if __name__ == '__main__':
     
     dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])    
-    sdata.update(idata) #合并指数
+    #sdata.update(idata) #合并指数，合并指数还是不妥，虽然可以计算指数的排序
     scatalog = dict([(c.name,c) for c in catalogs])
     prepare_next(sdata,idata,catalogs)
     

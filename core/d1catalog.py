@@ -28,7 +28,10 @@ def calc_indices_base(stocks,mlen=30):
     '''
     base = extract_collect(stocks,CLOSE)[:,0]   #以第一个收盘价为基准
     sbase = base[:,np.newaxis]  #化行为列，便于除法
-    weights = nma2d(extract_collect(stocks,VOLUME),30) #保证权重的稳定性    
+    weights = nma2d(extract_collect(stocks,VOLUME)*1.0,30) #保证权重的稳定性    
+    #weights = np.ones((len(stocks),len(stocks[0].transaction[0])))
+    #既然是对波动进行计算，那么应当以成交金额而非成交量为权重,但貌似不如成交量加权
+    #weights = nma2d(extract_collect(stocks,AMOUNT)*1.0,30) #保证权重的稳定性        
     s_weights = weights * RFACTOR / weights.sum(0)
     #scores = percent_sort(weights) / (PERCENT_BASE/10) + 1 #0基改为1基, 个数少时有排序失真
     #s_weights = scores * RFACTOR / scores.sum(0)

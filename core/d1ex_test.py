@@ -183,6 +183,12 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,3,0,0,0,0,1,0,23,0,0],decover(np.array([0,3,4,-5,6,0,1,0,23,3,0])).tolist())
         self.assertEquals([0,3,0,0,0,0,0,1,0,0,0,0],decover(np.array([0,3,0,-5,6,0,0,1,0,23,3,0]),2).tolist())
 
+    def test_decover1(self):
+        self.assertEquals([0,1,1,1,1,0,1,0,1,1,0],decover1(np.array([0,3,4,-5,6,0,1,0,23,3,0]),0).tolist())
+        self.assertEquals([0,1,0,1,1,0,0,1,0,1,1,0],decover1(np.array([0,3,0,-5,6,0,0,1,0,23,3,0]),0).tolist())
+        self.assertEquals([0,1,0,0,0,0,1,0,1,0,0],decover1(np.array([0,3,4,-5,6,0,1,0,23,3,0])).tolist())
+        self.assertEquals([0,1,0,0,0,0,0,1,0,0,0,0],decover1(np.array([0,3,0,-5,6,0,0,1,0,23,3,0]),2).tolist())
+
     def test_derepeatc_v(self):
         self.assertEquals([0,3,0,0,0,0,1,0,23,0,0],derepeatc_v(np.array([0,3,4,-5,6,0,1,0,23,3,0])).tolist())
         self.assertEquals([0,3,0,-5,0,0,0,1,0,23,0,0],derepeatc_v(np.array([0,3,0,-5,6,0,0,1,0,23,3,0])).tolist())

@@ -416,6 +416,15 @@ def decover(source,interval=1):
             cover -= 1
     return rev
 
+def decover1(source,interval=1):
+    ''' 去除间隔期内!=0数值的重复出现，并将信号标准化为1
+        新的信号会增强interval. 
+        去除效率大于derepeatc
+    '''
+    nsource = nequals(source,0)
+    ms = msum2(nsource,interval+1)  #间隔0为本位和，间隔1位本左邻和
+    return gand(equals(ms,1),nsource)
+
 def derepeatc_v(source):
     ''' 去除!=0数值的连续出现(只剩下第一个)
         c是consecutive的意思

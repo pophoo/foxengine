@@ -34,7 +34,7 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([1000,757,1175,1000],indices[CLOSE].tolist())
         self.assertEquals([0,0,0,0],indices[HIGH].tolist())
         self.assertEquals([0,0,0,0],indices[LOW].tolist())
-        self.assertEquals([857,857,1347,1364],indices[AVG].tolist())        
+        self.assertEquals([857,858,1347,1364],indices[AVG].tolist())        
         self.assertEquals([12,9,12,13],indices[AMOUNT].tolist())
         self.assertEquals([14,10,8,9],indices[VOLUME].tolist())        
 

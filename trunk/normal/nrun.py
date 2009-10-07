@@ -122,7 +122,7 @@ def prepare_configs_1000(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.emv2,slow=96,fast=125)))
     configs.append(config(buyer=fcustom(s.tsvama3,follow=6,slow=106,mid=73,fast=6)))
     configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=2,slow=42,fast=7)))
-
+    configs.append(config(buyer=s.eff)) 
 
     configs.append(config(buyer=h.hxud))
     #configs.append(config(buyer=h.hdev))
@@ -131,8 +131,10 @@ def prepare_configs_1000(seller,pman,dman):
     configs.append(config(buyer=h.mxru3)) 
     configs.append(config(buyer=h.mxru)) 
     configs.append(config(buyer=fcustom(h.emv2,slow=100,fast=10)))
-    #configs.append(config(buyer=fcustom(h.emv2,slow=88,fast=17)))
-    #configs.append(config(buyer=h.xud)) 
+    configs.append(config(buyer=fcustom(h.emv2,slow=88,fast=17)))
+    configs.append(config(buyer=h.xud)) 
+    configs.append(config(buyer=h.mag)) 
+    configs.append(config(buyer=h.heff))     
 
     return configs
 
@@ -507,30 +509,9 @@ def prepare_common(sdata,ref):
     for s in sdata:
         #print s.code
         s.ref = ref
+        prepare_common_common(s)
         c = s.transaction[CLOSE]
-        v = s.transaction[VOLUME]
-        s.ma1= ma(c,7)
-        s.ma2 = ma(c,13)
-        s.ma3 = ma(c,30)
-        s.ma4 = ma(c,60)
-        s.ma5 = ma(c,120)
-        s.t5 = strend(s.ma5) > 0
-        s.t4 = strend(s.ma4) > 0
-        s.t3 = strend(s.ma3) > 0
-        s.t2 = strend(s.ma2) > 0
-        s.t1 = strend(s.ma1) > 0
-        s.above = gand(s.ma2>s.ma3,s.ma3>s.ma4,s.ma4>s.ma5)
-        #将golden和above分开
-        s.golden = gand(s.g20 >= s.g60+1000,s.g60 >= s.g120+1000,s.g20>=3000,s.g20<=8000)
-        s.thumb = gand(s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20>=3000,s.g20<=8000)
-        s.magic = gand(s.g5>s.g60,s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20<8000)
-        s.svap_ma_67 = svap_ma(v,c,67)
-        #s.vap_ma_67 = vap_pre(v,c,67)
-        #s.svap_ma_67_1 = svap_ma(v,c,67,weight=1)        
-        s.svap_ma_67_2 = svap_ma(v,c,67,weight=2)        
-        s.ks = subd(c) * BASE / rollx(c)
-        s.diff,s.dea = cmacd(c)
-        s.atr = atr(c,s.transaction[HIGH],s.transaction[LOW],20)
+        v = s.transaction[VOLUME]        
         try:    #计算
             s.silver = catalog_signal_cs(s.c60,csilver)
         except:
@@ -546,29 +527,37 @@ def prepare_common_catalog(catalogs,ref):
         #print s.code
         s.code = s.name
         s.ref = ref
-        c = s.transaction[CLOSE]
-        v = s.transaction[VOLUME]        
-        s.ma1= ma(c,7)
-        s.ma2 = ma(c,13)
-        s.ma3 = ma(c,30)
-        s.ma4 = ma(c,60)
-        s.ma5 = ma(c,120)
-        s.t5 = strend(s.ma5) > 0
-        s.t4 = strend(s.ma4) > 0
-        s.t3 = strend(s.ma3) > 0
-        s.t2 = strend(s.ma2) > 0
-        s.t1 = strend(s.ma1) > 0
-        s.above = gand(s.ma2>s.ma3,s.ma3>s.ma4,s.ma4>s.ma5)
-        #将golden和above分开
-        s.golden = gand(s.g20 >= s.g60+1000,s.g60 >= s.g120+1000,s.g20>=3000,s.g20<=8000)
-        s.thumb = gand(s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20>=3000,s.g20<=8000)
-        s.magic = gand(s.g5>s.g60,s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20<8000)
-        s.ks = subd(c) * BASE / rollx(c)
-        s.diff,s.dea = cmacd(c)
-        s.atr = atr(c,s.transaction[HIGH],s.transaction[LOW],20)
-        s.svap_ma_67 = svap_ma(v,c,67)
-        s.svap_ma_67_2 = svap_ma(v,c,67,weight=2)
+        prepare_common_common(s)
         s.csignal = smaker(s)
+
+def prepare_common_common(s):
+    c = s.transaction[CLOSE]
+    v = s.transaction[VOLUME]
+    s.ma0 = ma(c,3)
+    s.ma1= ma(c,7)
+    s.ma2 = ma(c,13)
+    s.ma3 = ma(c,30)
+    s.ma4 = ma(c,60)
+    s.ma5 = ma(c,120)
+    s.t5 = strend(s.ma5) > 0
+    s.t4 = strend(s.ma4) > 0
+    s.t3 = strend(s.ma3) > 0
+    s.t2 = strend(s.ma2) > 0
+    s.t1 = strend(s.ma1) > 0
+    s.t0 = strend(s.ma0) > 0
+    s.above = gand(s.ma2>s.ma3,s.ma3>s.ma4,s.ma4>s.ma5)
+    #将golden和above分开
+    s.golden = gand(s.g20 >= s.g60+1000,s.g60 >= s.g120+1000,s.g20>=3000,s.g20<=8000)
+    s.thumb = gand(s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20>=3000,s.g20<=8000)
+    s.magic = gand(s.g5>s.g60,s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20<8000)
+    s.svap_ma_67 = svap_ma(v,c,67)
+    #s.vap_ma_67 = vap_pre(v,c,67)
+    #s.svap_ma_67_1 = svap_ma(v,c,67,weight=1)        
+    s.svap_ma_67_2 = svap_ma(v,c,67,weight=2)        
+    s.ks = subd(c) * BASE / rollx(c)
+    s.diff,s.dea = cmacd(c)
+    s.atr = atr(c,s.transaction[HIGH],s.transaction[LOW],20)
+    
 
 def prepare_index(index):
     index.pdiff,index.pdea = cmacd(index.transaction[CLOSE])
@@ -590,8 +579,10 @@ def run_body(sdata,dates,begin,end,xbegin):
     #configs = prepare_configs_A2000(seller2000,pman,dman)
     #configs.extend(prepare_configs_A2000(seller2000,pman,dman))
     #configs = prepare_configs_A0(seller1200,pman,dman)
-    configs = prepare_configs_1000(seller1200,pman,dman)    
-    configs.extend(prepare_configs_best(seller1200,pman,dman))        
+    #configs = prepare_configs_1000(seller1200,pman,dman)    
+    #configs.extend(prepare_configs_best(seller1200,pman,dman))        
+    configs = prepare_configs_1000(seller2000,pman,dman)    
+    configs.extend(prepare_configs_best(seller2000,pman,dman))        
     #configs.extend(prepare_configs_normal(seller1200,pman,dman))    
     #configs.extend(prepare_configs_others(seller1200,pman,dman))    
     
@@ -611,7 +602,7 @@ def run_body(sdata,dates,begin,end,xbegin):
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
     #save_configs('atr_ev_nm_1200.txt',configs,xbegin,end)
-    save_configs('atr_ev_emvb1001b.txt',configs,xbegin,end)    
+    save_configs('atr_ev_2000b.txt',configs,xbegin,end)    
 
 def run_merge_body(sdata,dates,begin,end,xbegin):
     
@@ -744,8 +735,8 @@ if __name__ == '__main__':
     from time import time
     tbegin = time()
     
-    dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])    
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
+    dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])    
     #sdata.update(idata) #合并指数，合并指数还是不妥，虽然可以计算指数的排序
     scatalog = dict([(c.name,c) for c in catalogs])
     prepare_next(sdata,idata,catalogs)

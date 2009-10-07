@@ -9,7 +9,7 @@ from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,scov
 from wolfox.fengine.core.d1match import *
 from wolfox.fengine.core.d1idiom import *
 from wolfox.fengine.core.d1indicator import cmacd,score2
-from wolfox.fengine.core.d1 import lesser
+from wolfox.fengine.core.d1 import lesser,bnot
 from wolfox.foxit.base.tutils import linelog
 from time import time
 
@@ -156,9 +156,15 @@ def hdev(stock):
     cf = (t[OPEN]-t[LOW] + t[HIGH]-t[CLOSE])*1000 / (t[HIGH]-t[LOW])   #向下的动力  
     mcf = ma(cf,7)
     
+    ma3 = ma(t[CLOSE],3)
+    ma7 = ma(t[CLOSE],7)
+    c37 = gand(cross(ma7,ma3)>0,strend(ma3)>0)
+    sc = sfollow(stock.hdev,c37,3)
+
     s=stock
     #signal = gand(stock.hdev,stock.t5,vfilter,mcf>1000,stock.g5<stock.g60,s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20<=8000)
-    signal = gand(stock.hdev,stock.t5,strend(stock.ma4)>0,mcf>1000,vfilter,stock.g5<stock.g20,s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20<=8000,s.g20>=3000)
+    magic = gand(stock.g5<stock.g20,s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20<=8000,s.g20>=3000)
+    signal = gand(sc,stock.t5,strend(stock.ma4)>0,vfilter,mcf<900)
     return signal
 
 def hemv1b(stock,fast=15,base=120):
@@ -469,22 +475,23 @@ def xud2(stock,xfunc=xc0s,astart=0):
 
 def mag(stock):
     '''
-        只在大牛市中有意义
+        只在大牛市中有意义,未继续检验
         0501-0909
-         评估:总盈亏值=47592,交易次数=217        期望值=3421
-                总盈亏率(1/1000)=47592,平均盈亏率(1/1000)=219,盈利交易率(1/1000)=635
-                平均持仓时间=26,持仓效率(1/1000000)=8423
-                赢利次数=138,赢利总值=52639
-                亏损次数=78,亏损总值=5047
-                平盘次数=1
-        0807--0909
-        评估:总盈亏值=4865,交易次数=59  期望值=1366
-                总盈亏率(1/1000)=4865,平均盈亏率(1/1000)=82,盈利交易率(1/1000)=508
-                平均持仓时间=23,持仓效率(1/1000000)=3565
-                赢利次数=30,赢利总值=6622
-                亏损次数=29,亏损总值=1757
+        评估:总盈亏值=37642,交易次数=119        期望值=4051
+                总盈亏率(1/1000)=37642,平均盈亏率(1/1000)=316,盈利交易率(1/1000)=781
+                平均持仓时间=37,持仓效率(1/1000000)=8540
+                赢利次数=93,赢利总值=39684
+                亏损次数=26,亏损总值=2042
                 平盘次数=0
-        
+                
+        0807--0909
+        评估:总盈亏值=4108,交易次数=26  期望值=1950
+                总盈亏率(1/1000)=4108,平均盈亏率(1/1000)=158,盈利交易率(1/1000)=692
+                平均持仓时间=38,持仓效率(1/1000000)=4157
+                赢利次数=18,赢利总值=4760
+                亏损次数=8,亏损总值=652
+                平盘次数=0
+
     '''    
     s = stock
     t = stock.transaction    
@@ -494,16 +501,57 @@ def mag(stock):
     xatr = stock.atr * BASE / t[CLOSE]     
     cf = (t[OPEN]-t[LOW] + t[HIGH]-t[CLOSE])*1000 / (t[HIGH]-t[LOW])   #向下的动力  
     mcf = ma(cf,7)
-    
     magnify = gand(stock.ma4_up,stock.mup_100)
     linelog(stock.code)
     magic = gand(s.g20 >= s.g120,s.g60 >= s.g120,s.g120 >= s.g250,s.g5<s.g20,s.g20<=8000)
-    hma3 = ma(stock.hour,3)    
     hma7 = ma(stock.hour,7)
     hma13 = ma(stock.hour,13)
     hma30 = ma(stock.hour,30)
-    hs = hour2day(gand(stock.hour > hma7,gswing(hma3,hma7,hma13,hma30,5)<60)) 
-    signal = gand(magnify,s.above,stock.t5,stock.t4,xatr>45,xatr<60,magic,vfilter,mcf<900,stock.ma1>stock.ma3,hs)                
+    hs = hour2day(gand(stock.hour > hma7,gswing(hma7,hma13,hma30,5)<60))
+    signal = gand(magnify,s.above,stock.t5,stock.t4,xatr>45,xatr<60,magic,vfilter,mcf<800,stock.ma1>stock.ma3,hs,stock.diff>stock.dea)
+    return signal
+
+def heff(stock):
+    ''' 效果不平衡
+        0501-0909
+        评估:总盈亏值=35014,交易次数=178        期望值=2684
+                总盈亏率(1/1000)=35014,平均盈亏率(1/1000)=196,盈利交易率(1/1000)=612
+                平均持仓时间=32,持仓效率(1/1000000)=6125
+                赢利次数=109,赢利总值=40100
+                亏损次数=69,亏损总值=5086
+                平盘次数=0
+        0711-0909
+        评估:总盈亏值=17918,交易次数=63 期望值=4437
+                总盈亏率(1/1000)=17918,平均盈亏率(1/1000)=284,盈利交易率(1/1000)=809
+                平均持仓时间=43,持仓效率(1/1000000)=6604
+                赢利次数=51,赢利总值=18686
+                亏损次数=12,亏损总值=768
+                平盘次数=0
+
+    '''
+    linelog(stock.code)
+    t = stock.transaction    
+    ef = efficient_rate(stock.hour)
+    zx = cached_zeros(len(stock.hour))
+    efz = hour2day(gand(cross(zx,ef)>0,strend(ef)>0))
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+    vfilter = gand(svma<vma*3/4,t[VOLUME]<vma)
+    cf = (t[OPEN]-t[LOW] + t[HIGH]-t[CLOSE])*1000 / (t[HIGH]-t[LOW])   #向下的动力  
+    mcf = ma(cf,7) 
+
+    refn = gand(stock.ref.ma0<stock.ref.ma1,stock.ref.ma1<stock.ref.ma2,bnot(stock.ref.t0),bnot(stock.ref.t1),bnot(stock.ref.t2))
+    sup = gand(stock.ma0>stock.ma1,stock.ma1>stock.ma2,stock.t1,stock.t2)
+
+    s1 = gand(efz,bor(bnot(refn),sup))
+    s2 = sfollow(efz,bnot(refn),10)
+    ss = bor(s1,s2)
+    s = stock
+    magic = gand(s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g5>s.g20,s.g20<=8000)
+    xatr = stock.atr * BASE / t[CLOSE]     
+
+    #signal = gand(ss,stock.above,stock.t5,stock.t4,magic,vfilter,mcf<1000)
+    signal = gand(ss,stock.above,stock.t5,stock.t4,magic,vfilter,mcf<1000,xatr>40,stock.ma1>stock.ma3,stock.diff<stock.dea)
     return signal
 
 

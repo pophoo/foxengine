@@ -8,6 +8,7 @@ if 'DJANGO_SETTINGS_MODULE' not in os.environ:
     from django.core.management import setup_environ
     import wolfox.foxit.other_settings.settings_sqlite_test as settings
     setup_environ(settings)
+    os.environ['wolfox.db'] = settings.sqlite_db_name
 
 from wolfox.fengine.core.base import *
 from wolfox.fengine.core.source import *

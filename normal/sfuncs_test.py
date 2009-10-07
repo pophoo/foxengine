@@ -15,10 +15,15 @@ class ModuleTest(unittest.TestCase):    #通路测试
     def setUp(self):
         #prepare data
         sopen = sclose = svolume = shigh = slow = savg = samount = np.array([randint(10000,15000) for i in range(2000)])
+        shour = np.array([randint(10000,15000) for i in range(8000)])
         trans = [sopen,sclose,svolume,shigh,savg,samount,svolume]
         vi = np.array([i for i in range(2000)])
         g = np.array([randint(0,10000) for i in range(2000)])
-        s = BaseObject(code='SH50TEST',zgb=10000000,ag=4000,transaction=trans,atr=g,silver=g,g5=g,g20=g,g60=g,g120=g,g250=g,diff=g,dea=g,ma1=g,ma2=g,ma3=g,ma4=g,ma5=g,t5=g,t3=g,above=g,golden=g,thumb=g,magic=g,svap_ma_67=(g,vi),svap_ma_67_2=(g,vi))
+        s = BaseObject(code='SH50TEST',zgb=10000000,ag=4000,transaction=trans,
+                atr=g,silver=g,g5=g,g20=g,g60=g,g120=g,g250=g,diff=g,dea=g,
+                ma0=g,ma1=g,ma2=g,ma3=g,ma4=g,ma5=g,t5=g,t4=g,t3=g,t2=g,t1=g,t0=g,above=g,golden=g,thumb=g,magic=g,
+                hour=shour,hmxc=g,xru3=g,xru=g,ma4_up=g,hup=g,hdown=g,hdev=g,mup_100=g,
+                svap_ma_67=(g,vi),svap_ma_67_2=(g,vi))
         s.ref = s   #指向自己
         s.catalog = {s:g}
         s.c60 = {s:g}
@@ -222,6 +227,20 @@ class ModuleTest(unittest.TestCase):    #通路测试
     def test_emv2c(self):
         sbuy = emv2c(self.stock,fast=10,slow=100)
         self.assertTrue(True)
+
+    def test_eff(self):
+        sbuy = eff(self.stock)
+        self.assertTrue(True)
+
+    ##小时测试
+    def test_heff(self):
+        sbuy = heff(self.stock)
+        self.assertTrue(True)
+
+    def test_mag(self):
+        sbuy = mag(self.stock)
+        self.assertTrue(True)
+
 
 if __name__ == "__main__":
     logging.basicConfig(filename="test.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')

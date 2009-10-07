@@ -8,7 +8,7 @@ from wolfox.fengine.normal.nrun import prepare_order,prepare_common
 from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,tmin,extend,extend2next,pzoom_out,vzoom_out,zoom_in,cover,scover
 from wolfox.fengine.core.d1match import *
 from wolfox.fengine.core.d1 import lesser,bnot,gmax,gmin
-from wolfox.fengine.core.d1indicator import cmacd,score2,rsi,obv,emv
+from wolfox.fengine.core.d1indicator import cmacd,score2,rsi,obv,emv,asi,efficient_rate
 from wolfox.fengine.core.d1idiom import down_period,macd_ru,macd_ru2,macd_ruv,macd_ruv3,xc_ru,xc_ru2,xc0,xc02,xc0c,xc0s,xc_ru0,xc_ru0s,xc_ru0c,xc_ru02
 from wolfox.fengine.core.d2 import increase,extract_collect
 from wolfox.foxit.base.tutils import linelog
@@ -2953,4 +2953,66 @@ def xudc2(stock):
     
     signal = gand(signal,stock.t5,stock.above,vfilter,stock.magic)#stock.g5 >= stock.g60,stock.g20 >= stock.g60,stock.above,vfilter)
     linelog(stock.code)
+    return signal
+
+def xasi(stock):
+    linelog(stock.code)
+    t = stock.transaction    
+    sasi = asi(t[OPEN],t[CLOSE],t[HIGH],t[LOW])
+    mline = rollx(tmax(sasi,20))
+    dcross = cross(mline,sasi)>0
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+    vfilter = gand(svma<vma*3/2,svma>vma*2/3)
+    xatr = stock.atr * BASE / t[CLOSE]     
+    cf = (t[OPEN]-t[LOW] + t[HIGH]-t[CLOSE])*1000 / (t[HIGH]-t[LOW])   #向下的动力  
+    mcf = ma(cf,7)
+    
+    signal = gand(dcross,stock.thumb,xatr<50,vfilter,mcf>900,stock.above)
+    return signal
+
+def eff(stock):
+    ''' 效果不平衡,seller2000
+        200501-200909
+        评估:总盈亏值=25823,交易次数=104        期望值=3815
+                总盈亏率(1/1000)=25823,平均盈亏率(1/1000)=248,盈利交易率(1/1000)=673
+                平均持仓时间=36,持仓效率(1/1000000)=6888
+                赢利次数=70,赢利总值=28051
+                亏损次数=34,亏损总值=2228
+                平盘次数=0
+
+        200711-200909
+        评估:总盈亏值=15146,交易次数=45 期望值=5694
+                总盈亏率(1/1000)=15146,平均盈亏率(1/1000)=336,盈利交易率(1/1000)=800
+                平均持仓时间=46,持仓效率(1/1000000)=7304
+                赢利次数=36,赢利总值=15684
+                亏损次数=9,亏损总值=538
+                平盘次数=0
+
+    '''
+    linelog(stock.code)
+    t = stock.transaction    
+    ef = efficient_rate(t[CLOSE])
+    zx = cached_zeros(len(t[CLOSE]))
+    efz = gand(cross(zx,ef)>0,strend(ef)>0)
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+    vfilter = gand(svma<vma*3/4,t[VOLUME]<vma)
+    cf = (t[OPEN]-t[LOW] + t[HIGH]-t[CLOSE])*1000 / (t[HIGH]-t[LOW])   #向下的动力  
+    mcf = ma(cf,7) 
+
+    refn = gand(stock.ref.ma0<stock.ref.ma1,stock.ref.ma1<stock.ref.ma2,bnot(stock.ref.t0),bnot(stock.ref.t1),bnot(stock.ref.t2))
+    sup = gand(stock.ma0>stock.ma1,stock.ma1>stock.ma2,stock.t1,stock.t2)
+
+    sa1 = gand(efz,bor(bnot(refn),sup))
+    sa2 = sfollow(efz,bnot(refn),10)
+    ssa = bor(sa1,sa2)
+    
+    s=stock
+    magic = gand(s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g5>s.g20,s.g20<=8000)
+
+    xatr = stock.atr * BASE / t[CLOSE]     
+
+    #signal = gand(ssa,stock.above,stock.t5,stock.t4,magic,vfilter,mcf<1000)
+    signal = gand(ssa,stock.above,stock.t5,stock.t4,magic,vfilter,mcf<1000,xatr>40,stock.diff<stock.dea,strend(stock.diff-stock.dea)>0)
     return signal

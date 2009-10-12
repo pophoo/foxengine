@@ -673,11 +673,13 @@ def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
     #dtrades_a0 = batch_last(configs_a0,sdata,dates,xbegin,cmediator=myMediator)
     #save_last('atr_last_a0y.txt',dtrades_a0,xbegin,end,lbegin)
 
-    configs_1000 = prepare_configs_1000(seller1200,pman,dman)
+    #configs_1000 = prepare_configs_1000(seller1200,pman,dman)
+    configs_1000 = prepare_configs_1000(seller2000,pman,dman)
     dtrades_1000 = batch_last(configs_1000,sdata,dates,xbegin,cmediator=myMediator)
     save_last('atr_last_1000.txt',dtrades_1000,xbegin,end,lbegin)
 
-    configs_best = prepare_configs_best(seller1200,pman,dman)
+    #configs_best = prepare_configs_best(seller1200,pman,dman)
+    configs_best = prepare_configs_best(seller2000,pman,dman)
     dtrades_best = batch_last(configs_best,sdata,dates,xbegin,cmediator=myMediator)
     save_last('atr_last_best.txt',dtrades_best,xbegin,end,lbegin)
     

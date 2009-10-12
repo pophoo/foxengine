@@ -134,7 +134,7 @@ def prepare_configs_1000(seller,pman,dman):
     configs.append(config(buyer=fcustom(h.emv2,slow=88,fast=17)))
     configs.append(config(buyer=h.xud)) 
     configs.append(config(buyer=h.mag)) 
-    configs.append(config(buyer=h.heff))     
+    #configs.append(config(buyer=h.heff))     #要小心从事
 
     return configs
 
@@ -602,7 +602,7 @@ def run_body(sdata,dates,begin,end,xbegin):
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
     #save_configs('atr_ev_nm_1200.txt',configs,xbegin,end)
-    save_configs('atr_ev_2000b.txt',configs,xbegin,end)    
+    save_configs('atr_ev_2000a.txt',configs,xbegin,end)    
 
 def run_merge_body(sdata,dates,begin,end,xbegin):
     
@@ -730,13 +730,13 @@ if __name__ == '__main__':
     #begin,xbegin,end = 19980101,19990101,20090101
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
-    begin,xbegin,end,lbegin = 20060101,20080701,20091201,20090201
+    begin,xbegin,end,lbegin = 20060101,20071031,20091201,20090201
     #begin,xbegin,end,lbegin = 20090301,20090401,20090501,20090501
     from time import time
     tbegin = time()
     
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
-    dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])    
+    dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])    
     #sdata.update(idata) #合并指数，合并指数还是不妥，虽然可以计算指数的排序
     scatalog = dict([(c.name,c) for c in catalogs])
     prepare_next(sdata,idata,catalogs)

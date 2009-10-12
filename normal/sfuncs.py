@@ -1510,7 +1510,7 @@ def eff(stock):
                 赢利次数=36,赢利总值=15684
                 亏损次数=9,亏损总值=538
                 平盘次数=0
-
+        多选时选择线路走的最顺的那个，比如ma0-->ma5都符合above的
     '''
     linelog(stock.code)
     t = stock.transaction    

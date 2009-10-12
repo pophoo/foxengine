@@ -35,7 +35,7 @@ def prepare_hour(stock,begin,end):
     stock.ma4_up = hour2day(gand((ma3>ma7),gand(ma7>ma13),gand(ma13>ma30),strend(ma3)>0,strend(ma7)>0,strend(ma13)>0,strend(ma30)>0))
 
 def prepare_hmacd(stock):
-    linelog('prepare hmacd:%s' % stock.code)    
+    #linelog('prepare hmacd:%s' % stock.code)    
     pdiff,pdea = cmacd(stock.hour)
     upcross = gand(cross(pdea,pdiff)>0,strend(pdiff)>0,pdiff<100) #<100才保险
     downcross = gand(cross(pdea,pdiff)<0,strend(pdiff)<0) 
@@ -165,6 +165,35 @@ def hdev(stock):
     #signal = gand(stock.hdev,stock.t5,vfilter,mcf>1000,stock.g5<stock.g60,s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20<=8000)
     magic = gand(stock.g5<stock.g20,s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20<=8000,s.g20>=3000)
     signal = gand(sc,stock.t5,strend(stock.ma4)>0,vfilter,mcf<900)
+    return signal
+
+def hmacd2(stock):
+    ''' 无大用
+    '''
+    t = stock.transaction    
+    linelog(stock.code)
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+    vfilter = gand(svma<vma*2/3)
+    #vfilter = gand(svma<vma*3/4,t[VOLUME]<vma)
+    #vfilter = gand(svma<vma*3/5,t[VOLUME]>0,t[VOLUME]>vma*1/2)#,t[VOLUME]<vma*3/2)   #2/3        
+
+    xatr = stock.atr * BASE / t[CLOSE]
+    cf = (t[OPEN]-t[LOW] + t[HIGH]-t[CLOSE])*1000 / (t[HIGH]-t[LOW])   #向下的动力  
+    mcf = ma(cf,7)
+    
+    #ma3 = ma(t[CLOSE],3)
+    #ma7 = ma(t[CLOSE],7)
+    #c37 = gand(cross(ma7,ma3)>0,strend(ma3)>0)
+    #sc = sfollow(stock.hdev,c37,3)
+    
+    ss = gand(msum(stock.hup,5)>1,stock.hup)    #5日内的第二次上叉
+
+    s=stock
+    #signal = gand(stock.hdev,stock.t5,vfilter,mcf>1000,stock.g5<stock.g60,s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g20<=8000)
+    #magic = gand(s.g20 >= s.g60,s.g60 <= s.g120,s.g120 <= s.g250)#,s.g20<=8000)
+    magic = gand(s.g5>s.g60,s.g20 >= s.g60,s.g60 <= s.g120,s.g20<=8000)
+    signal = gand(ss,stock.t5,stock.t4,vfilter,mcf<900,xatr>60,magic)
     return signal
 
 def hemv1b(stock,fast=15,base=120):

@@ -642,7 +642,7 @@ def prepare_next(sdata,idata,catalogs):
     prepare_common_catalog(catalogs,ref)
     prepare_index(idata[1])
     dummy_catalogs('catalog',catalogs)
-    ref.sud = sud(sdata.values())
+    ref.sud = sud(sdata.values(),distance=10)
     ref.vud = vud(sdata.values())
     ref.index = calc_indices_avg(sdata.values())
 

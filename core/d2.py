@@ -289,8 +289,10 @@ def ud_rate(source,distance=1):   #上下比例,千分位
 def vud_rate(sclose,svolume,distance=1,**kwargs):    #量升降比例，千分位
     cv = subd2(sclose,distance)    
     pv = ((cv>0)*1.0 * svolume).sum(0) + 1  #预防溢出
-    npv = ((cv<0)*1.0 * svolume).sum(0) + 1    
-    return np.cast['int'](pv * 1000 / npv)
+    npv = ((cv<0)*1.0 * svolume).sum(0) + 1
+    rv = pv * 1000 / npv
+    rv[rv>2000000000.0] = 200000000   #防止整数溢出
+    return np.cast['int'](rv)
 
 sud = sdispatch(ud_rate)
 vud = s2dispatch(vud_rate)

@@ -636,11 +636,15 @@ def prepare_next(sdata,idata,catalogs):
     prepare_order(sdata.values())
     prepare_order(idata.values())
     prepare_order(catalogs)
-    prepare_common(sdata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
-    prepare_common(idata.values(),idata[ref_id])   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
-    prepare_common_catalog(catalogs,idata[ref_id])
+    ref = idata[ref_id]
+    prepare_common(sdata.values(),ref)   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
+    prepare_common(idata.values(),ref)   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
+    prepare_common_catalog(catalogs,ref)
     prepare_index(idata[1])
     dummy_catalogs('catalog',catalogs)
+    ref.sud = sud(sdata.values())
+    ref.vud = vud(sdata.values())
+    ref.index = calc_indices_avg(sdata.values())
 
 def run_main(dates,sdata,idata,catalogs,begin,end,xbegin):
     run_body(sdata,dates,begin,end,xbegin)
@@ -739,7 +743,7 @@ if __name__ == '__main__':
     
     dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])    
-    #sdata.update(idata) #合并指数，合并指数还是不妥，虽然可以计算指数的排序
+    #sdata.update(idata) #合并指数，合并指数还是不妥，虽然可以计算指数的排序.但会紊乱其它针对stock的计算
     scatalog = dict([(c.name,c) for c in catalogs])
     prepare_next(sdata,idata,catalogs)
     

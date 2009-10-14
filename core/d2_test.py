@@ -46,6 +46,33 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals(a[CLOSE].tolist(),s1.test.tolist())
         self.assertEquals(b[CLOSE].tolist(),s2.test.tolist())
 
+    def test_sdispatch(self):
+        f = lambda sdatas,ma=10:sdatas[0]
+        sf = sdispatch(f)
+        a = np.array([(1,0,0,0),(500,400,800,400),(0,0,0,0),(0,0,0,0),(0,0,0,0),(5000,4000,8000,4000),(1000,1000,1000,1000)])
+        b = np.array([(2,0,0,0),(200,200,200,400),(0,0,0,0),(0,0,0,0),(0,0,0,0),(0,0,4000,4000),(0,0,2000,1000)])
+        s1 = CommonObject(id=3,transaction=a)
+        s2 = CommonObject(id=4,transaction=b)
+        self.assertEquals(a[CLOSE].tolist(),sf([s1,s2],100).tolist())
+        na = nb = np.array([[],[],[],[],[],[],[]])
+        s3 = CommonObject(id=3,transaction=na)
+        s4 = CommonObject(id=4,transaction=nb)
+        self.assertEquals([],sf([s3,s4],100).tolist())
+
+    def test_s2dispatch(self):
+        f = lambda sdatas,sdatasb,ma=10,**kwargs:sdatas[0]+sdatasb[0]
+        sf = s2dispatch(f)
+        a = np.array([(1,0,0,0),(500,400,800,400),(0,0,0,0),(0,0,0,0),(0,0,0,0),(5000,4000,8000,4000),(1000,1000,1000,1000)])
+        b = np.array([(2,0,0,0),(200,200,200,400),(0,0,0,0),(0,0,0,0),(0,0,0,0),(0,0,4000,4000),(0,0,2000,1000)])
+        s1 = CommonObject(id=3,transaction=a)
+        s2 = CommonObject(id=4,transaction=b)
+        self.assertEquals((a[CLOSE]*2).tolist(),sf([s1,s2],100).tolist())
+        self.assertEquals((a[CLOSE]+a[VOLUME]).tolist(),sf([s1,s2],100,sectorb=VOLUME).tolist())        
+        na = nb = np.array([[],[],[],[],[],[],[]])
+        s3 = CommonObject(id=3,transaction=na)
+        s4 = CommonObject(id=4,transaction=nb)
+        self.assertEquals([],sf([s3,s4],100).tolist())
+
     def test_cdispatch(self):
         f = lambda sdatas,ma=10:sdatas
         #f = lambda stocks,ma=10:(np.array([1,2,3,4]),np.array([5,6,7,8]))
@@ -161,6 +188,14 @@ class ModuleTest(unittest.TestCase):
         nsubd2(na)
         self.assertTrue(True)
 
+    def test_subd2(self):
+        a = np.array([[1,2,3],[4,5,6]])
+        self.assertEquals([[0,1,1],[0,1,1]],subd2(a).tolist())
+        self.assertEquals([[0,0,2],[0,0,2]],subd2(a,2).tolist())
+        na = np.array([[],[],[],[],[],[],[]])   #空测试
+        subd2(na)
+        self.assertTrue(True)
+
     def test_posort(self):
         a = np.array([(5,4,7),(3,2,8),(8,5,3),(4,4,4)])
         sa = posort(a)
@@ -268,6 +303,21 @@ class ModuleTest(unittest.TestCase):
         a = np.array([(),(),(),(),(),(),()])        
         sa = ppsort(a)
         self.assertTrue(True)
+
+    def test_udrate(self):
+        a= np.array([(1,2,3,4,5,6,6,5,4,0),(0,9,8,7,6,5,4,4,5,6)])
+        self.assertEquals([1000, 3000, 1000, 1000, 1000, 1000,  500,  500, 1000, 1000],ud_rate(a).tolist())
+        self.assertEquals([1000, 1000, 1000, 3000, 1000, 1000, 1000, 500, 500, 1000],ud_rate(a,3).tolist())        
+        sb = ud_rate(np.array([[],[]]))
+        self.assertFalse(sb.tolist())
+
+    def test_vudrate(self):
+        a= np.array([(1,2,3,4,5,6,6,5,4,0),(0,9,8,7,6,5,4,4,5,6)])
+        v= np.array([(1,1,1,1,1,1,1,1,1,1),(200,200,200,200,200,200,200,200,200,200)])
+        self.assertEquals([1000, 202000, 9, 9, 9, 9,  4,  500, 100500, 100500],vud_rate(a,v).tolist())
+        self.assertEquals([1000, 1000, 1000, 202000, 9, 9, 9, 4, 500, 100500],vud_rate(a,v,3).tolist())        
+        sb = vud_rate(np.array([[],[]]),np.array([[],[]]))
+        self.assertFalse(sb.tolist())
 
     def test_ma2d(self):
         a= np.array([(1,2,3,4,5,6,7,8,9,0),(0,9,8,7,6,5,4,3,2,1)])

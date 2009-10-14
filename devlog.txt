@@ -329,7 +329,7 @@ tbegin = time()
     
 #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
 dates,sdata,idata,catalogs = prepare_all(begin,end,[],[])
-#sdata.update(idata)
+#sdata.update(idata)    #会紊乱其它针对stock的计算
 import psyco
 psyco.full()
 

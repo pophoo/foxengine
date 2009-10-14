@@ -99,7 +99,8 @@ def calc_index_relative(stocks,sector=CLOSE,weight=AMOUNT,wave = 10):
     waves = npercent(sectors) * RFACTOR / PERCENT_BASE
     #sclose1 = rollx2(sclose,1)
     #waves = sectors* RFACTOR/sclose1 
-    scores = np.where(waves<1.0,scores * 1.25 ,scores)   #对下降段进行加权
+    #scores = np.where(waves<1.0,scores * 1.25 ,scores)   #对下降段进行加权
+    scores = np.where(waves<1.0,scores*1.18 ,scores)   #不对下降段进行加权
     s_weights = scores * RFACTOR / scores.sum(0)
     #print s_weights
     #waves = np.where(ori_waves<1.0,ori_waves*(csize-3)/(csize+3),ori_waves) #对下跌加权

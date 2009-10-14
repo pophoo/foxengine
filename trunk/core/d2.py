@@ -16,7 +16,8 @@ def assign(stocks,name,obj):
 
 class dispatch(object):
     """ 将(name,stocks,*args,**kwargs)形式的调用结果(array形式)dispatch到stock中相应name的属性中
-        要求被修饰函数的签名为(stocks,*args,**kwargs)
+        要求被修饰函数的签名为(data2d,*args,**kwargs)
+        data2d为2维数组，行为每一stock的相关数据
     """
     def __init__(self, func):
         self.func = func
@@ -38,7 +39,8 @@ class dispatch(object):
 
 class cdispatch(object):
     """ 将(name,catalogs,*args,**kwargs)形式的调用结果(array形式)dispatch到stock中相应name属性表示的dict中，dict[catalog] = v
-        要求被修饰函数的签名为(stocks,*args,**kwargs)
+        要求被修饰函数的签名为(data2d,*args,**kwargs)
+        data2d为2维数组，行为每一stock的相关数据                
         #需要一个准集成测试
     """
     def __init__(self, func):
@@ -61,6 +63,50 @@ class cdispatch(object):
         """Return the function's docstring."""
         return self.func.__doc__
 
+class sdispatch(object):
+    """ 将(name,stocks,*args,**kwargs)形式的调用结果(array形式)dispatch到stock中相应name的属性中
+        要求被修饰函数的签名为(data2d,*args,**kwargs)
+        data2d为2维数组，行为每一stock的相关数据        
+        直接返回func的结果
+    """
+    def __init__(self, func):
+        self.func = func
+    
+    def __call__(self,stocks,*args,**kwargs):
+        sector = kwargs.get('sector',CLOSE)        #默认参数的另一种方法，避免对内部func位置参数的污染(否则为了向func提供参数，必须先明确提供sector参数，或者使用关键字方式指定func的参数，而不能使用位置方式[会被优先当作sector])
+        sdatas = extract_collect(stocks,sector)
+        #print 'sdatas:',sdatas,'...'
+        result = self.func(sdatas,*args,**kwargs)
+        #print datas
+        return result
+
+    def __repr__(self):
+        """Return the function's docstring."""
+        return self.func.__doc__
+
+class s2dispatch(object):
+    """ 将(name,stocks,*args,**kwargs)形式的调用结果(array形式)dispatch到stock中相应name的属性中
+        要求被修饰函数的签名为(data2d,data2db,*args,**kwargs)
+        data2d/data2db为2维数组，行为每一stock的相关数据        
+        直接返回func的结果
+    """
+    def __init__(self, func):
+        self.func = func
+    
+    def __call__(self,stocks,*args,**kwargs):
+        sector = kwargs.get('sector',CLOSE)        #默认参数的另一种方法，避免对内部func位置参数的污染(否则为了向func提供参数，必须先明确提供sector参数，或者使用关键字方式指定func的参数，而不能使用位置方式[会被优先当作sector])
+        sectorb = kwargs.get('sectorb',CLOSE)        #默认参数的另一种方法，避免对内部func位置参数的污染(否则为了向func提供参数，必须先明确提供sector参数，或者使用关键字方式指定func的参数，而不能使用位置方式[会被优先当作sector])
+        sdatas = extract_collect(stocks,sector)
+        sdatasb = extract_collect(stocks,sectorb)
+        #print 'sdatas:',sdatas,'...'
+        result = self.func(sdatas,sdatasb,*args,**kwargs)
+        #print datas
+        return result
+
+    def __repr__(self):
+        """Return the function's docstring."""
+        return self.func.__doc__
+
 @cdispatch
 def dummy_catalogs(sdatas,*args,**kwargs):   #用于利用cdispatch将catalog分配到相应的stock中
     #print sdatas,np.array([[] for s in sdatas])
@@ -73,6 +119,14 @@ def dispatch_example(sdatas,ma=10):
     except Exception,inst: #没有交易数据
         #print np.array([[] for s in stocks]).tolist()
         return np.array([[] for s in sdatas])
+
+@sdispatch
+def sdispatch_example(sdatas,ma=10):
+    return sdatas[0]    #因为extract_collect的原因，必然存在sdatas[0]，即np.array([[]])[0]存在
+
+@s2dispatch
+def sdispatch_example(sdatas,sdatasb,ma=10):
+    return sdatas[0]+sdatasb[0]
 
 
 def roll02(source,shift):   #每行数据右移，移动部分补0. 二维版本(兼容一维)
@@ -111,6 +165,13 @@ def nsubd2(source,distance=1):   #自然的偏移减法,distance必须大于0,�
         return d1.nsubd(source)
     rs = roll02(source,distance)
     return source - rs
+
+def subd2(source,distance=1):   #偏移减法,distance必须大于0,返回结果中前distance个元素为0
+    if source.ndim == 1:
+        return d1.subd(source)
+    rs = nsubd2(source,distance)
+    rs[:,:distance] = 0
+    return rs
 
 def posort(v):   
     ''' 对二维数组的每一列进行位置排序
@@ -219,6 +280,20 @@ ppsort = lambda v,distance=1:percent_sort(percent(v,distance))
 c_posort = cdispatch(ppsort)
 d_posort = dispatch(ppsort)
 
+def ud_rate(source,distance=1):   #上下比例,千分位
+    v = subd2(source,distance) 
+    u = ((v>0)*1.0).sum(0) + 1  #预防溢出
+    d = ((v<0)*1.0).sum(0) + 1    #避免出现被0除
+    return np.cast['int'](u*1000/d)
+
+def vud_rate(sclose,svolume,distance=1,**kwargs):    #量升降比例，千分位
+    cv = subd2(sclose,distance)    
+    pv = ((cv>0)*1.0 * svolume).sum(0) + 1  #预防溢出
+    npv = ((cv<0)*1.0 * svolume).sum(0) + 1    
+    return np.cast['int'](pv * 1000 / npv)
+
+sud = sdispatch(ud_rate)
+vud = s2dispatch(vud_rate)
 
 def ma2d(source,length):
     ''' 计算二维数组每行的ma 

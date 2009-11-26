@@ -102,6 +102,7 @@ def prepare_configs_1000(seller,pman,dman):
     tsvama2sbv:follow=2,slow=42,fast=7	1000:6500:8:1000:221:0
     tsvama2sbv:follow=3,slow=10,fast=15	1000:4727:10:1000:156:0
     tsvama3b:follow=7,slow=32,mid=133,fast=7	1000:6411:5:1000:327:0
+    ###??? 存疑但放宽
     '''
 
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
@@ -115,7 +116,7 @@ def prepare_configs_1000(seller,pman,dman):
 
     configs.append(config(buyer=fcustom(s.xud,astart=0)))
     configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc0c,astart=0)))  #4/9
-    #configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc0,astart=0)))  #1/5 类同xc02，但xc02更好
+    configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc0,astart=0)))  #1/5 类同xc02，但xc02更好  ###??? 
     configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc02,astart=0)))  #1/5
     configs.append(config(buyer=fcustom(s.emv1b,base=120,fast=15)))
     configs.append(config(buyer=fcustom(s.emv2,slow=290,fast=128)))
@@ -125,7 +126,7 @@ def prepare_configs_1000(seller,pman,dman):
     configs.append(config(buyer=s.eff)) 
 
     configs.append(config(buyer=h.hxud))
-    #configs.append(config(buyer=h.hdev))
+    configs.append(config(buyer=h.hdev))       ###???
     configs.append(config(buyer=h.hmxru3))
     configs.append(config(buyer=h.hmxru))
     configs.append(config(buyer=h.mxru3)) 
@@ -134,7 +135,7 @@ def prepare_configs_1000(seller,pman,dman):
     configs.append(config(buyer=fcustom(h.emv2,slow=88,fast=17)))
     configs.append(config(buyer=h.xud)) 
     configs.append(config(buyer=h.mag)) 
-    #configs.append(config(buyer=h.heff))     #要小心从事
+    configs.append(config(buyer=h.heff))     #要小心从事   ###???
 
     return configs
 
@@ -176,22 +177,22 @@ def prepare_configs_best(seller,pman,dman):
 
     configs.append(config(buyer=fcustom(s.ldx,glimit=3000,mlen=60)))
     configs.append(config(buyer=fcustom(s.ldx2,glimit=3333,mlen=30)))
-    #configs.append(config(buyer=fcustom(s.ldx2,glimit=3333,aend=50,astart=0,mlen=120)))
+    configs.append(config(buyer=fcustom(s.ldx2,glimit=3333,aend=50,astart=0,mlen=120)))    ###???
     configs.append(config(buyer=fcustom(s.ldx,aend=95,astart=45,mlen=135)))
-    #configs.append(config(buyer=fcustom(s.ldx,aend=85,astart=65,mlen=92)))
-    #configs.append(config(buyer=fcustom(s.ldx,aend=75,astart=60,mlen=55)))
+    configs.append(config(buyer=fcustom(s.ldx,aend=85,astart=65,mlen=92)))  ###???
+    configs.append(config(buyer=fcustom(s.ldx,aend=75,astart=60,mlen=55))) ###???
 
     configs.append(config(buyer=fcustom(s.emv1b,base=120,fast=40)))
     configs.append(config(buyer=fcustom(s.emv1,fast=98)))
     configs.append(config(buyer=fcustom(s.emv1,fast=120)))
     configs.append(config(buyer=fcustom(s.emv1,fast=143)))
-    #configs.append(config(buyer=fcustom(s.emv2,slow=86,fast=124)))
+    configs.append(config(buyer=fcustom(s.emv2,slow=86,fast=124)))  ####???
     configs.append(config(buyer=fcustom(s.tsvama2,bxatr=50,slow=33,fast=3)))
     configs.append(config(buyer=fcustom(s.tsvama2,bxatr=50,slow=75,fast=15)))
-    #configs.append(config(buyer=fcustom(s.tsvama3,follow=4,slow=14,mid=29,fast=7)))
-    #configs.append(config(buyer=fcustom(s.tsvama3,follow=10,slow=228,mid=11,fast=7)))
-    #configs.append(config(buyer=fcustom(s.tsvama2sb,follow=2,slow=192,fast=6)))
-    #configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=3,slow=10,fast=15)))
+    configs.append(config(buyer=fcustom(s.tsvama3,follow=4,slow=14,mid=29,fast=7))) ###???
+    configs.append(config(buyer=fcustom(s.tsvama3,follow=10,slow=228,mid=11,fast=7)))  ###???
+    configs.append(config(buyer=fcustom(s.tsvama2sb,follow=2,slow=192,fast=6)))    ###???
+    configs.append(config(buyer=fcustom(s.tsvama2sbv,follow=3,slow=10,fast=15)))   ###???
     configs.append(config(buyer=fcustom(s.tsvama3b,follow=7,slow=32,mid=133,fast=7)))   
     configs.append(config(buyer=fcustom(s.tsvama3,follow=6,slow=10,mid=21,fast=7)))
 
@@ -300,7 +301,7 @@ def prepare_configs_others(seller,pman,dman):
     '''
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
-    #configs.append(config(buyer=s.spring))
+    configs.append(config(buyer=s.spring))  ##??
     configs.append(config(buyer=fcustom(s.emv1,fast=227)))
     configs.append(config(buyer=fcustom(s.tsvama2,bxatr=50,slow=21,fast=7)))
     #configs.append(config(buyer=fcustom(s.tsvama2,bxatr=50,slow=49,fast=3)))
@@ -688,13 +689,13 @@ def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
     save_last('atr_last_best.txt',dtrades_best,xbegin,end,lbegin)
     
     #normal及以下省略
-    #configs_normal = prepare_configs_normal(seller1200,pman,dman)
-    #dtrades_normal = batch_last(configs_normal,sdata,dates,xbegin,cmediator=myMediator)
-    #save_last('atr_last_normal.txt',dtrades_normal,xbegin,end,lbegin)
+    configs_normal = prepare_configs_normal(seller1200,pman,dman)
+    dtrades_normal = batch_last(configs_normal,sdata,dates,xbegin,cmediator=myMediator)
+    save_last('atr_last_normal.txt',dtrades_normal,xbegin,end,lbegin)
 
-    #configs_others = prepare_configs_others(seller1200,pman,dman)
-    #dtrades_others = batch_last(configs_others,sdata,dates,xbegin,cmediator=myMediator)
-    #save_last('atr_last_others.txt',dtrades_others,xbegin,end,lbegin)
+    configs_others = prepare_configs_others(seller1200,pman,dman)
+    dtrades_others = batch_last(configs_others,sdata,dates,xbegin,cmediator=myMediator)
+    save_last('atr_last_others.txt',dtrades_others,xbegin,end,lbegin)
 
     #configs_a1 = prepare_configs_A1(seller1200,pman,dman)
     #dtrades_a1 = batch_last(configs_a1,sdata,dates,xbegin,cmediator=myMediator)

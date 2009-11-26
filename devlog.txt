@@ -320,10 +320,10 @@ logging.basicConfig(filename="xx4c.log",level=logging.DEBUG,format='%(name)s:%(f
 #begin,xbegin,end = 20050101,20060701,20091231
 #begin,xbegin,end = 20070101,20080601,20091231
 #begin,xbegin,end = 20060101,20080601,20091231
-begin,xbegin,end = 20060101,20080701,20091201
+begin,xbegin,end = 20070101,20080701,20091201
 #begin,xbegin,end = 20000101,20010701,20090101
 #begin,xbegin,end = 19970101,19980101,20010701
-begin,xbegin,end = 20040101,20050101,20091231
+#begin,xbegin,end = 20040101,20050101,20091231
 
 tbegin = time()
     
@@ -3475,10 +3475,11 @@ signals = gand(g,stock.ref.t120,strend(stock.ref.ma60)>0,strend(stock.ref.ma20)>
 
 stocks = sdata.values()
 for s in stocks:
-    x.shigh(s,dates,CLOSE)
+    x.shigh(s,CLOSE)
 
 from wolfox.fengine.core.source import extract_collect as ec
 nx = ec(stocks,'shigh') 
+#nx = ec(stocks,HIGH)
 nv = ec(stocks,VOLUME)
 nn = (nv>0).sum(axis=0)
 sx = np.sum(nx,0) * 1000 / nn       #新高比例
@@ -7732,6 +7733,7 @@ macd从峰值下来后，开始翻绿，之后将出现翻红，绿红交汇点�
 另： 20、60、120日涨跌家数
 
 
+
 #2009-11-16
 明日操作
 用友软件: 
@@ -7745,4 +7747,30 @@ macd从峰值下来后，开始翻绿，之后将出现翻红，绿红交汇点�
 风险值: 2000
 股数: 2000/0.82 = 2500
 资金: 2500*10.5 = 26250
+
+#2009-11-24
+新低点未跌破前期低点，且60分钟上叉时
+低点判断，5日，即前两日后两日。或7日，前后各三
+出现时是买点？
+比如安阳钢铁 20091105 ? 
+
+#2009-11-25
+normal:
+600527:     ma2sv:follow=2,slow=8,fast=1
+
+#2009-11-26
+
+best:
+002217:     tsvama3:follow=6,slow=10,mid=21,fast=7
+
+normal:
+000026:     ma2sv:follow=2,slow=8,fast=1
+
+others:
+600470:     spring
+601008:     spring
+601333:     spring
+000828:     spring
+000026:     tsvama2sbv:follow=5,slow=16,fast=2
+
 

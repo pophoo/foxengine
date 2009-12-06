@@ -689,13 +689,13 @@ def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
     save_last('atr_last_best.txt',dtrades_best,xbegin,end,lbegin)
     
     #normal及以下省略
-    configs_normal = prepare_configs_normal(seller1200,pman,dman)
-    dtrades_normal = batch_last(configs_normal,sdata,dates,xbegin,cmediator=myMediator)
-    save_last('atr_last_normal.txt',dtrades_normal,xbegin,end,lbegin)
+    #configs_normal = prepare_configs_normal(seller1200,pman,dman)
+    #dtrades_normal = batch_last(configs_normal,sdata,dates,xbegin,cmediator=myMediator)
+    #save_last('atr_last_normal.txt',dtrades_normal,xbegin,end,lbegin)
 
-    configs_others = prepare_configs_others(seller1200,pman,dman)
-    dtrades_others = batch_last(configs_others,sdata,dates,xbegin,cmediator=myMediator)
-    save_last('atr_last_others.txt',dtrades_others,xbegin,end,lbegin)
+    #configs_others = prepare_configs_others(seller1200,pman,dman)
+    #dtrades_others = batch_last(configs_others,sdata,dates,xbegin,cmediator=myMediator)
+    #save_last('atr_last_others.txt',dtrades_others,xbegin,end,lbegin)
 
     #configs_a1 = prepare_configs_A1(seller1200,pman,dman)
     #dtrades_a1 = batch_last(configs_a1,sdata,dates,xbegin,cmediator=myMediator)

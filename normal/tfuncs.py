@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#指定股票的运行脚本
+#算法测试
 
 from wolfox.fengine.core.shortcut import *
 from wolfox.fengine.normal.funcs import *

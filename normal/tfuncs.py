@@ -4,6 +4,7 @@
 
 from wolfox.fengine.core.shortcut import *
 from wolfox.fengine.normal.funcs import *
+from wolfox.fengine.core.d1 import lesser,bnot,gmax,gmin
 from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,scover
 from wolfox.fengine.core.d1match import *
 from wolfox.fengine.core.d1idiom import *
@@ -1000,22 +1001,22 @@ def xud(stock,xfunc=xc0s,astart=45):
     ''' 
     '''
     t = stock.transaction
-    mxc = xfunc(t[OPEN],t[CLOSE],t[HIGH],t[LOW],ma1=13) > 0
+    mxc = xfunc(t[OPEN],t[CLOSE],t[HIGH],t[LOW],ma1=10) > 0
 
     vma = ma(t[VOLUME],30)
     svma = ma(t[VOLUME],3)
 
     vfilter = gand(svma<vma*2/3)
-    cf = (t[OPEN]-t[LOW] + t[HIGH]-t[CLOSE])*1000 / (t[HIGH]-t[LOW])   #向下的动力  
-    mcf = ma(cf,7)
 
     stdea = strend(stock.dea)
     stdiff = strend(stock.diff)
     st = gand(stdea<=-3,stdea>=-4,stdiff<=-5,stdiff>=-6)
+    #st = gand(stdea<=-3,stdiff>=-6,stdea>stdiff)
 
-    xatr = stock.atr * BASE / t[CLOSE]     
+    s=stock
+    thumb = gand(s.g20>=3000,s.g20<=8000)
 
-    signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st,xatr>=astart)
+    signal = gand(mxc,vfilter,thumb,stock.above,stock.t5,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st)#,mcf>1000)
     linelog(stock.code)
     return signal
 
@@ -1051,14 +1052,10 @@ def xudj(stock):
     cf = (t[OPEN]-t[LOW] + t[HIGH]-t[CLOSE])*1000 / (t[HIGH]-t[LOW])   #向下的动力  
     mcf = ma(cf,7)
 
-    stdea = strend(stock.dea)
-    stdiff = strend(stock.diff)
-    st = gand(stdea<=-3,stdea>=-4,stdiff<=-5,stdiff>=-6)
-
     xatr = stock.atr * BASE / t[CLOSE]
 
     #signal = gand(mxc,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,stock.g20 >= stock.g60,stock.g60 >= stock.g120)
-    signal = gand(mxc,vfilter,stock.above,stock.t5,stock.ma1<stock.ma2,stock.g20 >= stock.g60,stock.g60 >= stock.g120)
+    signal = gand(mxc,stock.above,stock.t5,stock.ma1<stock.ma2,stock.g20 >= stock.g60,stock.g60 >= stock.g120)
     return signal
 
 def xud0(stock):
@@ -1621,5 +1618,42 @@ def heff(stock):
     signal = gand(ss,stock.above,stock.t5,stock.t4,magic,vfilter,mcf<1000,xatr>40,stock.ma1>stock.ma3,stock.diff<stock.dea)
     return signal
 
+def uplain(stock):
+    '''
+        长期稳定性不够
+    '''
+    t = stock.transaction
+
+    m1,m2,m3,m4 = stock.ma0,stock.ma1,stock.ma2,ma(t[CLOSE],20)
+    mmax = gmax(m1,m2,m3,m4)
+    mmin = gmin(m1,m2,m3,m4)
+
+    smm = strend(ma(mmax-mmin,5))<-5
+
+    #print (mmax-mmin)[-60:]
+
+    ndev = (mmax-mmin) * 1000 / mmin< 15
+
+    sdev = msum(ndev,2) > 1 #连续2天
+
+    #print sdev[-60:]
+    #print ((mmax-mmin) * 1000 / mmin)[-60:]
+
+    nup = t[CLOSE] > mmax
+
+    smacd = gand(cross(stock.dea,stock.diff)>0,strend(stock.diff)>0)
+    
+    nsignal = sfollow(sdev,smacd,100)
+
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+
+    vfilter = gand(svma<vma)
+
+    #signal = gand(nup,ndev,stock.t3,stock.t4,stock.ma3>stock.ma4,stock.ma4>stock.ma5,vfilter,nwidth,stock.g5<stock.g20,stock.g20<stock.g60)
+
+    signal = gand(nsignal,smm,stock.t4,stock.t5,vfilter,stock.thumb)
+    linelog(stock.code)
+    return signal
 
 

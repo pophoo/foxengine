@@ -334,13 +334,17 @@ import psyco
 psyco.full()
 
 import wolfox.fengine.normal.nrun as nrun
-import wolfox.fengine.normal.xrun as x
+#import wolfox.fengine.normal.xrun as x
+import wolfox.fengine.normal.tfuncs as t
 nrun.prepare_next(sdata,idata,catalogs)
 pman = AdvancedATRPositionManager()
 dman = XDateManager(dates)
 myMediator=nmediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
-seller = atr_xseller_factory(stop_times=1200,trace_times=3000)
-seller2000 = atr_xseller_factory(stop_times=2000,trace_times=3000)
+#seller = atr_xseller_factory(stop_times=1200,trace_times=3000)
+#seller2000 = atr_xseller_factory(stop_times=2000,trace_times=3000)
+seller = atr_xseller_factory(stop_times=2000,trace_times=3000)
+seller3000 = atr_xseller_factory(stop_times=3000,trace_times=3000)
+seller1200 = atr_xseller_factory(stop_times=1200,trace_times=3000)
 
 import wolfox.fengine.normal.sfuncs as s
 import wolfox.fengine.normal.hfuncs as h
@@ -354,11 +358,17 @@ for s in sdata.values(): h.prepare_hour(s,begin,end)
 print u'小时数据准备耗时: %s' % (time()-tbegin)    
 
 #开始计算
-reload(x)    #应对脚本修改
-buyer = x.prepare_buyer(dates)   
+#reload(x)    #应对脚本修改
+#buyer = x.prepare_buyer(dates)   
+#name,tradess = calc_trades(buyer,seller,sdata,dates,xbegin,cmediator=myMediator)
+#result,strade = ev.evaluate_all(tradess,pman,dman)
+
+reload(t)
+buyer = fcustom(t.xud,astart=0)
 name,tradess = calc_trades(buyer,seller,sdata,dates,xbegin,cmediator=myMediator)
 result,strade = ev.evaluate_all(tradess,pman,dman)
 
+#name,tradess = calc_trades(buyer,seller1200,sdata,dates,xbegin,cmediator=myMediator)
 #name,tradess = calc_trades(buyer,seller2000,sdata,dates,xbegin,cmediator=myMediator)
 
 #name,tradess = calc_trades(buyer,seller,scatalog,dates,xbegin,cmediator=myMediator)

@@ -450,6 +450,14 @@ def macd_ruv3(sopen,sclose,shigh,slow,svolume):
     ruv = su * svolume / (su+sd)
     return cmacd(ruv)
 
+def macd_rv(sopen,sclose,shigh,slow,svolume):
+    '''
+        实际动力V的macd，使用supdowns
+    '''
+    su,sd = de.supdowns(sopen,sclose,shigh,slow)
+    ruv = (su-sd) * svolume / (su+sd)
+    return cmacd(ruv)
+
 def vdeviate_seller(stock,buy_signal,**kwargs): #成交量背离
     ''' >3阳线且创60日新高，成交量未创出10日正量新高
         是否c2足够？不是，如果是连创新高的情形，不需要放量

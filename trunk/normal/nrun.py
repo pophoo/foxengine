@@ -126,7 +126,7 @@ def prepare_configs_1000(seller,pman,dman):
     configs.append(config(buyer=s.eff)) 
 
     configs.append(config(buyer=h.hxud))
-    configs.append(config(buyer=h.hdev))       ###???
+    #configs.append(config(buyer=h.hdev))       ###??? R=.762,W=.537
     configs.append(config(buyer=h.hmxru3))
     configs.append(config(buyer=h.hmxru))
     configs.append(config(buyer=h.mxru3)) 
@@ -586,6 +586,8 @@ def run_body(sdata,dates,begin,end,xbegin):
     configs.extend(prepare_configs_best(seller2000,pman,dman))        
     #configs.extend(prepare_configs_normal(seller1200,pman,dman))    
     #configs.extend(prepare_configs_others(seller1200,pman,dman))    
+    #configs.extend(prepare_configs_normal(seller1200,pman,dman))    
+    #configs.extend(prepare_configs_others(seller1200,pman,dman))    
     
     #configs = prepare_configs_A1200(seller1200,pman,dman)
     #configs.extend(prepare_configs_A0(seller1200,pman,dman))    
@@ -603,7 +605,7 @@ def run_body(sdata,dates,begin,end,xbegin):
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
     #save_configs('atr_ev_nm_1200.txt',configs,xbegin,end)
-    save_configs('atr_ev_2000a.txt',configs,xbegin,end)    
+    save_configs('atr_ev_2000b.txt',configs,xbegin,end)    
 
 def run_merge_body(sdata,dates,begin,end,xbegin):
     

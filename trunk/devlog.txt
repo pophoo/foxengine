@@ -7832,3 +7832,32 @@ best:
 #2009-12-03
 未处理
 
+#2009-12-04
+无
+
+#2009-12-07
+1000:
+600867:     heff    / 暂停
+
+#2009-12-09
+1000:
+002111:     tsvama2sbv:follow=2,slow=42,fast=7
+
+#2009-12-10
+1000:
+600020:     xud:astart=0
+            xud:astart=0,xfunc=<function xc0 at 0x015EFCB0>
+            xud:astart=0,xfunc=<function xc0c at 0x015EFD70>
+
+#2009-12-11
+1000:
+000421:     heff/eff
+600203:     heff    #去掉
+600268:     xud
+            xud:astart=0,xfunc=<function xc0 at 0x015EFCB0>
+            xud:astart=0,xfunc=<function xc0c at 0x015EFD70>
+
+best:
+000662:     emv1b:base=120,fast=40
+000920:     tsvama2sbv:follow=3,slow=10,fast=15
+600098:     xud0

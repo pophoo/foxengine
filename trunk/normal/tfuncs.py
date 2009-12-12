@@ -1657,3 +1657,28 @@ def uplain(stock):
     return signal
 
 
+def xudv(stock):
+    t = stock.transaction
+    vdea,vdiff = macd_rv(t[OPEN],t[CLOSE],t[HIGH],t[LOW],t[VOLUME])
+    vcross = gand(cross(vdea*1.05,vdiff)>0,strend(vdiff)>0)
+
+    xatr = stock.atr * BASE / t[CLOSE]
+
+    signal = gand(vcross,stock.t5,xatr<40,stock.g20>3000,stock.g20<8000,stock.g20>stock.g60)
+    linelog(stock.code)
+    return signal
+
+def vsum(stock):
+    t = stock.transaction
+    
+    vs1 = msum2(t[AMOUNT],7)/msum2(t[VOLUME],7)
+    vs2 = msum2(t[AMOUNT],13)/msum2(t[VOLUME],13)
+    vs3 = msum2(t[AMOUNT],30)/msum2(t[VOLUME],30)    
+    vs4 = msum2(t[AMOUNT],60)/msum2(t[VOLUME],60)
+
+    svs = gand(cross(vs4,vs1)>0,strend(vs1)>0)
+
+    signal = gand(svs)
+    linelog(stock.code)
+    return signal
+

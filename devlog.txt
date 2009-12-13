@@ -7852,7 +7852,7 @@ best:
 #2009-12-11
 1000:
 000421:     heff/eff
-600203:     heff    #去掉
+600203:     heff   
 600268:     xud
             xud:astart=0,xfunc=<function xc0 at 0x015EFCB0>
             xud:astart=0,xfunc=<function xc0c at 0x015EFD70>
@@ -7861,3 +7861,5 @@ best:
 000662:     emv1b:base=120,fast=40
 000920:     tsvama2sbv:follow=3,slow=10,fast=15
 600098:     xud0
+
+#涨跌停家数比例?

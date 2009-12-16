@@ -111,7 +111,7 @@ def prepare_configs_1000(seller,pman,dman):
     configs.append(config(buyer=h.hmxru3))
     configs.append(config(buyer=h.mxru)) 
     configs.append(config(buyer=fcustom(h.emv2,slow=100,fast=10)))
-    configs.append(config(buyer=h.xud)) 
+    configs.append(config(buyer=h.xudh)) 
     configs.append(config(buyer=h.heff))  
 
     configs.append(config(buyer=s.xru0))

@@ -392,7 +392,7 @@ def emv2(stock,fast=10,slow=100):
     linelog(stock.code)
     return ecross
 
-def xud(stock,xfunc=xc0s,astart=45):
+def xudh(stock,xfunc=xc0s,astart=45):
     ''' 
         评估:总盈亏值=5146,交易次数=21  期望值=3223
                 总盈亏率(1/1000)=5146,平均盈亏率(1/1000)=245,盈利交易率(1/1000)=952

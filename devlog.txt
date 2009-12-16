@@ -7724,9 +7724,11 @@ def hl_filter(max_hl=1450,low_distance=666,n=24):
 
 #2009-11-04
 11-02选出来4个
+1000:
 600588 用友软件
 600156 华升股份
 600833 第一医药
+best:
 600584 长电科技
 
 发现1103对于588和584是非常好的买点
@@ -7837,7 +7839,7 @@ best:
 
 #2009-12-07
 1000:
-600867:     heff    / 暂停
+600867:     heff    
 
 #2009-12-09
 1000:
@@ -7859,7 +7861,80 @@ best:
 
 best:
 000662:     emv1b:base=120,fast=40
-000920:     tsvama2sbv:follow=3,slow=10,fast=15
 600098:     xud0
 
-#涨跌停家数比例?
+#涨跌停家数比例
+from wolfox.fengine.core.source import extract_collect as ec
+stocks = sdata.values()
+nx = ec(stocks,CLOSE)
+ni=d2.increase(nx)  #万分数表示
+nv = ec(stocks,VOLUME)
+nn = (nv>0).sum(axis=0) #当日交易家数
+
+nu=(ni>990).sum(axis=0)    #涨停
+nd=(ni<-990).sum(axis=0)    #跌停
+
+snu = nu*1000/nn
+snd = nd*1000/nn
+
+for dt,u,d in zip(dates,snu,snd):print dt,u,d
+
+#10日上涨家数
+ni10=d2.increase(nx,10)
+nu10=(ni10>0).sum(axis=0)
+snu10 = nu10 * 1000 / nn
+
+m10a = ma(snu10,4)
+m10b = ma(snu10,9)
+for dt,u,m1,m2 in zip(dates,snu10,m10a,m10b):print dt,u,m1,m2
+
+ni13=d2.increase(nx,13)
+nu13=(ni13>0).sum(axis=0)
+snu13 = nu13 * 1000 / nn
+m13a = ma(snu13,5)
+m13b = ma(snu13,10)
+for dt,u,m1,m2 in zip(dates,snu13,m13a,m13b):print dt,u,m1,m2
+
+#无甚用处
+
+#2009-12-14
+1000:
+000591:     eff,heff
+002136:     eff,heff
+002210:     eff,heff/mxru3
+002135:     heff
+best:
+600591:     emv1b:base=120,fast=15
+
+12月以来的1000池
+600020
+600268
+600821
+000421
+000591
+002136
+002210
+600203
+600867
+002135
+600098
+600588 
+
+
+#2009-12-15
+1000:
+600858:     eff/heff
+000801:     eff/heff
+600588:     heff
+
+best:
+000920:     tsvama2sbv:follow=2,slow=42,fast=7
+600321:     emv1b:base=120,fast=15
+600588:     emv1b:base=120,fast=15
+002152:     emv1b:base=120,fast=15
+
+#2009-12-16
+1000:
+000801:     eff/heff 
+600858:     eff/heff
+000680:     xud

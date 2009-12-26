@@ -7938,3 +7938,50 @@ best:
 000801:     eff/heff 
 600858:     eff/heff
 000680:     xud
+
+best:
+600038:     emv1b:base=120,fast=15
+600176:     emv1b:base=120,fast=15/emv1b:base=120,fast=40
+600243:     emv1b:base=120,fast=15
+002060:     emv1b:base=120,fast=15
+
+#2009-12-17
+无
+
+#2009-12-21
+1000:
+002109:     emv2:slow=100,fast=10
+000915:     xud:astart=0
+184691:     xudj
+184701:     xudj
+
+best:
+无
+
+#2009-12-22
+
+best:
+002118:     emv1b:base=120,fast=40
+600776:     emv1b:base=120,fast=40
+
+#2009-12-23
+1000:
+600189:     xru0
+600403:     hxud
+000591:     eff/heff
+000801:     eff/heff
+
+best:
+600189:     emv1b:base=120,fast=40
+
+#2009-12-24
+1000:
+002135:     eff
+best:
+600268:     emv1b:base=120,fast=40
+000626:     emv2:slow=88,fast=17
+
+#2009-12-25
+best:
+000010:     emv1:fast=143
+000568:     tsvama3:follow=4,slow=14,mid=29,fast=7

@@ -570,6 +570,11 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([10,26],hour2day(np.array([1,2,3,4,5,6,7,8])).tolist())
         self.assertRaises(AssertionError,hour2day,np.array([1,2,3,4,5,6,7,8,9]))
 
+    def test_hour2day2(self):
+        self.assertEquals([],hour2day2(np.array([])).tolist())
+        self.assertEquals([4],hour2day2(np.array([1,2,3,4])).tolist())
+        self.assertEquals([4,8],hour2day2(np.array([1,2,3,4,5,6,7,8])).tolist())
+        self.assertRaises(AssertionError,hour2day2,np.array([1,2,3,4,5,6,7,8,9]))
 
 if __name__ == "__main__":
     import logging

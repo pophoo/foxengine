@@ -7985,3 +7985,10 @@ best:
 best:
 000010:     emv1:fast=143
 000568:     tsvama3:follow=4,slow=14,mid=29,fast=7
+
+#2009-12-28
+1000:
+000626:     xru0
+600038:     eff
+best:
+000010:     emv1b:base=120,fast=15

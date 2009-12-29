@@ -945,4 +945,6 @@ def range4(length):
 def hour2day(source):
     ms = msum2(source,4)
     return ms.take(range4(len(source)))
-    
+
+def hour2day2(source):#第四位直接转换
+    return source.take(range4(len(source)))    

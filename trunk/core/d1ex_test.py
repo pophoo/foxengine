@@ -564,6 +564,15 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals(id(x),id(y))
         self.assertRaises(AssertionError,range4,13)
 
+    def test_nzeros4(self):
+        self.assertEquals([],nzeros4(0).tolist())
+        self.assertEquals([0,0,0,0],nzeros4(4).tolist())
+        self.assertEquals([0,0,0,0,0,0,0,0],nzeros4(8).tolist())
+        x = nzeros4(100)
+        y = nzeros4(100)
+        self.assertEquals(id(x),id(y))
+        self.assertRaises(AssertionError,nzeros4,13)
+        
     def test_hour2day(self):
         self.assertEquals([],hour2day(np.array([])).tolist())
         self.assertEquals([10],hour2day(np.array([1,2,3,4])).tolist())
@@ -575,6 +584,18 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([4],hour2day2(np.array([1,2,3,4])).tolist())
         self.assertEquals([4,8],hour2day2(np.array([1,2,3,4,5,6,7,8])).tolist())
         self.assertRaises(AssertionError,hour2day2,np.array([1,2,3,4,5,6,7,8,9]))
+
+    def test_hour2day_s(self):
+        self.assertEquals([],hour2day_s(np.array([]),np.array([])).tolist())
+        self.assertEquals([3],hour2day_s(np.array([1,2,3,4]),np.array([0,0,1,0])).tolist())
+        self.assertEquals([2,8],hour2day_s(np.array([1,2,3,4,5,6,7,8]),np.array([0,1,0,0,0,0,0,1])).tolist())
+        self.assertEquals([2,8],hour2day_s(np.array([1,2,3,4,5,6,7,8]),np.array([0,-3,0,0,0,0,0,5])).tolist())
+        self.assertEquals([3,8],hour2day_s(np.array([1,2,3,4,5,6,7,8]),np.array([0,1,0,1,0,0,0,1])).tolist())
+        self.assertEquals([3,8],hour2day_s(np.array([1,2,3,4,5,6,7,8]),np.array([0,1,0,4,0,0,0,1])).tolist())
+        
+        self.assertRaises(AssertionError,hour2day_s,np.array([1,2,3,4,5,6,7,8,9]),np.array([0,1,2,3,4,5,6,7,8]))
+
+
 
 if __name__ == "__main__":
     import logging

@@ -1682,3 +1682,29 @@ def vsum(stock):
     linelog(stock.code)
     return signal
 
+def sagd(stock):
+    t = stock.transaction
+    
+    sx = derepeatc(gand(stock.above,stock.ma1>stock.ma2))
+    
+    f60 = greater(stock.ma4 * 101/100,t[LOW])
+
+    sxx = sfollow(f60,sx,10)
+
+    s13_30 = gand(t[LOW]>stock.ma3,t[LOW]<stock.ma2)
+
+    ss = sfollow(sxx,s13_30,5)
+
+    tss = gand(ss,stock.ma2>stock.ma3,stock.t4,stock.t3,stock.t2)  #7-13顺序未改
+    
+    
+
+    linelog(stock.code)
+
+    xatr = stock.atr * BASE / t[CLOSE]
+
+    signal = gand(tss,stock.g20>8500)
+
+    return signal
+
+

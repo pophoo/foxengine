@@ -942,9 +942,23 @@ def range4(length):
     assert length % 4 == 0
     return range(3,length,4)
 
+@cache
+def nzeros4(length):
+    assert length % 4 == 0
+    return np.zeros(length,np.int8)
+
 def hour2day(source):
     ms = msum2(source,4)
     return ms.take(range4(len(source)))
 
 def hour2day2(source):#第四位直接转换
     return source.take(range4(len(source)))    
+
+def hour2day_s(source,signals):  
+    #根据signals选中相应的source，并在合并中以此source值为准
+    #!=0相当于有信号
+    #用于根据60分钟叉信号选出相应的价格
+    ss = nequals(signals,0)
+    ss1 = ss.choose(nzeros4(len(source)),source)
+    return hour2day(ss1)/hour2day(ss)   #避免出现多个的情况
+

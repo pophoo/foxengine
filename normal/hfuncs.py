@@ -46,7 +46,7 @@ def prepare_hmacd(stock):
     csub = rsub(stock.hour,upcross2)
     stock.hdev = hour2day(band(greater(dsub),lesser(csub)))
     stock.mup_100 = hour2day(gand(pdiff>pdea,pdiff<100,strend(pdiff)>0,strend(pdea)>0))
-    stock.hgreater = hour2day2(pdiff>pdea)
+    #stock.hgreater = hour2day2(pdiff>pdea)
 
 def tsvama2_old(stock,fast,slow):
     t = stock.transaction

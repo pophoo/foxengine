@@ -8001,3 +8001,31 @@ best:
 
 #2009-12-31
 无
+
+#20100104--0108
+无
+
+#2010-0111
+best:
+600268:     emv1b:base=120,fast=15
+600962:     tsvama2sbv:follow=2,slow=42,fast=7
+
+#2010-0112
+无 
+
+#2010-0113
+best:
+600371:     tsvama3:follow=4,slow=14,mid=29,fast=7
+
+#2010-0114
+1000:
+600389:     xud:astart=0
+            xudh
+
+best:
+600861:     tsvama3:follow=4,slow=14,mid=29,fast=7
+000798:     tsvama3:follow=4,slow=14,mid=29,fast=7
+
+
+#2010-0115
+无

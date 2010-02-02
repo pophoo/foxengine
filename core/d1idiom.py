@@ -178,6 +178,13 @@ def B0S0(trans,sbuy,ssell):
     #print 'end adjust:',ssell
     return sbuy,ssell
 
+def B0S0_N(trans,sbuy,ssell):
+    ''' 买卖信号都在当日实现
+        t为stock.transaction
+        不对停板进行处理
+    '''
+    return sbuy,ssell
+
 def B0S1(trans,sbuy,ssell):
     ''' 买入信号当日,卖出信号次日
         t为stock.transaction
@@ -233,7 +240,7 @@ def B1S1(trans,sbuy,ssell):
     #print ssell
     return sbuy,ssell
 
-B0S0.bshift = B0S1.bshift = lambda s : s   #bshift是对buy信号的处理,生成卖出信号用. B0系列不用偏移。
+B0S0.bshift = B0S0_N.bshift = B0S1.bshift = lambda s : s   #bshift是对buy信号的处理,生成卖出信号用. B0系列不用偏移。
 B1S0.bshift = B1S1.bshift = lambda s : rollx(s)   #bshift是对buy信号的处理,生成卖出信号用. B1系列右移一位
 
 def atr_sell_func(sbuy,trans,satr,stop_times=3*BASE/2,trace_times=2*BASE,covered=10,up_sector=HIGH): 

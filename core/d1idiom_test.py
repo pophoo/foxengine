@@ -161,6 +161,21 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([1,0,0,1],lb.tolist())
         self.assertEquals([1,0,0,1],ls.tolist())
 
+    def test_B0S0_N(self):
+        #空测试
+        empty_trans = np.array([(),(),(),(),(),(),()])
+        nb,ns = B0S0_N(empty_trans,np.array([]),np.array([]))
+        self.assertEquals([],nb.tolist())    
+        self.assertEquals([],ns.tolist())
+        #普通测试
+        trans = np.array([(0,0,0,0),(500,550,550,500),(500,550,550,500),(500,550,550,500),(0,0,0,0),(5000,4000,8000,4000),(1000,1000,0,1000)])
+        sbuy = np.array([1,0,1,1])
+        ssell = np.array([1,0,1,0])
+        lb,ls = B0S0_N(trans,sbuy,ssell)
+        self.assertEquals([1,0,1,1],lb.tolist())
+        self.assertEquals([1,0,1,0],ls.tolist())
+
+
     def test_bshift(self):
         a = np.array([1,2,3,4])
         self.assertEquals(a.tolist(),B0S0.bshift(a).tolist())

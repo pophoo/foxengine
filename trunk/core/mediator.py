@@ -106,6 +106,9 @@ ol_pricer = (lambda s : s.transaction[OPEN],lambda s : s.down_limit)
 oo_pricer = (lambda s : s.transaction[OPEN],lambda s : s.transaction[OPEN])
 #收盘价买入，开盘价卖出
 co_pricer = (lambda s : s.transaction[CLOSE],lambda s : s.transaction[OPEN])
+#可定制自己的pricer，如
+#my_pricer = (lambda s : s.buyprice,lambda s : s.sellprice)
+
 
 #定制的Mediator
 #一次买入一次买出，买入信号次日有效(开盘买入)，卖出信号当日起效

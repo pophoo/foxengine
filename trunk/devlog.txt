@@ -340,6 +340,7 @@ nrun.prepare_next(sdata,idata,catalogs)
 pman = AdvancedATRPositionManager()
 dman = XDateManager(dates)
 myMediator=nmediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
+#myMediator=nmediator_factory(trade_strategy=B1S0,pricer = oo_pricer)
 #seller = atr_xseller_factory(stop_times=1200,trace_times=3000)
 #seller2000 = atr_xseller_factory(stop_times=2000,trace_times=3000)
 seller = atr_xseller_factory(stop_times=2000,trace_times=3000)
@@ -8086,3 +8087,7 @@ best:
 600115:     xud0
 600832:     xud0
 
+#2010-0202
+无
+
+#对开盘第一小时涨停的股票进行研究，次日开盘如果小于3%马上出掉.

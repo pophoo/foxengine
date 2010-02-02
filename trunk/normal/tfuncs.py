@@ -2,6 +2,8 @@
 
 #算法测试
 
+from numpy import select
+
 from wolfox.fengine.core.shortcut import *
 from wolfox.fengine.normal.funcs import *
 from wolfox.fengine.core.d1 import lesser,bnot,gmax,gmin
@@ -14,6 +16,38 @@ from time import time
 
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.sfuncs')    
+
+def up_in_hour2(stock,xup=600):#xup为涨停次日的开盘涨幅，万分位表示
+    ''' 次日开盘小于x%则不追，追进次日开盘小于2%则卖出,收盘未涨停也卖出
+        my_pricer = (lambda s : s.buyprice,lambda s : s.sellprice)
+        myMediator=nmediator_factory(trade_strategy=B0S0,pricer = my_pricer)    
+    '''
+    linelog('%s:%s' % (tsvama2.__name__,stock.code))
+    t = stock.transaction
+    yup = rollx(stock.slup2,1)  #昨日开盘前两小时涨停
+    pre = rollx(t[CLOSE],1)
+    tup = np.sign(t[OPEN] * 10000 / pre >= xup + 10000)    #今日开盘大于xup
+    signal = gand(yup,tup)
+    stock.buyprice = t[OPEN]
+    #print signal
+    return gand(signal,stock.t4)
+
+def up_seller(stock,buy_signal,**kwargs):
+    '''涨幅小于2%则当日开盘价卖出
+       收盘未涨停则当日收盘价卖出
+       盘中变负则盘中以昨日收盘价卖出
+    '''
+    t = stock.transaction
+    pre = rollx(t[CLOSE],1)
+    l2 = np.sign(t[OPEN] * 10000 / pre <= 200 + LIMIT_BASE)
+    l10 = np.sign(t[CLOSE] * 10000 / pre <= 990 + LIMIT_BASE)
+    lneg = np.sign(t[LOW] < pre)
+    ss = gor(l2,l10,lneg)
+    sprice = select([l2,l10,lneg],[t[OPEN],t[CLOSE],pre])
+    ss2 = select([ss!=buy_signal,ss==buy_signal],[ss,rollx(ss,1)])
+    sprice2 = select([ss!=buy_signal,ss==buy_signal],[sprice,rollx(t[OPEN],1)])
+    stock.sellprice = sprice2
+    return ss2
 
 def tsvama2_old(stock,fast,slow):
     t = stock.transaction

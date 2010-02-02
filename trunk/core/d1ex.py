@@ -947,6 +947,11 @@ def range1(length):
     assert length % 4 == 0
     return range(0,length,4)
 
+@cache 
+def range2(length):
+    assert length % 4 == 0
+    return range(1,length,4)
+
 @cache
 def nzeros4(length):
     assert length % 4 == 0
@@ -961,6 +966,10 @@ def hour2day4(source):#第四位直接转换
 
 def hour2day1(source):#第1位直接转换
     return source.take(range1(len(source)))    
+
+def hour2day2(source):#第2位直接转换
+    return source.take(range2(len(source)))    
+
 
 def hour2day_s(source,signals):  
     #根据signals选中相应的source，并在合并中以此source值为准

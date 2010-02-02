@@ -68,10 +68,12 @@ def make_trades(stock,signal,tdate,tpositive,tnegative
     tbegin = sis[ibegin]
     trades = []
     #print sis
+    #print tnegative
     for i in xrange(ibegin,slen):
         ci = sis[i]
         cs = signal[ci]     #通常是1/-1,只有正/负有意义，数值本身无意义
         price = tpositive[ci] if cs>0 else tnegative[ci]
+        #print ci,cs,price,tdate[ci],tnegative[ci]
         ctrade = Trade(stock.code,int(tdate[ci]),int(price),int(cs)*VOLUME_BASE,taxrate) #int强制转换，避免把numpy.int32传入trade.因为ndarray索引得到的值是numpy.intxx的，而非普通int
         trades.append(extra_func(ctrade,stock,ci))
     #if sum(signal[tbegin:]) != 0: #最后一个未平仓,不计算。 这一点已经在match_trades中保证

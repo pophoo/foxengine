@@ -173,7 +173,7 @@ class ModuleTest(unittest.TestCase):
         ssell = np.array([1,0,1,0])
         lb,ls = B0S0_N(trans,sbuy,ssell)
         self.assertEquals([1,0,1,1],lb.tolist())
-        self.assertEquals([1,0,1,0],ls.tolist())
+        self.assertEquals([1,0,0,1],ls.tolist())
 
 
     def test_bshift(self):

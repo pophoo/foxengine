@@ -181,8 +181,10 @@ def B0S0(trans,sbuy,ssell):
 def B0S0_N(trans,sbuy,ssell):
     ''' 买卖信号都在当日实现
         t为stock.transaction
-        不对停板进行处理
+        买入不对停板进行处理
     '''
+    down_limit_line = limitdown1(trans[CLOSE])
+    ssell = limit_adjust(ssell,down_limit_line,trans[VOLUME])
     return sbuy,ssell
 
 def B0S1(trans,sbuy,ssell):

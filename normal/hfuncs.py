@@ -33,6 +33,8 @@ def prepare_hour(stock,begin,end):
     ma13 = ma(t[CLOSE],13)
     ma30 = ma(t[CLOSE],30)
     stock.ma4_up = hour2day(gand((ma3>ma7),gand(ma7>ma13),gand(ma13>ma30),strend(ma3)>0,strend(ma7)>0,strend(ma13)>0,strend(ma30)>0))
+    slup = limitup1(stock.hour)
+    stock.slup1 = hour2day1(slup)   #第一小时涨停
 
 def prepare_hmacd(stock):
     #linelog('prepare hmacd:%s' % stock.code)    
@@ -46,7 +48,7 @@ def prepare_hmacd(stock):
     csub = rsub(stock.hour,upcross2)
     stock.hdev = hour2day(band(greater(dsub),lesser(csub)))
     stock.mup_100 = hour2day(gand(pdiff>pdea,pdiff<100,strend(pdiff)>0,strend(pdea)>0))
-    #stock.hgreater = hour2day2(pdiff>pdea)
+    #stock.hgreater = hour2day4(pdiff>pdea)
 
 def tsvama2_old(stock,fast,slow):
     t = stock.transaction

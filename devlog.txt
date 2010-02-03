@@ -307,7 +307,7 @@ pre_ev:
 from wolfox.fengine.core.shortcut import *
 from wolfox.fengine.normal.funcs import *
 from wolfox.fengine.core.d1match import *
-from wolfox.fengine.core.d1idiom import atr_xseller_factory
+from wolfox.fengine.core.d1idiom import atr_xseller_factory,B0S0_N
 from wolfox.fengine.core.d1indicator import cmacd
 from wolfox.foxit.base.tutils import linelog
 from time import time

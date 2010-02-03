@@ -182,8 +182,9 @@ def B0S0_N(trans,sbuy,ssell):
     ''' 买卖信号都在当日实现
         t为stock.transaction
         买入不对停板进行处理
+        卖出只限制一字板
     '''
-    down_limit_line = limitdown1(trans[CLOSE])
+    down_limit_line = limitdown2(trans[HIGH],trans[LOW])
     ssell = limit_adjust(ssell,down_limit_line,trans[VOLUME])
     return sbuy,ssell
 

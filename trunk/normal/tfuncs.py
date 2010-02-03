@@ -17,13 +17,33 @@ from time import time
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.sfuncs')    
 
-seller1200 = atr_xseller_factory(stop_times=1200,trace_times=2000)
-
 def prepare_slup1(stock,begin,end):
     linelog('prepare hour:%s' % stock.code)
-    slup1 = np.sign(stock.hour * 10000 / rollx(stock.hour,1) >= 10980)   #10980是因为有可能存在第四小时最后成交价不等于当日收盘价，因为当日收盘价是最后一分钟的平均价
-    stock.slup1 = xfollow(hour2day1(slup1),stock.transaction[VOLUME])   #第2小时涨停. 确保第二天停盘也能够使信号延递
+    slup1 = np.sign(stock.hour * 10000 / rollx(stock.hour,1) >= 10990)  
+    stock.slup1 = xfollow(hour2day1(slup1),stock.transaction[VOLUME])   #第1小时涨停. 确保第二天停盘也能够使信号延递
 
+def prepare_slup3(stock,begin,end):
+    linelog('prepare hour:%s' % stock.code)
+    slup3 = np.sign(stock.hour * 10000 / rollx(stock.hour,3) >= 10990)  
+    stock.slup3 = xfollow(hour2day3(slup3),stock.transaction[VOLUME])   #第1小时涨停. 确保第二天停盘也能够使信号延递
+
+def gup(stock,percent=8500):
+    linelog('%s:%s' % (gup.__name__,stock.code))
+    t = stock.transaction
+    sp = cached_ints(len(t[CLOSE]),percent)
+    xcross = gand(cross(sp,stock.g60)>0,strend(stock.g60)>0,t[VOLUME]>0)
+    gs = gand(xcross,stock.g20<stock.g60,strend(stock.g20)>0)
+
+    vma_s = ma(t[VOLUME],13)
+    vma_l = ma(t[VOLUME],60)
+
+    vfilter = rollx(vma_s < vma_l * 4/5,1)
+
+    xatr = stock.atr * BASE / t[CLOSE]
+
+    signal = gand(gs,xatr<50,stock.t4,stock.t5,vfilter,stock.ma4>stock.ma5,strend(stock.diff)>0)
+    
+    return signal
 
 def up_in_hour2(stock,xup=200):#xup为涨停次日的开盘涨幅，万分位表示
     ''' 次日开盘小于x%则不追，追进次日开盘小于2%则卖出,收盘未涨停也卖出
@@ -31,17 +51,37 @@ def up_in_hour2(stock,xup=200):#xup为涨停次日的开盘涨幅，万分位表
         my_pricer = (lambda s : s.buyprice,lambda s : s.sellprice)
         myMediator=nmediator_factory(trade_strategy=B0S0_N,pricer = my_pricer)    
     '''
-    linelog('%s:%s' % (tsvama2.__name__,stock.code))
+    linelog('%s:%s' % (up_in_hour2.__name__,stock.code))
     t = stock.transaction
     climit = xfollow(limitup1(t[CLOSE]),t[VOLUME])
-    yup = rollx(gand(stock.slup2,climit),1)  #昨日开盘前两小时涨停并且收盘封住
-    #yup = rollx(climit,1)
+    #yup = rollx(gand(stock.slup1,climit),1)  #昨日开盘前两小时涨停并且收盘封住
+    yup = rollx(climit,1)
     pre = rollx(t[CLOSE],1)
     tup = np.sign(t[OPEN] * 10000 / pre >= xup + 10000)    #今日开盘大于xup
-    tx = np.sign(t[OPEN] * 10000 / pre <= 980 + 10000)    #不是开盘涨停
-    #signal = gand(yup,tup,t[VOLUME]>0)
-    xatr = rollx(stock.atr * BASE / t[CLOSE],2)
-    signal = gand(yup,tup,tx,t[VOLUME]>0,stock.t5,stock.t4,stock.t3,stock.t2,stock.t1)
+    tx = np.sign(t[OPEN] * 10000 / pre <= 10990)    #不是开盘涨停，不追
+    tv = xfollow(t[VOLUME].copy(),t[VOLUME])    #不能更改t[VOLUME]本身
+
+    xmacd = (stock.diff-stock.dea) * 1000 / stock.ma3 > 5
+    fmacd = rollx(stock.diff > stock.dea,1)
+    #tdea = strend(stock.dea) < 30
+
+    u30 = rollx(t[CLOSE]>stock.ma3,1)
+    fma = rollx(gand(stock.ma1 > stock.ma2),1)#,stock.ma2>stock.ma4,stock.ma3>stock.ma4),1)
+
+    #lol = rollx( t[OPEN] * 97 < t[LOW]*100,1) #昨日涨停，但反向震荡不超过3%
+
+    #tlimit = tv / 6 < rollx(tv,1)       #量不能超过前日6倍，越等于开盘量小于前日1/3?
+    #tt = rollx(gand(stock.t5,stock.t4,stock.t3,strend(ma(t[CLOSE],250))>0),1) #以昨日趋势为准
+    tt = gand(stock.t5,stock.t4,strend(ma(t[CLOSE],250))>0)    #不采用跳点法，可能这是一个敏感位置
+    #mg5 = ma(stock.g5,5)
+    #xcross = gand(cross(mg5,stock.g5)>0,strend(stock.g5)>0)
+    #g = rollx(gand(stock.g60>9000,stock.g20>9000,xcross),1)
+    
+    lhigh = rollx(tmax(t[CLOSE],5))
+    shigh = rollx(t[CLOSE]>lhigh,1)
+
+    signal = gand(yup,tup,tx,t[VOLUME]>0,tt,xmacd,fmacd,u30,fma)#,shigh)
+
     dsignal = decover(signal,7)
     stock.buyprice = t[OPEN]
     #print signal
@@ -58,16 +98,31 @@ def up_seller(stock,buy_signal,xup=200,**kwargs):
     pre = rollx(t[CLOSE],1)
     ss = scover(buy_signal,7) - buy_signal    #信号日7天内必须卖出
     #print ss
-    u2 = np.sign(t[OPEN] * 10000 / pre >= xup + 10000)
-    u10 = np.sign(t[CLOSE] * 10000 / pre >= 990 + 10000)
-    uneg = np.sign(t[LOW] > pre)
-    shold = gor(gand(u2,u10,uneg),t[VOLUME]==0)
+    pre_low = pre * (xup+10000) / 10000
+    u2 = t[OPEN] > pre_low
+    uc = t[CLOSE] >= t[OPEN]   #需要排除一字涨停
+    uneg = t[LOW] > pre_low
+    lo5 = t[OPEN] * 9500/10000
+    uol = gand(t[LOW] > lo5,t[LOW]>pre_low)
+    uol2 = gand(t[LOW] < lo5,lo5>pre_low)
+
+    #ulimit = t[LOW] > rollx(stock.down_limit,1) #down_limit是根据当天计算的，所以需要平移，有严重问题,down_limit顺序出错
+
+    shold = gor(gand(u2,uc,uneg,uol),t[VOLUME]==0)
     ss2 = greater(ss,shold) #即ss有信号且shold无信号
     #print ss2
-    sprice = select([bnot(u2),bnot(uneg),bnot(u10),1],[t[OPEN],pre,t[CLOSE],t[CLOSE]])
+    sprice = select([t[OPEN] < pre_low,uol2,t[LOW] < pre_low,t[CLOSE] < t[OPEN],1]
+            ,[t[OPEN],lo5,pre_low,t[CLOSE],t[CLOSE]])  
+    #uol2情况下实际上可以卖的更高，如开盘后上拉，然后下挫，则下挫5%时抛掉，而不必等开盘下5%
+    #这个条件没有办法公式化，因为不知道是先创新高还是先创新低,也许用小时线可以，但剧烈震荡的也仍有问题
     stock.sellprice = sprice
+
+    ss2[-1]=1
+    ssignal = ss2
+    
+
     #print buy_signal-ss
-    return gor(ss2,seller1200(stock,buy_signal,**kwargs))
+    return ssignal
 
 def up_seller_old(stock,buy_signal,xup=200,**kwargs):
     '''涨幅小于2%则当日开盘价卖出

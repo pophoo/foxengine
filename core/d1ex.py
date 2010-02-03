@@ -979,3 +979,12 @@ def hour2day_s(source,signals):
     ss1 = ss.choose(nzeros4(len(source)),source)
     return hour2day(ss1)/hour2day(ss)   #避免出现多个的情况
 
+def xfollow(source,ref):
+    #根据ref中为0的数据，将source中对应位置的数据改为其最左边那个ref不为0的数
+    #通常ref为成交量，用于信号的成交量延递，比如涨停信号
+    #就地更改
+    assert len(source) == len(ref)
+    for i in xrange(1,len(source)):
+        if ref[i] == 0:
+            source[i] = source[i-1]
+    return source

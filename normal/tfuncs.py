@@ -17,7 +17,7 @@ from time import time
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.sfuncs')    
 
-def up_in_hour2(stock,xup=600):#xup为涨停次日的开盘涨幅，万分位表示
+def up_in_hour2(stock,xup=200):#xup为涨停次日的开盘涨幅，万分位表示
     ''' 次日开盘小于x%则不追，追进次日开盘小于2%则卖出,收盘未涨停也卖出
         需要屏蔽一字涨停的情况
         my_pricer = (lambda s : s.buyprice,lambda s : s.sellprice)
@@ -29,29 +29,76 @@ def up_in_hour2(stock,xup=600):#xup为涨停次日的开盘涨幅，万分位表
     pre = rollx(t[CLOSE],1)
     tup = np.sign(t[OPEN] * 10000 / pre >= xup + 10000)    #今日开盘大于xup
     tx = np.sign(t[OPEN] * 10000 / pre <= 980 + 10000)    #不是开盘涨停
-    signal = gand(yup,tup,tx)
+    #signal = gand(yup,tup,t[VOLUME]>0)
+    signal = gand(yup,tup,tx,t[VOLUME]>0,stock.t5)
+    dsignal = decover(signal,7)
     stock.buyprice = t[OPEN]
     #print signal
-    return gand(signal,stock.t4)
+    xatr = stock.atr * BASE / t[CLOSE]
+    return dsignal
 
-def up_seller(stock,buy_signal,**kwargs):
+def up_seller(stock,buy_signal,xup=200,**kwargs):
     '''涨幅小于2%则当日开盘价卖出
        收盘未涨停则当日收盘价卖出
        盘中变负则盘中以昨日收盘价卖出
+       从对称角度来说，seller:xup应该小于buyer:xup，否则买入日就该卖出，略小为好
     '''
     t = stock.transaction
     pre = rollx(t[CLOSE],1)
-    l2 = np.sign(gand(t[OPEN] * 10000 / pre <= 200 + 10000,t[VOLUME]>0))
-    l10 = np.sign(gand(t[CLOSE] * 10000 / pre <= 990 + 10000,t[VOLUME]>0))
-    lneg = np.sign(gand(t[LOW] < pre,t[VOLUME]>0))
-    ss = gor(l2,l10,lneg)
-    sprice = select([l2,l10,lneg],[t[OPEN],t[CLOSE],pre]) 
-    #print sprice
-    #ss2 = select([ss!=buy_signal,ss==buy_signal],[ss,rollx(ss,1)])
-    #sprice2 = select([ss!=buy_signal,ss==buy_signal],[sprice,rollx(t[OPEN],1)])    #这里有问题，如果连续涨停，则后面的会不对
+    ss = scover(buy_signal,7) - buy_signal    #信号日7天内必须卖出
+    #print ss
+    u2 = np.sign(gand(t[OPEN] * 10000 / pre >= xup + 10000,t[VOLUME]>0))
+    u10 = np.sign(gand(t[CLOSE] * 10000 / pre >= 990 + 10000,t[VOLUME]>0))
+    uneg = np.sign(gand(t[LOW] < t[OPEN],t[VOLUME]>0))
+    shold = gand(u2,u10,uneg)
+    ss2 = greater(ss,shold) #即ss有信号且shold无信号
+    #print ss2
+    sprice = select([bnot(u2),bnot(uneg),bnot(u10),1],[t[OPEN],t[OPEN],t[CLOSE],t[CLOSE]])
     stock.sellprice = sprice
     #print buy_signal-ss
-    return ss
+    return ss2
+
+def up_seller_old(stock,buy_signal,xup=200,**kwargs):
+    '''涨幅小于2%则当日开盘价卖出
+       收盘未涨停则当日收盘价卖出
+       盘中变负则盘中以昨日收盘价卖出
+       从对称角度来说，seller:xup应该小于buyer:xup，否则买入日就该卖出，略小为好
+    '''
+    t = stock.transaction
+    pre = rollx(t[CLOSE],1)
+    l2 = np.sign(gand(t[OPEN] * 10000 / pre <= xup + 10000,t[VOLUME]>0))
+    l10 = np.sign(gand(t[CLOSE] * 10000 / pre <= 990 + 10000,t[VOLUME]>0))
+    lneg = np.sign(gand(t[LOW] * 10000 / pre <= xup + 10000,t[VOLUME]>0))
+    ss = gor(l2,l10,lneg)
+    sprice = select([l2,lneg,l10],[t[OPEN],pre*(10000+xup)/10000,t[CLOSE]]) 
+    #print sprice
+    #ss2 = select([ss!=buy_signal,ss==buy_signal],[ss,rollx(ss,1)])
+    ss2 = select([ss!=buy_signal],[ss])
+    stock.sellprice = sprice
+    #print buy_signal-ss
+    return ss2
+
+
+
+def up_seller_old(stock,buy_signal,xup=200,**kwargs):
+    '''涨幅小于2%则当日开盘价卖出
+       收盘未涨停则当日收盘价卖出
+       盘中变负则盘中以昨日收盘价卖出
+       从对称角度来说，seller:xup应该小于buyer:xup，否则买入日就该卖出，略小为好
+    '''
+    t = stock.transaction
+    pre = rollx(t[CLOSE],1)
+    l2 = np.sign(gand(t[OPEN] * 10000 / pre <= xup + 10000,t[VOLUME]>0))
+    l10 = np.sign(gand(t[CLOSE] * 10000 / pre <= 990 + 10000,t[VOLUME]>0))
+    lneg = np.sign(gand(t[LOW] * 10000 / pre <= xup + 10000,t[VOLUME]>0))
+    ss = gor(l2,l10,lneg)
+    sprice = select([l2,lneg,l10],[t[OPEN],pre*(10000+xup)/10000,t[CLOSE]]) 
+    #print sprice
+    #ss2 = select([ss!=buy_signal,ss==buy_signal],[ss,rollx(ss,1)])
+    ss2 = select([ss!=buy_signal],[ss])
+    stock.sellprice = sprice
+    #print buy_signal-ss
+    return ss2
 
 def tsvama2_old(stock,fast,slow):
     t = stock.transaction

@@ -5,7 +5,7 @@
 from wolfox.fengine.core.shortcut import *
 from wolfox.fengine.normal.funcs import *
 import wolfox.fengine.normal.sfuncs as s
-from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,scover,rsub
+from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,scover,rsub,xfollow
 from wolfox.fengine.core.d1match import *
 from wolfox.fengine.core.d1idiom import *
 from wolfox.fengine.core.d1indicator import cmacd,score2
@@ -34,7 +34,7 @@ def prepare_hour(stock,begin,end):
     ma30 = ma(t[CLOSE],30)
     stock.ma4_up = hour2day(gand((ma3>ma7),gand(ma7>ma13),gand(ma13>ma30),strend(ma3)>0,strend(ma7)>0,strend(ma13)>0,strend(ma30)>0))
     slup2 = np.sign(t[CLOSE] * 10000 / rollx(t[CLOSE],2) >= 10980)   #10980是因为有可能存在第四小时最后成交价不等于当日收盘价，因为当日收盘价是最后一分钟的平均价
-    stock.slup2 = hour2day2(slup2)   #第2小时涨停
+    stock.slup2 = xfollow(hour2day2(slup2),stock.transaction[VOLUME])   #第2小时涨停. 确保第二天停盘也能够使信号延递
 
 def prepare_hmacd(stock):
     #linelog('prepare hmacd:%s' % stock.code)    

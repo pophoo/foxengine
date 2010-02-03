@@ -625,9 +625,14 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([2,8],hour2day_s(np.array([1,2,3,4,5,6,7,8]),np.array([0,-3,0,0,0,0,0,5])).tolist())
         self.assertEquals([3,8],hour2day_s(np.array([1,2,3,4,5,6,7,8]),np.array([0,1,0,1,0,0,0,1])).tolist())
         self.assertEquals([3,8],hour2day_s(np.array([1,2,3,4,5,6,7,8]),np.array([0,1,0,4,0,0,0,1])).tolist())
-        
         self.assertRaises(AssertionError,hour2day_s,np.array([1,2,3,4,5,6,7,8,9]),np.array([0,1,2,3,4,5,6,7,8]))
 
+    def test_xfollow(self):
+        self.assertEquals([],xfollow(np.array([]),np.array([])).tolist())
+        self.assertEquals([1,1,3],xfollow(np.array([1,2,3]),np.array([1,0,1])).tolist())
+        self.assertEquals([1,1,3],xfollow(np.array([1,2,3]),np.array([0,0,1])).tolist())
+        self.assertEquals([1,2,3],xfollow(np.array([1,2,3]),np.array([1,1,1])).tolist())        
+        self.assertRaises(AssertionError,xfollow,np.array([1,2,3,4,5,6,7,8,9]),np.array([1,2,3,4,5,6,7,8]))
 
 
 if __name__ == "__main__":

@@ -252,6 +252,7 @@ def atr_sell_func(sbuy,trans,satr,stop_times=3*BASE/2,trace_times=2*BASE,covered
         存在问题：如果当日开盘最低收盘涨停，而之前的atr很小，则会被触发。
         解决方法是downlimit延后一天,或者判断当日是否是此种情况。延后一天也有问题，即第一日问题（其down_limit未修正）
         目前的做法是以开盘+收盘/2即中间价为downlimit的起始基准
+        这样，本函数只能使用于BXS1情况，不能适用于BXS0. 
     '''
     #down_limit = tmax(trans[HIGH] - satr * times / BASE,covered)    #最近covered天波动下限的最大值
     down_limit = tracelimit((trans[OPEN]+trans[CLOSE])/2,trans[up_sector],trans[LOW],sbuy,satr,stop_times,trace_times) 

@@ -41,7 +41,7 @@ def gup(stock,percent=8500):
 
     xatr = stock.atr * BASE / t[CLOSE]
 
-    signal = gand(gs,xatr<50,stock.t4,stock.t5,vfilter,stock.ma4>stock.ma5,strend(stock.diff)>0)
+    signal = gand(gs,xatr<50,stock.t4,stock.t5,vfilter,stock.ma4>stock.ma5,strend(stock.diff)>0,stock.xup)
     
     return signal
 

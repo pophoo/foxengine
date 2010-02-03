@@ -19,6 +19,12 @@ logger = logging.getLogger('wolfox.fengine.normal.sfuncs')
 
 seller1200 = atr_xseller_factory(stop_times=1200,trace_times=2000)
 
+def prepare_slup1(stock,begin,end):
+    linelog('prepare hour:%s' % stock.code)
+    slup1 = np.sign(stock.hour * 10000 / rollx(stock.hour,1) >= 10980)   #10980是因为有可能存在第四小时最后成交价不等于当日收盘价，因为当日收盘价是最后一分钟的平均价
+    stock.slup1 = xfollow(hour2day1(slup1),stock.transaction[VOLUME])   #第2小时涨停. 确保第二天停盘也能够使信号延递
+
+
 def up_in_hour2(stock,xup=200):#xup为涨停次日的开盘涨幅，万分位表示
     ''' 次日开盘小于x%则不追，追进次日开盘小于2%则卖出,收盘未涨停也卖出
         需要屏蔽一字涨停的情况
@@ -29,15 +35,17 @@ def up_in_hour2(stock,xup=200):#xup为涨停次日的开盘涨幅，万分位表
     t = stock.transaction
     climit = xfollow(limitup1(t[CLOSE]),t[VOLUME])
     yup = rollx(gand(stock.slup2,climit),1)  #昨日开盘前两小时涨停并且收盘封住
+    #yup = rollx(climit,1)
     pre = rollx(t[CLOSE],1)
     tup = np.sign(t[OPEN] * 10000 / pre >= xup + 10000)    #今日开盘大于xup
     tx = np.sign(t[OPEN] * 10000 / pre <= 980 + 10000)    #不是开盘涨停
     #signal = gand(yup,tup,t[VOLUME]>0)
-    signal = gand(yup,tup,tx,t[VOLUME]>0,stock.t5)
+    xatr = rollx(stock.atr * BASE / t[CLOSE],2)
+    signal = gand(yup,tup,tx,t[VOLUME]>0,stock.t5,stock.t4,stock.t3,stock.t2,stock.t1)
     dsignal = decover(signal,7)
     stock.buyprice = t[OPEN]
     #print signal
-    xatr = stock.atr * BASE / t[CLOSE]
+
     return dsignal
 
 def up_seller(stock,buy_signal,xup=200,**kwargs):

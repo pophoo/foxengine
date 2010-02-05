@@ -633,11 +633,12 @@ def ama_maker(covered=10,dfast=2,dslow=30):
         ers = np.abs(efficient_rate(source,covered))  #使用正的效率值
         smooth = ers * diff/BASE + slowest
         #print ers,mul(smooth,smooth),fastest,slowest
-        preama = source[covered-1] * 100  #初始值为该日原始信号,乘以100是为了提升计算精度
+        cbase = BASE
+        preama = source[covered-1] * cbase  #初始值为该日原始信号,乘以100是为了提升计算精度
         for i in xrange(covered,len(source)):
             vsm,vse = smooth[i],source[i]
-            ama = preama + (vsm * vsm * (vse*100 - preama) + base2/2) / base2
-            rev[i] = (ama + 50)/100 #对实际结果仍然取整为所需精度
+            ama = preama + (vsm *1.0* vsm * (vse*cbase - preama) + base2/2) / base2
+            rev[i] = int((ama + cbase/2)/cbase) #对实际结果仍然取整为所需精度
             preama = ama
         return rev
     return ama

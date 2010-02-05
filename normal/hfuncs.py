@@ -34,8 +34,15 @@ def prepare_hour(stock,begin,end):
     ma13 = ma(stock.hour,13)
     ma30 = ma(stock.hour,30)
     stock.ma4_up = hour2day(gand((ma3>ma7),gand(ma7>ma13),gand(ma13>ma30),strend(ma3)>0,strend(ma7)>0,strend(ma13)>0,strend(ma30)>0))
-    slup2 = np.sign(stock.hour * 10000 / rollx(stock.hour,2) >= 10990) 
-    stock.slup2 = xfollow(hour2day2(slup2),stock.transaction[VOLUME])   #第2小时涨停. 确保第二天停盘也能够使信号延递
+    stop_config(stock,t[HIGH],t[LOW])
+
+def stop_config(stock,shigh,slow):
+    stoped = (shigh == slow)
+    stock.stoped1 = hour2day1(stoped)
+    stock.stoped2 = hour2day2(stoped)
+    stock.stoped3 = hour2day3(stoped)    
+    stock.stoped4 = hour2day4(stoped)
+    
 
 def prepare_hmacd(stock):
     #linelog('prepare hmacd:%s' % stock.code)    

@@ -186,6 +186,8 @@ def B0S0_N(trans,sbuy,ssell):
     '''
     down_limit_line = limitdown2(trans[HIGH],trans[LOW])
     ssell = limit_adjust(ssell,down_limit_line,trans[VOLUME])
+    #平移过来的ssell不能屏蔽掉sbuy的信号
+    ssell = greater(ssell,sbuy) #只有sbuy为0时才成立
     return sbuy,ssell
 
 def B0S1(trans,sbuy,ssell):

@@ -45,6 +45,51 @@ def prepare_slup4(stock,begin,end):
     stock.slup4 = xfollow(hour2day4(slup4),stock.transaction[VOLUME])   #第1小时涨停. 确保第二天停盘也能够使信号延递
 
 
+def attack2(stock,xup=200):#
+    ''' 盘中追第二个涨停
+    '''
+    linelog('%s:%s' % (attack2.__name__,stock.code))
+    t = stock.transaction
+    
+    ama = fama(t[CLOSE])
+    rama = rollx(ama*1000/rollx(ama)<=1000)   #-284, p=342
+
+    rlimit = limitup1(t[CLOSE])
+    times = msum2(rlimit,5)
+    r1 = rollx(gand(times==1),1)  #五日内有1个涨停
+
+    #大盘因素
+    #smarket = rollx(gand(stock.ref.t2,stock.ref.t1,stock.ref.t0),1)
+    smarket = gand(stock.ref.t2,stock.ref.t1,stock.ref.t0)
+    #smarket = gand(strend(stock.ref.diff)>0,strend(stock.ref.diff-stock.ref.dea)>0)
+
+    #yup = gand(stock.slup3,bnot(stock.stoped4))  #前3小时涨停,并且在第四小时打开过
+    #yup2 = gand(stock.slup2,bnot(gand(stock.stoped3,stock.stoped4)),bnot(stock.slup1))  #第2小时开始涨停,并且在第3-4小时打开过，否则买不到
+    #yup3 = gand(stock.slup3,bnot(stock.stoped4),bnot(gand(stock.slup1,stock.slup2))) 
+    yup2 = gand(stock.slup2,bnot(stock.slup1))  #第2小时开始涨停,并且在第3-4小时打开过，否则买不到
+    yup3 = gand(stock.slup3,bnot(gand(stock.slup1,stock.slup2))) 
+    yup=gor(yup2,yup3)
+    #因为此时追击点在下午开盘，所以可以观察大盘
+
+    #yup = gand(stock.slup1,bnot(gand(stock.stoped2,stock.stoped3,stock.stoped4)))  #前1小时涨停,并且在第四小时打开过
+    #无法判断第四小时涨停的个股涨停后是否打开过
+
+    #必须是跳空且缺口不补
+
+    pre=rollx(t[CLOSE],1)
+    tup = np.sign(t[OPEN] * 10000 / pre <= xup + 10000)    #今日开盘大于xup,这个条件是反作用
+
+    signal = gand(yup,t[VOLUME]>0,r1,smarket) #,rama  #,tt,peak)#,fmacd,xmacd)  #rama
+    #signal = gand(yup,t[VOLUME]>0,rama,r1,smarket,tup)#,rama)   #,tt,peak)#,fmacd,xmacd)  #rama
+
+
+    dsignal = decover(signal,3)
+    stock.buyprice = select([dsignal>0],[t[HIGH]])     #涨停价
+    #print signal
+
+    return dsignal
+
+
 def follow_up2(stock):
     '''第n小时涨停，且涨停板在后两个小时打开过
        第1/2/3小时涨停，后面打开过
@@ -102,7 +147,8 @@ def follow_seller(stock,buy_signal,xstop=25,ret=50,**kwargs):
 
     #从顶下落处理,前5天的收盘/开盘的高者和今天的开盘的高者 回落ret之后
 
-    hhret = gmax(rollx(tmax(gmax(t[OPEN],t[CLOSE]),5),1),t[OPEN])* (1000-ret)/1000
+    #hhret = gmax(rollx(tmax(gmax(t[OPEN],t[CLOSE]),5),1),t[OPEN])* (1000-ret)/1000
+    hhret = gmax(rollx(tmax(t[HIGH],5),1),t[OPEN])* (1000-ret)/1000
     
     #hhret = rollx(tmax(t[HIGH],5),1) * (1000-ret)/1000
     sdl = t[LOW] < hhret
@@ -254,25 +300,60 @@ def up_in_hour2(stock,xup=200):#xup为涨停次日的开盘涨幅，万分位表
                 赢利次数=83,赢利总值=6739
                 亏损次数=180,亏损总值=6911
                 平盘次数=5
+
+    12.
+        评估:总盈亏值=-8219,交易次数=700        期望值=-286
+                总盈亏率(1/1000)=-8219,平均盈亏率(1/1000)=-12,盈利交易率(1/1000)=255
+                平均持仓时间=1,持仓效率(1/1000000)=-12000
+                赢利次数=179,赢利总值=13627
+                亏损次数=515,亏损总值=21846
+                平盘次数=6
+    
+    前面如果是一字涨停，则可忽略大盘
     '''
     linelog('%s:%s' % (up_in_hour2.__name__,stock.code))
     t = stock.transaction
     climit = xfollow(limitup1(t[CLOSE]),t[VOLUME])
+    #climit = xfollow(limitup2(t[HIGH],t[LOW]),t[VOLUME])   #一字板
     #yup = rollx(gand(stock.slup2,climit,bnot(stock.slup1)),1)  #昨日第二小时涨停并且收盘封住
     yup = rollx(gand(stock.slup2,climit),1)  #昨日第二小时涨停并且至收盘都没打开过，含第一小时
+    #yup = rollx(climit,1)
     pre = rollx(t[CLOSE],1)
     tup = np.sign(t[OPEN] * 10000 / pre >= xup + 10000)    #今日开盘大于xup
     
-    tx = np.sign(t[LOW] * 10000 / pre <= 10990)    #非一字涨停，追
+    tx = np.sign(t[LOW] * 10000 / pre < 10990)    #非一字涨停，追
     #tt = gand(stock.t5,stock.t4,stock.t3,strend(ma(t[CLOSE],250))>0)    #不采用跳点法，可能这是一个敏感位置
     tt = gand(stock.t5,stock.t4,strend(ma(t[CLOSE],250))>0)    #不采用跳点法，可能这是一个敏感位置
 
-    #fmacd = rollx(stock.diff > stock.dea,1)
-    
     ama = fama(t[CLOSE])
-    rama = rollx(ama*1000/rollx(ama)>995)   #-284, p=342
+    rama = rollx(ama*1000/rollx(ama)<=1000)   #-284, p=342
 
-    signal = gand(yup,tup,tx,t[VOLUME]>0,tt,stock.g60>8500)   #,tt,peak)#,fmacd,xmacd)  #rama
+    #cswing = t[CLOSE] * 1000 / pre - 1000  #涨幅
+    #cup = select([cswing>0],[cswing])
+    #mcup1 = ma(cup,13)
+    #mcup2 = ma(cup,30)
+    #sm = rollx(gand(mcup1<mcup2),1)
+
+    
+    rlimit = limitup1(t[CLOSE])
+    times = msum2(rlimit,5)
+    r1 = rollx(gand(times==2),1)  #第n个涨停
+
+    #大盘因素
+    #smarket = rollx(gand(stock.ref.t2,stock.ref.t1,stock.ref.t0),1)
+    #smarket = gand(stock.ref.t2,stock.ref.t1,stock.ref.t0)  #使用当日的大盘情况，差别巨大
+    smarket = rollx(gand(stock.ref.t2,stock.ref.t1,stock.ref.t0),1)  #使用当日的大盘情况，差别巨大
+
+    #smart优于tt,这两类条件貌似重合,叠加无效果
+    #signal = gand(yup,tup,tx,t[VOLUME]>0,smarket,tt)#,r1)   #,tt,peak)#,fmacd,xmacd)  #rama
+    signal = gand(yup,tup,tx,t[VOLUME]>0,smarket,r1,rama)   #,tt,peak)#,fmacd,xmacd)  #rama
+
+
+    #一字涨停,忽略大盘
+    pup = rollx(t[LOW]*10000/pre >=10990,1)
+    psignal =  gand(yup,tup,tx,t[VOLUME]>0,r1,rama,pup)
+
+    signal = gor(signal,psignal)
 
     dsignal = decover(signal,3)
     stock.buyprice = select([dsignal>0],[t[OPEN]])
@@ -320,7 +401,7 @@ def up_seller(stock,buy_signal,xstop=25,ret=50,**kwargs):
     sdl = t[LOW] < hhret
  
     #止损处理2.5%
-    stop_price = extend2next(rollx(stock.buyprice,1) * (1000-xstop)/1000)
+    stop_price = extend2next(rollx(stock.buyprice,1) * (1000-xstop)/1000)   #要求buyprice只有在buyer日才有数据,否则extend2next无意义
     stopl = t[LOW] < stop_price
 
     cut_price = gmin(gmax(hhret,stop_price),t[HIGH])    #首先，止损线和退回线高者先被触及，同时，穿越时可能跳低，所以找与t[HIGH]的低点

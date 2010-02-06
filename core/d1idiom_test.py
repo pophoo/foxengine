@@ -144,7 +144,7 @@ class ModuleTest(unittest.TestCase):
         sbuy = np.array([1,0,1,1])
         ssell = np.array([1,0,1,0])
         lb,ls = B0S1(trans,sbuy,ssell)
-        self.assertEquals([1,0,0,1],lb.tolist())
+        self.assertEquals([1,0,1,1],lb.tolist())
         self.assertEquals([0,1,0,0],ls.tolist()) #最后一天为一线跌停日
 
     def test_B0S0(self):

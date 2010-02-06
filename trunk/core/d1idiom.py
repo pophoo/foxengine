@@ -193,14 +193,15 @@ def B0S0_N(trans,sbuy,ssell):
 def B0S1(trans,sbuy,ssell):
     ''' 买入信号当日,卖出信号次日
         t为stock.transaction
+        买入不处理停板，卖出处理。日内信号停板由信号发出者自己处理
         返回经过信号延续、停板和停牌处理的sbuy,ssell
     '''
     ssell = roll0(ssell)
     #print 'input rolled:',sbuy,ssell
-    up_limit_line = limitup1(trans[CLOSE])
+    #up_limit_line = limitup1(trans[CLOSE])
     down_limit_line = limitdown2(trans[HIGH],trans[LOW])
     #print 'begin adjust:',up_limit_line,down_limit_line,trans[VOLUME]
-    sbuy = limit_adjust(sbuy,up_limit_line,trans[VOLUME])
+    #sbuy = limit_adjust(sbuy,up_limit_line,trans[VOLUME])
     ssell = limit_adjust(ssell,down_limit_line,trans[VOLUME])
     #print 'end adjust:',ssell
     return sbuy,ssell

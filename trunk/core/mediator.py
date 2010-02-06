@@ -8,6 +8,7 @@ import numpy as np
 
 import logging
 
+from wolfox.foxit.base.tutils import linelog
 from wolfox.fengine.base.common import Trade
 from wolfox.fengine.core.d1 import greater,rollx,band,bnot
 from wolfox.fengine.core.d1ex import sresume
@@ -69,7 +70,8 @@ class Mediator(object):
                 trades.extend(self.trade_maker(tmaker,dates,s,sbuy,ssell,begin=begin))
                 self.finishing(s,sbuy,ssell)
             except Exception,inst:
-                print u'mediator _calc %s except : %s' % (s.code,inst)
+                #print u'mediator _calc %s except : %s' % (s.code,inst)
+                #linelog(u'line:mediator _calc %s except : %s' % (s.code,inst))
                 logger.exception(u'%s calc error : %s',s.code,inst)
         return trades
     
@@ -175,7 +177,8 @@ class NMediator(Mediator):
                 trades.extend(self.trade_maker(tmaker,dates,s,sbuy,ssell,begin=begin))
                 self.finishing(s,sbuy,ssell)
             except Exception,inst:
-                print u'mediator _calc %s except : %s' % (s.code,inst)
+                #print u'mediator _calc %s except : %s' % (s.code,inst)
+                linelog(u'mediator _calc %s except : %s' % (s.code,inst))
                 logger.exception(u'%s calc error : %s',s.code,inst)
         #print trades
         return trades

@@ -17,32 +17,102 @@ from time import time
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.sfuncs')    
 
-def prepare_slup(stocks,begin,end):
+def prepare_slup(stocks):
     for stock in stocks:
-        prepare_slup1(stock,begin,end)
-        prepare_slup2(stock,begin,end)
-        prepare_slup3(stock,begin,end)
-        prepare_slup4(stock,begin,end)        
+        prepare_slup1(stock)
+        prepare_slup2(stock)
+        prepare_slup3(stock)
+        prepare_slup4(stock)        
 
-def prepare_slup1(stock,begin,end):
+def prepare_slup1(stock):
     linelog('prepare hour:%s' % stock.code)
     slup1 = np.sign(stock.hour * 10000 / rollx(stock.hour,1) >= 10990)  
     stock.slup1 = xfollow(hour2day1(slup1),stock.transaction[VOLUME])   #第1小时涨停. 确保第二天停盘也能够使信号延递
 
-def prepare_slup2(stock,begin,end):
+def prepare_slup2(stock):
     linelog('prepare hour:%s' % stock.code)
     slup2 = np.sign(stock.hour * 10000 / rollx(stock.hour,2) >= 10990)  
     stock.slup2 = xfollow(hour2day2(slup2),stock.transaction[VOLUME])   #第1小时涨停. 确保第二天停盘也能够使信号延递
 
-def prepare_slup3(stock,begin,end):
+def prepare_slup3(stock):
     linelog('prepare hour:%s' % stock.code)
     slup3 = np.sign(stock.hour * 10000 / rollx(stock.hour,3) >= 10990)  
     stock.slup3 = xfollow(hour2day3(slup3),stock.transaction[VOLUME])   #第1小时涨停. 确保第二天停盘也能够使信号延递
 
-def prepare_slup4(stock,begin,end):
+def prepare_slup4(stock):
     linelog('prepare hour:%s' % stock.code)
     slup4 = np.sign(stock.hour * 10000 / rollx(stock.hour,4) >= 10990)  
     stock.slup4 = xfollow(hour2day4(slup4),stock.transaction[VOLUME])   #第1小时涨停. 确保第二天停盘也能够使信号延递
+
+def prepare_touch_high(stocks):
+    for stock in stocks:
+        prepare_touch1(stock)
+        prepare_touch2(stock)
+        prepare_touch3(stock)
+        prepare_touch3(stock)        
+
+
+def prepare_touch1(stock):
+    linelog('prepare hour:%s' % stock.code)
+    touch1 = np.sign(stock.hour_high * 10000 / rollx(stock.hour,1) >= 10990)  
+    stock.touch1 = xfollow(hour2day1(touch1),stock.transaction[VOLUME])   #第1小时涨停. 确保第二天停盘也能够使信号延递
+
+def prepare_touch2(stock):
+    linelog('prepare hour:%s' % stock.code)
+    touch2 = np.sign(stock.hour_high * 10000 / rollx(stock.hour,2) >= 10990)  
+    stock.touch2 = xfollow(hour2day2(touch2),stock.transaction[VOLUME])   #第1小时涨停. 确保第二天停盘也能够使信号延递
+
+def prepare_touch3(stock):
+    linelog('prepare hour:%s' % stock.code)
+    touch3 = np.sign(stock.hour_high * 10000 / rollx(stock.hour,3) >= 10990)  
+    stock.touch3 = xfollow(hour2day3(touch3),stock.transaction[VOLUME])   #第1小时涨停. 确保第二天停盘也能够使信号延递
+
+def prepare_touch4(stock):
+    linelog('prepare hour:%s' % stock.code)
+    touch4 = np.sign(stock.hour_high * 10000 / rollx(stock.hour,4) >= 10990)  
+    stock.touch4 = xfollow(hour2day4(touch4),stock.transaction[VOLUME])   #第1小时涨停. 确保第二天停盘也能够使信号延递
+
+def prepare_up1(stock):
+    linelog('prepare hour:%s' % stock.code)
+    #up = stock.hour * 10000 / rollx(stock.hour,1) >= 10200
+    down =stock.hour_high - stock.hour < (stock.hour-stock.hour_open)*2/3
+    ol = stock.hour > stock.hour_open
+    tk = stock.hour_low > rollx(stock.hour_high)
+    up = stock.hour * 10000 / gmin(rollx(stock.hour,1),stock.hour_open) > 10200
+    stock.up1 =  xfollow(hour2day1(gand(up,down,ol,tk)),stock.transaction[VOLUME])
+    stock.open2 = hour2day2(stock.hour_open)
+
+def attack2b(stock):#
+    ''' 盘中追第二个涨停
+    '''
+    linelog('%s:%s' % (attack2.__name__,stock.code))
+    t = stock.transaction
+    
+    #第一个涨停 #确保没有稍长的下影线
+    lup1 = gand(limitup1(t[CLOSE]))#,t[OPEN]*10000/t[LOW]<10050)  
+
+    climit = xfollow(lup1,t[VOLUME])
+    
+    yup = rollx(climit,1)
+
+    cup = gand(stock.up1,bnot(gand(stock.stoped2,stock.stoped3,stock.stoped4)))
+
+
+    #三线理顺
+    #tt = rollx(gand(stock.t4,stock.t5),1)
+    fm = rollx(stock.diff < stock.dea)
+
+    signal = gand(cup,t[VOLUME]>0,stock.ref.up1,fm)#smarket)#,rama) #,rama  #,tt,peak)#,fmacd,xmacd)  #rama
+
+
+
+    dsignal = decover(signal,3)
+    #stock.buyprice = select([dsignal>0],[t[HIGH]])     #涨停价
+    stock.buyprice = select([dsignal>0],[stock.open2])     #第二小时开盘
+    #print signal
+
+    return dsignal
+
 
 
 def attack2(stock,xup=200):#
@@ -52,11 +122,14 @@ def attack2(stock,xup=200):#
     t = stock.transaction
     
     ama = fama(t[CLOSE])
-    rama = rollx(ama*1000/rollx(ama)<=1000)   #-284, p=342
+    rama = rollx(t[CLOSE]*1000/rollx(ama)>=1030)   #-284, p=342
 
-    rlimit = limitup1(t[CLOSE])
-    times = msum2(rlimit,5)
-    r1 = rollx(gand(times==1),1)  #五日内有1个涨停
+    lup1 = gand((limitup1(t[CLOSE])),t[OPEN]*10000/t[LOW]<10050)
+
+    climit = xfollow(lup1,t[VOLUME])
+    #climit = xfollow(limitup2(t[HIGH],t[LOW]),t[VOLUME])   #一字板
+    #yup = rollx(gand(stock.slup2,climit,bnot(stock.slup1)),1)  #昨日第二小时涨停并且收盘封住
+    yup = rollx(gand(stock.slup2,stock.stoped3,climit,bnot(stock.slup1)),1)  #昨日第二小时涨停并且至收盘都没打开过，含第一小时
 
     #大盘因素
     #smarket = rollx(gand(stock.ref.t2,stock.ref.t1,stock.ref.t0),1)
@@ -66,9 +139,11 @@ def attack2(stock,xup=200):#
     #yup = gand(stock.slup3,bnot(stock.stoped4))  #前3小时涨停,并且在第四小时打开过
     #yup2 = gand(stock.slup2,bnot(gand(stock.stoped3,stock.stoped4)),bnot(stock.slup1))  #第2小时开始涨停,并且在第3-4小时打开过，否则买不到
     #yup3 = gand(stock.slup3,bnot(stock.stoped4),bnot(gand(stock.slup1,stock.slup2))) 
-    yup2 = gand(stock.slup2,bnot(stock.slup1))  #第2小时开始涨停,并且在第3-4小时打开过，否则买不到
-    yup3 = gand(stock.slup3,bnot(gand(stock.slup1,stock.slup2))) 
-    yup=gor(yup2,yup3)
+    #yup2 = gand(stock.touch2,bnot(stock.slup1))  #第2小时开始触及涨停
+    #yup3 = gand(stock.touch3,bnot(gand(stock.slup1,stock.slup2))) 
+    #yup=gor(yup2,yup3)
+    cup = gand(stock.up1,yup,bnot(gand(stock.stoped3,stock.stoped4,stock.stoped2)))
+
     #因为此时追击点在下午开盘，所以可以观察大盘
 
     #yup = gand(stock.slup1,bnot(gand(stock.stoped2,stock.stoped3,stock.stoped4)))  #前1小时涨停,并且在第四小时打开过
@@ -79,12 +154,15 @@ def attack2(stock,xup=200):#
     pre=rollx(t[CLOSE],1)
     tup = np.sign(t[OPEN] * 10000 / pre <= xup + 10000)    #今日开盘大于xup,这个条件是反作用
 
-    signal = gand(yup,t[VOLUME]>0,r1,smarket) #,rama  #,tt,peak)#,fmacd,xmacd)  #rama
-    #signal = gand(yup,t[VOLUME]>0,rama,r1,smarket,tup)#,rama)   #,tt,peak)#,fmacd,xmacd)  #rama
+    #c_ex = lambda c,s:gand(c.g60>3000,s>3000)
+    #cs = catalog_signal_cs(stock.c60,c_ex)    
 
+    signal = gand(cup,t[VOLUME]>0,stock.ref.up1)#smarket)#,rama) #,rama  #,tt,peak)#,fmacd,xmacd)  #rama
+    #signal = gand(cup,t[VOLUME]>0,rama,r1,smarket,tup)#,rama)   #,tt,peak)#,fmacd,xmacd)  #rama
 
     dsignal = decover(signal,3)
-    stock.buyprice = select([dsignal>0],[t[HIGH]])     #涨停价
+    #stock.buyprice = select([dsignal>0],[t[HIGH]])     #涨停价
+    stock.buyprice = select([dsignal>0],[stock.open2])     #第二小时开盘
     #print signal
 
     return dsignal
@@ -123,11 +201,28 @@ def follow_up2(stock):
     t = stock.transaction
     #yup = gand(stock.slup2,bnot(stock.slup1),bnot(gand(stock.stoped3,stock.stoped4)))  #开盘第二小时涨停,并且在第三四小时打开过
     #yup = gand(stock.slup1,bnot(gand(stock.stoped2,stock.stoped3,stock.stoped4)))  #开盘第1小时涨停,并且在第2三四小时打开过
-    yup = gand(stock.slup3,bnot(gor(stock.slup1,stock.slup2)),bnot(stock.stoped4))  #第3小时涨停,并且在第四小时打开过
+    #yup = gand(stock.slup3,bnot(gor(stock.slup1,stock.slup2)),bnot(stock.stoped4))  #第3小时涨停,并且在第四小时打开过
+    
+    #开盘涨停
+    oup = t[OPEN]*10000 / rollx(t[CLOSE],1) >= 10990
+    cup = t[CLOSE]*10000 / rollx(t[CLOSE],1) >= 10990
+    hup = t[HIGH]*10000 / rollx(t[CLOSE],1) >= 10990
+    lup = t[LOW]*10000 / rollx(t[CLOSE],1) >= 10990
+    yup = gand(bnot(oup),cup)
+
+
     #无法判断第四小时涨停的个股涨停后是否打开过
     tt = gand(stock.t5,stock.t4,strend(ma(t[CLOSE],250))>0)    #不采用跳点法，可能这是一个敏感位置
 
-    signal = gand(yup,t[VOLUME]>0,tt)#,rama)   #,tt,peak)#,fmacd,xmacd)  #rama
+    smarket = gand(stock.ref.t2,stock.ref.t1,stock.ref.t0)  #使用当日的大盘情况，差别巨大
+
+    ama = fama(stock.ref.transaction[CLOSE])
+    #rama = stock.ref.transaction[CLOSE]*1000/rollx(ama)>=1000   #-284, p=342
+
+    c_ex = lambda c,s:gand(c.g60>5000,s>8000)
+    cs = catalog_signal_cs(stock.c60,c_ex)    
+
+    signal = gand(yup,t[VOLUME]>0,smarket,rollx(cs))   #,tt,peak)#,fmacd,xmacd)  #rama
 
     dsignal = decover(signal,3)
 

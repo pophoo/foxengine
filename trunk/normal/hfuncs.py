@@ -20,6 +20,10 @@ def prepare_hour(stock,begin,end):
     linelog('prepare hour:%s' % stock.code)
     t = get_hour(stock.code,begin,end)
     stock.hour = t[CLOSE].copy()
+    stock.hour_open = t[OPEN].copy()
+    stock.hour_low = t[LOW].copy()
+    stock.hour_high = t[HIGH].copy()
+    stock.hour_v = t[VOLUME].copy()
     stock.hour[range4(len(stock.hour))] = stock.transaction[CLOSE]   #消除第4小时数据收盘与当日收盘价的差异，日收盘价为最后均价
     prepare_hmacd(stock)
     stock.hmxc = hour2day(xc0s(t[OPEN],stock.hour,t[HIGH],t[LOW],ma1=13) > 0)

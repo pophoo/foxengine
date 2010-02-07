@@ -261,9 +261,12 @@ class PositionManager(object):  #只适合先买后卖，卖空和混合方式�
         '''
         rev = np.zeros(len(date_manager),int)
         self.vhistory[0].date = date_manager.begin
-        for b in self.vhistory: #第一个是初始值
-            index = date_manager.get_index(b.date)
-            rev[index] = b.value
+        try:
+            for b in self.vhistory: #第一个是初始值
+                index = date_manager.get_index(b.date)
+                rev[index] = b.value
+        except: #错误的时候才有可能，利润无限高
+            print u'溢出了:',b.value
         rev = extend2next(rev)
         return rev
 

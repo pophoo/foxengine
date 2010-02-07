@@ -343,7 +343,7 @@ myMediator=nmediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
 #myMediator=nmediator_factory(trade_strategy=B1S0,pricer = oo_pricer)
 #seller = atr_xseller_factory(stop_times=1200,trace_times=3000)
 #seller2000 = atr_xseller_factory(stop_times=2000,trace_times=3000)
-seller = atr_xseller_factory(stop_times=2000,trace_times=3000)
+seller = seller2000 = atr_xseller_factory(stop_times=2000,trace_times=3000)
 seller3000 = atr_xseller_factory(stop_times=3000,trace_times=3000)
 seller1200 = atr_xseller_factory(stop_times=1200,trace_times=3000)
 
@@ -355,6 +355,8 @@ scatalog = dict([(c.name,c) for c in catalogs])
 
 tbegin=time()
 for s in sdata.values(): h.prepare_hour(s,begin,end)
+
+h.prepare_index(idata[ref_id],begin,end)
 
 print u'小时数据准备耗时: %s' % (time()-tbegin)    
 
@@ -8119,4 +8121,281 @@ best:
 
 
 ### ama的研究, ama_n
+
+
+##attack2b
+ref.up1:
+    down =stock.hour_high - stock.hour < (stock.hour-stock.hour_open)*2/3
+    ol = stock.hour > stock.hour_open
+
+t.xfollow(t.hour2day1(gand(down,ol)),stock.transaction[VOLUME])
+
+def attack2b(stock):#
+    ''' 盘中第二小时追跳高不变者
+        使用fseller(信号次日卖出)
+        bo_pricer = (lambda s : s.buyprice,lambda s : s.transaction[OPEN])
+        myMediator=nmediator_factory(trade_strategy=B0S1,pricer = bo_pricer)    
+        使用fseller_t(信号当日卖出)
+        my_pricer = (lambda s : s.buyprice,lambda s : s.sellprice)
+        myMediator=nmediator_factory(trade_strategy=B0S0_N,pricer = my_pricer)    
+        使用follow_seller(信号当日卖出)
+        my_pricer = (lambda s : s.buyprice,lambda s : s.sellprice)
+        myMediator=nmediator_factory(trade_strategy=B0S0_N,pricer = my_pricer)    
+
+    '''
+    linelog('%s:%s' % (attack2.__name__,stock.code))
+    t = stock.transaction
+    
+    #第一个涨停 #确保没有稍长的下影线
+
+    cup = gand(stock.up1,bnot(gand(stock.stoped2,stock.stoped3,stock.stoped4)))
+
+
+    #三线理顺
+    #tt = rollx(gand(stock.t4,stock.t5),1)
+    fm = rollx(gand(stock.diff < stock.dea))
+
+    g = rollx(gand(stock.g20>stock.g60,stock.g60>stock.g120))
+
+    signal = gand(cup,t[VOLUME]>0,stock.ref.up1,stock.ref.t5,strend(stock.ref.diff)>0,fm,g)#smarket)#,rama) #,rama  #,tt,peak)#,fmacd,xmacd)  #rama
+
+
+
+    dsignal = decover(signal,3)
+    #stock.buyprice = select([dsignal>0],[t[HIGH]])     #涨停价
+    stock.buyprice = select([dsignal>0],[stock.open2])     #第二小时开盘
+    #print signal
+
+    return dsignal
+
+
+>>> seller2000 = atr_xseller_factory(stop_times=2000,trace_times=3000)
+>>> seller = seller2000 = atr_xseller_factory(stop_times=2000,trace_times=3000)
+>>> bo_pricer = (lambda s : s.buyprice,lambda s : s.transaction[OPEN])
+>>> my_pricer = (lambda s : s.buyprice,lambda s : s.sellprice)
+>>> reload(t)
+<module 'wolfox.fengine.normal.tfuncs' from 'd:\work\applications\gcode\wolfox\f
+engine\normal\tfuncs.py'>
+>>> buyer=t.attack2b
+>>> reload(t)
+<module 'wolfox.fengine.normal.tfuncs' from 'd:\work\applications\gcode\wolfox\f
+engine\normal\tfuncs.pyc'>
+
+>>> myMediator=nmediator_factory(trade_strategy=B0S0_N,pricer = my_pricer)
+
+>>> seller = t.nextseller   #次日发出卖出信号,并以次日收盘价卖出
+    ref.t5
+        评估:总盈亏值=-113,交易次数=253 期望值=-56
+                总盈亏率(1/1000)=-113,平均盈亏率(1/1000)=-1,盈利交易率(1/1000)=470
+                平均持仓时间=1,持仓效率(1/1000000)=-1000
+                赢利次数=119,赢利总值=2292
+                亏损次数=131,亏损总值=2405
+                平盘次数=3
+
+    ref.t3
+        评估:总盈亏值=674,交易次数=252  期望值=117
+                总盈亏率(1/1000)=674,平均盈亏率(1/1000)=2,盈利交易率(1/1000)=523
+
+                平均持仓时间=1,持仓效率(1/1000000)=2000
+                赢利次数=132,赢利总值=2707
+                亏损次数=117,亏损总值=2033
+                平盘次数=3
+    
+    ref.t2
+        评估:总盈亏值=-834,交易次数=102 期望值=-410
+                总盈亏率(1/1000)=-834,平均盈亏率(1/1000)=-9,盈利交易率(1/1000)=323
+                平均持仓时间=1,持仓效率(1/1000000)=-9000
+                赢利次数=33,赢利总值=685
+                亏损次数=68,亏损总值=1519
+                平盘次数=1
+
+    ref.t4
+        评估:总盈亏值=-748,交易次数=132 期望值=-261
+                总盈亏率(1/1000)=-748,平均盈亏率(1/1000)=-6,盈利交易率(1/1000)=348
+                平均持仓时间=1,持仓效率(1/1000000)=-6000
+                赢利次数=46,赢利总值=1238
+                亏损次数=86,亏损总值=1986
+                平盘次数=0
+                闭合交易明细:
+
+    ref.t1
+        评估:总盈亏值=2292,交易次数=396 期望值=192
+                总盈亏率(1/1000)=2292,平均盈亏率(1/1000)=5,盈利交易率(1/1000)=436
+                平均持仓时间=1,持仓效率(1/1000000)=5000
+                赢利次数=173,赢利总值=8181
+                亏损次数=219,亏损总值=5889
+                平盘次数=4
+    
+    ref.t1+t3+t5
+        评估:总盈亏值=278,交易次数=228  期望值=62
+                总盈亏率(1/1000)=278,平均盈亏率(1/1000)=1,盈利交易率(1/1000)=504
+
+                平均持仓时间=1,持仓效率(1/1000000)=1000
+                赢利次数=115,赢利总值=2136
+                亏损次数=110,亏损总值=1858
+                平盘次数=3
+
+    ref.t3+t5   #居然和t1+t3+t5一样?
+        评估:总盈亏值=278,交易次数=228  期望值=62
+                总盈亏率(1/1000)=278,平均盈亏率(1/1000)=1,盈利交易率(1/1000)=504
+
+                平均持仓时间=1,持仓效率(1/1000000)=1000
+                赢利次数=115,赢利总值=2136
+                亏损次数=110,亏损总值=1858
+                平盘次数=3
+
+    ref:t3+t1:
+        评估:总盈亏值=283,交易次数=238  期望值=58
+                总盈亏率(1/1000)=283,平均盈亏率(1/1000)=1,盈利交易率(1/1000)=504
+
+                平均持仓时间=1,持仓效率(1/1000000)=1000
+                赢利次数=120,赢利总值=2264
+                亏损次数=115,亏损总值=1981
+                平盘次数=3
+    
+
+    
+
+>>> seller=fcustom(t.fseller_t,stop_times=2000,trace_times=3000)
+
+        评估:总盈亏值=33074,交易次数=249        期望值=2444
+                总盈亏率(1/1000)=33074,平均盈亏率(1/1000)=132,盈利交易率(1/1000)=730
+                平均持仓时间=31,持仓效率(1/1000000)=4258
+                赢利次数=182,赢利总值=36722
+                亏损次数=67,亏损总值=3648
+                平盘次数=0
+
+            去掉条件g
+            评估:总盈亏值=131172,交易次数=1308      期望值=1818
+                    总盈亏率(1/1000)=131172,平均盈亏率(1/1000)=100,盈利交易率(1/1000)=670
+                    平均持仓时间=28,持仓效率(1/1000000)=3571
+                    赢利次数=877,赢利总值=154849
+                    亏损次数=426,亏损总值=23677
+                    平盘次数=5
+        
+
+            t5->t3
+            评估:总盈亏值=37255,交易次数=248        期望值=2830
+                总盈亏率(1/1000)=37255,平均盈亏率(1/1000)=150,盈利交易率(1/1000)=774
+                平均持仓时间=32,持仓效率(1/1000000)=4687
+                赢利次数=192,赢利总值=40271
+                亏损次数=56,亏损总值=3016
+                平盘次数=0
+            
+
+
+>>> seller=fcustom(t.fseller_t,stop_times=1200,trace_times=2000)
+        评估:总盈亏值=8714,交易次数=253 期望值=850
+                总盈亏率(1/1000)=8714,平均盈亏率(1/1000)=34,盈利交易率(1/1000)=652
+                平均持仓时间=12,持仓效率(1/1000000)=2833
+                赢利次数=165,赢利总值=12109
+                亏损次数=83,亏损总值=3395
+                平盘次数=5
+
+
+>>> seller=fcustom(t.follow_seller,xstop=25,ret=50)
+        评估:总盈亏值=6288,交易次数=253 期望值=888
+                总盈亏率(1/1000)=6288,平均盈亏率(1/1000)=24,盈利交易率(1/1000)=608
+                平均持仓时间=6,持仓效率(1/1000000)=4000
+                赢利次数=154,赢利总值=8924
+                亏损次数=97,亏损总值=2636
+                平盘次数=2
+>>> seller=fcustom(t.follow_seller,xstop=40,ret=75)
+        评估:总盈亏值=14238,交易次数=252        期望值=1555
+                总盈亏率(1/1000)=14238,平均盈亏率(1/1000)=56,盈利交易率(1/1000)=654
+                平均持仓时间=14,持仓效率(1/1000000)=4000
+                赢利次数=165,赢利总值=17369
+                亏损次数=85,亏损总值=3131
+                平盘次数=2
+        #t5->t3
+        评估:总盈亏值=14642,交易次数=251        期望值=1705
+                总盈亏率(1/1000)=14642,平均盈亏率(1/1000)=58,盈利交易率(1/1000)=669
+                平均持仓时间=13,持仓效率(1/1000000)=4461
+                赢利次数=168,赢利总值=17470
+                亏损次数=81,亏损总值=2828
+                平盘次数=2
+
+
+次日卖出
+>>> seller=seller2000
+>>> myMediator=nmediator_factory(trade_strategy=B0S1,pricer = bo_pricer)
+        评估:总盈亏值=35124,交易次数=249        期望值=2203
+                总盈亏率(1/1000)=35124,平均盈亏率(1/1000)=141,盈利交易率(1/1000)=791
+                平均持仓时间=32,持仓效率(1/1000000)=4406
+                赢利次数=197,赢利总值=38342
+                亏损次数=50,亏损总值=3218
+                平盘次数=2
+            #信号发出次日开盘买入
+            评估:总盈亏值=31129,交易次数=249        期望值=2118
+                总盈亏率(1/1000)=31129,平均盈亏率(1/1000)=125,盈利交易率(1/1000)=759
+                平均持仓时间=31,持仓效率(1/1000000)=4032
+                赢利次数=189,赢利总值=34626
+                亏损次数=59,亏损总值=3497
+                平盘次数=1
+                闭合交易明细:
+                
+                #ref.t5改为t3
+                评估:总盈亏值=34549,交易次数=248        期望值=2396
+                    总盈亏率(1/1000)=34549,平均盈亏率(1/1000)=139,盈利交易率(1/1000)=790
+                    平均持仓时间=32,持仓效率(1/1000000)=4343
+                    赢利次数=196,赢利总值=37542
+                    亏损次数=51,亏损总值=2993
+                    平盘次数=1
+                
+
+>>> seller=seller1200
+        评估:总盈亏值=34416,交易次数=251        期望值=2245
+                总盈亏率(1/1000)=34416,平均盈亏率(1/1000)=137,盈利交易率(1/1000)=768
+                平均持仓时间=30,持仓效率(1/1000000)=4566
+                赢利次数=193,赢利总值=37840
+                亏损次数=56,亏损总值=3424
+                平盘次数=2
+
+
+>>> seller=fcustom(t.fseller,stop_times=2000,trace_times=3000)  #与seller2000完全一样，应该完全一样
+        评估:总盈亏值=35124,交易次数=249        期望值=2203
+                总盈亏率(1/1000)=35124,平均盈亏率(1/1000)=141,盈利交易率(1/1000)=791
+                平均持仓时间=32,持仓效率(1/1000000)=4406
+                赢利次数=197,赢利总值=38342
+                亏损次数=50,亏损总值=3218
+                平盘次数=2
+
+>>> seller=fcustom(t.fseller,stop_times=1200,trace_times=2000)
+        评估:总盈亏值=13361,交易次数=252        期望值=1232
+                总盈亏率(1/1000)=13361,平均盈亏率(1/1000)=53,盈利交易率(1/1000)=694
+                平均持仓时间=13,持仓效率(1/1000000)=4076
+                赢利次数=175,赢利总值=16687
+                亏损次数=76,亏损总值=3326
+                平盘次数=1
+
+
+通过进一步研究发现，实际上缺乏可操作性，选出的股票呈爆炸性发展，也就是说，基本上在某一天被集中选出
+一半(131次)集中在2009-10-09
+
+######### 最大的收获，是发现大盘的7/30/120线趋势是非常重要的，尤其是后两者，当两者都拐头时，基本无意义
+######### 另一个发现，通常使30日线从负为正的那一天，属于非常重要的一天，
+
+
+buyin = np.zeros_like(len(dates)
+sellout = np.zeros_like(len(dates)
+
+for trades in tradess:
+    buyin[dates==trades[0]] += 1
+    sellout[dates==trades[-1]] += 1
+
+nbuyin = buyin.cumsum()
+nsellout = sellout.cumsum()
+
+cholding = nbuyin - nsellout    #当前持仓个股数
+
+切除该日
+>>> for trades in tradess:
+...     if trades[0].tdate < 20091001: tradess2.append(trades)
+
+        评估:总盈亏值=3772,交易次数=107 期望值=833
+                总盈亏率(1/1000)=3772,平均盈亏率(1/1000)=35,盈利交易率(1/1000)=523
+                平均持仓时间=10,持仓效率(1/1000000)=3500
+                赢利次数=56,赢利总值=5940
+                亏损次数=51,亏损总值=2168
+                平盘次数=0
 

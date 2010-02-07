@@ -39,6 +39,31 @@ def prepare_hour(stock,begin,end):
     ma30 = ma(stock.hour,30)
     stock.ma4_up = hour2day(gand((ma3>ma7),gand(ma7>ma13),gand(ma13>ma30),strend(ma3)>0,strend(ma7)>0,strend(ma13)>0,strend(ma30)>0))
     stop_config(stock,t[HIGH],t[LOW])
+    prepare_up1(stock)
+
+def prepare_up1(stock):
+    #linelog('prepare up1:%s' % stock.code)
+    #up = stock.hour * 10000 / rollx(stock.hour,1) >= 10200
+    down =stock.hour_high - stock.hour < (stock.hour-stock.hour_open)*2/3
+    ol = stock.hour > stock.hour_open
+    tk = stock.hour_low > rollx(stock.hour_high)
+    up = stock.hour * 10000 / gmin(rollx(stock.hour,1),stock.hour_open) > 10200
+    stock.up1 =  xfollow(hour2day1(gand(up,down,ol,tk)),stock.transaction[VOLUME])
+    stock.open2 = hour2day2(stock.hour_open)
+
+def prepare_index(stock,begin,end):
+    linelog('prepare hour:%s' % stock.code)
+    t = get_hour(stock.code,begin,end)
+    stock.hour = t[CLOSE].copy()
+    stock.hour_open = t[OPEN].copy()
+    stock.hour_low = t[LOW].copy()
+    stock.hour_high = t[HIGH].copy()
+    stock.hour_v = t[VOLUME].copy()
+    stock.hour[range4(len(stock.hour))] = np.cast['int32'](stock.transaction[CLOSE])   #消除第4小时数据收盘与当日收盘价的差异，日收盘价为最后均价
+    down =stock.hour_high - stock.hour < (stock.hour-stock.hour_open)*2/3
+    ol = stock.hour > stock.hour_open
+    stock.up1 =  xfollow(hour2day1(gand(down,ol)),stock.transaction[VOLUME])
+    stock.open2 = hour2day2(stock.hour_open)
 
 def stop_config(stock,shigh,slow):
     stoped = (shigh == slow)
@@ -46,7 +71,6 @@ def stop_config(stock,shigh,slow):
     stock.stoped2 = hour2day2(stoped)
     stock.stoped3 = hour2day3(stoped)    
     stock.stoped4 = hour2day4(stoped)
-    
 
 def prepare_hmacd(stock):
     #linelog('prepare hmacd:%s' % stock.code)    

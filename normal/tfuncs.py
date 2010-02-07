@@ -82,29 +82,66 @@ def prepare_up1(stock):
     stock.up1 =  xfollow(hour2day1(gand(up,down,ol,tk)),stock.transaction[VOLUME])
     stock.open2 = hour2day2(stock.hour_open)
 
+def attack2c(stock):#
+    ''' 跳空高开并且全日收盘未补缺口，且收盘大于开盘，并收于相对高位
+    '''
+    linelog('%s:%s' % (attack2.__name__,stock.code))
+    t = stock.transaction
+    
+    last = rollx(t[CLOSE],1) #CLOSE?
+    tk = gand(t[OPEN] > last*102/100,t[LOW]>last)   
+    down = t[HIGH]-t[CLOSE] < (t[CLOSE]-t[OPEN])*2/3
+    ol = t[CLOSE] > t[OPEN]
+
+    cup = gand(tk,down,ol)
+
+
+    #三线理顺
+    #tt = rollx(gand(stock.t4,stock.t5),1)
+    fm = rollx(gand(stock.diff < stock.dea))
+
+    g = rollx(gand(stock.g20>stock.g60,stock.g60>stock.g120))
+
+    smarket = gand(stock.ref.t2,stock.ref.t1,stock.ref.t0)
+    signal = gand(cup,t[VOLUME]>0,g)#smarket)#,rama) #,rama  #,tt,peak)#,fmacd,xmacd)  #rama
+
+    dsignal = decover(signal,3)
+    #stock.buyprice = select([dsignal>0],[t[HIGH]])     #涨停价
+    #stock.buyprice = select([dsignal>0],[stock.open2])     #第二小时开盘
+    #print signal
+    return dsignal
+
+
 def attack2b(stock):#
-    ''' 盘中追第二个涨停
+    ''' 盘中第二小时追跳高不变者
+        使用fseller(信号次日卖出)
+        bo_pricer = (lambda s : s.buyprice,lambda s : s.transaction[OPEN])
+        myMediator=nmediator_factory(trade_strategy=B0S1,pricer = bo_pricer)    
+        使用fseller_t(信号当日卖出)
+        my_pricer = (lambda s : s.buyprice,lambda s : s.sellprice)
+        myMediator=nmediator_factory(trade_strategy=B0S0_N,pricer = my_pricer)    
+        使用follow_seller(信号当日卖出)
+        my_pricer = (lambda s : s.buyprice,lambda s : s.sellprice)
+        myMediator=nmediator_factory(trade_strategy=B0S0_N,pricer = my_pricer)    
+
     '''
     linelog('%s:%s' % (attack2.__name__,stock.code))
     t = stock.transaction
     
     #第一个涨停 #确保没有稍长的下影线
-    lup1 = gand(limitup1(t[CLOSE]))#,t[OPEN]*10000/t[LOW]<10050)  
-
-    climit = xfollow(lup1,t[VOLUME])
-    
-    yup = rollx(climit,1)
 
     cup = gand(stock.up1,bnot(gand(stock.stoped2,stock.stoped3,stock.stoped4)))
 
 
     #三线理顺
     #tt = rollx(gand(stock.t4,stock.t5),1)
-    fm = rollx(stock.diff < stock.dea)
+    fm = rollx(gand(stock.diff < stock.dea))
 
-    signal = gand(cup,t[VOLUME]>0,stock.ref.up1,fm)#smarket)#,rama) #,rama  #,tt,peak)#,fmacd,xmacd)  #rama
+    g = rollx(gand(stock.g20>stock.g60,stock.g60>stock.g120))
 
+    tref = rollx(gand(stock.ref.t3))
 
+    signal = gand(cup,t[VOLUME]>0,stock.ref.up1,tref,strend(stock.ref.diff)>0,fm,g)#smarket)#,rama) #,rama  #,tt,peak)#,fmacd,xmacd)  #rama
 
     dsignal = decover(signal,3)
     #stock.buyprice = select([dsignal>0],[t[HIGH]])     #涨停价
@@ -232,6 +269,55 @@ def follow_up2(stock):
 
     return dsignal
 
+def nextseller(stock,buy_signal):
+    t = stock.transaction
+    stock.sellprice = t[CLOSE]
+    return rollx(buy_signal)
+
+def fseller_t(stock,buy_signal,stop_times=3*BASE/2,trace_times=2*BASE,**kwargs):
+    '''
+        应用于B0的ATR止损
+        原ATR止损买入信号和卖出信号相抵消, 只适用于B1S1系列
+        本函数将同日信号平移一位
+    '''
+    t = stock.transaction
+    trans = t
+
+    dlimit = tracelimit((trans[OPEN]+trans[CLOSE])/2,trans[HIGH],trans[LOW],buy_signal,stock.atr,stop_times,trace_times)
+
+    sdown = under_cross(buy_signal,dlimit,trans[LOW])
+
+    sell_signal = sdown #不能再有确认，因为不知道后面会怎么走
+
+    bs = gand(buy_signal >0,sell_signal >0)
+
+    ssignal = select([bs],[0],default=sell_signal) + rollx(bs)  #如果同日发出，则后移一日
+    stock.sellprice = select([rollx(bs)],[t[OPEN]],default=dlimit)  #当日卖出
+
+    return ssignal
+
+def fseller(stock,buy_signal,stop_times=3*BASE/2,trace_times=2*BASE,**kwargs):
+    '''
+        应用于B0的ATR止损
+        原ATR止损买入信号和卖出信号相抵消, 只适用于B1S1系列
+        但因为有收盘确认，所以只能用作S1系列
+        本函数将同日信号平移一位
+    '''
+    t = stock.transaction
+    trans = t
+
+    dlimit = tracelimit((trans[OPEN]+trans[CLOSE])/2,trans[HIGH],trans[LOW],buy_signal,stock.atr,stop_times,trace_times)
+
+    sdown = under_cross(buy_signal,dlimit,trans[LOW])
+
+    sell_signal = band(sdown,sellconfirm(trans[OPEN],trans[CLOSE],trans[HIGH],trans[LOW]))
+
+    bs = gand(buy_signal >0,sell_signal >0)
+
+    ssignal = select([bs],[0],default=sell_signal) + rollx(bs)  #如果同日发出，则后移一日
+
+    return ssignal
+
 def follow_seller(stock,buy_signal,xstop=25,ret=50,**kwargs):
     '''
         如果价格小于最近5日高点5%，则卖出
@@ -257,8 +343,13 @@ def follow_seller(stock,buy_signal,xstop=25,ret=50,**kwargs):
 
     cut_signal = select([t[VOLUME]>0],[cut_signal]) #默认为0，即未交易的日子卖出信号不能发出，否则会合并到下一交易日
 
+    bs = gand(buy_signal,cut_signal)
+    rbs = rollx(bs)
+
+    sell_signal = select([bs],[0],default=cut_signal) + rbs #如果当日冲销，则后推一日，但如果前一日也是当日，则信号被屏蔽
+
     stock.sellprice = select([cut_signal],[cut_price],default=t[OPEN])
-    #止损和退回用cut_price, 停牌平移用开盘价
+    #止损和退回用cut_price, 当日卖出信号平移用开盘价，停牌平移用开盘价
 
     return cut_signal
 

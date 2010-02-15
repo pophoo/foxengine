@@ -8376,12 +8376,12 @@ engine\normal\tfuncs.pyc'>
 ######### 另一个发现，通常使30日线从负为正的那一天，属于非常重要的一天，
 
 
-buyin = np.zeros_like(len(dates)
-sellout = np.zeros_like(len(dates)
+buyin = np.zeros_like(dates)
+sellout = np.zeros_like(dates)
 
 for trades in tradess:
-    buyin[dates==trades[0]] += 1
-    sellout[dates==trades[-1]] += 1
+    buyin[dates==trades[0].tdate] += 1
+    sellout[dates==trades[-1].tdate] += 1
 
 nbuyin = buyin.cumsum()
 nsellout = sellout.cumsum()

@@ -11,7 +11,7 @@ from wolfox.fengine.normal.funcs import *
 import wolfox.fengine.normal.funcs as f
 import wolfox.fengine.normal.sfuncs as s
 import wolfox.fengine.normal.hfuncs as h
-from wolfox.fengine.core.d1indicator import atr
+from wolfox.fengine.core.d1indicator import atr,atr2
 
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.run')    
@@ -523,7 +523,7 @@ def prepare_common_common(s):
     s.ks = subd(c) * BASE / rollx(c)
     s.diff,s.dea = cmacd(c)
     s.atr = atr(c,s.transaction[HIGH],s.transaction[LOW],20)
-    
+    s.atr2 = atr2(c,s.transaction[HIGH],s.transaction[LOW],20)
 
 def prepare_index(index):
     index.pdiff,index.pdea = cmacd(index.transaction[CLOSE])

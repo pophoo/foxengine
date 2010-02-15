@@ -552,6 +552,9 @@ def tr(sclose,shigh,slow):
 def atr(sclose,shigh,slow,length=20):
     return cexpma(tr(sclose,shigh,slow),length)
 
+def atr2(sclose,shigh,slow,length=20):
+    return ma(tr(sclose,shigh,slow),length)
+
 def asi(sopen,sclose,shigh,slow):
     '''
         1.A=∣当天最高价-前一天收盘价∣

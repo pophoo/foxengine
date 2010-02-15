@@ -251,6 +251,12 @@ class ModuleTest(unittest.TestCase):
         sclose = np.array([150,220,150,300])
         self.assertEquals([100,100,120,250],atr(sclose,shigh,slow,1).tolist())
 
+    def test_atr2(self):
+        shigh = np.array([200,250,200,400])
+        slow = np.array([100,200,100,200])
+        sclose = np.array([150,220,150,300])
+        self.assertEquals([0,100,110,185],atr2(sclose,shigh,slow,2).tolist())
+
     def test_asi(self):
         topen = np.array([990,1016,1010,1050,1030,1035,980,1050,1040,1020,1025,1019])
         tclose = np.array([1000,1010,1020,1030,1020,1030,1000,1000,1020,1040,1020,1030])

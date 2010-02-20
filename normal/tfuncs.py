@@ -60,13 +60,36 @@ def bxatr2(stock):
 
     across = gand(cross(mxatr,xatr)<0,strend(xatr)<0)
 
-    catr = gand(xatr>40,xatr<60,across)
+    #catr = gand(xatr>40,xatr<60,across)
+    #catr = gand(across,xatr>40,xatr<66)
+    catr = gand(across,xatr<66)
 
     linelog('%s:%s' % (bxatr2.__name__,stock.code))
 
-    signals = gand(catr,stock.g60<3000,stock.diff<stock.dea)
+    nc = bnot(gand(stock.t3<1,stock.t4<1,stock.t5<1))
+
+    mcross = gand(cross(stock.dea,stock.diff)<0,strend(stock.diff)<0)
+
+    cnc = bnot(cover(mcross,5))
+
+    xabove = rollx(msum2(xatr>mxatr,6) > 5,1)
+
+    gm = gmin(stock.ma1,stock.ma2,stock.ma3,stock.ma4,stock.ma5)
+
+    lmax = tmax(t[HIGH],30)
+    lmin = tmin(t[HIGH],5)  
+
+    lmx = t[CLOSE]<lmax*85/100
+    lmi = t[CLOSE]>lmin*103/100 #突破最低的最高价
+
+    ravi = (stock.ma1 - stock.ma4) * 100 / stock.ma4
+    dravi = ravi-rollx(ravi,1)
+
+    #signals = gand(catr,stock.g60<3000,nc,stock.diff<stock.dea,cnc,stock.ref.t3,xabove,xatr>50,lmx,lmi)
+    signals = gand(catr,stock.g60>5000,nc,stock.ref.t3,lmx,lmi)#,strend(dravi)>0)#ravi<0)#,strend(ravi)>0)
 
     return signals
+
 
 def tsvama2_old(stock,fast,slow):
     t = stock.transaction

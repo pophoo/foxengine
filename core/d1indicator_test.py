@@ -239,6 +239,41 @@ class ModuleTest(unittest.TestCase):
         source = np.array([100,120,130,120,100,120,150,180,160,160,140,150])
         self.assertEquals([0,0,0,750,250,400,714,1000,750,600,0,333],rsi(source,3).tolist())
 
+    def test_dm(self):
+        pdm,ndm = dm(np.array([]),np.array([]))
+        self.assertEquals([],pdm.tolist())
+        self.assertEquals([],ndm.tolist())
+        shigh = np.array([200,250,200,400,500])
+        slow = np.array([100,200,100,200,100])
+        pdm,ndm = dm(shigh,slow)        
+        self.assertEquals([0,50,0,200,0],pdm.tolist())
+        self.assertEquals([0,0,100,0,0],ndm.tolist())
+        
+    def test_di(self):#只测试通路
+        pdi,ndi = di(np.array([]),np.array([]),np.array([]),12)
+        self.assertEquals([],pdi.tolist())
+        self.assertEquals([],ndi.tolist())
+        pdm = np.array([0,50,0,200,0])
+        ndm = np.array([0,0,100,0,0])
+        xtr = np.array([100,100,100,100,100])
+        pdi,ndi = di(pdm,ndm,xtr,12)
+        self.assertTrue(True)
+
+    def test_xadx(self): #只测试通路
+        self.assertEquals([],xadx(np.array([]),np.array([]),12).tolist())
+        pdi = np.array([0,50,0,200,0])
+        ndi = np.array([0,0,100,0,0])
+        adx = xadx(pdi,ndi,12)
+        self.assertTrue(True)
+    
+    def test_adx(self): #只测试通路
+        self.assertEquals([],adx(np.array([]),np.array([]),np.array([]),14,6).tolist())
+        shigh = np.array([200,250,200,400,500])
+        slow = np.array([100,200,100,200,100])
+        sclose = np.array([100,200,100,200,100])
+        adx(sclose,shigh,slow)
+        self.assertTrue(True)
+
     def test_tr(self):
         shigh = np.array([200,250,200,400])
         slow = np.array([100,200,100,200])

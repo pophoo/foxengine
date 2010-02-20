@@ -5,7 +5,7 @@
 
 import numpy as np
 
-from wolfox.fengine.core.d1 import BASE,gand,gmax,greater,subd,rollx,roll0
+from wolfox.fengine.core.d1 import BASE,gand,gmax,greater,subd,rollx,roll0,nsubd
 from wolfox.fengine.core.d1ex import tmax,tmin,trend,msum,ma
 
 import logging
@@ -539,6 +539,50 @@ def rsi(source,length):
             downsum -= il - il1
         pre = cur
     return rev
+
+def dm(shigh,slow):
+    ''' 动向计算
+        通达信公式
+            HD :=HIGH-REF(HIGH,1);
+            LD :=REF(LOW,1)-LOW;
+            DMP:=EXPMEMA(IF(HD>0&&HD>LD,HD,0),N);
+            DMM:=EXPMEMA(IF(LD>0&&LD>HD,LD,0),N);
+            这里取消了N的EXP
+    '''
+    tpdm = subd(shigh)
+    tndm = -subd(slow)
+    pdm = np.select([gand(tpdm>0,tpdm>tndm)],[tpdm],default=0)
+    ndm = np.select([gand(tndm>0,tndm>tpdm)],[tndm],default=0)
+    return pdm,ndm
+
+def di(pdm,ndm,xtr,length):
+    ''' 方向计算, pdm:正动向, ndm:负动向，xtr:真实波幅，length:平滑系数
+        通达信公式
+            DMP:=EXPMEMA(IF(HD>0&&HD>LD,HD,0),N);
+            DMM:=EXPMEMA(IF(LD>0&&LD>HD,LD,0),N);
+            PDI: DMP*100/TR;
+            MDI: DMM*100/TR;
+    '''
+    pdi = cexpma(pdm,length)*100/xtr
+    ndi = cexpma(ndm,length)*100/xtr
+    return pdi,ndi
+
+def xadx(pdi,ndi,length):
+    ''' 动向平均数计算
+        通达信公式
+            ADX: EXPMEMA(ABS(MDI-PDI)/(MDI+PDI)*100,M);
+    '''
+    return cexpma(np.abs(pdi-ndi)*100/(pdi+ndi),length)
+
+def adx(sclose,shigh,slow,n=14,m=6):
+    ''' 直接根据sclose,shigh,slow计算adx的快捷函数
+        n: 计算di时的平滑天数
+        m: 计算adx时的平滑天数
+    '''
+    pdm,ndm = dm(shigh,slow)
+    xtr = tr(sclose,shigh,slow)
+    pdi,ndi = di(pdm,ndm,xtr,n)
+    return xadx(pdi,ndi,m)
 
 def tr(sclose,shigh,slow):
     ''' 真实波幅

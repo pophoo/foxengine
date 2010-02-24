@@ -10,14 +10,81 @@ from wolfox.fengine.core.d1 import lesser,bnot,gmax,gmin
 from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,scover,xfollow
 from wolfox.fengine.core.d1match import *
 from wolfox.fengine.core.d1idiom import *
-from wolfox.fengine.core.d1indicator import cmacd,score2
+from wolfox.fengine.core.d1indicator import cmacd,score2,adx
 from wolfox.foxit.base.tutils import linelog
 from time import time
 
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.sfuncs')    
 
+def bma30(stock):
+    ''' 
+        稳定收盘于30日线上3天后买入
+    '''
+    linelog('%s:%s' % (bma30.__name__,stock.code))    
+    t = stock.transaction
+    
+    cu3 = msum2(t[CLOSE]>stock.ma3,3) == 3
+
+    fcu3 = gand(cu3,bnot(rollx(cu3)))   #第一次cu3
+
+    signal = gand(fcu3,stock.ref.t3)
+
+    return signal
+
+
+def xgg(stock):
+    '''
+        mg20 = ma(stock.g20,13)
+        mg60 = ma(stock.g60,13)
+        signal = gand(across,stock.ref.t1,stock.ref.t3,stock.ref.t5,xatr<mxatr,xatr>45,xatr<60)#,t[CLOSE]>stock.ma3,t[CLOSE]>stock.ma1)
+        评估:总盈亏值=43079,交易次数=515        期望值=1202
+                总盈亏率(1/1000)=43079,平均盈亏率(1/1000)=83,盈利交易率(1/1000)=563
+                平均持仓时间=28,持仓效率(1/1000000)=2964
+                赢利次数=290,赢利总值=58593
+                亏损次数=222,亏损总值=15514
+                平盘次数=3
+        mg20 = ma(stock.g20,7)
+        mg60 = ma(stock.g60,13)
+        评估:总盈亏值=68168,交易次数=758        期望值=1186
+                总盈亏率(1/1000)=68168,平均盈亏率(1/1000)=89,盈利交易率(1/1000)=600
+                平均持仓时间=29,持仓效率(1/1000000)=3068
+                赢利次数=455,赢利总值=91007
+                亏损次数=302,亏损总值=22839
+                平盘次数=1
+                
+    
+    '''
+    linelog('%s:%s' % (xgg.__name__,stock.code))
+
+    t = stock.transaction
+
+    mg20 = ma(stock.g20,7)
+    mg60 = ma(stock.g60,13)
+
+    across = gand(cross(mg60,mg20)>0,strend(mg20)>0)
+
+    #nc = bnot(gand(stock.t3<1,stock.t4<1,stock.t5<1))
+
+    ll = tmin(t[LOW],13)  
+    llc = t[CLOSE] < ll* 125/100
+
+    xatr = stock.atr * BASE / t[CLOSE]
+
+    mxatr = ma(xatr,13)
+
+    bma = gand(stock.ma1>stock.ma4,stock.ma2>stock.ma4,stock.ma3>stock.ma4)
+
+    signal = gand(across,stock.ref.t1,stock.ref.t3,stock.ref.t5,xatr<mxatr,xatr>45,xatr<60,bma)
+
+    return signal
+
+
 def bxatr(stock):
+    ''' #比bxatr2稳定
+        数量很多
+        但很难提升到50%以上
+    '''
     t = stock.transaction
     
     xatr = stock.atr * BASE / t[CLOSE]
@@ -31,7 +98,28 @@ def bxatr(stock):
 
     linelog('%s:%s' % (bxatr.__name__,stock.code))
 
-    signals = gand(catr,stock.g60<3000)
+    signals = gand(catr,stock.t5,stock.g60<3000,stock.g20>stock.g60)
+
+    return signals
+
+
+def bxatr1(stock):
+    ''' 
+    '''
+    t = stock.transaction
+    
+    xatr = stock.atr * BASE / t[CLOSE]
+
+    mxatr = ma(xatr,13)
+
+    x40 = cached_ints(len(xatr),40)
+    xcross = gand(cross(x40,xatr)<0,strend(xatr)<0)
+
+    catr = gand(xatr<mxatr,xcross)
+
+    linelog('%s:%s' % (bxatr.__name__,stock.code))
+
+    signals = gand(catr,stock.ref.t3)
 
     return signals
 
@@ -59,6 +147,7 @@ def bxatr2(stock):
     mxatr = ma(xatr,13)
 
     across = gand(cross(mxatr,xatr)<0,strend(xatr)<0)
+    #across = gand(cross(mxatr,xatr)>0,strend(xatr)>0)
 
     #catr = gand(xatr>40,xatr<60,across)
     #catr = gand(across,xatr>40,xatr<66)
@@ -68,27 +157,126 @@ def bxatr2(stock):
 
     nc = bnot(gand(stock.t3<1,stock.t4<1,stock.t5<1))
 
-    mcross = gand(cross(stock.dea,stock.diff)<0,strend(stock.diff)<0)
 
-    cnc = bnot(cover(mcross,5))
+    lmax = tmax(t[HIGH],30)
+    lmin = tmin(t[HIGH],5)  
+    ll = tmin(t[LOW],5)  
 
-    xabove = rollx(msum2(xatr>mxatr,6) > 5,1)
 
-    gm = gmin(stock.ma1,stock.ma2,stock.ma3,stock.ma4,stock.ma5)
+    lmx = t[CLOSE]<lmax*85/100
+    lmi = t[CLOSE]>lmin*103/100 #突破最低的最高价
+    #llx = t[CLOSE]<ll*115/100   #不超过15%
+    
+    madx = adx(t[CLOSE],t[HIGH],t[LOW]) #判断是否出于趋势末端
+
+    #signals = gand(catr,stock.g60<3000,nc,stock.diff<stock.dea,cnc,stock.ref.t3,xabove,xatr>50,lmx,lmi)
+    signals = gand(catr,stock.g60>5000,nc,stock.ref.t3,lmx,lmi,strend(madx)<0)
+
+    return signals
+
+
+def bxatr2b(stock):
+    '''
+    '''
+    t = stock.transaction
+    
+    xatr = stock.atr * BASE / t[CLOSE]
+
+    mxatr = ma(xatr,13)
+
+    across = gand(cross(mxatr,xatr)<0,strend(xatr)<0)
+
+    madx = adx(t[CLOSE],t[HIGH],t[LOW]) #判断是否出于趋势末端
+    
+    s_ahead = gand(across,xatr<66,strend(madx)<0)
+
+    linelog('%s:%s' % (bxatr2b.__name__,stock.code))
+
+    nc = bnot(gand(stock.t3<1,stock.t4<1,stock.t5<1))
 
     lmax = tmax(t[HIGH],30)
     lmin = tmin(t[HIGH],5)  
 
     lmx = t[CLOSE]<lmax*85/100
     lmi = t[CLOSE]>lmin*103/100 #突破最低的最高价
-
-    ravi = (stock.ma1 - stock.ma4) * 100 / stock.ma4
-    dravi = ravi-rollx(ravi,1)
+    
+    s_follow = gand(stock.g60>5000,nc,stock.ref.t3,lmx,lmi,xatr<mxatr)
 
     #signals = gand(catr,stock.g60<3000,nc,stock.diff<stock.dea,cnc,stock.ref.t3,xabove,xatr>50,lmx,lmi)
-    signals = gand(catr,stock.g60>5000,nc,stock.ref.t3,lmx,lmi)#,strend(dravi)>0)#ravi<0)#,strend(ravi)>0)
+    signals = sfollow(s_ahead,s_follow,7)#gand(catr,)#,llx)#,strend(dravi)>0)#ravi<0)#,strend(ravi)>0)
 
     return signals
+
+def bxatr3(stock):
+    '''
+    '''
+    t = stock.transaction
+    
+    xatr = stock.atr * BASE / t[CLOSE]
+
+    mxatr = ma(xatr,13)
+
+    across = gand(cross(mxatr,xatr)>0,strend(xatr)>0)
+
+    catr = gand(across)
+
+    linelog('%s:%s' % (bxatr2.__name__,stock.code))
+
+    nc = bnot(gand(stock.t3<1,stock.t4<1,stock.t5<1))
+
+    lmax = tmax(t[HIGH],30)
+    lmin = tmin(t[HIGH],5)  
+
+
+    lmx = t[CLOSE]<lmax*85/100
+    lmi = t[CLOSE]>lmin*103/100 #突破最低的最高价
+    #llx = t[CLOSE]<ll*115/100   #不超过15%
+    
+    madx = adx(t[CLOSE],t[HIGH],t[LOW]) #判断是否出于趋势末端
+
+    ravi = (stock.ma1 - stock.ma4)*100/stock.ma4
+
+    #signals = gand(catr,stock.g60<3000,nc,stock.diff<stock.dea,cnc,stock.ref.t3,xabove,xatr>50,lmx,lmi)
+    signals = gand(catr,ravi>1)#stock.g60>5000,nc,lmx,lmi)#,llx)#,strend(dravi)>0)#ravi<0)#,strend(ravi)>0)
+
+    return signals
+
+def xatr_seller(stock,buy_signal):
+    '''
+        seller = sellers_wrapper(t.xatr_seller,seller2000)
+    '''
+    t = stock.transaction
+    
+    xatr = stock.atr * BASE / t[CLOSE]
+
+    mxatr = ma(xatr,13)
+
+    across = gand(cross(mxatr,xatr)>0,strend(xatr)>0)
+
+    return across
+
+def ma30_seller(stock,buy_signal):
+    ''' 
+        稳定收盘于30日线下3天后出掉
+        seller = sellers_wrapper(t.ma30_seller,seller2000)
+    '''
+    t = stock.transaction
+    
+    cd3 = msum2(t[CLOSE]<stock.ma3,3) == 3
+
+    fcd3 = gand(cd3,bnot(rollx(cd3)))   #第一次cd3
+
+    return fcd3
+
+def ma37_seller(stock,buy_signal):
+    '''
+        seller = sellers_wrapper(t.ma37_seller,seller2000)
+    '''
+    t = stock.transaction
+    
+    across = gand(cross(stock.ma1,stock.ma0)<0,strend(stock.ma0)<0)
+
+    return across
 
 
 def tsvama2_old(stock,fast,slow):

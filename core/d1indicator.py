@@ -555,7 +555,7 @@ def dm(shigh,slow):
     ndm = np.select([gand(tndm>0,tndm>tpdm)],[tndm],default=0)
     return pdm,ndm
 
-def di(pdm,ndm,xtr,length):
+def di(pdm,ndm,xtr,length=14):
     ''' 方向计算, pdm:正动向, ndm:负动向，xtr:真实波幅，length:平滑系数
         通达信公式
             DMP:=EXPMEMA(IF(HD>0&&HD>LD,HD,0),N);
@@ -563,16 +563,17 @@ def di(pdm,ndm,xtr,length):
             PDI: DMP*100/TR;
             MDI: DMM*100/TR;
     '''
-    pdi = cexpma(pdm,length)*100/xtr
-    ndi = cexpma(ndm,length)*100/xtr
+    mxtr = cexpma(xtr,length)
+    pdi = cexpma(pdm,length)*10000/mxtr
+    ndi = cexpma(ndm,length)*10000/mxtr
     return pdi,ndi
 
-def xadx(pdi,ndi,length):
+def xadx(pdi,ndi,length=6):
     ''' 动向平均数计算
         通达信公式
             ADX: EXPMEMA(ABS(MDI-PDI)/(MDI+PDI)*100,M);
     '''
-    return cexpma(np.abs(pdi-ndi)*100/(pdi+ndi),length)
+    return cexpma(np.abs(pdi-ndi)*10000/(pdi+ndi),length)
 
 def adx(sclose,shigh,slow,n=14,m=6):
     ''' 直接根据sclose,shigh,slow计算adx的快捷函数

@@ -326,7 +326,7 @@ begin,xbegin,end = 20070101,20080101,20191201
 #begin,xbegin,end = 20040101,20050101,20091231
 
 tbegin = time()
-    
+
 #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
 dates,sdata,idata,catalogs = prepare_all(begin,end,[],[])
 #sdata.update(idata)    #会紊乱其它针对stock的计算

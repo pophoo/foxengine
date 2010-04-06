@@ -8403,3 +8403,12 @@ cholding = nbuyin - nsellout    #当前持仓个股数
 #2010-03-16
 1000:
 000585:     emv2:slow=290,fast=128
+
+#2010-03-23
+best:
+000856:     emv1b:base=120,fast=15
+
+#2010-03-30
+best:
+600074:     emv1b:base=120,fast=40
+

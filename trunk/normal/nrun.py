@@ -13,6 +13,9 @@ import wolfox.fengine.normal.sfuncs as s
 import wolfox.fengine.normal.hfuncs as h
 import wolfox.fengine.core.utils as ut
 import wolfox.fengine.core.d1ex as d1ex
+import wolfox.fengine.core.d1kline as d1k
+
+
 
 from wolfox.fengine.core.d1indicator import atr,atr2
 
@@ -496,6 +499,7 @@ def prepare_common_catalog(catalogs,ref,dates,i_cofw):
         s.csignal = smaker(s)
 
 def prepare_common_common(s):
+    o = s.transaction[OPEN]
     c = s.transaction[CLOSE]
     v = s.transaction[VOLUME]
     s.ma0 = ma(c,3)
@@ -510,6 +514,8 @@ def prepare_common_common(s):
     s.t2 = strend(s.ma2) > 0
     s.t1 = strend(s.ma1) > 0
     s.t0 = strend(s.ma0) > 0
+    s.ksize = np.array(list(d1k.ksize(o,c)))
+    s.ksign = np.array(list(d1k.ksign(o,c)))
     s.above = gand(s.ma2>s.ma3,s.ma3>s.ma4,s.ma4>s.ma5)
     #将golden和above分开
     s.golden = gand(s.g20 >= s.g60+1000,s.g60 >= s.g120+1000,s.g20>=3000,s.g20<=8000)
@@ -540,15 +546,15 @@ def run_body(sdata,dates,begin,end,xbegin):
     #seller = fcustom(csc_func,threshold=100)
     
     #configs = prepare_temp_configs(seller1200,pman,dman)
-    configs = prepare_temp_configs(seller2000,pman,dman)
+    #configs = prepare_temp_configs(seller2000,pman,dman)
     #configs = prepare_configs_A2000(seller2000,pman,dman)
     #configs.extend(prepare_configs_A2000(seller2000,pman,dman))
     #configs = prepare_configs_A0(seller1200,pman,dman)
     #configs = prepare_configs_1000(seller1200,pman,dman)    
     #configs.extend(prepare_configs_best(seller1200,pman,dman))        
     
-    #configs = prepare_configs_1000(seller2000,pman,dman)    
-    #configs.extend(prepare_configs_best(seller2000,pman,dman))        
+    configs = prepare_configs_1000(seller2000,pman,dman)    
+    configs.extend(prepare_configs_best(seller2000,pman,dman))        
     
     
     #configs.extend(prepare_configs_normal(seller1200,pman,dman))    

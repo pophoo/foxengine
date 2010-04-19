@@ -35,6 +35,22 @@ class ModuleTest(unittest.TestCase):
         sellconfirm(np.array([1,2,3,4,5]),np.array([2,3,4,5,6]),np.array([4,5,6,7,8]),np.array([1,2,3,4,5]))
         self.assertTrue(True)
 
+    def test_sellconfirm2(self):
+        sellconfirm2(np.array(['a','b','c','d']),np.array(['a','b','c','d']))
+        self.assertTrue(True)
+
+    def test_upveto2(self):
+        upveto2(np.array(['a','b','c','d']),np.array(['a','b','c','d']))
+        self.assertTrue(True)
+
+    def test_upconfirm2(self):
+        stock = BaseObject()
+        st = np.array([1,2,3,4])
+        stock.transaction = [st,st,st,st,st,st,st,st]
+        stock.ksign = stock.ksize = np.array(['a','b','c','d'])
+        upconfirm2(stock)
+        self.assertTrue(True)
+
     def test_simplesell(self):
         simplesell(np.array([0,1,0,0,1]),np.array([1,2,3,4,5]),np.array([0,1,2,3,4]),15)
         self.assertTrue(True)

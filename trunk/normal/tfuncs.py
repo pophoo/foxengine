@@ -1927,7 +1927,7 @@ def uinfunc3a(wline,base,len1,len2,len3):
 
     mm2 = gmax(m1,m2)
 
-    ndev = (mmax-mmin) * 1000 / base < 1200
+    ndev = (mmax-mmin) * 1000 / base < 1500
 
     xcross = gand(cross(mmax,wline),strend(wline)>0)
 
@@ -1959,12 +1959,13 @@ def uinfunc3c(wline,base,len1,len2,len3):
 def uplain3(stock,lens,infunc=uinfunc3a):
     '''
         buyer=fcustom(t.uplain3,lens=(7,13,30))     #
-        评估:总盈亏值=1913,交易次数=17  期望值=3612
-                总盈亏率(1/1000)=1913,平均盈亏率(1/1000)=112,盈利交易率(1/1000)=823
-                平均持仓时间=31,持仓效率(1/1000000)=3612
-                赢利次数=14,赢利总值=1976
-                亏损次数=2,亏损总值=63
+        评估:总盈亏值=2382,交易次数=19  期望值=3676
+                总盈亏率(1/1000)=2382,平均盈亏率(1/1000)=125,盈利交易率(1/1000)=894
+                平均持仓时间=34,持仓效率(1/1000000)=3676
+                赢利次数=17,赢利总值=2416
+                亏损次数=1,亏损总值=34
                 平盘次数=1
+
         buyer=fcustom(t.uplain3,lens=(3,7,13))      
         评估:总盈亏值=2065,交易次数=15  期望值=2537
                 总盈亏率(1/1000)=2065,平均盈亏率(1/1000)=137,盈利交易率(1/1000)=733
@@ -2025,12 +2026,13 @@ def uplain3(stock,lens,infunc=uinfunc3a):
 def uplain32(stock,lens,infunc=uinfunc3a):
     '''
         buyer=fcustom(t.uplain32,lens=(5,10,20),infunc=t.uinfunc3b) #
-        评估:总盈亏值=1731,交易次数=17  期望值=1629
-                总盈亏率(1/1000)=1731,平均盈亏率(1/1000)=101,盈利交易率(1/1000)=823
-                平均持仓时间=25,持仓效率(1/1000000)=4040
-                赢利次数=14,赢利总值=1919
-                亏损次数=3,亏损总值=188
+        评估:总盈亏值=1902,交易次数=17  期望值=1480
+                总盈亏率(1/1000)=1902,平均盈亏率(1/1000)=111,盈利交易率(1/1000)=941
+                平均持仓时间=31,持仓效率(1/1000000)=3580
+                赢利次数=16,赢利总值=1977
+                亏损次数=1,亏损总值=75
                 平盘次数=0
+
         buyer=fcustom(t.uplain32,lens=(3,7,13),infunc=t.uinfunc3b)  #
         评估:总盈亏值=2408,交易次数=21  期望值=2425
                 总盈亏率(1/1000)=2408,平均盈亏率(1/1000)=114,盈利交易率(1/1000)=761
@@ -2164,6 +2166,59 @@ def uinfunc4(wline,base,len1,len2,len3,len4): #效果奇差
     xcross = gand(cross(mmax,wline),strend(wline)>0)
 
     return gand(xcross,ndev,strend(m1)>0,mm2>m3)
+
+def uplaind(stock):
+    t = stock.transaction
+    i_cofw = stock.i_cofw
+
+    signal = np.zeros(len(t[CLOSE]),int)
+    
+    xatr = stock.atr * BASE / t[CLOSE]
+    mxatr = ma(xatr,13)
+    
+    dgd = msum(greater(stock.diff,stock.dea),11)
+
+    
+
+    wline = t[CLOSE][i_cofw]
+
+    base = stock.atr[i_cofw]
+
+    len1,len2,len3 = 7,13,30
+
+    m1,m2,m3 = ma(wline,len1),ma(wline,len2),ma(wline,len3)
+    mmax = gmax(m1,m2,m3)
+    mmin = gmin(m1,m2,m3)
+
+    ndev = (mmax-mmin) * 1000 / base < 1500
+
+    xcross = gand(cross(mmax,wline),strend(wline)>0)
+
+    wdiff,wdea = cmacd(wline)
+
+    wdelta = (wline - rollx(wline)) * 10 < rollx(wline)
+
+    signal[i_cofw] = gand(xcross,ndev,strend(m1)>0,strend(wdiff-wdea)>0,wdiff<wdea,wdelta)
+
+    f60 = gand(strend(stock.ma4)<0,stock.ma4<stock.ma5) #与1不同
+
+    ma6 = ma(t[CLOSE],250)
+    bndown = bnot(gand(stock.ma5>stock.ma4,ma6>stock.ma5))
+
+    #gg = gand(stock.g5>stock.g20,stock.g20>stock.g60,stock.g60<stock.g120,stock.g20<8000)
+
+    gg = gand(stock.g20<8000,stock.g5<8000,stock.g60<8000)
+
+    linelog(stock.code)
+    #return gand(signal,stock.t5)#,xatr<mxatr,stock.diff>stock.dea,dgd<11,f60,bndown)
+    return gand(signal,stock.t5,bndown,stock.diff>stock.dea,dgd<11,xatr<mxatr,gg)
+
+
+def useller(seller):
+    def myseller(stock,sbuy):
+        trans= stock.transaction
+        return band(seller(stock,sbuy),sellconfirm(trans[OPEN],trans[CLOSE],trans[HIGH],trans[LOW]))
+    return myseller
 
 def xudv(stock):
     t = stock.transaction

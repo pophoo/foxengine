@@ -650,6 +650,17 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([1,2,3],xfollow(np.array([1,2,3]),np.array([1,1,1])).tolist())        
         self.assertRaises(AssertionError,xfollow,np.array([1,2,3,4,5,6,7,8,9]),np.array([1,2,3,4,5,6,7,8]))
 
+    def test_closedayofweek(self):
+        self.assertEquals([],closedayofweek(np.array([])).tolist())
+        self.assertEquals([1,0,0,0,0,1,0,0,1,1],closedayofweek(np.array([5,1,2,3,4,5,1,2,3,1])).tolist())
+        self.assertEquals([1,0,0,0,0,1,0,0,1,1],cofw(np.array([5,1,2,3,4,5,1,2,3,1])).tolist())
+
+    def test_opendayofweek(self):
+        self.assertEquals([],opendayofweek(np.array([])).tolist())
+        self.assertEquals([1,1,0,0,0,0,1,0,0,1],opendayofweek(np.array([5,1,2,3,4,5,1,2,3,1])).tolist())
+        self.assertEquals([1,1,0,0,0,0,1,0,0,1],oofw(np.array([5,1,2,3,4,5,1,2,3,1])).tolist())        
+
+
 
 if __name__ == "__main__":
     import logging

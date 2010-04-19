@@ -6,7 +6,7 @@
 import numpy as np
 from collections import deque
 from wolfox.fengine.core.base import cache,wcache
-from wolfox.fengine.core.d1 import BASE,band,gand,nsubd,roll0,rollx,equals,nequals,greater_equals,subd,greater
+from wolfox.fengine.core.d1 import BASE,band,gand,nsubd,roll0,rollx,equals,nequals,greater_equals,subd,greater,lesser_equals
 
 def ma(source,length):    #使用numpy，array更加的惯用法
     """ 计算移动平均线
@@ -996,3 +996,16 @@ def xfollow(source,ref):
         if ref[i] == 0:
             source[i] = source[i-1]
     return source
+
+def closedayofweek(weekdays): #周收盘日
+    #特别特殊的情形下会不正确,如某周一交易日后，下一个交易日正好是下周二,则该周一不会被识别为周收盘日
+    #另，最后一个交易日也被识别为周收盘日
+    return greater(greater_equals(weekdays-rollx(weekdays,-1)) + equals(weekdays,5))
+
+def opendayofweek(weekdays):    #周开盘日
+    #特定情形下会不正确,如某周一交易日后，下一个交易日正好是下周二,则该周二不会被识别为周开盘日. 好在错误对称。
+    #另，第一个交易日也被识别为周开盘日
+    return greater(lesser_equals(weekdays-rollx(weekdays)) + equals(weekdays,1)) 
+
+cofw = closedayofweek
+oofw = opendayofweek

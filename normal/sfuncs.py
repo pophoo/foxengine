@@ -1622,4 +1622,270 @@ def heff(stock):
     return signal
 
 
+def uinfunc3a(wline,base,len1,len2,len3):
+    m1,m2,m3 = ma(wline,len1),ma(wline,len2),ma(wline,len3)
+    mmax = gmax(m1,m2,m3)
+    mmin = gmin(m1,m2,m3)
+
+    mm2 = gmax(m1,m2)
+
+    ndev = (mmax-mmin) * 1000 / base < 1200
+
+    xcross = gand(cross(mmax,wline),strend(wline)>0)
+
+    return gand(xcross,ndev,strend(m1)>0,mm2>m3)
+
+def uinfunc3b(wline,base,len1,len2,len3):
+    m1,m2,m3 = ma(wline,len1),ma(wline,len2),ma(wline,len3)
+    mmax = gmax(m1,m2,m3)
+    mmin = gmin(m1,m2,m3)
+
+    ndev = (mmax-mmin) * 1000 / base < 1200
+
+    xcross = gand(cross(mmax,wline),strend(wline)>0)
+
+    return gand(xcross,ndev,strend(m1)>0)
+
+def uinfunc3c(wline,base,len1,len2,len3):
+    m1,m2,m3 = ma(wline,len1),ma(wline,len2),ma(wline,len3)
+    mmax = gmax(m1,m2,m3)
+    mmin = gmin(m1,m2,m3)
+
+    ndev = (mmax-mmin) * 1000 / base < 1200
+
+    xcross = gand(cross(mmax,wline),strend(wline)>0)
+
+    return gand(xcross,ndev,strend(m1)>0)
+
+
+def uplain3(stock,lens,infunc=uinfunc3a):
+    ''' 20070101,20080101,20191201
+        buyer=fcustom(t.uplain3,lens=(7,13,30))     #
+        评估:总盈亏值=1913,交易次数=17  期望值=3612
+                总盈亏率(1/1000)=1913,平均盈亏率(1/1000)=112,盈利交易率(1/1000)=823
+                平均持仓时间=31,持仓效率(1/1000000)=3612
+                赢利次数=14,赢利总值=1976
+                亏损次数=2,亏损总值=63
+                平盘次数=1
+        buyer=fcustom(t.uplain3,lens=(3,7,13))      
+        评估:总盈亏值=2065,交易次数=15  期望值=2537
+                总盈亏率(1/1000)=2065,平均盈亏率(1/1000)=137,盈利交易率(1/1000)=733
+                平均持仓时间=23,持仓效率(1/1000000)=5956
+                赢利次数=11,赢利总值=2282
+                亏损次数=4,亏损总值=217
+                平盘次数=0
+
+        buyer=fcustom(t.uplain3,lens=(5,13,26))     #
+        评估:总盈亏值=1812,交易次数=14  期望值=1000
+                总盈亏率(1/1000)=1812,平均盈亏率(1/1000)=129,盈利交易率(1/1000)=928
+                平均持仓时间=34,持仓效率(1/1000000)=3794
+                赢利次数=13,赢利总值=1812
+                亏损次数=0,亏损总值=0
+                平盘次数=1
+
+        buyer=fcustom(t.uplain3,lens=(4,13,27)) #月/季/半年
+        评估:总盈亏值=1901,交易次数=17  期望值=3264
+                总盈亏率(1/1000)=1901,平均盈亏率(1/1000)=111,盈利交易率(1/1000)=882
+                平均持仓时间=32,持仓效率(1/1000000)=3468
+                赢利次数=15,赢利总值=1935
+                亏损次数=1,亏损总值=34
+                平盘次数=1
+
+        buyer=fcustom(t.uplain3,lens=(2,5,13))      #
+        评估:总盈亏值=2442,交易次数=25  期望值=1763
+                总盈亏率(1/1000)=2442,平均盈亏率(1/1000)=97,盈利交易率(1/1000)=760
+                平均持仓时间=25,持仓效率(1/1000000)=3880
+                赢利次数=19,赢利总值=2772
+                亏损次数=6,亏损总值=330
+                平盘次数=0
+
+
+        20040101,20050101,20071031
+        name:Mediator:<uplain3:lens=(7, 13, 30):seller:make_trade_signal_advanced:B1S1>     ############
+        评估:总盈亏值=567,交易次数=6	期望值=723
+		总盈亏率(1/1000)=567,平均盈亏率(1/1000)=94,盈利交易率(1/1000)=666
+		平均持仓时间=22,持仓效率(1/1000000)=4272
+		赢利次数=4,赢利总值=828
+		亏损次数=2,亏损总值=261
+		平盘次数=0
+
+        name:Mediator:<uplain3:lens=(5, 13, 26):seller:make_trade_signal_advanced:B1S1>
+        评估:总盈亏值=-188,交易次数=5	期望值=-295
+		总盈亏率(1/1000)=-188,平均盈亏率(1/1000)=-38,盈利交易率(1/1000)=400
+		平均持仓时间=17,持仓效率(1/1000000)=-2236
+		赢利次数=2,赢利总值=200
+		亏损次数=3,亏损总值=388
+		平盘次数=0
+		闭合交易明细:        
+
+        name:Mediator:<uplain3:lens=(2, 5, 13):seller:make_trade_signal_advanced:B1S1>
+        评估:总盈亏值=-667,交易次数=8	期望值=-757
+		总盈亏率(1/1000)=-667,平均盈亏率(1/1000)=-84,盈利交易率(1/1000)=125
+		平均持仓时间=13,持仓效率(1/1000000)=-6462
+		赢利次数=1,赢利总值=113
+		亏损次数=7,亏损总值=780
+		平盘次数=0
+		闭合交易明细:        
+
+    '''
+    t = stock.transaction
+    i_cofw = stock.i_cofw
+
+    signal = np.zeros(len(t[CLOSE]),int)
+    
+    xatr = stock.atr * BASE / t[CLOSE]
+    mxatr = ma(xatr,13)
+    
+    dgd = msum(greater(stock.diff,stock.dea),11)
+
+    
+    #signal[i_cofw] = infunc(t[CLOSE][i_cofw],5,10,20,stock.atr[i_cofw])    #infunc=uinfunc3b
+    #signal[i_cofw] = infunc(t[CLOSE][i_cofw],7,13,30,stock.atr[i_cofw])
+    signal[i_cofw] = infunc(t[CLOSE][i_cofw],stock.atr[i_cofw],*lens)
+    #signal[i_cofw] = uinfunc4(t[CLOSE][i_cofw],7,13,30,60,stock.atr[i_cofw])
+
+    f60 = gor(strend(stock.ma4)<0,stock.ma4<stock.ma5)
+
+    ma6 = ma(t[CLOSE],250)
+    bndown = bnot(gand(stock.ma5>stock.ma4,ma6>stock.ma5))
+    linelog(stock.code)
+    return gand(signal,stock.t5,stock.golden,xatr<mxatr,stock.diff>stock.dea,dgd<11,f60,bndown)
+
+def uplain32(stock,lens,infunc=uinfunc3a):
+    '''
+        buyer=fcustom(t.uplain32,lens=(5,10,20),infunc=t.uinfunc3b) #
+        评估:总盈亏值=1731,交易次数=17  期望值=1629
+                总盈亏率(1/1000)=1731,平均盈亏率(1/1000)=101,盈利交易率(1/1000)=823
+                平均持仓时间=25,持仓效率(1/1000000)=4040
+                赢利次数=14,赢利总值=1919
+                亏损次数=3,亏损总值=188
+                平盘次数=0
+        buyer=fcustom(t.uplain32,lens=(3,7,13),infunc=t.uinfunc3b)  #
+        评估:总盈亏值=2408,交易次数=21  期望值=2425
+                总盈亏率(1/1000)=2408,平均盈亏率(1/1000)=114,盈利交易率(1/1000)=761
+                平均持仓时间=23,持仓效率(1/1000000)=4956
+                赢利次数=16,赢利总值=2644
+                亏损次数=5,亏损总值=236
+                平盘次数=0
+        buyer=fcustom(t.uplain32,lens=(5,13,26))
+        评估:总盈亏值=630,交易次数=3    期望值=1000
+                总盈亏率(1/1000)=630,平均盈亏率(1/1000)=210,盈利交易率(1/1000)=1000
+                平均持仓时间=38,持仓效率(1/1000000)=5526
+                赢利次数=3,赢利总值=630
+                亏损次数=0,亏损总值=0
+                平盘次数=0
+
+        buyer=fcustom(t.uplain32,lens=(5,13,26),infunc=t.uinfunc3b) 
+        评估:总盈亏值=2208,交易次数=20  期望值=2037
+                总盈亏率(1/1000)=2208,平均盈亏率(1/1000)=110,盈利交易率(1/1000)=800
+                平均持仓时间=26,持仓效率(1/1000000)=4230
+                赢利次数=16,赢利总值=2426
+                亏损次数=4,亏损总值=218
+                平盘次数=0
+
+        buyer=fcustom(t.uplain32,lens=(4,13,27),infunc=t.uinfunc3b) #月/季/半年
+        评估:总盈亏值=2153,交易次数=18  期望值=2704
+                总盈亏率(1/1000)=2153,平均盈亏率(1/1000)=119,盈利交易率(1/1000)=833
+                平均持仓时间=27,持仓效率(1/1000000)=4407
+                赢利次数=15,赢利总值=2287
+                亏损次数=3,亏损总值=134
+                平盘次数=0
+        buyer=fcustom(t.uplain32,lens=(4,13,27))
+        评估:总盈亏值=722,交易次数=4    期望值=1000
+                总盈亏率(1/1000)=722,平均盈亏率(1/1000)=180,盈利交易率(1/1000)=1000
+                平均持仓时间=35,持仓效率(1/1000000)=5142
+                赢利次数=4,赢利总值=722
+                亏损次数=0,亏损总值=0
+                平盘次数=0
+        buyer=fcustom(t.uplain32,lens=(2,5,13))
+        评估:总盈亏值=1779,交易次数=19  期望值=1978
+                总盈亏率(1/1000)=1779,平均盈亏率(1/1000)=93,盈利交易率(1/1000)=736
+                平均持仓时间=24,持仓效率(1/1000000)=3875
+                赢利次数=14,赢利总值=2015
+                亏损次数=5,亏损总值=236
+        
+        buyer=fcustom(t.uplain32,lens=(2,5,13),infunc=t.uinfunc3b)  #
+        评估:总盈亏值=2567,交易次数=24  期望值=2255
+                总盈亏率(1/1000)=2567,平均盈亏率(1/1000)=106,盈利交易率(1/1000)=791
+                平均持仓时间=25,持仓效率(1/1000000)=4240
+                赢利次数=19,赢利总值=2803
+                亏损次数=5,亏损总值=236
+                平盘次数=0
+
+        buyer=fcustom(t.uplain32,lens=(3,9,27),infunc=t.uinfunc3b)  #
+        评估:总盈亏值=1245,交易次数=12  期望值=1839
+                总盈亏率(1/1000)=1245,平均盈亏率(1/1000)=103,盈利交易率(1/1000)=833
+                平均持仓时间=25,持仓效率(1/1000000)=4120
+                赢利次数=10,赢利总值=1358
+                亏损次数=2,亏损总值=113
+                平盘次数=0
+
+        20040101,20050101,20071031
+        name:Mediator:<uplain32:lens=(5, 10, 20),infunc=<function uinfunc3b at 0x01772430>:seller:make_trade_signal_advanced:B1S1>      ################
+        评估:总盈亏值=0,交易次数=0	期望值=1000
+		总盈亏率(1/1000)=0,平均盈亏率(1/1000)=0,盈利交易率(1/1000)=0
+		平均持仓时间=1,持仓效率(1/1000000)=0
+		赢利次数=0,赢利总值=0
+		亏损次数=0,亏损总值=0
+		平盘次数=0
+		闭合交易明细:        
+        
+        name:Mediator:<uplain32:lens=(3, 7, 13),infunc=<function uinfunc3b at 0x01772430>:seller:make_trade_signal_advanced:B1S1>
+        评估:总盈亏值=-131,交易次数=1	期望值=-1000
+		总盈亏率(1/1000)=-131,平均盈亏率(1/1000)=-131,盈利交易率(1/1000)=0
+		平均持仓时间=17,持仓效率(1/1000000)=-7706
+		赢利次数=0,赢利总值=0
+		亏损次数=1,亏损总值=131        
+
+        name:Mediator:<uplain32:lens=(4, 13, 27),infunc=<function uinfunc3b at 0x01772430>:seller:make_trade_signal_advanced:B1S1>
+        评估:总盈亏值=-131,交易次数=1	期望值=-1000
+		总盈亏率(1/1000)=-131,平均盈亏率(1/1000)=-131,盈利交易率(1/1000)=0
+		平均持仓时间=17,持仓效率(1/1000000)=-7706
+		赢利次数=0,赢利总值=0
+		亏损次数=1,亏损总值=131
+		平盘次数=0
+		闭合交易明细:        
+
+        name:Mediator:<uplain32:lens=(2, 5, 13),infunc=<function uinfunc3b at 0x01772430>:seller:make_trade_signal_advanced:B1S1>
+        评估:总盈亏值=-211,交易次数=2	期望值=-1010
+		总盈亏率(1/1000)=-211,平均盈亏率(1/1000)=-106,盈利交易率(1/1000)=0
+		平均持仓时间=17,持仓效率(1/1000000)=-6236
+		赢利次数=0,赢利总值=0
+		亏损次数=2,亏损总值=211
+		平盘次数=0
+		闭合交易明细:
+        
+        name:Mediator:<uplain32:lens=(3, 9, 27),infunc=<function uinfunc3b at 0x01772430>:seller:make_trade_signal_advanced:B1S1>
+        评估:总盈亏值=-131,交易次数=1	期望值=-1000
+		总盈亏率(1/1000)=-131,平均盈亏率(1/1000)=-131,盈利交易率(1/1000)=0
+		平均持仓时间=17,持仓效率(1/1000000)=-7706
+		赢利次数=0,赢利总值=0
+		亏损次数=1,亏损总值=131
+		平盘次数=0
+		闭合交易明细:
+
+    '''
+    t = stock.transaction
+    i_cofw = stock.i_cofw
+
+    signal = np.zeros(len(t[CLOSE]),int)
+    
+    xatr = stock.atr * BASE / t[CLOSE]
+    mxatr = ma(xatr,13)
+    
+    dgd = msum(greater(stock.diff,stock.dea),11)
+
+    
+    #signal[i_cofw] = infunc(t[CLOSE][i_cofw],5,10,20,stock.atr[i_cofw])    #infunc=uinfunc3b
+    #signal[i_cofw] = infunc(t[CLOSE][i_cofw],7,13,30,stock.atr[i_cofw])
+    signal[i_cofw] = infunc(t[CLOSE][i_cofw],stock.atr[i_cofw],*lens)
+    #signal[i_cofw] = uinfunc4(t[CLOSE][i_cofw],7,13,30,60,stock.atr[i_cofw])
+
+    f60 = gand(strend(stock.ma4)<0,stock.ma4<stock.ma5) #与1不同
+
+    ma6 = ma(t[CLOSE],250)
+    bndown = bnot(gand(stock.ma5>stock.ma4,ma6>stock.ma5))
+
+    linelog(stock.code)
+    return gand(signal,stock.t5,stock.golden,xatr<mxatr,stock.diff>stock.dea,dgd<11,f60,bndown)
 

@@ -52,8 +52,8 @@ def up_under(shigh,slow,covered,threshold):
     return bnot(up2threshold)
 
 def upconfirm(sopen,sclose,shigh):#阳线突破确认
-    sksize = ksize(sopen,sclose)
-    sksign = ksign(sopen,sclose)
+    sksize = np.array(list(ksize(sopen,sclose)))
+    sksign = np.array(list(ksign(sopen,sclose)))
     
     posconsecutive = consecutive(sksign,'a')  #连续阳线数目
     middleconsecutive = consecutive(sksize,'b')  #连续中等实体数目
@@ -73,9 +73,34 @@ def upconfirm(sopen,sclose,shigh):#阳线突破确认
     #return sconfirm
     return band(sconfirm,np.logical_not(threeupextend))
 
+def upconfirm2(stock):#阳线突破确认
+    sksize = stock.ksize
+    sksign = stock.ksign
+
+    t = stock.transaction
+    sopen,sclose,shigh = t[OPEN],t[CLOSE],t[HIGH]
+
+    posconsecutive = consecutive(sksign,'a')  #连续阳线数目
+    middleconsecutive = consecutive(sksize,'b')  #连续中等实体数目
+
+    #单根大阳线
+    onebigpos = np.logical_and(sksign == 'a',sksize == 'a')
+    #连续2根中等阳线
+    twomiddlepos = np.logical_and( posconsecutive > 1, middleconsecutive > 1)
+    #连续3根阳线
+    threepos = posconsecutive > 2
+    ###否决项
+    #长上影三天
+    threeupextend = kscmp(sopen,sclose,shigh,sclose,tbig=3000) == 'a'  #上影/实体 > 3为长
+
+    #print kscmp(sopen,sclose,shigh,tmax(sopen,sclose),tbig=3000)
+    sconfirm = gor(onebigpos,twomiddlepos,threepos)
+    #return sconfirm
+    return band(sconfirm,np.logical_not(threeupextend))
+
 def upveto(sopen,sclose,shigh,slow):   #上升否决情况
-    sksize = ksize(sopen,sclose)
-    sksign = ksign(sopen,sclose)
+    sksize = np.array(list(ksize(sopen,sclose)))
+    sksign = np.array(list(ksign(sopen,sclose)))
 
     negconsecutive = consecutive(sksign,'b')  #连续阴线数目
     middleconsecutive = consecutive(sksize,'b')  #连续中等实体数目
@@ -90,10 +115,29 @@ def upveto(sopen,sclose,shigh,slow):   #上升否决情况
 
     return gor(onebig,twomiddle,threesmall)
 
+def upveto2(sksize,sksign):   #上升否决情况
+    negconsecutive = consecutive(sksign,'b')  #连续阴线数目
+    middleconsecutive = consecutive(sksize,'b')  #连续中等实体数目
+    smallconsecutive = consecutive(sksize,'c')  #连续小实体数目
+    
+    #大阴线
+    onebig = np.logical_and(sksign == 'b',sksize == 'a')
+    #连续两根中阴线
+    twomiddle = np.logical_and(negconsecutive > 1,middleconsecutive > 1)
+    #连续三根小阴线
+    threesmall = np.logical_and(negconsecutive > 2,smallconsecutive > 2)
+
+    return gor(onebig,twomiddle,threesmall)
+
 def sellconfirm(sopen,sclose,shigh,slow):   #卖出确认情况：非大阳或者中阳
-    sksize = ksize(sopen,sclose)
-    sksign = ksign(sopen,sclose)
+    sksize = np.array(list(ksize(sopen,sclose)))
+    sksign = np.array(list(ksign(sopen,sclose)))
     #大或中阳线
+    big_or_middle = np.logical_or(sksize == 'a',sksize =='b')
+    bm_and_pos = np.logical_and(sksign == 'a',big_or_middle)
+    return bnot(bm_and_pos)
+
+def sellconfirm2(sksize,sksign):
     big_or_middle = np.logical_or(sksize == 'a',sksize =='b')
     bm_and_pos = np.logical_and(sksign == 'a',big_or_middle)
     return bnot(bm_and_pos)
@@ -282,6 +326,7 @@ def atr_seller(stock,buy_signal,stop_times=3*BASE/2,trace_times=2*BASE,covered=1
     trans = stock.transaction
     ssignal,down_limit = atr_sell_func(buy_signal,trans,stock.atr,stop_times,trace_times,covered,up_sector)
     stock.down_limit = down_limit
+    ssignal = band(ssignal,sellconfirm2(stock.ksize,stock.ksign))
     #print buy_signal - ssignal
     return ssignal
 

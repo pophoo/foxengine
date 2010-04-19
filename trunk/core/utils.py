@@ -112,3 +112,9 @@ def mguard_example():
     return [1]
 
 
+from datetime import date
+def day2weekday(iday):  #根据yyyymmdd表示的日期获得星期数，星期一为1
+    return date(iday/10000,iday%10000/100,iday%100).weekday() + 1
+
+d2w = day2weekday
+

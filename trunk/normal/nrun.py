@@ -11,7 +11,11 @@ from wolfox.fengine.normal.funcs import *
 import wolfox.fengine.normal.funcs as f
 import wolfox.fengine.normal.sfuncs as s
 import wolfox.fengine.normal.hfuncs as h
+import wolfox.fengine.core.utils as ut
+import wolfox.fengine.core.d1ex as d1ex
+
 from wolfox.fengine.core.d1indicator import atr,atr2
+
 
 import logging
 logger = logging.getLogger('wolfox.fengine.normal.run')    
@@ -24,26 +28,14 @@ def prepare_temp_configs(seller,pman=None,dman=None):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
 
-    #import wolfox.fengine.normal.xrun as x
-    configs.append(config(buyer=fcustom(s.emv1b,base=120,fast=15)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=290,fast=128)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=96,fast=125)))
-    configs.append(config(buyer=fcustom(s.emv1b,base=120,fast=27)))
-    configs.append(config(buyer=fcustom(s.emv1b,base=120,fast=40)))
-    configs.append(config(buyer=fcustom(s.emv1b,base=120,fast=75)))
-    configs.append(config(buyer=fcustom(s.emv1,fast=98)))
-    configs.append(config(buyer=fcustom(s.emv1,fast=120)))
-    configs.append(config(buyer=fcustom(s.emv1,fast=143)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=88,fast=17)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=100,fast=10)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=86,fast=124)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=8,fast=3)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=275,fast=75)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=226,fast=126)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=132,fast=194)))
-    configs.append(config(buyer=fcustom(s.emv2,slow=292,fast=72)))
-    configs.append(config(buyer=fcustom(s.emv2s,slow=30,fast=7)))
-    configs.append(config(buyer=fcustom(s.emv1,fast=227)))    
+    configs.append(config(buyer=fcustom(s.uplain3,lens=(7,13,30))))
+    configs.append(config(buyer=fcustom(s.uplain3,lens=(5,13,26))))
+    configs.append(config(buyer=fcustom(s.uplain3,lens=(2,5,13))))
+    configs.append(config(buyer=fcustom(s.uplain32,lens=(5,10,20),infunc=s.uinfunc3b)))
+    configs.append(config(buyer=fcustom(s.uplain32,lens=(3,7,13),infunc=s.uinfunc3b)))
+    configs.append(config(buyer=fcustom(s.uplain32,lens=(4,13,27),infunc=s.uinfunc3b)))
+    configs.append(config(buyer=fcustom(s.uplain32,lens=(2,5,13),infunc=s.uinfunc3b) ))
+    configs.append(config(buyer=fcustom(s.uplain32,lens=(3,9,27),infunc=s.uinfunc3b)))
 
     return configs
 
@@ -127,6 +119,9 @@ def prepare_configs_1000(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.tsvama2,bxatr=50,slow=75,fast=15)))
     configs.append(config(buyer=fcustom(s.tsvama3b,follow=7,slow=32,mid=133,fast=7)))   
     configs.append(config(buyer=fcustom(s.tsvama3,follow=6,slow=10,mid=21,fast=7)))
+
+    configs.append(config(buyer=fcustom(s.uplain3,lens=(7,13,30))))
+    configs.append(config(buyer=fcustom(s.uplain32,lens=(5,10,20),infunc=s.uinfunc3b)))
 
     return configs
 
@@ -471,10 +466,12 @@ def prepare_common_old(sdata,ref):
         except:
             s.silver = cached_zeros(len(c))
 
-def prepare_common(sdata,ref):
+def prepare_common(sdata,ref,dates,i_cofw):
     for s in sdata:
         #print s.code
         s.ref = ref
+        s.dates = dates
+        s.i_cofw = i_cofw
         prepare_common_common(s)
         c = s.transaction[CLOSE]
         v = s.transaction[VOLUME]        
@@ -487,12 +484,14 @@ def prepare_common(sdata,ref):
         except:
             s.xchange = v / 10  #假设s.ag=10000
 
-def prepare_common_catalog(catalogs,ref):
+def prepare_common_catalog(catalogs,ref,dates,i_cofw):
     smaker = signals_maker(prepare_catalog_buyers())
     for s in catalogs:
         #print s.code
         s.code = s.name
         s.ref = ref
+        s.dates = dates
+        s.i_cofw = i_cofw
         prepare_common_common(s)
         s.csignal = smaker(s)
 
@@ -541,14 +540,17 @@ def run_body(sdata,dates,begin,end,xbegin):
     #seller = fcustom(csc_func,threshold=100)
     
     #configs = prepare_temp_configs(seller1200,pman,dman)
-    #configs = prepare_temp_configs(seller2000,pman,dman)
+    configs = prepare_temp_configs(seller2000,pman,dman)
     #configs = prepare_configs_A2000(seller2000,pman,dman)
     #configs.extend(prepare_configs_A2000(seller2000,pman,dman))
     #configs = prepare_configs_A0(seller1200,pman,dman)
     #configs = prepare_configs_1000(seller1200,pman,dman)    
     #configs.extend(prepare_configs_best(seller1200,pman,dman))        
-    configs = prepare_configs_1000(seller2000,pman,dman)    
-    configs.extend(prepare_configs_best(seller2000,pman,dman))        
+    
+    #configs = prepare_configs_1000(seller2000,pman,dman)    
+    #configs.extend(prepare_configs_best(seller2000,pman,dman))        
+    
+    
     #configs.extend(prepare_configs_normal(seller1200,pman,dman))    
     #configs.extend(prepare_configs_others(seller1200,pman,dman))    
     #configs.extend(prepare_configs_normal(seller1200,pman,dman))    
@@ -600,14 +602,14 @@ def run_merge_body(sdata,dates,begin,end,xbegin):
     print u'计算耗时: %s' % (tend-tbegin)
     logger.debug(u'耗时: %s' % (tend-tbegin))    
 
-def prepare_next(sdata,idata,catalogs):
+def prepare_next(sdata,idata,catalogs,dates,i_cofw):
     prepare_order(sdata.values())
     prepare_order(idata.values())
     prepare_order(catalogs)
     ref = idata[ref_id]
-    prepare_common(sdata.values(),ref)   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
-    prepare_common(idata.values(),ref)   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
-    prepare_common_catalog(catalogs,ref)
+    prepare_common(sdata.values(),ref,dates,i_cofw)   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
+    prepare_common(idata.values(),ref,dates,i_cofw)   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
+    prepare_common_catalog(catalogs,ref,dates,i_cofw)
     prepare_index(idata[1])
     dummy_catalogs('catalog',catalogs)
     ref.sud = sud(sdata.values(),distance=10)
@@ -688,6 +690,8 @@ def catalog_macd(catalogs):
             print u'macd:',c.name
 
 
+
+
 if __name__ == '__main__':
     logging.basicConfig(filename="run_x4n_2000.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
     
@@ -704,16 +708,22 @@ if __name__ == '__main__':
     #begin,xbegin,end = 19980101,19990101,20090101
     #begin,xbegin,end = 20080701,20090101,20090301
     #begin,xbegin,end = 20080701,20090101,20090301
+    
     begin,xbegin,end,lbegin = 20060101,20071031,20191201,20090201
+    
     #begin,xbegin,end,lbegin = 20090301,20090401,20090501,20090501
     from time import time
     tbegin = time()
     
     dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
+    weekdays = map(ut.d2w,dates)
+    i_cofw = np.where(d1ex.cofw(weekdays))    #周收盘日坐标
+
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988','SH600050'],[ref_code])    
     #sdata.update(idata) #合并指数，合并指数还是不妥，虽然可以计算指数的排序.但会紊乱其它针对stock的计算
     scatalog = dict([(c.name,c) for c in catalogs])
-    prepare_next(sdata,idata,catalogs)
+    prepare_next(sdata,idata,catalogs,dates,i_cofw)
     
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
     #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
@@ -731,6 +741,7 @@ if __name__ == '__main__':
     import psyco
     psyco.full()
     
+    
     tbegin = time()
     for st in sdata.values(): h.prepare_hour(st,begin,end)
     print u'小时数据准备耗时: %s' % (time()-tbegin)    
@@ -741,5 +752,6 @@ if __name__ == '__main__':
     #run_mm_main(dates,sdata,idata,catalogs,begin,end,xbegin)
     
     run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin)
+    
     #catalog_macd(catalogs)
 

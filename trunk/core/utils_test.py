@@ -71,6 +71,11 @@ class ModuleTest(unittest.TestCase):
         #print 'uuuu'
         self.assertTrue(True)
 
+    def test_day2weekday(self):
+        self.assertEquals(7,day2weekday(20100418))
+        self.assertEquals(1,d2w(20100419))
+
+
 if __name__ == "__main__":
     import logging
     logging.basicConfig(filename="test.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')

@@ -333,10 +333,17 @@ dates,sdata,idata,catalogs = prepare_all(begin,end,[],[])
 import psyco
 psyco.full()
 
+import wolfox.fengine.core.utils as ut
+import wolfox.fengine.core.d1ex as d1ex
+
+weekdays = map(ut.d2w,dates)
+i_cofw = np.where(d1ex.cofw(weekdays))    #周收盘日坐标
+
+
 import wolfox.fengine.normal.nrun as nrun
 #import wolfox.fengine.normal.xrun as x
 import wolfox.fengine.normal.tfuncs as t
-nrun.prepare_next(sdata,idata,catalogs)
+nrun.prepare_next(sdata,idata,catalogs,dates,i_cofw)
 pman = AdvancedATRPositionManager()
 dman = XDateManager(dates)
 myMediator=nmediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
@@ -349,7 +356,6 @@ seller1200 = atr_xseller_factory(stop_times=1200,trace_times=3000)
 
 import wolfox.fengine.normal.sfuncs as s
 import wolfox.fengine.normal.hfuncs as h
-
 
 scatalog = dict([(c.name,c) for c in catalogs])
 
@@ -8412,3 +8418,39 @@ best:
 best:
 600074:     emv1b:base=120,fast=40
 
+#2010-04-07
+根据184701的卖出信号，发现除权数据的一个错误
+该基金在20100401除权，但除权记录是在0409，直接导致卖出。
+
+
+#2010-04-13
+25-50-100（等于周线5-10-20）差值<2%,越小越好. 差值应该与atr(20)比较. 根据比例设置不同的算法?
+35-65-150
+7-13-30-60?
+且收盘居于其上，25/50有一个在100上
+且都在250上方,250上行中
+收盘离三条线距离不远，或刚突破三条线中的最高者
+或者下跌即将触及
+
+#2010-04-18
+#日期到周的转换
+import wolfox.fengine.core.utils as ut
+import wolfox.fengine.core.d1ex as d1ex
+
+weekdays = map(ut.d2w,dates)
+cofw = d1ex.cofw(weekdays)
+
+
+#坐标
+i_cofw = np.where(cofw)
+
+#周收盘价
+#close.compress(cofw)
+close[i_cofw] #两者应该相等
+
+#....计算
+
+#回展
+signal = np.zeros(len(dates,int))
+signal[i_cofw] = XXX #计算值
+extend2next(signal)

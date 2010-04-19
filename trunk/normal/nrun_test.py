@@ -129,7 +129,7 @@ class ModuleTest(unittest.TestCase):    #保持nrun的有效性
     def test_prepare_next(self):
         begin,end = 20010101,20010701
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        run.prepare_next(sdata,idata,catalogs)        
+        run.prepare_next(sdata,idata,catalogs,None,None)        
         self.assertTrue(True)
 
     def test_prepare_order(self):
@@ -142,7 +142,7 @@ class ModuleTest(unittest.TestCase):    #保持nrun的有效性
         begin,end = 20010101,20010701
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
         run.prepare_order(sdata.values())        
-        run.prepare_common(sdata.values(),idata[ref_id])
+        run.prepare_common(sdata.values(),idata[ref_id],None,None)
         self.assertTrue(True)
 
     def test_prepare_common_catalog(self):
@@ -150,8 +150,8 @@ class ModuleTest(unittest.TestCase):    #保持nrun的有效性
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
         run.prepare_order(catalogs)
         run.prepare_order(idata.values())
-        run.prepare_common(idata.values(),idata[ref_id])
-        run.prepare_common_catalog(catalogs,idata[ref_id])
+        run.prepare_common(idata.values(),idata[ref_id],None,None)
+        run.prepare_common_catalog(catalogs,idata[ref_id],None,None)
         self.assertTrue(True)
 
     def test_prepare_index(self):

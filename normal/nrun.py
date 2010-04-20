@@ -154,6 +154,8 @@ def prepare_configs_best(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.emv1,fast=143)))
     configs.append(config(buyer=fcustom(s.tsvama3,follow=4,slow=14,mid=29,fast=7))) ###???
 
+    configs.append(config(buyer=fcustom(s.uplaind2,lens=(7,13,30))))
+
     return configs
 
 
@@ -699,7 +701,7 @@ def catalog_macd(catalogs):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(filename="run_x4n_2000.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
+    logging.basicConfig(filename="run_x4n_2000b.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
     
     #测试时间段 [19980101,19990101-20010801],[20000101,20010701-20050901],[20040601,20050801-20071031],[20060601,20071031-20090101]
     #总时间段   [20000101,20010701,20090101]    #一个完整的周期+一个下降段

@@ -1890,3 +1890,79 @@ def uplain32(stock,lens,infunc=uinfunc3a):
     linelog(stock.code)
     return gand(signal,stock.t5,stock.golden,xatr<mxatr,stock.diff>stock.dea,dgd<11,f60,bndown)
 
+
+def uplaind2(stock,lens=(7,13,30)):
+    '''
+        ####2008-201004
+        评估:总盈亏值=15791,交易次数=212        期望值=1396
+                总盈亏率(1/1000)=15791,平均盈亏率(1/1000)=74,盈利交易率(1/1000)=707
+                平均持仓时间=27,持仓效率(1/1000000)=2740
+                赢利次数=150,赢利总值=19061
+                亏损次数=61,亏损总值=3270
+                平盘次数=1
+        #2005-200710
+        评估:总盈亏值=11358,交易次数=33 期望值=6142
+                总盈亏率(1/1000)=11358,平均盈亏率(1/1000)=344,盈利交易率(1/1000)=636
+                平均持仓时间=34,持仓效率(1/1000000)=10117
+                赢利次数=21,赢利总值=12041
+                亏损次数=12,亏损总值=683
+                平盘次数=0        
+    '''
+    t = stock.transaction
+    i_cofw = stock.i_cofw
+
+    signal = np.zeros(len(t[CLOSE]),int)
+    
+    xatr = stock.atr * BASE / t[CLOSE]
+    mxatr = ma(xatr,13)
+    
+    wline = t[CLOSE][i_cofw]
+
+    base = stock.atr2[i_cofw]
+
+    #len1,len2,len3 = 7,13,30
+    #len1,len2,len3 = 5,10,20
+    len1,len2,len3 = lens
+
+    m1,m2,m3 = ma(wline,len1),ma(wline,len2),ma(wline,len3)
+    mmax = gmax(m1,m2,m3)
+    mmin = gmin(m1,m2,m3)
+    mm12 = gmax(m1,m2)
+
+    w60 = ma(wline,60)
+
+    wdev = gand((wline-w60) * 100 > w60 * 15,(wline-w60) * 100 < w60 * 50)
+
+    ndev = (mmax-mmin)  < base * 2
+
+    xcross = gand(cross(mmax,wline),strend(wline)>0)
+
+    wdiff,wdea = cmacd(wline)
+
+    wdelta = (wline - rollx(wline)) * 10 < rollx(wline)
+
+    signal[i_cofw] = gand(xcross,ndev,strend(m1)>0,strend(wdiff-wdea)>0,wdiff<wdea,wdelta,mm12>=m3,wdev)
+
+    #f60 = gor(strend(stock.ma4)<0,stock.ma4<stock.ma5) #与1不同
+
+    ma6 = ma(t[CLOSE],250)
+    bndown = bnot(gand(stock.ma5>stock.ma4,ma6>stock.ma5))
+
+    #gg = gand(stock.g5>stock.g20,stock.g20>stock.g60,stock.g60<stock.g120,stock.g20<8000)
+
+    #gg = gand(stock.g5>3000)
+
+    gt = gand(stock.ref.t5)
+    st = gand(stock.t1,strend(stock.ma3)>1,strend(stock.ma5)>0,t[CLOSE]>stock.ma1,t[CLOSE]>stock.ma3,stock.ma1>stock.ma2,stock.ma4>stock.ma5,stock.ma5>ma6)
+
+    dgd = msum(greater(stock.diff,stock.dea),11)
+
+    md = gand(stock.diff>stock.dea,dgd<11,strend(stock.diff)>strend(stock.dea))
+
+    xr = gand(xatr<mxatr)
+
+    linelog(stock.code)
+
+    #return gand(signal,stock.t5)#,xatr<mxatr,stock.diff>stock.dea,dgd<11,f60,bndown)
+    return gand(signal,gt,st,md,xr)
+

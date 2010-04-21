@@ -2255,6 +2255,24 @@ def uplaind2(stock,lens=(7,13,30)):
                 赢利次数=21,赢利总值=12041
                 亏损次数=12,亏损总值=683
                 平盘次数=0        
+
+
+        另，去掉strend(diff)>strend(dea)
+        评估:总盈亏值=16976,交易次数=231        期望值=1403
+                总盈亏率(1/1000)=16976,平均盈亏率(1/1000)=73,盈利交易率(1/1000)=718
+                平均持仓时间=27,持仓效率(1/1000000)=2703
+                赢利次数=166,赢利总值=20361
+                亏损次数=64,亏损总值=3385
+                平盘次数=1
+        
+        评估:总盈亏值=14720,交易次数=42 期望值=5737
+                总盈亏率(1/1000)=14720,平均盈亏率(1/1000)=350,盈利交易率(1/1000)=547
+                平均持仓时间=33,持仓效率(1/1000000)=10606
+                赢利次数=23,赢利总值=15897
+                亏损次数=19,亏损总值=1177
+                平盘次数=0
+
+
     '''
     t = stock.transaction
     i_cofw = stock.i_cofw
@@ -2305,7 +2323,7 @@ def uplaind2(stock,lens=(7,13,30)):
 
     dgd = msum(greater(stock.diff,stock.dea),11)
 
-    md = gand(stock.diff>stock.dea,dgd<11,strend(stock.diff)>strend(stock.dea))
+    md = gand(stock.diff>stock.dea,dgd<11)#,strend(stock.diff)>strend(stock.dea))
 
     xr = gand(xatr<mxatr)
 

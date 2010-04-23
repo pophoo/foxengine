@@ -1039,8 +1039,8 @@ def xudj(stock):
     linelog(stock.code)
     t = stock.transaction
     if stock.code[:3] != 'SH5' and stock.code[:4]!='SZ18':    
-        #return cached_zeros(len(t[CLOSE]))
-        raise Exception(u'skipping ' + stock.code)
+        return cached_zeros(len(t[CLOSE]))
+        #raise Exception(u'skipping ' + stock.code)
     
     mxc = xc0s(t[OPEN],t[CLOSE],t[HIGH],t[LOW],ma1=13) > 0
 
@@ -1080,7 +1080,8 @@ def xud0(stock):
     linelog(stock.code)
     t = stock.transaction
     if stock.zgb <= 300000 and stock.ag <=200000:
-        raise Exception(u'skipping ' + stock.code)
+        #raise Exception(u'skipping ' + stock.code)
+        return cached_zeros(len(t[CLOSE]))
     
     mxc = xc0s(t[OPEN],t[CLOSE],t[HIGH],t[LOW],ma1=13) > 0
     mxc=scover(mxc,3)
@@ -1982,4 +1983,43 @@ def uplaind2(stock,lens=(7,13,30)):
 
     #return gand(signal,stock.t5)#,xatr<mxatr,stock.diff>stock.dea,dgd<11,f60,bndown)
     return gand(signal,gt,st,md,xr)
+
+
+def xud3(stock,xfunc=xc0s,astart=45):
+    '''
+        #2008-201004
+        评估:总盈亏值=38089,交易次数=128        期望值=4125
+                总盈亏率(1/1000)=38089,平均盈亏率(1/1000)=297,盈利交易率(1/1000)=937
+                平均持仓时间=52,持仓效率(1/1000000)=5711
+                赢利次数=120,赢利总值=38669
+                亏损次数=8,亏损总值=580
+    
+        #2005-200712
+        评估:总盈亏值=39468,交易次数=101        期望值=4756
+                总盈亏率(1/1000)=39468,平均盈亏率(1/1000)=390,盈利交易率(1/1000)=643
+                平均持仓时间=44,持仓效率(1/1000000)=8863
+                赢利次数=65,赢利总值=42447
+                亏损次数=36,亏损总值=2979
+                平盘次数=0
+    
+    '''
+    t = stock.transaction
+    mxc = xfunc(t[OPEN],t[CLOSE],t[HIGH],t[LOW],ma1=10) > 0
+
+    s=stock
+    thumb = gand(s.g20>=3000,s.g20<=8000,s.g20>s.g60,s.g5>s.g60)
+
+    xatr = stock.atr * BASE / t[CLOSE]
+    mxatr = ma(xatr,13)
+    xr = gand(xatr>=mxatr,mxatr>=astart)
+
+    mst = gand(stock.above,stock.t5,stock.ma1<stock.ma2,stock.ma1>stock.ma3)
+
+    gt = gand(stock.ref.t3)
+
+    st2 = gand(strend(stock.dea)>=strend(stock.diff))
+
+    signal = gand(mxc,thumb,mst,xr,gt,st2)
+    linelog(stock.code)
+    return signal
 

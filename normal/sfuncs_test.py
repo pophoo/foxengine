@@ -251,6 +251,9 @@ class ModuleTest(unittest.TestCase):    #通路测试
         sbuy = uplaind2(self.stock,lens=(1,2,3))
         self.assertTrue(True)
 
+    def test_xud3(self):
+        sbuy = xud3(self.stock)
+        self.assertTrue(True)
 
 if __name__ == "__main__":
     logging.basicConfig(filename="test.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')

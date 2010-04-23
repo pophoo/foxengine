@@ -255,6 +255,15 @@ class ModuleTest(unittest.TestCase):    #通路测试
         sbuy = xud3(self.stock)
         self.assertTrue(True)
 
+    def test_nhighxt(self):
+        sbuy = nhighxt(self.stock)
+        self.assertTrue(True)
+
+    def test_nhighxt2(self):
+        sbuy = nhighxt2(self.stock)
+        self.assertTrue(True)
+
+
 if __name__ == "__main__":
     logging.basicConfig(filename="test.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
     unittest.main()

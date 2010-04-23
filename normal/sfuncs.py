@@ -2023,3 +2023,144 @@ def xud3(stock,xfunc=xc0s,astart=45):
     linelog(stock.code)
     return signal
 
+
+def nhighxt(stock,m=60,n=10):#m日新高后回踩n日线,踩上后次日买入
+    '''     60,10
+            2008-201004
+            t3&t5 + g20>5000,g5<g20,ma1>ma2,stock.above,lesser(t[VOLUME],rollx(t[VOLUME]))
+                +vma_s < vma_l
+                评估:总盈亏值=11257,交易次数=96 期望值=1625
+                总盈亏率(1/1000)=11257,平均盈亏率(1/1000)=117,盈利交易率(1/1000)=614
+                平均持仓时间=32,持仓效率(1/1000000)=3656
+                赢利次数=59,赢利总值=13941
+                亏损次数=37,亏损总值=2684
+                平盘次数=0
+
+            需要避开前期危险性板块，还能进一步提高收益率. 如1002以后的地产等
+
+            2005-200710
+            评估:总盈亏值=5953,交易次数=116 期望值=401
+                总盈亏率(1/1000)=5953,平均盈亏率(1/1000)=51,盈利交易率(1/1000)=405
+                平均持仓时间=22,持仓效率(1/1000000)=2318
+                赢利次数=47,赢利总值=14645
+                亏损次数=68,亏损总值=8692
+                平盘次数=1
+
+            2001-200506 不稳定
+            评估:总盈亏值=-725,交易次数=9   期望值=-699
+                总盈亏率(1/1000)=-725,平均盈亏率(1/1000)=-81,盈利交易率(1/1000)=111
+                平均持仓时间=21,持仓效率(1/1000000)=-3858
+                赢利次数=1,赢利总值=203
+                亏损次数=8,亏损总值=928
+                平盘次数=0
+            
+    '''
+    t = stock.transaction
+    mline = rollx(tmax(t[HIGH],m))
+    dcross = cross(mline,t[HIGH])>0    
+    linelog(stock.code)
+    
+    mam = ma(t[CLOSE],n)
+    xcross = cross(mam,t[LOW])<0
+ 
+    xcross = decover1(xcross,3)
+
+    nxt = sfollow(dcross,xcross,5)
+
+    ma1 = ma(t[CLOSE],5)
+    ma2 = ma(t[CLOSE],10)
+
+    st = gand(ma1>ma2,stock.above,lesser(t[VOLUME],rollx(t[VOLUME])))
+
+    gt = gand(stock.ref.t5,stock.ref.t3)
+
+    xatr = stock.atr * BASE / t[CLOSE]
+    mxatr = ma(xatr,13)
+    xr = gand(xatr<mxatr,strend(xatr-mxatr)>0,xatr>40)
+
+    md = gand(stock.diff>stock.dea)
+
+    gg = gand(stock.g20>5000,stock.g5<stock.g20)
+
+    vma_s = ma(t[VOLUME],13)
+    vma_l = ma(t[VOLUME],30)
+
+    vt = vma_s < vma_l
+
+    #如何判断首次?
+
+    return gand(nxt,xr,gt,gg,st,vt)
+
+
+def nhighxt2(stock,m=60,n=10):#m日新高后回踩n日线
+    '''
+        2008-201004
+        评估:总盈亏值=5156,交易次数=45  期望值=1781
+                总盈亏率(1/1000)=5156,平均盈亏率(1/1000)=114,盈利交易率(1/1000)=733
+                平均持仓时间=35,持仓效率(1/1000000)=3257
+                赢利次数=33,赢利总值=5927
+                亏损次数=12,亏损总值=771
+                平盘次数=0
+        2005-200710
+        评估:总盈亏值=14416,交易次数=62 期望值=2109
+                总盈亏率(1/1000)=14416,平均盈亏率(1/1000)=232,盈利交易率(1/1000)=387
+                平均持仓时间=33,持仓效率(1/1000000)=7030
+                赢利次数=24,赢利总值=18614
+                亏损次数=38,亏损总值=4198
+                平盘次数=0
+ 
+        n=13
+        2008-201004
+        评估:总盈亏值=5653,交易次数=25  期望值=3645
+                总盈亏率(1/1000)=5653,平均盈亏率(1/1000)=226,盈利交易率(1/1000)=800
+                平均持仓时间=43,持仓效率(1/1000000)=5255
+                赢利次数=20,赢利总值=5964
+                亏损次数=5,亏损总值=311
+                平盘次数=0
+        2005-200710
+        评估:总盈亏值=1712,交易次数=20  期望值=702
+                总盈亏率(1/1000)=1712,平均盈亏率(1/1000)=85,盈利交易率(1/1000)=400
+                平均持仓时间=29,持仓效率(1/1000000)=2931
+                赢利次数=8,赢利总值=3172
+                亏损次数=12,亏损总值=1460
+                平盘次数=0
+
+
+    '''
+    t = stock.transaction
+
+    mline = rollx(tmax(t[HIGH],m))
+    dcross = cross(mline,t[HIGH])>0    
+    linelog(stock.code)
+    
+    mam = ma(t[CLOSE],n)
+    xcross = cross(mam,t[LOW])<0
+ 
+    xcross = decover1(xcross,3)
+
+    nxt = sfollow(dcross,xcross,5)
+
+    xatr = stock.atr * BASE / t[CLOSE]
+    mxatr = ma(xatr,13)
+    xr = gand(xatr>mxatr,xatr>40)
+
+    md = gand(stock.diff>stock.dea,strend(stock.dea)>0)
+
+    gg = gand(stock.g20>8500,stock.g5>8500)
+
+    vma_s = ma(t[VOLUME],7)
+    vma_l = ma(t[VOLUME],13)
+    vmx = gmax(vma_s,vma_l)
+    vmn = gmin(vma_s,vma_l)
+
+    rt = gor(stock.ref.t1,stock.ref.t2,stock.ref.t3)
+
+    st = gand(stock.t3,stock.t5,stock.ma2>stock.ma3,stock.ma3>stock.ma4,bnot(gand(greater(t[VOLUME],rollx(t[VOLUME])),t[CLOSE]<t[OPEN])),t[VOLUME]<vmx,t[VOLUME]>0)
+
+    cf = (t[OPEN]-t[LOW] + t[HIGH]-t[CLOSE])*1000 / (t[HIGH]-t[LOW])   #向下的动力  
+    mcf = ma(cf,7)
+
+    #如何判断首次?
+
+    return gand(nxt,xr,gg,rt,st,md,mcf<750)
+

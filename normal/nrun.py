@@ -132,6 +132,10 @@ def prepare_configs_1000(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.uplain3,lens=(7,13,30))))
     configs.append(config(buyer=fcustom(s.uplain32,lens=(5,10,20),infunc=s.uinfunc3b)))
 
+    configs.append(config(buyer=fcustom(s.nhighxt,n=10)))
+    configs.append(config(buyer=fcustom(s.nhighxt2,n=10)))
+    configs.append(config(buyer=fcustom(s.nhighxt2,n=13)))
+
     return configs
 
 
@@ -729,8 +733,8 @@ if __name__ == '__main__':
     from time import time
     tbegin = time()
     
-    dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
+    dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
     weekdays = map(ut.d2w,dates)
     i_cofw = np.where(d1ex.cofw(weekdays))    #周收盘日坐标
 

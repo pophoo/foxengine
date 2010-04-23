@@ -733,8 +733,8 @@ if __name__ == '__main__':
     from time import time
     tbegin = time()
     
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
-    dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
+    dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
     weekdays = map(ut.d2w,dates)
     i_cofw = np.where(d1ex.cofw(weekdays))    #周收盘日坐标
 

@@ -132,8 +132,6 @@ def prepare_configs_1000(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.uplain3,lens=(7,13,30))))
     configs.append(config(buyer=fcustom(s.uplain32,lens=(5,10,20),infunc=s.uinfunc3b)))
 
-    configs.append(config(buyer=fcustom(s.nhighxt,n=10)))
-    configs.append(config(buyer=fcustom(s.nhighxt2,n=10)))
     configs.append(config(buyer=fcustom(s.nhighxt2,n=13)))
 
     return configs
@@ -165,6 +163,8 @@ def prepare_configs_best(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.tsvama3,follow=4,slow=14,mid=29,fast=7))) ###???
 
     configs.append(config(buyer=fcustom(s.uplaind2,lens=(7,13,30))))
+    configs.append(config(buyer=fcustom(s.nhighxt,n=10)))
+    configs.append(config(buyer=fcustom(s.nhighxt2,n=10)))
 
     return configs
 

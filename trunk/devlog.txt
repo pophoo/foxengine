@@ -321,13 +321,14 @@ logging.basicConfig(filename="xx4c.log",level=logging.DEBUG,format='%(name)s:%(f
 #begin,xbegin,end = 20070101,20080601,20091231
 #begin,xbegin,end = 20060101,20080601,20091231
 
-#begin,xbegin,end = 20070101,20080101,20191201
+begin,xbegin,end = 20070101,20080101,20191201
 
 #begin,xbegin,end = 20000101,20010101,20050601
 #begin,xbegin,end = 20000101,20010701,20090101
 #begin,xbegin,end = 19970101,19980101,20010701
 #begin,xbegin,end = 20040101,20050101,20091231
 begin,xbegin,end = 20040101,20050101,20071031
+#begin,xbegin,end = 20000101,20010101,20050601
 
 tbegin = time()
 
@@ -8398,6 +8399,8 @@ nsellout = sellout.cumsum()
 
 cholding = nbuyin - nsellout    #当前持仓个股数
 
+for dt,ct in zip(dates,cholding):print dt,ct
+
 切除该日
 >>> for trades in tradess:
 ...     if trades[0].tdate < 20091001: tradess2.append(trades)
@@ -8458,3 +8461,20 @@ close[i_cofw] #两者应该相等
 signal = np.zeros(len(dates,int))
 signal[i_cofw] = XXX #计算值
 extend2next(signal)
+
+
+#2010-04-21
+60日新高后首次回踩n日均线
+
+
+#2010-04-22
+漏了3条除权记录
+184691/1825
+184692/1826
+184701/1831
+
+
+insert into dune_powerinfo(tstock_id,register_day,execute_day,fhbl,sgbl,pgbl,pgj,zfs,zfj,jjs,day_state,hour_state,m5_state) values(1825,20100331,20100401,310,0,0,0,0,0,0,0,0,0)
+insert into dune_powerinfo(tstock_id,register_day,execute_day,fhbl,sgbl,pgbl,pgj,zfs,zfj,jjs,day_state,hour_state,m5_state) values(1826,20100331,20100401,270,0,0,0,0,0,0,0,0,0)
+insert into dune_powerinfo(tstock_id,register_day,execute_day,fhbl,sgbl,pgbl,pgj,zfs,zfj,jjs,day_state,hour_state,m5_state) values(1831,20100331,20100401,380,0,0,0,0,0,0,0,0,0)
+

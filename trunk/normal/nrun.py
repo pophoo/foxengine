@@ -96,6 +96,12 @@ def prepare_configs_1000(seller,pman,dman):
     configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc0c,astart=0)))  #4/9
     configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc0,astart=0)))  #1/5 类同xc02，但xc02更好  ###??? 
     configs.append(config(buyer=fcustom(s.xud,xfunc=s.xc02,astart=0)))  #1/5
+
+    configs.append(config(buyer=fcustom(s.xud3,astart=50)))
+    configs.append(config(buyer=fcustom(s.xud3,xfunc=s.xc0c,astart=50)))  
+    configs.append(config(buyer=fcustom(s.xud3,xfunc=s.xc0,astart=50)))   
+    configs.append(config(buyer=fcustom(s.xud3,xfunc=s.xc02,astart=50))) 
+
     configs.append(config(buyer=fcustom(s.emv2,slow=290,fast=128)))
     configs.append(config(buyer=fcustom(s.emv2,slow=96,fast=125)))
     configs.append(config(buyer=fcustom(s.tsvama3,follow=6,slow=106,mid=73,fast=6)))

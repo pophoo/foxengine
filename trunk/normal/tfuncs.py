@@ -6,8 +6,8 @@ from numpy import select
 
 from wolfox.fengine.core.shortcut import *
 from wolfox.fengine.normal.funcs import *
-from wolfox.fengine.core.d1 import lesser,bnot,gmax,gmin
-from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,scover,xfollow
+from wolfox.fengine.core.d1 import lesser,bnot,gmax,gmin,greater,greater_equals,lesser_equals
+from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,scover,xfollow,decover1
 from wolfox.fengine.core.d1match import *
 from wolfox.fengine.core.d1idiom import *
 from wolfox.fengine.core.d1indicator import cmacd,score2,adx
@@ -1304,8 +1304,8 @@ def xudj(stock):
     linelog(stock.code)
     t = stock.transaction
     if stock.code[:3] != 'SH5' and stock.code[:4]!='SZ18':    
-        #return cached_zeros(len(t[CLOSE]))
-        raise Exception(u'skipping ' + stock.code)
+        return cached_zeros(len(t[CLOSE]))
+        #raise Exception(u'skipping ' + stock.code)
     
     mxc = xc0s(t[OPEN],t[CLOSE],t[HIGH],t[LOW],ma1=13) > 0
 
@@ -2389,4 +2389,278 @@ def sagd(stock):
 
     return signal
 
+
+def nhighxt(stock,m=60,n=10):#m日新高后回踩n日线,踩上后次日买入
+    '''     60,10
+            2008-201004
+            t3&t5 + g20>5000,g5<g20,ma1>ma2,stock.above,lesser(t[VOLUME],rollx(t[VOLUME]))
+            评估:总盈亏值=17723,交易次数=180        期望值=1289
+                总盈亏率(1/1000)=17723,平均盈亏率(1/1000)=98,盈利交易率(1/1000)=577
+                平均持仓时间=33,持仓效率(1/1000000)=2969
+                赢利次数=104,赢利总值=23574
+                亏损次数=76,亏损总值=5851
+                平盘次数=0
+                +vma_s < vma_l
+                评估:总盈亏值=11228,交易次数=96 期望值=1589
+                    总盈亏率(1/1000)=11228,平均盈亏率(1/1000)=116,盈利交易率(1/1000)=614
+                    平均持仓时间=32,持仓效率(1/1000000)=3625
+                    赢利次数=59,赢利总值=13941
+                    亏损次数=37,亏损总值=2713
+                    平盘次数=0
+
+
+            需要避开危险性板块，还能进一步提高收益率. 如1002以后的地产等
+
+            2005-200710
+            评估:总盈亏值=18303,交易次数=218        期望值=697
+                总盈亏率(1/1000)=18303,平均盈亏率(1/1000)=83,盈利交易率(1/1000)=481
+                平均持仓时间=25,持仓效率(1/1000000)=3320
+                赢利次数=105,赢利总值=31736
+                亏损次数=112,亏损总值=13433
+                平盘次数=1
+
+            2001-200506 不稳定
+            评估:总盈亏值=-725,交易次数=9   期望值=-699
+                总盈亏率(1/1000)=-725,平均盈亏率(1/1000)=-81,盈利交易率(1/1000)=111
+                平均持仓时间=21,持仓效率(1/1000000)=-3858
+                赢利次数=1,赢利总值=203
+                亏损次数=8,亏损总值=928
+                平盘次数=0
+            
+
+            120,10
+            评估:总盈亏值=20617,交易次数=214        期望值=1246
+                总盈亏率(1/1000)=20617,平均盈亏率(1/1000)=96,盈利交易率(1/1000)=570
+                平均持仓时间=32,持仓效率(1/1000000)=3000
+                赢利次数=122,赢利总值=27701
+                亏损次数=92,亏损总值=7084
+                平盘次数=0
+    
+            250,10
+            评估:总盈亏值=3345,交易次数=88  期望值=475
+                总盈亏率(1/1000)=3345,平均盈亏率(1/1000)=38,盈利交易率(1/1000)=465
+                平均持仓时间=24,持仓效率(1/1000000)=1583
+                赢利次数=41,赢利总值=7151
+                亏损次数=47,亏损总值=3806
+                平盘次数=0
+            
+    '''
+    t = stock.transaction
+    mline = rollx(tmax(t[HIGH],m))
+    dcross = cross(mline,t[HIGH])>0    
+    linelog(stock.code)
+    
+    mam = ma(t[CLOSE],n)
+    xcross = cross(mam,t[LOW])<0
+ 
+    xcross = decover1(xcross,3)
+
+    nxt = sfollow(dcross,xcross,5)
+
+    ma1 = ma(t[CLOSE],5)
+    ma2 = ma(t[CLOSE],10)
+
+    st = gand(ma1>ma2,stock.above,lesser(t[VOLUME],rollx(t[VOLUME])))
+
+    gt = gand(stock.ref.t5,stock.ref.t3)
+
+    xatr = stock.atr * BASE / t[CLOSE]
+    mxatr = ma(xatr,13)
+    xr = gand(xatr<mxatr,strend(xatr-mxatr)>0,xatr>40)
+
+    md = gand(stock.diff>stock.dea)
+
+    gg = gand(stock.g20>5000,stock.g5<stock.g20)
+
+    #vma_s = ma(t[VOLUME],13)
+    #vma_l = ma(t[VOLUME],30)
+
+    #vt = vma_s < vma_l
+
+
+    #如何判断首次?
+
+    return gand(nxt,xr,gt,gg,st)#,vt)
+
+
+def nhighxt2(stock,m=60,n=10):#m日新高后回踩n日线
+    t = stock.transaction
+    mline = rollx(tmax(t[HIGH],m))
+    dcross = cross(mline,t[HIGH])>0    
+    linelog(stock.code)
+    
+    mam = ma(t[CLOSE],n)
+    xcross = cross(mam,t[LOW])<0
+ 
+    xcross = decover1(xcross,3)
+
+    nxt = sfollow(dcross,xcross,5)
+
+    ma6 = ma(t[CLOSE],250)
+
+    ma1 = ma(t[CLOSE],5)
+    ma2 = ma(t[CLOSE],10)
+
+    st = gand(ma1>ma2,stock.above,gor(lesser(t[VOLUME],rollx(t[VOLUME]))))
+
+    gt = gand(stock.ref.t5)
+
+    xatr = stock.atr * BASE / t[CLOSE]
+    mxatr = ma(xatr,13)
+    xr = gand(xatr>mxatr,strend(xatr-mxatr)>0,xatr>40)
+
+    md = gand(stock.diff>stock.dea)
+
+    gg = gand(stock.g20>5000,)
+
+    #vma_s = ma(t[VOLUME],13)
+    #vma_l = ma(t[VOLUME],30)
+
+    #vt = vma_s < vma_l
+
+
+    #如何判断首次?
+
+    return gand(nxt,xr,gg)#,vt)
+
+
+def oneup(stock,lens=(7,13)):
+    '''
+        评估:总盈亏值=1576,交易次数=20  期望值=7090
+                总盈亏率(1/1000)=1576,平均盈亏率(1/1000)=78,盈利交易率(1/1000)=700
+                平均持仓时间=21,持仓效率(1/1000000)=3714
+                赢利次数=14,赢利总值=1646
+                亏损次数=6,亏损总值=70
+                平盘次数=0
+    '''
+    linelog(stock.code)
+
+    t = stock.transaction
+
+    if stock.zgb >= 300000 or stock.ag >=200000:
+        return cached_zeros(len(t[CLOSE]))
+
+    short,long = lens
+    if short == 7:
+        ma1 = stock.ma1
+    else:
+        ma1 = ma(t[CLOSE],short)
+    if long == 13:
+        ma2 = stock.ma2
+    else:
+        ma2 = ma(t[CLOSE],long)
+    
+    mmax = gmax(ma1,ma2)
+    mmin = gmin(ma1,ma2)
+
+    up = gand(greater(t[CLOSE],mmax),lesser(t[OPEN],mmin))
+
+    xabove = greater(msum(stock.above,7),6) #理顺已经一段时间
+
+    xdev = greater(stock.ma4,t[CLOSE]*24/25)
+
+    #上下影线都不大于实体，同时实体大于1%
+    st = gand(stock.ma2,xabove,xdev,t[HIGH]-t[CLOSE]<t[CLOSE]-t[OPEN],t[OPEN]-t[LOW]<t[CLOSE]-t[OPEN],t[CLOSE]-t[OPEN]>t[OPEN]/100)
+
+    gt = gand(stock.ref.t3,stock.ref.t5)
+
+    xatr = stock.atr * BASE / t[CLOSE]
+    mxatr = ma(xatr,13)
+    xr = gand(xatr<mxatr,mxatr<40,xatr<40)
+
+    gg = gand(stock.g20>3000,stock.g60>3000,stock.g5>5000)
+
+    signal = gand(up,st,gt,xr,gg)
+
+    return signal
+
+def xud2(stock,xfunc=xc0s,astart=45):
+    ''' 
+    '''
+    t = stock.transaction
+    mxc = xfunc(t[OPEN],t[CLOSE],t[HIGH],t[LOW],ma1=13) > 0
+
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+
+    vfilter = gand(svma<vma*2/3)
+    cf = (t[OPEN]-t[LOW] + t[HIGH]-t[CLOSE])*1000 / (t[HIGH]-t[LOW])   #向下的动力  
+    mcf = ma(cf,7)
+
+    stdea = strend(stock.dea)
+    stdiff = strend(stock.diff)
+    st = gand(stdea<=-3,stdea>=-4,stdiff<=-5,stdiff>=-6)
+
+    xatr = stock.atr * BASE / t[CLOSE]     
+
+    signal = gand(mxc,vfilter,stock.thumb,stock.above,stock.t5,mcf>1000,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st,xatr>=astart)
+    linelog(stock.code)
+    return signal
+
+def xud3(stock,xfunc=xc0s,astart=45):
+    '''
+        #2008-201004
+        评估:总盈亏值=38089,交易次数=128        期望值=4125
+                总盈亏率(1/1000)=38089,平均盈亏率(1/1000)=297,盈利交易率(1/1000)=937
+                平均持仓时间=52,持仓效率(1/1000000)=5711
+                赢利次数=120,赢利总值=38669
+                亏损次数=8,亏损总值=580
+    
+        #2005-200712
+        评估:总盈亏值=39468,交易次数=101        期望值=4756
+                总盈亏率(1/1000)=39468,平均盈亏率(1/1000)=390,盈利交易率(1/1000)=643
+                平均持仓时间=44,持仓效率(1/1000000)=8863
+                赢利次数=65,赢利总值=42447
+                亏损次数=36,亏损总值=2979
+                平盘次数=0
+    
+    '''
+    t = stock.transaction
+    mxc = xfunc(t[OPEN],t[CLOSE],t[HIGH],t[LOW],ma1=10) > 0
+
+    s=stock
+    thumb = gand(s.g20>=3000,s.g20<=8000,s.g20>s.g60,s.g5>s.g60)
+
+    xatr = stock.atr * BASE / t[CLOSE]
+    mxatr = ma(xatr,13)
+    xr = gand(xatr>=mxatr,mxatr>=astart)
+
+    mst = gand(stock.above,stock.t5,stock.ma1<stock.ma2,stock.ma1>stock.ma3)
+
+    gt = gand(stock.ref.t3)
+
+    st2 = gand(strend(stock.dea)>=strend(stock.diff))
+
+    signal = gand(mxc,thumb,mst,xr,gt,st2)
+    linelog(stock.code)
+    return signal
+
+
+def emv2x(stock,fast,slow):
+    t = stock.transaction
+    #2872-34-676-247-9880,1000-1-1000-75-3750
+
+    em = emv(t[HIGH],t[LOW],t[VOLUME])
+   
+    mv1 = ma(em,fast)
+    mv2 = ma(em,slow)
+
+    vma = ma(t[VOLUME],10)
+
+    vfilter = bnot(gand(t[CLOSE]<t[OPEN],t[VOLUME]>vma*2))
+ 
+    xatr = stock.atr * BASE / t[CLOSE]
+    mxatr = ma(xatr,13)
+    xr = gand(xatr>=mxatr,mxatr>=60)
+
+    gt = gand(stock.ref.t3)
+
+    s=stock
+    thumb = gand(s.g20>=3000,s.g20<=8000,s.g20>s.g60,s.g5>s.g60)
+
+    mst = gand(stock.above,stock.t5)
+
+    ecross = gand(cross(mv2,mv1)>0,strend(mv1)>0,mst,gt,xr,vfilter)
+    linelog(stock.code)
+    return ecross
 

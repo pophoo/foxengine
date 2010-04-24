@@ -263,6 +263,14 @@ class ModuleTest(unittest.TestCase):    #通路测试
         sbuy = nhighxt2(self.stock)
         self.assertTrue(True)
 
+    def test_ldxx(self):
+        sbuy = ldxx(self.stock)
+        self.assertTrue(True)
+
+    def test_tsvama2n(self):
+        sbuy = tsvama2n(self.stock)
+        self.assertTrue(True)
+
 
 if __name__ == "__main__":
     logging.basicConfig(filename="test.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')

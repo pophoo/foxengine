@@ -13,7 +13,7 @@ from math import sqrt
 
 
 from wolfox.fengine.base.common import Trade
-from wolfox.fengine.core.base import BaseObject
+from wolfox.fengine.core.base import BaseObject,CLOSE,HIGH,OPEN
 from wolfox.fengine.core.d1 import greater
 from wolfox.fengine.core.utils import fcustom
 from wolfox.fengine.core.d1ex import extend2next
@@ -206,7 +206,8 @@ class PositionManager(object):  #只适合先买后卖，卖空和混合方式�
         self.vhistory = [BaseObject(date=0,value=self.init_size)]
 
     def assets(self):
-        return self.init_size + self.earning
+        #return self.init_size + self.earning   #self.earning类型某些情况下可能是numpy.int32?
+        return int(self.init_size + self.earning)   #self.earning类型某些情况下可能是numpy.int32? 如果在计算过程中引入了numpy.int32,则都会被转为这个.从而导致yaml.dump出错
 
     def cur_limit(self): #计算当前的最大单笔占比,不能大于当前现金数
         v = int(self.assets() * self.max_proportion / POS_BASE)
@@ -274,6 +275,57 @@ class PositionManager(object):  #只适合先买后卖，卖空和混合方式�
 AdvancedPositionManager = fcustom(PositionManager,position=AdvancedPosition)
 AdvancedATRPositionManager = fcustom(PositionManager,position=AdvancedPosition,calc_lost=atr_lost_1200) #默认1.2倍atr止损
 AdvancedATRPositionManager2000 = fcustom(PositionManager,position=AdvancedPosition,calc_lost=atr_lost_2000)
+
+class StepPositionManager(PositionManager):  #只适合先买后卖，卖空和混合方式都要由子类定制run实现
+    def __init__(self,dates,init_size=100000000,max_proportion=333,risk=10,calc_lost=ev_lost,position=Position):
+        PositionManager.__init__(self,init_size,max_proportion,risk,calc_lost,position)
+        self.dates = dates
+
+    def organize_trades(self,named_trades):
+        trades = PositionManager.organize_trades(self,named_trades)
+        #for trade in trades:
+        #    print trade
+        if len(trades) == 0:
+            return trades
+        new_trades = []
+        ti = 0
+        tcur = trades[ti]
+        dlen = len(trades[0].stock.transaction[CLOSE])
+        holding = {}
+        for i in xrange(dlen):
+            for hold in holding.values():   #i=0是没有持仓，所以不需要判断i>1
+                tlimit = (hold[0].transaction[CLOSE][i-1] + hold[0].transaction[HIGH][i-1])/2
+                base = hold[-1]
+                #print tlimit,hold[1]+hold[2]
+                if(tlimit > hold[1] + hold[2] and tlimit <  base.tprice + hold[2]*5):#当不超过3ATR时,添加一个trade
+                    #print base.tstock,self.dates[i],tlimit,hold[1],hold[2],base.tprice
+                    tvolume = base.tvolume/2 or 1
+                    trade = Trade(base.tstock,int(self.dates[i]),int(hold[0].transaction[OPEN][i]),tvolume,base.taxrate)
+                    trade.stock = base.stock
+                    trade.atr = int(base.stock.atr2[i])
+                    new_trades.append(trade)
+                    holding[hold[0]][1] = hold[1] + hold[2] #更改起始价格
+            while tcur.idate == i:
+                if tcur.tvolume>0:
+                    holding[tcur.stock] = [tcur.stock,tcur.tprice,int(tcur.stock.atr2[i]),tcur]
+                elif tcur.tvolume<0 and tcur.tstock in holding:
+                    #print 'del:',tcur.tdate
+                    del holding[tcur.stock]
+                ti += 1
+                if ti >= len(trades):
+                    break
+                tcur = trades[ti]
+            if ti>=len(trades):
+                break
+        trades[0:0]= new_trades #插入到前面,以便如果B/S同时出现,B排序在前面
+        trades.sort(cmp=lambda x,y:x.tdate-y.tdate)
+        #return trades
+        return [trade.copy() for trade in trades]
+
+AdvancedStepPositionManager = fcustom(StepPositionManager,position=AdvancedPosition)
+AdvancedATRStepPositionManager = fcustom(StepPositionManager,position=AdvancedPosition,calc_lost=atr_lost_1200) #默认1.2倍atr止损
+AdvancedATRStepPositionManager2000 = fcustom(StepPositionManager,position=AdvancedPosition,calc_lost=atr_lost_2000)
+
 
 import datetime
 class DateManager(object):

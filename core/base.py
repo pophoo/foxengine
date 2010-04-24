@@ -23,10 +23,18 @@ class BaseObject(object):
     def set_attr(self,attr_name,value):
         self.__dict__[attr_name] = value
 
+    def __repr__(self):
+        return 'CommonObject'
+
+
 class CommonObject(BaseObject):
     def __init__(self,id,**kwargs):
         BaseObject.__init__(self,**kwargs)
         self.id = id
+
+    def __repr__(self):
+        return 'CommonObject'
+
 
 class CatalogSubject(CommonObject):
     def __init__(self,id,name,catalogs):

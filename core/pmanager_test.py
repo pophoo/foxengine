@@ -460,6 +460,78 @@ class PositionManagerTest(unittest.TestCase):
         self.assertEquals(22,pm.calc_net_indicator(dm))
 
 
+class StepPositionManagerTest(unittest.TestCase):
+
+    def test_organize_trades_without_new(self):
+        pm = StepPositionManager([20010101,20010201,20010205,20010301,20010321,20010501])
+        ax = np.array([1000,1000,1000,1000,1000,1000])
+        satr = np.array([10,10,10,10,10,10])        
+        sa = BaseObject(transaction=[ax,ax,ax,ax,ax,ax,ax],atr2=satr)
+        sb = BaseObject(transaction=[ax,ax,ax,ax,ax,ax,ax],atr2=satr)
+
+        self.assertEquals([],pm.organize_trades([]))
+        trade1 = Trade(0,20010101,10000,1)
+        trade2 = Trade(0,20010301,12000,-1)
+        trade3 = Trade(0,20010205,10000,1)
+        trade4 = Trade(0,20010501,9000,-1)
+        trade5 = Trade(1,20010201,10000,1)
+        trade6 = Trade(1,20010321,10000,-1)
+        trade1.stock=trade2.stock=trade3.stock=trade4.stock = sa
+        trade5.stock = trade6.stock = sb
+        trade1.idate = 0
+        trade2.idate = 3
+        trade3.idate = 2
+        trade4.idate = 5
+        trade5.idate = 1
+        trade6.idate = 4
+        named_trade1 = [[trade1,trade2],[trade3,trade4]]
+        named_trade2 = trades=[[trade5,trade6]]
+        rev = pm.organize_trades([named_trade1,named_trade2])
+        self.assertEquals(6,len(rev))
+        self.assertEquals([trade1,trade5,trade3,trade2,trade6,trade4],rev) 
+        self.assertNotEquals(id(trade1),id(rev[0])) #测试其返回的是拷贝，而非原始对象
+        #测试有名的空交易
+        named_trade3 = []
+        rev = pm.organize_trades([named_trade3])
+        self.assertEquals(0,len(rev))
+
+    def test_organize_trades_with_new(self):
+        pm = StepPositionManager([20010101,20010201,20010205,20010301,20010321,20010501])
+        ax = np.array([10000,10020,10030,10000,10000,10000])
+        satr = np.array([10,10,10,10,10,10])        
+        sa = BaseObject(transaction=[ax,ax,ax,ax,ax,ax,ax],atr2=satr,atr=satr)
+        sb = BaseObject(transaction=[ax,ax,ax,ax,ax,ax,ax],atr2=satr,atr=satr)
+
+        self.assertEquals([],pm.organize_trades([]))
+        trade1 = Trade(0,20010101,10000,1)
+        trade2 = Trade(0,20010301,12000,-1)
+        trade3 = Trade(0,20010205,10000,1)
+        trade4 = Trade(0,20010501,9000,-1)
+        trade5 = Trade(1,20010201,10000,1)
+        trade6 = Trade(1,20010321,10000,-1)
+        trade1.stock=trade2.stock=trade3.stock=trade4.stock = sa
+        trade5.stock = trade6.stock = sb
+        trade1.idate = 0
+        trade2.idate = 3
+        trade3.idate = 2
+        trade4.idate = 5
+        trade5.idate = 1
+        trade6.idate = 4
+        named_trade1 = [[trade1,trade2],[trade3,trade4]]
+        named_trade2 = trades=[[trade5,trade6]]
+        rev = pm.organize_trades([named_trade1,named_trade2])
+        #for rx in rev:
+        #    print rx
+        self.assertEquals(10,len(rev))
+        #self.assertEquals([trade1,trade5,trade3,trade2,trade6,trade4],rev) 
+        self.assertNotEquals(id(trade1),id(rev[0])) #测试其返回的是拷贝，而非原始对象
+        #测试有名的空交易
+        named_trade3 = []
+        rev = pm.organize_trades([named_trade3])
+        self.assertEquals(0,len(rev))
+
+
+
 class DateManagerTest(unittest.TestCase):
     def test_init(self):
         self.assertEquals({},DateManager(0,0).date_map)

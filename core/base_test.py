@@ -76,12 +76,22 @@ class BaseObjectTest(unittest.TestCase):
         self.assertEquals(12,co2.get_attr('a'))
         self.assertRaises(KeyError,co2.get_attr,'mm')
 
+    def test_repr(self):
+        co2 = BaseObject()
+        str(co2)
+        self.assertTrue(True);
+
 
 class ModuleTest(unittest.TestCase):
     def testCommonObject(self): #通路测试
         co1 = CommonObject(1)
         co2 = CommonObject(1,xx=12)
         self.assertTrue(True)
+
+    def testCommonObjectRepr(self):
+        co2 = CommonObject(1)
+        str(co2)
+        self.assertTrue(True);
 
     def testCatalogSubject(self):   #通路测试
         c1 = Catalog(1,'test',[1,2,3])

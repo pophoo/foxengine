@@ -349,7 +349,7 @@ import wolfox.fengine.normal.nrun as nrun
 #import wolfox.fengine.normal.xrun as x
 import wolfox.fengine.normal.tfuncs as t
 nrun.prepare_next(sdata,idata,catalogs,dates,i_cofw)
-pman = AdvancedATRPositionManager()
+pman = AdvancedATRStepPositionManager2000(dates)
 dman = XDateManager(dates)
 myMediator=nmediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
 #myMediator=nmediator_factory(trade_strategy=B1S0,pricer = oo_pricer)

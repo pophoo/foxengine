@@ -23,84 +23,84 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
     def test_ldx_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        ccruiser.prepare_next(sdata,idata,catalogs)
+        ccruiser.prepare_next(sdata,idata,catalogs,None,None)
         cruiser = ccruiser.LdxCruiser(psize=20,maxstep=1,goal=20000)
         cruiser.gcruise(sdata,dates,20010601)    
  
     def test_ldx2_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        ccruiser.prepare_next(sdata,idata,catalogs)
+        ccruiser.prepare_next(sdata,idata,catalogs,None,None)
         cruiser = ccruiser.Ldx2Cruiser(psize=20,maxstep=1,goal=20000)
         cruiser.gcruise(sdata,dates,20010601)    
  
     def test_ma2s_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        ccruiser.prepare_next(sdata,idata,catalogs)
+        ccruiser.prepare_next(sdata,idata,catalogs,None,None)
         cruiser = ccruiser.Ma2sCruiser(psize=20,maxstep=1,goal=20000)
         cruiser.gcruise(sdata,dates,20010601)    
     
     def test_tsvama2_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        ccruiser.prepare_next(sdata,idata,catalogs)
+        ccruiser.prepare_next(sdata,idata,catalogs,None,None)
         cruiser = ccruiser.TSvama2Cruiser(psize=20,maxstep=1,goal=20000)
         cruiser.gcruise(sdata,dates,20010601)    
 
     def test_tsvama2sb_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        ccruiser.prepare_next(sdata,idata,catalogs)
+        ccruiser.prepare_next(sdata,idata,catalogs,None,None)
         cruiser = ccruiser.TSvama2sbCruiser(psize=20,maxstep=1,goal=20000)
         cruiser.gcruise(sdata,dates,20010601)    
 
     def test_tsvama2sbv_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        ccruiser.prepare_next(sdata,idata,catalogs)
+        ccruiser.prepare_next(sdata,idata,catalogs,None,None)
         cruiser = ccruiser.TSvama2sbvCruiser(psize=20,maxstep=1,goal=20000)
         cruiser.gcruise(sdata,dates,20010601)    
 
     def test_emv1_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        ccruiser.prepare_next(sdata,idata,catalogs)
+        ccruiser.prepare_next(sdata,idata,catalogs,None,None)
         cruiser = ccruiser.Emv1Cruiser(psize=20,maxstep=1,goal=20000)
         cruiser.gcruise(sdata,dates,20010601)    
     
     def test_emv2_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        ccruiser.prepare_next(sdata,idata,catalogs)
+        ccruiser.prepare_next(sdata,idata,catalogs,None,None)
         cruiser = ccruiser.Emv2Cruiser(psize=20,maxstep=1,goal=20000)
         cruiser.gcruise(sdata,dates,20010601)    
 
     def test_tsvama4_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        ccruiser.prepare_next(sdata,idata,catalogs)
+        ccruiser.prepare_next(sdata,idata,catalogs,None,None)
         cruiser = ccruiser.TSvama4Cruiser(psize=20,maxstep=1,goal=20000)
         cruiser.gcruise(sdata,dates,20010601)    
  
     def test_tsvama3_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        ccruiser.prepare_next(sdata,idata,catalogs)
+        ccruiser.prepare_next(sdata,idata,catalogs,None,None)
         cruiser = ccruiser.TSvama3Cruiser(psize=20,maxstep=1,goal=20000)
         cruiser.gcruise(sdata,dates,20010601)    
 
     def test_tsvama3b_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        ccruiser.prepare_next(sdata,idata,catalogs)
+        ccruiser.prepare_next(sdata,idata,catalogs,None,None)
         cruiser = ccruiser.TSvama3bCruiser(psize=20,maxstep=1,goal=20000)
         cruiser.gcruise(sdata,dates,20010601)    
 
     def test_svama3_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        ccruiser.prepare_next(sdata,idata,catalogs)
+        ccruiser.prepare_next(sdata,idata,catalogs,None,None)
         d_posort('g5',sdata.values(),distance=5)        
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     
@@ -111,7 +111,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
     def test_svama3_mm_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        ccruiser.prepare_next(sdata,idata,catalogs)
+        ccruiser.prepare_next(sdata,idata,catalogs,None,None)
         d_posort('g5',sdata.values(),distance=5)        
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     
@@ -122,7 +122,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
     def test_svama3b_mm_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        ccruiser.prepare_next(sdata,idata,catalogs)
+        ccruiser.prepare_next(sdata,idata,catalogs,None,None)
         d_posort('g5',sdata.values(),distance=5)        
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     
@@ -133,7 +133,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
     def test_svama2_mm_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        ccruiser.prepare_next(sdata,idata,catalogs)
+        ccruiser.prepare_next(sdata,idata,catalogs,None,None)
         d_posort('g5',sdata.values(),distance=5)        
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     
@@ -144,7 +144,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
     def test_svama2b_mm_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        ccruiser.prepare_next(sdata,idata,catalogs)
+        ccruiser.prepare_next(sdata,idata,catalogs,None,None)
         d_posort('g5',sdata.values(),distance=5)        
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     
@@ -155,7 +155,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
     def test_csvama3_mm_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        ccruiser.prepare_next(sdata,idata,catalogs)
+        ccruiser.prepare_next(sdata,idata,catalogs,None,None)
         d_posort('g5',sdata.values(),distance=5)        
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     
@@ -166,7 +166,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
     def test_csvama2_mm_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        ccruiser.prepare_next(sdata,idata,catalogs)
+        ccruiser.prepare_next(sdata,idata,catalogs,None,None)
         d_posort('g5',sdata.values(),distance=5)        
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     
@@ -178,7 +178,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
     def test_svama2x_mm_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        ccruiser.prepare_next(sdata,idata,catalogs)
+        ccruiser.prepare_next(sdata,idata,catalogs,None,None)
         d_posort('g5',sdata.values(),distance=5)        
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     
@@ -189,7 +189,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
     def test_svama2s_mm_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        ccruiser.prepare_next(sdata,idata,catalogs)
+        ccruiser.prepare_next(sdata,idata,catalogs,None,None)
         d_posort('g5',sdata.values(),distance=5)        
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     
@@ -200,7 +200,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
     def test_Vama2_mm_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        ccruiser.prepare_next(sdata,idata,catalogs)
+        ccruiser.prepare_next(sdata,idata,catalogs,None,None)
         d_posort('g5',sdata.values(),distance=5)        
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     
@@ -211,7 +211,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
     def test_Vama3_mm_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        ccruiser.prepare_next(sdata,idata,catalogs)
+        ccruiser.prepare_next(sdata,idata,catalogs,None,None)
         d_posort('g5',sdata.values(),distance=5)        
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     
@@ -222,7 +222,7 @@ class ModuleTest(unittest.TestCase):    #通过性测试,纳入测试的目的�
     def test_Ma3_mm_cruiser(self):
         begin,end = 20010101,20010201
         dates,sdata,idata,catalogs = prepare_all(begin,end,['SH600000'],[ref_code])
-        ccruiser.prepare_next(sdata,idata,catalogs)
+        ccruiser.prepare_next(sdata,idata,catalogs,None,None)
         d_posort('g5',sdata.values(),distance=5)        
         d_posort('g20',sdata.values(),distance=20)    
         d_posort('g120',sdata.values(),distance=120)     

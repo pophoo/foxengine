@@ -228,14 +228,14 @@ class ModuleTest(unittest.TestCase):
 
     def test_atr_seller(self):
         a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
-        sa = CommonObject(id=3,transaction=a,atr=np.array([1,2]))
+        sa = CommonObject(id=3,transaction=a,atr=np.array([1,2]),ksize=np.array(['a','b']),ksign=np.array(['a','b']))
         bs = np.array([0,1])
         atr_seller(sa,bs)
         #print sa.down_limit
         self.assertEquals(2,len(sa.down_limit))
         #空测试
         a = np.array([(),(),(),(),(),(),()])
-        sa = CommonObject(id=3,transaction=a,atr=np.array([]))
+        sa = CommonObject(id=3,transaction=a,atr=np.array([]),ksize=np.array([]),ksign=np.array([]))
         bs = np.array([])
         atr_seller(sa,bs)
         self.assertTrue(True)
@@ -243,7 +243,7 @@ class ModuleTest(unittest.TestCase):
 
     def test_atr_seller_factory(self):  #通路测试
         a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
-        sa = CommonObject(id=3,transaction=a,atr=np.array([1,2]))
+        sa = CommonObject(id=3,transaction=a,atr=np.array([1,2]),ksize=np.array(['a','b']),ksign=np.array(['a','b']))
         bs = np.array([0,1])
         seller1 = atr_seller_factory(1000)
         seller2 = atr_seller_factory(2000)
@@ -255,7 +255,7 @@ class ModuleTest(unittest.TestCase):
 
     def test_atr_xseller_factory(self):  #通路测试
         a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
-        sa = CommonObject(id=3,transaction=a,atr=np.array([1,2]))
+        sa = CommonObject(id=3,transaction=a,atr=np.array([1,2]),ksize=np.array(['a','b']),ksign=np.array(['a','b']))
         bs = np.array([0,1])
         seller1 = atr_xseller_factory(1000)
         seller2 = atr_xseller_factory(2000)
@@ -273,7 +273,7 @@ class ModuleTest(unittest.TestCase):
 
     def test_atr_xseller_factory(self): #测试最后一个为停牌日
         a = np.array([(1,2,2),(3,4,4),(5,6,6),(7,8,8),(9,10,10),(11,12,0),(13,14,0)])
-        sa = CommonObject(id=3,transaction=a,atr=np.array([1,2,2]))
+        sa = CommonObject(id=3,transaction=a,atr=np.array([1,2,2]),ksize=np.array(['a','b','c']),ksign=np.array(['a','b','c']))
         bs = np.array([0,1,0])
         seller1 = atr_xseller_factory(1000)
         ss1=seller1(sa,bs)
@@ -282,7 +282,7 @@ class ModuleTest(unittest.TestCase):
 
     def test_seller_wrapper(self):  #通路测试
         a = np.array([(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14)])
-        sa = CommonObject(id=3,transaction=a,atr=np.array([1,2]))
+        sa = CommonObject(id=3,transaction=a,atr=np.array([1,2]),ksize=np.array(['a','b']),ksign=np.array(['a','b']))
         bs = np.array([0,1])
         ##空测试
         seller_a = sellers_wrapper()
@@ -301,7 +301,7 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,0],seller_c(sa,bs).tolist())
         #彻底的空测试,参数也为空
         b=np.array([[],[],[],[],[],[],[]])
-        sb = CommonObject(id=4,transaction=b,atr=np.array([]))
+        sb = CommonObject(id=4,transaction=b,atr=np.array([]),ksize=np.array([]),ksign=np.array([]))
         sb1=seller_a(sb,np.array([]))
         sb2=seller_b(sb,np.array([]))
         self.assertEquals([],sb1.tolist())

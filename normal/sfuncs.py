@@ -2164,3 +2164,116 @@ def nhighxt2(stock,m=60,n=10):#m日新高后回踩n日线
 
     return gand(nxt,xr,gg,rt,st,md,mcf<750)
 
+
+def tsvama2n(stock,fast=3,slow=33):
+    ''' svama两线交叉
+        3,33
+        评估:总盈亏值=7730,交易次数=60  期望值=1882
+                总盈亏率(1/1000)=7730,平均盈亏率(1/1000)=128,盈利交易率(1/1000)=683
+                平均持仓时间=38,持仓效率(1/1000000)=3368
+                赢利次数=41,赢利总值=9038
+                亏损次数=19,亏损总值=1308
+                平盘次数=0
+        2005-200710    
+        评估:总盈亏值=5277,交易次数=63  期望值=932
+                总盈亏率(1/1000)=5277,平均盈亏率(1/1000)=83,盈利交易率(1/1000)=539
+                平均持仓时间=24,持仓效率(1/1000000)=3458
+                赢利次数=34,赢利总值=7882
+                亏损次数=29,亏损总值=2605
+        15,75
+        评估:总盈亏值=5460,交易次数=35  期望值=2260
+                总盈亏率(1/1000)=5460,平均盈亏率(1/1000)=156,盈利交易率(1/1000)=800
+                平均持仓时间=39,持仓效率(1/1000000)=4000
+                赢利次数=28,赢利总值=5949
+                亏损次数=7,亏损总值=489
+                平盘次数=0
+        
+
+        2005-200710
+        评估:总盈亏值=17073,交易次数=73 期望值=2505
+                总盈亏率(1/1000)=17073,平均盈亏率(1/1000)=233,盈利交易率(1/1000)=575
+                平均持仓时间=35,持仓效率(1/1000000)=6657
+                赢利次数=42,赢利总值=19968
+                亏损次数=31,亏损总值=2895
+                平盘次数=0
+
+    '''
+    t = stock.transaction
+    svap,v2i = stock.svap_ma_67_2
+    ma_svapfast = ma(svap,fast)
+    ma_svapslow = ma(svap,slow)
+    trend_ma_svapfast = strend(ma_svapfast) > 0
+    trend_ma_svapslow = strend(ma_svapslow) > 0
+    cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
+
+    ss = cross_fast_slow
+    msvap = transform(ss,v2i,len(t[VOLUME]))
+    linelog('%s:%s' % (tsvama2.__name__,stock.code))
+
+    linelog('%s:%s' % (tsvama2.__name__,stock.code))
+    
+    #thumb = gand(stock.g5>stock.g60,stock.g20 >= stock.g60,stock.g60 >= stock.g120,stock.g120 >= stock.g250,stock.g20<8000)
+    xatr = stock.atr * BASE / t[CLOSE]
+    mxatr = ma(xatr,13)
+    xr = gand(xatr<mxatr)
+
+    vma_s = ma(t[VOLUME],7)
+    vma_l = ma(t[VOLUME],30)
+
+    rt = gor(stock.ref.t1,stock.ref.t2,stock.ref.t3,stock.ref.t4,strend(stock.ref.diff-stock.ref.dea)>2)
+
+    hsl = t[VOLUME]*1000/stock.ag
+
+    cf = (t[OPEN]-t[LOW] + t[HIGH]-t[CLOSE])*1000 / (t[HIGH]-t[LOW])   #向下的动力  
+    mcf = ma(cf,7)
+
+    md = gand(strend(stock.diff-stock.dea)>1)
+
+    #signal = gand(gor(sfollow(msvap,stock.hup,5),sfollow(stock.hup,msvap,5)),stock.xup)
+
+    return gand(msvap,stock.magic,stock.above,xr,rt,hsl<10000,vma_s<vma_l,mcf<900)
+
+
+def ldxx(stock,mlen=60): #low down xcross 
+    ''' 
+        2008-201004
+        评估:总盈亏值=27462,交易次数=224        期望值=1876
+                总盈亏率(1/1000)=27462,平均盈亏率(1/1000)=122,盈利交易率(1/1000)=732
+                平均持仓时间=36,持仓效率(1/1000000)=3388
+                赢利次数=164,赢利总值=31385
+                亏损次数=60,亏损总值=3923
+                平盘次数=0
+        
+        2005-200710
+        评估:总盈亏值=33155,交易次数=362        期望值=957
+                总盈亏率(1/1000)=33155,平均盈亏率(1/1000)=91,盈利交易率(1/1000)=397
+                平均持仓时间=24,持仓效率(1/1000000)=3791
+                赢利次数=144,赢利总值=53906
+                亏损次数=218,亏损总值=20751
+                平盘次数=0
+    
+    '''
+    linelog('%s:%s' % (tsvama3.__name__,stock.code))
+    t = stock.transaction
+    
+    ma_s = ma(t[CLOSE],mlen)
+    x2 = gand(cross(ma_s,t[LOW])< 0,t[CLOSE]>ma_s,t[VOLUME]>0,t[VOLUME]<rollx(t[VOLUME]))
+
+    xatr = stock.atr * BASE / t[CLOSE]
+    mxatr = ma(xatr,13)
+    #xr = gand(xatr>mxatr,mxatr>60)
+    xr = gand(xatr>30,strend(xatr-mxatr)<0)
+
+    ma6 = ma(t[CLOSE],250)
+
+    rt = gand(stock.ref.t1,stock.ref.t3,gor(stock.ref.t4,stock.ref.t5,strend(ma6)>0))
+
+    hsl = t[VOLUME]*1000/stock.ag
+
+    gg = gand(stock.g5<5000,stock.g20<5000)
+
+    signal = gand(x2,hsl<2500,gg,rt,xr)
+
+    return signal
+
+

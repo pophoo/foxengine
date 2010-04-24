@@ -78,17 +78,31 @@ def make_trade_signal_advanced(target,follow):
     s = np.sign(target - follow * 2) #卖出优先于买入，当日两者同时发生的话，仍然为卖出信号
     #print s.tolist()
     holdings = 0
-    for i in xrange(len_t):
-        cv = s[i]
+    
+    #for i in xrange(len_t):
+    #    cv = s[i]
+    #    if cv > 0:
+    #        holdings += 1
+    #    elif cv < 0 and holdings == 0:  #空仓忽略卖出信号
+    #       s[i] = 0
+    #    elif cv < 0 and holdings > 0:  #持仓则发出卖出信号，是否一次卖出由match_trade确定
+    #        s[i] = cv    #不是cv * holdings，这里不应该出现量的信息
+    #        holdings = 0
+    #    else:   #cv==0不变
+    #        pass
+    #   修改后，速度能加快很多
+    #nz = np.where(s!=0)[0]
+    nz = s.nonzero()[0]
+    cnz = s[nz]
+    for i in range(len(cnz)):
+        cv = cnz[i]
         if cv > 0:
-            holdings += 1
-        elif cv < 0 and holdings == 0:  #空仓忽略卖出信号
-            s[i] = 0
-        elif cv < 0 and holdings > 0:  #持仓则发出卖出信号，是否一次卖出由match_trade确定
-            s[i] = cv    #不是cv * holdings，这里不应该出现量的信息
+            holdings += 1 
+        elif cv<0 and holdings == 0:
+            s[nz[i]]= 0
+        elif cv<0 and holdings > 0:
+            s[nz[i]] = cv
             holdings = 0
-        else:   #cv==0不变
-            pass
     #logger.debug('target:%s',target.tolist())
     #logger.debug('follow:%s',follow.tolist())
     #logger.debug('result:%s',s.tolist())    

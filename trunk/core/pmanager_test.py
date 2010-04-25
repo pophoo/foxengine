@@ -314,7 +314,7 @@ class PositionManagerTest(unittest.TestCase):
         self.assertEquals(1,len(pm.vhistory))
 
     def test_cur_limit(self):
-        pm = PositionManager()
+        pm = PositionManager(max_proportion=333)
         self.assertEquals(33300000,pm.cur_limit())
         pm.init_size = 10000
         pm.earning = 2000
@@ -328,7 +328,7 @@ class PositionManagerTest(unittest.TestCase):
         self.assertEquals(1500,pm.cur_limit())
         
     def test_cur_risk(self):
-        pm = PositionManager()
+        pm = PositionManager(risk=10)
         self.assertEquals(1000000,pm.cur_risk())
         pm.init_size = 10000
         pm.earning = 2000
@@ -385,7 +385,7 @@ class PositionManagerTest(unittest.TestCase):
         #self.assertEquals(4,len(mts))
 
     def test_run(self):
-        pm = PositionManager()
+        pm = PositionManager(risk=10)
         #空路径
         pm.run([])
         self.assertEquals([],pm.position.history)
@@ -412,7 +412,7 @@ class PositionManagerTest(unittest.TestCase):
         self.assertEquals(101664000,pm.vhistory[2].value)   #挣2000，税176
 
     def test_run_with_advancedposition(self):
-        pm = PositionManager(position=AdvancedPosition)
+        pm = PositionManager(position=AdvancedPosition,risk=10)
         #空路径
         pm.run([])
         self.assertEquals([],pm.position.history)
@@ -444,7 +444,7 @@ class PositionManagerTest(unittest.TestCase):
         self.assertEquals(pm.earning,pm.cash-pm.init_size)
 
     def test_organize_net_array(self):
-        pm = PositionManager(position=AdvancedPosition)
+        pm = PositionManager(position=AdvancedPosition,risk=10)
         dm = DateManager(20010101,20010130)
         self.assertEquals([pm.init_size]*29,pm.organize_net_array(dm).tolist())
         vnext = pm.init_size+120000

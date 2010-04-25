@@ -328,8 +328,13 @@ def atr_seller(stock,buy_signal,stop_times=3*BASE/2,trace_times=2*BASE,covered=1
     trans = stock.transaction
     ssignal,down_limit = atr_sell_func(buy_signal,trans,stock.atr,stop_times,trace_times,covered,up_sector)
     stock.down_limit = down_limit
-    #ssignal = band(ssignal,sellconfirm2(stock.ksize,stock.ksign))  #低点改为close+low/2之后，不再确认
-    #print buy_signal - ssignal
+    ssignal = band(ssignal,sellconfirm2(stock.ksize,stock.ksign))
+    #哨兵，防止sellconfirm2的副作用，即一根下跌中继阳线导致不卖出.或已经卖出了，但不卖出而后上涨获益
+    #但是哨兵不能影响买入信号。只用于消除破底阳线后即刻破底的副作用(此时因为已经在down_limit下面了，不再触发常规的卖出操作)
+    guard = greater(greater(msum(greater(down_limit,(trans[CLOSE]+trans[LOW])/2),3),2),bor(buy_signal,rollx(buy_signal,-1)))  
+    #这里bor(buy_signal,rollx(buy_signal,-1))的原因是适应B1SX或B0SX的方式，对于B1，此处传入的buy_signal已经被右移了
+    ssignal = bor(ssignal,guard) 
+    #print guard
     return ssignal
 
 def atr_seller_factory(stop_times=3*BASE/2,trace_times=2*BASE,covered=10,up_sector=HIGH):

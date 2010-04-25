@@ -188,7 +188,7 @@ def MAX_DECLINE(xt,y):
 
 
 class PositionManager(object):  #只适合先买后卖，卖空和混合方式都要由子类定制run实现
-    def __init__(self,init_size=100000000,max_proportion=200,risk=8,calc_lost=ev_lost,position=Position):
+    def __init__(self,init_size=100000000,max_proportion=200,risk=6,calc_lost=ev_lost,position=Position):
         self.init_size = init_size     #现金,#以0.001元为单位
         self.max_proportion = max_proportion    #满足risk条件下单笔占总金额的最大占比(千分比)
         self.risk = risk    #每笔交易承担的风险占总金额的比例(千分比)
@@ -281,7 +281,7 @@ AdvancedATRPositionManager = fcustom(PositionManager,position=AdvancedPosition,c
 AdvancedATRPositionManager2000 = fcustom(PositionManager,position=AdvancedPosition,calc_lost=atr_lost_2000)
 
 class StepPositionManager(PositionManager):  #只适合先买后卖，卖空和混合方式都要由子类定制run实现
-    def __init__(self,dates,init_size=100000000,max_proportion=200,risk=8,calc_lost=ev_lost,position=Position):
+    def __init__(self,dates,init_size=100000000,max_proportion=200,risk=6,calc_lost=ev_lost,position=Position):
         PositionManager.__init__(self,init_size,max_proportion,risk,calc_lost,position)
         self.dates = dates
 

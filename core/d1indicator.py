@@ -237,7 +237,7 @@ def tracelimit(source,sup,sdown,signal,satr,stop_times,trace_times):
         source:首日估价。这个估价不是买入价，通常是开盘价+最低价/2。不能用收盘价，否则开盘最低到收盘涨停，同样会触发止损，而开盘涨停到收盘跌停，却不会触发
                用开盘价，则只有跌下去的时候会触发。 
         sup:上包线，为high或close
-        sdown: 触发线，若触发线<计算所得的limit，则说明已经卖出
+        sdown: 触发线，若触发线<计算所得的limit，则说明已经卖出. 建议用(close+low)/2
         signal:>0为有信号
         satr:atr线
         stop_times为止损时的atr倍数

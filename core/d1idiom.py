@@ -300,9 +300,11 @@ def atr_sell_func(sbuy,trans,satr,stop_times=3*BASE/2,trace_times=2*BASE,covered
         解决方法是downlimit延后一天,或者判断当日是否是此种情况。延后一天也有问题，即第一日问题（其down_limit未修正）
         目前的做法是以开盘+收盘/2即中间价为downlimit的起始基准
         这样，本函数只能使用于BXS1情况，不能适用于BXS0. 
+        目前低点采用low+close/2,而不是以前的low
     '''
     #down_limit = tmax(trans[HIGH] - satr * times / BASE,covered)    #最近covered天波动下限的最大值
-    down_limit = tracelimit((trans[OPEN]+trans[CLOSE])/2,trans[up_sector],trans[LOW],sbuy,satr,stop_times,trace_times) 
+    #down_limit = tracelimit((trans[OPEN]+trans[CLOSE])/2,trans[up_sector],trans[LOW],sbuy,satr,stop_times,trace_times) 
+    down_limit = tracelimit((trans[OPEN]+trans[CLOSE])/2,trans[up_sector],(trans[LOW]+trans[CLOSE])/2,sbuy,satr,stop_times,trace_times) 
     #sdown = equals(cross(down_limit,trans[LOW]),-1)     #触及
     sdown = under_cross(sbuy,down_limit,trans[LOW])
     #return band(sdown,sellconfirm(trans[OPEN],trans[CLOSE],trans[HIGH],trans[LOW])),down_limit
@@ -326,7 +328,7 @@ def atr_seller(stock,buy_signal,stop_times=3*BASE/2,trace_times=2*BASE,covered=1
     trans = stock.transaction
     ssignal,down_limit = atr_sell_func(buy_signal,trans,stock.atr,stop_times,trace_times,covered,up_sector)
     stock.down_limit = down_limit
-    ssignal = band(ssignal,sellconfirm2(stock.ksize,stock.ksign))
+    #ssignal = band(ssignal,sellconfirm2(stock.ksize,stock.ksign))  #低点改为close+low/2之后，不再确认
     #print buy_signal - ssignal
     return ssignal
 

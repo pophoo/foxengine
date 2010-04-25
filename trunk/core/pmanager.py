@@ -188,7 +188,7 @@ def MAX_DECLINE(xt,y):
 
 
 class PositionManager(object):  #只适合先买后卖，卖空和混合方式都要由子类定制run实现
-    def __init__(self,init_size=100000000,max_proportion=333,risk=10,calc_lost=ev_lost,position=Position):
+    def __init__(self,init_size=100000000,max_proportion=200,risk=8,calc_lost=ev_lost,position=Position):
         self.init_size = init_size     #现金,#以0.001元为单位
         self.max_proportion = max_proportion    #满足risk条件下单笔占总金额的最大占比(千分比)
         self.risk = risk    #每笔交易承担的风险占总金额的比例(千分比)
@@ -242,15 +242,17 @@ class PositionManager(object):  #只适合先买后卖，卖空和混合方式�
             climit = self.cur_limit()
             crisk = self.cur_risk()
             if trade.tvolume > 0:   #买入
-                #print u'买入,before cash:',self.cash,'tstock:',trade.tstock
+                #print u'买入,before cash:',self.cash,'tstock:',trade.tstock,'tdate:',trade.tdate
                 self.cash += self.position.push(trade,self.calc_lost(trade),crisk,climit)
                 #print u'买入,after cash:',self.cash                
             else:   #卖出
+                #print u'卖出,before cash:',self.cash,'tstock:',trade.tstock,'tdate:',trade.tdate
                 income,cost = self.position.pop(trade)
                 if income:  #非空转
                     self.cash += income
                     self.earning += (income + cost)
-                    self.vhistory.append(BaseObject(date=trade.tdate,value=self.assets()))
+                    self.vhistory.append(BaseObject(date=int(trade.tdate),value=self.assets()))
+                #print u'卖出,after cash:',self.cash
 
     def calc_net_indicator(self,date_manager,func=RPR): 
         xt = np.arange(len(date_manager))    #x轴
@@ -271,13 +273,15 @@ class PositionManager(object):  #只适合先买后卖，卖空和混合方式�
         rev = extend2next(rev)
         return rev
 
+    def net_history(self):
+        return [ (bo.date,bo.value) for bo in self.vhistory]
 
 AdvancedPositionManager = fcustom(PositionManager,position=AdvancedPosition)
 AdvancedATRPositionManager = fcustom(PositionManager,position=AdvancedPosition,calc_lost=atr_lost_1200) #默认1.2倍atr止损
 AdvancedATRPositionManager2000 = fcustom(PositionManager,position=AdvancedPosition,calc_lost=atr_lost_2000)
 
 class StepPositionManager(PositionManager):  #只适合先买后卖，卖空和混合方式都要由子类定制run实现
-    def __init__(self,dates,init_size=100000000,max_proportion=333,risk=10,calc_lost=ev_lost,position=Position):
+    def __init__(self,dates,init_size=100000000,max_proportion=200,risk=8,calc_lost=ev_lost,position=Position):
         PositionManager.__init__(self,init_size,max_proportion,risk,calc_lost,position)
         self.dates = dates
 
@@ -308,7 +312,7 @@ class StepPositionManager(PositionManager):  #只适合先买后卖，卖空和�
             while tcur.idate == i:
                 if tcur.tvolume>0:
                     holding[tcur.stock] = [tcur.stock,tcur.tprice,int(tcur.stock.atr2[i]),tcur]
-                elif tcur.tvolume<0 and tcur.tstock in holding:
+                elif tcur.tvolume<0 and tcur.stock in holding:
                     #print 'del:',tcur.tdate
                     del holding[tcur.stock]
                 ti += 1
@@ -319,8 +323,8 @@ class StepPositionManager(PositionManager):  #只适合先买后卖，卖空和�
                 break
         trades[0:0]= new_trades #插入到前面,以便如果B/S同时出现,B排序在前面
         trades.sort(cmp=lambda x,y:x.tdate-y.tdate)
-        #return trades
-        return [trade.copy() for trade in trades]
+        #for trade in trades:print trade
+        return trades
 
 AdvancedStepPositionManager = fcustom(StepPositionManager,position=AdvancedPosition)
 AdvancedATRStepPositionManager = fcustom(StepPositionManager,position=AdvancedPosition,calc_lost=atr_lost_1200) #默认1.2倍atr止损

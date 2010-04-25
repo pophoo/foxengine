@@ -70,6 +70,7 @@ def evaluate_all(tradess,pos_manager,date_manager):
     pos_manager.clear() 
 
     g_ev = gevaluate([BaseObject(evaluation=pre_ev,trades=tradess)],date_manager.date_map,pos_manager.filter)
+
     rev = BaseObject(RPR=pos_manager.calc_net_indicator(date_manager)
             ,CSHARP=pos_manager.calc_net_indicator(date_manager,CSHARP)
             ,AVGRANGE=pos_manager.calc_net_indicator(date_manager,AVG_DECLINE)
@@ -78,6 +79,7 @@ def evaluate_all(tradess,pos_manager,date_manager):
             ,income_rate = pos_manager.income_rate()
             ,pre_ev = pre_ev.copy_header()
             ,g_ev = g_ev.copy_header()
+            ,history = str(pos_manager.net_history())
             )
 
     #print 'types:',type(rev.RPR),type(rev.CSHARP),type(rev.AVGRANGE)

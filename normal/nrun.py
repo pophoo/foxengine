@@ -557,6 +557,7 @@ def run_body(sdata,dates,begin,end,xbegin):
 
     #pman = AdvancedATRPositionManager()
     pman = AdvancedATRStepPositionManager2000(dates)
+    #pman = AdvancedATRStepPositionManager2000(dates,risk=4)
     dman = XDateManager(dates)
     myMediator=nmediator_factory(trade_strategy=B1S1,pricer = oo_pricer)
     seller1200 = atr_xseller_factory(stop_times=1200,trace_times=3000)

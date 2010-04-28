@@ -8478,3 +8478,7 @@ insert into dune_powerinfo(tstock_id,register_day,execute_day,fhbl,sgbl,pgbl,pgj
 insert into dune_powerinfo(tstock_id,register_day,execute_day,fhbl,sgbl,pgbl,pgj,zfs,zfj,jjs,day_state,hour_state,m5_state) values(1826,20100331,20100401,270,0,0,0,0,0,0,0,0,0)
 insert into dune_powerinfo(tstock_id,register_day,execute_day,fhbl,sgbl,pgbl,pgj,zfs,zfj,jjs,day_state,hour_state,m5_state) values(1831,20100331,20100401,380,0,0,0,0,0,0,0,0,0)
 
+
+#2010-04-28
+1000:
+184705:     xudj

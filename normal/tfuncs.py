@@ -2940,3 +2940,60 @@ def ldxx(stock,mlen=60): #low down xcross
     return signal
 
 
+def rebeat(stock):
+    ''' 
+        超跌
+    '''
+    linelog('%s:%s' % (rebeat.__name__,stock.code))    
+    t = stock.transaction
+    
+    gaps = msum2(t[HIGH]<rollx(t[LOW]),30)  #x天内的下行缺口数
+
+    ldown = t[CLOSE] * 1000 / tmax(t[HIGH],60) #y天内的价格幅度
+    sdown = t[CLOSE] * 1000 / tmax(t[HIGH],7) #z天内的价格幅度
+
+    signal = gand(gaps>3,ldown<600,sdown<800,stock.ref.t1>0)   #715=1000/(1+0.4),870=1000(1+.15)
+
+    dc = gand(cross(stock.dea,stock.diff)>0,strend(stock.diff)>0)
+
+    signal = sfollow(signal,dc,7)
+    return signal
+
+def rebeat2(stock):
+    ''' 
+        超跌反弹
+    '''
+    linelog('%s:%s' % (rebeat2.__name__,stock.code))    
+    t = stock.transaction
+    
+    gaps = msum2(t[HIGH]<rollx(t[LOW]),30)  #x天内的下行缺口数
+
+    ldown = tmin(t[CLOSE],30) * 1000 / tmax(t[CLOSE],30) #y天内的价格幅度
+    sdown = tmin(t[CLOSE],7) * 1000 / tmax(t[CLOSE],7) #z天内的价格幅度
+    sup = t[CLOSE] * 1000 / tmin(t[CLOSE],7)
+    
+    signal = gand(gaps>3,ldown<600,sup>1080)   #715=1000/(1+0.4),870=1000(1+.15)
+
+    return signal
+
+def rebeat3(stock):
+    ''' 
+        超跌>大盘跌幅
+    '''
+    linelog('%s:%s' % (rebeat.__name__,stock.code))    
+    t = stock.transaction
+    
+    if 'ldown' not in stock.ref.__dict__:
+        stock.ref.ldown = stock.ref.transaction[CLOSE] * 1000 / tmax(stock.ref.transaction[HIGH],30)
+        stock.ref.sdown = stock.ref.transaction[CLOSE] * 1000 / tmax(stock.ref.transaction[HIGH],17)
+
+    ldown = t[CLOSE] * 1000 / tmax(t[HIGH],30) #y天内的价格幅度
+    sdown = t[CLOSE] * 1000 / tmax(t[HIGH],7) #z天内的价格幅度
+
+    rl = ldown - stock.ref.ldown
+    rs = sdown - stock.ref.sdown
+
+    signal = gand(ldown<715,sdown<850,rl<-150,rs<-100)   #715=1000/(1+0.4),870=1000(1+.15)
+
+    return signal
+

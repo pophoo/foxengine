@@ -8482,3 +8482,13 @@ insert into dune_powerinfo(tstock_id,register_day,execute_day,fhbl,sgbl,pgbl,pgj
 #2010-04-28
 1000:
 184705:     xudj
+
+#2010-05-04
+小时macd大于0之后的第一次上叉? 上叉成功的时候macd大于0
+
+#1000:
+000755: mxru
+
+#2010-05-05
+#1000:
+600501: xru0

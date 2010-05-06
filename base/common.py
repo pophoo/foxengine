@@ -12,6 +12,7 @@ class Trade(object):
         self.tprice = tprice if tprice > 0 else 1 #避免除权除成负/0的出现(会影响仓位计算) 600497,200509以前情形
         self.taxrate = taxrate
         self.set_volume(tvolume)
+        self.type = 'native'    #内生的，区别于后面的追加
 
     def copy(self):
         return ccopy(self)

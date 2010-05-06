@@ -7,7 +7,7 @@ from numpy import select
 from wolfox.fengine.core.shortcut import *
 from wolfox.fengine.normal.funcs import *
 from wolfox.fengine.core.d1 import lesser,bnot,gmax,gmin
-from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,scover,xfollow
+from wolfox.fengine.core.d1ex import tmax,derepeatc,derepeatc_v,equals,msum,scover,xfollow,rsum,hour2day
 from wolfox.fengine.core.d1match import *
 from wolfox.fengine.core.d1idiom import *
 from wolfox.fengine.core.d1indicator import cmacd,score2
@@ -657,5 +657,87 @@ def up_seller_old(stock,buy_signal,xup=200,**kwargs):
     stock.sellprice = sprice
     #print buy_signal-ss
     return ss2
+
+def fup60(stock):
+    '''
+        60分钟从负数上来的第一次上叉
+        #或从负数上来的成功地第一次上叉(不到5个周期就下叉计作失败)
+    '''
+    t = stock.transaction
+    linelog('%s:%s' % (fup60.__name__,stock.code))
+
+    hzero =  cached_zeros(len(stock.hour))
+    
+    pdiff,pdea = cmacd(stock.hour)
+    
+    cross0 = cross(hzero,pdiff)
+
+    ucross = gand(cross(pdea,pdiff)>0)
+
+    xsum1 = rsum(ucross,cross0)  #此时，第一个cross>0和第二个之间的位置被填满1
+    xsum = rsum(xsum1,cross0)   #此时，只有第一个发生位为1
+    
+
+    signal = gand(equals(xsum,1),pdiff>0)
+
+    return hour2day(signal)
+
+
+def fup60b(stock):
+    '''
+        60分钟从负数上来的有失败上叉先导的第一次成功上叉
+    '''
+    t = stock.transaction
+    linelog('%s:%s' % (fup60.__name__,stock.code))
+
+    hzero =  cached_zeros(len(stock.hour))
+    
+    pdiff,pdea = cmacd(stock.hour)
+    
+    cross0 = cross(hzero,pdiff)
+
+    udcross = cross(pdea,pdiff)
+
+    #失败上叉：最近5个周期内被下叉信号抵消，或者最近5个周期内出现第二个上叉信号(导致msum仍然>0)
+    fcross = gand(udcross>0,gor(rollx(msum(udcross,5),-5)==0,rollx(msum(udcross>0,5),-5)>1))
+
+    ucross = gand(udcross>0,pdiff>0,bnot(fcross))
+
+    xsum1 = rsum(ucross,cross0)  #此时，第一个cross>0和第二个之间的位置被填满1
+    xsum = rsum(xsum1,cross0)   #此时，只有第一个发生位为1
+
+    signal = gand(equals(xsum,1),pdiff>0)
+
+    return hour2day(signal)
+
+
+def fupf(stock):
+    '''
+        本次上叉比上次上叉的位置高，同时价格也高
+    '''
+
+    t = stock.transaction
+    linelog('%s:%s' % (fupf.__name__,stock.code))
+
+    pdiff,pdea = cmacd(stock.hour)
+
+    upcross2 = gand(cross(pdea,pdiff)>0,strend(pdiff)>0)
+
+    dsub = rsub(pdea,upcross2)
+    #csub = rsub(stock.hour,upcross2)
+    #ssub = rsub(rollx(strend(pdea)),upcross2)   #上叉前一天的strend(pdea)
+
+    vz = tmax(np.abs(pdiff),60) / 5 #pdiff不能超过0线太高
+
+    hsignal = gand(dsub>0,pdiff<vz)
+
+
+    xatr = stock.atr * BASE / t[CLOSE]
+    mxatr = ma(xatr,13)
+    xr = gand(xatr<50,xatr<mxatr)
+
+    signal = gand(hour2day(hsignal),strend(stock.diff)>0,xr)
+
+    return signal
 
 

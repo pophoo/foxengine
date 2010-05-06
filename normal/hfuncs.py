@@ -82,7 +82,7 @@ def prepare_hmacd(stock):
     upcross2 = gand(cross(pdea,pdiff)>0,strend(pdiff)>0)
     dsub = rsub(pdiff,upcross2)
     csub = rsub(stock.hour,upcross2)
-    stock.hdev = hour2day(band(greater(dsub),lesser(csub)))
+    stock.hdev = hour2day(band(greater(dsub),lesser(csub))) #小时线背离
     stock.mup_100 = hour2day(gand(pdiff>pdea,pdiff<100,strend(pdiff)>0,strend(pdea)>0))
     #stock.hgreater = hour2day4(pdiff>pdea)
     stock.xup = hour2day(gand(pdiff>pdea,strend(pdiff)>0,strend(pdea)>0))

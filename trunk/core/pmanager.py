@@ -107,8 +107,12 @@ class AdvancedPosition(Position):
             risk是能够承担的风险值,以0.001元表示
             size_limit为上限交易额,也以0.001元表示
         '''
-        if trade.tstock not in self.holdings:   
-            return Position.push(self,trade,lostavg,risk,size_limit)
+        if trade.tstock not in self.holdings:
+            if trade.type == 'native':   
+                return Position.push(self,trade,lostavg,risk,size_limit)
+            else:#前面的没开仓，不应该再买进
+                trade.set_volume(0)
+                return 0
         tolds = self.holdings[trade.tstock]
         #print tolds
         direct = 1 if tolds[0].tvolume >= 0 else -1  #1买入-1卖出
@@ -307,6 +311,7 @@ class StepPositionManager(PositionManager):  #只适合先买后卖，卖空和�
                     trade = Trade(base.tstock,int(self.dates[i]),int(hold[0].transaction[OPEN][i]),tvolume,base.taxrate)
                     trade.stock = base.stock
                     trade.atr = int(base.stock.atr2[i])
+                    trade.type = 'append'
                     new_trades.append(trade)
                     holding[hold[0]][1] = hold[1] + hold[2] #更改起始价格
             while tcur.idate == i:

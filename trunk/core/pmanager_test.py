@@ -239,6 +239,13 @@ class AdvancePositionTest(unittest.TestCase):
         self.assertEquals(1,len(relative_trades))
         self.assertEquals(trade,relative_trades[0])
 
+    def test_push_append(self):
+        p = AdvancedPosition()
+        trade = Trade(0,20010101,10000,1)
+        trade.type = 'append'
+        p.push(trade,10,1000000,9999999000)
+        self.assertEquals(0,len(p.holdings))
+
     def test_push_multi(self):
         p = AdvancedPosition()
         trade1 = Trade(0,20010101,10000,1)
@@ -283,6 +290,8 @@ class AdvancePositionTest(unittest.TestCase):
         p.push(trade4,10,1000000,9999999000)                
         p.pop(trade5)
         self.assertTrue(trade1.tstock not in p.holdings)
+
+
 
 
 class PositionManagerTest(unittest.TestCase):

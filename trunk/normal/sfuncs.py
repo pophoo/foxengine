@@ -2277,3 +2277,45 @@ def ldxx(stock,mlen=60): #low down xcross
     return signal
 
 
+def pmacd2(stock):
+    '''
+        评估:总盈亏值=32018,交易次数=227        期望值=1855
+                总盈亏率(1/1000)=32018,平均盈亏率(1/1000)=141,盈利交易率(1/1000)=700
+                平均持仓时间=32,持仓效率(1/1000000)=4406
+                赢利次数=159,赢利总值=37191
+                亏损次数=68,亏损总值=5173
+                平盘次数=0
+
+    '''
+    t = stock.transaction
+    pdiff,pdea = stock.diff,stock.dea
+
+    adiff = ma(np.abs(pdiff),30)
+
+    dcross = gand(cross(pdea,pdiff),strend(pdiff)>0,pdiff<adiff*1/2,pdiff>-adiff*1/2)
+    linelog(stock.code)
+    #return gand(dcross,stock.golden,stock.above,cs,pdea>0,pdea<12000)
+    ssignal = dcross
+
+    up2 = gand(greater(t[CLOSE],rollx(t[CLOSE])*1015/1000),lesser(t[CLOSE],rollx(t[CLOSE])*1033/1000))
+
+    gfilter = gand(stock.ref.mfilter)
+
+    sfilter = gand(gor(stock.t1,stock.t2,stock.t3))
+
+    xatr = stock.atr * BASE / t[CLOSE]
+    mxatr = ma(xatr,13)
+    xfilter = gand(xatr<mxatr,xatr>40,xatr<60)
+
+    vma_s = ma(t[VOLUME],13)
+    vma_l = ma(t[VOLUME],30)
+
+    vfilter = gand(vma_s > vma_l * 1/2,vma_s < vma_l)
+
+    zfilter = gand(stock.ma1 > stock.ma2,t[CLOSE]>stock.ma1,t[CLOSE]>stock.ma3,t[CLOSE]>stock.ma4,stock.g20<5000,stock.g20>1000)
+
+
+    signal = gand(ssignal,up2,gfilter,sfilter,xfilter,vfilter,zfilter)
+
+    return gand(signal)
+

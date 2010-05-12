@@ -75,8 +75,10 @@ def stop_config(stock,shigh,slow):
 def prepare_hmacd(stock):
     #linelog('prepare hmacd:%s' % stock.code)    
     pdiff,pdea = cmacd(stock.hour)
-    upcross = gand(cross(pdea,pdiff)>0,strend(pdiff)>0,pdiff<100) #<100才保险
+    upcross_t = gand(cross(pdea,pdiff)>0,strend(pdiff)>0)     
+    upcross = gand(upcross_t,pdiff<100) #<100才保险
     downcross = gand(cross(pdea,pdiff)<0,strend(pdiff)<0) 
+    stock.hup_t = hour2day(upcross_t)
     stock.hup = hour2day(upcross)
     stock.hdown = hour2day(downcross)
     upcross2 = gand(cross(pdea,pdiff)>0,strend(pdiff)>0)

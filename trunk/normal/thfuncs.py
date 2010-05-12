@@ -734,10 +734,68 @@ def fupf(stock):
 
     xatr = stock.atr * BASE / t[CLOSE]
     mxatr = ma(xatr,13)
-    xr = gand(xatr<50,xatr<mxatr)
+    xr = gand(xatr<50,xatr<mxatr)#,strend(xatr-mxatr)<0)
 
-    signal = gand(hour2day(hsignal),strend(stock.diff)>0,xr)
+    nd = bnot(gand(stock.ma1<stock.ma2,stock.ma2<stock.ma3))
+
+    rt = gand(stock.ref.t3)
+
+    vma_s = ma(t[VOLUME],13)
+    vma_l = ma(t[VOLUME],30)
+
+    vfilter = vma_s < vma_l * 3/4
+
+    gr = gand(stock.g20<3000,stock.g20>stock.g60,stock.g60>stock.g120)
+
+    signal = gand(hour2day(hsignal),strend(stock.diff)>0,xr,rt,nd,vfilter,gr)
 
     return signal
+
+
+
+
+def heff(stock):
+    ''' 效果不平衡
+        0501-0909
+        评估:总盈亏值=35014,交易次数=178        期望值=2684
+                总盈亏率(1/1000)=35014,平均盈亏率(1/1000)=196,盈利交易率(1/1000)=612
+                平均持仓时间=32,持仓效率(1/1000000)=6125
+                赢利次数=109,赢利总值=40100
+                亏损次数=69,亏损总值=5086
+                平盘次数=0
+        0711-0909
+        评估:总盈亏值=17918,交易次数=63 期望值=4437
+                总盈亏率(1/1000)=17918,平均盈亏率(1/1000)=284,盈利交易率(1/1000)=809
+                平均持仓时间=43,持仓效率(1/1000000)=6604
+                赢利次数=51,赢利总值=18686
+                亏损次数=12,亏损总值=768
+                平盘次数=0
+
+    '''
+    linelog(stock.code)
+    t = stock.transaction    
+    ef = efficient_rate(stock.hour)
+    zx = cached_zeros(len(stock.hour))
+    efz = hour2day(gand(cross(zx,ef)>0,strend(ef)>0))
+    vma = ma(t[VOLUME],30)
+    svma = ma(t[VOLUME],3)
+    vfilter = gand(svma<vma*3/4,t[VOLUME]<vma)
+    cf = (t[OPEN]-t[LOW] + t[HIGH]-t[CLOSE])*1000 / (t[HIGH]-t[LOW])   #向下的动力  
+    mcf = ma(cf,7) 
+
+    refn = gand(stock.ref.ma0<stock.ref.ma1,stock.ref.ma1<stock.ref.ma2,bnot(stock.ref.t0),bnot(stock.ref.t1),bnot(stock.ref.t2))
+    sup = gand(stock.ma0>stock.ma1,stock.ma1>stock.ma2,stock.t1,stock.t2)
+
+    s1 = gand(efz,bor(bnot(refn),sup))
+    s2 = sfollow(efz,bnot(refn),10)
+    ss = bor(s1,s2)
+    s = stock
+    magic = gand(s.g20 >= s.g60,s.g60 >= s.g120,s.g120 >= s.g250,s.g5>s.g20,s.g20<=8000)
+    xatr = stock.atr * BASE / t[CLOSE]     
+
+    #signal = gand(ss,stock.above,stock.t5,stock.t4,magic,vfilter,mcf<1000)
+    signal = gand(ss,stock.above,stock.t5,stock.t4,magic,vfilter,mcf<1000,xatr>40,stock.ma1>stock.ma3,stock.diff<stock.dea)
+    return signal
+
 
 

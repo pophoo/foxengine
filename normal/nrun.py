@@ -171,6 +171,7 @@ def prepare_configs_best(seller,pman,dman):
 
     configs.append(config(buyer=fcustom(s.tsvama2n,slow=33,fast=3)))
 
+    configs.append(config(buyer=s.pmacd2))
 
     return configs
 
@@ -636,6 +637,7 @@ def prepare_next(sdata,idata,catalogs,dates,i_cofw):
     prepare_common(sdata.values(),ref,dates,i_cofw)   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
     prepare_common(idata.values(),ref,dates,i_cofw)   #准备ma10/20/60/120,golden,silver,vap_pre,svap_ma
     prepare_common_catalog(catalogs,ref,dates,i_cofw)
+    ref.mfilter = gor(ref.diff>ref.dea,gand(ref.diff<ref.dea,strend(ref.diff-ref.dea)>1,strend(ref.diff)>1))
     prepare_index(idata[1])
     dummy_catalogs('catalog',catalogs)
     ref.sud = sud(sdata.values(),distance=10)

@@ -1098,7 +1098,11 @@ def mxru(stock,astart=40):
     #vfilter = gand(svma>vma*1/3,svma<vma*7/8)
     vfilter = gand(svma<vma*7/8,svma>vma/2,t[VOLUME]<=vma,t[VOLUME]>vma*2/3,t[CLOSE]>stock.ma1) #cf无效果
     xatr = stock.atr * BASE / t[CLOSE]     
-    signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5,xatr>=astart)
+
+    xfilter = gor(stock.ref.mfilter,stock.ref.ma1>stock.ref.ma2,stock.ref.ma2>stock.ref.ma3,strend(stock.ref.ma1)>0,strend(stock.ref.ma3)>0,strend(stock.ref.ma2)>0)
+
+
+    signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5,xatr>=astart,xfilter)
     linelog(stock.code)
     return signal
 
@@ -1114,7 +1118,9 @@ def mxru3(stock,astart=50):
     cf = (t[CLOSE]-t[LOW])*1000 / (t[HIGH]-t[LOW]) < 900    #物极必反, 如果是大阳线，不能收高
     vfilter = gand(svma<vma*7/8,svma>vma/2,t[VOLUME]<=vma,t[CLOSE]>stock.ma1,cf)
     xatr = stock.atr * BASE / t[CLOSE]     
-    signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5,xatr>=astart)
+    xfilter = gor(stock.ref.mfilter,stock.ref.ma1>stock.ref.ma2,stock.ref.ma2>stock.ref.ma3,strend(stock.ref.ma1)>0,strend(stock.ref.ma3)>0,strend(stock.ref.ma2)>0)
+    
+    signal = gand(mxc,vfilter,stock.thumb,stock.above,strend(stock.ma4)>0,stock.t5,xatr>=astart,xfilter)
     linelog(stock.code)
     return signal
 
@@ -1280,7 +1286,9 @@ def xud(stock,xfunc=xc0s,astart=45):
     s=stock
     thumb = gand(s.g20>=3000,s.g20<=8000)
 
-    signal = gand(mxc,vfilter,thumb,stock.above,stock.t5,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st)#,mcf>1000)
+    xfilter = gor(stock.ref.mfilter,stock.ref.ma1>stock.ref.ma2,stock.ref.ma2>stock.ref.ma3,strend(stock.ref.ma1)>0,strend(stock.ref.ma3)>0)
+
+    signal = gand(mxc,vfilter,thumb,stock.above,stock.t5,stock.ma1<stock.ma2,stock.ma1>stock.ma3,st,xfilter)#,mcf>1000)
     linelog(stock.code)
     return signal
 
@@ -1796,8 +1804,11 @@ def eff(stock):
 
     xatr = stock.atr * BASE / t[CLOSE]     
 
+    xfilter = gor(stock.ref.mfilter,stock.ref.ma1>stock.ref.ma2,stock.ref.ma2>stock.ref.ma3,strend(stock.ref.ma1)>0,strend(stock.ref.ma3)>0,strend(stock.ref.ma2)>0)
+
+
     #signal = gand(ssa,stock.above,stock.t5,stock.t4,magic,vfilter,mcf<1000)
-    signal = gand(ssa,stock.above,stock.t5,stock.t4,magic,vfilter,mcf<1000,xatr>40,stock.diff<stock.dea,strend(stock.diff-stock.dea)>0)
+    signal = gand(ssa,stock.above,stock.t5,stock.t4,magic,vfilter,mcf<1000,xatr>40,stock.diff<stock.dea,strend(stock.diff-stock.dea)>0,xfilter)
     return signal
 
 ###以下为小时线应用
@@ -1957,7 +1968,7 @@ def uinfunc3c(wline,base,len1,len2,len3):
 
 
 def uplain3(stock,lens,infunc=uinfunc3a):
-    '''
+    ''' 20070101,20080101,20191201
         buyer=fcustom(t.uplain3,lens=(7,13,30))     #
         评估:总盈亏值=2382,交易次数=19  期望值=3676
                 总盈亏率(1/1000)=2382,平均盈亏率(1/1000)=125,盈利交易率(1/1000)=894
@@ -1965,7 +1976,6 @@ def uplain3(stock,lens,infunc=uinfunc3a):
                 赢利次数=17,赢利总值=2416
                 亏损次数=1,亏损总值=34
                 平盘次数=1
-
         buyer=fcustom(t.uplain3,lens=(3,7,13))      
         评估:总盈亏值=2065,交易次数=15  期望值=2537
                 总盈亏率(1/1000)=2065,平均盈亏率(1/1000)=137,盈利交易率(1/1000)=733
@@ -1999,6 +2009,33 @@ def uplain3(stock,lens,infunc=uinfunc3a):
                 平盘次数=0
 
 
+        20040101,20050101,20071031
+        name:Mediator:<uplain3:lens=(7, 13, 30):seller:make_trade_signal_advanced:B1S1>     ############
+        评估:总盈亏值=567,交易次数=6	期望值=723
+		总盈亏率(1/1000)=567,平均盈亏率(1/1000)=94,盈利交易率(1/1000)=666
+		平均持仓时间=22,持仓效率(1/1000000)=4272
+		赢利次数=4,赢利总值=828
+		亏损次数=2,亏损总值=261
+		平盘次数=0
+
+        name:Mediator:<uplain3:lens=(5, 13, 26):seller:make_trade_signal_advanced:B1S1>
+        评估:总盈亏值=-188,交易次数=5	期望值=-295
+		总盈亏率(1/1000)=-188,平均盈亏率(1/1000)=-38,盈利交易率(1/1000)=400
+		平均持仓时间=17,持仓效率(1/1000000)=-2236
+		赢利次数=2,赢利总值=200
+		亏损次数=3,亏损总值=388
+		平盘次数=0
+		闭合交易明细:        
+
+        name:Mediator:<uplain3:lens=(2, 5, 13):seller:make_trade_signal_advanced:B1S1>
+        评估:总盈亏值=-667,交易次数=8	期望值=-757
+		总盈亏率(1/1000)=-667,平均盈亏率(1/1000)=-84,盈利交易率(1/1000)=125
+		平均持仓时间=13,持仓效率(1/1000000)=-6462
+		赢利次数=1,赢利总值=113
+		亏损次数=7,亏损总值=780
+		平盘次数=0
+		闭合交易明细:        
+
     '''
     t = stock.transaction
     i_cofw = stock.i_cofw
@@ -2021,7 +2058,7 @@ def uplain3(stock,lens,infunc=uinfunc3a):
     ma6 = ma(t[CLOSE],250)
     bndown = bnot(gand(stock.ma5>stock.ma4,ma6>stock.ma5))
     linelog(stock.code)
-    return gand(signal,stock.t5,stock.golden,xatr<mxatr,stock.diff>stock.dea,dgd<11,f60,bndown)
+    return gand(signal,stock.t5,stock.golden,xatr<mxatr,stock.diff>stock.dea,dgd<11,f60,bndown,stock.ref.mfilter)
 
 def uplain32(stock,lens,infunc=uinfunc3a):
     '''
@@ -2093,6 +2130,49 @@ def uplain32(stock,lens,infunc=uinfunc3a):
                 亏损次数=2,亏损总值=113
                 平盘次数=0
 
+        20040101,20050101,20071031
+        name:Mediator:<uplain32:lens=(5, 10, 20),infunc=<function uinfunc3b at 0x01772430>:seller:make_trade_signal_advanced:B1S1>      ################
+        评估:总盈亏值=0,交易次数=0	期望值=1000
+		总盈亏率(1/1000)=0,平均盈亏率(1/1000)=0,盈利交易率(1/1000)=0
+		平均持仓时间=1,持仓效率(1/1000000)=0
+		赢利次数=0,赢利总值=0
+		亏损次数=0,亏损总值=0
+		平盘次数=0
+		闭合交易明细:        
+        
+        name:Mediator:<uplain32:lens=(3, 7, 13),infunc=<function uinfunc3b at 0x01772430>:seller:make_trade_signal_advanced:B1S1>
+        评估:总盈亏值=-131,交易次数=1	期望值=-1000
+		总盈亏率(1/1000)=-131,平均盈亏率(1/1000)=-131,盈利交易率(1/1000)=0
+		平均持仓时间=17,持仓效率(1/1000000)=-7706
+		赢利次数=0,赢利总值=0
+		亏损次数=1,亏损总值=131        
+
+        name:Mediator:<uplain32:lens=(4, 13, 27),infunc=<function uinfunc3b at 0x01772430>:seller:make_trade_signal_advanced:B1S1>
+        评估:总盈亏值=-131,交易次数=1	期望值=-1000
+		总盈亏率(1/1000)=-131,平均盈亏率(1/1000)=-131,盈利交易率(1/1000)=0
+		平均持仓时间=17,持仓效率(1/1000000)=-7706
+		赢利次数=0,赢利总值=0
+		亏损次数=1,亏损总值=131
+		平盘次数=0
+		闭合交易明细:        
+
+        name:Mediator:<uplain32:lens=(2, 5, 13),infunc=<function uinfunc3b at 0x01772430>:seller:make_trade_signal_advanced:B1S1>
+        评估:总盈亏值=-211,交易次数=2	期望值=-1010
+		总盈亏率(1/1000)=-211,平均盈亏率(1/1000)=-106,盈利交易率(1/1000)=0
+		平均持仓时间=17,持仓效率(1/1000000)=-6236
+		赢利次数=0,赢利总值=0
+		亏损次数=2,亏损总值=211
+		平盘次数=0
+		闭合交易明细:
+        
+        name:Mediator:<uplain32:lens=(3, 9, 27),infunc=<function uinfunc3b at 0x01772430>:seller:make_trade_signal_advanced:B1S1>
+        评估:总盈亏值=-131,交易次数=1	期望值=-1000
+		总盈亏率(1/1000)=-131,平均盈亏率(1/1000)=-131,盈利交易率(1/1000)=0
+		平均持仓时间=17,持仓效率(1/1000000)=-7706
+		赢利次数=0,赢利总值=0
+		亏损次数=1,亏损总值=131
+		平盘次数=0
+		闭合交易明细:
 
     '''
     t = stock.transaction
@@ -2117,7 +2197,8 @@ def uplain32(stock,lens,infunc=uinfunc3a):
     bndown = bnot(gand(stock.ma5>stock.ma4,ma6>stock.ma5))
 
     linelog(stock.code)
-    return gand(signal,stock.t5,stock.golden,xatr<mxatr,stock.diff>stock.dea,dgd<11,f60,bndown)
+    return gand(signal,stock.t5,stock.golden,xatr<mxatr,stock.diff>stock.dea,dgd<11,f60,bndown,stock.ref.mfilter)
+
 
 def uplain33(stock,lens,infunc=uinfunc3a):
     '''
@@ -2707,7 +2788,9 @@ def xud3(stock,xfunc=xc0s,astart=45):
 
     st2 = gand(strend(stock.dea)>=strend(stock.diff))
 
-    signal = gand(mxc,thumb,mst,xr,gt,st2)
+    xfilter = gor(stock.ref.mfilter,stock.ref.ma1>stock.ref.ma2,stock.ref.ma2>stock.ref.ma3,strend(stock.ref.ma1)>0,strend(stock.ref.ma3)>0,strend(stock.ref.ma2)>0)
+
+    signal = gand(mxc,thumb,mst,xr,gt,st2,xfilter)
     linelog(stock.code)
     return signal
 
@@ -2855,7 +2938,10 @@ def tsvama2n(stock,fast=3,slow=33):
 
     #signal = gand(gor(sfollow(msvap,stock.hup,5),sfollow(stock.hup,msvap,5)),stock.xup)
 
-    return gand(msvap,stock.magic,stock.above,xr,rt,hsl<10000,vma_s<vma_l,mcf<900)
+    xfilter = gor(stock.ref.mfilter,stock.ref.ma1>stock.ref.ma2,stock.ref.ma2>stock.ref.ma3,strend(stock.ref.ma1)>0,strend(stock.ref.ma3)>0,strend(stock.ref.ma2)>0)
+
+
+    return gand(msvap,stock.magic,stock.above,xr,rt,hsl<10000,vma_s<vma_l,mcf<900,xfilter)
 
 
 def tsvama3(stock,fast,mid,slow,follow=7):
@@ -2935,7 +3021,9 @@ def ldxx(stock,mlen=60): #low down xcross
 
     gg = gand(stock.g5<5000,stock.g20<5000)
 
-    signal = gand(x2,hsl<2500,gg,rt,xr)
+    xfilter = gor(stock.ref.mfilter,stock.ref.ma1>stock.ref.ma2,stock.ref.ma2>stock.ref.ma3,strend(stock.ref.ma1)>0,strend(stock.ref.ma3)>0,strend(stock.ref.ma2)>0)
+
+    signal = gand(x2,hsl<2500,gg,rt,xr,xfilter)
 
     return signal
 
@@ -2996,4 +3084,94 @@ def rebeat3(stock):
     signal = gand(ldown<715,sdown<850,rl<-150,rs<-100)   #715=1000/(1+0.4),870=1000(1+.15)
 
     return signal
+
+
+def xrebeat(stock,drop_range=300,covered=120):
+    ''' 
+        超跌drop_range以上的小时线反弹
+        1. covered日内跌幅超过drop_range
+        2. covered*2 日内跌幅不超过 drop_range * 1.2. 就是说不是二次超跌
+    '''
+
+    linelog('%s:%s' % (xrebeat.__name__,stock.code))    
+    t = stock.transaction
+
+    lmax = tmax(t[HIGH],covered)
+    lmax2 = tmax(t[HIGH],covered * 2)
+
+    line = lmax * (1000-drop_range) / 1000
+    line2 = lmax2 * (1000-drop_range*1.2) /1000
+
+    dcross = gand(cross(line,t[CLOSE])<0,t[CLOSE]>line2)
+
+    ssignal = sfollow(dcross,stock.hup_t,7)
+
+    xatr = stock.atr * BASE / t[CLOSE]
+    mxatr = ma(xatr,13)
+    #xr = gand(xatr>mxatr,mxatr>60)
+    #xr = gand(xatr<mxatr,xatr<30)
+
+    signal = gand(ssignal,stock.g20<2000)
+
+    return signal
+
+def pmacdh(stock):
+    linelog('%s:%s' % (pmacdh.__name__,stock.code))
+    t = stock.transaction
+
+    #ssignal = gand(stock.hup_t,stock.diff>stock.dea,strend(stock.diff-stock.dea)>0)
+
+    ssignal = sfollow(cross(stock.dea,stock.diff)>0,stock.hup_t,7)
+
+    bdown = gand(stock.ma1<stock.ma2,stock.ma2<stock.ma3,stock.ma3<stock.ma4,stock.t3<1,stock.t4<1)
+
+    xatr = stock.atr * BASE / t[CLOSE]
+    mxatr = ma(xatr,13)
+    xr = gand(xatr<mxatr,xatr<30)
+
+    signal = gand(ssignal,bnot(bdown),stock.golden,xr)
+
+    return signal
+
+def pmacd2(stock):
+    '''
+        评估:总盈亏值=32018,交易次数=227        期望值=1855
+                总盈亏率(1/1000)=32018,平均盈亏率(1/1000)=141,盈利交易率(1/1000)=700
+                平均持仓时间=32,持仓效率(1/1000000)=4406
+                赢利次数=159,赢利总值=37191
+                亏损次数=68,亏损总值=5173
+                平盘次数=0
+
+    '''
+    t = stock.transaction
+    pdiff,pdea = stock.diff,stock.dea
+
+    adiff = ma(np.abs(pdiff),30)
+
+    dcross = gand(cross(pdea,pdiff),strend(pdiff)>0,pdiff<adiff*1/2,pdiff>-adiff*1/2)
+    linelog(stock.code)
+    #return gand(dcross,stock.golden,stock.above,cs,pdea>0,pdea<12000)
+    ssignal = dcross
+
+    up2 = gand(greater(t[CLOSE],rollx(t[CLOSE])*1015/1000),lesser(t[CLOSE],rollx(t[CLOSE])*1033/1000))
+
+    gfilter = gand(stock.ref.mfilter)
+
+    sfilter = gand(gor(stock.t1,stock.t2,stock.t3))
+
+    xatr = stock.atr * BASE / t[CLOSE]
+    mxatr = ma(xatr,13)
+    xfilter = gand(xatr<mxatr,xatr>40,xatr<60)
+
+    vma_s = ma(t[VOLUME],13)
+    vma_l = ma(t[VOLUME],30)
+
+    vfilter = gand(vma_s > vma_l * 1/2,vma_s < vma_l)
+
+    zfilter = gand(stock.ma1 > stock.ma2,t[CLOSE]>stock.ma1,t[CLOSE]>stock.ma3,t[CLOSE]>stock.ma4,stock.g20<5000,stock.g20>1000)
+
+
+    signal = gand(ssignal,up2,gfilter,sfilter,xfilter,vfilter,zfilter)
+
+    return gand(signal)
 

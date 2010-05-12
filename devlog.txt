@@ -8492,3 +8492,51 @@ insert into dune_powerinfo(tstock_id,register_day,execute_day,fhbl,sgbl,pgbl,pgj
 #2010-05-05
 #1000:
 600501: xru0
+
+#2010-05-09
+待研究布林线和EMA-10日线
+
+ATR(20)的最低点后小时macd上行的情况
+
+基于大盘日macd的筛选:
+    1. diff>dea 或
+    2. diff<dea,但diff-dea趋势向上，且strend(diff)>1,即趋势向上超过1天（以过滤波动）
+    这两个条件都不具备时，抑制买入
+    当diff<dea时，或买入减1/3
+
+#2010-05-12
+
+30日跌幅排名
+
+
+
+for stock in sdata.values():
+    trans = stock.transaction
+    mhigh30 = t.tmax(trans[HIGH],30)
+    mrange = 1000 - trans[CLOSE] * 1000 / mhigh30
+    stock.range30 = mrange
+    
+
+2009-08-01 --> 2009-09-01
+dates[650] = 20090901
+
+srange0901 = []
+for stock in sdata.values():
+    srange0901.append((stock.code,stock.range30[650]))
+
+srange0901.sort(lambda x,y:int(y[1]-x[1]))   #逆序
+
+for st in srange0901:
+    print st[0],st[1]
+
+2010-04-12 --> 2010-05-12
+
+srange0512 = []
+for stock in sdata.values():
+    srange0512.append((stock.code,stock.range30[-1]))
+
+srange0512.sort(lambda x,y:int(y[1]-x[1]))   #逆序
+
+for st in srange0512:
+    print st[0],st[1]
+

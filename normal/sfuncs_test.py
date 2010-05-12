@@ -21,6 +21,7 @@ class ModuleTest(unittest.TestCase):    #通路测试
         g = np.array([randint(0,10000) for i in range(2000)])
         s = BaseObject(code='SH50TEST',zgb=10000000,ag=4000,transaction=trans,
                 atr=g,atr2=g,silver=g,g5=g,g20=g,g60=g,g120=g,g250=g,diff=g,dea=g,
+                mfilter = g,
                 ma0=g,ma1=g,ma2=g,ma3=g,ma4=g,ma5=g,t5=g,t4=g,t3=g,t2=g,t1=g,t0=g,above=g,golden=g,thumb=g,magic=g,
                 hour=shour,hmxc=g,xru3=g,xru=g,ma4_up=g,hup=g,hdown=g,hdev=g,mup_100=g,
                 svap_ma_67=(g,vi),svap_ma_67_2=(g,vi),
@@ -270,6 +271,11 @@ class ModuleTest(unittest.TestCase):    #通路测试
     def test_tsvama2n(self):
         sbuy = tsvama2n(self.stock)
         self.assertTrue(True)
+
+    def test_pmacd2(self):
+        sbuy = pmacd2(self.stock)
+        self.assertTrue(True)
+
 
 
 if __name__ == "__main__":

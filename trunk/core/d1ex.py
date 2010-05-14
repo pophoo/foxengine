@@ -515,6 +515,22 @@ def consecutive(source,value=1):
             #rev[i]默认值就是0
     return rev
 
+def devi(shigh,sdiff,regr=96):
+    '''
+        背离，是指shigh新高头部形成时，sdiff没有创相应周期的新高
+        shigh:高点序列
+        sdiff:macd的diff序列
+        regr:回撤比例
+    '''
+    xhigh = tmax(shigh,7)
+    xhighl = xhigh * regr/100
+    xhighA = gand(shigh < xhighl,rollx(shigh,6)<xhigh)
+    xhigh60 =tmax(shigh,60)
+    xdiff7 = tmax(sdiff,7)
+    xdiff60 = tmax(sdiff,60)
+    xdev = gand(xhighA,xhigh == xhigh60,xdiff7<xdiff60)
+    return xdev
+
 def swing(source,covered=1):    #波动幅度
     return swing2(source,source,covered)
 

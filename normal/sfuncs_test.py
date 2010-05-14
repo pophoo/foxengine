@@ -276,6 +276,17 @@ class ModuleTest(unittest.TestCase):    #通路测试
         sbuy = pmacd2(self.stock)
         self.assertTrue(True)
 
+    def test_b102(self):
+        sbuy = b102(self.stock)
+        self.assertTrue(True)
+
+    def test_b2(self):
+        sbuy = b2(self.stock)
+        self.assertTrue(True)
+
+    def test_b102b(self):
+        sbuy = b102b(self.stock)
+        self.assertTrue(True)
 
 
 if __name__ == "__main__":

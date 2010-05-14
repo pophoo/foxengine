@@ -8540,3 +8540,7 @@ srange0512.sort(lambda x,y:int(y[1]-x[1]))   #逆序
 for st in srange0512:
     print st[0],st[1]
 
+
+#2010-05-14
+10元以下个股跌破第二个整数关后的买入
+

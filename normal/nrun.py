@@ -139,6 +139,19 @@ def prepare_configs_1000(seller,pman,dman):
 
     return configs
 
+def prepare_configs_shortest(seller,pman,dman):
+    '''
+    ###??? 存疑但放宽
+    '''
+
+    config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
+    configs = []
+
+    configs.append(config(buyer=fcustom(s.b102)))
+    configs.append(config(buyer=fcustom(s.b102b)))    
+    configs.append(config(buyer=fcustom(s.b2)))
+
+    return configs
 
 def prepare_configs_best(seller,pman,dman):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
@@ -576,7 +589,7 @@ def run_body(sdata,dates,begin,end,xbegin):
     
     configs = prepare_configs_1000(seller2000,pman,dman)    
     configs.extend(prepare_configs_best(seller2000,pman,dman))        
-    
+    configs.extend(prepare_configs_shortest(seller2000,pman,dman))         
     
     #configs.extend(prepare_configs_normal(seller1200,pman,dman))    
     #configs.extend(prepare_configs_others(seller1200,pman,dman))    
@@ -684,7 +697,11 @@ def run_last(dates,sdata,idata,catalogs,begin,end,xbegin,lbegin=0):
     configs_best = prepare_configs_best(seller2000,pman,dman)
     dtrades_best = batch_last(configs_best,sdata,dates,xbegin,cmediator=myMediator)
     save_last('atr_last_best.txt',dtrades_best,xbegin,end,lbegin)
-    
+ 
+    configs_shortest = prepare_configs_shortest(seller2000,pman,dman)
+    dtrades_shortest = batch_last(configs_shortest,sdata,dates,xbegin,cmediator=myMediator)
+    save_last('atr_last_shortest.txt',dtrades_shortest,xbegin,end,lbegin)
+
     #normal及以下省略
     #configs_normal = prepare_configs_normal(seller1200,pman,dman)
     #dtrades_normal = batch_last(configs_normal,sdata,dates,xbegin,cmediator=myMediator)
@@ -743,8 +760,8 @@ if __name__ == '__main__':
     from time import time
     tbegin = time()
     
-    dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
+    dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
     weekdays = map(ut.d2w,dates)
     i_cofw = np.where(d1ex.cofw(weekdays))    #周收盘日坐标
 

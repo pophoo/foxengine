@@ -233,6 +233,16 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,0,0,0,0,0,1,2,0,0,1,0,0,0,0,0],consecutive(source,1).tolist())
         self.assertEquals([0,1,2,3,0,0,0,0,0,0,0,1,2,0,1,0],consecutive(source,2).tolist())
 
+    def test_devi(self):
+        self.assertEquals([],devi(np.array([]),np.array([])).tolist())
+        s1 = np.array([0,0,0,0,0,0,0,0,0,0,0,0])
+        self.assertEquals(s1.tolist(),devi(s1,s1).tolist())
+        shigh = np.array([0,13,0,0,0,0,0,15,0,0,0])
+        sdiff = np.array([0,13,0,0,0,0,0,10,0,0,0])
+        self.assertEquals([0,0,0,0,0,0,0,0,1,1,1],devi(shigh,sdiff).tolist())
+        shigh2 = np.array([0,13,0,0,0,0,0,12,0,0,0])
+        self.assertEquals([0,0,0,0,0,0,0,0,0,0,0],devi(shigh2,sdiff).tolist())
+
     def test_swing(self):
         self.assertEquals([0,0,0,0,0],swing(np.array([10,30,25,15,45])).tolist())
         self.assertEquals([0,2000,200,666,2000],swing(np.array([10,30,25,15,45]),2).tolist())

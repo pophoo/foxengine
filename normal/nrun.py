@@ -148,7 +148,14 @@ def prepare_configs_shortest(seller,pman,dman):
     configs = []
 
     
-    #b102优先，102b次之，b2再次之. 以15分钟线上X为买入，15分钟下X或小时线2ATR为止损.
+    #b102优先，102b次之，b2再次之
+    #        快速出击品种，上涨超过8%之后必须出掉1半，超过12%再出2/3
+    #        macd小时线破掉必须全出, 上碰到30均线也必须全出
+    #    结合15分钟走势买入更佳，最好情况是选出时15分钟正在下行，然后上叉时(必须>0.00，而不是0.00,防止夭折情况)买入。
+    #            如果正在上行，等待下一次上叉(时间不能超过3个交易日),或者放过
+    #            出局点在15分钟下叉(小于-0.00),此时如果日线macd走坏，则全出;否则出半-2/3,小时线走坏时出2/3
+    #            止损点是2个15分钟ATR(全部卖出)
+
     configs.append(config(buyer=fcustom(s.b102)))
     configs.append(config(buyer=fcustom(s.b102b)))    
     configs.append(config(buyer=fcustom(s.b2)))

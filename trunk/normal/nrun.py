@@ -147,6 +147,8 @@ def prepare_configs_shortest(seller,pman,dman):
     config = fcustom(BaseObject,seller=seller,pman=pman,dman=dman)
     configs = []
 
+    
+    #b102优先，102b次之，b2再次之. 以15分钟线上X为买入，15分钟下X或小时线2ATR为止损.
     configs.append(config(buyer=fcustom(s.b102)))
     configs.append(config(buyer=fcustom(s.b102b)))    
     configs.append(config(buyer=fcustom(s.b2)))
@@ -760,8 +762,8 @@ if __name__ == '__main__':
     from time import time
     tbegin = time()
     
-    #dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
-    dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
+    dates,sdata,idata,catalogs = prepare_all(begin,end,[],[ref_code])
+    #dates,sdata,idata,catalogs = prepare_all(begin,end,['SH601988'],[ref_code])
     weekdays = map(ut.d2w,dates)
     i_cofw = np.where(d1ex.cofw(weekdays))    #周收盘日坐标
 

@@ -8630,3 +8630,222 @@ K:  120新高
 
 #2010-05-30
 上叉时diff>0或者背离非常重要
+
+#2010-06-01
+####股指期货
+from wolfox.fengine.core.shortcut import *
+from wolfox.fengine.normal.funcs import *
+from wolfox.fengine.core.d1match import *
+from wolfox.fengine.core.d1idiom import atr_xseller_factory,B0S0_N
+from wolfox.fengine.core.d1indicator import cmacd
+from wolfox.foxit.base.tutils import linelog
+from time import time
+>>>
+import logging
+import psyco
+psyco.full()
+>>>
+import wolfox.fengine.core.utils as ut
+import wolfox.fengine.core.d1ex as d1ex
+import wolfox.fengine.normal.nrun as nrun
+#import wolfox.fengine.normal.xrun as x
+import wolfox.fengine.normal.tfuncs as t
+import wolfox.fengine.normal.sfuncs as s
+import wolfox.fengine.normal.hfuncs as h
+
+###文件读取
+from wolfox.fengine.ifuture.ifreader import read_ifs
+
+from wolfox.fengine.ifuture.ibase import *
+from wolfox.fengine.ifuture.ifreader import *
+from wolfox.fengine.ifuture.ifuncs import *
+import wolfox.fengine.ifuture.ifuncs as ifuncs
+import wolfox.fengine.ifuture.iftrade as iftrade
+
+ifmap = read_ifs()  # fname ==> BaseObject(name='$name',transaction=trans)
+
+
+###计算
+i06 = ifmap['IF1006']
+diff1,dea1 = d1in.cmacd(i06.transaction[3])
+diff5,dea5 = d1in.cmacd(i06.transaction[3],60,130,45)
+diff15,dea15 = d1in.cmacd(i06.transaction[3],180,390,135)
+diff30,dea30 = d1in.cmacd(i06.transaction[3],360,780,270)
+diff60,dea60 = d1in.cmacd(i06.transaction[3],720,1560,540)
+
+##1030开空，1430开多
+short_indices = np.where(i06.transaction[ITIME] == 1030)[0]
+long_indices = np.where(i06.transaction[ITIME] == 1430)[0]
+
+sprices = np.zeros(len(i06.transaction[ICLOSE]),int)
+lprices = np.zeros(len(i06.transaction[ICLOSE]),int)
+
+lprices[long_indices] = i06.transaction[IOPEN][long_indices] * SHORT
+sprices[short_indices] = i06.transaction[IOPEN][short_indices] * LONG
+
+prices = lprices + sprices  #合并后的序列
+
+ifuncs.istop(i06,prices)
+ifuncs.atr_stop(i06,prices)
+
+long_indices2 = np.where(gand(i06.transaction[IDATE] == 20100531,i06.transaction[ITIME] == 1430))[0]
+
+#long_indices = np.where(i06.transaction[ICLOSE] == 27804)
+
+prices2 = np.zeros(len(i06.transaction[ICLOSE]),int)
+
+prices2[long_indices2] = i06.transaction[IOPEN][long_indices2] * LONG
+
+ifuncs.istop(i06,prices2)
+ifuncs.atr_stop(i06,prices2)
+
+long_indices3 = np.where(gand(i06.transaction[IDATE] == 20100601,i06.transaction[ITIME] == 1426))[0]
+
+prices3 = np.zeros(len(i06.transaction[ICLOSE]),int)
+
+prices3[long_indices3] = i06.transaction[IOPEN][long_indices3] * LONG
+
+ifuncs.istop(i06,prices3)
+ifuncs.atr_stop(i06,prices3)
+
+long_indices3 = np.where(gand(i06.transaction[IDATE] == 20100601,i06.transaction[ITIME] == 1502))[0]
+
+prices3 = np.zeros(len(i06.transaction[ICLOSE]),int)
+
+prices3[long_indices3] = i06.transaction[IOPEN][long_indices3] * LONG
+
+ifuncs.istop(i06,prices3)
+ifuncs.atr_stop(i06,prices3)
+
+long_indices3 = np.where(gand(i06.transaction[IDATE] == 20100527,i06.transaction[ITIME] == 1043))[0]
+
+prices3 = np.zeros(len(i06.transaction[ICLOSE]),int)
+
+prices3[long_indices3] = i06.transaction[IOPEN][long_indices3] * LONG
+
+ifuncs.istop(i06,prices3)
+ifuncs.atr_stop(i06,prices3)
+
+
+long_indices4 = np.where(gand(i06.transaction[IDATE] == 20100601,i06.transaction[ITIME] == 1355))[0]
+
+prices4 = np.zeros(len(i06.transaction[ICLOSE]),int)
+
+prices4[long_indices4] = i06.transaction[IOPEN][long_indices4] * SHORT
+
+ifuncs.istop(i06,prices4)
+ifuncs.atr_stop(i06,prices4)
+
+long_indices4 = np.where(gand(i06.transaction[IDATE] == 20100601,i06.transaction[ITIME] == 1101))[0]
+
+prices4 = np.zeros(len(i06.transaction[ICLOSE]),int)
+
+prices4[long_indices4] = i06.transaction[IOPEN][long_indices4] * SHORT
+
+ifuncs.istop(i06,prices4)
+ifuncs.atr_stop(i06,prices4)
+
+long_indices4 = np.where(gand(i06.transaction[IDATE] == 20100601,i06.transaction[ITIME] == 1102))[0]
+
+prices4 = np.zeros(len(i06.transaction[ICLOSE]),int)
+
+prices4[long_indices4] = i06.transaction[IOPEN][long_indices4] * SHORT
+
+ifuncs.istop(i06,prices4)
+ifuncs.atr_stop(i06,prices4)
+
+###open_position
+long_indices4 = np.where(gand(i06.transaction[IDATE] == 20100601,i06.transaction[ITIME] == 1102))[0]
+
+prices4 = np.zeros(len(i06.transaction[ICLOSE]),int)
+
+prices4[long_indices4] = i06.transaction[IOPEN][long_indices4] * SHORT
+
+iftrade.xposition2(i06.transaction,prices4,XOPEN)
+
+##1030开空，1430开多
+short_indices = np.where(i06.transaction[ITIME] == 1030)[0]
+long_indices = np.where(i06.transaction[ITIME] == 1430)[0]
+
+sprices = np.zeros(len(i06.transaction[ICLOSE]),int)
+lprices = np.zeros(len(i06.transaction[ICLOSE]),int)
+
+lprices[long_indices] = XSELL
+sprices[short_indices] = XBUY
+
+prices = lprices + sprices  #合并后的序列
+
+xx=iftrade.xposition(i06.transaction,prices,XOPEN)
+
+xx2=iftrade.close_position(i06.transaction,prices)
+
+sfilter = np.ones(len(prices),int)
+
+xx3 = iftrade.open_position(i06.transaction,prices,sfilter,sfilter)
+
+##1030开空，1430平仓
+short_indices = np.where(i06.transaction[ITIME] == 1030)[0]
+long_indices = np.where(i06.transaction[ITIME] == 1430)[0]
+
+sprices = np.zeros(len(i06.transaction[ICLOSE]),int)
+lprices = np.zeros(len(i06.transaction[ICLOSE]),int)
+
+lprices[long_indices] = XSELL
+sprices[short_indices] = XBUY
+
+xx1 = iftrade.open_position(i06.transaction,sprices,sfilter,sfilter)
+xx2=iftrade.close_position(i06.transaction,lprices)
+actions = sorted(xx1 + xx2,iftrade.DTSORT)
+
+trades = iftrade.simple_trades(actions)
+
+actions2 = sorted(xx1,iftrade.DTSORT)
+
+trades2 = iftrade.simple_trades(actions2)
+
+actions2 = sorted(xx2,iftrade.DTSORT)
+
+trades2 = iftrade.simple_trades(actions2)
+
+#只开一仓，平多次
+short_indices = np.where(gand(i06.transaction[IDATE] == 20100419,i06.transaction[ITIME] == 1102))[0]
+long_indices = np.where(i06.transaction[ITIME] == 1430)[0]
+
+sprices = np.zeros(len(i06.transaction[ICLOSE]),int)
+lprices = np.zeros(len(i06.transaction[ICLOSE]),int)
+
+lprices[long_indices] = XSELL
+sprices[short_indices] = XBUY
+
+xx1 = iftrade.open_position(i06.transaction,sprices,sfilter,sfilter)
+xx2=iftrade.close_position(i06.transaction,lprices)
+actions = sorted(xx1 + xx2,iftrade.DTSORT)
+
+trades = iftrade.simple_trades(actions)
+#开多次，平一仓
+
+short_indices = np.where(i06.transaction[ITIME] == 1030)[0]
+long_indices = np.where(gand(i06.transaction[IDATE] == 20100601,i06.transaction[ITIME] == 1102))[0]
+
+sprices = np.zeros(len(i06.transaction[ICLOSE]),int)
+lprices = np.zeros(len(i06.transaction[ICLOSE]),int)
+
+lprices[long_indices] = XSELL
+sprices[short_indices] = XBUY
+
+xx1 = iftrade.open_position(i06.transaction,sprices,sfilter,sfilter)
+xx2=iftrade.close_position(i06.transaction,lprices)
+actions = sorted(xx1 + xx2,iftrade.DTSORT)
+
+trades = iftrade.simple_trades(actions)
+
+##itrade
+trades = iftrade.itrade(i06,[ifuncs.ipmacd_long],[ifuncs.daystop_long,ifuncs.daystop_short])
+
+trades = iftrade.itrade(i06,[ifuncs.ipmacd_short],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.istop_60_100_40])
+
+sum([trade.profit for trade in trades])
+
+for trade in trades:
+    print trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.profit
+

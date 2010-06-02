@@ -140,6 +140,16 @@ class ModuleTest(unittest.TestCase):
         signal2 = np.array([1,0,-1,0,1,0])
         self.assertEquals([0,0,20,0,20,0],rsub(source,signal2).tolist())
 
+    def xtest_rsub2(self):
+        self.assertEquals([],rsub2(np.array([]),np.array([])).tolist())
+        source = np.array([10,20,30,40,50,60])
+        signal = np.array([0,0,-1,0,1,0])
+        self.assertEquals([0,0,20,0,20,0],rsub2(source,signal).tolist())
+        signal2 = np.array([1,0,-1,0,1,0])
+        self.assertEquals([0,0,20,0,20,0],rsub2(source,signal2).tolist())
+        signal2 = np.array([1,0,-1,0,1,0])
+        self.assertEquals([0,0,20,0,40,0],rsub2(source,signal2,2).tolist())
+
     def test_msum(self):
         self.assertEquals([],msum(np.array([]),2).tolist())
         self.assertEquals([10,20,30,40,50,60,70,80],msum(np.array([10,20,30,40,50,60,70,80]),1).tolist())  #normal,length < len(source)        
@@ -242,6 +252,36 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,0,0,0,0,0,0,0,1,1,1],devi(shigh,sdiff).tolist())
         shigh2 = np.array([0,13,0,0,0,0,0,12,0,0,0])
         self.assertEquals([0,0,0,0,0,0,0,0,0,0,0],devi(shigh2,sdiff).tolist())
+
+    def test_hdevi(self):
+        self.assertEquals([],hdevi(np.array([]),np.array([]),np.array([])).tolist())
+        s1 = np.array([0,0,0,0,0,0,0,0,0,0,0,0])
+        self.assertEquals(s1.tolist(),hdevi(s1,s1,s1).tolist())
+        shigh = np.array([0,13,0,0,0,0,0,15,0,0,0])
+        sdiff = np.array([1,13,0,0,0,0,1,10,0,0,0])
+        sdea = np.array([0,15,0,0,0,0,0,12,0,0,0])        
+        self.assertEquals([0,0,0,0,0,0,0,1,0,0,0],hdevi(shigh,sdiff,sdea,covered=5).tolist())
+        shigh = np.array([0,13,0,0,0,0,0,12,0,0,0]) #双低
+        self.assertEquals([0,0,0,0,0,0,0,0,0,0,0],hdevi(shigh,sdiff,sdea,covered=5).tolist())
+        shigh = np.array([0,13,0,0,0,0,0,15,0,0,0]) #双高
+        sdiff = np.array([1,13,0,0,0,0,1,20,0,0,0])
+        sdea = np.array([0,15,0,0,0,0,0,22,0,0,0])        
+        self.assertEquals([0,0,0,0,0,0,0,0,0,0,0],hdevi(shigh,sdiff,sdea,covered=5).tolist())
+
+    def test_ldevi(self):
+        self.assertEquals([],ldevi(np.array([]),np.array([]),np.array([])).tolist())
+        s1 = np.array([0,0,0,0,0,0,0,0,0,0,0,0])
+        self.assertEquals(s1.tolist(),ldevi(s1,s1,s1).tolist())
+        slow = np.array([15,13,12,10,10,10,10,11,0,0,0])
+        sdiff = np.array([3,19,12,8,9,10,12,15,0,0,0])
+        sdea = np.array([2,22,0,0,0,0,15,9,0,0,0])        
+        self.assertEquals([0,0,0,0,0,0,0,1,0,0,0],ldevi(slow,sdiff,sdea,covered=5).tolist())
+        slow = np.array([7,7,7,10,10,10,10,11,0,0,0]) #双高
+        self.assertEquals([0,0,0,0,0,0,0,0,0,0,0],ldevi(slow,sdiff,sdea,covered=5).tolist())
+        slow = np.array([15,13,12,10,10,10,10,11,0,0,0]) #双低
+        sdiff = np.array([3,19,12,8,9,2,12,15,0,0,0])
+        sdea = np.array([2,22,0,0,0,0,15,9,0,0,0])        
+        self.assertEquals([0,0,0,0,0,0,0,0,0,0,0],ldevi(slow,sdiff,sdea,covered=5).tolist())
 
     def test_swing(self):
         self.assertEquals([0,0,0,0,0],swing(np.array([10,30,25,15,45])).tolist())

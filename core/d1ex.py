@@ -321,6 +321,23 @@ def rsub(source,signal):
             pre = cv
     return rev
 
+def rsub2(source,signal,distance=1):
+    ''' 相邻信号日signal的减法(相当于比较) 
+        d(n+1) = src(n+1) -  s(n)
+        d(0) = src(0)
+    '''
+    assert len(source) == len(signal)
+    isc = np.nonzero(signal)
+    ssource = nsubd(source[isc],distance)
+    if(len(ssource)>0): #前distance元素应该减去序列的第一个,因为它没东西减
+        for i in range(distance):
+            ssource[i] -= source[0]
+    rev = np.zeros_like(source)
+    if(len(isc[0])>0):
+        #print isc,len(isc)
+        rev[isc] = ssource
+    return rev
+
 def msum(source,length):   
     """ 计算移动累积,前length-1个置0
         @param source 源序列
@@ -530,6 +547,36 @@ def devi(shigh,sdiff,regr=96):
     xdiff60 = tmax(sdiff,60)
     xdev = gand(xhighA,xhigh == xhigh60,xdiff7<xdiff60)
     return xdev
+
+def hdevi(shigh,sdiff,sdea,covered=20,distance=1):
+    '''
+        顶背离
+        distance表示与前面第几个顶背离
+        这个算法根据macd下叉来确认顶，可能更好？
+    '''
+    sc = gand(cross(sdea,sdiff)<0)
+    xhigh = tmax(shigh,covered)
+    dhigh = tmax(sdiff,covered)
+    dxhigh = rsub2(xhigh,sc,distance)
+    ddhigh = rsub2(dhigh,sc,distance)
+    signal = gand(dxhigh>0,ddhigh<0)
+    return signal
+
+def ldevi(slow,sdiff,sdea,covered=20,distance=1):
+    '''
+        底背离
+        distance表示与前面第几个顶背离
+        这个算法根据macd下叉来确认顶，可能更好？
+    '''
+    sc = gand(cross(sdea,sdiff)>0)
+    xlow = tmin(slow,covered)
+    dlow = tmin(sdiff,covered)
+    #print sc,xlow.tolist(),dlow.tolist()
+    dxlow = rsub2(xlow,sc,distance)
+    ddlow = rsub2(dlow,sc,distance)
+    #print dxlow,ddlow
+    signal = gand(dxlow<0,ddlow>0)
+    return signal
 
 def swing(source,covered=1):    #波动幅度
     return swing2(source,source,covered)

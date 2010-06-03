@@ -18,4 +18,5 @@ from wolfox.fengine.core.base import BaseObject;
 from wolfox.fengine.core.d1 import *;
 from wolfox.fengine.core.d1ex import *;
 from wolfox.fengine.core.d1indicator import *;
+from wolfox.fengine.core.d1idiom import *;
 from wolfox.fengine.core.utils import *;

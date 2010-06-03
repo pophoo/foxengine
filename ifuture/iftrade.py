@@ -1,6 +1,25 @@
 # -*- coding: utf-8 -*-
 '''
     使用方法
+
+准备
+from wolfox.fengine.ifuture.ifreader import read_ifs
+
+from wolfox.fengine.ifuture.ibase import *
+from wolfox.fengine.ifuture.ifreader import *
+from wolfox.fengine.ifuture.ifuncs import *
+import wolfox.fengine.ifuture.ifuncs as ifuncs
+import wolfox.fengine.ifuture.iftrade as iftrade
+
+ifmap = read_ifs()  # fname ==> BaseObject(name='$name',transaction=trans)
+
+
+###计算
+i06 = ifmap['IF1006']
+i07 = ifmap['IF1007']
+i09 = ifmap['IF1009']
+i12 = ifmap['IF1012']
+
 trades = iftrade.itrade(i06,[ifuncs.ipmacd_long],[ifuncs.daystop_long,ifuncs.daystop_short])
 
 trades = iftrade.itrade(i06,[ifuncs.ipmacd_short],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.istop_60_100_40])
@@ -10,9 +29,16 @@ sum([trade.profit for trade in trades])
 for trade in trades:
     print trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].date,trade.actions[1].time,trade.actions[1].position,trade.actions[1].price
  
+for trade in trades:print trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].date,trade.actions[1].time,trade.actions[1].position,trade.actions[1].price
 
 trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_long],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_stop_2_3])
  
+trades = iftrade.itrade(i06,[ifuncs.xhdevi],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_stop_2_3])
+
+
+#除了止损之外，将反向开仓也作为平仓信号无多增益
+trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_long,ifuncs.down0,ifuncs.up0,ifuncs.xhdevi,ifuncs.xhdevi2,ifuncs.xldevi,ifuncs.xldevi2],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_2_3])
+
 '''
 
 
@@ -24,9 +50,11 @@ DTSORT = lambda x,y: int(((x.date%1000000 * 10000)+x.time) - ((y.date%1000000 * 
 
 simple_profit = lambda actions: actions[0].price * actions[0].position + actions[1].price * actions[1].position - TAX
 
-def ocfilter(sif):  #在开盘5分钟和收盘前5分钟不开仓
+def ocfilter(sif):  #在开盘前30分钟和收盘前5分钟不开仓，头三个交易日不开张
     stime = sif.transaction[ITIME]
-    return gand(greater(stime,919),lesser(stime,1510))
+    soc = gand(greater(stime,959),lesser(stime,1510))
+    soc[:275*3] = 0
+    return soc
 
 def simple_trades(actions,calc_profit=simple_profit):  #简单的trades,每个trade只有一次开仓和平仓
     ''' 不支持同时双向开仓
@@ -100,7 +128,7 @@ def close_position(trans,scloser):
     positions.extend(xposition(trans,sshort,XCLOSE))
     return positions
 
-def xposition(trans,saction,xtype):
+def xposition(trans,saction,xtype,defer=1):
     sdate = trans[IDATE]
     stime = trans[ITIME]
     sopen = trans[IOPEN]
@@ -110,7 +138,7 @@ def xposition(trans,saction,xtype):
     isignal = saction.nonzero()[0]
     positions = []
     for i in isignal:
-        xindex = i + 1  #下一分钟动作
+        xindex = i + defer  #defer后动作，一般为下一分钟
         direct = saction[i]
         position = BaseObject(index=xindex,date=sdate[xindex],time=stime[xindex],position=direct,xtype=xtype)    #因为已经抑制了1514开仓,必然不会溢出
         position.price = make_price(direct,sopen[xindex],sclose[xindex],shigh[xindex],slow[xindex])
@@ -119,6 +147,7 @@ def xposition(trans,saction,xtype):
 
 
 def make_price(position,open,close,high,low):
+    #return open
     if position == LONG:
         return (open+high)/2
     else:

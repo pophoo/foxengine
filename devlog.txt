@@ -8849,3 +8849,49 @@ sum([trade.profit for trade in trades])
 for trade in trades:
     print trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.profit
 
+
+
+#2010-06-02
+>>> trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_long],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_stop_2_3])
+>>> sum([trade.profit>0 for trade in trades])
+33
+>>> len(trades)
+97
+>>>
+>>> sum([trade.profit for trade in trades])
+3316
+
+成功率1/3
+
+#仅空头做法
+>>> trades = iftrade.itrade(i06,[ifuncs.ipmacd_short],[ifuncs.daystop_long,ifunc
+s.daystop_short,ifuncs.atr_stop_2_3])
+>>> sum([trade.profit for trade in trades])
+2968
+>>> sum([trade.profit>0 for trade in trades])
+18
+>>> len(trades)
+48
+
+成功率还是1/3
+
+但是看起来 atr_stop_2_3不错
+
+#顶背离
+xs = gand(hdevi(i06.transaction[IHIGH],i06.diff1,i06.dea1),i06.diff15<i06.dea15)
+
+i06.transaction[IDATE][xs.nonzero()]
+i06.transaction[ITIME][xs.nonzero()]
+
+#底背离
+xs2 = gand(ldevi(i06.transaction[ILOW],i06.diff1,i06.dea1),i06.diff5>i06.dea5)
+
+i06.transaction[IDATE][xs2.nonzero()]
+i06.transaction[ITIME][xs2.nonzero()]
+
+
+
+trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_long,ifuncs.down0,ifuncs.up0,ifuncs.xhdevi,ifuncs.xhdevi2,ifuncs.xldevi,ifuncs.xldevi2],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_stop_2_3])
+
+
+trades = iftrade.itrade(i06,[ifuncs.ama_short2,ifuncs.ipmacd_short,ifuncs.ipmacd_long,ifuncs.down0,ifuncs.up0,ifuncs.xhdevi,ifuncs.xhdevi2,ifuncs.xldevi,ifuncs.xldevi2],[ifuncs.ama_short2,ifuncs.ipmacd_short,ifuncs.ipmacd_long,ifuncs.down0,ifuncs.up0,ifuncs.xhdevi,ifuncs.xhdevi2,ifuncs.xldevi,ifuncs.xldevi2,ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_stop_2_3])

@@ -59,6 +59,7 @@ def prepare_index(sif):
     sif.diff15,sif.dea15 = cmacd(trans[ICLOSE],180,390,135)
     sif.diff30,sif.dea30 = cmacd(trans[ICLOSE],360,780,270)
     sif.diff60,sif.dea60 = cmacd(trans[ICLOSE],720,1560,540)
+    sif.ma3 = ma(trans[ICLOSE],3)
     sif.ma5 = ma(trans[ICLOSE],5)
     sif.ma10 = ma(trans[ICLOSE],10)
     sif.ma7 = ma(trans[ICLOSE],7)
@@ -68,3 +69,5 @@ def prepare_index(sif):
     sif.ma60 = ma(trans[ICLOSE],60)
     sif.atr = atr(trans[ICLOSE],trans[IHIGH],trans[ILOW],20)
     sif.atr2 = atr2(trans[ICLOSE],trans[IHIGH],trans[ILOW],20)    
+    sif.xatr = sif.atr * XBASE * XBASE / trans[ICLOSE]
+    sif.mxatr = ma(sif.xatr,13)

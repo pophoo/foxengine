@@ -23,7 +23,8 @@ def read_if_as_np(filename):
 def read_if(filename):
     records = []
     for line in file(filename):
-        records.append(extract_if(line))
+        if len(line.strip()) > 0:
+            records.append(extract_if(line))
     return records
 
 

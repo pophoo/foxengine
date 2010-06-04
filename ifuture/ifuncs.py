@@ -5,14 +5,16 @@
 主力合约、次月合约与半年合约的成交量还可以，下季合约严重没量，被操控
 但因为次月合约开张日晚，如if1007在0524才开张，所以测试不准
 
-trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_short_b,ifuncs.ipmacd_long,ifuncs.ipmacdx_short,ifuncs.ipmacdx_long,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.dmacd_short,ifuncs.dmacd_short2,ifuncs.dmacd_long5,ifuncs.dmacd_short5],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_6])
+trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_short_b,ifuncs.ipmacd_long,ifuncs.ipmacdx_short,ifuncs.ipmacdx_long,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.dmacd_short,ifuncs.dmacd_short2,ifuncs.dmacd_long5,ifuncs.dmacd_short5,ifuncs.down02,ifuncs.down01],[ifuncs.imacd_stop,ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_6])
 
+#添加ifuncs.dmacd_long后不一定好
+trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_short_b,ifuncs.ipmacd_long,ifuncs.ipmacdx_short,ifuncs.ipmacdx_long,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.dmacd_short,ifuncs.dmacd_short2,ifuncs.dmacd_long,ifuncs.dmacd_long5,ifuncs.dmacd_short5,ifuncs.down02,ifuncs.down01],[ifuncs.imacd_stop,ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_6])
 
-trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_short_b,ifuncs.ipmacd_long,ifuncs.ipmacdx_short,ifuncs.ipmacdx_long,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.dmacd_short,ifuncs.dmacd_short2,ifuncs.dmacd_long,ifuncs.dmacd_long5,ifuncs.dmacd_short5],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_6])
+ama_short因为盘中无法计算，故不用
 
 #dmacd_long被吸收
 
-#imacd_stop无增益
+#imacd_stop略增益
 trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_long,ifuncs.ipmacd_short_b,ifuncs.ipmacdx_short,ifuncs.ipmacdx_long,ifuncs.ipmacd_long5,ifuncs.xldevi2],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_45,ifuncs.imacd_stop])
 
 
@@ -20,7 +22,7 @@ trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_long,ifuncs.ipmac
 trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_long,ifuncs.ipmacdx_short,ifuncs.ipmacdx_long,ifuncs.ipmacd_long5,ifuncs.xldevi2],[ifuncs.ipmacd_short,ifuncs.ipmacd_long,ifuncs.ipmacdx_short,ifuncs.ipmacdx_long,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_45])
 
 
-ifuncs.up0暂且去掉
+ifuncs.up0貌似也被吸收
 #实际上ipmacd_long5被吸收了
 
 trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_long,ifuncs.ipmacdx_short,ifuncs.ipmacdx_long,ifuncs.ipmacd_long5,ifuncs.xldevi2],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_45])
@@ -109,16 +111,16 @@ def ipmacdx_long(sif,sopened=None):#+
     return signal * XBUY
 
 def ipmacdx_short(sif,sopened=None):#+
-    '''
+    '''柱线变化
     '''
     trans = sif.transaction
     
-    signal = gand(strend(sif.diff1-sif.dea1)==-3,sif.diff1>sif.dea1,sif.diff1<0,sif.diff5<sif.dea5,trans[IOPEN] - trans[ICLOSE] < 60,sif.diff30<0,sif.xatr<20,sif.diff1-sif.dea1 < 20)
+    signal = gand(strend(sif.diff1-sif.dea1)==-3,sif.diff1>sif.dea1,sif.diff1<0,sif.diff5<sif.dea5,trans[IOPEN] - trans[ICLOSE] < 60,sif.diff30<0,sif.xatr<20,sif.diff1-sif.dea1 < 20,sif.xatr<20)
     #signal = gand(strend(sif.diff1-sif.dea1)==3,sif.diff1<sif.dea1,sif.diff1>0,sif.diff5>sif.dea5, trans[ICLOSE] - trans[IOPEN] < 100,sif.ma5>sif.ma13)#,sif.ma13>sif.ma60)#,strend(sif.diff5)>0)
     return signal * XSELL
 
 def ipmacdx_long5(sif,sopened=None):#
-    '''
+    '''柱线变化
     '''
     trans = sif.transaction
     
@@ -163,9 +165,11 @@ def ipmacd_short52(sif,sopened=None):#-
 def dmacd_short(sif,sopened=None):#++
     '''
         回抽时未上叉又回落
+        xatr无约束
     '''
     trans = sif.transaction
     sdd = strend(sif.diff1 - sif.dea1)
+    mmacd = msum(sif.diff1 < sif.dea1,5)    #一直在水线以下
     signal = gand(sdd==-1,rollx(sdd)>4,sif.diff1<sif.dea1,trans[IOPEN] - trans[ICLOSE] < 60,sif.diff5<0,sif.diff30<0)
     return signal * XSELL
 
@@ -175,7 +179,7 @@ def dmacd_short2(sif,sopened=None):#++
     '''
     trans = sif.transaction
     sdd = strend(sif.diff1 - sif.dea1)
-    signal = gand(sdd==1,rollx(sdd)<-1,sif.diff1>sif.dea1, trans[IOPEN] - trans[ICLOSE] < 60,sif.diff5>0,sif.diff30>0,sif.diff1>0)
+    signal = gand(sdd==1,rollx(sdd)<-1,sif.diff1>sif.dea1, trans[IOPEN] - trans[ICLOSE] < 60,sif.diff5>0,sif.diff30>0,sif.diff1>0,sif.xatr<20)
     return signal * XSELL
 
 def dmacd_long(sif,sopened=None):#+++
@@ -305,16 +309,16 @@ def mfollow_long(sif,sopened=None):   #+, 水线以下
     return signal * XBUY
 
 
-def down0(sif,sopened=None): #+
+def down02(sif,sopened=None): #+
     trans = sif.transaction
     signal5 = gand(cross(cached_zeros(len(sif.diff5)),sif.diff5)<0)
-    signal1 = gand(cross(sif.dea1,sif.diff1)<0,sif.diff5<0,trans[IOPEN] - trans[ICLOSE] < 60)
+    signal1 = gand(cross(sif.dea1,sif.diff1)<0,sif.diff5<0,trans[IOPEN] - trans[ICLOSE] < 60,sif.diff30>sif.dea30,sif.diff30<0)
     signal = sfollow(signal5,signal1,30)
     return signal * XSELL
 
-def down02(sif,sopened=None): #+--
+def down0(sif,sopened=None): #-
     '''
-        [down02,down0]无叠加作用
+        [down0,down02]无叠加作用
         首次失败后再次介入
     '''
     trans = sif.transaction
@@ -322,9 +326,9 @@ def down02(sif,sopened=None): #+--
     signal = signal5
     return signal * XSELL
 
-def down01(sif,sopened=None): #+
+def down01(sif,sopened=None): #++
     trans = sif.transaction
-    signal = gand(cross(cached_zeros(len(sif.diff1)),sif.diff1)<0,sif.diff1<sif.dea1,strend(sif.dea1)<-5,sif.diff5>0,sif.dea5>0)
+    signal = gand(cross(cached_zeros(len(sif.diff1)),sif.diff1)<0,sif.diff1<sif.dea1,sif.diff5>sif.dea5,sif.dea5>0,sif.diff30<sif.dea30,trans[IOPEN] - trans[ICLOSE] < 60)
     return signal * XSELL
 
 
@@ -333,17 +337,12 @@ def up0(sif,sopened=None): #+
         [up0,up02]无叠加作用
     '''
     trans = sif.transaction
-    signal5 = gand(cross(cached_zeros(len(sif.diff5)),sif.diff5)>0,strend(sif.dea5)>0,strend(sif.diff30)>0,trans[ICLOSE] - trans[IOPEN] < 100)
-    up1 = gand(cross(sif.dea1,sif.diff1)<0)
-    sconfirm = bnot(scover(up1,5))
-    #signal1 = gand(cross(sif.dea1,sif.diff1)>0,sif.diff5>0)
-    #signal = sfollow(signal5,signal1,30)
-    signal = gand(signal5,sconfirm)
-    return signal * XBUY
+    signal5 = gand(cross(cached_zeros(len(sif.diff5)),sif.diff5)>0,sif.diff30<0,sif.diff30<sif.dea30,trans[ICLOSE] - trans[IOPEN] < 100)
+    return signal5 * XBUY
 
 def up02(sif,sopened=None): #-
     trans = sif.transaction
-    signal5 = gand(cross(cached_zeros(len(sif.diff5)),sif.diff5)>0,strend(sif.dea5)>0,trans[ICLOSE] - trans[IOPEN] < 100)
+    signal5 = gand(cross(cached_zeros(len(sif.diff5)),sif.diff5)>0,sif.diff30<0,sif.diff30<sif.dea30,trans[ICLOSE] - trans[IOPEN] < 100)
     signal1 = gand(cross(sif.dea1,sif.diff1)>0,sif.diff5>0)
     signal = sfollow(signal5,signal1,60)
     return signal * XBUY
@@ -390,7 +389,7 @@ def xldevi(sif,sopened=None):#+-
 def xldevi2(sif,sopened=None):#+
     trans = sif.transaction
     xs = gand(ldevi(trans[ILOW],sif.diff5,sif.dea5),sif.diff5<0)
-    s1 = gand(cross(sif.dea1,sif.diff1)>0,sif.diff5<0,sif.xatr<15)
+    s1 = gand(cross(sif.dea1,sif.diff1)>0,sif.diff5<0,sif.diff5>sif.dea5,sif.xatr<15,strend(sif.diff30)<0)
     signal = sfollow(xs,s1,60)
     return signal * XBUY
 
@@ -609,7 +608,7 @@ def atr_xstop(sif,sopened,lost_times=200,win_times=300,max_drawdown=200):
             else:
                 for j in range(i+1,len(rev)):
                     #print trans[ITIME][j],buy_price,lost_stop,cur_high,win_stop,cur_stop,trans[ILOW][j],sif.atr[j]
-                    if trans[ILOW][j] < cur_stop:
+                    if trans[ILOW][j] < cur_stop or trans[ITIME][j] == 1512:    #避免atr_close跨日
                         rev[j] = XSELL
                         #print 'sell:',i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j]
                         ilong_closed = j
@@ -641,7 +640,7 @@ def atr_xstop(sif,sopened,lost_times=200,win_times=300,max_drawdown=200):
             else:
                 for j in range(i+1,len(rev)):
                     #print trans[ITIME][j],sell_price,lost_stop,cur_low,win_stop,cur_stop,trans[IHIGH][j],sif.atr[j]                
-                    if trans[IHIGH][j] > cur_stop:
+                    if trans[IHIGH][j] > cur_stop or trans[ITIME][j] == 1512:#避免atr_close跨日
                         ishort_closed = j
                         rev[j] = XBUY
                         #print 'buy:',j

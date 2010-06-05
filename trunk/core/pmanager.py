@@ -152,7 +152,7 @@ def RPR(xt,y):  #净值评估函数,xt为日期维x,y为相应净值
     '''
     (ar,br)=np.polyfit(xt,y,1)  #一阶拟合
     xr = np.polyval([ar,br],xt)
-    err=sqrt(sum((xr-xt)**2)/len(xt)) #标准差
+    err=sqrt(sum((xr-y)**2)/len(xt)) #标准差
     #(a_s,b_s,r,tt,stderr)=stats.linregress(xt,y)    #len(xt)必须>2，否则会有问题. 即[begin,end)包含的实际日期数必须大于2
     #year_inc_rate = int(a_s * 365 * POS_BASE/b_s)
     year_inc_rate = int(ar * 365 * POS_BASE/br)

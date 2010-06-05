@@ -15,8 +15,8 @@ def read_if_as_np(filename):
         narrays[ICLOSE][i] = record.close
         narrays[IHIGH][i] = record.high
         narrays[ILOW][i] = record.low       
-        narrays[IVOPEN][i] = record.vopen
-        narrays[IVCLOSE][i] = record.vclose
+        narrays[IVOL][i] = record.vopen
+        narrays[IHOLDING][i] = record.vclose
         i += 1
     return narrays
 

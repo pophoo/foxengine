@@ -150,8 +150,72 @@ def make_price(position,open,close,high,low):
     #return open
     if position == LONG:
         return (open+high)/2
+        #return open + (high - open) / 2
+        #return high
     else:
         return (open+low)/2
+        #return open - (open - low) / 2
+        #return low
  
 
+def snet(trades,netfrom=0,datefrom=20100401,dateto=20200101):
+    s = netfrom
+    ss = [BaseObject(date=datefrom,net=netfrom)]
+    for trade in trades:
+        tdate = trade.actions[-1].date
+        if tdate > datefrom and tdate < dateto: #忽略掉小于开始时间的
+            s += trade.profit
+            snew = BaseObject(date=tdate,net=s)
+            ss.append(snew)
+    return ss
 
+def max_drawdown(trades,datefrom=20100401,dateto=20200101):
+    smax = 0
+    curs = 0
+    for trade in trades:
+        tdate = trade.actions[-1].date
+        if tdate > datefrom and tdate < dateto: #忽略掉小于开始时间的
+            if trade.profit > 0:
+                curs = 0
+            else:
+                curs -= trade.profit   #转为正数
+                if curs > smax:
+                    smax = curs
+    return smax;
+
+def max_win(trades,datefrom=20100401,dateto=20200101):
+    smax = 0
+    curs = 0
+    for trade in trades:
+        tdate = trade.actions[-1].date
+        if tdate > datefrom and tdate < dateto: #忽略掉小于开始时间的
+            if trade.profit > 0:
+                curs += trade.profit
+                if curs > smax:
+                    smax = curs
+            else:
+                curs = 0
+    return smax;
+
+def avg_wl(trades,datefrom=20100401,dateto=20200101):
+    wsum,wtime = 0,0
+    lsum,ltime = 0,0
+    for trade in trades:
+        tdate = trade.actions[-1].date
+        if tdate > datefrom and tdate < dateto: #忽略掉小于开始时间的
+            if trade.profit > 0:
+                wsum += trade.profit
+                wtime += 1
+            else:
+                lsum += trade.profit
+                ltime +=1
+    return wsum,wtime,lsum,ltime
+    
+
+def R(trades,datefrom=20100401,dateto=20200101):
+    wsum,wtime,lsum,ltime = avg_wl(trades,datefrom,dateto)
+    if lsum == 0 or ltime == 0:
+        return XBASE
+    xavg = (wsum + lsum) * XBASE / (wtime+ltime)
+    lavg = lsum * XBASE / ltime
+    return xavg * XBASE / abs(lavg)

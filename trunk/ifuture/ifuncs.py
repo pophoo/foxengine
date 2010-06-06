@@ -48,6 +48,13 @@ trades = iftrade.itrade(i06,[ifuncs.ipmacd_longt,ifuncs.ipmacd_short,ifuncs.ipma
 trades = iftrade.itrade(i06,[ifuncs.ipmacd_longt,ifuncs.ipmacd_short,ifuncs.ipmacd_short_b,ifuncs.ipmacdx_short,ifuncs.ipmacd_long5,ifuncs.ipmacd_short5,ifuncs.dmacd_short2,ifuncs.dmacd_long,ifuncs.dmacd_short5,ifuncs.down02,ifuncs.down01],[ifuncs.ipmacd_longt,ifuncs.ipmacd_short,ifuncs.ipmacdx_short,ifuncs.ipmacd_long5,ifuncs.ipmacd_short5,ifuncs.dmacd_short2,ifuncs.dmacd_long,ifuncs.dmacd_short5,ifuncs.down02,ifuncs.down01,ifuncs.xldevi2,ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_6])
 
 
+>>> trades = iftrade.itrade3x(i06,[ifuncs.ipmacd_longt,ifuncs.ipmacd_short,ifunc
+s.ipmacdx_short,ifuncs.ipmacd_long5,ifuncs.ipmacd_short5,ifuncs.dmacd_short2,ifu
+ncs.dmacd_long,ifuncs.dmacd_short5,ifuncs.down02,ifuncs.down01,ifuncs.xldevi2],[
+ifuncs.daystop_short,ifuncs.xdevi_stop_short1,ifuncs.xmacd_stop_short1],[ifuncs.
+daystop_long,ifuncs.xdevi_stop_long1,ifuncs.xmacd_stop_long1])
+
+
 '''
 
 
@@ -285,17 +292,61 @@ def imacd_stop1(sif,sopened=None):
     buy_signal = greater(cross(sif.dea1,sif.diff1),0) * XBUY
     return sell_signal + buy_signal
 
+#def xdevi_stop1(sif,sopened=None):
+#    trans = sif.transaction
+#    sell_signal = gand(hdevi(trans[IHIGH],sif.diff1,sif.dea1)) * XSELL
+#    buy_signal = gand(ldevi(trans[IHIGH],sif.diff1,sif.dea1)) * XBUY
+#    return sell_signal + buy_signal
+ 
 def xdevi_stop1(sif,sopened=None):
     trans = sif.transaction
-    sell_signal = gand(hdevi(trans[IHIGH],sif.diff1,sif.dea1)) * XSELL
-    buy_signal = gand(ldevi(trans[IHIGH],sif.diff1,sif.dea1)) * XBUY
+    sell_signal = gand(hdevi(trans[IHIGH],sif.diff1,sif.dea1),sif.diff5<0,sif.diff30<0) * XSELL
+    buy_signal = gand(ldevi(trans[IHIGH],sif.diff1,sif.dea1),sif.diff5>0,sif.diff30>0) * XBUY
     return sell_signal + buy_signal
-    
+
+def xdevi_stop_short1(sif,sopened=None):#平空头
+    trans = sif.transaction
+    buy_signal = gand(ldevi(trans[IHIGH],sif.diff1,sif.dea1),sif.diff5>0,sif.diff30>0,sif.diff30>sif.dea30) * XBUY
+    return buy_signal
+
+def xdevi_stop_long1(sif,sopened=None):#平多头
+    trans = sif.transaction
+    sell_signal = gand(hdevi(trans[IHIGH],sif.diff1,sif.dea1),sif.diff5<0,sif.diff30<0,sif.diff30<sif.dea30) * XSELL
+    return sell_signal 
+
+
+
 def xdevi_stop5(sif,sopened=None):
     trans = sif.transaction
     sell_signal = gand(hdevi(trans[IHIGH],sif.diff5,sif.dea5)) * XSELL
     buy_signal = gand(ldevi(trans[IHIGH],sif.diff5,sif.dea5)) * XBUY
     return sell_signal + buy_signal
+
+def xmacd_stop1(sif,sopened=None):
+    '''
+        如果买入当时就发生一分钟反向叉，则即刻止损
+    '''
+    trans = sif.transaction
+    sell_signal = gand(cross(sif.dea1,sif.diff1)<0,equals(rollx(sopened),XBUY)) * XSELL
+    buy_signal = gand(cross(sif.dea1,sif.diff1)>0,equals(rollx(sopened),XSELL)) * XBUY 
+    return sell_signal + buy_signal
+
+def xmacd_stop_short1(sif,sopened=None):
+    '''
+        平空头，买入后一分钟即刻上叉
+    '''
+    trans = sif.transaction
+    buy_signal = gand(cross(sif.dea1,sif.diff1)>0,equals(np.sign(sopened),SHORT)) * XBUY 
+    return buy_signal
+
+def xmacd_stop_long1(sif,sopened=None):
+    '''
+        平多头，买入后一分钟即刻下叉
+    '''
+    trans = sif.transaction
+    sell_signal = gand(cross(sif.dea1,sif.diff1)<0,equals(np.sign(sopened),LONG)) * XSELL
+    return sell_signal
+
 
 def istop(sif,sopened,lost=60,win_from=100,drawdown_rate=40,max_drawdown=200):
     '''
@@ -463,12 +514,14 @@ def atr_xstop(sif,sopened,lost_times=200,win_times=300,max_drawdown=200,min_lost
         sopen为价格序列，其中负数表示开多仓，正数表示开空仓
         谨慎处理重复开仓的问题，虽然禁止了重复开仓，但后面的同向仓会影响止损位，或抬高止损位
             即止损位会紧跟最新的那个仓，虽然未开，会有严重影响, 需要测试
+        对于按照macd上叉买入的情况，如果买入时即刻下叉，则直接卖出
     '''
     trans = sif.transaction
     rev = np.zeros_like(sopened)
     isignal = np.nonzero(sopened)[0]
     ilong_closed = 0    #多头平仓日
     ishort_closed = 0   #空头平仓日
+    esmacd = strend(sif.diff1-sif.dea1)
     for i in isignal:
         price = sopened[i]
         willlost = sif.atr[i] * lost_times / XBASE
@@ -487,8 +540,9 @@ def atr_xstop(sif,sopened,lost_times=200,win_times=300,max_drawdown=200,min_lost
             cur_high = max(buy_price,trans[ICLOSE][i])
             win_stop = cur_high - sif.atr[i] * win_times / XBASE
             cur_stop = lost_stop if lost_stop > win_stop else win_stop
-            if trans[ICLOSE][i] < cur_stop:
-                #print '----sell----------:',cur_stop,trans[ICLOSE][i],cur_high,lost_stop
+            #print 'eval:',trans[IDATE][i],trans[ITIME][i],sif.diff1[i],sif.dea1[i]
+            if trans[ICLOSE][i] < cur_stop: #or smacd[i]<0:#到达止损或买入后即刻下叉，说明买入错误
+                #print '----sell----------:',trans[IDATE][i],trans[ITIME][i],cur_stop,trans[ICLOSE][i],cur_high,lost_stop
                 ilong_closed = i
                 rev[i] = XSELL            
             else:
@@ -520,7 +574,7 @@ def atr_xstop(sif,sopened,lost_times=200,win_times=300,max_drawdown=200,min_lost
             cur_low = min(sell_price,trans[ICLOSE][i])
             win_stop = cur_low + sif.atr[i] * win_times / XBASE 
             cur_stop = lost_stop if lost_stop < win_stop else win_stop
-            if trans[ICLOSE][i] > cur_stop:
+            if trans[ICLOSE][i] > cur_stop :#or smacd[i]>0:
                 #print '----buy----------:',cur_stop,trans[ICLOSE][i],cur_high,lost_stop
                 ishort_closed = i
                 rev[i] = XBUY

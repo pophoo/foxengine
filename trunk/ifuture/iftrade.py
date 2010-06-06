@@ -46,7 +46,7 @@ trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_long,ifuncs.down0
 
 from wolfox.fengine.ifuture.ibase import *
 
-DTSORT = lambda x,y: int(((x.date%1000000 * 10000)+x.time) - ((y.date%1000000 * 10000)+y.time)) #避免溢出
+DTSORT = lambda x,y: int(((x.date%1000000 * 10000)+x.time) - ((y.date%1000000 * 10000)+y.time)) or -x.xtype+y.xtype #避免溢出, 先平仓再开仓
 
 simple_profit = lambda actions: actions[0].price * actions[0].position + actions[1].price * actions[1].position - TAX
 
@@ -64,12 +64,14 @@ def simple_trades(actions,calc_profit=simple_profit):  #简单的trades,每个tr
     for action in actions:
         if state == EMPTY:
             if action.xtype == XOPEN:
+                #print 'open:',action.date,action.time,action.position,action.price
                 state = action.position
                 action.vol = 1
                 trade = BaseObject(actions = [action])
             else:   #未持仓时碰到平仓动作,忽略
                 pass
         elif action.xtype == XCLOSE and action.position != state:    #平仓且方向相反
+            #print 'close:',action.date,action.time,action.position,action.price
             trade.actions.append(action)
             trade.profit = calc_profit(trade.actions)
             trades.append(trade)
@@ -78,9 +80,10 @@ def simple_trades(actions,calc_profit=simple_profit):  #简单的trades,每个tr
         else:   #持仓时碰到同向平仓或碰到新开仓指令,忽略
             pass
     return trades
-            
+ 
 def itrade(sif,openers,closers,longfilter=ocfilter,shortfilter=ocfilter,make_trades=simple_trades):
     '''
+        所有开仓信号排序交易
         sif: 期指
         openers:opener函数集合
         longfilter/shortfilter:opener过滤器,多空仓必须满足各自过滤器条件才可以发出信号. 比如抑制在0915-0919以及1510-1514开仓等
@@ -104,6 +107,59 @@ def itrade(sif,openers,closers,longfilter=ocfilter,shortfilter=ocfilter,make_tra
         action.name = sif.name
     trades = make_trades(actions)   #trade: [open , close] 的序列, 其中前部分都是open,后部分都是close
     return trades
+
+def itrade2(sif,openers,closers,longfilter=ocfilter,shortfilter=ocfilter,make_trades=simple_trades):
+    '''
+        开平仓信号交易后再排序
+        sif: 期指
+        openers:opener函数集合
+        longfilter/shortfilter:opener过滤器,多空仓必须满足各自过滤器条件才可以发出信号. 比如抑制在0915-0919以及1510-1514开仓等
+        closers:closer函数集合
+        closer没有过滤器,设置过滤器会导致合约一直开口
+    '''
+    slongfilter = longfilter(sif)
+    sshortfilter = shortfilter(sif)    
+    all_trades = []
+    for opener in openers:
+        if isinstance(opener,tuple):#定义为(opener,closer)对，即有额外的closer
+            curcloser = [closer for closer in closers]
+            curcloser.append(opener[1])
+        else:
+            curcloser = closers
+        opens = open_position(sif.transaction,opener(sif),slongfilter,sshortfilter)  #开仓必须满足各自sfilter
+        sopened = np.zeros(len(sif.transaction[IDATE]),int)   #为开仓价格序列,负数为开多仓,正数为开空仓
+        for aopen in opens:
+            sopened[aopen.index] = aopen.price * aopen.position
+        closes = []
+        for closer in closers:
+            closes.extend(close_position(sif.transaction,closer(sif,sopened)))
+        actions = sorted(opens + closes,DTSORT)
+        for action in actions:
+            action.name = sif.name
+        trades = make_trades(actions)   #trade: [open , close] 的序列, 其中前部分都是open,后部分都是close
+        all_trades.extend(trades)
+    return filter_trades(all_trades)
+
+
+action_dtime = lambda action: action.date%1000000 * 10000 + action.time
+def filter_trades(trades):
+    '''
+        去掉交易时间交叉的纪录
+    '''
+    sorter = lambda x,y:int(action_dtime(x.actions[0]) - action_dtime(y.actions[0]))
+    trades.sort(sorter)
+    revs = []
+    closed_dtime = 0
+    for trade in trades:
+        dtime = action_dtime(trade.actions[0])
+        if dtime > closed_dtime:
+            revs.append(trade)
+            closed_dtime = action_dtime(trade.actions[-1])
+        else:
+            #print 'skip action:',trade.actions[0].date,trade.actions[0].time
+            pass
+    return revs
+
 
 def open_position(trans,sopener,slongfilter,sshortfilter):
     '''
@@ -170,7 +226,8 @@ def snet(trades,netfrom=0,datefrom=20100401,dateto=20200101):
     return ss
 
 def max_drawdown(trades,datefrom=20100401,dateto=20200101):
-    smax = 0
+    smax = 0    #最大连续回撤
+    max1 = 0    #最大单笔回撤
     curs = 0
     for trade in trades:
         tdate = trade.actions[-1].date
@@ -178,13 +235,16 @@ def max_drawdown(trades,datefrom=20100401,dateto=20200101):
             if trade.profit > 0:
                 curs = 0
             else:
-                curs -= trade.profit   #转为正数
-                if curs > smax:
+                curs += trade.profit   #本为负数
+                if curs < smax:
                     smax = curs
-    return smax;
+            if trade.profit < max1:
+                max1 = trade.profit
+    return smax,max1;
 
 def max_win(trades,datefrom=20100401,dateto=20200101):
-    smax = 0
+    smax = 0    #最大连续盈利
+    max1 = 0    #最大单笔盈利 
     curs = 0
     for trade in trades:
         tdate = trade.actions[-1].date
@@ -195,7 +255,9 @@ def max_win(trades,datefrom=20100401,dateto=20200101):
                     smax = curs
             else:
                 curs = 0
-    return smax;
+            if trade.profit > max1:
+                max1 = trade.profit
+    return smax,max1;
 
 def avg_wl(trades,datefrom=20100401,dateto=20200101):
     wsum,wtime = 0,0
@@ -219,3 +281,20 @@ def R(trades,datefrom=20100401,dateto=20200101):
     xavg = (wsum + lsum) * XBASE / (wtime+ltime)
     lavg = lsum * XBASE / ltime
     return xavg * XBASE / abs(lavg)
+
+
+def RR(trades,datefrom=20100401,dateto=20200101):
+    '''
+        R的计算的调整
+        比如一个算法交易80次，成功40次，失败40次，总收益1000，总损失400，则R = 10/(400/40) = 1
+            而另一个算法交易100次，成功40次，失败60次，总收益900，总损失500，则R=9/(500/60) = 1.08
+            但是显然是第一个算法好。第二个算法只不过多出20次较小的损失而已
+            而且在实际操作中结果也是第一个好。
+        如果用RR，
+        则第一个算法: RR = 1000/400 * 40 * 40 /(80*80) = 5/8 = 0.625
+            第二个算法: RR = 900/500 * 40 * 60 /(100*100) = .24*18 = .432
+    '''
+    wsum,wtime,lsum,ltime = avg_wl(trades,datefrom,dateto)
+    if lsum == 0 or ltime == 0:
+        return XBASE
+    return (wsum+lsum)*XBASE/abs(lsum) * wtime * ltime /(wtime+ltime)/(wtime+ltime)

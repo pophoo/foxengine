@@ -5,297 +5,189 @@
 主力合约、次月合约与半年合约的成交量还可以，下季合约严重没量，被操控
 但因为次月合约开张日晚，如if1007在0524才开张，所以测试不准
 
-###最佳组合，去掉R<100的, 效果:R=252, wtimes/times = 33/59
-trades = iftrade.itrade(i06,[ifuncs.ipmacd_short_b,ifuncs.ipmacd_long,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.dmacd_short,ifuncs.dmacd_short2,ifuncs.dmacd_long5,ifuncs.dmacd_short5,ifuncs.down02,ifuncs.down01],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_6])
+#数据准备
+from wolfox.fengine.ifuture.ifreader import read_ifs
 
-####添加ipmacd_short, R=206, wtimes/times=39/70
-trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_short_b,ifuncs.ipmacd_long,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.dmacd_short,ifuncs.dmacd_short2,ifuncs.dmacd_long5,ifuncs.dmacd_short5,ifuncs.down02,ifuncs.down01],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_6])
+from wolfox.fengine.ifuture.ibase import *
+from wolfox.fengine.ifuture.ifreader import *
+from wolfox.fengine.ifuture.ifuncs import *
+import wolfox.fengine.ifuture.ifuncs as ifuncs
+import wolfox.fengine.ifuture.iftrade as iftrade
 
-##不添加emv_short2
-trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_short_b,ifuncs.ipmacd_long,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.dmacd_short,ifuncs.dmacd_short2,ifuncs.dmacd_long5,ifuncs.dmacd_short5,ifuncs.down02,ifuncs.down01],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_6])
-
-
-#反向信号做平仓，效果一样
-trades = iftrade.itrade(i06,[ifuncs.ipmacd_short_b,ifuncs.ipmacd_long,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.dmacd_short,ifuncs.dmacd_short2,ifuncs.dmacd_long5,ifuncs.dmacd_short5,ifuncs.down02,ifuncs.down01],[ifuncs.ipmacd_short_b,ifuncs.ipmacd_long,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.dmacd_short,ifuncs.dmacd_short2,ifuncs.dmacd_long5,ifuncs.dmacd_short5,ifuncs.down02,ifuncs.down01,ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_6])
-
-#另外的组合
-trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_short_b,ifuncs.ipmacd_long,ifuncs.ipmacdx_short,ifuncs.ipmacdx_long,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.dmacd_short,ifuncs.dmacd_short2,ifuncs.dmacd_long5,ifuncs.dmacd_short5,ifuncs.down02,ifuncs.down01],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_6])
-
-#反向信号做平仓
-trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_short_b,ifuncs.ipmacd_long,ifuncs.ipmacdx_short,ifuncs.ipmacdx_long,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.dmacd_short,ifuncs.dmacd_short2,ifuncs.dmacd_long5,ifuncs.dmacd_short5,ifuncs.down02,ifuncs.down01],[ifuncs.ipmacd_short,ifuncs.ipmacd_short_b,ifuncs.ipmacd_long,ifuncs.ipmacdx_short,ifuncs.ipmacdx_long,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.dmacd_short,ifuncs.dmacd_short2,ifuncs.dmacd_long5,ifuncs.dmacd_short5,ifuncs.down02,ifuncs.down01,ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_6])
-
-#添加ifuncs.dmacd_long后不一定好
-trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_short_b,ifuncs.ipmacd_long,ifuncs.ipmacdx_short,ifuncs.ipmacdx_long,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.dmacd_short,ifuncs.dmacd_short2,ifuncs.dmacd_long,ifuncs.dmacd_long5,ifuncs.dmacd_short5,ifuncs.down02,ifuncs.down01],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_6])
-
-ama_short因为盘中无法计算，故不用
-
-#dmacd_long被吸收
-
-#imacd_stop5无增益
-trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_long,ifuncs.ipmacd_short_b,ifuncs.ipmacdx_short,ifuncs.ipmacdx_long,ifuncs.ipmacd_long5,ifuncs.xldevi2],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_45,ifuncs.imacd_stop5])
+ifmap = read_ifs()  # fname ==> BaseObject(name='$name',transaction=trans)
 
 
-#反向做平仓信号,效果不及止损/止赢平仓
-trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_long,ifuncs.ipmacdx_short,ifuncs.ipmacdx_long,ifuncs.ipmacd_long5,ifuncs.xldevi2],[ifuncs.ipmacd_short,ifuncs.ipmacd_long,ifuncs.ipmacdx_short,ifuncs.ipmacdx_long,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_45])
+###计算
+i06 = ifmap['IF1006']
+i07 = ifmap['IF1007']
+i09 = ifmap['IF1009']
+i12 = ifmap['IF1012']
 
+单个测试
+trades = iftrade.itrade(i06,[ifuncs.xx],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_6])
 
-ifuncs.up0貌似也被吸收
-#实际上ipmacd_long5被吸收了
+sum([trade.profit for trade in trades])
+sum([trade.profit>0 for trade in trades])
+sum([trade.profit for trade in trades])/len(trades)
+len(trades)
+iftrade.R(trades)
 
-trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_long,ifuncs.ipmacdx_short,ifuncs.ipmacdx_long,ifuncs.ipmacd_long5,ifuncs.xldevi2],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_45])
+iftrade.max_drawdown(trades)    #最大连续回撤和单笔回撤
+iftrade.max_win(trades)         #最大连续盈利和单笔盈利
 
-
-trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_long,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.up0],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_45])
->>> sum([trade.profit for trade in trades])
-5943
->>> sum([trade.profit>0 for trade in trades])
-33
->>> sum([trade.profit for trade in trades])/len(trades)
-84
->>> len(trades)
-70
 for trade in trades:print trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].date,trade.actions[1].time,trade.actions[1].position,trade.actions[1].price
 
 
-trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_long,ifuncs.xldevi2,ifuncs.up0,ifuncs.ama_short],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_45])
->>>
->>> sum([trade.profit for trade in trades])/len(trades)
-77
->>> len(trades)
-84
->>> sum([trade.profit>0 for trade in trades])
-38
->>> sum([trade.profit for trade in trades])
-6512
+#整体
+trades = iftrade.itrade(i06,[ifuncs.ipmacd_longt,ifuncs.ipmacd_short,ifuncs.ipmacd_shortt,ifuncs.ipmacd_short_b,ifuncs.ipmacdx_short,ifuncs.ipmacd_long5,ifuncs.ipmacd_short5,ifuncs.dmacd_short2,ifuncs.dmacd_long,ifuncs.dmacd_short5,ifuncs.emv_short,ifuncs.emv_short2,ifuncs.xmacd_short,ifuncs.down02,ifuncs.down01,ifuncs.xldevi2],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_6])
 
+#减法##优选
+trades = iftrade.itrade(i06,[ifuncs.ipmacd_longt,ifuncs.ipmacd_short,ifuncs.ipmacd_short_b,ifuncs.ipmacdx_short,ifuncs.ipmacd_long5,ifuncs.ipmacd_short5,ifuncs.dmacd_short2,ifuncs.dmacd_long,ifuncs.dmacd_short5,ifuncs.down02,ifuncs.down01],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_6])
 
-但是ama比较难以计算，所以可以不要
 '''
 
 
 from wolfox.fengine.ifuture.ibase import *
 
-ama1 = ama_maker()
-ama2 = ama_maker(covered=30,dfast=6,dslow=100)
+#5分钟系列以strend(ma60)为判断
+#1分钟系列以strend(ma30)为判断
 
-def ipmacd_long(sif,sopened=None):#+
+def ipmacd_longt(sif,sopened=None):#+
     '''
-        R=173,times=17,w/t = 5/17
+        R=488,w/t = 7/11,s=2498
+        物极必反? ma5>ma13的反弹
         添加 sif.diff30<0之后, R=226,times=15,wtimes/times = 5/15
         发现很奇怪，1分钟上叉的需要diff5>dea5比较好，
         而下叉反而是diff5<0为好
         忽略超过10点的瞬间拔高导致的上叉
     '''
     trans = sif.transaction
-    signal = gand(cross(sif.dea1,sif.diff1)>0,sif.diff1>0,sif.diff5>sif.dea5,sif.diff30<0,trans[ICLOSE] - trans[IOPEN] < 100,sif.ma5>sif.ma13)#,sif.ma13>sif.ma60)#,strend(sif.diff5)>0)
+    signal = gand(cross(sif.dea1,sif.diff1)>0,strend(sif.diff5-sif.dea5)>0,sif.diff30<sif.dea30,trans[ICLOSE] - trans[IOPEN] < 100,sif.ma5>sif.ma13,strend(sif.ma5)>2)#,sif.ma13>sif.ma60)#,strend(sif.diff5)>0)
     signal = gand(signal,sif.xatr<15)
     return signal * XBUY
 
-def ipmacd_long_c(sif,sopened=None):#+
-    '''
-    '''
-    trans = sif.transaction
-    signal = gand(cross(sif.dea1,sif.diff1)>0,sif.diff1<0,sif.diff5<0,sif.diff5<sif.dea5,sif.diff30<0,sif.diff30>sif.dea30,trans[ICLOSE] - trans[IOPEN] < 100,sif.ma5>sif.ma13)#,sif.ma13>sif.ma60)#,strend(sif.diff5)>0)
-    #signal = gand(signal,sif.xatr<15)
-    return signal * XBUY
 
 def ipmacd_short(sif,sopened=None):#+++
     ''' 
-        R=137,times=21
+        R=187,times=9/18,2788
         忽略超过10点的瞬间下行导致的下叉
     '''
     trans = sif.transaction
-    signal = gand(cross(sif.dea1,sif.diff1)<0,sif.diff1<0,sif.diff5<0,sif.diff30<0,trans[IOPEN] - trans[ICLOSE] < 60)#,strend(sif.diff5)>0)
-    signal = gand(signal,sif.ma5<sif.ma13,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
+    signal = gand(cross(sif.dea1,sif.diff1)<0,sif.diff5<0,sif.diff30<0,trans[IOPEN] - trans[ICLOSE] < 60)#,strend(sif.diff5)>0)
+    signal = gand(signal,strend(sif.ma5)<-1,sif.ma5<sif.ma13,sif.ma5<sif.ma30,strend(sif.ma60)<-5,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
+    return signal * XSELL
+
+def ipmacd_shortt(sif,sopened=None):#+++
+    ''' 
+        R=828,times=4/5,2072
+        30分钟下降途中反弹失败的情形
+        忽略超过10点的瞬间下行导致的下叉
+        被蕴含在ipmacd_short中, 添加了diff1<0,diff30>dea30
+    '''
+    trans = sif.transaction
+    signal = gand(cross(sif.dea1,sif.diff1)<0,sif.diff1<0,sif.diff30>sif.dea30,sif.diff5<0,sif.diff30<0,trans[IOPEN] - trans[ICLOSE] < 60)#,strend(sif.diff5)>0)
+    #signal = gand(signal,sif.ma5<sif.ma13,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
+    signal = gand(signal,strend(sif.ma5)<-1,sif.ma5<sif.ma13,sif.ma5<sif.ma30,strend(sif.ma60)<-5,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
+    
     return signal * XSELL
 
 def ipmacd_short_b(sif,sopened=None):#+
     '''
-        R=220,times=11
+        R=163,times=4/8
         忽略超过10点的瞬间下行导致的下叉
     '''
     trans = sif.transaction
     signal = gand(cross(sif.dea1,sif.diff1)<0,sif.diff1>0,sif.diff5<sif.dea5,sif.diff30>sif.dea30,trans[IOPEN] - trans[ICLOSE] < 60)#,strend(sif.diff5)>0)
-    signal = gand(signal,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
+    signal = gand(signal,strend(sif.ma60)<0,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
     return signal * XSELL
 
-def ipmacd_short_c(sif,sopened=None):#+
-    '''
-        忽略超过10点的瞬间下行导致的下叉
-    '''
-    trans = sif.transaction
-    signal = gand(cross(sif.dea1,sif.diff1)<0,sif.diff1>0,sif.diff5<0,sif.diff30<0,sif.diff30>sif.dea30,trans[IOPEN] - trans[ICLOSE] < 60)#,strend(sif.diff5)>0)
-    #signal = gand(signal,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
-    return signal * XSELL
-
-
-
-def ipmacd_long_b(sif,sopened=None):#-
-    '''
-        忽略超过10点的瞬间下行导致的上叉
-    '''
-    trans = sif.transaction
-    signal = gand(cross(sif.dea1,sif.diff1)>0,sif.diff1<0,sif.diff5>sif.dea5,sif.diff30<0,trans[IOPEN] - trans[ICLOSE] < 60)#,strend(sif.diff5)>0)
-    signal = gand(signal,sif.xatr<15)#,strend(sif.diff5-sif.dea5)<0)
-    return signal * XBUY
-
-def ipmacdx_long(sif,sopened=None):#+
-    '''
-        R=70,times=34
-    '''
-    trans = sif.transaction
-    
-    signal = gand(strend(sif.diff1-sif.dea1)==3,sif.diff1<sif.dea1,sif.diff30<sif.dea30,sif.diff5>sif.dea5,sif.diff5<0,sif.diff1<0,sif.diff1-sif.dea1 > -20,trans[ICLOSE] - trans[IOPEN] < 100)
-    #signal = gand(strend(sif.diff1-sif.dea1)==3,sif.diff1<sif.dea1,sif.diff1>0,sif.diff5>sif.dea5, trans[ICLOSE] - trans[IOPEN] < 100,sif.ma5>sif.ma13)#,sif.ma13>sif.ma60)#,strend(sif.diff5)>0)
-    #signal = gand(signal,sif.xatr<15)
-    return signal * XBUY
 
 def ipmacdx_short(sif,sopened=None):#+
     ''' 柱线变化
-        R=68,len=28
+        R=176,w/t=6/9
     '''
     trans = sif.transaction
     
-    signal = gand(strend(sif.diff1-sif.dea1)==-3,sif.diff1>sif.dea1,sif.diff1<0,sif.diff5<sif.dea5,trans[IOPEN] - trans[ICLOSE] < 60,sif.diff30<0,sif.xatr<20,sif.diff1-sif.dea1 < 20,sif.xatr<20)
+    signal = gand(strend(sif.diff1-sif.dea1)==-3,sif.diff1>sif.dea1,trans[IOPEN] - trans[ICLOSE] < 60,sif.diff30<0,strend(sif.diff5-sif.dea5)>0)
     #signal = gand(strend(sif.diff1-sif.dea1)==3,sif.diff1<sif.dea1,sif.diff1>0,sif.diff5>sif.dea5, trans[ICLOSE] - trans[IOPEN] < 100,sif.ma5>sif.ma13)#,sif.ma13>sif.ma60)#,strend(sif.diff5)>0)
+    signal = gand(signal,strend(sif.ma5)<-1,sif.ma5<sif.ma30,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
     return signal * XSELL
-
-def ipmacdx_long5(sif,sopened=None):#
-    '''柱线变化
-    '''
-    trans = sif.transaction
-    
-    signal = gand(strend(sif.diff5-sif.dea5)==3,sif.diff5<sif.dea5,sif.diff30>sif.dea30,sif.diff5<0,trans[ICLOSE] - trans[IOPEN] < 100)
-    return signal * XBUY
-
 
 def ipmacd_long5(sif,sopened=None):#+
     '''
-        R=179,times=7
+        R=154,times=4/9, 787
     '''
     trans = sif.transaction
     signal = gand(cross(sif.dea5,sif.diff5)>0,sif.diff5>0)
     #s1 = gand(cross(sif.dea1,sif.diff1)<0,sif.diff5>sif.dea5,sif.diff5>0,trans[ICLOSE] - trans[IOPEN] < 100)
     s1 = gand(cross(sif.dea1,sif.diff1)>0,sif.diff5>sif.dea5,sif.diff5>0,trans[ICLOSE] - trans[IOPEN] < 100)#,sif.xatr<15)
     signal = sfollow(signal,s1,60)
-    
+    signal = gand(sif.ma5>sif.ma13,signal)
     return signal * XBUY
-
 
 def ipmacd_short5(sif,sopened=None):#-
     '''
-        忽略超过10点的瞬间下行导致的下叉
+        R=175,w/t=6/12
     '''
     trans = sif.transaction
     signal = gand(cross(sif.dea5,sif.diff5)<0,sif.diff5>0,trans[IOPEN] - trans[ICLOSE] < 60)#,strend(sif.diff5)>0)
     #s1 = gand(cross(sif.dea1,sif.diff1)<0,sif.diff5<sif.dea5,sif.xatr<20)
     #signal = sfollow(signal,s1,60)
+    signal = gand(signal,strend(sif.ma60)<0,strend(sif.ma30)<0,sif.ma5<sif.ma13,sif.ma5<sif.ma30,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
     
-    return signal * XSELL
-
-def ipmacd_short52(sif,sopened=None):#-
-    '''
-        忽略超过10点的瞬间下行导致的下叉
-    '''
-    trans = sif.transaction
-    signal = gand(cross(sif.dea5,sif.diff5)<0,trans[IOPEN] - trans[ICLOSE] < 60)#,strend(sif.diff5)>0)
-    signal1 = gand(cross(sif.dea1,sif.diff1)<0,trans[IOPEN] - trans[ICLOSE] < 60)
-    signal = sfollow(signal,signal1,60)
-    return signal * XSELL
-
-
-def dmacd_short(sif,sopened=None):#++
-    '''
-        R=164,times=11
-        回抽时未上叉又回落
-        xatr无约束
-    '''
-    trans = sif.transaction
-    sdd = strend(sif.diff1 - sif.dea1)
-    mmacd = msum(sif.diff1 < sif.dea1,5)    #一直在水线以下
-    signal = gand(sdd==-1,rollx(sdd)>4,sif.diff1<sif.dea1,trans[IOPEN] - trans[ICLOSE] < 60,sif.diff5<0,sif.diff30<0)
     return signal * XSELL
 
 def dmacd_short2(sif,sopened=None):#++
     '''
-        R=100,times=4
+        R=304,times=4/5
         回抽时未下叉又上涨
     '''
     trans = sif.transaction
     sdd = strend(sif.diff1 - sif.dea1)
     signal = gand(sdd==1,rollx(sdd)<-1,sif.diff1>sif.dea1, trans[IOPEN] - trans[ICLOSE] < 60,sif.diff5>0,sif.diff30>0,sif.diff1>0,sif.xatr<20)
+
     return signal * XSELL
+
 
 def dmacd_long(sif,sopened=None):#+++
     '''
+        R=179,w/t=4/7
         回抽时未下叉又上涨
     '''
     trans = sif.transaction
     sdd = strend(sif.diff1 - sif.dea1)
     signal = gand(sdd==1,rollx(sdd)<-4,sif.diff1>sif.dea1, trans[ICLOSE] - trans[IOPEN] < 60,sif.diff5>sif.dea5,sif.diff5<0,sif.diff1>0)
-    return signal * XBUY
-
-
-def dmacd_long5(sif,sopened=None):#+++
-    '''
-        R=197,times=10
-        回抽时未下叉又上涨
-    '''
-    trans = sif.transaction
-    sdd = strend(sif.diff5 - sif.dea5)
-    signal = gand(sdd==1,rollx(sdd)<-4,sif.diff5>sif.dea5,sif.diff5<0,trans[ICLOSE] - trans[IOPEN] < 100,sif.diff30<0,sif.diff30<sif.dea30)
+    signal = gand(signal,sif.ma5>sif.ma30,strend(sif.ma30)>0)#,sif.ma13>sif.ma60)#,strend(sif.diff5)>0)
 
     return signal * XBUY
 
 def dmacd_short5(sif,sopened=None):#+++
     ''' 
-        R=1152,times=7
+        R=676,times=6/9,2192
         回抽时未上叉又回落
     '''
     trans = sif.transaction
     sdd = strend(sif.diff5 - sif.dea5)
     signal = gand(sdd==-1,rollx(sdd)>4,sif.diff5<sif.dea5,trans[IOPEN] - trans[ICLOSE] < 60,sif.diff30>sif.dea30,sif.diff30<0)
+    signal = gand(signal,strend(sif.ma60)<0,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
+    
     return signal * XSELL
 
-def ama_short(sif,sopened=None): #+
-    trans = sif.transaction
-    xama1 = ama1(trans[ICLOSE])
-    xama2 = ama2(trans[ICLOSE])
-    signal = gand(cross(xama2,xama1)<0,strend(sif.diff5)<0)
-
-    #s1 = gand(cross(sif.dea1,sif.diff1)<0,sif.diff5<sif.dea5,sif.diff5>0)
-    #signal = sfollow(signal,s1,60)
-
-    return signal * XSELL
-
-def ama_short2(sif,sopened=None):#-
-    ''' 与其它叠加无意义
-        但作为平多头仓的选项很好
+def emv_short(sif,sopened=None):#+
     '''
-    trans = sif.transaction
-    xama1 = ama1(trans[ICLOSE])
-    xama2 = ama2(trans[ICLOSE])
-    signal = gand(cross(xama2,trans[ICLOSE])<0,strend(sif.diff1)<0)
-    return signal * XSELL
-
-def ama_long(sif,sopened=None):#-
-    trans = sif.transaction
-    xama1 = ama1(trans[ICLOSE])
-    xama2 = ama2(trans[ICLOSE])
-    signal = gand(cross(xama2,trans[ICLOSE])>0,strend(sif.diff5)>0)
-    return signal * XBUY
-
-def emv_short(sif,sopened=None):#+---
-    '''
+        R=120,w/t=5/12,1035
         #与其它叠加有反作用
+        #这个貌似是抄底的
     '''
     trans = sif.transaction
     semv = emv(trans[HIGH],trans[LOW],trans[IVOL])
     signal = gand(cross(cached_zeros(len(semv)),semv)<0,sif.diff5<sif.dea5,sif.diff5>0,strend(sif.diff5-sif.dea5)>0) 
+    signal = gand(signal,strend(sif.ma30)<0,sif.ma5>sif.ma30)
     return signal * XSELL
 
 def emv_short2(sif,sopened=None):#+
     '''
+        R=181,w/t=3/7,551
         #与其它叠加有反作用
     '''
     trans = sif.transaction
@@ -303,182 +195,79 @@ def emv_short2(sif,sopened=None):#+
     signal = gand(cross(cached_zeros(len(semv)),semv)<0,sif.diff5<sif.dea5,sif.diff5>0,strend(sif.diff5-sif.dea5)>0) 
     signal1 = gand(cross(sif.dea1,sif.diff1)<0,sif.diff5<sif.dea5,strend(sif.diff5-sif.dea5)>0,trans[IOPEN] - trans[ICLOSE] < 60)
     signal = sfollow(signal,signal1,30)
+    signal = gand(signal,strend(sif.ma60)<0)
+    
     return signal * XSELL
 
-
-def emv_long(sif,sopened=None):#----
-    '''
-        #与其它叠加有反作用
-    '''
-    trans = sif.transaction
-    semv = emv(trans[HIGH],trans[LOW],trans[IVOL])
-    signal = gand(cross(cached_zeros(len(semv)),semv)>0) 
-    signal1 = gand(cross(sif.dea1,sif.diff1)>0,sif.diff5>0,trans[IOPEN] - trans[ICLOSE] < 60)
-    #signal = sfollow(signal,signal1,30)
-    return signal * XBUY    #XSELL,比较失败，居然作为反向信号更好. 目前没办法处理5分钟数据?
-
 def xmacd_short(sif,sopened=None):#+-   不可叠加
+    '''
+        R=85,w/t=7/12
+    '''
     trans = sif.transaction
     
     dd = sif.diff5 - sif.dea5
     sdd = strend(dd)
     signal = gand(dd<-15,sif.diff30>0,sif.diff5>0,trans[IOPEN] - trans[ICLOSE] < 60)
+    #signal = gand(signal,sif.ma5<sif.ma30)
     return signal * XSELL
-
-
-def ihigh(sif,sopened=None):#- 60高点
-    trans = sif.transaction
-    mline = rollx(tmax(trans[IHIGH],30)) #半小时高点为准
-    dcross = cross(mline,trans[IHIGH])>0    
-    signal = gand(dcross,sif.ma5>sif.ma10,sif.ma10>sif.ma60)
-    return signal * XBUY
-
-def xma(sif,sopened=None): #--
-    trans = sif.transaction
-    sx = cross(sif.ma10,sif.ma5)>0
-    signal = sx
-    return signal * XBUY
-
-def mfollow_short(sif,sopened=None):   #-
-    trans = sif.transaction
-    signal = gand(cross(sif.dea5,sif.diff5)<0,trans[IOPEN] - trans[ICLOSE] < 100,sif.diff5>0)
-    s1 = gand(cross(sif.dea1,sif.diff1)<0,sif.diff5<sif.dea5,sif.diff5>0)
-    signal = sfollow(signal,s1,60)
-    return signal * XSELL
-
-def mfollow_long(sif,sopened=None):   #+, 水线以下
-    trans = sif.transaction
-    signal = gand(cross(sif.dea5,sif.diff5)>0,trans[ICLOSE] - trans[IOPEN]< 60,sif.diff5<0)
-    s1 = gand(cross(sif.dea1,sif.diff1)>0,sif.diff5>sif.dea5,sif.diff5<0)
-    signal = sfollow(signal,s1,60)
-    return signal * XBUY
-
 
 def down02(sif,sopened=None): #+
     '''
-        R=1153,times=5
+        R=542,times=4/5
     '''
     trans = sif.transaction
     signal5 = gand(cross(cached_zeros(len(sif.diff5)),sif.diff5)<0)
     signal1 = gand(cross(sif.dea1,sif.diff1)<0,sif.diff5<0,trans[IOPEN] - trans[ICLOSE] < 60,sif.diff30>sif.dea30,sif.diff30<0)
     signal = sfollow(signal5,signal1,30)
-    return signal * XSELL
-
-def down0(sif,sopened=None): #-
-    '''
-        [down0,down02]无叠加作用
-        首次失败后再次介入
-    '''
-    trans = sif.transaction
-    signal5 = gand(cross(cached_zeros(len(sif.diff5)),sif.diff5)<0)
-    signal = signal5
+    signal = gand(signal,strend(sif.ma30)<0)
     return signal * XSELL
 
 def down01(sif,sopened=None): #++
     ''' 
-        R=155,times=15
+        R=104,times=5/13
+        30分钟框架下的下行，5分钟框架的上行，以及1分钟的下行
+        去掉
     '''
     trans = sif.transaction
     signal = gand(cross(cached_zeros(len(sif.diff1)),sif.diff1)<0,sif.diff1<sif.dea1,sif.diff5>sif.dea5,sif.dea5>0,sif.diff30<sif.dea30,trans[IOPEN] - trans[ICLOSE] < 60)
     return signal * XSELL
 
 
-def up0(sif,sopened=None): #+
-    '''
-        [up0,up02]无叠加作用
-    '''
-    trans = sif.transaction
-    signal5 = gand(cross(cached_zeros(len(sif.diff5)),sif.diff5)>0,sif.diff30<0,sif.diff30<sif.dea30,trans[ICLOSE] - trans[IOPEN] < 100)
-    return signal5 * XBUY
-
-def up02(sif,sopened=None): #-
-    trans = sif.transaction
-    signal5 = gand(cross(cached_zeros(len(sif.diff5)),sif.diff5)>0,sif.diff30<0,sif.diff30<sif.dea30,trans[ICLOSE] - trans[IOPEN] < 100)
-    signal1 = gand(cross(sif.dea1,sif.diff1)>0,sif.diff5>0)
-    signal = sfollow(signal5,signal1,60)
-    return signal * XBUY
-
-
-def xhdevi_stop(sif,sopened=None):#+--
-    ''' 顶背离平多仓
-    '''
-    trans = sif.transaction
-    xs = gand(hdevi(trans[IHIGH],sif.diff1,sif.dea1))
-    return xs * XSELL
-
-def xldevi_stop(sif,sopened=None):#+--
-    ''' 顶背离平多仓
-    '''
-    trans = sif.transaction
-    xs = gand(ldevi(trans[IHIGH],sif.diff1,sif.dea1))
-    return xs * XBUY
-
-
-def xhdevi(sif,sopened=None):#+--
-    '''
-        [xhdevi,xhdevi2] 组合实现第一次失败后的再次介入，但第一次成功不再介入
-        +
-    '''
-    trans = sif.transaction
-    xs = gand(hdevi(trans[IHIGH],sif.diff5,sif.dea5))
-    return xs * XSELL
-
-def xhdevi1(sif,sopened=None):#+--
-    '''
-        [xhdevi,xhdevi2] 组合实现第一次失败后的再次介入，但第一次成功不再介入
-        +
-    '''
-    trans = sif.transaction
-    xs = gand(hdevi(trans[IHIGH],sif.diff1,sif.dea1),strend(sif.diff5-sif.dea5)>0)
-    return xs * XSELL
-
-
-def xhdevi2(sif,sopened=None):#-
-    trans = sif.transaction
-    xs = gand(hdevi(trans[IHIGH],sif.diff5,sif.dea5),sif.diff5>0)
-    s1 = gand(cross(sif.dea1,sif.diff1)<0)#,sif.diff5>sif.dea5)
-    signal = sfollow(xs,s1,60)
-    #signal = xs
-    return signal * XSELL
-
-
-def xldevi(sif,sopened=None):#+-
-    '''
-       [xldevi,xldevi2] 组合实现第一次失败后的再次介入，但第一次成功不再介入
-       +
-    '''
-    trans = sif.transaction
-    xs = gand(ldevi(trans[ILOW],sif.diff5,sif.dea5))
-    signal = xs
-    return signal * XBUY
-
 def xldevi2(sif,sopened=None):#+
     '''
-        R=231,times=3
+        R=100,times=2/2,501
+        样本太少
     '''
     trans = sif.transaction
     xs = gand(ldevi(trans[ILOW],sif.diff5,sif.dea5),sif.diff5<0)
     s1 = gand(cross(sif.dea1,sif.diff1)>0,sif.diff5<0,sif.diff5>sif.dea5,sif.xatr<15,strend(sif.diff30)<0)
     signal = sfollow(xs,s1,60)
-    return signal * XBUY
-
-def xldevi1(sif,sopened=None):#-
-    '''
-       一分钟底背离
-    '''
-    trans = sif.transaction
-    xs = gand(ldevi(trans[ILOW],sif.diff1,sif.dea1),sif.diff5>0)
-    #s1 = gand(cross(sif.dea1,sif.diff1)>0,sif.diff5<0)
-    #signal = sfollow(xs,s1,60)
-    signal = xs
+    #signal = gand(signal,strend(sif.ma30)>0)
     return signal * XBUY
 
 
-def xud(sif,sopened=None):
-    trans = sif.transaction
-    sxc = xc0(trans[IOPEN],trans[ICLOSE],trans[IHIGH],trans[ILOW])
-    signal = gand(greater(sxc,0))
-    return signal * XBUY
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def imacd_stop5(sif,sopened=None):
     trans = sif.transaction
@@ -681,17 +470,21 @@ def atr_xstop(sif,sopened,lost_times=200,win_times=300,max_drawdown=200,min_lost
         willlost = sif.atr[i] * lost_times / XBASE
         if willlost < min_lost:
             willlost = min_lost
+        if i < ilong_closed or i<ishort_closed:    #已经开了仓，且未平，不再计算            
+            #print 'skiped',trans[IDATE][i],trans[ITIME][i],trans[IDATE][ilong_closed],trans[ITIME][ilong_closed]
+            continue
         if price<0: #多头止损
             #print 'find long stop:',i
-            if i < ilong_closed:    #已经开了多头仓，且未平，不再计算
-                print 'skiped',trans[IDATE][i],trans[ITIME][i],trans[IDATE][ilong_closed],trans[ITIME][ilong_closed]
-                continue
+            #if i < ilong_closed:    #已经开了多头仓，且未平，不再计算
+            #    print 'skiped',trans[IDATE][i],trans[ITIME][i],trans[IDATE][ilong_closed],trans[ITIME][ilong_closed]
+            #    continue
             buy_price = -price
             lost_stop = buy_price - willlost
             cur_high = max(buy_price,trans[ICLOSE][i])
             win_stop = cur_high - sif.atr[i] * win_times / XBASE
             cur_stop = lost_stop if lost_stop > win_stop else win_stop
             if trans[ICLOSE][i] < cur_stop:
+                #print '----sell----------:',cur_stop,trans[ICLOSE][i],cur_high,lost_stop
                 ilong_closed = i
                 rev[i] = XSELL            
             else:
@@ -715,15 +508,16 @@ def atr_xstop(sif,sopened,lost_times=200,win_times=300,max_drawdown=200,min_lost
                             cur_stop = win_stop
         else:   #空头止损
             #print 'find short stop:',i
-            if i < ishort_closed:    #已经开了空头仓，且未平，不再计算
-                print 'skiped',trans[IDATE][i],trans[ITIME][i],trans[IDATE][ishort_closed],trans[ITIME][ishort_closed]
-                continue
+            #if i < ishort_closed:    #已经开了空头仓，且未平，不再计算
+            #    print 'skiped',trans[IDATE][i],trans[ITIME][i],trans[IDATE][ishort_closed],trans[ITIME][ishort_closed]
+            #    continue
             sell_price = price
             lost_stop = sell_price + willlost
             cur_low = min(sell_price,trans[ICLOSE][i])
             win_stop = cur_low + sif.atr[i] * win_times / XBASE 
             cur_stop = lost_stop if lost_stop < win_stop else win_stop
             if trans[ICLOSE][i] > cur_stop:
+                #print '----buy----------:',cur_stop,trans[ICLOSE][i],cur_high,lost_stop
                 ishort_closed = i
                 rev[i] = XBUY
             else:
@@ -752,15 +546,19 @@ atr_xstop_15_45 = fcustom(atr_xstop,lost_times=150,win_times=450,max_drawdown=20
 atr_xstop_15_5 = fcustom(atr_xstop,lost_times=150,win_times=500,max_drawdown=200,min_lost=30)
 atr_xstop_15_6 = fcustom(atr_xstop,lost_times=150,win_times=600,max_drawdown=200,min_lost=30)   #
 atr_xstop_15_A = fcustom(atr_xstop,lost_times=150,win_times=1000,max_drawdown=200,min_lost=30)
+atr_xstop_15_15 = fcustom(atr_xstop,lost_times=150,win_times=150,max_drawdown=200,min_lost=30)  
+atr_xstop_2_2 = fcustom(atr_xstop,lost_times=200,win_times=200,max_drawdown=200,min_lost=30)  
+atr_xstop_15_2 = fcustom(atr_xstop,lost_times=150,win_times=200,max_drawdown=200,min_lost=30)  
+atr_xstop_2_6 = fcustom(atr_xstop,lost_times=200,win_times=600,max_drawdown=200,min_lost=30)   
 
-atr_xstop_2_6 = fcustom(atr_xstop,lost_times=200,win_times=600,max_drawdown=200,min_lost=30)   #
+
 atr_xstop_1_2 = fcustom(atr_xstop,lost_times=100,win_times=200,max_drawdown=200,min_lost=30)
 atr_xstop_15_25 = fcustom(atr_xstop,lost_times=150,win_times=250,max_drawdown=200,min_lost=30)
 atr_xstop_2_3 = fcustom(atr_xstop,lost_times=200,win_times=300,max_drawdown=200,min_lost=30)
 atr_xstop_25_4 = fcustom(atr_xstop,lost_times=250,win_times=400,max_drawdown=200,min_lost=30)
 atr_xstop_2_4 = fcustom(atr_xstop,lost_times=200,win_times=400,max_drawdown=200,min_lost=30)
 atr_xstop_3_4 = fcustom(atr_xstop,lost_times=300,win_times=400,max_drawdown=200,min_lost=30)
-atr_xstop_15_4 = fcustom(atr_xstop,lost_times=150,win_times=400,max_drawdown=200,min_lost=30)    #
+atr_xstop_15_4 = fcustom(atr_xstop,lost_times=150,win_times=400,max_drawdown=200,min_lost=30)    
 atr_xstop_1_4 = fcustom(atr_xstop,lost_times=100,win_times=400,max_drawdown=200,min_lost=30)
 atr_xstop_05_4 = fcustom(atr_xstop,lost_times=50,win_times=400,max_drawdown=200,min_lost=30)
 atr_xstop_1_5 = fcustom(atr_xstop,lost_times=100,win_times=500,max_drawdown=200,min_lost=30)

@@ -76,6 +76,26 @@ def prepare_index(sif):
     sif.atr2 = atr2(trans[ICLOSE],trans[IHIGH],trans[ILOW],20)    
     sif.xatr = sif.atr * XBASE * XBASE / trans[ICLOSE]
     sif.mxatr = ma(sif.xatr,13)
+    sif.i_cof5 = np.where(trans[ITIME]%5==0)    #5分钟收盘线,不考虑隔日的因素
+    sif.close5 = trans[ICLOSE][sif.i_cof5]
+    sif.open5 = rollx(sif.close5)   #open5看作是上一个的收盘价,其它方式对应open和close以及还原的逻辑比较复杂
+    sif.high5 = tmax(trans[IHIGH],5)[sif.i_cof5]
+    sif.low5 = tmax(trans[ILOW],5)[sif.i_cof5]
+    sif.atr5 = atr(sif.close5,sif.high5,sif.low5,20)
+    sif.xatr5 = sif.atr5 * XBASE * XBASE / sif.close5
+    sif.mxatr5 = ma(sif.xatr5,13)
+    sif.diff5x,sif.dea5x = cmacd(sif.close5*FBASE)
+    sif.diff5x5,sif.dea5x5 = cmacd(sif.close5*FBASE,60,130,45)    
+    sif.i_cof30 = np.where(gor(trans[ITIME]%100==15,trans[ITIME]%100==45))    #5分钟收盘线,不考虑隔日的因素
+    sif.close30 = trans[ICLOSE][sif.i_cof30]
+    sif.open30 = rollx(sif.close30)   #open5看作是上一个的收盘价,其它方式对应open和close以及还原的逻辑比较复杂
+    sif.high30 = tmax(trans[IHIGH],30)[sif.i_cof30]
+    sif.low30 = tmax(trans[ILOW],30)[sif.i_cof30]
+    sif.atr30 = atr(sif.close30,sif.high30,sif.low30,20)
+    sif.xatr30 = sif.atr30 * XBASE * XBASE / sif.close30
+    sif.mxatr30 = ma(sif.xatr30,13)
+    sif.diff30x,sif.dea30x = cmacd(sif.close30*FBASE)
+
 
 def prepare_index2(sif):
     trans = sif.transaction
@@ -95,4 +115,5 @@ def prepare_index2(sif):
     sif.atr = atr(trans[IMID],trans[IHIGH],trans[ILOW],20)
     sif.atr2 = atr2(trans[IMID],trans[IHIGH],trans[ILOW],20)    
     sif.xatr = sif.atr * XBASE * XBASE / trans[IMID]
-    sif.mxatr = ma(sif.xatr,13)    
+    sif.mxatr = ma(sif.xatr,13)
+

@@ -784,6 +784,22 @@ def semv_old(shigh,slow,sweight,length=13):#标准化后的emv算法,length为�
         premid = mid
     return rev        
 
+def temv(shigh,slow,sweight,length=14,BASE=100):#国内常用的emv方式
+    ''' BASE设定为100是考虑到mid的精度问题，同时又不至于溢出
+        VOLUME:=MA(VOL,N)/VOL;
+        MID:=100*(HIGH+LOW-REF(HIGH+LOW,1))/(HIGH+LOW);
+        EMV:MA(MID*VOLUME*(HIGH-LOW)/MA(HIGH-LOW,N),N);
+        MAEMV:MA(EMV,M);
+    '''
+
+    mvol = ma(sweight,length) * BASE / sweight
+    ahl = shigh + slow
+    jhl = shigh - slow
+    mid = (ahl-rollx(ahl))*BASE*BASE/ahl
+    rev = ma(mid*mvol*jhl/ma(jhl,length),length)
+    return rev
+
+
 def vap(svolume,sprice,base):
     ''' 成交量调整的价格曲线Volume Adjusted Price Line
         返回经成交量调整的价格序列，以及该序列发生的时间

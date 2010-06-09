@@ -97,6 +97,21 @@ from wolfox.fengine.ifuture.ibase import *
 ama1 = ama_maker()
 ama2 = ama_maker(covered=30,dfast=6,dslow=100)
 
+def svap(sif,sopened=None):
+    trans = sif.transaction
+    svap,v2i = svap_ma(trans[IVOL],trans[ICLOSE],67)
+    ma_svapfast = ma(svap,5)
+    ma_svapslow = ma(svap,13)
+    trend_ma_svapfast = strend(ma_svapfast) > 0
+    trend_ma_svapslow = strend(ma_svapslow) > 0
+    cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
+    msvap = transform(cross_fast_slow,v2i,len(trans[IVOL]))
+    s1 = cross(sif.dea1,sif.diff1)>0
+    signal = sfollow(msvap,s1,10)
+    signal = gand(signal,strend(sif.diff5-sif.dea5)>0,strend(sif.ma5)>2)
+    return signal
+
+
 def ipmacd_long(sif,sopened=None):#+
     '''
         R=266,w/t = 5/12
@@ -105,8 +120,24 @@ def ipmacd_long(sif,sopened=None):#+
         忽略超过10点的瞬间拔高导致的上叉
     '''
     trans = sif.transaction
-    signal = gand(cross(sif.dea1,sif.diff1)>0,strend(sif.diff5-sif.dea5)>0,trans[ICLOSE] - trans[IOPEN] < 100,sif.ma5>sif.ma13,strend(sif.ma5)>2,sif.diff30<sif.dea30)
+    signal = gand(cross(sif.dea1,sif.diff1)>0,strend(sif.diff5-sif.dea5)>0,trans[ICLOSE] - trans[IOPEN] < 100,strend(sif.ma5)>2,sif.diff30>sif.dea30)
     signal = gand(signal,sif.xatr<15)
+    return signal * XBUY
+
+def ipmacd_long50(sif,sopened=None):#+
+    '''
+    '''
+    trans = sif.transaction
+    signal = gand(cross(sif.dea5,sif.diff5)>0,sif.diff1>0,strend(sif.ma5)>2,sif.ma5>sif.ma13,sif.ma5>sif.ma30,strend(sif.diff30-sif.dea30)>0)
+    #signal = gand(signal,sif.xatr<15)
+    return signal * XBUY
+
+
+def ipmacd_5x13(sif,sopened=None):
+    '''
+    '''
+    trans = sif.transaction
+    signal = gand(cross(sif.ma30,sif.ma5)>0,sif.ma5>sif.ma13,trans[ICLOSE]>sif.ma5,sif.diff1>sif.dea1,strend(sif.diff1-sif.dea1)>5,strend(sif.diff5-sif.dea5)>0)
     return signal * XBUY
 
 def ipmacd_longt(sif,sopened=None):#+
@@ -138,8 +169,8 @@ def ipmacd_short(sif,sopened=None):#+++
         忽略超过10点的瞬间下行导致的下叉
     '''
     trans = sif.transaction
-    signal = gand(cross(sif.dea1,sif.diff1)<0,sif.diff5<0,sif.diff30<0,trans[IOPEN] - trans[ICLOSE] < 60)#,strend(sif.diff5)>0)
-    signal = gand(signal,strend(sif.ma5)<-1,sif.ma5<sif.ma13,sif.ma5<sif.ma30,strend(sif.ma60)<-5,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
+    signal = gand(cross(sif.dea1,sif.diff1)<0,sif.diff5<0,sif.diff30<0,sif.diff5<sif.dea5,sif.diff1<0,trans[IOPEN] - trans[ICLOSE] < 60)#,strend(sif.diff5)>0)
+    signal = gand(signal,strend(sif.ma5)<-1,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
     return signal * XSELL
 
 def ipmacd_shortt(sif,sopened=None):#+++
@@ -361,10 +392,63 @@ def emv_short(sif,sopened=None):#+---
         #这个貌似是抄底的
     '''
     trans = sif.transaction
-    semv = emv(trans[HIGH],trans[LOW],trans[IVOL])
+    semv = emv(trans[IHIGH],trans[ILOW],trans[IVOL])
     signal = gand(cross(cached_zeros(len(semv)),semv)<0,sif.diff5<sif.dea5,sif.diff5>0,strend(sif.diff5-sif.dea5)>0) 
     signal = gand(signal,strend(sif.ma30)<0,sif.ma5>sif.ma30)
     return signal * XSELL
+
+def emvx_short(sif,sopened=None):#
+    '''
+        R=120,w/t=5/12
+        #与其它叠加有反作用
+        #这个貌似是抄底的
+    '''
+    trans = sif.transaction
+    semv = emv(trans[IHIGH],trans[ILOW],trans[IVOL])
+    signal = gand(cross(cached_zeros(len(semv)),semv)<0) 
+    return signal * XSELL
+
+
+def emvx_long(sif,sopened=None):#
+    '''
+        R=120,w/t=5/12
+        #与其它叠加有反作用
+        #这个貌似是抄底的
+    '''
+    trans = sif.transaction
+    xemv = temv(trans[IHIGH],trans[ILOW],trans[IVOL])
+    #memv = ma(xemv,9)
+    signal = gand(cross(cached_ints(len(xemv),200),xemv)>0)#,sif.ma5>sif.ma13,sif.ma13>sif.ma30,sif.ma5>sif.ma60,strend(sif.diff5-sif.dea5)>0,strend(sif.diff30-sif.dea30)>0,trans[ICLOSE]>sif.ma5)
+    #signal = gand(cross(memv,xemv)>0)
+    #signal = gand(cross(memv,xemv)>0)
+    #s1 = gand(cross(sif.dea1,sif.diff1)>0,strend(sif.diff5-sif.dea5)>0,strend(sif.diff5)>0)
+    xs1 = gand(ldevi(trans[ILOW],sif.diff1,sif.dea1,distance=1)) 
+    #xs2 = gand(ldevi(trans[ILOW],sif.diff1,sif.dea1,distance=2)) 
+    #s1 = gor(xs1,xs2)
+    signal = sfollow(xs1,signal,10)
+    #signal = xs1
+    return signal * XBUY
+
+def ma3x(sif,sopened=None):
+    trans = sif.transaction
+    x1 = cross(sif.ma13,sif.ma5)>0
+    x2 = cross(sif.ma30,sif.ma5)>0
+    x3 = cross(sif.ma30,sif.ma13)>0
+    s1 = sfollow(x1,x2,5)
+    s2 = sfollow(x2,x3,5)
+    #xs1 = gand(ldevi(trans[ILOW],sif.diff1,sif.dea1,distance=1)) 
+    xs1 = cross(sif.dea1,sif.diff1)>0
+    s3 = sfollow(xs1,s2,10)
+    signal = gand(s3,sif.diff1>0,strend(sif.diff5)>3,strend(sif.diff5-sif.dea5)>3,strend(sif.diff30)>3)
+    return signal
+
+def uc5(sif,sopened=None):
+    trans = sif.transaction
+    xc = gand(cross(sif.dea5x,sif.diff5x)>0,sif.diff5x5>sif.dea5x5)#,sif.diff5x>0,sif.diff30[sif.i_cof5]>sif.dea30[sif.i_cof5])
+    sxc = np.zeros_like(trans[ICLOSE])
+    sxc[sif.i_cof5] = xc
+    return sxc * XBUY
+
 
 def emv_short2(sif,sopened=None):#+
     '''
@@ -372,7 +456,7 @@ def emv_short2(sif,sopened=None):#+
         #与其它叠加有反作用
     '''
     trans = sif.transaction
-    semv = emv(trans[HIGH],trans[LOW],trans[IVOL])
+    semv = emv(trans[IHIGH],trans[ILOW],trans[IVOL])
     signal = gand(cross(cached_zeros(len(semv)),semv)<0,sif.diff5<sif.dea5,sif.diff5>0,strend(sif.diff5-sif.dea5)>0) 
     signal1 = gand(cross(sif.dea1,sif.diff1)<0,sif.diff5<sif.dea5,strend(sif.diff5-sif.dea5)>0,trans[IOPEN] - trans[ICLOSE] < 60)
     signal = sfollow(signal,signal1,30)
@@ -381,16 +465,23 @@ def emv_short2(sif,sopened=None):#+
     return signal * XSELL
 
 
-def emv_long(sif,sopened=None):#----
+def emv_long(sif,sopened=None):#+--
     '''
         R=21, w/t=8/24
     '''
     trans = sif.transaction
-    semv = emv(trans[HIGH],trans[LOW],trans[IVOL])
-    signal = gand(cross(cached_zeros(len(semv)),semv)>0) 
-    signal1 = gand(cross(sif.dea1,sif.diff1)>0,sif.diff5>0,trans[IOPEN] - trans[ICLOSE] < 60)
-    signal = sfollow(signal,signal1,30)
-    signal = gand(signal,strend(sif.ma60)>0,strend(sif.ma13)>0,sif.ma5>sif.ma30)
+    semv = temv(trans[IHIGH],trans[ILOW],trans[IVOL])
+    msemv = ma(semv,9)
+    #signal = gand(cross(msemv,semv)>0) 
+    pres =  ldevi(trans[ILOW],sif.diff1,sif.dea1)
+    signal = gand(cross(cached_zeros(len(semv)),semv)>0,strend(sif.diff5-sif.dea5)>0) 
+    signal = syntony(pres,signal,10)
+    x0 = gand(cross(cached_zeros(len(semv)),sif.diff1)>0,sif.diff1>sif.dea1,strend(sif.diff30-sif.dea30)>0,strend(sif.diff5)>0)
+    signal = sfollow(signal,x0,10)
+
+    #signal1 = gand(cross(sif.dea1,sif.diff1)>0,sif.diff5>0,trans[IOPEN] - trans[ICLOSE] < 60)
+    #signal = sfollow(signal,signal1,30)
+    #signal = gand(signal,strend(sif.ma60)>0,strend(sif.ma13)>0,sif.ma5>sif.ma30)
     return signal * XBUY    #XSELL,比较失败，居然作为反向信号更好. 目前没办法处理5分钟数据?
 
 def xmacd_short(sif,sopened=None):#+-   不可叠加
@@ -527,13 +618,13 @@ def xhdevi(sif,sopened=None):#-
     xs = gand(hdevi(trans[IHIGH],sif.diff5,sif.dea5))
     return xs * XSELL
 
-def xhdevi1(sif,sopened=None):#+--
+def xhdevi1(sif,sopened=None):#+
     '''
         [xhdevi,xhdevi2] 组合实现第一次失败后的再次介入，但第一次成功不再介入
         +
     '''
     trans = sif.transaction
-    xs = gand(hdevi(trans[IHIGH],sif.diff1,sif.dea1),strend(sif.diff5-sif.dea5)>0)
+    xs = gand(hdevi(trans[IHIGH],sif.diff1,sif.dea1),sif.diff5<0,sif.diff30<0,sif.xatr<20)
     return xs * XSELL
 
 
@@ -573,9 +664,7 @@ def xldevi1(sif,sopened=None):#-
        一分钟底背离
     '''
     trans = sif.transaction
-    xs = gand(ldevi(trans[ILOW],sif.diff1,sif.dea1),sif.diff5>0)
-    #s1 = gand(cross(sif.dea1,sif.diff1)>0,sif.diff5<0)
-    #signal = sfollow(xs,s1,60)
+    xs = gand(ldevi(trans[ILOW],sif.diff1,sif.dea1),strend(sif.diff5-sif.dea5)>0,sif.diff5<0,sif.diff5<sif.dea5,sif.diff30>sif.dea30,sif.diff30<0)
     signal = xs
     return signal * XBUY
 

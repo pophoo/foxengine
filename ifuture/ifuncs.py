@@ -10,9 +10,11 @@ from wolfox.fengine.ifuture.ifreader import read_ifs
 
 from wolfox.fengine.ifuture.ibase import *
 from wolfox.fengine.ifuture.ifreader import *
-from wolfox.fengine.ifuture.ifuncs import *
-import wolfox.fengine.ifuture.ifuncs as ifuncs
 import wolfox.fengine.ifuture.iftrade as iftrade
+import wolfox.fengine.ifuture.ifuncs as ifuncs
+import wolfox.fengine.ifuture.tfuncs as tfuncs
+from wolfox.fengine.ifuture.ifuncs import *
+
 
 ifmap = read_ifs()  # fname ==> BaseObject(name='$name',transaction=trans)
 
@@ -23,8 +25,16 @@ i07 = ifmap['IF1007']
 i09 = ifmap['IF1009']
 i12 = ifmap['IF1012']
 
+trans = i06.transaction
+
+i_cof5 = np.where(trans[ITIME]%5==0)    #5分钟收盘线,不考虑隔日的因素
+i_cofd = np.where(trans[ITIME]==1514)   #日收盘线
+
+
 单个测试
 trades = iftrade.itrade(i06,[ifuncs.xx],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_6])
+trades = iftrade.itrade3x(i06,[ifuncs.xx])
+
 
 sum([trade.profit for trade in trades])
 sum([trade.profit>0 for trade in trades])
@@ -39,13 +49,12 @@ for trade in trades:print trade.profit,trade.actions[0].date,trade.actions[0].ti
 
 
 #整体
-trades = iftrade.itrade(i06,[ifuncs.ipmacd_longt,ifuncs.ipmacd_short,ifuncs.ipmacd_shortt,ifuncs.ipmacd_short_b,ifuncs.ipmacdx_short,ifuncs.ipmacd_long5,ifuncs.ipmacd_short5,ifuncs.dmacd_short2,ifuncs.dmacd_long,ifuncs.dmacd_short5,ifuncs.emv_short,ifuncs.emv_short2,ifuncs.xmacd_short,ifuncs.down02,ifuncs.down01,ifuncs.xldevi2],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_6])
+trades = iftrade.itrade3x(i06,[ifuncs.ipmacd_longt,ifuncs.ipmacd_short,ifuncs.ipmacd_shortt,ifuncs.ipmacd_short_b,ifuncs.ipmacdx_short,ifuncs.ipmacd_long5,ifuncs.ipmacd_short5,ifuncs.dmacd_short2,ifuncs.dmacd_long,ifuncs.dmacd_short5,ifuncs.emv_short,ifuncs.emv_short2,ifuncs.xmacd_short,ifuncs.down02,ifuncs.down01,ifuncs.xldevi2,ifuncs.xhdevi1,ifuncs.emv_long])
 
 #减法##优选###########
-trades = iftrade.itrade(i06,[ifuncs.ipmacd_longt,ifuncs.ipmacd_short,ifuncs.ipmacdx_short,ifuncs.ipmacd_long5,ifuncs.ipmacd_short5,ifuncs.dmacd_short2,ifuncs.dmacd_long,ifuncs.dmacd_short5,ifuncs.down02,ifuncs.down01,ifuncs.xldevi2],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_6])
+trades = iftrade.itrade3x(i06,[ifuncs.ipmacd_longt,ifuncs.ipmacd_short,ifuncs.ipmacdx_short,ifuncs.ipmacd_long5,ifuncs.ipmacd_short5,ifuncs.dmacd_short2,ifuncs.dmacd_long,ifuncs.dmacd_short5,ifuncs.down02,ifuncs.down01,ifuncs.xldevi2,ifuncs.xhdevi1,ifuncs.emv_long])
 
 #反向平仓，未必优
-trades = iftrade.itrade(i06,[ifuncs.ipmacd_longt,ifuncs.ipmacd_short,ifuncs.ipmacd_short_b,ifuncs.ipmacdx_short,ifuncs.ipmacd_long5,ifuncs.ipmacd_short5,ifuncs.dmacd_short2,ifuncs.dmacd_long,ifuncs.dmacd_short5,ifuncs.down02,ifuncs.down01],[ifuncs.ipmacd_longt,ifuncs.ipmacd_short,ifuncs.ipmacdx_short,ifuncs.ipmacd_long5,ifuncs.ipmacd_short5,ifuncs.dmacd_short2,ifuncs.dmacd_long,ifuncs.dmacd_short5,ifuncs.down02,ifuncs.down01,ifuncs.xldevi2,ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_6])
 
 
 >>> trades = iftrade.itrade3x(i06,[ifuncs.ipmacd_longt,ifuncs.ipmacd_short,ifunc
@@ -256,10 +265,33 @@ def xldevi2(sif,sopened=None):#+
     #signal = gand(signal,strend(sif.ma30)>0)
     return signal * XBUY
 
+def xhdevi1(sif,sopened=None):#+
+    '''
+        弱势条件下的1分钟顶背离
+    '''
+    trans = sif.transaction
+    xs = gand(hdevi(trans[IHIGH],sif.diff1,sif.dea1),sif.diff5<0,sif.diff30<0,sif.xatr<20)
+    return xs * XSELL
 
 
+def emv_long(sif,sopened=None):#+--
+    '''
+        R=136,w/t=3/6,637
+    '''
+    trans = sif.transaction
+    semv = temv(trans[IHIGH],trans[ILOW],trans[IVOL])
+    msemv = ma(semv,9)
+    #signal = gand(cross(msemv,semv)>0) 
+    pres =  ldevi(trans[ILOW],sif.diff1,sif.dea1)
+    signal = gand(cross(cached_zeros(len(semv)),semv)>0,strend(sif.diff5-sif.dea5)>0) 
+    signal = syntony(pres,signal,10)
+    x0 = gand(cross(cached_zeros(len(semv)),sif.diff1)>0,sif.diff1>sif.dea1,strend(sif.diff30-sif.dea30)>0,strend(sif.diff5)>0)
+    signal = sfollow(signal,x0,10)
 
-
+    #signal1 = gand(cross(sif.dea1,sif.diff1)>0,sif.diff5>0,trans[IOPEN] - trans[ICLOSE] < 60)
+    #signal = sfollow(signal,signal1,30)
+    #signal = gand(signal,strend(sif.ma60)>0,strend(sif.ma13)>0,sif.ma5>sif.ma30)
+    return signal * XBUY    #XSELL,比较失败，居然作为反向信号更好. 目前没办法处理5分钟数据?
 
 
 

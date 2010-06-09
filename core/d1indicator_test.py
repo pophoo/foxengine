@@ -333,6 +333,14 @@ class ModuleTest(unittest.TestCase):
         #溢出测试
         self.assertEquals([0,4000,-17],emv(np.array([1100,1200,1000]),np.array([1000,1100,800]),np.array([2000000,2500,3000000])).tolist())
 
+    def test_temv(self):
+        self.assertEquals([],temv(np.array([]),np.array([]),np.array([])).tolist())
+        self.assertEquals([0],temv(np.array([10]),np.array([5]),np.array([300])).tolist())
+        self.assertEquals([0, 86900, -277800],temv(np.array([1100,1200,1000]),np.array([1000,1100,800]),np.array([2000,2500,1500]),1).tolist())
+        #溢出测试
+        self.assertEquals([0, -4073111, -4165711],temv(np.array([1100,1200,1000]),np.array([1000,1100,800]),np.array([2000000,2500,3000000]),2).tolist())
+
+
     def test_semv(self):
         self.assertEquals([],semv(np.array([]),np.array([]),np.array([])).tolist())
         self.assertEquals([0],semv(np.array([10]),np.array([5]),np.array([300]),1).tolist())

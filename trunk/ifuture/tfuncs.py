@@ -112,17 +112,39 @@ def svap(sif,sopened=None):
     return signal
 
 
-def ipmacd_long(sif,sopened=None):#+
+def long5x(sif,sopened=None):#
     '''
-        R=266,w/t = 5/12
-        发现很奇怪，1分钟上叉的需要diff5>dea5比较好，
-        而下叉反而是diff5<0为好
-        忽略超过10点的瞬间拔高导致的上叉
     '''
     trans = sif.transaction
-    signal = gand(cross(sif.dea1,sif.diff1)>0,strend(sif.diff5-sif.dea5)>0,trans[ICLOSE] - trans[IOPEN] < 100,strend(sif.ma5)>2,sif.diff30>sif.dea30)
-    signal = gand(signal,sif.xatr<15)
+    s15 = strend(sif.diff15x-sif.dea15x)
+    s15x = np.zeros_like(sif.diff1)
+    s15x[sif.i_cof15] = s15
+    s15x = extend2next(s15x)
+
+    #signal = gand(cross(sif.sdea5x,sif.sdiff5x)>0,sif.sdiff15x>0,sif.sdiff30x>sif.sdea30x,sif.sdiff15x>sif.sdea15x)#,sif.xatr<20)#,strend(sif.diff15-sif.dea15)>0,strend(sif.diff30-sif.dea30)>0)
+    signal = gand(cross(sif.sdea5x,sif.sdiff5x)>0,s15x,sif.sdiff30x>sif.sdea30x,sif.sdiff15x>sif.sdea15x)#,sif.xatr<20)#,strend(sif.diff15-sif.dea15)>0,strend(sif.diff30-sif.dea30)>0)
     return signal * XBUY
+
+def short5x(sif,sopened=None):#
+    '''
+    '''
+    trans = sif.transaction
+    s15 = strend(sif.diff15x-sif.dea15x)
+    s15x = np.zeros_like(sif.diff1)
+    s15x[sif.i_cof15] = s15
+    s15x = extend2next(s15x)
+
+    signal = gand(cross(sif.sdea5x,sif.sdiff5x)<0,sif.diff30<0,sif.sdiff30x<sif.sdea30x,sif.sdiff15x<sif.sdea15x)#,sif.xatr<20)#,strend(sif.diff15-sif.dea15)>0,strend(sif.diff30-sif.dea30)>0)
+    return signal * XSELL
+
+
+def long5x2(sif,sopened=None):#
+    '''
+    '''
+    trans = sif.transaction
+    signal = gand(cross(sif.sdea5x,sif.sdiff5x)>0,strend(sif.sdiff30x-sif.sdea30x)>0,strend(sif.sdiff15x-sif.sdea15x)>0)
+    return signal * XBUY
+
 
 def ipmacd_long50(sif,sopened=None):#+
     '''
@@ -130,6 +152,15 @@ def ipmacd_long50(sif,sopened=None):#+
     trans = sif.transaction
     signal = gand(cross(sif.dea5,sif.diff5)>0,sif.diff1>0,strend(sif.ma5)>2,sif.ma5>sif.ma13,sif.ma5>sif.ma30,strend(sif.diff30-sif.dea30)>0)
     #signal = gand(signal,sif.xatr<15)
+    return signal * XBUY
+
+
+def ipmacd_long(sif,sopened=None):#
+    ''' 
+    '''
+    trans = sif.transaction
+    signal = gand(cross(sif.dea1,sif.diff1)>0,sif.diff5>sif.dea5,sif.diff30>0,strend(sif.diff30-sif.dea30)>0)#,sif.diff1>0)#,strend(sif.diff5)>0)
+    signal = gand(signal,strend(sif.ma5)>1,sif.ma5>sif.ma30,strend(sif.ma60)>5,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
     return signal * XBUY
 
 
@@ -169,8 +200,11 @@ def ipmacd_short(sif,sopened=None):#+++
         忽略超过10点的瞬间下行导致的下叉
     '''
     trans = sif.transaction
-    signal = gand(cross(sif.dea1,sif.diff1)<0,sif.diff5<0,sif.diff30<0,sif.diff5<sif.dea5,sif.diff1<0,trans[IOPEN] - trans[ICLOSE] < 60)#,strend(sif.diff5)>0)
-    signal = gand(signal,strend(sif.ma5)<-1,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
+    #signal = gand(cross(sif.dea1,sif.diff1)<0,sif.diff5<0,sif.diff30<0,sif.diff5<sif.dea5,sif.diff1<0,trans[IOPEN] - trans[ICLOSE] < 60)#,strend(sif.diff5)>0)
+    #signal = gand(signal,strend(sif.ma5)<-1,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
+    signal = gand(cross(sif.dea1,sif.diff1)<0,sif.diff5<0,sif.diff30<sif.dea30,trans[IOPEN] - trans[ICLOSE] < 60)#,strend(sif.diff5)>0)
+    signal = gand(signal,strend(sif.ma5)<-1)#,strend(sif.diff5-sif.dea5)<0)
+
     return signal * XSELL
 
 def ipmacd_shortt(sif,sopened=None):#+++

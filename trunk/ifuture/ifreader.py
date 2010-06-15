@@ -96,6 +96,36 @@ def prepare_index(sif):
     sif.mxatr30 = ma(sif.xatr30,13)
     sif.diff30x,sif.dea30x = cmacd(sif.close30*FBASE)
 
+    sif.i_cof15 = np.where(trans[ITIME]%15==0)    #5分钟收盘线,不考虑隔日的因素
+    sif.close15 = trans[ICLOSE][sif.i_cof15]
+    sif.open15 = rollx(sif.close15)   #open5看作是上一个的收盘价,其它方式对应open和close以及还原的逻辑比较复杂
+    sif.high15 = tmax(trans[IHIGH],15)[sif.i_cof15]
+    sif.low15 = tmax(trans[ILOW],15)[sif.i_cof15]
+    sif.atr15 = atr(sif.close15,sif.high15,sif.low15,20)
+    sif.xatr15 = sif.atr15 * XBASE * XBASE / sif.close15
+    sif.mxatr15 = ma(sif.xatr15,13)
+    sif.diff15x,sif.dea15x = cmacd(sif.close15*FBASE)
+    sif.diff15x5,sif.dea15x5 = cmacd(sif.close15*FBASE,60,130,45)    
+
+
+    sif.sdiff5x,sif.sdea5x = np.zeros_like(trans[ICLOSE]),np.zeros_like(trans[ICLOSE])
+    sif.sdiff5x[sif.i_cof5] = sif.diff5x
+    sif.sdea5x[sif.i_cof5] = sif.dea5x
+    sif.sdiff5x=extend2next(sif.sdiff5x)
+    sif.sdea5x=extend2next(sif.sdea5x)
+    
+    sif.sdiff30x,sif.sdea30x = np.zeros_like(trans[ICLOSE]),np.zeros_like(trans[ICLOSE])
+    sif.sdiff30x[sif.i_cof30] = sif.diff30x
+    sif.sdea30x[sif.i_cof30] = sif.dea30x
+    sif.sdiff30x=extend2next(sif.sdiff30x)
+    sif.sdea30x=extend2next(sif.sdea30x)
+    
+    sif.sdiff15x,sif.sdea15x = np.zeros_like(trans[ICLOSE]),np.zeros_like(trans[ICLOSE])
+    sif.sdiff15x[sif.i_cof15] = sif.diff15x
+    sif.sdea15x[sif.i_cof15] = sif.dea15x
+    sif.sdiff15x=extend2next(sif.sdiff15x)
+    sif.sdea15x=extend2next(sif.sdea15x)
+
 
 def prepare_index2(sif):
     trans = sif.transaction

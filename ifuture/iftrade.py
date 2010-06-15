@@ -52,7 +52,8 @@ simple_profit = lambda actions: actions[0].price * actions[0].position + actions
 
 def ocfilter(sif):  #在开盘前30分钟和收盘前5分钟不开仓，头三个交易日不开张
     stime = sif.transaction[ITIME]
-    soc = gand(greater(stime,959),lesser(stime,1510))
+    soc = np.ones_like(stime)
+    #soc = gand(greater(stime,959),lesser(stime,1510))
     soc[:275*3] = 0
     return soc
 
@@ -357,7 +358,7 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
         if willlost < min_lost:
             willlost = min_lost
         if i < ilong_closed or i<ishort_closed:    #已经开了仓，且未平，不再计算            
-            print 'skiped',trans[IDATE][i],trans[ITIME][i],trans[IDATE][ilong_closed],trans[ITIME][ilong_closed]
+            print 'skiped',trans[IDATE][i],trans[ITIME][i],trans[IDATE][ilong_closed],trans[ITIME][ilong_closed],trans[IDATE][ishort_closed],trans[ITIME][ishort_closed]
             continue
         if price<0: #多头止损
             #print 'find long stop:',i
@@ -467,6 +468,9 @@ itrade3u = fcustom(itrade3,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop_
 #平仓：买入后macd马上下叉，则卖出;卖出后macd马上上叉，也平仓；另持多仓时出现新的买入点，但macd即刻下叉，则将持仓卖出,反之亦然
 #diff5<0,diff30<0的顶背离作为平多仓条件，不把底背离当作平空仓条件
 itrade3x = fcustom(itrade3,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=[ifuncs.daystop_long,ifuncs.xmacd_stop_long1,ifuncs.xdevi_stop_long1])
+
+itrade1525 = fcustom(itrade3,stop_closer=atr_uxstop_15_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long,ifuncs.xmacd_stop_long1,ifuncs.xdevi_stop_long1])
+
 
 #空头不把即刻反叉作为平仓选项
 itrade3xk = fcustom(itrade3,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long,ifuncs.xmacd_stop_long1,ifuncs.xdevi_stop_long1])

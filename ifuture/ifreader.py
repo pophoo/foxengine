@@ -113,6 +113,11 @@ def prepare_index(sif):
     sif.sdea5x[sif.i_cof5] = sif.dea5x
     sif.sdiff5x=extend2next(sif.sdiff5x)
     sif.sdea5x=extend2next(sif.sdea5x)
+
+    strend_macd5x = strend(sif.diff5x-sif.dea5x)
+    sif.smacd5x = np.zeros_like(trans[ICLOSE])
+    sif.smacd5x[sif.i_cof5] = strend_macd5x
+    sif.seacd5x=extend2next(sif.smacd5x)
     
     sif.sdiff30x,sif.sdea30x = np.zeros_like(trans[ICLOSE]),np.zeros_like(trans[ICLOSE])
     sif.sdiff30x[sif.i_cof30] = sif.diff30x

@@ -53,9 +53,20 @@ trades = iftrade.itrade3x(i06,[ifuncs.ipmacd_longt,ifuncs.ipmacd_short,ifuncs.ip
 
 #减法##优选###########
 
-s_short = [ifuncs.ipmacd_short,ifuncs.ipmacdx_short,ifuncs.ipmacd_short5,ifuncs.dmacd_short2,ifuncs.down02,ifuncs.down01,ifuncs.xhdevi1,ifuncs.ipmacd_short_devi1,ifuncs.dmacd_short5]
+#s_short = [ifuncs.ipmacd_short,ifuncs.ipmacdx_short,ifuncs.ipmacd_short5,ifuncs.dmacd_short2,ifuncs.down02,ifuncs.down01,ifuncs.xhdevi1,ifuncs.ipmacd_short_devi1,ifuncs.dmacd_short5]
+#down02和xdevi1被吸收了,ipmacd_short_f被抵制(ipmacd_short的失败信号要失败两次)
+s_short = [ifuncs.ipmacd_short,ifuncs.down01,ifuncs.dmacd_short2,ifuncs.ipmacd_short_devi1,ifuncs.dmacd_short5,ifuncs.ipmacdx_short,ifuncs.ipmacd_short5,ifuncs.ma30_short]
 
-s_long = [ifuncs.ipmacd_longt,ifuncs.ipmacd_long5,ifuncs.dmacd_long,ifuncs.xldevi2,ifuncs.ipmacd_long_devi1,ifuncs.ipmacd_long_f]
+s_long=[ifuncs.ipmacd_longt,ifuncs.ipmacd_long_devi1,ifuncs.ipmacd_long5,ifuncs.dmacd_long,ifuncs.ipmacd_long_f,ifuncs.xldevi2]
+
+#RU1011
+s_short =[ifuncs.ipmacd_short,ifuncs.dmacd_short5]
+s_long=[ifuncs.ipmacd_long5,ifuncs.ipmacd_long_f]   #稳定于RU1011
+
+#FU1009稳定
+#CU1009不稳定
+#跨市场特性比较难，只能是同一类的跨时间市场
+
 
 trades = iftrade.itrade3x(i06,s_long+s_short)
 
@@ -106,6 +117,21 @@ def fmacd1_short(sif,covered=3,sfilter=None):
 
     signal = gand(rollx(msignal,covered),fsignal)
     return signal
+
+
+def ma30_short(sif,sopened=None):
+    ''' 下行中下叉30线
+    '''
+    trans = sif.transaction
+    signal = gand(cross(sif.ma30,trans[IHIGH])<0,strend(sif.ma30)<0,sif.diff5<0,sif.ma13<sif.ma30,sif.ma30<sif.ma60)
+    sf = msum(trans[IHIGH]>sif.ma30,5) < 3
+    signal = gand(signal,sf)
+    sfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)
+    fsignal = gand(cross(sif.dea1,sif.diff1)<0,sif.diff1<0,sif.diff5<0,strend(sif.diff30)<0,sfilter)
+    #fsignal = gand(cross(sif.ma13,sif.ma5)<0,sif.diff1<0,sif.diff5<0,strend(sif.diff30)<0)
+    signal = sfollow(signal,fsignal,10)
+    return signal * XSELL
+
 
 
 
@@ -172,7 +198,8 @@ def ipmacd_short(sif,sopened=None):#+++
         fmacd1_short无增益
     '''
     trans = sif.transaction
-    signal = gand(cross(sif.dea1,sif.diff1)<0,sif.diff5<0,sif.diff30<0,sif.diff1<0,trans[IOPEN] - trans[ICLOSE] < 60)#,strend(sif.diff5)>0)
+    sfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)
+    signal = gand(cross(sif.dea1,sif.diff1)<0,sif.diff5<0,sif.diff30<0,sif.diff1<0,sfilter)#,strend(sif.diff5)>0)
     signal = gand(signal,strend(sif.ma5)<-1,sif.ma5<sif.ma13,sif.ma5<sif.ma30,strend(sif.ma60)<-5,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
     return signal * XSELL
 
@@ -192,7 +219,8 @@ def ipmacd_short_f(sif,sopened=None):#+
     
     sfilter = gand(sif.sdiff5x<sif.sdea5x,strend(sif.sdiff5x-sif.sdea5x)<0,sif.diff30<0,strend(sif.diff30-sif.dea30)<0,sif.diff30>sif.dea30)
     #signal = gand(fmacd1_long(sif,3),sfilter,trans[IOPEN] - trans[ICLOSE] < 60)
-    signal = gand(fmacd1_short(sif,3),sfilter,trans[IOPEN] - trans[ICLOSE] < 60)
+    sfilter2 = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)
+    signal = gand(fmacd1_short(sif,3),sfilter,sfilter2)#trans[IOPEN] - trans[ICLOSE] < 60)
     #signal = gand(signal,strend(sif.ma5)<-1,sif.ma5<sif.ma13,sif.ma5<sif.ma30,strend(sif.ma60)<-5,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
     return signal * XSELL
 
@@ -226,7 +254,9 @@ def ipmacd_short_devi1(sif,sopened=None):
 
     signal = gand(hdevi(trans[IHIGH],sif.diff1,sif.dea1),sif.diff5<0,trans[IOPEN] - trans[ICLOSE] < 60)
 
-    fsignal = gand(strend(sif.diff1-sif.dea1)==-1,sif.diff5<0,trans[IOPEN] - trans[ICLOSE] < 60)
+
+    sfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)
+    fsignal = gand(strend(sif.diff1-sif.dea1)==-1,sif.diff5<0,sfilter)#trans[IOPEN] - trans[ICLOSE] < 60)
 
     signal = gor(signal,sfollow(signal,fsignal,15))
 
@@ -249,8 +279,9 @@ def ipmacdx_short(sif,sopened=None):#+
         R=176,w/t=6/9
     '''
     trans = sif.transaction
-    
-    signal = gand(strend(sif.diff1-sif.dea1)==-3,sif.diff1>sif.dea1,trans[IOPEN] - trans[ICLOSE] < 60,sif.diff30<0,strend(sif.diff5-sif.dea5)>0,sif.diff5<0,sif.diff1<0)
+    sfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)
+
+    signal = gand(strend(sif.diff1-sif.dea1)==-3,sif.diff1>sif.dea1,sif.diff30<0,strend(sif.diff5-sif.dea5)>0,sif.diff5<0,sif.diff1<0,sfilter)#trans[IOPEN] - trans[ICLOSE] < 60)
     #signal = gand(strend(sif.diff1-sif.dea1)==3,sif.diff1<sif.dea1,sif.diff1>0,sif.diff5>sif.dea5, trans[ICLOSE] - trans[IOPEN] < 100,sif.ma5>sif.ma13)#,sif.ma13>sif.ma60)#,strend(sif.diff5)>0)
     signal = gand(signal,strend(sif.ma5)<-1,sif.ma5<sif.ma30,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
     return signal * XSELL

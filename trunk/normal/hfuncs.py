@@ -626,4 +626,34 @@ def heff(stock):
     return signal
 
 
+def hmacd_a(stock):
+    linelog(stock.code)
+    t = stock.transaction    
 
+    shour = stock.hour
+    pdiff1,pdea1 = cmacd(stock.hour)
+    pdiffd,pdead = cmacd(stock.hour,48,104,36)
+    
+
+    #signal = gand(cross(pdea1,pdiff1)>0,pdiffd>pdead,pdiffd>0,pdiff1>0)    #至少一日前还在下面
+
+    msignal = gand(cross(cached_zeros(len(pdiff1)),pdiffd)>0,strend(pdiff1-pdea1)>3)
+
+    #nsignal = gand(pdiff1<pdea1)
+
+    signal = gand(hour2day(msignal))
+
+    stock.hmacda = signal
+    #signal = gand(signal,stock.t5,stock.t4)
+    
+    return signal
+
+def hmacd_b(stock):
+    linelog(stock.code)
+    t = stock.transaction    
+
+    asignal = stock.hmacda
+
+    signal = gand(asignal)
+
+    return signal

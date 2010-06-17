@@ -34,17 +34,24 @@ def extract_if(line):
     record = BaseObject()
     record.date = int(items[0].replace('/',''))
     record.time = int(items[1].replace(':',''))
-    record.open = int(float(items[2])*10 + 0.1)
-    record.high = int(float(items[3])*10 + 0.1)
-    record.low = int(float(items[4])*10 + 0.1)
-    record.close = int(float(items[5])*10 + 0.1)
+    if float(items[2]) < 10000:
+        record.open = int(float(items[2])*10 + 0.1)
+        record.high = int(float(items[3])*10 + 0.1)
+        record.low = int(float(items[4])*10 + 0.1)
+        record.close = int(float(items[5])*10 + 0.1)
+    else:
+        record.open = int(float(items[2]) + 0.1)
+        record.high = int(float(items[3]) + 0.1)
+        record.low = int(float(items[4]) + 0.1)
+        record.close = int(float(items[5]) + 0.1)
     record.vopen = int(float(items[6]) + 0.1)
     record.vclose = int(float(items[7]) + 0.1)
+
     return record
 
 FPATH = 'D:/work/applications/gcode/wolfox/data/ifuture/'
 prefix = 'SF'
-IFS = 'IF1006','IF1007','IF1009','IF1012',
+IFS = 'IF1006','IF1007','IF1009','IF1012','RU1011','FU1009','CU1009'
 SUFFIX = '.txt'
 
 def read_ifs():

@@ -132,6 +132,25 @@ def ipmacd_longt(sif,sopened=None):#+
     return signal * XBUY
 
 
+def ipmacd_longt2(sif,sopened=None):#+
+    '''
+        R=488,w/t = 7/11,s=2498
+        物极必反? ma5>ma13的反弹
+        添加 sif.diff30<0之后, R=226,times=15,wtimes/times = 5/15
+        发现很奇怪，1分钟上叉的需要diff5>dea5比较好，
+        而下叉反而是diff5<0为好
+        忽略超过10点的瞬间拔高导致的上叉
+
+        用fmacd1_long过滤无增效
+    '''
+    trans = sif.transaction
+    msignal = gand(cross(sif.dea1,sif.diff1)>0)#
+    fsignal = gand(strend(sif.diff5-sif.dea5)>2,sif.diff30<sif.dea30,trans[ICLOSE] - trans[IOPEN] < 60,sif.ma5>sif.ma13,strend(sif.ma5)>2)#,sif.ma13>sif.ma60)#,strend(sif.diff5)>0)
+    fsignal = gand(fsignal,sif.xatr<15,strend(sif.diff1-sif.dea1)>0,sif.diff1>sif.dea1)
+    signal = sfollow(msignal,fsignal,5)
+    return signal * XBUY
+
+
 def ipmacd_long_c(sif,sopened=None):#-
     '''
     '''
@@ -140,18 +159,41 @@ def ipmacd_long_c(sif,sopened=None):#-
     #signal = gand(signal,sif.xatr<15)
     return signal * XBUY
 
-def ipmacd_short(sif,sopened=None):#+++
+
+def ma4_short(sif,sopened=None):
     ''' 
-        R=187,times=9/18,2788
-        忽略超过10点的瞬间下行导致的下叉
+        5/13/30/60向下理顺
     '''
     trans = sif.transaction
-    #signal = gand(cross(sif.dea1,sif.diff1)<0,sif.diff5<0,sif.diff30<0,sif.diff1<0,trans[IOPEN] - trans[ICLOSE] < 60)#,strend(sif.diff5)>0)
-    sfilter = gand(sif.diff5<0,sif.diff30<0,sif.diff1<0,trans[IOPEN] - trans[ICLOSE] < 60)
-    signal = gand(fmacd1_short(sif,4,sfilter))#,strend(sif.diff5)>0)
-
-    signal = gand(signal,strend(sif.ma5)<-1,sif.ma5<sif.ma13,sif.ma5<sif.ma30,strend(sif.ma60)<-5,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
+    #signal = gand(cross(sif.dea1,sif.diff1)<0,sif.ma5<sif.ma13,sif.ma13<sif.ma60)
+    signal = cross(sif.dea1,sif.diff1)<0
+    #signal = gand(signal,sif.ma5<sif.ma13,sif.ma13<sif.ma30,sif.ma30<sif.ma60)
+    signal = gand(signal,sif.diff1<0,sif.diff5<0,strend(sif.diff5)<0,strend(sif.diff1)<0,strend(sif.diff30)<0)
     return signal * XSELL
+
+def ma30_short(sif,sopened=None):
+    ''' 下行中下叉30线
+    '''
+    trans = sif.transaction
+    signal = gand(cross(sif.ma30,trans[IHIGH])<0,strend(sif.ma30)<0,sif.diff5<0,sif.ma13<sif.ma30,sif.ma30<sif.ma60)
+    sf = msum(trans[IHIGH]>sif.ma30,5) < 3
+    signal = gand(signal,sf)
+    sfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)
+    fsignal = gand(cross(sif.dea1,sif.diff1)<0,sif.diff1<0,sif.diff5<0,strend(sif.diff30)<0,sfilter)
+    #fsignal = gand(cross(sif.ma13,sif.ma5)<0,sif.diff1<0,sif.diff5<0,strend(sif.diff30)<0)
+    signal = sfollow(signal,fsignal,10)
+    return signal * XSELL
+
+
+def rmlong(sif,sopened=None):#+++
+    ''' 
+        RU1011
+    '''
+    trans = sif.transaction
+    sfilter = gand(sif.diff5>0,sif.diff30>sif.dea30)
+    signal = gand(fmacd1_long(sif,0,sfilter))#,strend(sif.diff5)>0)
+
+    return signal * XBUY
 
 
 def ipmacd_short_x5(sif,sopened=None):#+++
@@ -375,6 +417,20 @@ def ipmacd_short52(sif,sopened=None):#-
     signal = gand(signal,strend(sif.ma60)<0,strend(sif.ma30)<0,sif.ma5<sif.ma13,sif.ma5<sif.ma30,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
     
     return signal * XSELL
+
+def ipmacd_short(sif,sopened=None):#+++
+    ''' 
+        R=187,times=9/18,2788
+        忽略超过10点的瞬间下行导致的下叉
+        fmacd1_short无增益
+    '''
+    trans = sif.transaction
+    sfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)
+    signal = gand(cross(sif.dea1,sif.diff1)<0,sif.diff5<0,sif.diff30<0,sif.diff1<0,sfilter)#,strend(sif.diff5)>0)
+    signal = gand(signal,strend(sif.ma5)<-1,sif.ma5<sif.ma13,sif.ma5<sif.ma30,strend(sif.ma60)<-5,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
+    return signal * XSELL
+
+
 
 def dmacd_short(sif,sopened=None):#++
     '''

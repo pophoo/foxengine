@@ -55,9 +55,9 @@ trades = iftrade.itrade3x(i06,[ifuncs.ipmacd_longt,ifuncs.ipmacd_short,ifuncs.ip
 
 #s_short = [ifuncs.ipmacd_short,ifuncs.ipmacdx_short,ifuncs.ipmacd_short5,ifuncs.dmacd_short2,ifuncs.down02,ifuncs.down01,ifuncs.xhdevi1,ifuncs.ipmacd_short_devi1,ifuncs.dmacd_short5]
 #down02和xdevi1被吸收了,ipmacd_short_f被抵制(ipmacd_short的失败信号要失败两次)
-s_short = [ifuncs.ipmacd_short,ifuncs.down01,ifuncs.dmacd_short2,ifuncs.ipmacd_short_devi1,ifuncs.dmacd_short5,ifuncs.ipmacdx_short,ifuncs.ipmacd_short5,ifuncs.ma30_short]
+s_short = [ifuncs.ipmacd_short,ifuncs.down01,ifuncs.dmacd_short2,ifuncs.ipmacd_short_devi1,ifuncs.dmacd_short5,ifuncs.ipmacdx_short,ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.ipmacd_short_x1,ifuncs.ma60_short]
 
-s_long=[ifuncs.ipmacd_longt,ifuncs.ipmacd_long_devi1,ifuncs.ipmacd_long5,ifuncs.dmacd_long,ifuncs.ipmacd_long_f,ifuncs.xldevi2]
+s_long=[ifuncs.ipmacd_longt,ifuncs.ipmacd_long_devi1,ifuncs.ipmacd_long5,ifuncs.dmacd_long,ifuncs.ipmacd_long_f,ifuncs.xldevi2]#,ifuncs.ma60_long]
 
 #RU1011
 s_short =[ifuncs.ipmacd_short,ifuncs.dmacd_short5]
@@ -132,6 +132,24 @@ def ma30_short(sif,sopened=None):
     signal = sfollow(signal,fsignal,10)
     return signal * XSELL
 
+
+def ma60_short(sif,sopened=None):
+    ''' ma60拐头
+    '''
+    trans = sif.transaction
+    msignal = gand(strend(sif.ma60) == -1,rollx(strend(sif.ma60))<10)
+    fsignal = gand(cross(sif.dea1,sif.diff1)<0,strend(sif.diff5-sif.dea5)>0)
+    signal = sfollow(msignal,fsignal,15)
+    return signal * XSELL
+
+def ma60_long(sif,sopened=None):
+    ''' ma60拐头
+    '''
+    trans = sif.transaction
+    msignal = gand(strend(sif.ma60) == 1,rollx(strend(sif.ma60))<-10)
+    fsignal = gand(cross(sif.dea1,sif.diff1)>0,strend(sif.diff5-sif.dea5)>0,strend(sif.diff30-sif.dea30)>0)
+    signal = sfollow(msignal,fsignal,15)
+    return signal * XBUY
 
 
 
@@ -223,6 +241,22 @@ def ipmacd_short_f(sif,sopened=None):#+
     signal = gand(fmacd1_short(sif,3),sfilter,sfilter2)#trans[IOPEN] - trans[ICLOSE] < 60)
     #signal = gand(signal,strend(sif.ma5)<-1,sif.ma5<sif.ma13,sif.ma5<sif.ma30,strend(sif.ma60)<-5,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
     return signal * XSELL
+
+def ipmacd_short_x1(sif,sopened=None):#+++
+    ''' 
+        先下叉，然后小于0(2个周期内)
+    '''
+    trans = sif.transaction
+    sfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.diff5<0,sif.diff30<0)
+    signal = gand(cross(sif.dea1,sif.diff1)<0,sfilter,sif.diff1>0)#,strend(sif.diff5)>0)
+    #signal = gand(signal,strend(sif.ma5)<-1,sif.ma5<sif.ma13,sif.ma5<sif.ma30,strend(sif.ma60)<-5,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
+
+    #signal = gor(gand(rollx(signal,2),sif.diff1<0),gand(rollx(signal,1),sif.diff1<0))
+    fsignal = gand(cross(cached_zeros(len(sif.diff1)),sif.diff1),sfilter,strend(sif.diff1-sif.dea1)<-2)
+    signal = sfollow(signal,fsignal,3)
+
+    return signal * XSELL
+
 
 
 def ipmacd_shortt(sif,sopened=None):#+++

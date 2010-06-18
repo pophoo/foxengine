@@ -8895,3 +8895,9 @@ trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_long,ifuncs.down0
 
 
 trades = iftrade.itrade(i06,[ifuncs.ama_short2,ifuncs.ipmacd_short,ifuncs.ipmacd_long,ifuncs.down0,ifuncs.up0,ifuncs.xhdevi,ifuncs.xhdevi2,ifuncs.xldevi,ifuncs.xldevi2],[ifuncs.ama_short2,ifuncs.ipmacd_short,ifuncs.ipmacd_long,ifuncs.down0,ifuncs.up0,ifuncs.xhdevi,ifuncs.xhdevi2,ifuncs.xldevi,ifuncs.xldevi2,ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_stop_2_3])
+
+#2010-06-18
+操作合约的切换
+每月第三周的最后一个交易日，关闭当月合约
+操作合约从该周第一个交易日(或关闭日起倒数第5个交易日)起切换到下月合约。
+

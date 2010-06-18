@@ -184,6 +184,37 @@ def ma30_short(sif,sopened=None):
     signal = sfollow(signal,fsignal,10)
     return signal * XSELL
 
+def ma30_long(sif,sopened=None):
+    ''' 上行中上叉30线
+    '''
+    trans = sif.transaction
+    signal = gand(cross(sif.ma30,trans[ILOW])>0,strend(sif.ma30)>0,sif.diff5>0,sif.ma13>sif.ma30,sif.ma30>sif.ma60)
+    sf = msum(trans[ILOW]<sif.ma30,5) < 3
+    signal = gand(signal,sf)
+    sfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200)
+    fsignal = gand(cross(sif.dea1,sif.diff1)>0,sif.diff1>0,sif.diff5>0,strend(sif.diff30)>0,sfilter)
+    #fsignal = gand(cross(sif.ma13,sif.ma5)<0,sif.diff1<0,sif.diff5<0,strend(sif.diff30)<0)
+    signal = sfollow(signal,fsignal,10)
+    return signal * XBUY
+
+def ma60_short(sif,sopened=None):
+    ''' ma60拐头
+    '''
+    trans = sif.transaction
+    msignal = gand(strend(sif.ma60) == -1,rollx(strend(sif.ma60))<10)
+    fsignal = gand(cross(sif.dea1,sif.diff1)<0,strend(sif.diff5-sif.dea5)>0)
+    signal = sfollow(msignal,fsignal,15)
+    return signal * XSELL
+
+def ma60_long(sif,sopened=None):
+    ''' ma60拐头
+    '''
+    trans = sif.transaction
+    msignal = gand(strend(sif.ma60) == 1,rollx(strend(sif.ma60))<-10)
+    fsignal = gand(cross(sif.dea1,sif.diff1)>0,strend(sif.diff5-sif.dea5)>0,strend(sif.diff30-sif.dea30)>0)
+    signal = sfollow(msignal,fsignal,15)
+    return signal * XBUY
+
 
 def rmlong(sif,sopened=None):#+++
     ''' 
@@ -430,6 +461,20 @@ def ipmacd_short(sif,sopened=None):#+++
     signal = gand(signal,strend(sif.ma5)<-1,sif.ma5<sif.ma13,sif.ma5<sif.ma30,strend(sif.ma60)<-5,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
     return signal * XSELL
 
+def ipmacd_short_x1(sif,sopened=None):#+++
+    ''' 
+        先下叉，然后小于0(2个周期内)
+    '''
+    trans = sif.transaction
+    sfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.diff5<0,sif.diff30<0)
+    signal = gand(cross(sif.dea1,sif.diff1)<0,sfilter,sif.diff1>0)#,strend(sif.diff5)>0)
+    #signal = gand(signal,strend(sif.ma5)<-1,sif.ma5<sif.ma13,sif.ma5<sif.ma30,strend(sif.ma60)<-5,sif.xatr<20)#,strend(sif.diff5-sif.dea5)<0)
+
+    #signal = gor(gand(rollx(signal,2),sif.diff1<0),gand(rollx(signal,1),sif.diff1<0))
+    fsignal = gand(cross(cached_zeros(len(sif.diff1)),sif.diff1),sfilter,strend(sif.diff1-sif.dea1)<-2)
+    signal = sfollow(signal,fsignal,3)
+
+    return signal * XSELL
 
 
 def dmacd_short(sif,sopened=None):#++

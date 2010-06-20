@@ -8897,7 +8897,171 @@ trades = iftrade.itrade(i06,[ifuncs.ipmacd_short,ifuncs.ipmacd_long,ifuncs.down0
 trades = iftrade.itrade(i06,[ifuncs.ama_short2,ifuncs.ipmacd_short,ifuncs.ipmacd_long,ifuncs.down0,ifuncs.up0,ifuncs.xhdevi,ifuncs.xhdevi2,ifuncs.xldevi,ifuncs.xldevi2],[ifuncs.ama_short2,ifuncs.ipmacd_short,ifuncs.ipmacd_long,ifuncs.down0,ifuncs.up0,ifuncs.xhdevi,ifuncs.xhdevi2,ifuncs.xldevi,ifuncs.xldevi2,ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_stop_2_3])
 
 #2010-06-18
+1.0
 操作合约的切换
 每月第三周的最后一个交易日，关闭当月合约
 操作合约从该周第一个交易日(或关闭日起倒数第5个交易日)起切换到下月合约。
+
+
+1.1 关于算法策略中，可理解性和参数优化的平衡
+    以可理解性为第一要素 
+
+2. 各类算法的物理含义
+2.0 基本解释
+2.0.1 状态判断及其物理含义
+diffX:0     状态强弱的依据
+diffX:deaX  状态的发展方向
+strend(diffX-deaX):0    状态发展方向的变化趋势
+strend(ma5-ma13)\(ma13-ma30)\(ma30-ma60)\ma13-ma60\ma5-ma30
+
+辅助状态判断:
+ma5:ma13/30
+strend(ma60):0
+strend(ma30):0
+ 
+2.0.2 突变过滤
+strend(ma5):1   状态变化不是由逆向突变导致
+sfilter:
+    gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200)#: 向上突变过滤
+    gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)#:  向下突变过滤
+xfilter:    
+    xatr<15/多
+    xatr<20/空
+
+2.0.3 假动作过滤
+strend(diff1):2/-2  :不是突变引起
+
+2.1 分类解释
+2.1.1 基本状态算法--完全顺势算法
+2.1.1.A ipmacd_short
+1分钟macd下叉,strend(sif.diff1)<-2(即从顶点下行3分钟或以上)
+diff: 5/30均<0
+ma5<ma13,strend(ma30)下行5分钟或以上(<-4)
+strend(ma13-ma60)<0
+xfilter
+sfilter
+
+2.1.1.B down01
+30分钟<0且下行
+5分钟>0且下行
+1分钟下叉, 且一分钟下行3分钟或以上
+xfilter
+sfilter
+
+
+2.1.1.C  dmacd_short5
+macd5上行5分钟或以上后，转而下行
+diff30<0, macd30>0, macd30下行
+macd5<0
+macd1<0
+ma5<ma13,ma13-ma60下行
+sfilter,xfilter
+
+2.1.1.D ipmacdx_short
+macd1红柱下降3分钟
+diff30<0
+diff5<0,macd5<0,macd5上行
+diff1<0,macd1>0
+ma5下行2分钟或以上
+ma5<ma30，且下行中
+sfilter,xfilter
+
+2.1.1.E  ipmacd_short5
+macd5下叉
+diff5>0
+diff30<0,macd30<0
+ma13-ma60下行
+
+2.1.1.F ma30_short
+30分钟线下行时，最高价下传30分钟线，且最高价在30分钟线上方停留不超过2分钟
+之后10分钟内macd1下叉
+diff1<0,diff5<0
+macd30下行
+ma13-ma60下行
+sfilter,xfilter
+
+
+
+2.1.1.1 基本状态算法的延伸--位于状态转换点附近的判断
+
+2.1.2 长期耗尽算法--中短期顺势
+中长期均逆势时，必须进行假动作的过滤
+并考虑使用更窄的止损
+
+2.1.2.A ipmacd_longt
+1分钟macd上叉, 且上行3分钟或以上
+5分钟macd上行
+30分钟macd<0,diff30<0
+ma5>ma13,ma5上行3分钟以上
+xfilter
+sfilter
+
+
+2.1.2.B ipmacd_long_devi1
+底背离之后，macd1连续3分钟或以上增长
+diff30<0
+macd30>0或macd30向上
+sfilter,xfilter
+
+2.1.2.C dmacd_long
+macd1连续下跌5周期或以上转涨，且macd1>0
+diff5<0,macd5>0
+diff30<0,macd30>0
+strend(ma30)>0
+xfilter
+sfilter: 变异，转为60-120
+    即：sfilter = gand(trans[ICLOSE] - trans[IOPEN] < 60,rollx(trans[ICLOSE]) - trans[IOPEN] < 120)#: 向上突变过滤
+
+2.1.2.D dmacd_short2
+rolled=1/2
+完全逆势，盛极而衰类型
+macd1连续下降5分钟或以上，但仍保持diff1/5/30>0, 然后上升rolled分钟
+确认rolled分钟末macd1>0
+sfilter,xfilter
+卖出。完全的盛极而衰类型
+
+
+
+2.1.3 中间算法
+2.1.3.A ipmacd_long5
+
+5分钟macd上叉后60分钟内1分钟macd再上叉且延续上叉3分钟以上,且
+    diff5>0, diff5上行3分钟或以上
+    macd30上行
+    ma5>ma13
+sfilter,xfilter
+
+2.1.3.B ipmacd_long_f
+macd1下叉且延续3分钟,下叉后第3分钟仍然在下行
+diff5<0, macd5>0且上行中
+macd30<0但在上行中
+sfilter,xfilter
+
+2.1.3.C xldevi2
+5分钟底背离后一分钟上叉
+diff5<0,macd5上行
+sfilter,xfilter
+ma60下行
+
+2.1.3.D ma60_long   #可忽略，被吸收
+ma60在超过10分钟的下行后，转为上行
+之后，macd1/5/30均开始上行时，买入
+sfilter
+xfilter
+
+2.1.3.E ipmacd_short_devi1
+1分钟顶背离，或1分钟顶背离的15分钟内绿柱变长(或红柱变短),其15分钟内至少10分钟的macd1<0
+diff5<0,macd5下行
+strend(ma5-ma13)下行
+
+2.1.3.F ma60_short  #ma60拐头
+ma60上行不超过10个周期，拐头下行
+15分钟内macd1下叉
+macd5下行
+sfilter,xfilter
+
+
+2.2 优先级
+信号优先级：xfollow最高，xmiddle次之，xagainst最后。 
+即如果现有持仓是xagainst/xmiddle 来的，那么之后的xfollow的反向信号将导致平仓并反向开仓
 

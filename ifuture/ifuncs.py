@@ -202,11 +202,14 @@ def ma60_long_old(sif,sopened=None):
     signal = sfollow(msignal,fsignal,15)
     return signal * XBUY
 
-
 def ipmacd_longt(sif,sopened=None):#+
-    '''
-    '''
+    trans = sif.transaction
+    sfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200) #向上突变过滤
+    signal = gand(cross(sif.dea1,sif.diff1)>0,sif.diff5<0,strend(sif.diff5-sif.dea5)>0,sif.diff30<sif.dea30,sif.diff30<0,sif.ma5>sif.ma13,strend(sif.ma5)>2,strend(sif.ma5-sif.ma30)>0)
+    signal = gand(signal,sif.xatr<15,sfilter)
+    return signal * XBUY
 
+def ipmacd_longt_old_b(sif,sopened=None):#+
     trans = sif.transaction
     sfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200) #向上突变过滤
     signal = gand(cross(sif.dea1,sif.diff1)>0,strend(sif.diff5-sif.dea5)>0,sif.diff30<sif.dea30,sif.diff30<0,sif.ma5>sif.ma13,strend(sif.ma5)>2,sfilter)

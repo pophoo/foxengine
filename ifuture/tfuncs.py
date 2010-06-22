@@ -15,6 +15,17 @@ from wolfox.fengine.ifuture.ifuncs import fmacd1_long,fmacd1_short
 ama1 = ama_maker()
 ama2 = ama_maker(covered=30,dfast=6,dslow=100)
 
+def tfunc(sif,sopened=None):
+    trans = sif.transaction
+    sfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200)#: 向上突变过滤
+    
+    signal = gand(cross(sif.dea5,sif.diff5)<0)
+    signal = gand(signal,sif.diff30>0,sif.diff5>0,strend(sif.diff5-sif.dea5)<0,strend(sif.diff30-sif.dea30)<0)
+
+    signal = gand(signal,sfilter,sif.xatr<15)
+
+    return signal*XSELL
+
 
 def svap(sif,sopened=None):
     trans = sif.transaction
@@ -1080,14 +1091,14 @@ def daystop_long(sif,sopened):
         每日收盘前的平仓,平多仓
     '''
     stime = sif.transaction[ITIME]
-    return equals(stime,1512) * XSELL
+    return greater(stime,1511) * XSELL
 
 def daystop_short(sif,sopened):
     '''
         每日收盘前的平仓,平空仓
     '''
     stime = sif.transaction[ITIME]
-    return equals(stime,1512) * XBUY
+    return greater(stime,1511) * XBUY
 
 
 def atr_xstop(sif,sopened,lost_times=200,win_times=300,max_drawdown=200,min_lost=30):

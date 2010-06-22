@@ -19,12 +19,12 @@ def tfunc(sif,sopened=None):
     trans = sif.transaction
     sfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200)#: 向上突变过滤
     
-    signal = gand(cross(sif.dea5,sif.diff5)<0)
-    signal = gand(signal,sif.diff30>0,sif.diff5>0,strend(sif.diff5-sif.dea5)<0,strend(sif.diff30-sif.dea30)<0)
+    signal = gand(cross(sif.dea5,sif.diff5)>0)
+    signal = gand(signal,sif.diff30>0,strend(sif.diff5-sif.dea5)>0,sif.diff30>0,sif.diff30>sif.dea30)#,strend(sif.diff30-sif.dea30)<0)
 
     signal = gand(signal,sfilter,sif.xatr<15)
 
-    return signal*XSELL
+    return signal*XBUY
 
 
 def svap(sif,sopened=None):

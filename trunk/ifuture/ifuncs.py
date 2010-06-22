@@ -954,14 +954,14 @@ def daystop_long(sif,sopened):
         每日收盘前的平仓,平多仓
     '''
     stime = sif.transaction[ITIME]
-    return equals(stime,1512) * XSELL
+    return greater(stime,1511) * XSELL
 
 def daystop_short(sif,sopened):
     '''
         每日收盘前的平仓,平空仓
     '''
     stime = sif.transaction[ITIME]
-    return equals(stime,1512) * XBUY
+    return greater(stime,1511) * XBUY
 
 
 def atr_xstop(sif,sopened,lost_times=200,win_times=300,max_drawdown=200,min_lost=30):

@@ -15,6 +15,7 @@ ifmap = read_ifs()  # fname ==> BaseObject(name='$name',transaction=trans)
 
 
 ###计算
+i05 = ifmap['IF1005']
 i06 = ifmap['IF1006']
 i07 = ifmap['IF1007']
 i09 = ifmap['IF1009']

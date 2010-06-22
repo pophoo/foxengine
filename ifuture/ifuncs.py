@@ -20,6 +20,7 @@ ifmap = read_ifs()  # fname ==> BaseObject(name='$name',transaction=trans)
 
 
 ###计算
+i05 = ifmap['IF1005']
 i06 = ifmap['IF1006']
 i07 = ifmap['IF1007']
 i09 = ifmap['IF1009']
@@ -70,7 +71,7 @@ trades3 = iftrade.itrade3x(i07,xmiddle)
 
 trades =  iftrade.itrade3x(i07,xfollow+xagainst+xmiddle)
 
-trades =  iftrade.itrade3y(i07,xfollow+xagainst+xmiddle)    #xfollow作为平仓信号，且去掉了背离平仓的信号
+tradesy =  iftrade.itrade3y(i07,xfollow+xagainst+xmiddle)    #xfollow作为平仓信号，且去掉了背离平仓的信号
 
 优先级：xfollow最高，xmiddle次之，xagainst最后。 即如果现有持仓是xagainst/xmiddle 来的，那么之后的xfollow的反向信号将导致平仓并反向开仓
 

@@ -56,6 +56,7 @@ def ocfilter(sif):  #在开盘前30分钟和收盘前5分钟不开仓，头三�
     soc = np.ones_like(stime)
     soc = gand(greater(stime,944),lesser(stime,1510))
     soc[:275*3] = 0
+    soc[-5:] = 0    #最后交易日收盘在1500，防止溢出(因为买入点通常在下一分钟，那么1500不被屏蔽的话，如果有信号就会溢出)
     return soc
 
 def simple_trades(actions,calc_profit=simple_profit):  #简单的trades,每个trade只有一次开仓和平仓
@@ -205,6 +206,7 @@ def open_position(trans,sopener,slongfilter,sshortfilter):
         sopener中,XBUY表示开多仓,XSELL表示开空仓
     '''
     slong = band(equals(sopener,XBUY),slongfilter) * LONG 
+    #print slongfilter[-10:],sshortfilter[-10:]
     sshort = band(equals(sopener,XSELL),sshortfilter) * SHORT
     #ss = slong + sshort #多空抵消
     positions = xposition(trans,slong,XOPEN)
@@ -234,6 +236,7 @@ def xposition(trans,saction,xtype,defer=1):
     positions = []
     for i in isignal:
         xindex = i + defer  #defer后动作，一般为下一分钟
+        #print xindex,trans[ITIME][xindex]
         direct = saction[i]
         position = BaseObject(index=xindex,date=sdate[xindex],time=stime[xindex],position=direct,xtype=xtype)    #因为已经抑制了1514开仓,必然不会溢出
         position.price = make_price(direct,sopen[xindex],sclose[xindex],shigh[xindex],slow[xindex])

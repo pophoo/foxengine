@@ -32,9 +32,10 @@ i_cof5 = np.where(trans[ITIME]%5==0)    #5分钟收盘线,不考虑隔日的因�
 i_cofd = np.where(trans[ITIME]==1514)   #日收盘线
 
 
-单个测试
-trades = iftrade.itrade(i06,[ifuncs.xx],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_6])
-trades = iftrade.itrade3x(i06,[ifuncs.xx])
+#单个测试
+#trades = iftrade.itrade(i06,[ifuncs.xx],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_6])
+#trades = iftrade.itrade3x(i06,[ifuncs.xx])
+trades = iftrade.itrade3x(i06,[tfuncs.tfunc])
 
 
 sum([trade.profit for trade in trades])
@@ -59,7 +60,7 @@ xfollow = [ifuncs.ipmacd_short,ifuncs.down01,ifuncs.dmacd_short5,ifuncs.ipmacdx_
 
 #逆势品种
 d22 = fcustom(ifuncs.dmacd_short2,rolled=2)
-xagainst = [ifuncs.ipmacd_longt,ifuncs.ipmacd_long_devi1,ifuncs.dmacd_long,ifuncs.dmacd_short2,d22]
+xagainst = [ifuncs.ipmacd_longt,ifuncs.ipmacd_long_devi1,ifuncs.dmacd_long,ifuncs.dmacd_short2,d22,ifuncs.down30]
 
 #中间品种
 xmiddle = [ifuncs.ipmacd_long5,ifuncs.ipmacd_long_f,ifuncs.xldevi2,ifuncs.ipmacd_short_devi1,ifuncs.ma60_short]
@@ -297,8 +298,8 @@ def ipmacd_long_f(sif,sopened=None):
     '''
         过滤后的macd1上叉
         操作方式:
-            1. 1分钟下叉
-            2. 3分钟后macd仍然在延续往下,
+            1. 1分钟上叉
+            2. 3分钟后macd仍然在延续往上,
             3. 5分钟macd>0且上行中,diff5<0
                30分钟macd<0,但在上行中
     '''
@@ -636,6 +637,21 @@ def down02(sif,sopened=None): #+
     signal = sfollow(signal5,signal1,30)
     signal = gand(signal,strend(sif.ma30)<0)
     return signal * XSELL
+
+def down30(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)
+
+    msignal = gand(cross(sif.dea30,sif.diff30)<0)
+    fsignal = gand(cross(cached_zeros(len(sif.dea1)),sif.diff1)<0,sif.diff30>0)
+    
+    signal = sfollow(msignal,fsignal,120)
+
+    signal = gand(signal,ksfilter,sif.xatr<20)
+
+    return signal*XSELL
+
 
 def down01_old(sif,sopened=None): #++
     ''' 

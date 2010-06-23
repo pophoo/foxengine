@@ -17,14 +17,35 @@ ama2 = ama_maker(covered=30,dfast=6,dslow=100)
 
 def tfunc(sif,sopened=None):
     trans = sif.transaction
-    sfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200)#: 向上突变过滤
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)
+
+    #signal = gand(xc_ru0s(trans[IOPEN],trans[ICLOSE],trans[IHIGH],trans[ILOW],trans[IVOL])>0)
+    xdiff,xdea = macd_ru(trans[IOPEN],trans[ICLOSE],trans[IHIGH],trans[ILOW])
+    signal = gand(cross(xdea,xdiff)<0)
+    fsignal = gand(cross(sif.dea1,sif.diff1)<0,strend(sif.diff30-sif.dea30)<0,sif.diff30>0,sif.diff30<sif.dea30)
+
+    signal = sfollow(signal,fsignal,30)
+    #signal = gand(strend(sif.diff5-sif.dea5)<0,strend(sif.diff30<sif.dea30)<0)
+    #signal = gand(signal,ksfilter,sif.xatr<20)
+
+
+    return signal*XSELL
+
+def down30(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)
+
+    msignal = gand(cross(sif.dea30,sif.diff30)<0)
+    fsignal = gand(cross(cached_zeros(len(sif.dea1)),sif.diff1)<0,sif.diff30>0)
     
-    signal = gand(cross(sif.dea5,sif.diff5)>0)
-    signal = gand(signal,sif.diff30>0,strend(sif.diff5-sif.dea5)>0,sif.diff30>0,sif.diff30>sif.dea30)#,strend(sif.diff30-sif.dea30)<0)
+    signal = sfollow(msignal,fsignal,120)
 
-    signal = gand(signal,sfilter,sif.xatr<15)
+    signal = gand(signal,ksfilter,sif.xatr<20)
 
-    return signal*XBUY
+    return signal*XSELL
+
 
 
 def svap(sif,sopened=None):
@@ -162,7 +183,7 @@ def ipmacd_5x13(sif,sopened=None):
 def ipmacd_longt(sif,sopened=None):#+
     trans = sif.transaction
     sfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200) #向上突变过滤
-    signal = gand(cross(sif.dea1,sif.diff1)>0,sif.diff5<0,strend(sif.diff5-sif.dea5)>0,sif.diff30<sif.dea30,sif.diff30<0,sif.ma5>sif.ma13,strend(sif.ma5)>1,strend(sif.ma5-sif.ma30)>0)
+    signal = gand(cross(sif.dea1,sif.diff1)>0,sif.diff5<0,strend(sif.diff5-sif.dea5)>0,sif.diff30<sif.dea30,strend(sif.diff30-sif.dea30)>0,sif.ma5>sif.ma13,strend(sif.ma5)>1,strend(sif.ma5-sif.ma30)>0)
     signal = gand(signal,sif.xatr<15,sfilter)
     return signal * XBUY
 

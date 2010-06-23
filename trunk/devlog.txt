@@ -8990,6 +8990,7 @@ sfilter,xfilter
 1分钟macd上叉, 且上行3分钟或以上
 5分钟macd上行,diff5<0
 30分钟macd<0,diff30<0
+    *diff30<0可用strend(diff30-dea30)>0来替代
 ma5>ma13,ma5上行2分钟或以上,ma5-ma30上行
 xfilter
 sfilter
@@ -9018,19 +9019,23 @@ macd1连续下降5分钟或以上，但仍保持diff1/5/30>0, 然后上升rolled
 sfilter,xfilter
 卖出。完全的盛极而衰类型
 
+2.1.2.E down30
+30分钟下叉后120分钟内1分钟下叉0线
+1分钟下叉时diff30<0
+sfilter,xfilter
 
 
 2.1.3 中间算法
 2.1.3.A ipmacd_long5
 
-5分钟macd上叉后60分钟内1分钟macd再上叉且延续上叉3分钟以上,且
+5分钟macd上叉(diff5>0)后60分钟内1分钟macd再上叉且延续上叉3分钟以上,且
     diff5>0, diff5上行3分钟或以上
     macd30上行
     ma5>ma13
 sfilter,xfilter
 
 2.1.3.B ipmacd_long_f
-macd1下叉且延续3分钟,下叉后第3分钟仍然在下行
+macd1上叉且延续3分钟,下叉后第3分钟仍然在上行
 diff5<0, macd5>0且上行中
 macd30<0但在上行中
 sfilter,xfilter
@@ -9057,6 +9062,7 @@ ma60上行不超过10个周期，拐头下行
 15分钟内macd1下叉
 macd5下行
 sfilter,xfilter
+
 
 
 2.2 优先级

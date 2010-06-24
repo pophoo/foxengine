@@ -467,6 +467,7 @@ atr_uxstop_1_5 = fcustom(atr_uxstop,lost_times=100,win_times=500,max_drawdown=20
 atr_uxstop_05_2 = fcustom(atr_uxstop,lost_times=50,win_times=200,max_drawdown=200,min_lost=30)
 atr_uxstop_05_15 = fcustom(atr_uxstop,lost_times=50,win_times=150,max_drawdown=200,min_lost=30)
 atr_uxstop_05_1 = fcustom(atr_uxstop,lost_times=50,win_times=100,max_drawdown=200,min_lost=30)
+atr_uxstop_1_6 = fcustom(atr_uxstop,lost_times=100,win_times=600,max_drawdown=200,min_lost=30)
 
 import wolfox.fengine.ifuture.ifuncs as ifuncs
 
@@ -479,6 +480,9 @@ itrade3x = fcustom(itrade3,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop_
 
 itrade3y = fcustom(itrade3,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=[ifuncs.daystop_long,ifuncs.ipmacd_short,ifuncs.down01,ifuncs.dmacd_short5,ifuncs.ipmacdx_short,ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.xmacd_stop_long1])
 
+itrade3x1 = fcustom(itrade3,stop_closer=atr_uxstop_1_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1,ifuncs.ipmacd_long_devi1],sclosers=[ifuncs.daystop_long,ifuncs.xmacd_stop_long1,ifuncs.xdevi_stop_long1])
+
+itrade3y1 = fcustom(itrade3,stop_closer=atr_uxstop_1_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=[ifuncs.daystop_long,ifuncs.ipmacd_short,ifuncs.down01,ifuncs.dmacd_short5,ifuncs.ipmacdx_short,ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.xmacd_stop_long1])
 
 
 itrade3x45 = fcustom(itrade3,stop_closer=atr_uxstop_15_6_45,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1,ifuncs.ipmacd_long_devi1],sclosers=[ifuncs.daystop_long,ifuncs.xmacd_stop_long1,ifuncs.xdevi_stop_long1])

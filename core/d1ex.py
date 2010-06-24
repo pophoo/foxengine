@@ -548,29 +548,37 @@ def devi(shigh,sdiff,regr=96):
     xdev = gand(xhighA,xhigh == xhigh60,xdiff7<xdiff60)
     return xdev
 
-def hdevi(shigh,sdiff,sdea,covered=20,distance=1):
+def hdevi(shigh,sdiff,sdea,sbase=None,covered=20,distance=1):
     '''
         顶背离
+        sdiff,sdea用于确认顶底
+        sbase是比较线,即顶底确认后的比较
         distance表示与前面第几个顶背离
         这个算法根据macd下叉来确认顶，可能更好？
     '''
+    if sbase == None:
+        sbase = sdiff
     sc = gand(cross(sdea,sdiff)<0)
     xhigh = tmax(shigh,covered)
-    dhigh = tmax(sdiff,covered)
+    dhigh = tmax(sbase,covered)
     dxhigh = rsub2(xhigh,sc,distance)
     ddhigh = rsub2(dhigh,sc,distance)
     signal = gand(dxhigh>0,ddhigh<0)
     return signal
 
-def ldevi(slow,sdiff,sdea,covered=20,distance=1):
+def ldevi(slow,sdiff,sdea,sbase=None,covered=20,distance=1):
     '''
         底背离
-        distance表示与前面第几个顶背离
-        这个算法根据macd下叉来确认顶，可能更好？
+        sdiff,sdea用于确认顶底
+        sbase是比较线,即顶底确认后的比较
+        distance表示与前面第几个底背离
+        这个算法根据macd下叉来确认底，可能更好？
     '''
+    if sbase == None:
+        sbase = sdiff
     sc = gand(cross(sdea,sdiff)>0)
     xlow = tmin(slow,covered)
-    dlow = tmin(sdiff,covered)
+    dlow = tmin(sbase,covered)
     #print sc,xlow.tolist(),dlow.tolist()
     dxlow = rsub2(xlow,sc,distance)
     ddlow = rsub2(dlow,sc,distance)

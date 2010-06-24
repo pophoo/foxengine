@@ -9035,7 +9035,7 @@ sfilter,xfilter
 sfilter,xfilter
 
 2.1.3.B ipmacd_long_f   ML2
-macd1上叉且延续3分钟,下叉后第3分钟仍然在上行
+macd1上叉且延续3分钟,上叉后第3分钟仍然在上行
 diff5<0, macd5>0且上行中
 macd30<0但在上行中
 sfilter,xfilter
@@ -9069,3 +9069,6 @@ sfilter,xfilter
 信号优先级：xfollow最高，xmiddle次之，xagainst最后。 
 即如果现有持仓是xagainst/xmiddle 来的，那么之后的xfollow的反向信号将导致平仓并反向开仓
 
+
+#2010-06-24
+通过1分钟来找底，5分钟来判定是否背离?

@@ -21,16 +21,19 @@ def tfunc(sif,sopened=None):
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)
 
     #signal = gand(xc_ru0s(trans[IOPEN],trans[ICLOSE],trans[IHIGH],trans[ILOW],trans[IVOL])>0)
-    xdiff,xdea = macd_ru(trans[IOPEN],trans[ICLOSE],trans[IHIGH],trans[ILOW])
-    signal = gand(cross(xdea,xdiff)<0)
-    fsignal = gand(cross(sif.dea1,sif.diff1)<0,strend(sif.diff30-sif.dea30)<0,sif.diff30>0,sif.diff30<sif.dea30)
+    #xdiff,xdea = macd_ru(trans[IOPEN],trans[ICLOSE],trans[IHIGH],trans[ILOW])
+    #signal = gand(cross(xdea,xdiff)<0)
+    #fsignal = gand(cross(sif.dea1,sif.diff1)<0,strend(sif.diff30-sif.dea30)<0,sif.diff30>0,sif.diff30<sif.dea30)
 
-    signal = sfollow(signal,fsignal,30)
+    #signal = sfollow(signal,fsignal,30)
     #signal = gand(strend(sif.diff5-sif.dea5)<0,strend(sif.diff30<sif.dea30)<0)
     #signal = gand(signal,ksfilter,sif.xatr<20)
 
+    signal = ldevi(trans[ILOW],sif.diff1,sif.dea1,sif.diff5)
+    signal = gand(signal,sif.diff5<0,strend(sif.diff30-sif.dea30)>0,strend(sif.ma5-sif.ma30)>0)
 
-    return signal*XSELL
+
+    return signal*XBUY
 
 def down30(sif,sopened=None):
     trans = sif.transaction
@@ -395,7 +398,7 @@ def ipmacd_long_devi1(sif,sopened=None):
 
     sfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200)#: 向上突变过滤
 
-    msignal = ldevi(trans[IHIGH],sif.diff1,sif.dea1)
+    msignal = ldevi(trans[ILOW],sif.diff1,sif.dea1)
     fsignal = gand(strend(sif.diff1-sif.dea1) >= 3)   #上叉后仍然连续增长中
 
     signal = gand(rollx(msignal,3),fsignal,sif.diff30<0,gor(strend(sif.diff30-sif.dea30)>0,sif.diff30>sif.dea30),sfilter,sif.xatr<15)

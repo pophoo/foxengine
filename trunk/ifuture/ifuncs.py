@@ -245,7 +245,7 @@ def ipmacd_long_devi1_old(sif,sopened=None):
 
     trans = sif.transaction
 
-    msignal = ldevi(trans[IHIGH],sif.diff1,sif.dea1)
+    msignal = ldevi(trans[ILOW],sif.diff1,sif.dea1)
     fsignal = gand(strend(sif.diff1-sif.dea1) >= 3)   #上叉后仍然连续增长中
 
     signal = gand(rollx(msignal,3),fsignal,sif.diff30<0,gor(strend(sif.diff30-sif.dea30)>0,sif.diff30>sif.dea30),trans[ICLOSE]<sif.ma60)
@@ -264,7 +264,7 @@ def ipmacd_long_devi1(sif,sopened=None):
 
     sfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200)#: 向上突变过滤
 
-    msignal = ldevi(trans[IHIGH],sif.diff1,sif.dea1)
+    msignal = ldevi(trans[ILOW],sif.diff1,sif.dea1)
     fsignal = gand(strend(sif.diff1-sif.dea1) >= 3)   #上叉后仍然连续增长中
 
     signal = gand(rollx(msignal,3),fsignal,sif.diff30<0,gor(strend(sif.diff30-sif.dea30)>0,sif.diff30>sif.dea30),sfilter,sif.xatr<15)

@@ -21,17 +21,31 @@ def tfunc(sif,sopened=None):
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)
 
     #signal = gand(xc_ru0s(trans[IOPEN],trans[ICLOSE],trans[IHIGH],trans[ILOW],trans[IVOL])>0)
-    #xdiff,xdea = macd_ru(trans[IOPEN],trans[ICLOSE],trans[IHIGH],trans[ILOW])
+    #mxc = xc0s(trans[IOPEN],trans[ICLOSE],trans[IHIGH],trans[ILOW])
     #signal = gand(cross(xdea,xdiff)<0)
-    #fsignal = gand(cross(sif.dea1,sif.diff1)<0,strend(sif.diff30-sif.dea30)<0,sif.diff30>0,sif.diff30<sif.dea30)
+    #signal = gand(cross(sif.dea1,sif.diff1)<0)#,strend(sif.diff30-sif.dea30)>0,sif.diff30<0,sif.diff30>sif.dea30,sif.diff5>sif.dea5)
+
+    #sdd5 = strend(sif.diff5-sif.dea5)
+    #signal= gand(sdd5==-3,sif.diff5>sif.dea5,sif.diff5>0,sif.diff1<sif.dea1,sif.diff30<0,strend(sif.diff30-sif.dea30)>0)
 
     #signal = sfollow(signal,fsignal,30)
     #signal = gand(strend(sif.diff5-sif.dea5)<0,strend(sif.diff30<sif.dea30)<0)
     #signal = gand(signal,ksfilter,sif.xatr<20)
 
-    signal = ldevi(trans[ILOW],sif.diff1,sif.dea1,sif.diff5)
-    signal = gand(signal,sif.diff5<0,strend(sif.diff30-sif.dea30)>0,strend(sif.ma5-sif.ma30)>0)
+    #signal = ldevi(trans[ILOW],sif.diff1,sif.dea1,sif.diff5)
+    #signal = gand(signal,sif.diff5<0,strend(sif.diff30-sif.dea30)>0,strend(sif.ma5-sif.ma30)>0)
 
+    #mxc = xc0s(sif.open,sif.close15,sif.high15,sif.low15,13)
+    mxc = xc0s(trans[IOPEN],trans[ICLOSE],trans[IHIGH],trans[ILOW],60)
+    nx = extend2next(mxc).cumsum()
+    snx = strend(nx)
+
+    #msignal = np.zeros_like(sif.diff1)
+    #msignal[sif.i_cof15] = mxc
+
+    #signal = gand(mxc<0,strend(sif.diff5-sif.dea5)<0,sif.diff30<sif.dea30,sif.diff5>0,sif.diff30>0,sif.diff1>0)#,sif.diff1>0)
+
+    signal = gand(snx==8,strend(sif.diff5-sif.dea5)>0,strend(sif.diff30-sif.dea30)>0,sif.diff5<0,sif.diff30<0)#,strend(sif.diff1-sif.dea1)>0)#,sif.diff30<0,sif.diff1<0)#,sif.diff1>0)
 
     return signal*XBUY
 

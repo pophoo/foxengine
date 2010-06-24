@@ -26,7 +26,7 @@ i07 = ifmap['IF1007']
 i09 = ifmap['IF1009']
 i12 = ifmap['IF1012']
 
-trans = i06.transaction
+trans = i07.transaction
 
 i_cof5 = np.where(trans[ITIME]%5==0)    #5分钟收盘线,不考虑隔日的因素
 i_cofd = np.where(trans[ITIME]==1514)   #日收盘线

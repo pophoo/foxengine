@@ -265,6 +265,18 @@ def ma60_short(sif,sopened=None):
     return signal * XSELL
 
 
+def ma30_short2(sif,sopened=None):
+    ''' ma30拐头
+    '''
+    trans = sif.transaction
+    sfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)
+    
+    msignal = gand(strend(sif.ma30) == -1,rollx(strend(sif.ma30))<10)
+    fsignal = gand(cross(sif.dea1,sif.diff1)<0,strend(sif.diff5-sif.dea5)>0,sfilter,sif.xatr<20)
+    signal = sfollow(msignal,fsignal,15)
+    return signal * XSELL
+
+
 def ma60_long(sif,sopened=None):
     ''' ma60拐头
     '''
@@ -799,12 +811,12 @@ def mfollow_long(sif,sopened=None):   #+, 水线以下
 
 def down02(sif,sopened=None): #+
     '''
-        R=542,times=4/5
+        R=542,times=2/3
     '''
     trans = sif.transaction
     signal5 = gand(cross(cached_zeros(len(sif.diff5)),sif.diff5)<0)
     sfilter = gand(sif.diff5<0,trans[IOPEN] - trans[ICLOSE] < 60,sif.diff30>sif.dea30,sif.diff30<0)
-    signal1 = gand(fmacd1_short(sif,2,sfilter))
+    signal1 = gand(fmacd1_short(sif,3,sfilter))
     signal = sfollow(signal5,signal1,30)
     signal = gand(signal,strend(sif.ma30)<0)
     return signal * XSELL
@@ -944,6 +956,13 @@ def imacd_stop5(sif,sopened=None):
     sell_signal = lesser(cross(sif.dea5,sif.diff5),0) * XSELL
     buy_signal = greater(cross(sif.dea5,sif.diff5),0) * XBUY
     return sell_signal + buy_signal
+
+
+def imacd_stop5_short(sif,sopened=None):
+    trans = sif.transaction
+    buy_signal = greater(cross(sif.dea5,sif.diff5),0) * XBUY
+    return buy_signal
+
 
 def imacd_stop1(sif,sopened=None):
     trans = sif.transaction

@@ -35,19 +35,27 @@ def tfunc(sif,sopened=None):
     #signal = ldevi(trans[ILOW],sif.diff1,sif.dea1,sif.diff5)
     #signal = gand(signal,sif.diff5<0,strend(sif.diff30-sif.dea30)>0,strend(sif.ma5-sif.ma30)>0)
 
-    #mxc = xc0s(sif.open,sif.close15,sif.high15,sif.low15,13)
-    mxc = xc0s(trans[IOPEN],trans[ICLOSE],trans[IHIGH],trans[ILOW],60)
-    nx = extend2next(mxc).cumsum()
-    snx = strend(nx)
+    mxc = xc0s(sif.open5,sif.close5,sif.high5,sif.low5,13)
+    #mxc = xc0s(trans[IOPEN],trans[ICLOSE],trans[IHIGH],trans[ILOW],60)
+    #nx = extend2next(mxc).cumsum()
+    #snx = strend(nx)
 
-    #msignal = np.zeros_like(sif.diff1)
-    #msignal[sif.i_cof15] = mxc
+    msignal = np.zeros_like(sif.diff1)
+    msignal[sif.i_cof5] = mxc < 0
+    
+
+    #signal = extend2next(msignal).cumsum()
+    
+    #snx = strend(signal)
+    #signal = gand(snx==31,strend(sif.diff30-sif.dea30)>0)
+    fsignal = gand(cross(sif.dea1,sif.diff1)<0,sif.diff30>0,sif.diff5<0,sif.diff1<0)
+    signal = sfollow(msignal,fsignal,30)
 
     #signal = gand(mxc<0,strend(sif.diff5-sif.dea5)<0,sif.diff30<sif.dea30,sif.diff5>0,sif.diff30>0,sif.diff1>0)#,sif.diff1>0)
 
-    signal = gand(snx==8,strend(sif.diff5-sif.dea5)>0,strend(sif.diff30-sif.dea30)>0,sif.diff5<0,sif.diff30<0)#,strend(sif.diff1-sif.dea1)>0)#,sif.diff30<0,sif.diff1<0)#,sif.diff1>0)
+    #signal = gand(snx==8,strend(sif.diff5-sif.dea5)>0,strend(sif.diff30-sif.dea30)>0,sif.diff5<0,sif.diff30<0)#,strend(sif.diff1-sif.dea1)>0)#,sif.diff30<0,sif.diff1<0)#,sif.diff1>0)
 
-    return signal*XBUY
+    return signal*XSELL
 
 def down30(sif,sopened=None):
     trans = sif.transaction
@@ -200,7 +208,8 @@ def ipmacd_5x13(sif,sopened=None):
 def ipmacd_longt(sif,sopened=None):#+
     trans = sif.transaction
     sfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200) #向上突变过滤
-    signal = gand(cross(sif.dea1,sif.diff1)>0,sif.diff5<0,strend(sif.diff5-sif.dea5)>0,sif.diff30<sif.dea30,strend(sif.diff30-sif.dea30)>0,sif.ma5>sif.ma13,strend(sif.ma5)>1,strend(sif.ma5-sif.ma30)>0)
+    
+    signal = gand(cross(sif.dea1,sif.diff1)>0,sif.ma5>sif.ma13,strend(sif.ma5-sif.ma13)>1,strend(sif.ma5)>2,strend(sif.ma5-sif.ma30)>0,strend(sif.sdiff15x-sif.sdea15x)>0,strend(sif.sdiff5x-sif.sdea5x)>0,strend(sif.sdiff30x-sif.sdea30x)>0,sif.diff1>0,sif.sdiff30x<0)
     signal = gand(signal,sif.xatr<15,sfilter)
     return signal * XBUY
 
@@ -619,8 +628,13 @@ def dmacd_long(sif,sopened=None):#+++
     sfilter = gand(trans[ICLOSE] - trans[IOPEN] < 60,rollx(trans[ICLOSE]) - trans[IOPEN] < 120)#: 向上突变过滤
 
     sdd = strend(sif.diff1 - sif.dea1)
-    signal = gand(sdd==1,rollx(sdd)<-4,sif.diff1>sif.dea1,sif.diff5>sif.dea5,sif.diff5<0,sfilter,strend(sif.diff30-sif.dea30)>0,sif.diff30<0) 
+    signal = gand(sdd==1,rollx(sdd)<-4,sif.diff1>sif.dea1,sif.diff5>sif.dea5,sif.diff5<0,sfilter,sif.diff30<0,strend(sif.diff30-sif.dea30)>0,strend(sif.diff15-sif.dea15)>0)
     signal = gand(signal,strend(sif.ma30)>0,sif.xatr<15)
+    
+    #xu = xcu(trans[IOPEN],trans[ICLOSE],trans[IHIGH],trans[ILOW],13,udfunc=supdowns)
+    #upp = msum(xu>950,5) > 4
+    
+    #signal = gand(signal,upp)
 
     return signal * XBUY
 
@@ -633,7 +647,7 @@ def dmacd_long5(sif,sopened=None):#+++
     '''
     trans = sif.transaction
     sdd = strend(sif.diff5 - sif.dea5)
-    signal = gand(sdd==1,rollx(sdd)<-4,sif.diff5>sif.dea5,sif.diff5<0,trans[ICLOSE] - trans[IOPEN] < 100,sif.diff30<0,sif.diff30<sif.dea30)
+    signal = gand(sdd==1,rollx(sdd)<-4,sif.diff5>sif.dea5,sif.diff5<0,trans[ICLOSE] - trans[IOPEN] < 100,sif.diff30<0,strend(sif.diff30<sif.dea30))
     #signal = gand(signal,sif.ma20>sif.ma60,strend(sif.ma60)>0)#,sif.ma13>sif.ma60)#,strend(sif.diff5)>0)
 
 
@@ -1277,12 +1291,46 @@ from wolfox.fengine.ifuture.iftrade import ocfilter
 
 def longfilter(sif):  #在开盘前30分钟和收盘前5分钟不开仓，头三个交易日不开张
     soc = ocfilter(sif)
+
+
+    trans = sif.transaction
+    '''
+
+    mxc = xc0s(trans[IOPEN],trans[ICLOSE],trans[IHIGH],trans[ILOW],13)
+    nx = extend2next(mxc).cumsum()
+    snx = strend(nx)
+    
+    soc = gand(soc,snx>3)
+    '''
+
+    #xu = xcu(trans[IOPEN],trans[ICLOSE],trans[IHIGH],trans[ILOW],13,udfunc=supdowns)
+    #upp = msum(xu>950,5) > 4
+    
+    xu = xcu(trans[IOPEN],trans[ICLOSE],trans[IHIGH],trans[ILOW],13,udfunc=supdowns)
+    downp = msum(xu>950,5) > 4
+    
+    soc = gand(soc,downp)
+
     #soc = gand(soc,sif.diff5>sif.dea5)
     #soc = gand(soc,gand(sif.diff30<sif.dea30))
     return soc
 
 def shortfilter(sif):  #在开盘前30分钟和收盘前5分钟不开仓，头三个交易日不开张
     soc = ocfilter(sif)
+
+    trans = sif.transaction
+    '''
+    mxc = xc0s(trans[IOPEN],trans[ICLOSE],trans[IHIGH],trans[ILOW],13)
+    nx = extend2next(mxc).cumsum()
+    snx = strend(nx)
+    soc = gand(soc,snx<-3)
+    '''
+
+    xu = xcu(trans[IOPEN],trans[ICLOSE],trans[IHIGH],trans[ILOW],13,udfunc=supdowns)
+    downp = msum(xu<1050,5) > 4
+    
+    soc = gand(soc,downp)
+    
     #soc = gand(soc,sif.diff30<0,sif.diff30>sif.dea30,sif.diff5<sif.dea5)
     #soc = gand(soc,sif.diff30<0,sif.diff30<sif.dea30,sif.diff5<sif.dea5)    
     #soc = gand(soc,sif.diff5<0)

@@ -351,6 +351,14 @@ class ModuleTest(unittest.TestCase):
         xc0(a,a,a,a)
         self.assertTrue(True)
 
+    def test_xcu(self):
+        na = np.array([])
+        a = np.array(np.array([1,2,2]))
+        self.assertEquals([],xcu(na,na,na,na).tolist())
+        xcu(a,a,a,a)
+        self.assertTrue(True)
+
+
     def test_xc02(self):
         na = np.array([])
         a = np.array(np.array([1,2,2]))

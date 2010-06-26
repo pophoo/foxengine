@@ -456,6 +456,16 @@ def xc0(sopen,sclose,shigh,slow,ma1=13,udfunc=supdown):
     xc = cross(zx,msu-msd)
     return xc
 
+def xcu(sopen,sclose,shigh,slow,ma1=13,udfunc=supdown):
+    '''
+        上升比例穿越0线
+    '''
+    su,sd = udfunc(sopen,sclose,shigh,slow)
+    zx = cached_zeros(len(sclose))
+    msu = cexpma(su,ma1)
+    msd = cexpma(sd,ma1)
+    return msu
+
 def xc02(sopen,sclose,shigh,slow,ma1=13):
     '''
         上升比例穿越0线,supdown2

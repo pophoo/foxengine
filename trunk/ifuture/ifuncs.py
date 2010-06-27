@@ -62,9 +62,12 @@ xfollow = [ifuncs.ipmacd_short,ifuncs.down01,ifuncs.dmacd_short5,ifuncs.ipmacdx_
 d22 = fcustom(ifuncs.dmacd_short2,rolled=2)
 xagainst = [ifuncs.ipmacd_longt,ifuncs.ipmacd_long_devi1,ifuncs.dmacd_long,ifuncs.dmacd_short2,d22,ifuncs.down30]
 
+xagainst = [ifuncs.ipmacd_longt,ifuncs.dmacd_short2,d22,ifuncs.down30]
+
 #中间品种
 xmiddle = [ifuncs.ipmacd_long5,ifuncs.ipmacd_long_f,ifuncs.xldevi2,ifuncs.ipmacd_short_devi1,ifuncs.ma60_short]
 
+xmiddle = [ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.ipmacd_short_devi1,ifuncs.ma60_short]
 
 trades1 = iftrade.itrade3x(i07,xfollow)
 trades2 = iftrade.itrade3x(i07,xagainst)
@@ -207,7 +210,7 @@ def ma60_long_old(sif,sopened=None):
 def ipmacd_longt(sif,sopened=None):#+
     trans = sif.transaction
     sfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200) #向上突变过滤
-    signal = gand(cross(sif.dea1,sif.diff1)>0,sif.diff5<0,strend(sif.diff5-sif.dea5)>0,sif.diff30<sif.dea30,sif.diff30<0,sif.ma5>sif.ma13,strend(sif.ma5)>2,strend(sif.ma5-sif.ma30)>0)
+    signal = gand(cross(sif.dea1,sif.diff1)>0,strend(sif.diff5-sif.dea5)>0,sif.diff30<sif.dea30,sif.diff30<0,sif.ma5>sif.ma13,strend(sif.ma5)>2,strend(sif.ma5-sif.ma30)>0)
     signal = gand(signal,sif.xatr<15,sfilter)
     return signal * XBUY
 

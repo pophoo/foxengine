@@ -9137,7 +9137,21 @@ def tv2i(tv): #同花顺数值表示法->一般的数字表示
 
 #2010-06-26
 寻找趋势指标
-cho bpo emv vpt cci
+cho dpo emv vpt cci
+cho: n1=10,n2=20,m=6
+MID:=SUM(VOL*(2*CLOSE-HIGH-LOW)/(HIGH+LOW),0);
+CHO:MA(MID,N1)-MA(MID,N2);
+MACHO:MA(CHO,M);
 
+dpo: n=20,m=6
+DPO:CLOSE-REF(MA(CLOSE,N),N/2+1);
+MADPO:MA(DPO,M);
 
+vpt:m=6
+VPT:SUM(VOL*(CLOSE-REF(CLOSE,1))/REF(CLOSE,1),0);
+MAVPT:MA(VPT,M);
+
+cci: n=14 avedev: 平均绝对偏差
+TYP:=(HIGH+LOW+CLOSE)/3;
+CCI:(TYP-MA(TYP,N))/(0.015*AVEDEV(TYP,N));
 

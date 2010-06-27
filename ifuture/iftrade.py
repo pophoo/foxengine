@@ -57,6 +57,23 @@ def ocfilter(sif):  #在开盘前30分钟和收盘前5分钟不开仓，头三�
     soc = gand(greater(stime,944),lesser(stime,1510))
     soc[:275*3] = 0
     soc[-5:] = 0    #最后交易日收盘在1500，防止溢出(因为买入点通常在下一分钟，那么1500不被屏蔽的话，如果有信号就会溢出)
+    
+    
+    #xfilter = np.zeros_like(sif.diff1)
+    #xfilter[sif.i_cof5] = np.select([sif.xatr5>sif.mxatr5],[1],default=-1)
+    #xfilter = extend2next(xfilter)
+
+    #soc = gand(soc,xfilter>0)
+
+    #amacd5 = np.abs(sif.diff5-sif.dea5)
+    #mfilter = amacd5 > ma(amacd5,30)
+    #soc = gand(soc,mfilter)
+
+    #mfilter = np.zeros_like(sif.diff1)
+    #amacd5 = np.abs(sif.sdiff5x-sif.sdea5x)
+    #mfilter[sif.i_cof5] = np.select([gor(gand(sif.sdiff5x < amacd5,sif.sdiff5x>0,strend(sif.sdiff5x)<0),gand(sif.sdiff5x > -amacd5,sif.sdiff5x<0,strend(sif.sdiff5x)>0))],[1],default=-1)
+    #mfilter = extend2next(mfilter)
+    #soc = gand(soc,mfilter<0)
 
     return soc
 
@@ -450,6 +467,9 @@ atr_uxstop_15_15 = fcustom(atr_uxstop,lost_times=150,win_times=150,max_drawdown=
 atr_uxstop_2_2 = fcustom(atr_uxstop,lost_times=200,win_times=200,max_drawdown=200,min_lost=30)  
 atr_uxstop_15_2 = fcustom(atr_uxstop,lost_times=150,win_times=200,max_drawdown=200,min_lost=30)  
 atr_uxstop_2_6 = fcustom(atr_uxstop,lost_times=200,win_times=600,max_drawdown=200,min_lost=30)   
+atr_uxstop_3_6 = fcustom(atr_uxstop,lost_times=300,win_times=600,max_drawdown=200,min_lost=30)   
+atr_uxstop_4_6 = fcustom(atr_uxstop,lost_times=400,win_times=600,max_drawdown=200,min_lost=30)   
+
 
 atr_uxstop_15_6_45 = fcustom(atr_uxstop,lost_times=150,win_times=600,max_drawdown=200,min_lost=45)   #
 
@@ -484,6 +504,12 @@ itrade3y = fcustom(itrade3,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop_
 itrade3x1 = fcustom(itrade3,stop_closer=atr_uxstop_1_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1,ifuncs.ipmacd_long_devi1],sclosers=[ifuncs.daystop_long,ifuncs.xmacd_stop_long1,ifuncs.xdevi_stop_long1])
 
 itrade3y1 = fcustom(itrade3,stop_closer=atr_uxstop_1_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=[ifuncs.daystop_long,ifuncs.ipmacd_short,ifuncs.down01,ifuncs.dmacd_short5,ifuncs.ipmacdx_short,ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.xmacd_stop_long1])
+
+itrade3y2 = fcustom(itrade3,stop_closer=atr_uxstop_2_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=[ifuncs.daystop_long,ifuncs.ipmacd_short,ifuncs.down01,ifuncs.dmacd_short5,ifuncs.ipmacdx_short,ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.xmacd_stop_long1])
+
+itrade3y3 = fcustom(itrade3,stop_closer=atr_uxstop_3_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=[ifuncs.daystop_long,ifuncs.ipmacd_short,ifuncs.down01,ifuncs.dmacd_short5,ifuncs.ipmacdx_short,ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.xmacd_stop_long1])
+
+itrade3y4 = fcustom(itrade3,stop_closer=atr_uxstop_4_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=[ifuncs.daystop_long,ifuncs.ipmacd_short,ifuncs.down01,ifuncs.dmacd_short5,ifuncs.ipmacdx_short,ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.xmacd_stop_long1])
 
 
 itrade3x45 = fcustom(itrade3,stop_closer=atr_uxstop_15_6_45,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1,ifuncs.ipmacd_long_devi1],sclosers=[ifuncs.daystop_long,ifuncs.xmacd_stop_long1,ifuncs.xdevi_stop_long1])

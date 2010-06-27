@@ -62,12 +62,12 @@ xfollow = [ifuncs.ipmacd_short,ifuncs.down01,ifuncs.dmacd_short5,ifuncs.ipmacdx_
 d22 = fcustom(ifuncs.dmacd_short2,rolled=2)
 xagainst = [ifuncs.ipmacd_longt,ifuncs.ipmacd_long_devi1,ifuncs.dmacd_long,ifuncs.dmacd_short2,d22,ifuncs.down30]
 
-xagainst = [ifuncs.ipmacd_longt,ifuncs.dmacd_short2,d22,ifuncs.down30]
+#xagainst = [ifuncs.ipmacd_longt,ifuncs.dmacd_short2,d22,ifuncs.down30]
 
 #中间品种
 xmiddle = [ifuncs.ipmacd_long5,ifuncs.ipmacd_long_f,ifuncs.xldevi2,ifuncs.ipmacd_short_devi1,ifuncs.ma60_short]
 
-xmiddle = [ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.ipmacd_short_devi1,ifuncs.ma60_short]
+#xmiddle = [ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.ipmacd_short_devi1,ifuncs.ma60_short]
 
 trades1 = iftrade.itrade3x(i07,xfollow)
 trades2 = iftrade.itrade3x(i07,xagainst)

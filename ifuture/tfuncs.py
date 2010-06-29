@@ -593,10 +593,15 @@ def ipmacd_short52(sif,sopened=None):#-
 def ipmacd_short(sif,sopened=None):#+++
     trans = sif.transaction
 
-    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<20)
-    signal = gand(cross(sif.dea1,sif.diff1)<0,strend(sif.diff1)<0,sif.diff5<0,sif.diff30<0,ksfilter) 
-    signal = gand(signal,strend(sif.ma30)<-4,strend(sif.ma13-sif.ma60)<0)
+    #ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<20)
+    #signal = gand(cross(sif.dea1,sif.diff1)<0,strend(sif.diff1)<0,sif.diff5<0,sif.diff30<0,ksfilter) 
+    #signal = gand(signal,strend(sif.ma30)<-4,strend(sif.ma13-sif.ma60)<0)
+    sfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)
+    signal = gand(cross(sif.dea1,sif.diff1)<0,sif.diff5<0,sif.diff30<0,sfilter,strend(sif.diff1)<-2)#,strend(sif.diff5)>0)
+    #signal = gand(signal,sif.xatr<20,sif.ma5<sif.ma13,strend(sif.ma30)<-4,strend(sif.ma13-sif.ma60)<0)
+
     return signal * XSELL
+
 
 def ipmacd_short_x1(sif,sopened=None):#+++
     ''' 

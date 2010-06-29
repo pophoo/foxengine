@@ -69,11 +69,11 @@ def prepare_index(sif):
     sif.diff1,sif.dea1 = cmacd(trans[ICLOSE]*FBASE)
     sif.diff2,sif.dea2 = cmacd(trans[ICLOSE]*FBASE,19,39,15)    
     sif.diff5,sif.dea5 = cmacd(trans[ICLOSE]*FBASE,60,130,45)
-    sif.diff15,sif.dea15 = cmacd(trans[ICLOSE]*FBASE*1.0,180,390,135)
-    sif.diff30,sif.dea30 = cmacd(trans[ICLOSE]*FBASE*1.0,360,780,270)
-    sif.diff60,sif.dea60 = cmacd(trans[ICLOSE]*FBASE*1.0,720,1560,540)
-    sif.di30,sif.de30 = smacd(trans[ICLOSE]*FBASE*1.0,360,780,270)  #计算误差太大，改用非指数版
-    sif.di60,sif.de60 = smacd(trans[ICLOSE]*FBASE*1.0,720,1560,540)  #计算误差太大，改用非指数版
+    sif.diff15,sif.dea15 = cmacd(trans[ICLOSE]*FBASE,180,390,135)
+    sif.diff30,sif.dea30 = cmacd(trans[ICLOSE]*FBASE,360,780,270)
+    sif.diff60,sif.dea60 = cmacd(trans[ICLOSE]*FBASE,720,1560,540)
+    sif.di30,sif.de30 = smacd(trans[ICLOSE]*FBASE,360,780,270)  #计算误差太大，改用非指数版
+    sif.di60,sif.de60 = smacd(trans[ICLOSE]*FBASE,720,1560,540)  #计算误差太大，改用非指数版
 
     sif.ma3 = ma(trans[ICLOSE],3)
     sif.ma5 = ma(trans[ICLOSE],5)

@@ -16,7 +16,19 @@ class ModuleTest(unittest.TestCase):
 
     def test_cexpma(self):
         source = np.array([25000,24875,24781,24594,24500,24625,25219,27250])
-        self.assertEquals([0,0,0,0,24698,24674,24855,25653],cexpma(source,5).tolist())   #相当于5日
+        self.assertEquals([25000,24958,24899,24797,24698,24674,24856,25654],cexpma(source,5).tolist())   #相当于5日
+        #source2 = np.array([25000000,24875000,24781000,24594000,24500000,24625000,25219000,27250000])  #溢出
+        #self.assertEquals([0,0,0,0,24698527,24674043,24855514,25652878],cexpma(source2,5).tolist())   #相当于5日
+
+    def test_cexpma_f(self):
+        source = np.array([25000,24875,24781,24594,24500,24625,25219,27250])
+        self.assertEquals([8333,13847,17492,19859,21406,22479,23392,24678],cexpma_f(source,5).tolist())   #相当于5日
+        #source2 = np.array([25000000,24875000,24781000,24594000,24500000,24625000,25219000,27250000])  #溢出
+        #self.assertEquals([0,0,0,0,24698527,24674043,24855514,25652878],cexpma(source2,5).tolist())   #相当于5日
+
+    def test_cexpma_old(self):
+        source = np.array([25000,24875,24781,24594,24500,24625,25219,27250])
+        self.assertEquals([0,0,0,0,24698,24674,24855,25653],cexpma_old(source,5).tolist())   #相当于5日
         #source2 = np.array([25000000,24875000,24781000,24594000,24500000,24625000,25219000,27250000])  #溢出
         #self.assertEquals([0,0,0,0,24698527,24674043,24855514,25652878],cexpma(source2,5).tolist())   #相当于5日
 
@@ -49,6 +61,22 @@ class ModuleTest(unittest.TestCase):
         #print diff
         source = np.array([63750,65625,63000,62750,63250,65375,66000])
         diff,dea = cmacd(source)
+
+    def test_cmacd_f(self):#因为是其它几个算法的集成，所以不测试实际数据，只测试可执行性
+        source = np.array([63750,65625,63000,62750,63250,65375,66000,65000,64875,64750,64375,64375,64625,65375,64500,65250,67875,68000,66875,66250,65875,66000,65875,64750,63000,63375,63375,63375])
+        #self.assertEquals(28,len(source))
+        diff,dea = cmacd_f(source)
+        #print diff
+        source = np.array([63750,65625,63000,62750,63250,65375,66000])
+        diff,dea = cmacd_f(source)
+
+    def test_cmacd_old(self):#因为是其它几个算法的集成，所以不测试实际数据，只测试可执行性
+        source = np.array([63750,65625,63000,62750,63250,65375,66000,65000,64875,64750,64375,64375,64625,65375,64500,65250,67875,68000,66875,66250,65875,66000,65875,64750,63000,63375,63375,63375])
+        #self.assertEquals(28,len(source))
+        diff,dea = cmacd_old(source)
+        #print diff
+        source = np.array([63750,65625,63000,62750,63250,65375,66000])
+        diff,dea = cmacd_old(source)
 
     def test_smacd(self):#因为是其它几个算法的集成，所以不测试实际数据，只测试可执行性
         source = np.array([63750,65625,63000,62750,63250,65375,66000,65000,64875,64750,64375,64375,64625,65375,64500,65250,67875,68000,66875,66250,65875,66000,65875,64750,63000,63375,63375,63375])

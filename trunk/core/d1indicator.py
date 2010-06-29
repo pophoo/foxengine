@@ -34,10 +34,48 @@ def expma(source,trate):
         #assert cur >= 0
     return rev
 
-def cexpma(source,n):
+def cexpma_old(source,n):
     '''国内使用的expma,直接用n作为参数
+       因四舍五入的问题,trate存在对长周期有影响的误差
     '''
     return expma(source,(2*BASE+(n+1)/2)/(n+1))
+
+def cexpma(source,n): 
+    '''
+        国内使用的expma,直接用n作为参数
+        内部用整数计算
+        用于整数的source,有四舍五入因子(n+1)/2. 因此不能传入浮点数，会因为该因子而导致数据变化
+    '''
+    rev = np.zeros_like(source)
+    if len(source) == 0:
+        return rev
+    
+    cur = source[0]
+    for i in xrange(0,len(source)):
+        cur = (source[i]*2 + cur*(n-1) + (n+1)/2)/(n+1) #source[i]/n + (n-1)*cur/n
+        rev[i] = cur
+    return rev
+
+def cexpma_f(source,n):   
+    '''
+        国内使用的expma,直接用n作为参数
+        内部用浮点运算
+        因为四舍五入在最后转换中，运算过程中不存在
+        所以输入值是整数或者浮点都没有影响
+    '''
+    length = n
+    trate = 2.0/(n+1)
+    rev = np.zeros_like(source)
+    if(len(source) < length):
+        return rev
+    cur = 0
+    for i in xrange(0,len(source)):
+        cur = source[i] * trate + cur * (1 - trate)
+        #cur = expfunctor(source[i],cur,trate)
+        rev[i] = cur  + 0.5
+        #assert cur >= 0
+    return rev
+
 
 def vexpma(source,trate):    
     ''' 指数移动平均线, 为大数据而设
@@ -81,12 +119,37 @@ def cmacd(source,ifast=12,islow=26,idiff=9):
     ''' 国内常用的算法
         1.指数平均用cexpma来计算,周期取fast=12,slow=26,diff的指数平均周期取9
         2.信号线用dif的指数平均来计算
+        此法与cmacd_f相比误差不大,且比较贴近同花顺的用法
     '''
     fast = cexpma(source,ifast)
     slow = cexpma(source,islow)
     diff = fast - slow
     dea = cexpma(diff,idiff)
     return diff,dea
+
+def cmacd_old(source,ifast=12,islow=26,idiff=9):
+    ''' 国内常用的算法
+        1.指数平均用cexpma来计算,周期取fast=12,slow=26,diff的指数平均周期取9
+        2.信号线用dif的指数平均来计算
+        此法误差较大
+    '''
+    fast = cexpma_old(source,ifast)
+    slow = cexpma_old(source,islow)
+    diff = fast - slow
+    dea = cexpma_old(diff,idiff)
+    return diff,dea
+
+def cmacd_f(source,ifast=12,islow=26,idiff=9):
+    ''' 国内常用的算法
+        1.指数平均用cexpma来计算,周期取fast=12,slow=26,diff的指数平均周期取9
+        2.信号线用dif的指数平均来计算
+    '''
+    fast = cexpma_f(source,ifast)
+    slow = cexpma_f(source,islow)
+    diff = fast - slow
+    dea = cexpma_f(diff,idiff)
+    return diff,dea
+
 
 def smacd(source,ifast=12,islow=26,idiff=9):
     ''' 简单MACD，用MA替代CEXPMA

@@ -50,6 +50,15 @@ class ModuleTest(unittest.TestCase):
         source = np.array([63750,65625,63000,62750,63250,65375,66000])
         diff,dea = cmacd(source)
 
+    def test_smacd(self):#因为是其它几个算法的集成，所以不测试实际数据，只测试可执行性
+        source = np.array([63750,65625,63000,62750,63250,65375,66000,65000,64875,64750,64375,64375,64625,65375,64500,65250,67875,68000,66875,66250,65875,66000,65875,64750,63000,63375,63375,63375])
+        #self.assertEquals(28,len(source))
+        diff,dea = smacd(source)
+        #print diff
+        source = np.array([63750,65625,63000,62750,63250,65375,66000])
+        diff,dea = smacd(source)
+
+
     def test_score(self):
         self.assertEquals([],score(np.array([]),np.array([])).tolist())
         sprice = np.array([700,720,900,1100,1000,999,999,720,792,793,700,990])

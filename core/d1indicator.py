@@ -88,6 +88,14 @@ def cmacd(source,ifast=12,islow=26,idiff=9):
     dea = cexpma(diff,idiff)
     return diff,dea
 
+def smacd(source,ifast=12,islow=26,idiff=9):
+    ''' 简单MACD，用MA替代CEXPMA
+    '''
+    fast = ma(source,ifast)
+    slow = ma(source,islow)
+    diff = fast - slow
+    dea = ma(diff,idiff)
+    return diff,dea
 
 def score(sprice,svolume):
     ''' 对当日进行评分

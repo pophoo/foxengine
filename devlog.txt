@@ -8971,7 +8971,7 @@ sfilter,xfilter
 2.1.1.E  ipmacd_short5  FS5
 macd5下叉
 diff5>0
-diff30<0,macd30<0
+diff30<0,macd30下行
 ma13-ma60下行
 
 2.1.1.F ma30_short  FS6
@@ -8986,12 +8986,12 @@ sfilter,xfilter
 中长期均逆势时，必须进行假动作的过滤
 并考虑使用更窄的止损
 
-2.1.2.A ipmacd_longt    AL1
+2.1.2.A ipmacd_longt    ML5
 1分钟macd上叉, 且上行3分钟或以上
-5分钟macd上行,diff5<0
-30分钟macd<0,diff30<0
-    *diff30<0可用strend(diff30-dea30)>0来替代
+5分钟macd上行
+30分钟macd<0
 ma5>ma13,ma5上行2分钟或以上,ma5-ma30上行
+ma135或270上行
 xfilter
 sfilter
 
@@ -9034,7 +9034,7 @@ sfilter,xfilter
     ma5>ma13
 sfilter,xfilter
 
-2.1.3.B ipmacd_long_f   ML2
+2.1.3.B ipmacd_long_f   ML2(删除)
 macd1上叉且延续3分钟,上叉后第3分钟仍然在上行
 diff5<0, macd5>0且上行中
 macd30<0但在上行中
@@ -9154,4 +9154,95 @@ MAVPT:MA(VPT,M);
 cci: n=14 avedev: 平均绝对偏差
 TYP:=(HIGH+LOW+CLOSE)/3;
 CCI:(TYP-MA(TYP,N))/(0.015*AVEDEV(TYP,N));
+
+
+#2010-06-28
+顶点及其位置的算法
+顶点覆盖范围: 前后各11个周期
+顶点判定: 后11个周期内有macd下叉
+
+这个做法是从macd下叉点回退的办法的定位版，macd叉点法只能求顶点值，但没办法求位置
+缺点是下叉点法顶点和底点必然有对应关系，而本法不确定
+
+md = cross(sif.dea1,sif.diff1)<0
+mu = cross(sif.dea1,sif.diff1)>0
+
+mmd = msum(md,11) > 0
+mmu = msum(mu,11) > 0
+
+ih = np.nonzero(gand(equals(trans[IHIGH],rollx(tmax(trans[IHIGH],22),-11)),rollx(mmd,11)))
+il = np.nonzero(gand(equals(trans[ILOW],rollx(tmin(trans[ILOW],22),-11)),rollx(mmu,11)))
+
+trans[IHIGH][ih]
+trans[ILOW][il]
+
+
+#这个貌似还是不是很妥当
+
+还是严格沿用下叉法
+顶点计算范围：后11个周期
+顶点判定: 后11个周期内有macd下叉
+
+
+找出高低点，以及高低点的振幅，貌似没啥用
+
+sif=i07
+
+md = cross(sif.dea1,sif.diff1)<0
+mu = cross(sif.dea1,sif.diff1)>0
+
+mmd = msum(md,11) > 0
+mmu = msum(mu,11) > 0
+
+ih = np.nonzero(gand(equals(trans[IHIGH],rollx(tmax(trans[IHIGH],21),-11)),rollx(mmd,11)))
+il = np.nonzero(gand(equals(trans[ILOW],rollx(tmin(trans[ILOW],21),-11)),rollx(mmu,11)))
+
+trans[IHIGH][ih]
+trans[ILOW][il]
+
+ih = np.nonzero(equals(trans[IHIGH],rollx(tmax(trans[IHIGH],13),-7)))
+
+il = np.nonzero(equals(trans[ILOW],rollx(tmin(trans[ILOW],13),-7)))
+
+hl = np.zeros_like(sif.diff1)
+
+hl[ih] = 1
+hl[il]=-1
+
+cur = 0
+curp = 0
+curhigh = 0
+curlow = 10000000000
+for idx in np.nonzero(hl)[0]:
+    if hl[idx] > 0:
+        if cur == 1:
+            if(trans[IHIGH][curp] >= trans[IHIGH][idx]):
+                hl[idx] = 0
+            else:
+                hl[curp] = 0
+                curp = idx
+        else:
+            cur = 1
+            curp = idx
+    else:
+        if cur == -1:
+            if(trans[ILOW][curp] <= trans[ILOW][idx]):
+                hl[idx] = 0
+            else:
+                hl[curp] = 0
+                curp = idx
+        else:
+            cur = -1
+            curp = idx
+
+
+xhl = np.select([hl==1,hl==-1],[trans[IHIGH],trans[ILOW]],default=0)
+
+ehl = np.zeros_like(sif.diff1)
+
+ihl = np.nonzero(hl)
+
+ehl[ihl] = xhl[ihl] - rollx(xhl[ihl])
+
+
 

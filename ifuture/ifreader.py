@@ -67,10 +67,14 @@ FBASE=10    #只用于macd提高精度，因为是整数运算，再往上就要
 def prepare_index(sif):
     trans = sif.transaction
     sif.diff1,sif.dea1 = cmacd(trans[ICLOSE]*FBASE)
+    sif.diff2,sif.dea2 = cmacd(trans[ICLOSE]*FBASE,19,39,15)    
     sif.diff5,sif.dea5 = cmacd(trans[ICLOSE]*FBASE,60,130,45)
-    sif.diff15,sif.dea15 = cmacd(trans[ICLOSE]*FBASE,180,390,135)
-    sif.diff30,sif.dea30 = cmacd(trans[ICLOSE]*FBASE,360,780,270)
-    sif.diff60,sif.dea60 = cmacd(trans[ICLOSE]*FBASE,720,1560,540)
+    sif.diff15,sif.dea15 = cmacd(trans[ICLOSE]*FBASE*1.0,180,390,135)
+    sif.diff30,sif.dea30 = cmacd(trans[ICLOSE]*FBASE*1.0,360,780,270)
+    sif.diff60,sif.dea60 = cmacd(trans[ICLOSE]*FBASE*1.0,720,1560,540)
+    sif.di30,sif.de30 = smacd(trans[ICLOSE]*FBASE*1.0,360,780,270)  #计算误差太大，改用非指数版
+    sif.di60,sif.de60 = smacd(trans[ICLOSE]*FBASE*1.0,720,1560,540)  #计算误差太大，改用非指数版
+
     sif.ma3 = ma(trans[ICLOSE],3)
     sif.ma5 = ma(trans[ICLOSE],5)
     sif.ma10 = ma(trans[ICLOSE],10)
@@ -79,6 +83,8 @@ def prepare_index(sif):
     sif.ma20 = ma(trans[ICLOSE],20)
     sif.ma30 = ma(trans[ICLOSE],30)
     sif.ma60 = ma(trans[ICLOSE],60)
+    sif.ma135 = ma(trans[ICLOSE],135)    
+    sif.ma270 = ma(trans[ICLOSE],270)        
     sif.atr = atr(trans[ICLOSE],trans[IHIGH],trans[ILOW],20)
     sif.atr2 = atr2(trans[ICLOSE],trans[IHIGH],trans[ILOW],20)    
     sif.xatr = sif.atr * XBASE * XBASE / trans[ICLOSE]
@@ -108,7 +114,13 @@ def prepare_index(sif):
     sif.seacd5x=extend2next(sif.smacd5x)
 
 
-    sif.i_cof30 = np.where(gor(trans[ITIME]%100==15,trans[ITIME]%100==45))[0]    #30分钟收盘线,不考虑隔日的因素
+    sif.i_cof30 = np.where(gor(trans[ITIME]%100==1514
+        ,trans[ITIME]%100==1415
+        ,trans[ITIME]%100==1315
+        ,trans[ITIME]%100==1115
+        ,trans[ITIME]%100==1015
+        #,trans[ITIME]%100==915
+        ,trans[ITIME]%100==45))[0]    #30分钟收盘线,不考虑隔日的因素
     sif.i_oof30 = rollx(sif.i_cof30)+1    
     sif.close30 = trans[ICLOSE][sif.i_cof30]
     #sif.open30 = rollx(sif.close30)   #open5看作是上一个的收盘价,其它方式对应open和close以及还原的逻辑比较复杂

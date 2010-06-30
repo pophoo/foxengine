@@ -20,29 +20,116 @@ def tfunc(sif,sopened=None):
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<15)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<20)
 
-    signal = cross(sif.dea1,sif.diff1)
-    signal = gand(signal,sif.diff30<0,strend(sif.diff30-sif.dea30)<0,sif.diff5<0,strend(sif.diff5-sif.dea5)<0
-            ,sif.diff5<sif.dea5,ksfilter)
+
+    msignal = gand(strend(sif.ma60) == 1
+                )
+    fsignal = gand(cross(sif.dea1,sif.diff1)>0
+                ,strend(sif.diff30-sif.dea30)>0
+                ,strend(sif.diff5-sif.dea5)>0
+                ,strend(sif.diff1-sif.dea1)>0
+                ,strend(sif.ma30)>4
+                ,sif.ma5>sif.ma13
+                ,dsfilter                
+                )
+    signal = sfollow(msignal,fsignal,10)
+
+    return signal * XBUY
 
 
-    return signal * XSELL
+
+
+def dmacd_long5(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<15)#: 向上突变过滤
+
+    sdd = strend(sif.diff5 - sif.dea5)
+    signal = gand(sdd==1,rollx(sdd)<-4
+            ,sif.diff1 < 0
+            ,sif.diff5 < 0
+            ,strend(sif.diff30-sif.dea30)>0
+            ,strend(sif.diff1-sif.dea1)>0
+            ,strend(sif.diff5-sif.dea5)>0            
+            )
+    signal = gand(signal
+            ,strend(sif.ma135-sif.ma270)>0
+            ,strend(sif.ma13-sif.ma60)>0
+            ,sif.ma5>sif.ma13
+            ,dsfilter
+            )
+
+    return signal * XBUY
+
+def up0(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<15)#: 向上突变过滤
+
+    signal = gand(cross(cached_zeros(len(sif.diff1)),sif.diff1)>0
+            ,sif.diff5<0
+            ,strend(sif.diff30-sif.dea30)>1
+            ,strend(sif.diff5-sif.dea5)>1
+            ,strend(sif.diff1-sif.dea1)>1
+            ,strend(sif.diff1)>4
+            ,strend(sif.ma5-sif.ma30)>0
+            ,strend(sif.ma135-sif.ma270)>0
+            ,strend(sif.ma30)>0
+            ,dsfilter
+            )
+
+    return signal * XBUY
+
+
+def ipmacd_long_1(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<15)#: 向上突变过滤
+
+    signal = gand(cross(sif.dea1,sif.diff1)>0
+            ,sif.diff5>0
+            ,strend(sif.diff30-sif.dea30)>0
+            ,strend(sif.diff1)>2
+            )
+    signal = gand(signal
+            ,strend(sif.ma30)>4
+            ,strend(sif.ma13-sif.ma60)>0            
+            ,strend(sif.ma135-sif.ma270)>0            
+            ,dsfilter
+            )
+
+    return signal * XBUY
+
 
 
 def dms(sif,sopened=None):
     '''
-        全部信号走好
+        全部信号走好,唯一一点就是diff5<0
     '''
     trans = sif.transaction
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<15)#: 向上突变过滤
-    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<20)
 
-    dsignal = gand(strend(sif.diff1-sif.dea1)>0,strend(sif.diff5-sif.dea5)>0,strend(sif.diff30-sif.dea30)>0,strend(sif.diff1)>0,strend(sif.diff5)>0,strend(sif.diff30)>0)
-    msignal = gand(sif.ma5>sif.ma13,sif.ma13>sif.ma30,sif.ma30>sif.ma60)
-    ssignal = gand(strend(sif.ma5-sif.ma30)>0,strend(sif.ma13-sif.ma60)>0,strend(sif.ma135-sif.ma270)>0)
+    dsignal = gand(strend(sif.diff1-sif.dea1)>0
+                ,strend(sif.diff5-sif.dea5)>0
+                ,strend(sif.diff30-sif.dea30)>0
+                ,strend(sif.diff1)>0
+                ,strend(sif.diff5)>0
+                ,strend(sif.diff30)>0
+                )
+    msignal = gand(sif.ma5>sif.ma13
+                ,sif.ma13>sif.ma30
+                ,sif.ma30>sif.ma60
+                )
+    ssignal = gand(strend(sif.ma5-sif.ma30)>0
+                ,strend(sif.ma13-sif.ma60)>0
+                ,strend(sif.ma135-sif.ma270)>0
+                ,strend(sif.ma30)>4
+                )
 
-    signal = gand(dsignal,msignal,ssignal,sif.diff5<0,dsfilter)
+    signal = gand(dsignal
+                ,msignal
+                ,ssignal
+                ,sif.diff5<0
+                ,dsfilter)
 
     return signal * XBUY
+
 
 def dmss(sif,sopened=None):
     '''
@@ -98,18 +185,25 @@ def mxs(sif,sopened=None):
 
 
 def down30(sif,sopened=None):
+    '''
+        macd30下叉时
+    '''
     trans = sif.transaction
-    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200)#: 向上突变过滤
-    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<20)
 
-    msignal = gand(cross(sif.dea30,sif.diff30)<0)
-    fsignal = gand(cross(cached_zeros(len(sif.dea1)),sif.diff1)<0,sif.diff30>0)
+    msignal = cross(sif.dea30,sif.diff30)<0
     
-    signal = sfollow(msignal,fsignal,120)
+    fsignal = cross(cached_zeros(len(sif.dea1)),sif.diff1)<0
+    
+    signal = sfollow(msignal,fsignal,135)
 
-    signal = gand(signal,ksfilter,sif.xatr<20)
+    signal = gand(signal
+                ,sif.diff30>0
+                ,strend(sif.ma135-sif.ma270)<0
+                ,ksfilter)
 
     return signal*XSELL
+
 
 
 
@@ -145,17 +239,30 @@ def ipmacd_long_f(sif,sopened=None):
     '''
         过滤后的macd1上叉
         操作方式:
-            1. 1分钟下叉
-            2. 3分钟后macd仍然在延续往下,
+            1. 1分钟上叉
+            2. 3分钟后macd仍然在延续往上,
             3. 5分钟macd>0且上行中,diff5<0
                30分钟macd<0,但在上行中
     '''
 
     trans = sif.transaction
+    dsfilter = gand(trans[IOPEN] - trans[ICLOSE] < 100,rollx(trans[IOPEN]) - trans[ICLOSE] < 200,sif.xatr<15)
 
-    sfilter = gand(strend(sif.diff5-sif.dea5)>0,sif.diff5>sif.dea5,sif.diff5<0,sif.diff30<sif.dea30,strend(sif.diff30-sif.dea30)>0)    
-    sfilter2 = gand(trans[IOPEN] - trans[ICLOSE] < 100,rollx(trans[IOPEN]) - trans[ICLOSE] < 200)
-    signal = gand(fmacd1_long(sif,3,sfilter),sif.xatr<15,sfilter2)
+    sfilter = gand(strend(sif.diff5-sif.dea5)>0
+                ,sif.diff5>sif.dea5
+                ,sif.diff5<0
+                ,sif.diff30<sif.dea30
+                ,strend(sif.diff30-sif.dea30)>0
+                #,sif.ma5>sif.ma13
+                #,strend(sif.ma135-sif.ma270)>0
+            )
+
+    signal = gand(fmacd1_long(sif,3,sfilter)
+                ,dsfilter
+                ,sif.ma5>sif.ma13
+                ,strend(sif.ma135-sif.ma270)>0
+                ,strend(sif.diff5-sif.dea5)>0
+            )
 
     return signal * XBUY
 
@@ -247,12 +354,19 @@ def ipmacd_5x13(sif,sopened=None):
 
 def ipmacd_longt(sif,sopened=None):#+
     trans = sif.transaction
-    sfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200) #向上突变过滤
-    ssma = gor(strend(sif.ma270)>0,strend(sif.ma135)>0)
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<15) #向上突变过滤
 
-    signal = gand(cross(sif.dea1,sif.diff1)>0,strend(sif.diff5-sif.dea5)>0,sif.sdiff30x<sif.sdea30x,sif.ma5>sif.ma13,strend(sif.ma5)>2,strend(sif.ma5-sif.ma30)>0,ssma)
-    signal = gand(signal,sif.xatr<15,sfilter)
+    signal = gand(cross(sif.dea1,sif.diff1)>0
+                ,strend(sif.diff5-sif.dea5)>0
+                ,sif.diff30<sif.dea30
+                #,strend(sif.diff30-sif.dea30)>0 #+
+                ,sif.ma5>sif.ma13
+                ,strend(sif.ma5)>2 #
+                ,gor(strend(sif.ma270)>0,strend(sif.ma135)>0)
+                ,dsfilter
+                )
     return signal * XBUY
+
 
 
 def ipmacd_longt2(sif,sopened=None):#+
@@ -298,11 +412,22 @@ def ma30_short(sif,sopened=None):
     ''' 下行中下叉30线
     '''
     trans = sif.transaction
-    signal = gand(cross(sif.ma30,trans[IHIGH])<0,strend(sif.ma30)<0)
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<20)
+
     sf = msum(trans[IHIGH]>sif.ma30,5) < 3
-    signal = gand(signal,sf)
-    sfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)
-    fsignal = gand(cross(sif.dea1,sif.diff1)<0,sif.diff1<0,sif.diff5<0,strend(sif.diff30-sif.dea30)<0,sfilter,strend(sif.ma13-sif.ma60)<0)
+
+    signal = gand(cross(sif.ma30,trans[IHIGH])<0
+            ,strend(sif.ma30)<0
+            ,sf
+            )
+    fsignal = gand(cross(sif.dea1,sif.diff1)<0
+            ,sif.diff1<0
+            ,sif.diff5<0
+            ,strend(sif.diff30-sif.dea30)<0
+            ,strend(sif.ma13-sif.ma60)<0
+            ,sif.ma5<sif.ma13
+            ,ksfilter
+            )
     signal = sfollow(signal,fsignal,10)
     return signal * XSELL
 
@@ -325,11 +450,18 @@ def ma60_short(sif,sopened=None):
     '''
     trans = sif.transaction
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<20)
-    
-    msignal = gand(strend(sif.ma60) == -1,rollx(strend(sif.ma60))<10)
-    fsignal = gand(cross(sif.dea1,sif.diff1)<0,ksfilter,sif.diff30<0,strend(sif.diff5-sif.dea5)>0)
+ 
+    msignal = gand(strend(sif.ma60) == -1
+                )
+    fsignal = gand(cross(sif.dea1,sif.diff1)<0
+                ,sif.diff30<0
+                ,strend(sif.diff5-sif.dea5)>0
+                ,strend(sif.ma5-sif.ma30)<0
+                ,ksfilter                
+                )
     signal = sfollow(msignal,fsignal,5)
     return signal * XSELL
+
 
 
 def ma30_short2(sif,sopened=None):
@@ -345,6 +477,28 @@ def ma30_short2(sif,sopened=None):
 
 
 def ma60_long(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<15)#: 向上突变过滤
+
+
+    msignal = gand(strend(sif.ma60) == 1
+                ,rollx(strend(sif.ma60))<-10
+                )
+    fsignal = gand(cross(sif.dea1,sif.diff1)>0
+                ,strend(sif.diff30-sif.dea30)>0
+                ,strend(sif.diff5-sif.dea5)>0
+                ,strend(sif.diff1-sif.dea1)>0
+                ,strend(sif.ma30)>4
+                ,sif.ma5>sif.ma13
+                ,dsfilter                
+                )
+    signal = sfollow(msignal,fsignal,10)
+
+    return signal * XBUY
+
+
+
+def ma60_long_old(sif,sopened=None):
     ''' ma60拐头
     '''
     trans = sif.transaction
@@ -433,41 +587,52 @@ def ipmacd_short_devi(sif,sopened=None):#+++
 def ipmacd_short_devi1(sif,sopened=None):
     '''
         顶背离操作，去掉了诸多条件
+        尤其是xatr<20
     '''
 
     trans = sif.transaction
 
-    sfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)
 
     signal = gand(hdevi(trans[IHIGH],sif.diff1,sif.dea1))
 
-    fsignal = gand(strend(sif.diff1-sif.dea1)==-1)
+    fsignal = strend(sif.diff1-sif.dea1)==-1
 
-    signal = gor(signal,gand(sfollow(signal,fsignal,15),msum(sif.diff1<sif.dea1,15)>9))
+    signal = sfollow(signal,fsignal,15)
 
-    signal = gand(signal,sif.diff5<0,sfilter,strend(sif.diff5-sif.dea5)<0,strend(sif.ma5-sif.ma13)<0)
-
+    signal = gand(signal
+                ,sif.diff5<0
+                ,sif.diff30<0
+                ,strend(sif.diff30)<0
+                #,strend(sif.diff5-sif.dea5)<0
+                #,strend(sif.ma135-sif.ma270)<0                
+                ,strend(sif.ma5)<0
+                ,ksfilter
+            )
     return signal * XSELL
 
 
 def ipmacd_long_devi1(sif,sopened=None):
     '''
-        底背离之后，macd1连续3分钟或以上增长
-        diff30<0
-        macd30>0或macd30向上
-        sfilter,xfilter    
+        底背离操作，去掉了诸多条件
     '''
 
     trans = sif.transaction
 
-    sfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200)#: 向上突变过滤
+    ksfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<15)#: 向上突变过滤
 
     msignal = ldevi(trans[ILOW],sif.diff1,sif.dea1)
-    fsignal = gand(strend(sif.diff1-sif.dea1) >= 3)   #上叉后仍然连续增长中
 
-    signal = gand(rollx(msignal,3),fsignal,sif.diff30<0,gor(strend(sif.diff30-sif.dea30)>0,sif.diff30>sif.dea30),sfilter,sif.xatr<15)
+    signal = gand(msignal
+            ,strend(sif.diff1-sif.dea1) >= 3
+            ,strend(sif.ma135-sif.ma270)>0
+            ,strend(sif.diff5-sif.dea5)>0
+            ,ksfilter
+            )
 
     return signal * XBUY
+
+
 
 def ipmacd_shortt(sif,sopened=None):#+++
     ''' 
@@ -533,11 +698,21 @@ def ipmacdx_long(sif,sopened=None):#+
 
 def ipmacdx_short(sif,sopened=None):#+
     trans = sif.transaction
-    sfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<20)
 
-    signal = gand(strend(sif.diff1-sif.dea1)==-3,sif.diff1>sif.dea1,sif.diff30<0,strend(sif.diff5-sif.dea5)>0,sif.diff5<0,sif.diff1<0,sif.diff5<sif.dea5)
-    signal = gand(signal,strend(sif.ma5)<-1,sif.ma5<sif.ma30,strend(sif.ma5-sif.ma30)<0,sif.xatr<20,sfilter)
+    signal = gand(strend(sif.diff1-sif.dea1)==-2
+            ,sif.diff1>sif.dea1
+            ,sif.diff5<0
+            ,strend(sif.diff5-sif.dea5)<0
+            ,sif.diff1>0
+            #,sif.diff5>sif.dea5
+            )
+    signal = gand(signal
+            ,strend(sif.ma5)<0
+            ,ksfilter
+            )
     return signal * XSELL
+
 
 def ipmacdx_long5(sif,sopened=None):#-
     '''柱线变化
@@ -552,31 +727,45 @@ def ipmacdx_long5(sif,sopened=None):#-
 
 def ipmacd_long5(sif,sopened=None):#+
     '''
-        R=432,times=4/6, 1195
+        macd5上叉后，1分钟上叉
     '''
     trans = sif.transaction
 
-    sfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200)#: 向上突变过滤
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<15)#: 向上突变过滤
 
-    ssma = gor(strend(sif.ma270)>0,strend(sif.ma135)>0)
     signal = gand(cross(sif.dea5,sif.diff5)>0,sif.diff5>0)
 
-    sfilter2 = gand(strend(sif.diff5)>2,sif.diff5>0,strend(sif.diff30-sif.dea30)>0,sif.ma5>sif.ma13)
-    #s1 = gand(cross(sif.dea1,sif.diff1)>0,sfilter)#,sif.xatr<15)
-    s1 = gand(fmacd1_long(sif,3),sfilter2,sif.xatr<15)#,s)#sma)
-    #s1 = gand(cross(sif.dea1,sif.diff1)>0)
+    s1 = fmacd1_long(sif,2)
     signal = sfollow(signal,s1,60)
+
+    signal = gand(signal
+            ,sif.diff5>0
+            ,strend(sif.diff5-sif.dea5)>0                        
+            ,strend(sif.diff30-sif.dea30)>0
+            ,strend(sif.ma60)>10
+            ,dsfilter
+        )
     return signal * XBUY
 
 
 
 def ipmacd_short5(sif,sopened=None):#-
     trans = sif.transaction
-    sfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<20)
     
-    signal = gand(cross(sif.dea5,sif.diff5)<0,sif.diff5>0,sif.diff30<0,strend(sif.diff30-sif.dea30)<0)
-    signal = gand(signal,strend(sif.ma13-sif.ma60)<0,sfilter,sif.xatr<20)   
+    signal = gand(cross(sif.dea5,sif.diff5)<0
+            ,sif.diff5>0
+            ,sif.diff30<0
+            ,strend(sif.diff30-sif.dea30)<0
+            )
+    signal = gand(signal
+            ,strend(sif.ma13-sif.ma60)<0
+            #,strend(sif.ma30)<-4
+            ,strend(sif.ma135-sif.ma270)<0
+            ,ksfilter
+            )   
     return signal * XSELL
+
 
 def ipmacd_short52(sif,sopened=None):#-
     '''
@@ -590,17 +779,37 @@ def ipmacd_short52(sif,sopened=None):#-
     
     return signal * XSELL
 
-def ipmacd_short(sif,sopened=None):#+++
+def ipmacd_short_1(sif,sopened=None):#+++
+    '''
+        确定更严格的后续条件，
+        并根据后续条件，划分为1和2
+        1: strend(sif.ma13-sif.ma60)<0
+    '''
     trans = sif.transaction
 
-    #ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<20)
-    #signal = gand(cross(sif.dea1,sif.diff1)<0,strend(sif.diff1)<0,sif.diff5<0,sif.diff30<0,ksfilter) 
-    #signal = gand(signal,strend(sif.ma30)<-4,strend(sif.ma13-sif.ma60)<0)
-    sfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)
-    signal = gand(cross(sif.dea1,sif.diff1)<0,sif.diff5<0,sif.diff30<0,sfilter,strend(sif.diff1)<-2)#,strend(sif.diff5)>0)
-    #signal = gand(signal,sif.xatr<20,sif.ma5<sif.ma13,strend(sif.ma30)<-4,strend(sif.ma13-sif.ma60)<0)
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<20)
+    signal = gand(cross(sif.dea1,sif.diff1)<0,sif.diff5<0,sif.diff30<0,strend(sif.diff1)<-2)
+    signal = gand(signal,sif.xatr<20,strend(sif.ma30)<-4,ksfilter)
+    signal = gand(signal,strend(sif.ma13-sif.ma60)<0)#
 
     return signal * XSELL
+
+
+def ipmacd_short_2(sif,sopened=None):#+++
+    '''
+        确定更严格的后续条件，
+        并根据后续条件，划分为1和2
+        2: smacd<-1
+    '''
+    trans = sif.transaction
+
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<20)
+    signal = gand(cross(sif.dea1,sif.diff1)<0,sif.diff5<0,sif.diff30<0,strend(sif.diff1)<-2)
+    signal = gand(signal,sif.xatr<20,strend(sif.ma30)<-4,ksfilter)
+    sdmacd = strend(sif.macd1 - rollx(sif.macd1))
+    signal = gand(signal,sdmacd<-1)#
+    return signal * XSELL
+
 
 
 def ipmacd_short_x1(sif,sopened=None):#+++
@@ -636,11 +845,21 @@ def dmacd_short(sif,sopened=None):#++
 def dmacd_short2(sif,sopened=None,rolled=1):#++
     '''
         rolled=1/2均可
+        下降5或更多周期后上升rolled周期时放空
     '''
     trans = sif.transaction
-    sfilter= gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)#  向下突变过滤    
+    
+    ksfilter= gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<20)#  向下突变过滤    
+    
     sdd = strend(sif.diff1 - sif.dea1)
-    signal = gand(sdd==rolled,rollx(sdd,rolled)<-4,sif.diff1-sif.dea1>0,rollx(sif.diff5,rolled)>0,rollx(sif.diff30,rolled)>0,rollx(sif.diff1,rolled)>0,sif.xatr<20,sfilter)
+    
+    signal = gand(sdd==rolled
+                ,rollx(sdd,rolled)<-4
+                ,sif.diff5>0
+                ,sif.diff30>0
+                ,sif.diff30-sif.dea30<0
+                ,sif.diff1>0
+                ,ksfilter)
 
     return signal * XSELL
 
@@ -675,16 +894,22 @@ def dmacd_long(sif,sopened=None):#+++
         回抽时未下叉又上涨
     '''
     trans = sif.transaction
-    sfilter = gand(trans[ICLOSE] - trans[IOPEN] < 60,rollx(trans[ICLOSE]) - trans[IOPEN] < 120)#: 向上突变过滤
+    ksfilter = gand(trans[ICLOSE] - trans[IOPEN] < 60,rollx(trans[ICLOSE]) - trans[IOPEN] < 120,sif.xatr<15)#: 向上突变过滤
 
     sdd = strend(sif.diff1 - sif.dea1)
-    signal = gand(sdd==1,rollx(sdd)<-4,sif.diff1>sif.dea1,sif.diff5>sif.dea5,sif.diff5<0,sfilter,sif.diff30<0,strend(sif.diff30-sif.dea30)>0,strend(sif.diff15-sif.dea15)>0)
-    signal = gand(signal,strend(sif.ma30)>0,sif.xatr<15)
-    
-    #xu = xcu(trans[IOPEN],trans[ICLOSE],trans[IHIGH],trans[ILOW],13,udfunc=supdowns)
-    #upp = msum(xu>950,5) > 4
-    
-    #signal = gand(signal,upp)
+    signal = gand(sdd==1
+                ,rollx(sdd)<-4
+                #,sif.diff1>sif.dea1
+                #,sif.diff5>sif.dea5
+                ,sif.diff5<0
+                ,strend(sif.diff30-sif.dea30)>0
+                ,strend(sif.diff5-sif.dea5)>0
+                #,sif.diff30>0
+                ,strend(sif.ma30)>3
+                ,strend(sif.ma13-sif.ma60)>0
+                ,strend(sif.ma135-sif.ma270)>0
+                ,ksfilter
+             ) 
 
     return signal * XBUY
 
@@ -705,12 +930,19 @@ def dmacd_long5(sif,sopened=None):#+++
 
 def dmacd_short5(sif,sopened=None):#+++
     trans = sif.transaction
-    sfilter= gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)#  向下突变过滤    
+    ksfilter= gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<20)#  向下突变过滤    
 
     sdd = strend(sif.diff5 - sif.dea5)
-    signal = gand(sdd==-1,rollx(sdd)>4,sif.diff5<sif.dea5,sif.diff1<sif.dea1,sif.diff30>sif.dea30,sif.diff30<0,strend(sif.diff30-sif.dea30)<0)
-    signal = gand(signal,sif.ma5<sif.ma13,sfilter,sif.xatr<20,strend(sif.ma13-sif.ma60)<0)
-    
+    signal = gand(sdd==-1,rollx(sdd)>4
+            ,sif.diff5<sif.dea5
+            ,sif.diff1<sif.dea1
+            ,sif.diff30<0
+            ,strend(sif.diff30-sif.dea30)<0
+            )
+    signal = gand(signal
+            ,strend(sif.ma135-sif.ma270)<0            
+            ,ksfilter
+            )
     return signal * XSELL
 
 def ama_short(sif,sopened=None): #+
@@ -918,36 +1150,72 @@ def down0(sif,sopened=None): #-
 
 def down01(sif,sopened=None): #++
     ''' 
-        R=104,times=5/13
-        30分钟框架下的下行，5分钟框架的上行，以及1分钟的下行
-        去掉
+        30分钟<0且下行
+        5分钟>0且下行
+        1分钟下叉, 且一分钟下行3分钟或以上
     '''
     trans = sif.transaction
     sfilter= gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)#  向下突变过滤
 
-    signal = gand(cross(cached_zeros(len(sif.diff1)),sif.diff1)<0,strend(sif.diff5-sif.dea5)<0,sif.diff5>0,strend(sif.diff30-sif.dea30)<0,sif.diff30<0,strend(sif.diff1)<-2,sfilter,sif.xatr<20)
+    signal = gand(cross(cached_zeros(len(sif.diff1)),sif.diff1)<0
+            ,sif.diff5>0
+            ,strend(sif.diff30-sif.dea30)<0
+            ,sif.diff30<0
+            )
     return signal * XSELL
 
 
-def up0(sif,sopened=None): #+
+def up05_old(sif,sopened=None): #+
     '''
         抄底模式? 去掉
         R=190,w/t=5/10,1425
         [up0,up02]无叠加作用.5分钟上穿0的时候,早已经发出信号了
     '''
     trans = sif.transaction
-    signal5 = gand(cross(cached_zeros(len(sif.diff5)),sif.diff5)>0,sif.diff30<0,sif.diff30<sif.dea30,trans[ICLOSE] - trans[IOPEN] < 100)
-    signal = gand(signal5,strend(sif.ma60)>0,sif.ma5>sif.ma60)
-    return signal5 * XBUY
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<15)#: 向上突变过滤
+    
+    signal5 = gand(cross(cached_zeros(len(sif.diff5)),sif.diff5)>0,sif.diff30<0,sif.diff30<sif.dea30,dsfilter)
+    signal = gand(signal5,strend(sif.ma60)>0,sif.ma5>sif.ma60,dsfilter)
+    return signal * XBUY
 
-def up02(sif,sopened=None): #-
+def up05(sif,sopened=None): #+
+    '''
+        macd5上叉模式
+        无涨幅和xatr约束
+    '''
+    trans = sif.transaction
+    sfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200)#: 向上突变过滤
+    
+    signal = gand(cross(cached_zeros(len(sif.diff5)),sif.diff5)>0
+                ,sif.diff30<0
+                ,strend(sif.diff30-sif.dea30)>0
+                ,strend(sif.ma60)>0
+                ,sif.ma5>sif.ma13
+                ,strend(sif.ma5-sif.ma30)>0                 
+                ,strend(sif.ma135-sif.ma270)>0
+              )
+    return signal * XBUY
+
+
+def up052(sif,sopened=None): #-
     '''
         R=71,w/t=4/13
     '''
     trans = sif.transaction
-    signal5 = gand(cross(cached_zeros(len(sif.diff5)),sif.diff5)>0,sif.diff30<0,sif.diff30<sif.dea30,trans[ICLOSE] - trans[IOPEN] < 100)
-    signal1 = gand(cross(sif.dea1,sif.diff1)>0,sif.diff5>0)
-    #signal1 = gand(fmacd1_long(sif,3,sif.diff5>0),sif.diff5>0)
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<15)#: 向上突变过滤
+    
+    signal5 = gand(cross(cached_zeros(len(sif.diff5)),sif.diff5)>0
+            )
+    signal1 = gand(cross(sif.dea1,sif.diff1)>0
+                ,sif.diff5>0
+                ,sif.diff30<0                
+                ,sif.diff30<sif.dea30
+                ,strend(sif.diff5-sif.dea5)>0
+                ,strend(sif.diff30-sif.dea30)>0
+                ,strend(sif.ma5-sif.ma30)>0
+                ,strend(sif.ma135-sif.ma270)>0
+                ,dsfilter
+            )
     signal = sfollow(signal5,signal1,30)
     return signal * XBUY
 
@@ -1009,11 +1277,18 @@ def xldevi2(sif,sopened=None):#+
     '''
     '''
     trans = sif.transaction
-    sfilter = gand(trans[IOPEN] - trans[ICLOSE] < 100,rollx(trans[IOPEN]) - trans[ICLOSE] < 200)
+    dsfilter = gand(trans[IOPEN] - trans[ICLOSE] < 100,rollx(trans[IOPEN]) - trans[ICLOSE] < 200,sif.xatr<15)
 
     xs = gand(ldevi(trans[ILOW],sif.diff5,sif.dea5))#,sif.diff5<0)
-    s1 = gand(cross(sif.dea1,sif.diff1)>0,sfilter,sif.xatr<15,strend(sif.diff5-sif.dea5)>0,sif.diff5<0,strend(sif.ma60)<0)
-    signal = sfollow(xs,s1,60)
+    s1 = gand(cross(sif.dea1,sif.diff1)>0)
+    signal = gand(sfollow(xs,s1,60)
+                ,strend(sif.diff5-sif.dea5)>0
+                ,sif.diff5<0
+                ,strend(sif.diff30)<0
+                ,strend(sif.ma60)<0
+                #,strend(sif.ma135-sif.ma270)>0
+                ,dsfilter
+                )
     return signal * XBUY
 
 def xldevi1(sif,sopened=None):#-

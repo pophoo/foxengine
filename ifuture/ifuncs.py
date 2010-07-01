@@ -769,6 +769,7 @@ def dmacd_long5(sif,sopened=None):
     signal = gand(sdd==1,rollx(sdd)<-4
             ,sif.diff1 < 0
             ,sif.diff5 < 0
+            #,sif.diff1>sif.dea1
             ,strend(sif.diff1-sif.dea1)>0
             ,strend(sif.diff5-sif.dea5)>0            
             ,strend(sif.diff30-sif.dea30)>0

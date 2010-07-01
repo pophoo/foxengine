@@ -95,7 +95,10 @@ def prepare_index(sif):
     sif.atr2 = atr2(trans[ICLOSE]*XBASE,trans[IHIGH]*XBASE,trans[ILOW]*XBASE,20)    
     sif.xatr = sif.atr * XBASE * XBASE / trans[ICLOSE]
     sif.mxatr = ma(sif.xatr,13)
-    sif.i_cof5 = np.where(trans[ITIME]%5==0)[0]    #5分钟收盘线,不考虑隔日的因素
+    sif.i_cof5 = np.where(
+            gand(gor(trans[ITIME]%5==0,trans[ITIME]%10000 == 1514)
+                ,trans[ITIME]%1000 != 915)
+        )[0]    #5分钟收盘线,不考虑隔日的因素
     sif.i_oof5 = rollx(sif.i_cof5)+1    
     sif.close5 = trans[ICLOSE][sif.i_cof5]
     #sif.open5 = rollx(sif.close5)   #open5看作是上一个的收盘价,其它方式对应open和close以及还原的逻辑比较复杂
@@ -120,12 +123,12 @@ def prepare_index(sif):
     sif.seacd5x=extend2next(sif.smacd5x)
 
 
-    sif.i_cof30 = np.where(gor(trans[ITIME]%100==1514
-        ,trans[ITIME]%100==1415
-        ,trans[ITIME]%100==1315
-        ,trans[ITIME]%100==1115
-        ,trans[ITIME]%100==1015
-        #,trans[ITIME]%100==915
+    sif.i_cof30 = np.where(gor(trans[ITIME]%10000==1514
+        ,trans[ITIME]%10000==1415
+        ,trans[ITIME]%10000==1315
+        ,trans[ITIME]%10000==1115
+        ,trans[ITIME]%10000==1015
+        #,trans[ITIME]%10000==915
         ,trans[ITIME]%100==45))[0]    #30分钟收盘线,不考虑隔日的因素
     sif.i_oof30 = rollx(sif.i_cof30)+1    
     sif.close30 = trans[ICLOSE][sif.i_cof30]
@@ -145,7 +148,12 @@ def prepare_index(sif):
     sif.sdea30x=extend2next(sif.sdea30x)
 
 
-    sif.i_cof15 = np.where((trans[ITIME]%100)%15==14)[0]    #5分钟收盘线,不考虑隔日的因素
+    sif.i_cof15 = np.where(
+            gand(
+                gor(trans[ITIME]%100==15,trans[ITIME]%10000 == 1514)
+                ,(trans[ITIME]%100)%1000!=915
+            )
+        )[0]    #5分钟收盘线,不考虑隔日的因素
     sif.i_oof15 = rollx(sif.i_cof15)+1
     sif.close15 = trans[ICLOSE][sif.i_cof15]
     #sif.open15 = rollx(sif.close15)   #open5看作是上一个的收盘价,其它方式对应open和close以及还原的逻辑比较复杂

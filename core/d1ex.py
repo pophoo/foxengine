@@ -86,6 +86,37 @@ def strend(source):
         pre_v = cur_v
     return rev    
 
+def strend2(source):
+    ''' 简单累积趋势2
+        与strend相比，上升过程中，平也当作上,下降中平作下
+        若当前趋势为上升或0，trend值为n>0
+        则新trend值为：
+            n+1 当前值 >= pre
+            -1  当前值 < pre
+        若当前趋势为下降，trend值为n(负数)
+        则下一trend值为：
+            n-1 当前值 <= pre
+            1   当前值 > pre
+        0为初始趋势(缺少判断时)
+    '''
+    rev = np.zeros(len(source),int) #可能产生溢出，所以不能用zeros_like
+    if len(source) == 0:
+        return rev
+    pre_v = source[0]
+    cur = 0
+    for i in xrange(1,len(source)):
+        cur_v = source[i]
+        if cur_v > pre_v:
+            cur = cur + 1 if cur > 0 else 1
+        elif cur_v < pre_v:
+            cur = cur - 1 if cur < 0 else -1
+        else: #curv == pre_v
+            cur = cur + 1 if cur >= 0 else cur-1 #最初为0时，也算上升
+        rev[i] = cur
+        pre_v = cur_v
+    return rev    
+
+
 def cross(target,follow):
     ''' 交叉计算:   target: 参照系,follow: 追击者
         状态：  1   Follow上叉Target

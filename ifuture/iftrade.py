@@ -83,6 +83,7 @@ def simple_trades(actions,calc_profit=simple_profit):  #简单的trades,每个tr
     state = EMPTY
     trades = []
     for action in actions:
+        print 'action:',action.date,action.time,action.position,action.price
         if state == EMPTY:
             if action.xtype == XOPEN:
                 #print 'open:',action.date,action.time,action.position,action.price
@@ -376,7 +377,7 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
     ishort_closed = 0   #空头平仓日
     for i in isignal:
         price = sopened[i]
-        willlost = sif.atr[i] * lost_times / XBASE
+        willlost = sif.atr[i] * lost_times / XBASE / XBASE
         if willlost < min_lost:
             willlost = min_lost
         if i < ilong_closed or i<ishort_closed:    #已经开了仓，且未平，不再计算            
@@ -390,7 +391,7 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
             buy_price = -price
             lost_stop = buy_price - willlost
             cur_high = max(buy_price,trans[ICLOSE][i])
-            win_stop = cur_high - sif.atr[i] * win_times / XBASE
+            win_stop = cur_high - sif.atr[i] * win_times / XBASE / XBASE
             cur_stop = lost_stop if lost_stop > win_stop else win_stop
             if ssclose[i] == XSELL:
                 print 'sell signali:',trans[IDATE][i],trans[ITIME][i],trans[ICLOSE][i]
@@ -411,7 +412,7 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
                     nhigh = trans[IHIGH][j]
                     if(nhigh > cur_high):
                         cur_high = nhigh
-                        drawdown = sif.atr[j] * win_times / XBASE
+                        drawdown = sif.atr[j] * win_times / XBASE / XBASE
                         if drawdown > max_drawdown:
                             drawdown = max_drawdown
                         win_stop = cur_high - drawdown
@@ -427,7 +428,7 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
             sell_price = price
             lost_stop = sell_price + willlost
             cur_low = min(sell_price,trans[ICLOSE][i])
-            win_stop = cur_low + sif.atr[i] * win_times / XBASE 
+            win_stop = cur_low + sif.atr[i] * win_times / XBASE / XBASE
             cur_stop = lost_stop if lost_stop < win_stop else win_stop
             if sbclose[i] == XBUY:
                 print 'buy signali:',trans[IDATE][i],trans[ITIME][i],trans[ICLOSE][i]
@@ -449,12 +450,12 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
                     nlow = trans[ILOW][j]
                     if(nlow < cur_low):
                         cur_low = nlow
-                        drawdown = sif.atr[j] * win_times / XBASE
+                        drawdown = sif.atr[j] * win_times / XBASE / XBASE
                         if drawdown > max_drawdown:
                             drawdown = max_drawdown
                         win_stop = cur_low + drawdown
                         #print nlow,cur_stop,win_stop,sif.atr[j]
-                        #win_stop = cur_low + sif.atr[j] * win_times / XBASE
+                        #win_stop = cur_low + sif.atr[j] * win_times / XBASE / XBASE
                         if cur_stop > win_stop:
                             cur_stop = win_stop
     return rev

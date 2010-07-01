@@ -858,38 +858,46 @@ def ipmacd_short5(sif,sopened=None):#-
     return signal * XSELL
 
 
-def ipmacd_short5x(sif,sopened=None):#-
+def ma3x10_short(sif,sopened=None):#-
     trans = sif.transaction
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
     
-    s30_13 = np.zeros_like(sif.diff1)
-    s30_13[sif.i_cof30] = strend2(ma(sif.close30,13))
-    s30_13 = extend2next(s30_13)
 
-    
-    signal5 = np.zeros_like(sif.diff1)
-    signal5[sif.i_cof5] = cross(sif.dea5x,sif.diff5x)<0
-
-    signal = cross(sif.dea1,sif.diff1)<0
-
-    signal = sfollow(signal5,signal,60)
-
-    signal = gand(signal
+    signal = gand(cross(sif.ma10,sif.ma3)<0
+            ,strend2(sif.ma30)<=-4
+            ,strend2(sif.diff30-sif.dea30)<0
+            ,strend2(sif.ma7-sif.ma30)<0
             ,sif.diff30<0
             ,sif.diff5<0
-            ,sif.ma5 < sif.ma13
-            ,strend2(sif.ma30)<=-4
-            ,strend(sif.ma270)<0
             ,ksfilter
-            ,sif.ma135 < sif.ma270
-            ,strend(sif.diff5-sif.dea5)>0
-            #,sif.diff5 < sif.dea5
-            #,strend(sif.diff5)<0
-            #,strend(sif.diff1)<-2
-            #,s30_13<0
             )
 
     return signal * XSELL
+
+
+def ma3x10_long(sif,sopened=None):#-
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+
+
+    signal = gand(cross(sif.ma10,sif.ma3)>0
+            ,strend2(sif.ma30)>=3
+            #,strend2(sif.diff30-sif.dea30)>0
+            ,strend2(sif.ma7-sif.ma30)>0
+            #,strend2(sif.ma13-sif.ma60)>0
+            #,strend2(sif.ma135-sif.ma270)>0
+            #,strend2(sif.ma270)>0
+            #,strend2(sif.ma135)>0
+            #,sif.ma135 < sif.ma270
+            ,sif.diff30>0
+            #,sif.diff5>0
+            #,sif.ma13 > sif.ma30
+            #,sif.diff30 < sif.dea30
+            #,sif.diff5 < sif.dea5
+            ,dsfilter
+            )
+
+    return signal * XBUY
 
 
 def ipmacd_short52(sif,sopened=None):#-

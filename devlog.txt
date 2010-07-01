@@ -9246,3 +9246,9 @@ ehl[ihl] = xhl[ihl] - rollx(xhl[ihl])
 
 
 
+#2010-07-01
+感觉上
+strend2(ma30)<=-4
+strend2(sif.ma7-sif.ma30)<0
+strend2(sif.ma13-sif.ma60)<0
+都是很好的空头过滤条件

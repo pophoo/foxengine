@@ -52,7 +52,7 @@ for trade in trades:print trade.profit,trade.actions[0].date,trade.actions[0].ti
 
 
 #顺势品种
-xfollow = [ifuncs.ipmacd_short_1,ifuncs.ipmacd_short_2,ifuncs.ipmacd_short_3,ifuncs.down01,ifuncs.dmacd_short5,ifuncs.ipmacdx_short,ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.ma60_short]
+xfollow = [ifuncs.ipmacd_short_1,ifuncs.ipmacd_short_2,ifuncs.ipmacd_short_3,ifuncs.ma3x10_short,ifuncs.down01,ifuncs.dmacd_short5,ifuncs.ipmacdx_short,ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.ma60_short]
 
 #逆势品种
 d22 = fcustom(ifuncs.dmacd_short2,rolled=2)
@@ -517,6 +517,24 @@ def ipmacd_short_3(sif,sopened=None):
 
     return signal * XSELL
 
+def ma3x10_short(sif,sopened=None):#
+    '''
+        无进一步增益，但胜在判断简单
+    '''
+    trans = sif.transaction
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+    
+
+    signal = gand(cross(sif.ma10,sif.ma3)<0
+            ,strend2(sif.ma30)<=-4
+            ,strend2(sif.diff30-sif.dea30)<0
+            ,strend2(sif.ma7-sif.ma30)<0
+            ,sif.diff30<0
+            ,sif.diff5<0
+            ,ksfilter
+            )
+
+    return signal * XSELL
 
 
 def ipmacd_short_old(sif,sopened=None):#+++

@@ -50,10 +50,6 @@ iftrade.max_win(trades)         #最大连续盈利和单笔盈利
 for trade in trades:print trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].date,trade.actions[1].time,trade.actions[1].position,trade.actions[1].price
 
 
-#整体
-trades = iftrade.itrade3x(i06,[ifuncs.ipmacd_longt,ifuncs.ipmacd_short,ifuncs.ipmacd_shortt,ifuncs.ipmacd_short_b,ifuncs.ipmacdx_short,ifuncs.ipmacd_long5,ifuncs.ipmacd_short5,ifuncs.dmacd_short2,ifuncs.dmacd_long,ifuncs.dmacd_short5,ifuncs.emv_short,ifuncs.emv_short2,ifuncs.xmacd_short,ifuncs.down02,ifuncs.down01,ifuncs.xldevi2,ifuncs.xhdevi1,ifuncs.emv_long])
-
-#减法##优选###########
 
 #顺势品种
 xfollow = [ifuncs.ipmacd_short_1,ifuncs.ipmacd_short_2,ifuncs.down01,ifuncs.dmacd_short5,ifuncs.ipmacdx_short,ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.ma60_short]
@@ -61,16 +57,12 @@ xfollow = [ifuncs.ipmacd_short_1,ifuncs.ipmacd_short_2,ifuncs.down01,ifuncs.dmac
 #逆势品种
 d22 = fcustom(ifuncs.dmacd_short2,rolled=2)
 #xagainst = [ifuncs.ipmacd_long_devi1,ifuncs.dmacd_long,ifuncs.dmacd_short2,d22,ifuncs.down30]
-xagainst = [ifuncs.ipmacd_long_devi1,ifuncs.dmacd_short2,d22,ifuncs.down30,ifuncs.up05] #dmacd_long被dms取代
+xagainst = [ifuncs.dmacd_short2,d22,ifuncs.down30,ifuncs.up05] #dmacd_long被dms取代
 
 #xagainst = [ifuncs.dmacd_short2,d22,ifuncs.down30]
 
 #中间品种 dms基本被吸收，但在long_f和dms之间，选择dms
-xmiddle = [ifuncs.ipmacd_longt,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.dms,ifuncs.ipmacd_long_1,ifuncs.up0,ifuncs.dmacd_long5,ifuncs.ma60_long]
-
-#xmiddle = [ifuncs.ipmacd_longt,ifuncs.ipmacd_long5,ifuncs.ipmacd_long_f,ifuncs.xldevi2,ifuncs.ipmacd_short_devi1,ifuncs.dms]
-
-#xmiddle = [ifuncs.ipmacd_longt,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.ipmacd_short_devi1,ifuncs.ma60_short]
+xmiddle = [ifuncs.ipmacd_longt,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.dms,ifuncs.ipmacd_long_1,ifuncs.up0,ifuncs.dmacd_long5,ifuncs.ma60_long,ifuncs.ipmacd_long_devi1]
 
 trades1 = iftrade.itrade3x(i07,xfollow)
 trades2 = iftrade.itrade3x(i07,xagainst)
@@ -87,14 +79,6 @@ tradesy =  iftrade.itrade3y(i07,xfollow+xagainst+xmiddle)    #xfollow作为平�
 把xfollow作为平仓条件加入。因为xfollow为顺势信号，所以一般不会出现一个xfollow信号干掉另一个xfollow信号的情况，除非在diff30穿越0线的过程中；
 
 
-#s_short = [ifuncs.ipmacd_short,ifuncs.ipmacdx_short,ifuncs.ipmacd_short5,ifuncs.dmacd_short2,ifuncs.down02,ifuncs.down01,ifuncs.xhdevi1,ifuncs.ipmacd_short_devi1,ifuncs.dmacd_short5]
-#down02和xdevi1被吸收了,ipmacd_short_f被抵制(ipmacd_short的失败信号要失败两次)
-
-d22 = fcustom(ifuncs.dmacd_short2,rolled=2)
-
-s_short = [ifuncs.ipmacd_short,ifuncs.down01,ifuncs.dmacd_short2,d22,ifuncs.ipmacd_short_devi1,ifuncs.dmacd_short5,ifuncs.ipmacdx_short,ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.ma60_short]
-
-s_long=[ifuncs.ipmacd_longt,ifuncs.ipmacd_long_devi1,ifuncs.ipmacd_long5,ifuncs.dmacd_long,ifuncs.ipmacd_long_f,ifuncs.xldevi2]#,ifuncs.ma60_long]
 
 #RU1011
 s_short =[ifuncs.ipmacd_short,ifuncs.dmacd_short5]
@@ -104,28 +88,7 @@ s_long=[ifuncs.ipmacd_long5,ifuncs.ipmacd_long_f]   #稳定于RU1011
 #CU1009不稳定
 #跨市场特性比较难，只能是同一类的跨时间市场
 
-
-trades = iftrade.itrade3x(i06,s_long+s_short)
-
-
-#s_short = [ifuncs.ipmacd_short,ifuncs.ipmacdx_short,ifuncs.ipmacd_short5,ifuncs.dmacd_short2,ifuncs.dmacd_short5,ifuncs.down02,ifuncs.down01,ifuncs.xhdevi1,ifuncs.ipmacd_short_devi1]#,ifuncs.ipmacd_short_f]
-
-#s_long = [ifuncs.ipmacd_longt,ifuncs.ipmacd_long5,ifuncs.dmacd_long,ifuncs.xldevi2,ifuncs.emv_long,ifuncs.ipmacd_long_devi1]#,ifuncs.ipmacd_long_f]
-
-#需要删减
-
-trades = iftrade.itrade3x(i06,s_long+s_short)
-
 #反向平仓，未必优
-
-
->>> trades = iftrade.itrade3x(i06,[ifuncs.ipmacd_longt,ifuncs.ipmacd_short,ifunc
-s.ipmacdx_short,ifuncs.ipmacd_long5,ifuncs.ipmacd_short5,ifuncs.dmacd_short2,ifu
-ncs.dmacd_long,ifuncs.dmacd_short5,ifuncs.down02,ifuncs.down01,ifuncs.xldevi2],[
-ifuncs.daystop_short,ifuncs.xdevi_stop_short1,ifuncs.xmacd_stop_short1],[ifuncs.
-daystop_long,ifuncs.xdevi_stop_long1,ifuncs.xmacd_stop_long1])
-
-
 '''
 
 
@@ -806,9 +769,9 @@ def dmacd_long5(sif,sopened=None):
     signal = gand(sdd==1,rollx(sdd)<-4
             ,sif.diff1 < 0
             ,sif.diff5 < 0
-            ,strend(sif.diff30-sif.dea30)>0
             ,strend(sif.diff1-sif.dea1)>0
             ,strend(sif.diff5-sif.dea5)>0            
+            ,strend(sif.diff30-sif.dea30)>0
             )
     signal = gand(signal
             ,strend(sif.ma135-sif.ma270)>0
@@ -821,6 +784,10 @@ def dmacd_long5(sif,sopened=None):
 
 
 def dmacd_short5(sif,sopened=None):#+++
+    '''
+        macd5上行5周期或之上后下行, 下行时macd5<0 (一直是绿线)
+    '''
+
     trans = sif.transaction
     ksfilter= gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<20)#  向下突变过滤    
 
@@ -861,10 +828,10 @@ def dmacd_short2(sif,sopened=None,rolled=1):#++
     
     signal = gand(sdd==rolled
                 ,rollx(sdd,rolled)<-4
+                ,sif.diff1>0
                 ,sif.diff5>0
                 ,sif.diff30>0
                 ,sif.diff30-sif.dea30<0
-                ,sif.diff1>0
                 ,ksfilter)
 
     return signal * XSELL
@@ -1035,15 +1002,20 @@ def down01(sif,sopened=None): #++
     ''' 
         30分钟<0且下行
         5分钟>0且下行
-        1分钟下叉, 且一分钟下行3分钟或以上
     '''
     trans = sif.transaction
-    sfilter= gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)#  向下突变过滤
+    ksfilter= gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<20)#  向下突变过滤
 
     signal = gand(cross(cached_zeros(len(sif.diff1)),sif.diff1)<0
             ,sif.diff5>0
-            ,strend(sif.diff30-sif.dea30)<0
             ,sif.diff30<0
+            ,strend(sif.diff1-sif.dea1)<-2            
+            ,strend(sif.diff5-sif.dea5)<-2
+            ,strend(sif.diff30-sif.dea30)<0
+            ,strend(sif.ma5-sif.ma30)<0
+            ,strend(sif.ma135-sif.ma270)<0            
+            ,strend(sif.ma30)<0            
+            ,ksfilter
             )
     return signal * XSELL
 

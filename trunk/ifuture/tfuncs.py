@@ -20,20 +20,36 @@ def tfunc(sif,sopened=None):
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<15)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<20)
 
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<15)#: 向上突变过滤
 
-    msignal = gand(strend(sif.ma60) == 1
+    dsignal = gand(strend(sif.diff1-sif.dea1)<0
+                ,strend(sif.diff5-sif.dea5)<0
+                ,strend(sif.diff30-sif.dea30)<0
+                ,strend(sif.diff1)<0
+                ,strend(sif.diff5)<0
+                ,strend(sif.diff30)<0
                 )
-    fsignal = gand(cross(sif.dea1,sif.diff1)>0
-                ,strend(sif.diff30-sif.dea30)>0
-                ,strend(sif.diff5-sif.dea5)>0
-                ,strend(sif.diff1-sif.dea1)>0
-                ,strend(sif.ma30)>4
-                ,sif.ma5>sif.ma13
-                ,dsfilter                
+    msignal = gand(sif.ma5<sif.ma13
+                ,sif.ma13<sif.ma30
+                ,sif.ma30<sif.ma60
                 )
-    signal = sfollow(msignal,fsignal,10)
+    ssignal = gand(strend(sif.ma5-sif.ma30)<0
+                ,strend(sif.ma13-sif.ma60)<0
+                ,strend(sif.ma135-sif.ma270)<0
+                ,strend(sif.ma30)<-4
+                )
 
-    return signal * XBUY
+    signal = gand(dsignal
+                ,msignal
+                ,ssignal
+                ,sif.diff30<0
+                ,sif.diff5<0
+                ,sif.diff1<0
+                ,dsfilter)
+
+
+    return signal * XSELL
 
 
 
@@ -1155,12 +1171,18 @@ def down01(sif,sopened=None): #++
         1分钟下叉, 且一分钟下行3分钟或以上
     '''
     trans = sif.transaction
-    sfilter= gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)#  向下突变过滤
+    ksfilter= gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<20)#  向下突变过滤
 
     signal = gand(cross(cached_zeros(len(sif.diff1)),sif.diff1)<0
             ,sif.diff5>0
-            ,strend(sif.diff30-sif.dea30)<0
             ,sif.diff30<0
+            ,strend(sif.diff5-sif.dea5)<-2
+            ,strend(sif.diff1-sif.dea1)<-2            
+            ,strend(sif.diff30-sif.dea30)<0
+            ,strend(sif.ma5-sif.ma30)<0
+            ,strend(sif.ma135-sif.ma270)<0            
+            ,strend(sif.ma30)<0            
+            ,ksfilter
             )
     return signal * XSELL
 

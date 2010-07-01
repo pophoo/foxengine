@@ -24,6 +24,11 @@ class ModuleTest(unittest.TestCase):
         source = np.array([10,20,30,30,40,50,40,30,20,20,10,20])
         self.assertEquals([0,1,2,2,3,4,-1,-2,-3,-3,-4,1],strend(source).tolist())
 
+    def test_strend2(self):
+        source = np.array([10,20,30,30,40,50,40,30,20,20,10,20])
+        self.assertEquals([0,1,2,3,4,5,-1,-2,-3,-4,-5,1],strend2(source).tolist())
+
+
     def test_cross(self):
         target = np.array([10,20,30,40,50,40,30,20,10,12,11,12])
         follow = np.array([5,15,35,41,60,50,25,26,8,12,13,12])

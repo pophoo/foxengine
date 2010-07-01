@@ -91,8 +91,8 @@ def prepare_index(sif):
     sif.ma60 = ma(trans[ICLOSE],60)
     sif.ma135 = ma(trans[ICLOSE],135)    
     sif.ma270 = ma(trans[ICLOSE],270)        
-    sif.atr = atr(trans[ICLOSE],trans[IHIGH],trans[ILOW],20)
-    sif.atr2 = atr2(trans[ICLOSE],trans[IHIGH],trans[ILOW],20)    
+    sif.atr = atr(trans[ICLOSE]*XBASE,trans[IHIGH]*XBASE,trans[ILOW]*XBASE,20)
+    sif.atr2 = atr2(trans[ICLOSE]*XBASE,trans[IHIGH]*XBASE,trans[ILOW]*XBASE,20)    
     sif.xatr = sif.atr * XBASE * XBASE / trans[ICLOSE]
     sif.mxatr = ma(sif.xatr,13)
     sif.i_cof5 = np.where(trans[ITIME]%5==0)[0]    #5分钟收盘线,不考虑隔日的因素
@@ -102,7 +102,7 @@ def prepare_index(sif):
     sif.open5 = trans[IOPEN][sif.i_oof5]
     sif.high5 = tmax(trans[IHIGH],5)[sif.i_cof5]
     sif.low5 = tmin(trans[ILOW],5)[sif.i_cof5]
-    sif.atr5 = atr(sif.close5,sif.high5,sif.low5,20)
+    sif.atr5 = atr(sif.close5*XBASE,sif.high5*XBASE,sif.low5*XBASE,20)
     sif.xatr5 = sif.atr5 * XBASE * XBASE / sif.close5
     sif.mxatr5 = ma(sif.xatr5,13)
     sif.diff5x,sif.dea5x = cmacd(sif.close5*FBASE)
@@ -133,7 +133,7 @@ def prepare_index(sif):
     sif.open30 = trans[IOPEN][sif.i_oof30]
     sif.high30 = tmax(trans[IHIGH],30)[sif.i_cof30]
     sif.low30 = tmin(trans[ILOW],30)[sif.i_cof30]
-    sif.atr30 = atr(sif.close30,sif.high30,sif.low30,20)
+    sif.atr30 = atr(sif.close30*XBASE,sif.high30*XBASE,sif.low30*XBASE,20)
     sif.xatr30 = sif.atr30 * XBASE * XBASE / sif.close30
     sif.mxatr30 = ma(sif.xatr30,13)
     sif.diff30x,sif.dea30x = cmacd(sif.close30*FBASE)
@@ -152,7 +152,7 @@ def prepare_index(sif):
     sif.open15 = trans[IOPEN][sif.i_oof15]
     sif.high15 = tmax(trans[IHIGH],15)[sif.i_cof15] #算上上一个收盘
     sif.low15 = tmin(trans[ILOW],15)[sif.i_cof15]
-    sif.atr15 = atr(sif.close15,sif.high15,sif.low15,20)
+    sif.atr15 = atr(sif.close15*XBASE,sif.high15*XBASE,sif.low15*XBASE,20)
     sif.xatr15 = sif.atr15 * XBASE * XBASE / sif.close15
     sif.mxatr15 = ma(sif.xatr15,13)
     sif.diff15x,sif.dea15x = cmacd(sif.close15*FBASE)
@@ -180,8 +180,8 @@ def prepare_index2(sif):
     sif.ma20 = ma(trans[IMID],20)
     sif.ma30 = ma(trans[IMID],30)
     sif.ma60 = ma(trans[IMID],60)
-    sif.atr = atr(trans[IMID],trans[IHIGH],trans[ILOW],20)
-    sif.atr2 = atr2(trans[IMID],trans[IHIGH],trans[ILOW],20)    
+    sif.atr = atr(trans[IMID]*XBASE,trans[IHIGH]*XBASE,trans[ILOW]*XBASE,20)
+    sif.atr2 = atr2(trans[IMID]*XBASE,trans[IHIGH]*XBASE,trans[ILOW]*XBASE,20)    
     sif.xatr = sif.atr * XBASE * XBASE / trans[IMID]
     sif.mxatr = ma(sif.xatr,13)
 

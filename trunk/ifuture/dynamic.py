@@ -27,7 +27,9 @@ def calc(name):
     #中间品种 dms基本被吸收，但在long_f和dms之间，选择dms
     xmiddle = [ifuncs.ipmacd_longt,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.dms,ifuncs.ipmacd_long_1,ifuncs.up0,ifuncs.dmacd_long5,ifuncs.ma60_long,ifuncs.ipmacd_long_devi1]
 
-    tradesy =  iftrade.ltrade3y(sif,xfollow+xagainst+xmiddle)    #xfollow作为平仓信号，且去掉了背离平仓的信号
+    xnormal = [ifuncs.ipmacd_short_4,ifuncs.ipmacd_short_5]
+
+    tradesy =  iftrade.ltrade3y(sif,xfollow+xagainst+xmiddle+xnormal)    #xfollow作为平仓信号，且去掉了背离平仓的信号
 
     iftrade.last_action(tradesy)
     

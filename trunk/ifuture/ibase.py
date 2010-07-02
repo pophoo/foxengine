@@ -2,10 +2,13 @@
 
 IDATE,ITIME,IOPEN,ICLOSE,IHIGH,ILOW,IVOL,IHOLDING,IMID = 0,1,2,3,4,5,6,7,8
 
+#position的标记
 LONG,SHORT,EMPTY = -1,1,0   #多仓出钱,淡仓收钱
 
+#买入卖出信号的标记
 XBUY,XSELL = 1,-1   #买入，卖出信号
 
+#开平仓的标记
 XOPEN,XCLOSE = -1,1 #开仓,平仓
 
 XBASE = 100 #用于一般化的除数基数

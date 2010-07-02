@@ -58,24 +58,37 @@ def ocfilter(sif):  #在开盘前30分钟和收盘前5分钟不开仓，头三�
     soc[:275*3] = 0
     soc[-5:] = 0    #最后交易日收盘在1500，防止溢出(因为买入点通常在下一分钟，那么1500不被屏蔽的话，如果有信号就会溢出)
     
-    
-    #xfilter = np.zeros_like(sif.diff1)
-    #xfilter[sif.i_cof5] = np.select([sif.xatr5>sif.mxatr5],[1],default=-1)
-    #xfilter = extend2next(xfilter)
-
-    #soc = gand(soc,xfilter>0)
-
-    #amacd5 = np.abs(sif.diff5-sif.dea5)
-    #mfilter = amacd5 > ma(amacd5,30)
-    #soc = gand(soc,mfilter)
-
-    #mfilter = np.zeros_like(sif.diff1)
-    #amacd5 = np.abs(sif.sdiff5x-sif.sdea5x)
-    #mfilter[sif.i_cof5] = np.select([gor(gand(sif.sdiff5x < amacd5,sif.sdiff5x>0,strend(sif.sdiff5x)<0),gand(sif.sdiff5x > -amacd5,sif.sdiff5x<0,strend(sif.sdiff5x)>0))],[1],default=-1)
-    #mfilter = extend2next(mfilter)
-    #soc = gand(soc,mfilter<0)
-
     return soc
+
+def last_filter(sif):  
+    stime = sif.transaction[ITIME]
+    soc = np.ones_like(stime)
+    soc = gand(greater(stime,944),lesser(stime,1510))    
+    soc[:275*3] = 0
+    return soc
+
+def last_trade(actions,calc_profit=simple_profit):
+    '''
+        最后交易
+    '''
+    state = EMPTY
+    trades = []
+    #for action in actions:
+    #    print 'action:',action.date,action.time,action.position,action.price
+    if len(actions)>0:
+        trade = BaseObject(actions = actions[-10:])
+        trades.append(trade)
+    return trades
+
+def last_action(trades):
+    if trades:
+        for action in trades[-1].actions:
+            xposition = "long" if action.position==LONG else 'short'
+            xaction = "open" if action.xtype == XOPEN else 'close'
+            print u"name=%s,time=%s:%s,%s:%s,price=%s" % (action.name,action.date,action.time,xaction,xposition,action.price)
+            #print 'action:',action.date,action.time,action.position,action.price
+    else:
+        print u"没有交易"
 
 def simple_trades(actions,calc_profit=simple_profit):  #简单的trades,每个trade只有一次开仓和平仓
     ''' 不支持同时双向开仓
@@ -508,6 +521,12 @@ sycloser_k = [ifuncs.daystop_long,ifuncs.ipmacd_short_1,ifuncs.ipmacd_short_2,if
 
 
 itrade3y = fcustom(itrade3,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
+
+lycloser = [r for r in sycloser]
+del lycloser[0] #去掉daystop_long
+
+ltrade3y = fcustom(itrade3,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
+
 
 #空头不把macd即刻反叉作为平仓条件
 itrade3yk = fcustom(itrade3,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser_k)

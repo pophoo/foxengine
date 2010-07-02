@@ -54,6 +54,12 @@ prefix = 'SF'
 IFS = 'IF1005','IF1006','IF1007','IF1009','IF1012' #,'RU1011','FU1009','CU1009'
 SUFFIX = '.txt'
 
+def read1(name):
+    ifs = {}
+    ifs[name] = BaseObject(name=name,transaction=read_if_as_np(FPATH + prefix + name + SUFFIX))
+    prepare_index(ifs[name])
+    return ifs
+
 def read_ifs():
     ifs = {}
     for ifn in IFS:

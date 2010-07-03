@@ -39,28 +39,31 @@ def tfunc(sif,sopened=None):
             )
     return signal * XBUY
 
-def ipmacd_short_5(sif,sopened=None):
+def ipmacd_long_5(sif,sopened=None):
     trans = sif.transaction
-    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
-    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
 
+    dsfilter2 = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<2000)
 
     s30_13 = np.zeros_like(sif.diff1)
     s30_13[sif.i_cof30] = strend2(ma(sif.close30,13))
     s30_13 = extend2next(s30_13)
 
-    signal = gand(cross(sif.dea1,sif.diff1)<0
-            ,sif.diff30<0
-            ,sif.diff5<0
-            ,s30_13 < 0
+    signal = gand(cross(sif.dea1,sif.diff1)>0
+            #,sif.diff30>0
+            ,strend(sif.diff30-sif.dea30)>0
+            #,strend(sif.diff5-sif.dea5)>0
+            ,sif.diff5>0
+            ,s30_13 >0
             )
     signal = gand(signal
-            ,sif.ma5 < sif.ma13
-            ,sif.ma135<sif.ma270
-            ,strend2(sif.ma30)<0
-            ,ksfilter
+            ,sif.ma5 > sif.ma13
+            ,strend2(sif.ma13-sif.ma60)>0
+            ,strend2(sif.ma30)>0
+            ,strend2(sif.ma135)>0
+            ,dsfilter2
             )
-    return signal * XSELL
+    return signal * XBUY
+
 
 
 def ipmacd_short_4(sif,sopened=None):
@@ -467,7 +470,7 @@ def ipmacd_5x13(sif,sopened=None):
 
 def ipmacd_longt(sif,sopened=None):#+
     trans = sif.transaction
-    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500) #向上突变过滤
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<2000) #向上突变过滤
 
     signal = gand(cross(sif.dea1,sif.diff1)>0
                 ,strend(sif.diff5-sif.dea5)>0
@@ -479,8 +482,6 @@ def ipmacd_longt(sif,sopened=None):#+
                 ,dsfilter
                 )
     return signal * XBUY
-
-
 
 def ipmacd_longt2(sif,sopened=None):#+
     '''

@@ -65,7 +65,7 @@ xagainst = [ifuncs.dmacd_short2,d22,ifuncs.down30,ifuncs.up05] #dmacd_long被dms
 xmiddle = [ifuncs.ipmacd_longt,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.dms,ifuncs.ipmacd_long_1,ifuncs.up0,ifuncs.dmacd_long5,ifuncs.ma60_long,ifuncs.ipmacd_long_devi1]
 
 #一般效益的品种
-xnormal = [ifuncs.ipmacd_short_4,ifuncs.ipmacd_short_5]
+xnormal = [ifuncs.ipmacd_short_4,ifuncs.ipmacd_short_5,ifuncs.ipmacd_long_5]
 
 trades1 = iftrade.itrade3x(i07,xfollow)
 trades2 = iftrade.itrade3x(i07,xagainst)
@@ -568,7 +568,30 @@ def ipmacd_short_5(sif,sopened=None):
             )
     return signal * XSELL
 
+def ipmacd_long_5(sif,sopened=None):
+    trans = sif.transaction
 
+    dsfilter2 = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<2000)
+
+    s30_13 = np.zeros_like(sif.diff1)
+    s30_13[sif.i_cof30] = strend2(ma(sif.close30,13))
+    s30_13 = extend2next(s30_13)
+
+    signal = gand(cross(sif.dea1,sif.diff1)>0
+            #,sif.diff30>0
+            ,strend(sif.diff30-sif.dea30)>0
+            #,strend(sif.diff5-sif.dea5)>0
+            ,sif.diff5>0
+            ,s30_13 >0
+            )
+    signal = gand(signal
+            ,sif.ma5 > sif.ma13
+            ,strend2(sif.ma13-sif.ma60)>0
+            ,strend2(sif.ma30)>0
+            ,strend2(sif.ma135)>0
+            ,dsfilter2
+            )
+    return signal * XBUY
 
 def ma3x10_short(sif,sopened=None):#
     '''

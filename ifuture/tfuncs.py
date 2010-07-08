@@ -20,28 +20,42 @@ def tfunc(sif,sopened=None):
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
 
+    #最低价穿越20周期
+            
+    mxc = xc0s(sif.open30,sif.close30,sif.high30,sif.low30,13) > 0
+    signal = np.zeros_like(sif.diff1)
+    signal[sif.i_cof30] = mxc
 
-    state = np.select([trans[ICLOSE]>trans[IOPEN],trans[ICLOSE]<trans[IOPEN]],[1,-1],default=0)
-    wup = ma(trans[IHIGH]-trans[IOPEN],4)
-    wdown = ma(trans[IOPEN] - trans[ILOW],4)
-    lup = trans[IOPEN] + wup * 2
-    ldown = trans[IOPEN] - wdown * 2
-
-    signal = gand(cross(ldown,trans[ILOW])<0
-                ,rollx(state) == 1
-                ,sif.diff30<0
-                #,sif.diff5<0
-                #,strend2(sif.diff30-sif.dea30)<0
-                #,sif.diff30-sif.dea30>0
-                #,strend(sif.diff1-sif.dea1)<0
-                ,strend2(sif.ma270)<-10
-                ,strend2(sif.ma30)<=-4
-                #,strend2(sif.ma5-sif.ma30)<0
-                #,ksfilter
+    signal = gand(signal
+            ,sif.diff1>0
+            #,strend(sif.diff5 - sif.dea5)>0
+            ,strend(sif.ma270)>0
+            #,dsfilter
+            #,sif.ma20>sif.ma60
+            #,sif.ma30>sif.ma60
             )
 
 
-    return signal * XSELL
+    return signal * XBUY
+
+def xud30(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+    mxc = xc0s(sif.open30,sif.close30,sif.high30,sif.low30,13) > 0
+    signal = np.zeros_like(sif.diff1)
+    signal[sif.i_cof30] = mxc
+
+    signal = gand(signal
+            ,strend(sif.diff1)>0
+            ,strend(sif.ma270)>0
+            #,dsfilter
+            )
+
+    return signal * XBUY
+
+
 
 def ipmacd_long_5(sif,sopened=None):
     trans = sif.transaction

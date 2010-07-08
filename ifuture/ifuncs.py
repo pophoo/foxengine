@@ -62,7 +62,7 @@ xagainst = [ifuncs.dmacd_short2,d22,ifuncs.down30,ifuncs.up05] #dmacd_long被dms
 #xagainst = [ifuncs.dmacd_short2,d22,ifuncs.down30]
 
 #中间品种 dms基本被吸收，但在long_f和dms之间，选择dms
-xmiddle = [ifuncs.ipmacd_longt,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.dms,ifuncs.ipmacd_long_1,ifuncs.up0,ifuncs.dmacd_long5,ifuncs.ma60_long,ifuncs.ipmacd_long_devi1]
+xmiddle = [ifuncs.ipmacd_longt,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.dms,ifuncs.ipmacd_long_1,ifuncs.up0,ifuncs.dmacd_long5,ifuncs.ma60_long,ifuncs.ipmacd_long_devi1,ifuncs.xud30]
 
 #一般效益的品种
 xnormal = [ifuncs.ipmacd_short_4,ifuncs.ipmacd_short_5,ifuncs.ipmacd_long_5]
@@ -866,6 +866,24 @@ def ipmacd_short5(sif,sopened=None):#-
             ,ksfilter
             )   
     return signal * XSELL
+
+
+def xud30(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+    mxc = xc0s(sif.open30,sif.close30,sif.high30,sif.low30,13) > 0
+    signal = np.zeros_like(sif.diff1)
+    signal[sif.i_cof30] = mxc
+
+    signal = gand(signal
+            ,strend(sif.diff1)>0
+            ,strend(sif.ma270)>0
+            #,dsfilter
+            )
+
+    return signal * XBUY
 
 
 def dmacd_short2_old(sif,sopened=None):#++

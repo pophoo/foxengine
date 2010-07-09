@@ -13,6 +13,8 @@ from wolfox.fengine.ifuture.ifreader import *
 import wolfox.fengine.ifuture.iftrade as iftrade
 import wolfox.fengine.ifuture.ifuncs as ifuncs
 import wolfox.fengine.ifuture.tfuncs as tfuncs
+import wolfox.fengine.ifuture.dynamic as dynamic
+
 from wolfox.fengine.ifuture.ifuncs import *
 
 
@@ -66,6 +68,8 @@ xmiddle = [ifuncs.ipmacd_longt,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.dms,ifu
 
 #一般效益的品种, 主力品种
 xnormal = [ifuncs.ipmacd_short_4,ifuncs.ipmacd_short_5,ifuncs.ipmacd_long_5,ifuncs.ipmacd_short5,ifuncs.xud30,ifuncs.xud30c,ifuncs.down01,ifuncs.ma30_short,ifuncs.ma60_short,ifuncs.up0]
+
+x30 = [ifuncs.xud30,ifuncs.xud30c]
 
 trades1 = iftrade.itrade3x(i07,xfollow)
 trades2 = iftrade.itrade3x(i07,xagainst)

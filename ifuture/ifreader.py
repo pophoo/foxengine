@@ -120,6 +120,10 @@ def prepare_index(sif):
     sif.atr5 = atr(sif.close5*XBASE,sif.high5*XBASE,sif.low5*XBASE,20)
     sif.xatr5 = sif.atr5 * XBASE * XBASE / sif.close5
     sif.mxatr5 = ma(sif.xatr5,13)
+    sif.xatr5x = np.zeros_like(trans[ICLOSE])
+    sif.xatr5x[sif.i_cof5] = sif.xatr5
+    sif.xatr5x = extend2next(sif.xatr5x)
+
     sif.diff5x,sif.dea5x = cmacd(sif.close5*FBASE)
     sif.diff5x5,sif.dea5x5 = cmacd(sif.close5*FBASE,60,130,45)    
 
@@ -158,6 +162,11 @@ def prepare_index(sif):
     sif.atr30 = atr(sif.close30*XBASE,sif.high30*XBASE,sif.low30*XBASE,20)
     sif.xatr30 = sif.atr30 * XBASE * XBASE / sif.close30
     sif.mxatr30 = ma(sif.xatr30,13)
+    sif.xatr30x = np.zeros_like(trans[ICLOSE])
+    sif.xatr30x[sif.i_cof30] = sif.xatr30
+    sif.xatr30x = extend2next(sif.xatr30x)
+
+    
     sif.diff30x,sif.dea30x = cmacd(sif.close30*FBASE)
 
     sif.sdiff30x,sif.sdea30x = np.zeros_like(trans[ICLOSE]),np.zeros_like(trans[ICLOSE])
@@ -192,6 +201,11 @@ def prepare_index(sif):
     sif.atr15 = atr(sif.close15*XBASE,sif.high15*XBASE,sif.low15*XBASE,20)
     sif.xatr15 = sif.atr15 * XBASE * XBASE / sif.close15
     sif.mxatr15 = ma(sif.xatr15,13)
+    sif.xatr15x = np.zeros_like(trans[ICLOSE])
+    sif.xatr15x[sif.i_cof15] = sif.xatr15
+    sif.xatr15x = extend2next(sif.xatr15x)
+
+    
     sif.diff15x,sif.dea15x = cmacd(sif.close15*FBASE)
     sif.diff15x5,sif.dea15x5 = cmacd(sif.close15*FBASE,60,130,45)    
 

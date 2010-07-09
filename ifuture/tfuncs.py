@@ -20,23 +20,27 @@ def tfunc(sif,sopened=None):
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
 
-    #最低价穿越20周期
+    #xc0c/xc0s
             
-    mxc = xc0s(sif.open30,sif.close30,sif.high30,sif.low30,13) > 0
+    #mxc = macd_rv(sif.open30,sif.close30,sif.high30,sif.low30,sif.vol30) > 0
+    mxc = xc0s(sif.open30,sif.close30,sif.high30,sif.low30,13) < 0
+    #mxc = xc_ru0c(sif.open30,sif.close30,sif.high30,sif.low30,sif.vol30,13) > 0
     signal = np.zeros_like(sif.diff1)
     signal[sif.i_cof30] = mxc
 
     signal = gand(signal
-            ,sif.diff1>0
+            ,sif.diff30<0
             #,strend(sif.diff5 - sif.dea5)>0
-            ,strend(sif.ma270)>0
+            ,strend(sif.ma270)<0
+            #,sif.xatr<2000
+            #,sif.xatr5x<6000
             #,dsfilter
             #,sif.ma20>sif.ma60
             #,sif.ma30>sif.ma60
             )
 
 
-    return signal * XBUY
+    return signal * XSELL
 
 def xud30(sif,sopened=None):
     trans = sif.transaction
@@ -44,6 +48,23 @@ def xud30(sif,sopened=None):
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
 
     mxc = xc0s(sif.open30,sif.close30,sif.high30,sif.low30,13) > 0
+    signal = np.zeros_like(sif.diff1)
+    signal[sif.i_cof30] = mxc
+
+    signal = gand(signal
+            ,strend(sif.diff1)>0
+            ,strend(sif.ma270)>0
+            #,dsfilter
+            )
+
+    return signal * XBUY
+
+def xud30c(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+    mxc = xc0c(sif.open30,sif.close30,sif.high30,sif.low30,13) > 0
     signal = np.zeros_like(sif.diff1)
     signal[sif.i_cof30] = mxc
 

@@ -25,6 +25,7 @@ ifmap = read_ifs()  # fname ==> BaseObject(name='$name',transaction=trans)
 i05 = ifmap['IF1005']
 i06 = ifmap['IF1006']
 i07 = ifmap['IF1007']
+i08 = ifmap['IF1008']
 i09 = ifmap['IF1009']
 i12 = ifmap['IF1012']
 
@@ -66,10 +67,12 @@ xagainst = [ifuncs.dmacd_short2,d22,ifuncs.down30,ifuncs.up05] #dmacd_long被dms
 #中间品种 dms基本被吸收，但在long_f和dms之间，选择dms
 xmiddle = [ifuncs.ipmacd_longt,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.dms,ifuncs.ipmacd_long_1,ifuncs.up0,ifuncs.dmacd_long5,ifuncs.ma60_long,ifuncs.ipmacd_long_devi1,ifuncs.xud30,ifuncs.xud30c]
 
-#一般效益的品种, 主力品种
+#一般效益的品种, 主力品种, xud15存疑?
 xnormal = [ifuncs.ipmacd_short_4,ifuncs.ipmacd_short_5,ifuncs.ipmacd_long_5,ifuncs.ipmacd_short5,ifuncs.xud30,ifuncs.xud30c,ifuncs.down01,ifuncs.ma30_short,ifuncs.ma60_short,ifuncs.up0]
 
-x30 = [ifuncs.xud30,ifuncs.xud30c]
+
+
+xuds = [ifuncs.xud30,ifuncs.xud30c,ifuncs.xud15]
 
 trades1 = iftrade.itrade3x(i07,xfollow)
 trades2 = iftrade.itrade3x(i07,xagainst)
@@ -870,6 +873,35 @@ def ipmacd_short5(sif,sopened=None):#-
             ,ksfilter
             )   
     return signal * XSELL
+
+
+def xud15(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+
+    su,sd = supdowns(sif.open15,sif.close15,sif.high15,sif.low15)
+
+    msu = cexpma(su,13)
+    msd = cexpma(sd,13)
+
+    sf = np.zeros_like(sif.diff1)
+    sf[sif.i_cof15] = msu>msd
+
+
+    signal = cross(sif.dea1,sif.diff1)>0
+
+
+    signal = gand(signal
+            ,sf
+            ,sif.diff1>0
+            #,sif.ma5>sif.ma13
+            #,dsfilter
+            )
+
+
+    return signal * XBUY
 
 
 def xud30(sif,sopened=None):

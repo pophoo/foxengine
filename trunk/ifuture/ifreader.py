@@ -51,7 +51,7 @@ def extract_if(line):
 
 FPATH = 'D:/work/applications/gcode/wolfox/data/ifuture/'
 prefix = 'SF'
-IFS = 'IF1005','IF1006','IF1007','IF1009','IF1012' #,'RU1011','FU1009','CU1009'
+IFS = 'IF1005','IF1006','IF1007','IF1008','IF1009','IF1012' #,'RU1011','FU1009','CU1009'
 SUFFIX = '.txt'
 
 def read1(name):
@@ -65,7 +65,6 @@ def read_ifs():
     for ifn in IFS:
         ifs[ifn] = BaseObject(name=ifn,transaction=read_if_as_np(FPATH + prefix + ifn + SUFFIX))
         prepare_index(ifs[ifn])
-        #prepare_index2(ifs[ifn])
     return ifs
 
 FBASE=10    #只用于macd提高精度，因为是整数运算，再往上就要溢出了
@@ -237,23 +236,4 @@ def calc_high_low_vol(trans,i_oof,i_cof):
     return xhigh,xlow,xvol
 
 
-def prepare_index2(sif):
-    trans = sif.transaction
-    sif.diff1,sif.dea1 = cmacd(trans[IMID]*FBASE)
-    sif.diff5,sif.dea5 = cmacd(trans[IMID]*FBASE,60,130,45)
-    sif.diff15,sif.dea15 = cmacd(trans[IMID]*FBASE,180,390,135)
-    sif.diff30,sif.dea30 = cmacd(trans[IMID]*FBASE,360,780,270)
-    sif.diff60,sif.dea60 = cmacd(trans[IMID]*FBASE,720,1560,540)
-    sif.ma3 = ma(trans[IMID],3)
-    sif.ma5 = ma(trans[IMID],5)
-    sif.ma10 = ma(trans[IMID],10)
-    sif.ma7 = ma(trans[IMID],7)
-    sif.ma13 = ma(trans[IMID],13)    
-    sif.ma20 = ma(trans[IMID],20)
-    sif.ma30 = ma(trans[IMID],30)
-    sif.ma60 = ma(trans[IMID],60)
-    sif.atr = atr(trans[IMID]*XBASE,trans[IHIGH]*XBASE,trans[ILOW]*XBASE,20)
-    sif.atr2 = atr2(trans[IMID]*XBASE,trans[IHIGH]*XBASE,trans[ILOW]*XBASE,20)    
-    sif.xatr = sif.atr * XBASE * XBASE / trans[IMID]
-    sif.mxatr = ma(sif.xatr,13)
 

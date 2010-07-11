@@ -79,12 +79,12 @@ tradesy =  iftrade.itrade3y(i07,xfollow+xagainst+xmiddle)    #xfollow作为平�
 
 #貌似trade3x和trade3y不分上下
 
-优先级：xfollow最高，xmiddle次之，xagainst最后。 即如果现有持仓是xagainst/xmiddle 来的，那么之后的xfollow的反向信号将导致平仓并反向开仓
+#优先级：xfollow最高，xmiddle次之，xagainst最后。 即如果现有持仓是xagainst/xmiddle 来的，那么之后的xfollow的反向信号将导致平仓并反向开仓
 
-把xfollow作为平仓条件加入。因为xfollow为顺势信号，所以一般不会出现一个xfollow信号干掉另一个xfollow信号的情况，除非在diff30穿越0线的过程中；
+#把xfollow作为平仓条件加入。因为xfollow为顺势信号，所以一般不会出现一个xfollow信号干掉另一个xfollow信号的情况，除非在diff30穿越0线的过程中；
 
 
-xnormal = [ifuncs.ipmacd_short_4,ifuncs.ipmacd_short_5,ifuncs.ipmacd_long_5]
+xnormal = [ifuncs.ipmacd_short_4,ifuncs.ipmacd_short_5,ifuncs.ipmacd_long_1,ifuncs.ipmacd_long_5]
 
 xuds = [ifuncs.xud30,ifuncs.xud30c,ifuncs.xud15,ifuncs.xud15]
 
@@ -598,6 +598,8 @@ def ipmacd_long_5(sif,sopened=None):
             ,dsfilter2
             )
     return signal * XBUY
+
+
 
 def ma3x10_short(sif,sopened=None):#
     '''

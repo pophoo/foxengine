@@ -20,74 +20,53 @@ def tfunc(sif,sopened=None):
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
 
+    
 
-    def supdownx(sopen,sclose,shigh,slow):
-        ''' 计算每日的上升力和下降力,简版，不考虑前一日情况
-            物理含义: 能确定的必然经历的上升段,是从开盘到高点,以及从最低到收盘
-                      下降段,是从开盘到低点,和从最高到收盘
-            上升力：
-                high-open+close-low
-            下降力:
-                open-low+high-close
-            单位:
-                high - low
-        '''
-        if len(sopen) == 0:
-            return np.array([],int),np.array([],int)
-        sc1 = rollx(sclose)
-        su = sclose - slow
-        sd = shigh - sclose
-        sb = shigh - slow
-        return su*BASE/sb,sd*BASE/sb,
+    k,d = skdj(sif.high15,sif.low15,sif.close15)
 
+    signal= np.zeros_like(sif.diff1)
 
-    def xc0(sopen,sclose,shigh,slow,ma1=13,udfunc=supdown):
-        '''
-            上升比例穿越0线
-        '''
-        su,sd = udfunc(sopen,sclose,shigh,slow)
-        zx = cached_zeros(len(sclose))
-        msu = ma(su,ma1)
-        msd = ma(sd,ma1)
-        xc = cross(zx,msu-msd)
-        return xc
-
-
-    mxc = xc0(sif.open30,sif.close30,sif.high30,sif.low30,13) > 0
-
-
-    sf = np.zeros_like(sif.diff1)
-    sf[sif.i_cof30] = gand(mxc,sif.xatr30<sif.mxatr30)
-
-
-    #signal = cross(sif.dea1,sif.diff1)>0
-
-    #signal = cross(np.zeros_like(sif.diff1),sif.diff1)>0
-
-    #mxc = xc0s(sif.open5,sif.close5,sif.high5,sif.low5,13) > 0
-    #signal = np.zeros_like(sif.diff1)
-    #signal[i_cof5] = mxc
-
-    #signal = xc0s(trans[IOPEN],trans[ICLOSE],trans[IHIGH],trans[ILOW])
-
-    #sdd = sif.ma270 - rollx(sif.ma270)
+    signal[sif.i_cof15] = (cross(d,k)>0)
 
     signal = gand(
-            sf
-            ,sif.diff1>0
-            #,strend(sif.diff1)>0
-            #,strend(sif.ma270)>0
-
-            #,sif.ma5>sif.ma13
-            #,strend(sif.ma5)>0
-            #,strend(sif.ma5-sif.ma30)>0
+            signal
+            #,strend(sif.ma30)>0
+            #,sif.diff1>0
+            #,strend(sif.diff1-sif.dea1)>0
             #,strend(sif.diff5-sif.dea5)>0
-            #,strend(sdd)>0
+            #,strend(sif.diff30-sif.dea30)>0
+            #,sif.diff5>sif.dea5
+            #,strend(sif.ma13-sif.ma60)>0
+            #,sif.ma5>sif.ma13
             #,dsfilter
             )
 
+    return signal * XBUY
+
+def lwr15(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+    c,mc = lwr(sif.high15,sif.low15,sif.close15)
+
+
+
+    signal = np.zeros_like(sif.diff1)
+    signal[sif.i_cof15] = cross(mc,c)<0
+
+    signal = gand(
+            signal
+            ,sif.diff5<0
+            ,strend(sif.diff30-sif.dea30)>0
+            #,strend(sif.ma60)>0
+            ,dsfilter
+            #,ksfilter
+            )
 
     return signal * XBUY
+
+
 
 def xud15(sif,sopened=None):
     trans = sif.transaction

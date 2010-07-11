@@ -45,6 +45,13 @@ class ModuleTest(unittest.TestCase):
         source2 = np.array([25000000,24875000,24781000,24594000,24500000,24625000,25219000,27250000])
         self.assertEquals([0,0,0,0,24698099, 24673691, 24855485, 25652535],vcexpma(source2,5).tolist())   #相当于5日
 
+    def test_sma(self):
+        source = np.array([1000,2000,2000,2000,2000,3000,4000])
+        self.assertEquals([200,560,848,1078,1263,1610,2088],sma(source,5,1).tolist())   #相当于5日
+        self.assertEquals([],sma(np.array([]),5,1).tolist())   #相当于5日
+
+ 
+
     def test_macd(self):#因为是其它几个算法的集成，所以不测试实际数据，只测试可执行性
         source = np.array([63750,65625,63000,62750,63250,65375,66000,65000,64875,64750,64375,64375,64625,65375,64500,65250,67875,68000,66875,66250,65875,66000,65875,64750,63000,63375,63375,63375])
         #self.assertEquals(28,len(source))
@@ -388,6 +395,28 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0]*10,semv(high,low,volume).tolist())
         high = low = volume = np.array([1000]*13)
         self.assertEquals([0]*13,semv(high,low,volume).tolist())
+
+    def test_skdj(self):    #只测试通路
+        r0 = np.array([])
+        r1= np.array([100,200,300,200,300])
+        k,d = skdj(r0,r0,r0)
+        k,d = skdj(r1,r1,r1)
+        self.assertTrue(True)
+
+    def test_cho(self):    #只测试通路
+        r0 = np.array([])
+        r1= np.array([100,200,300,200,300])
+        k,d = cho(r0,r0,r0,r0)
+        k,d = cho(r1,r1,r1,r1)
+        self.assertTrue(True)
+
+    def test_lwr(self):    #只测试通路
+        r0 = np.array([])
+        r1= np.array([100,200,300,200,300])
+        k,d = lwr(r0,r0,r0)
+        k,d = lwr(r1,r1,r1)
+        self.assertTrue(True)
+
 
     def test_vap(self):
         r1,v1 = vap(np.array([100,200,300,200,300]),np.array([11,22,33,44,55]),100)

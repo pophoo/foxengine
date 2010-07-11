@@ -88,7 +88,11 @@ xnormal = [ifuncs.ipmacd_short_4,ifuncs.ipmacd_short_5,ifuncs.ipmacd_long_1,ifun
 
 xuds = [ifuncs.xud30,ifuncs.xud30c,ifuncs.xud15,ifuncs.xud15]
 
+xpattern = [ifuncs.inside_up,ifuncs.gapdown,ifuncs.breakout30]  #对远期合约的效果要好于近期的
+
 xnormal2 = [ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.ma60_short,ifuncs.down01,ifuncs.up0]
+
+
 
 #RU1011
 s_short =[ifuncs.ipmacd_short,ifuncs.dmacd_short5]
@@ -127,6 +131,108 @@ def fmacd1_short(sif,covered=3,sfilter=None):
 
     signal = gand(rollx(msignal,covered),fsignal)
     return signal
+
+
+def inside_up(sif,sopened=None):
+    '''
+        内移日次日向上
+            
+        15分钟高点突破内移日开收盘价的高者后15分钟内1分钟上叉,270线向上
+        日ATR的1/10作为突破过滤
+    '''
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+ 
+    sday = gand(sif.highd<rollx(sif.highd),sif.lowd>rollx(sif.lowd))
+    
+    highd = np.select([sday],[gmax(sif.closed,sif.opend)+sif.atrd/XBASE/10],default=0)
+
+    #highd = np.select([sday],[sif.highd],default=0)
+
+    xhighd = np.zeros(len(sif.diff1),np.int32)
+    xhighd[sif.i_cofd] = highd
+
+    xhighd = extend(xhighd,260)
+
+    signal = np.zeros_like(sif.diff1)
+
+    signal[sif.i_cof15] = gand(cross(xhighd[sif.i_cof15],sif.high15)>0)
+
+    signal = sfollow(signal,cross(sif.dea1,sif.diff1)>0,15)
+
+
+    signal = gand(signal
+            ,strend(sif.ma270)>0
+            )
+
+
+    return signal * XBUY
+
+
+def gapdown(sif,sopened=None):
+    '''
+        向上跳开后，15分钟补缺
+        一次补失败后还可以补第二次
+    '''
+
+
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+    
+    high30 = np.select([trans[ITIME][sif.i_cof30]==945],[sif.high30],default=0)
+
+    xhighd,xlowd = np.zeros_like(sif.diff1),np.zeros_like(sif.diff1)
+    xhighd[sif.i_cofd] = sif.highd
+
+    xhighd = extend2next(xhighd)
+
+    hgap = gand(trans[ILOW]>xhighd,trans[ITIME]==915)
+
+
+    hgap = scover(hgap,260)   #当日信号都在缺口内发出
+
+    signal = np.zeros_like(sif.diff1)
+
+    signal[sif.i_cof15] = gand(cross(xhighd[sif.i_cof15],sif.low15)<0,hgap[sif.i_cof15])
+
+
+    return signal * XSELL
+
+
+def breakout30(sif,sopened=None):
+    '''
+        5分钟最高突破开盘前30分钟最高之后，下一次1分钟上叉
+        属于突破回调的模式
+    '''
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+    
+    high30 = np.select([trans[ITIME][sif.i_cof30]==945],[sif.high30],default=0)
+
+    xhigh30,xlow30 = np.zeros_like(sif.diff1),np.zeros_like(sif.diff1)
+    xhigh30[sif.i_oof30] = high30
+
+    xhigh30 = extend2next(xhigh30)
+
+    signal = np.zeros_like(sif.diff1)
+
+    signal[sif.i_cof5] = cross(xhigh30[sif.i_cof5],sif.high5)>0
+
+    signal = sfollow(signal,cross(sif.dea1,sif.diff1)>0,15)
+
+    signal = gand(signal
+            ,strend(sif.diff30-sif.dea30)>0
+            ,strend(sif.diff5-sif.dea5)>0
+            ,strend(sif.ma30)>0
+            ,sif.ma5>sif.ma13
+            )
+
+    return signal * XBUY
+
 
 def up0(sif,sopened=None):
     trans = sif.transaction

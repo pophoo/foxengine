@@ -170,7 +170,7 @@ def cover(source,interval=1): #interval必须大于0
         假定-1位置无信号发生
         新的信号会增强已有信号        
     '''
-    rev = np.zeros_like(source)
+    rev = np.zeros(len(source),np.int16)    #cover 最大为65536
     curcover = 0
     for i in xrange(len(source)):
         curcover = interval if source[i] != 0 else curcover-1

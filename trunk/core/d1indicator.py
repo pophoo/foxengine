@@ -103,6 +103,18 @@ def vcexpma(source,n):
     '''
     return vexpma(source,(2*BASE+(n+1)/2)/(n+1))
 
+def sma(source,length,weight):#简单权重移动平均
+    v = 0
+    rev = np.zeros_like(source)
+    i = 0
+    fsource = source * 1.0
+    for sv in fsource:
+        v = (sv * weight + (length-weight) * v)/length
+        rev[i] = int(v+0.5)
+        i += 1
+    return rev
+
+
 def macd(source,ifast=150,islow=75,isignal=200):
     ''' 按照经典定义，MACD=EXPMA(1500)-EXPMA(750)
         信号线为 EXPMA(2000)
@@ -768,6 +780,29 @@ def psy(source,length=12):
     s = greater(source,rollx(source))
     rev = (msum(s,length) * BASE + length/2)/ length
     return rev
+
+def skdj(shigh,slow,sclose,n=9,m=3):
+    lowv = tmin(slow,n)
+    highv = tmax(shigh,n)
+    rsv = cexpma((sclose-lowv)*100/(highv-lowv),m)
+    k = cexpma(rsv,m)
+    d = ma(k,m)
+    return k,d
+
+def cho(shigh,slow,sclose,svol,n1=10,n2=20,m=6):
+    mid = np.cumsum(svol*(2*sclose-shigh-slow)/(shigh+slow),0);
+    cho = ma(mid,n1) - ma(mid,n2)
+    macho = ma(cho,m)
+    return cho,macho
+    
+
+def lwr(shigh,slow,sclose,n=9,m=3):
+    lowv = tmin(slow,n)
+    highv = tmax(shigh,n)
+    rsv = (highv-sclose)*100 / (highv-lowv)
+    lwr1 = sma(rsv,m,1)
+    lwr2 = sma(lwr1,m,1)
+    return lwr1,lwr2
 
 ### emv族及vap族为Richard W. Arms发明的算法,以及改进 
 def emv(shigh,slow,sweight):#经典emv算法,sweight即为成交量(权重)

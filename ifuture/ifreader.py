@@ -51,7 +51,7 @@ def extract_if(line):
 
 FPATH = 'D:/work/applications/gcode/wolfox/data/ifuture/'
 prefix = 'SF'
-IFS = 'IF1005','IF1006','IF1007','IF1008','IF1009','IF1012' #,'RU1011','FU1009','CU1009'
+IFS = 'IF1005','IF1006','IF1007','IF1008','IF1009','IF1012','RU1011','FU1009','CU1009'
 SUFFIX = '.txt'
 
 def read1(name):

@@ -67,12 +67,7 @@ xagainst = [ifuncs.dmacd_short2,d22,ifuncs.down30,ifuncs.up05] #dmacd_long被dms
 #中间品种 dms基本被吸收，但在long_f和dms之间，选择dms
 xmiddle = [ifuncs.ipmacd_longt,ifuncs.ipmacd_long5,ifuncs.xldevi2,ifuncs.dms,ifuncs.ipmacd_long_1,ifuncs.up0,ifuncs.dmacd_long5,ifuncs.ma60_long,ifuncs.ipmacd_long_devi1,ifuncs.xud30,ifuncs.xud30c]
 
-#一般效益的品种, 主力品种, xud15存疑?
-xnormal = [ifuncs.ipmacd_short_4,ifuncs.ipmacd_short_5,ifuncs.ipmacd_long_5,ifuncs.ipmacd_short5,ifuncs.xud30,ifuncs.xud30c,ifuncs.down01,ifuncs.ma30_short,ifuncs.ma60_short,ifuncs.up0]
-
-
-
-xuds = [ifuncs.xud30,ifuncs.xud30c,ifuncs.xud15]
+#一般效益的品种, 主力品种, xud15存疑?  但是看起来xud15在其他市场的适应性不错?RU/CU/FU
 
 trades1 = iftrade.itrade3x(i07,xfollow)
 trades2 = iftrade.itrade3x(i07,xagainst)
@@ -89,6 +84,11 @@ tradesy =  iftrade.itrade3y(i07,xfollow+xagainst+xmiddle)    #xfollow作为平�
 把xfollow作为平仓条件加入。因为xfollow为顺势信号，所以一般不会出现一个xfollow信号干掉另一个xfollow信号的情况，除非在diff30穿越0线的过程中；
 
 
+xnormal = [ifuncs.ipmacd_short_4,ifuncs.ipmacd_short_5,ifuncs.ipmacd_long_5]
+
+xuds = [ifuncs.xud30,ifuncs.xud30c,ifuncs.xud15,ifuncs.xud15]
+
+xnormal2 = [ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.ma60_short,ifuncs.down01,ifuncs.up0]
 
 #RU1011
 s_short =[ifuncs.ipmacd_short,ifuncs.dmacd_short5]

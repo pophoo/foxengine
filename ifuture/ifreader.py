@@ -222,6 +222,13 @@ def prepare_index(sif):
     sif.highd,sif.lowd,sif.vold = calc_high_low_vol(trans,sif.i_oofd,sif.i_cofd)
     sif.holdingd = trans[IHOLDING][sif.i_cofd]
 
+    sif.atrd = atr(sif.closed*XBASE,sif.highd*XBASE,sif.lowd*XBASE,20)
+    sif.xatrd = sif.atrd * XBASE * XBASE / sif.closed
+    sif.mxatrd = ma(sif.xatrd,13)
+    sif.xatrdx = np.zeros_like(trans[ICLOSE])
+    sif.xatrdx[sif.i_cofd] = sif.xatrd
+    sif.xatrdx = extend2next(sif.xatrdx)
+
 
 def calc_high_low_vol(trans,i_oof,i_cof):
     xhigh = np.zeros_like(i_oof)

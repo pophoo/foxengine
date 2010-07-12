@@ -86,10 +86,10 @@ tradesy =  iftrade.itrade3y(i07,xfollow+xagainst+xmiddle)    #xfollow作为平�
 #优先级: xnormal > xpattern > xuds > xnormal2
 xnormal = [ifuncs.ipmacd_short_4,ifuncs.ipmacd_short_5,ifuncs.ipmacd_long_1,ifuncs.ipmacd_long_5]
 
-xpattern = [ifuncs.inside_up,ifuncs.gapdown,ifuncs.breakout30,ifuncs.goup5,ifuncs.godown5,ifuncs.godown30]  #对远期合约的效果要好于近期的
+#xpattern对远期合约的效果要好于近期的
+xpattern = [ifuncs.inside_up,ifuncs.gapdown,ifuncs.goup5,ifuncs.godown5,ifuncs.godown30,ifuncs.br75,ifuncs.br30]  
 
 xuds = [ifuncs.xud30,ifuncs.xud30c,ifuncs.xud15,ifuncs.xud15]
-
 
 xnormal2 = [ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.ma60_short,ifuncs.down01,ifuncs.up0]
 
@@ -155,7 +155,6 @@ def goup5(sif,sopened=None):
     signal[sif.i_cof5] = gand(cross(xhighd[sif.i_cof5],sif.close5)>0)
 
     #signal = sfollow(signal,cross(sif.dea1,sif.diff1)>0,30)
-    
 
     signal = gand(signal
             ,strend(sif.ma270)>0
@@ -304,8 +303,39 @@ def gapdown(sif,sopened=None):
 
     return signal * XSELL
 
+def br75(sif,sopened=None):
+    '''
+        突破1030前的最高点
+    '''
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
 
-def breakout30(sif,sopened=None):
+ 
+    xhigh = rollx(tmax(trans[IHIGH],75))
+    sxhigh = np.select([gor(trans[ITIME]==1031)],[xhigh],default=0)
+
+    sxhigh = np.select([trans[ITIME]>1030],[extend(sxhigh,180)],default=0)
+
+ 
+    signal = np.zeros_like(sif.diff1)
+
+    signal[sif.i_cof5] = gand(cross(sxhigh[sif.i_cof5],sif.high5)>0)
+    
+
+    signal = gand(signal
+            ,strend(sif.ma135)>0
+            ,strend(sif.diff30-sif.dea30)>0
+            ,strend(sif.ma13-sif.ma60)>0
+            ,sif.diff5>0
+            ,sif.ma5>sif.ma13
+            )
+
+
+    return signal * XBUY
+
+
+def br30(sif,sopened=None):
     '''
         5分钟最高突破开盘前30分钟最高之后，下一次1分钟上叉
         属于突破回调的模式

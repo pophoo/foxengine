@@ -83,12 +83,13 @@ tradesy =  iftrade.itrade3y(i07,xfollow+xagainst+xmiddle)    #xfollow作为平�
 
 #把xfollow作为平仓条件加入。因为xfollow为顺势信号，所以一般不会出现一个xfollow信号干掉另一个xfollow信号的情况，除非在diff30穿越0线的过程中；
 
-
+#优先级: xnormal > xpattern > xuds > xnormal2
 xnormal = [ifuncs.ipmacd_short_4,ifuncs.ipmacd_short_5,ifuncs.ipmacd_long_1,ifuncs.ipmacd_long_5]
+
+xpattern = [ifuncs.inside_up,ifuncs.gapdown,ifuncs.breakout30,ifuncs.goup5,ifuncs.godown5,ifuncs.godown30]  #对远期合约的效果要好于近期的
 
 xuds = [ifuncs.xud30,ifuncs.xud30c,ifuncs.xud15,ifuncs.xud15]
 
-xpattern = [ifuncs.inside_up,ifuncs.gapdown,ifuncs.breakout30]  #对远期合约的效果要好于近期的
 
 xnormal2 = [ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.ma60_short,ifuncs.down01,ifuncs.up0]
 
@@ -131,6 +132,108 @@ def fmacd1_short(sif,covered=3,sfilter=None):
 
     signal = gand(rollx(msignal,covered),fsignal)
     return signal
+
+def goup5(sif,sopened=None):
+    ''' 
+        5分钟冲击昨日高点时买入, 过滤器向下浮动. 即不论是否突破，都介入
+    ''' 
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+ 
+    highd = sif.highd - sif.atrd/XBASE/8 #gmax(sif.closed,sif.opend)+sif.atrd/XBASE/10
+
+
+    xhighd = np.zeros(len(sif.diff1),np.int32)
+    xhighd[sif.i_cofd] = highd
+
+    xhighd = extend(xhighd,260)
+
+    signal = np.zeros_like(sif.diff1)
+
+    signal[sif.i_cof5] = gand(cross(xhighd[sif.i_cof5],sif.close5)>0)
+
+    #signal = sfollow(signal,cross(sif.dea1,sif.diff1)>0,30)
+    
+
+    signal = gand(signal
+            ,strend(sif.ma270)>0
+            ,strend(sif.diff30-sif.dea30)>0
+            ,strend(sif.ma30)>0
+            ,strend(sif.ma13-sif.ma60)>0
+            )
+
+
+    return signal * XBUY
+
+def godown5(sif,sopened=None):
+    '''
+        5分钟最低击穿昨日低点后30分钟内1分钟下叉卖空
+    '''
+    
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+ 
+    lowd = sif.lowd - sif.atrd/XBASE/8 #gmin(sif.closed,sif.opend)-sif.atrd/XBASE/8
+
+    xlowd = np.zeros(len(sif.diff1),np.int32)
+    xlowd[sif.i_cofd] = lowd
+
+    xlowd = extend(xlowd,260)
+
+    signal = np.zeros_like(sif.diff1)
+
+    signal[sif.i_cof5] = gand(cross(xlowd[sif.i_cof5],sif.low5)<0)
+
+    signal = sfollow(signal,cross(sif.dea1,sif.diff1)<0,15)
+
+    signal = gand(signal
+            ,strend(sif.ma270)<0
+            ,strend(sif.diff30-sif.dea30)<0
+            ,strend(sif.ma30)<0
+            )
+
+
+    return signal * XSELL
+
+
+
+def godown30(sif,sopened=None):
+    '''
+        30分钟最低击穿昨日低点后30分钟内1分钟下叉卖空
+    '''
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+ 
+    lowd = sif.lowd - sif.atrd/XBASE/8 #gmin(sif.closed,sif.opend)-sif.atrd/XBASE/8
+
+
+    xlowd = np.zeros(len(sif.diff1),np.int32)
+    xlowd[sif.i_cofd] = lowd
+
+    xlowd = extend(xlowd,260)
+
+    signal = np.zeros_like(sif.diff1)
+
+    signal[sif.i_cof30] = gand(cross(xlowd[sif.i_cof30],sif.low30)<0)
+
+    signal = sfollow(signal,cross(sif.dea1,sif.diff1)<0,30)
+
+    
+
+    signal = gand(signal
+            ,strend(sif.ma270)<0
+            ,strend(sif.diff30-sif.dea30)<0
+            ,strend(sif.ma30)<0
+            )
+
+
+    return signal * XSELL
 
 
 def inside_up(sif,sopened=None):

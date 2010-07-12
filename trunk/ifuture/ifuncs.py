@@ -83,8 +83,8 @@ tradesy =  iftrade.itrade3y(i07,xfollow+xagainst+xmiddle)    #xfollow作为平�
 
 #把xfollow作为平仓条件加入。因为xfollow为顺势信号，所以一般不会出现一个xfollow信号干掉另一个xfollow信号的情况，除非在diff30穿越0线的过程中；
 
-#优先级: xnormal > xpattern > xuds > xnormal2
-xnormal = [ifuncs.ipmacd_short_4,ifuncs.ipmacd_short_5,ifuncs.ipmacd_long_1,ifuncs.ipmacd_long_5]
+#优先级: xnormal > xpattern > xuds > xpattern2> xnormal2
+xnormal = [ifuncs.ipmacd_short_5,ifuncs.ipmacd_long_5]
 
 #xpattern对远期合约的效果要好于近期的
 xpattern = [ifuncs.goup5,ifuncs.godown5,ifuncs.godown30]

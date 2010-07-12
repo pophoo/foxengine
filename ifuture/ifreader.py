@@ -2,33 +2,6 @@
 
 from wolfox.fengine.ifuture.ibase import *
 
-
-def read_if_as_np(filename):
-    records = read_if(filename)
-    n = len(records)
-    narrays = [np.zeros(n,int),np.zeros(n,int),np.zeros(n,int),np.zeros(n,int),np.zeros(n,int),np.zeros(n,int),np.zeros(n,int),np.zeros(n,int),np.zeros(n,int)]
-    i = 0
-    for record in records:
-        narrays[IDATE][i] = record.date
-        narrays[ITIME][i] = record.time
-        narrays[IOPEN][i] = record.open        
-        narrays[ICLOSE][i] = record.close
-        narrays[IHIGH][i] = record.high
-        narrays[ILOW][i] = record.low       
-        narrays[IVOL][i] = record.vol
-        narrays[IHOLDING][i] = record.holding
-        narrays[IMID][i] = (record.close*4 + record.low + record.high)/6
-        i += 1
-    return narrays
-
-def read_if(filename):
-    records = []
-    for line in file(filename):
-        if len(line.strip()) > 0:
-            records.append(extract_if(line))
-    return records
-
-
 def extract_if(line):
     items = line.split(',')
     record = BaseObject()
@@ -49,21 +22,72 @@ def extract_if(line):
 
     return record
 
+def extract_if_wh(line):
+    items = line.split(',')
+    record = BaseObject()
+    xdate = items[0].replace('/','')   #从mm/dd/yyyy转为yyyymmdd
+    record.date = int(xdate[-4:] + xdate[:-4])
+    record.time = int(items[1].replace(':',''))
+    if float(items[2]) < 10000:
+        record.open = int(float(items[2])*10 + 0.1)
+        record.high = int(float(items[3])*10 + 0.1)
+        record.low = int(float(items[4])*10 + 0.1)
+        record.close = int(float(items[5])*10 + 0.1)
+    else:
+        record.open = int(float(items[2]) + 0.1)
+        record.high = int(float(items[3]) + 0.1)
+        record.low = int(float(items[4]) + 0.1)
+        record.close = int(float(items[5]) + 0.1)
+    #items[6]为平均价
+    record.vol = int(float(items[7]) + 0.1)
+    record.holding = int(float(items[8]) + 0.1)
+
+    return record
+
+
+def read_if_as_np(filename,extractor=extract_if):
+    records = read_if(filename,extractor)
+    n = len(records)
+    narrays = [np.zeros(n,int),np.zeros(n,int),np.zeros(n,int),np.zeros(n,int),np.zeros(n,int),np.zeros(n,int),np.zeros(n,int),np.zeros(n,int),np.zeros(n,int)]
+    i = 0
+    for record in records:
+        narrays[IDATE][i] = record.date
+        narrays[ITIME][i] = record.time
+        narrays[IOPEN][i] = record.open        
+        narrays[ICLOSE][i] = record.close
+        narrays[IHIGH][i] = record.high
+        narrays[ILOW][i] = record.low       
+        narrays[IVOL][i] = record.vol
+        narrays[IHOLDING][i] = record.holding
+        narrays[IMID][i] = (record.close*4 + record.low + record.high)/6
+        i += 1
+    return narrays
+
+def read_if(filename,extractor=extract_if):
+    records = []
+    for line in file(filename):
+        if len(line.strip()) > 0:
+            records.append(extractor(line))
+    return records
+
+
+
+
 FPATH = 'D:/work/applications/gcode/wolfox/data/ifuture/'
 prefix = 'SF'
 IFS = 'IF1005','IF1006','IF1007','IF1008','IF1009','IF1012','RU1011','FU1009','CU1009'
 SUFFIX = '.txt'
 
-def read1(name):
+def read1(name,extractor=extract_if):
     ifs = {}
-    ifs[name] = BaseObject(name=name,transaction=read_if_as_np(FPATH + prefix + name + SUFFIX))
+    ifs[name] = BaseObject(name=name,transaction=read_if_as_np(FPATH + prefix + name + SUFFIX,extractor=extractor))
     prepare_index(ifs[name])
     return ifs
 
-def read_ifs():
+def read_ifs(extractor=extract_if):
     ifs = {}
     for ifn in IFS:
-        ifs[ifn] = BaseObject(name=ifn,transaction=read_if_as_np(FPATH + prefix + ifn + SUFFIX))
+        ifs[ifn] = BaseObject(name=ifn,transaction=read_if_as_np(FPATH + prefix + ifn + SUFFIX,extractor=extractor))
         prepare_index(ifs[ifn])
     return ifs
 

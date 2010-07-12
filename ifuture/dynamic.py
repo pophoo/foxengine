@@ -11,7 +11,7 @@ import wolfox.fengine.ifuture.tfuncs as tfuncs
 from wolfox.fengine.ifuture.ifuncs import *
 
 def xcalc(name,strategy,functor):
-    ifmap = ifreader.read1(name)  # fname ==> BaseObject(name='$name',transaction=trans)
+    ifmap = ifreader.read1(name,extractor=extract_if_wh)  # fname ==> BaseObject(name='$name',transaction=trans)
     sif = ifmap[name]
     tradesy =  functor(sif,strategy)    #xfollow作为平仓信号，且去掉了背离平仓的信号
     iftrade.last_action(tradesy)

@@ -268,6 +268,8 @@ def xposition(trans,saction,xtype,defer=1):
     positions = []
     for i in isignal:
         xindex = i + defer  #defer后动作，一般为下一分钟
+        if xindex >= len(sclose):   #如果是最后一分钟，则放弃. 这种情况只会出现在动态计算中，且该分钟未走完(走完的话应该出现下一分钟的报价)，所以放弃是正常操作
+            continue
         #print xindex,trans[ITIME][xindex]
         direct = saction[i]
         position = BaseObject(index=xindex,date=sdate[xindex],time=stime[xindex],position=direct,xtype=xtype)    #因为已经抑制了1514开仓,必然不会溢出

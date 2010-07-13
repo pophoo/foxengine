@@ -551,6 +551,8 @@ itrade3y2 = fcustom(itrade3,stop_closer=atr_uxstop_2_6,bclosers=[ifuncs.daystop_
 itrade3y3 = fcustom(itrade3,stop_closer=atr_uxstop_3_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
 
 itrade3y4 = fcustom(itrade3,stop_closer=atr_uxstop_4_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
+itrade3y6 = fcustom(itrade3,stop_closer=atr_uxstop_6_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
+
 
 ltrade3y1 = fcustom(itrade3,stop_closer=atr_uxstop_1_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
 ltrade3y2 = fcustom(itrade3,stop_closer=atr_uxstop_2_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)

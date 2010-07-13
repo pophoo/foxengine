@@ -1309,11 +1309,17 @@ def ipmacd_short_1(sif,sopened=None):#+++
     trans = sif.transaction
 
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+    xopen=np.zeros(len(sif.diff1),np.int32)
+    xopen[sif.i_oofd] = sif.opend
+    xopen = extend2next(xopen)
+    
     signal = gand(cross(sif.dea1,sif.diff1)<0
             ,sif.diff5<0
             ,sif.diff30<0
             ,strend2(sif.diff1-sif.dea1)<-2
-            ,strend2(sif.diff1)<-2
+            #,strend2(sif.diff1)<-2
+            ,trans[IHIGH]<xopen
             )
     signal = gand(signal
             ,strend2(sif.ma30)<=-4
@@ -1323,6 +1329,35 @@ def ipmacd_short_1(sif,sopened=None):#+++
             #,strend(sif.ma13-sif.ma60)<0
             )#
 
+    return signal * XSELL
+
+
+def ipmacd_short_5(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+    xopen=np.zeros(len(sif.diff1),np.int32)
+    xopen[sif.i_oofd] = sif.opend
+    xopen = extend2next(xopen)
+
+
+    s30_13 = np.zeros_like(sif.diff1)
+    s30_13[sif.i_cof30] = strend2(ma(sif.close30,13))
+    s30_13 = extend2next(s30_13)
+
+    signal = gand(cross(sif.dea1,sif.diff1)<0
+            ,sif.diff30<0
+            #,sif.diff5<0
+            ,s30_13 < 0
+            ,trans[IHIGH] < xopen
+            )
+    signal = gand(signal
+            ,sif.ma5 < sif.ma13
+            ,sif.ma135<sif.ma270
+            ,strend2(sif.ma30)<0
+            ,ksfilter
+            )
     return signal * XSELL
 
 

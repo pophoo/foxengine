@@ -57,7 +57,7 @@ for trade in trades:print trade.profit,trade.actions[0].date,trade.actions[0].ti
 #顺势品种
 xfollow = [ifuncs.ipmacd_short_1,ifuncs.ipmacd_short_2,ifuncs.ipmacd_short_3,ifuncs.ma3x10_short,ifuncs.down01,ifuncs.dmacd_short5,ifuncs.ipmacdx_short,ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.ma60_short]
 
-#逆势品种
+#逆势品种. 慎用，不能依赖，只能在没有其它系列的情况下非常谨慎的使用
 d22 = fcustom(ifuncs.dmacd_short2,rolled=2)
 #xagainst = [ifuncs.ipmacd_long_devi1,ifuncs.dmacd_long,ifuncs.dmacd_short2,d22,ifuncs.down30]
 xagainst = [ifuncs.dmacd_short2,d22,ifuncs.down30,ifuncs.up05] #dmacd_long被dms取代
@@ -96,7 +96,12 @@ xnormal2 = [ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.ma60_short,ifuncs.down
 
 
 
+
 #RU1011
+ru = ifmap['RU1011']
+fu = ifmap['FU1009']
+cu = ifmap['CU1009']
+
 s_short =[ifuncs.ipmacd_short,ifuncs.dmacd_short5]
 s_long=[ifuncs.ipmacd_long5,ifuncs.ipmacd_long_f]   #稳定于RU1011
 

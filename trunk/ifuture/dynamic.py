@@ -22,3 +22,5 @@ xcalc2 = fcustom(xcalc,functor=iftrade.ltrade3y2)
 xcalc3 = fcustom(xcalc,functor=iftrade.ltrade3y3)
 xcalc4 = fcustom(xcalc,functor=iftrade.ltrade3y4)
 xcalc6 = fcustom(xcalc,functor=iftrade.ltrade3y6)
+
+xcalc = fcustom(xcalc,functor=iftrade.ltrade3y0525_5)

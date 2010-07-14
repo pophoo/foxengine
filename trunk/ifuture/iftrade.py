@@ -375,7 +375,14 @@ def RR(trades,datefrom=20100401,dateto=20200101):
         return XBASE
     return (wsum+lsum)*XBASE/abs(lsum) * wtime * ltime /(wtime+ltime)/(wtime+ltime)
 
-def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_drawdown=200,min_lost=30):
+afm = {1:lambda sif:sif.atr
+        ,5:lambda sif:sif.atr5x
+        ,15:lambda sif:sif.atr15x
+        ,30:lambda sif:sif.atr30x
+        ,270:lambda sif:sif.atrdx
+    }
+
+def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_drawdown=200,min_lost=30,natr=1):
     '''
         atr止损
         sif为实体
@@ -385,6 +392,7 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
         只能持有一张合约。即当前合约在未平前会屏蔽掉所有其它开仓
     '''
     #print sbclose[-10:],ssclose[-10:]
+    satr = afm[natr](sif)
     trans = sif.transaction
     rev = np.zeros_like(sopened)
     isignal = np.nonzero(sopened)[0]
@@ -392,7 +400,7 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
     ishort_closed = 0   #空头平仓日
     for i in isignal:
         price = sopened[i]
-        willlost = sif.atr[i] * lost_times / XBASE / XBASE
+        willlost = satr[i] * lost_times / XBASE / XBASE
         if willlost < min_lost:
             willlost = min_lost
         if i < ilong_closed or i<ishort_closed:    #已经开了仓，且未平，不再计算            
@@ -406,7 +414,7 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
             buy_price = -price
             lost_stop = buy_price - willlost
             cur_high = max(buy_price,trans[ICLOSE][i])
-            win_stop = cur_high - sif.atr[i] * win_times / XBASE / XBASE
+            win_stop = cur_high - satr[i] * win_times / XBASE / XBASE
             cur_stop = lost_stop if lost_stop > win_stop else win_stop
             if ssclose[i] == XSELL:
                 print 'sell signali:',trans[IDATE][i],trans[ITIME][i],trans[ICLOSE][i]
@@ -418,7 +426,7 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
                 for j in range(i+1,len(rev)):
                     if ssclose[j] == XSELL:
                         print 'sell signalj:',trans[IDATE][j],trans[ITIME][j],cur_stop,trans[ICLOSE][j]
-                    #print trans[ITIME][j],buy_price,lost_stop,cur_high,win_stop,cur_stop,trans[ILOW][j],sif.atr[j]
+                    #print trans[ITIME][j],buy_price,lost_stop,cur_high,win_stop,cur_stop,trans[ILOW][j],satr[j]
                     if trans[ILOW][j] < cur_stop or ssclose[j] == XSELL:    #
                         rev[j] = XSELL
                         #print 'sell:',i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j]
@@ -427,12 +435,12 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
                     nhigh = trans[IHIGH][j]
                     if(nhigh > cur_high):
                         cur_high = nhigh
-                        drawdown = sif.atr[j] * win_times / XBASE / XBASE
+                        drawdown = satr[j] * win_times / XBASE / XBASE
                         if drawdown > max_drawdown:
                             drawdown = max_drawdown
                         win_stop = cur_high - drawdown
-                        #win_stop = cur_high - sif.atr[j] * win_times / XBASE
-                        #print nhigh,cur_stop,win_stop,sif.atr[j]
+                        #win_stop = cur_high - satr[j] * win_times / XBASE
+                        #print nhigh,cur_stop,win_stop,satr[j]
                         if cur_stop < win_stop:
                             cur_stop = win_stop
         else:   #空头止损
@@ -443,7 +451,7 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
             sell_price = price
             lost_stop = sell_price + willlost
             cur_low = min(sell_price,trans[ICLOSE][i])
-            win_stop = cur_low + sif.atr[i] * win_times / XBASE / XBASE
+            win_stop = cur_low + satr[i] * win_times / XBASE / XBASE
             cur_stop = lost_stop if lost_stop < win_stop else win_stop
             if sbclose[i] == XBUY:
                 print 'buy signali:',trans[IDATE][i],trans[ITIME][i],trans[ICLOSE][i]
@@ -455,7 +463,7 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
                 for j in range(i+1,len(rev)):
                     if sbclose[j] == XBUY:
                         print 'buy signalj:',trans[IDATE][j],trans[ITIME][j],cur_stop,trans[ICLOSE][j]
-                    #print trans[ITIME][j],sell_price,lost_stop,cur_low,win_stop,cur_stop,trans[IHIGH][j],sif.atr[j]                
+                    #print trans[ITIME][j],sell_price,lost_stop,cur_low,win_stop,cur_stop,trans[IHIGH][j],satr[j]                
                     if trans[IHIGH][j] > cur_stop or sbclose[j] == XBUY:#
                         ishort_closed = j
                         rev[j] = XBUY
@@ -465,12 +473,12 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
                     nlow = trans[ILOW][j]
                     if(nlow < cur_low):
                         cur_low = nlow
-                        drawdown = sif.atr[j] * win_times / XBASE / XBASE
+                        drawdown = satr[j] * win_times / XBASE / XBASE
                         if drawdown > max_drawdown:
                             drawdown = max_drawdown
                         win_stop = cur_low + drawdown
-                        #print nlow,cur_stop,win_stop,sif.atr[j]
-                        #win_stop = cur_low + sif.atr[j] * win_times / XBASE / XBASE
+                        #print nlow,cur_stop,win_stop,satr[j]
+                        #win_stop = cur_low + satr[j] * win_times / XBASE / XBASE
                         if cur_stop > win_stop:
                             cur_stop = win_stop
     return rev
@@ -531,12 +539,15 @@ sycloser_kd = [ifuncs.ipmacd_short_1,ifuncs.ipmacd_short_2,ifuncs.ipmacd_short_3
 
 
 
-itrade3y = fcustom(itrade3,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
 
 lycloser = [r for r in sycloser]
 del lycloser[0] #去掉daystop_long
 
+itrade3y = fcustom(itrade3,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
+
+
 ltrade3y = fcustom(itrade3,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
+
 
 
 #空头不把macd即刻反叉作为平仓条件
@@ -578,4 +589,104 @@ itrade3xk = fcustom(itrade3,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop
 import wolfox.fengine.ifuture.tfuncs as tfuncs
 
 #itrade3xkx = fcustom(itrade3,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long,ifuncs.xmacd_stop_long1,ifuncs.xdevi_stop_long1,tfuncs.xdevi_stop_long12])
+
+
+
+
+####5分钟atr5
+atr5_uxstop_15_45 = fcustom(atr_uxstop,lost_times=150,win_times=450,max_drawdown=200,min_lost=30,natr=5)  
+atr5_uxstop_15_5 = fcustom(atr_uxstop,lost_times=150,win_times=500,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_15_6 = fcustom(atr_uxstop,lost_times=150,win_times=600,max_drawdown=200,min_lost=30,natr=5)   #
+atr5_uxstop_15_A = fcustom(atr_uxstop,lost_times=150,win_times=1000,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_15_15 = fcustom(atr_uxstop,lost_times=150,win_times=150,max_drawdown=200,min_lost=30,natr=5)  
+atr5_uxstop_2_2 = fcustom(atr_uxstop,lost_times=200,win_times=200,max_drawdown=200,min_lost=30,natr=5)  
+atr5_uxstop_15_2 = fcustom(atr_uxstop,lost_times=150,win_times=200,max_drawdown=200,min_lost=30,natr=5)  
+atr5_uxstop_2_6 = fcustom(atr_uxstop,lost_times=200,win_times=600,max_drawdown=200,min_lost=30,natr=5)   
+atr5_uxstop_3_6 = fcustom(atr_uxstop,lost_times=300,win_times=600,max_drawdown=200,min_lost=30,natr=5)   
+atr5_uxstop_4_6 = fcustom(atr_uxstop,lost_times=400,win_times=600,max_drawdown=200,min_lost=30,natr=5)   
+
+atr5_uxstop_6_6 = fcustom(atr_uxstop,lost_times=600,win_times=600,max_drawdown=200,min_lost=30,natr=5)   
+
+
+
+atr5_uxstop_15_6_45 = fcustom(atr_uxstop,lost_times=150,win_times=600,max_drawdown=200,min_lost=45,natr=5)   #
+
+
+atr5_uxstop_1_2 = fcustom(atr_uxstop,lost_times=100,win_times=200,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_15_25 = fcustom(atr_uxstop,lost_times=150,win_times=250,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_2_3 = fcustom(atr_uxstop,lost_times=200,win_times=300,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_25_4 = fcustom(atr_uxstop,lost_times=250,win_times=400,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_25_6 = fcustom(atr_uxstop,lost_times=250,win_times=600,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_2_4 = fcustom(atr_uxstop,lost_times=200,win_times=400,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_3_4 = fcustom(atr_uxstop,lost_times=300,win_times=400,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_15_4 = fcustom(atr_uxstop,lost_times=150,win_times=400,max_drawdown=200,min_lost=30,natr=5)    
+atr5_uxstop_1_4 = fcustom(atr_uxstop,lost_times=100,win_times=400,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_05_4 = fcustom(atr_uxstop,lost_times=50,win_times=400,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_1_5 = fcustom(atr_uxstop,lost_times=100,win_times=500,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_05_2 = fcustom(atr_uxstop,lost_times=50,win_times=200,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_05_25 = fcustom(atr_uxstop,lost_times=50,win_times=250,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_05_3 = fcustom(atr_uxstop,lost_times=50,win_times=300,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_05_15 = fcustom(atr_uxstop,lost_times=50,win_times=150,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_05_1 = fcustom(atr_uxstop,lost_times=50,win_times=100,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_1_6 = fcustom(atr_uxstop,lost_times=100,win_times=600,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_05_6 = fcustom(atr_uxstop,lost_times=50,win_times=600,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_1_25 = fcustom(atr_uxstop,lost_times=100,win_times=250,max_drawdown=200,min_lost=30,natr=5)
+
+
+itrade3y_5 = fcustom(itrade3,stop_closer=atr5_uxstop_15_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
+
+
+ltrade3y_5 = fcustom(itrade3,stop_closer=atr5_uxstop_15_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
+
+
+
+#空头不把macd即刻反叉作为平仓条件
+itrade3yk_5 = fcustom(itrade3,stop_closer=atr5_uxstop_15_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser_k)
+
+itrade3x1_5 = fcustom(itrade3,stop_closer=atr5_uxstop_1_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1,ifuncs.ipmacd_long_devi1],sclosers=[ifuncs.daystop_long,ifuncs.xmacd_stop_long1,ifuncs.xdevi_stop_long1])
+
+itrade3y05_5 = fcustom(itrade3,stop_closer=atr5_uxstop_05_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
+
+itrade3y05_15 = fcustom(itrade3,stop_closer=atr5_uxstop_05_15,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
+
+itrade3y05_2 = fcustom(itrade3,stop_closer=atr5_uxstop_05_2,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
+
+itrade3y05_25 = fcustom(itrade3,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser) ###最好的搭配
+itrade3y05_3 = fcustom(itrade3,stop_closer=atr5_uxstop_05_3,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
+itrade3y05_4 = fcustom(itrade3,stop_closer=atr5_uxstop_05_4,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
+
+itrade3y1_2 = fcustom(itrade3,stop_closer=atr5_uxstop_1_2,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
+itrade3y1_25 = fcustom(itrade3,stop_closer=atr5_uxstop_1_25,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
+
+
+itrade3y1_5 = fcustom(itrade3,stop_closer=atr5_uxstop_1_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
+
+itrade3y2_5 = fcustom(itrade3,stop_closer=atr5_uxstop_2_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
+
+itrade3y3_5 = fcustom(itrade3,stop_closer=atr5_uxstop_3_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
+
+itrade3y4_5 = fcustom(itrade3,stop_closer=atr5_uxstop_4_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
+itrade3y6_5 = fcustom(itrade3,stop_closer=atr5_uxstop_6_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
+
+
+ltrade3y1_5 = fcustom(itrade3,stop_closer=atr5_uxstop_1_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
+ltrade3y2_5 = fcustom(itrade3,stop_closer=atr5_uxstop_2_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
+ltrade3y3_5 = fcustom(itrade3,stop_closer=atr5_uxstop_3_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
+ltrade3y4_5 = fcustom(itrade3,stop_closer=atr5_uxstop_4_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
+ltrade3y6_5 = fcustom(itrade3,stop_closer=atr5_uxstop_6_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
+
+ltrade3y0525_5 = fcustom(itrade3,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
+
+
+itrade3x45_5 = fcustom(itrade3,stop_closer=atr5_uxstop_15_6_45,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1,ifuncs.ipmacd_long_devi1],sclosers=[ifuncs.daystop_long,ifuncs.xmacd_stop_long1,ifuncs.xdevi_stop_long1])
+
+
+itrade1525_5 = fcustom(itrade3,stop_closer=atr5_uxstop_15_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long,ifuncs.xmacd_stop_long1,ifuncs.xdevi_stop_long1])
+
+itrade256_5 = fcustom(itrade3,stop_closer=atr5_uxstop_15_6,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long,ifuncs.xmacd_stop_long1,ifuncs.xdevi_stop_long1])
+
+
+
+#空头不把即刻反叉作为平仓选项
+itrade3xk_5 = fcustom(itrade3,stop_closer=atr5_uxstop_15_6,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long,ifuncs.xmacd_stop_long1,ifuncs.xdevi_stop_long1])
 

@@ -21,28 +21,22 @@ def tfunc(sif,sopened=None):
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
 
  
-    odma = ma(sif.opend,3)
-
-    xopen=np.zeros(len(sif.diff1),np.int32)
-    xopen[sif.i_oofd] = odma
-    xopen = extend2next(xopen)
-
-    signal=np.zeros(len(sif.diff1),np.int32)
-    signal[sif.i_cof5] = gand(cross(xopen[sif.i_cof5],sif.high5)>0)
     
-    #signal = gand(cross(xopen,trans[ICLOSE]))>0
+    signal = gand(cross(sif.dea5,sif.diff5)<0)
 
-    signal = sfollow(signal,cross(sif.dea1,sif.diff1)>0,15)
+    #signal = sfollow(signal,cross(sif.dea1,sif.diff1)>0,15)
 
     signal = gand(signal
-            ,strend2(xopen)>0
-            #,strend(sif.diff30-sif.dea30)>0
-            #,strend(sif.ma13-sif.ma60)>0
-            #,strend(sif.ma270)>0
+            ,strend(sif.ma30)<0
+            ,sif.diff5>0
+            ,sif.diff30>0
+            ,strend(sif.diff30-sif.dea30)<0
+            #,strend(sif.ma13-sif.ma60)<0
+            #,strend(sif.ma270)<0
             )
 
 
-    return signal * XBUY
+    return signal * XSELL
 
 
 def br75(sif,sopened=None):

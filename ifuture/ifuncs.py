@@ -10,6 +10,7 @@ from wolfox.fengine.ifuture.ifreader import read_ifs
 
 from wolfox.fengine.ifuture.ibase import *
 from wolfox.fengine.ifuture.ifreader import *
+import wolfox.fengine.ifuture.ifreader as ifreader
 import wolfox.fengine.ifuture.iftrade as iftrade
 import wolfox.fengine.ifuture.ifuncs as ifuncs
 import wolfox.fengine.ifuture.tfuncs as tfuncs
@@ -29,7 +30,7 @@ i08 = ifmap['IF1008']
 i09 = ifmap['IF1009']
 i12 = ifmap['IF1012']
 
-trans = i07.transaction
+trans = i08.transaction
 
 i_cof5 = np.where(trans[ITIME]%5==0)    #5分钟收盘线,不考虑隔日的因素
 i_cofd = np.where(trans[ITIME]==1514)   #日收盘线
@@ -92,7 +93,7 @@ xpattern2 = [ifuncs.gapdown,ifuncs.inside_up,ifuncs.br75,ifuncs.br30]
 
 xuds = [ifuncs.xud30,ifuncs.xud30c,ifuncs.xud15,ifuncs.xud15]
 
-xnormal2 = [ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.ma60_short,ifuncs.down01,ifuncs.up0]
+xnormal2 = [ifuncs.ipmacd_short_x,ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.ma60_short,ifuncs.down01,ifuncs.up0]
 
 
 
@@ -853,6 +854,30 @@ def ipmacd_short_5(sif,sopened=None):
             )
     return signal * XSELL
 
+def ipmacd_short_x(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+
+    s30_13 = np.zeros_like(sif.diff1)
+    s30_13[sif.i_cof30] = strend2(ma(sif.close30,13))
+    s30_13 = extend2next(s30_13)
+
+    signal = gand(cross(sif.dea1,sif.diff1)<0
+            ,strend2(sif.sdiff30x-sif.sdea30x)<0    #
+            ,sif.diff5<0
+            ,s30_13 < 0
+            )
+    signal = gand(signal
+            ,sif.ma5 < sif.ma13
+            ,sif.ma13 < sif.ma60
+            ,strend2(sif.ma30)<0
+            ,strend2(sif.ma270)<0
+            ,ksfilter
+            )
+    return signal * XSELL
+
 def ipmacd_long_5(sif,sopened=None):
     trans = sif.transaction
 
@@ -864,7 +889,7 @@ def ipmacd_long_5(sif,sopened=None):
 
     signal = gand(cross(sif.dea1,sif.diff1)>0
             #,sif.diff30>0
-            ,strend(sif.diff30-sif.dea30)>0
+            ,strend2(sif.sdiff30x-sif.sdea30x)>0
             ,sif.diff5>0
             ,s30_13 >0
             )

@@ -85,10 +85,10 @@ tradesy =  iftrade.itrade3y(i07,xfollow+xagainst+xmiddle)    #xfollow作为平�
 #把xfollow作为平仓条件加入。因为xfollow为顺势信号，所以一般不会出现一个xfollow信号干掉另一个xfollow信号的情况，除非在diff30穿越0线的过程中；
 
 #优先级: xnormal > xpattern > xuds > xpattern2> xnormal2
-xnormal = [ifuncs.ipmacd_short_5,ifuncs.ipmacd_long_5]
+xnormal = [ifuncs.ipmacd_short_5,ifuncs.ipmacd_long_5,ifuncs.gd30,ifuncs.gu30]
 
 #xpattern对远期合约的效果要好于近期的
-xpattern = [ifuncs.godown5,ifuncs.godown30,ifuncs.goup5]
+xpattern = [ifuncs.gd30,ifuncs.gu30,ifuncs.godown5,ifuncs.godown30,ifuncs.goup5]
 xpattern2 = [ifuncs.gapdown,ifuncs.inside_up,ifuncs.br75,ifuncs.br30]  
 xpattern3 = []  #效果堪忧
 
@@ -282,6 +282,55 @@ def inside_up(sif,sopened=None):
 
     return signal * XBUY
 
+def gu30(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+    signal = gand(trans[ILOW] > rollx(trans[IHIGH])
+            ,trans[ITIME] > 915
+        )
+
+    signal = gand(signal
+            ,trans[ICLOSE] > rollx(tmax(trans[IHIGH],120))
+            )
+
+    signal = gand(signal
+            ,strend2(sif.sdiff30x - sif.sdea30x)>0
+            ,sif.sdiff5x > sif.sdea5x
+            ,strend2(sif.ma60)>0
+            )
+
+    return signal * XBUY
+
+
+def gd30(sif,sopened=None):
+    ''' 
+        向下跳空
+        并且收盘小于30分钟内的最低价
+    '''
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+    signal = gand(trans[IHIGH] < rollx(trans[ILOW])
+            #,trans[IOPEN] > rollx(trans[IHIGH])
+            ,trans[ITIME] > 915
+        )
+
+    signal = gand(signal
+            ,trans[ICLOSE] < rollx(tmin(trans[ILOW],30))
+            )
+
+    signal = gand(signal
+            ,strend2(sif.sdiff30x - sif.sdea30x)<0
+            ,sif.sdiff5x < sif.sdea5x
+            ,strend2(sif.ma135)<0
+            #,sif.ma5<sif.ma13
+            )
+
+    return signal * XSELL
+
 
 def gapdown(sif,sopened=None):
     '''
@@ -349,6 +398,7 @@ def br30(sif,sopened=None):
     '''
         5分钟最高突破开盘前30分钟最高之后，下一次1分钟上叉
         属于突破回调的模式
+        难以周期化
     '''
     trans = sif.transaction
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
@@ -378,6 +428,9 @@ def br30(sif,sopened=None):
 
 
 def up0(sif,sopened=None):
+    '''
+        难以周期化
+    '''
     trans = sif.transaction
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
 

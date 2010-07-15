@@ -128,7 +128,11 @@ def itrade(sif,openers,closers,longfilter=ocfilter,shortfilter=ocfilter,make_tra
     opens = []  #开仓交易   name:date:time:position:price:vol
     closes = [] #平仓交易
     slongfilter = longfilter(sif)
-    sshortfilter = shortfilter(sif)    
+    sshortfilter = shortfilter(sif)
+    if not isinstance(openers,list):   #单个函数
+        openers = [openers]
+    if not isinstance(closers,list):    #单个函数
+        closers = [closers]
     for opener in openers:
         opens.extend(open_position(sif.transaction,opener(sif),slongfilter,sshortfilter))  #开仓必须满足各自sfilter
     opens.sort(DTSORT)
@@ -155,6 +159,10 @@ def itrade2(sif,openers,closers,longfilter=ocfilter,shortfilter=ocfilter,make_tr
     slongfilter = longfilter(sif)
     sshortfilter = shortfilter(sif)    
     all_trades = []
+    if not isinstance(openers,list):   #单个函数
+        openers = [openers]
+    if not isinstance(closers,list):#单个函数
+        closers = [closers]
     for opener in openers:
         if isinstance(opener,tuple):#定义为(opener,closer)对，即有额外的closer
             curcloser = [closer for closer in closers]
@@ -189,7 +197,11 @@ def itrade3(sif,openers,bclosers,sclosers,stop_closer,longfilter=ocfilter,shortf
     opens = []  #开仓交易   name:date:time:position:price:vol
     closes = [] #平仓交易
     slongfilter = longfilter(sif)
-    sshortfilter = shortfilter(sif)    
+    sshortfilter = shortfilter(sif)
+    if not isinstance(openers,list):   #单个函数
+        openers = [openers]
+    if not isinstance(bclosers,list):   #单个函数
+        bclosers = [bclosers]
     for opener in openers:
         opens.extend(open_position(sif.transaction,opener(sif),slongfilter,sshortfilter))  #开仓必须满足各自sfilter
     opens.sort(DTSORT)

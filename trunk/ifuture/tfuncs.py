@@ -20,45 +20,70 @@ def tfunc(sif,sopened=None):
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
 
- 
-    
-    low15 = np.select([trans[ITIME][sif.i_cof15]==930],[sif.low15],default=0)
-
-    high15 = np.select([trans[ITIME][sif.i_cof15]==930],[sif.high15],default=0)
-
-    xhigh15,xlow15 = np.zeros_like(sif.diff1),np.zeros_like(sif.diff1)
-    xlow15[sif.i_oof15] = low15
-    xhigh15[sif.i_oof15] = high15
-    
-    xhigh15 = extend2next(xhigh15)
-    xlow15 = extend2next(xlow15)
-
-
-    xhighd = np.zeros_like(sif.diff1)
-    xhighd[sif.i_cofd] = sif.highd
-    xhighd = extend2next(xhighd)
-
-
-
-
-
-    signal = np.zeros_like(sif.diff1)
-
-    signal[sif.i_cof5] = cross(xlow15[sif.i_cof5],sif.close5)>0
-
-    signal = sfollow(signal,cross(sif.dea1,sif.diff1)>0,15)
+    signal = gand(trans[ILOW] > rollx(trans[IHIGH])
+            #,trans[IOPEN] > rollx(trans[IHIGH])
+            ,trans[ITIME] > 915
+        )
 
     signal = gand(signal
-            #,strend(sif.diff30-sif.dea30)>0
-            ,xhigh15 > xhighd   #今日头30分钟最高价高于昨日最高价
-            #,strend(sif.diff5-sif.dea5)>0
-            #,strend(sif.ma30)>0
-            #,strend(sif.ma270)>0
-            #,trans[ITIME] < 1400
-            #,sif.ma5>sif.ma13
+            ,trans[ILOW] > rollx(tmax(trans[IHIGH],120))
+            )
+
+    signal = gand(signal
+            ,strend2(sif.sdiff30x - sif.sdea30x)>0
+            ,sif.sdiff5x > sif.sdea5x
+            #,sif.sdiff30x > sif.sdea30x
+            ,strend2(sif.ma60)>0
+            #,sif.ma5<sif.ma13
             )
 
     return signal * XBUY
+
+
+def gu30(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+    signal = gand(trans[ILOW] > rollx(trans[IHIGH])
+            ,trans[ITIME] > 915
+        )
+
+    signal = gand(signal
+            ,trans[ICLOSE] > rollx(tmax(trans[IHIGH],120))
+            )
+
+    signal = gand(signal
+            ,strend2(sif.sdiff30x - sif.sdea30x)>0
+            ,sif.sdiff5x > sif.sdea5x
+            ,strend2(sif.ma60)>0
+            )
+
+    return signal * XBUY
+
+def gd30(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+    signal = gand(trans[IHIGH] < rollx(trans[ILOW])
+            #,trans[IOPEN] > rollx(trans[IHIGH])
+            ,trans[ITIME] > 915
+        )
+
+    signal = gand(signal
+            ,trans[ICLOSE] < rollx(tmin(trans[ILOW],30))
+            )
+
+    signal = gand(signal
+            ,strend2(sif.sdiff30x - sif.sdea30x)<0
+            ,sif.sdiff5x < sif.sdea5x
+            ,strend2(sif.ma135)<0
+            #,sif.ma5<sif.ma13
+            )
+
+    return signal * XSELL
+
 
 def br75(sif,sopened=None):
     '''
@@ -1449,16 +1474,16 @@ def dmacd_short2(sif,sopened=None,rolled=1):#++
     '''
     trans = sif.transaction
     
-    ksfilter= gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)#  向下突变过滤    
+    ksfilter= gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr < 2000)#  向下突变过滤    
     
     sdd = strend(sif.diff1 - sif.dea1)
     
     signal = gand(sdd==rolled
                 ,rollx(sdd,rolled)<-4
-                ,sif.diff5>0
-                ,sif.diff30>0
-                ,sif.diff30-sif.dea30<0
                 ,sif.diff1>0
+                ,sif.sdiff5x>0
+                ,sif.sdiff30x>0
+                ,sif.sdiff30x-sif.sdea30x<0
                 ,ksfilter)
 
     return signal * XSELL

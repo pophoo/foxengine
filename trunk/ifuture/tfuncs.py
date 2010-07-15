@@ -82,9 +82,9 @@ def br75(sif,sopened=None):
 
     signal = gand(signal
             ,strend(sif.ma135)>0
-            ,strend(sif.diff30-sif.dea30)>0
+            ,strend2(sif.sdiff30x-sif.sdea30x)>0
             ,strend(sif.ma13-sif.ma60)>0
-            ,sif.diff5>0
+            ,sif.sdiff5x>0
             ,sif.ma5>sif.ma13
             )
 
@@ -92,16 +92,17 @@ def br75(sif,sopened=None):
     return signal * XBUY
 
 
+
 def goup5(sif,sopened=None):
     ''' 
-        5分钟冲击昨日高点时买入, 过滤器向下
+        5分钟冲击昨日高点时买入, 过滤器向下浮动. 即不论是否突破，都介入
     ''' 
     trans = sif.transaction
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
 
  
-    highd = sif.highd - sif.atrd/XBASE/8 #gmax(sif.closed,sif.opend)+sif.atrd/XBASE/10
+    highd = sif.highd #+ sif.atrd/XBASE/8 #gmax(sif.closed,sif.opend)+sif.atrd/XBASE/10
 
 
     xhighd = np.zeros(len(sif.diff1),np.int32)
@@ -114,21 +115,22 @@ def goup5(sif,sopened=None):
     signal[sif.i_cof5] = gand(cross(xhighd[sif.i_cof5],sif.close5)>0)
 
     #signal = sfollow(signal,cross(sif.dea1,sif.diff1)>0,30)
-    
 
     signal = gand(signal
-            ,strend(sif.ma270)>0
-            ,strend(sif.diff30-sif.dea30)>0
+            ,strend(sif.sdiff30x-sif.sdea30x)>0
             ,strend(sif.ma30)>0
+            ,strend(sif.ma60)>0
+            ,strend(sif.ma270)>0
             ,strend(sif.ma13-sif.ma60)>0
             )
 
 
     return signal * XBUY
 
+
 def godown5(sif,sopened=None):
     '''
-        5分钟最低击穿昨日低点后30分钟内1分钟下叉卖空
+        5分钟收盘击穿昨日低点后30分钟内1分钟下叉卖空
     '''
     
     trans = sif.transaction
@@ -136,7 +138,7 @@ def godown5(sif,sopened=None):
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
 
  
-    lowd = sif.lowd - sif.atrd/XBASE/8 #gmin(sif.closed,sif.opend)-sif.atrd/XBASE/8
+    lowd = sif.lowd #- sif.atrd/XBASE/8 #gmin(sif.closed,sif.opend)-sif.atrd/XBASE/8
 
     xlowd = np.zeros(len(sif.diff1),np.int32)
     xlowd[sif.i_cofd] = lowd
@@ -145,16 +147,14 @@ def godown5(sif,sopened=None):
 
     signal = np.zeros_like(sif.diff1)
 
-    signal[sif.i_cof5] = gand(cross(xlowd[sif.i_cof5],sif.low5)<0)
+    signal[sif.i_cof5] = gand(cross(xlowd[sif.i_cof5],sif.close5)<0)
 
     signal = sfollow(signal,cross(sif.dea1,sif.diff1)<0,15)
-    s270 = strend(sif.ma270 - rollx(sif.ma270))
 
     signal = gand(signal
             ,strend(sif.ma270)<0
-            ,strend(sif.diff30-sif.dea30)<0
+            ,strend(sif.sdiff30x-sif.sdea30x)<0
             ,strend(sif.ma30)<0
-            #,s270<0
             )
 
 
@@ -185,17 +185,16 @@ def godown30(sif,sopened=None):
 
     signal = sfollow(signal,cross(sif.dea1,sif.diff1)<0,30)
 
-    s270 = strend(sif.ma270 - rollx(sif.ma270))    
+    
 
     signal = gand(signal
             ,strend(sif.ma270)<0
-            ,strend(sif.diff30-sif.dea30)<0
+            ,strend(sif.sdiff30x-sif.sdea30x)<0
             ,strend(sif.ma30)<0
             )
 
 
     return signal * XSELL
-
 
 
 
@@ -290,8 +289,8 @@ def br30(sif,sopened=None):
     signal = sfollow(signal,cross(sif.dea1,sif.diff1)>0,15)
 
     signal = gand(signal
-            ,strend(sif.diff30-sif.dea30)>0
-            ,strend(sif.diff5-sif.dea5)>0
+            ,strend(sif.sdiff30x-sif.sdea30x)>0
+            ,strend(sif.sdiff5x-sif.sdea5x)>0
             ,strend(sif.ma30)>0
             ,sif.ma5>sif.ma13
             )
@@ -405,7 +404,7 @@ def ipmacd_long_5(sif,sopened=None):
     signal = gand(cross(sif.dea1,sif.diff1)>0
             #,sif.diff30>0
             ,strend2(sif.sdiff30x-sif.sdea30x)>0
-            ,sif.diff5>0
+            ,sif.sdiff5x>0
             ,s30_13 >0
             )
     signal = gand(signal
@@ -533,11 +532,11 @@ def up0(sif,sopened=None):
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
 
     signal = gand(cross(cached_zeros(len(sif.diff1)),sif.diff1)>0
-            ,sif.diff5<0
-            ,strend(sif.diff30-sif.dea30)>1
-            ,strend(sif.diff5-sif.dea5)>1
+            ,sif.sdiff5x<0
+            ,strend(sif.sdiff30x-sif.sdea30x)>0
+            ,strend(sif.sdiff5x-sif.sdea5x)>0
             ,strend(sif.diff1-sif.dea1)>1
-            ,strend(sif.diff1)>4
+            ,strend(sif.diff1)>0
             ,strend(sif.ma5-sif.ma30)>0
             ,strend(sif.ma135-sif.ma270)>0
             ,strend(sif.ma30)>0
@@ -885,7 +884,7 @@ def ma30_short(sif,sopened=None):
     ''' 下行中下叉30线
     '''
     trans = sif.transaction
-    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr < 2000)
 
     sf = msum(trans[IHIGH]>sif.ma30,5) < 3
 
@@ -895,14 +894,15 @@ def ma30_short(sif,sopened=None):
             )
     fsignal = gand(cross(sif.dea1,sif.diff1)<0
             ,sif.diff1<0
-            ,sif.diff5<0
-            ,strend(sif.diff30-sif.dea30)<0
+            ,sif.sdiff5x<0
+            ,strend2(sif.sdiff30x-sif.sdea30x)<0
             ,strend(sif.ma13-sif.ma60)<0
             ,sif.ma5<sif.ma13
             ,ksfilter
             )
     signal = sfollow(signal,fsignal,10)
     return signal * XSELL
+
 
 def ma60_short2(sif,sopened=None):
     ''' 下行中下叉60线
@@ -945,13 +945,13 @@ def ma60_short(sif,sopened=None):
     ''' ma60拐头
     '''
     trans = sif.transaction
-    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr < 2000)
  
     msignal = gand(strend(sif.ma60) == -1
                 )
     fsignal = gand(cross(sif.dea1,sif.diff1)<0
-                ,sif.diff30<0
-                ,strend(sif.diff5-sif.dea5)>0
+                ,sif.sdiff30x<0
+                ,strend2(sif.sdiff5x-sif.sdea5x)>0
                 ,strend(sif.ma5-sif.ma30)<0
                 ,ksfilter                
                 )
@@ -1247,17 +1247,17 @@ def ipmacd_long5(sif,sopened=None):#+
 
 def ipmacd_short5(sif,sopened=None):#-
     trans = sif.transaction
-    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr < 2000)
     
-    signal = gand(cross(sif.dea5,sif.diff5)<0
-            ,sif.diff5>0
-            ,sif.diff30<0
-            ,strend(sif.diff30-sif.dea30)<0
+    signal = gand(cross(sif.sdea5x,sif.sdiff5x)<0
+            ,sif.sdiff5x>0
+            ,sif.sdiff30x<0
+            ,strend2(sif.sdiff30x-sif.sdea30x)<0
             )
     signal = gand(signal
-            ,strend(sif.ma13-sif.ma60)<0
-            ,strend(sif.ma30)<-4
-            ,strend(sif.ma135-sif.ma270)<0
+            #,strend(sif.ma13-sif.ma60)<0
+            #,strend(sif.ma30)<-4
+            #,strend(sif.ma135-sif.ma270)<0
             ,ksfilter
             )   
     return signal * XSELL
@@ -1380,8 +1380,8 @@ def ipmacd_short_5(sif,sopened=None):
     s30_13 = extend2next(s30_13)
 
     signal = gand(cross(sif.dea1,sif.diff1)<0
-            ,sif.diff30<0
-            ,sif.diff5<0
+            ,sif.sdiff30x<0
+            ,sif.sdiff5x<0
             ,s30_13 < 0
             )
     signal = gand(signal
@@ -1752,20 +1752,23 @@ def down01(sif,sopened=None): #++
     ''' 
         30分钟<0且下行
         5分钟>0且下行
-        1分钟下叉, 且一分钟下行3分钟或以上
     '''
     trans = sif.transaction
     ksfilter= gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr < 2000)#  向下突变过滤
 
+    s30_13 = np.zeros_like(sif.diff1)
+    s30_13[sif.i_cof30] = strend2(ma(sif.close30,13))
+    s30_13 = extend2next(s30_13)
+
+
     signal = gand(cross(cached_zeros(len(sif.diff1)),sif.diff1)<0
-            #,sif.diff5<sif.dea5
-            ,strend(sif.diff30-sif.dea30)<0
-            #,sif.sdiff5x<0
-            #,strend2(sif.sdiff5x-sif.sdea5x)<0
-            #,sif.sdiff30x<sif.sdea30x
-            ,sif.sdiff60x<sif.sdea60x
-            ,sif.diff5<sif.dea5
-            ,strend(sif.ma60)<0
+            ,sif.sdiff5x>0
+            ,sif.sdiff30x<0
+            ,strend(sif.diff1-sif.dea1)<-2            
+            ,strend(sif.ma5-sif.ma30)<0
+            ,strend(sif.ma135-sif.ma270)<0            
+            ,strend(sif.ma30)<0
+            ,ksfilter
             )
     return signal * XSELL
 

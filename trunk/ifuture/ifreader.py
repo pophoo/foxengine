@@ -250,6 +250,47 @@ def prepare_index(sif):
     sif.sdiff15x=extend2next(sif.sdiff15x)
     sif.sdea15x=extend2next(sif.sdea15x)
 
+
+    #60分钟线，每天最后半小时交易也算一小时
+    sif.i_cof60 = np.where(gor(
+        gand(trans[ITIME]%10000==1514,rollx(trans[ITIME],-1)%10000!=1515)   #当不存在1515时，1514
+        ,trans[ITIME]%10000==1515
+        ,trans[ITIME]%10000==1445
+        ,trans[ITIME]%10000==1345
+        ,trans[ITIME]%10000==1115
+        ,trans[ITIME]%10000==1015
+        ))[0]    #60分钟收盘线,不考虑隔日的因素
+    sif.i_oof60 = roll0(sif.i_cof60)+1    
+    sif.i_oof60[0] = 0    
+    sif.close60 = trans[ICLOSE][sif.i_cof60]
+    #sif.open60 = rollx(sif.close60)   #open60看作是上一个的收盘价,其它方式对应open和close以及还原的逻辑比较复杂
+    sif.open60 = trans[IOPEN][sif.i_oof60]
+    #sif.high60 = tmax(trans[IHIGH],60)[sif.i_cof60]
+    #sif.low60 = tmin(trans[ILOW],60)[sif.i_cof60]
+    sif.high60,sif.low60,sif.vol60 = calc_high_low_vol(trans,sif.i_oof60,sif.i_cof60)
+    sif.holding60 = trans[IHOLDING][sif.i_cof60]
+
+
+    sif.atr60 = atr(sif.close60*XBASE,sif.high60*XBASE,sif.low60*XBASE,20)
+    sif.xatr60 = sif.atr60 * XBASE * XBASE / sif.close60
+    sif.mxatr60 = ma(sif.xatr60,13)
+    sif.xatr60x = np.zeros_like(trans[ICLOSE])
+    sif.xatr60x[sif.i_cof60] = sif.xatr60
+    sif.xatr60x = extend2next(sif.xatr60x)
+
+    sif.atr60x = np.zeros_like(trans[ICLOSE])
+    sif.atr60x[sif.i_cof60] = sif.atr60
+    sif.atr60x = extend2next(sif.atr60x)
+    
+    sif.diff60x,sif.dea60x = cmacd(sif.close60*FBASE)
+
+    sif.sdiff60x,sif.sdea60x = np.zeros_like(trans[ICLOSE]),np.zeros_like(trans[ICLOSE])
+    sif.sdiff60x[sif.i_cof60] = sif.diff60x
+    sif.sdea60x[sif.i_cof60] = sif.dea60x
+    sif.sdiff60x=extend2next(sif.sdiff60x)
+    sif.sdea60x=extend2next(sif.sdea60x)
+
+
     sif.i_cofd = np.append(np.nonzero(trans[IDATE]-rollx(trans[IDATE])>0)[0]-1,len(trans[IDATE])-1)
     sif.i_oofd = roll0(sif.i_cofd)+1
     sif.i_oofd[0]=0

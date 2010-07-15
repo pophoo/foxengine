@@ -382,13 +382,16 @@ afm = {1:lambda sif:sif.atr
         ,270:lambda sif:sif.atrdx
     }
 
-def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_drawdown=200,min_lost=30,natr=1):
+def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_drawdown=200,min_lost=30,max_lost=70,natr=1):
     '''
         atr止损
         sif为实体
         sopen为价格序列，其中负数表示开多仓，正数表示开空仓
         sbclose是价格无关序列所发出的买入平仓信号集合(平空仓)
         ssclose是价格无关序列所发出的卖出平仓信号集合(平多仓)
+        max_drawdown: 从最高点起的最大回落
+        min_lost: 最小止损
+        max_lost: 最大止损
         只能持有一张合约。即当前合约在未平前会屏蔽掉所有其它开仓
     '''
     #print sbclose[-10:],ssclose[-10:]
@@ -403,6 +406,8 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
         willlost = satr[i] * lost_times / XBASE / XBASE
         if willlost < min_lost:
             willlost = min_lost
+        if willlost > max_lost:
+            willlost = max_lost
         if i < ilong_closed or i<ishort_closed:    #已经开了仓，且未平，不再计算            
             print 'skiped',trans[IDATE][i],trans[ITIME][i],trans[IDATE][ilong_closed],trans[ITIME][ilong_closed],trans[IDATE][ishort_closed],trans[ITIME][ishort_closed]
             continue

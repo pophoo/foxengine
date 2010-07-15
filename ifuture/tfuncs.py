@@ -1356,7 +1356,7 @@ def ipmacd_short_x(sif,sopened=None):
 
     signal = gand(cross(sif.dea1,sif.diff1)<0
             ,strend2(sif.sdiff30x-sif.sdea30x)<0
-            ,sif.diff5<0
+            ,sif.sdiff5x<0
             ,s30_13 < 0
             )
     signal = gand(signal

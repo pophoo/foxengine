@@ -88,14 +88,18 @@ tradesy =  iftrade.itrade3y(i07,xfollow+xagainst+xmiddle)    #xfollow作为平�
 xnormal = [ifuncs.ipmacd_short_5,ifuncs.ipmacd_long_5,ifuncs.gd30,ifuncs.gu30]
 
 #xpattern对远期合约的效果要好于近期的
-xpattern = [ifuncs.gd30,ifuncs.gu30,ifuncs.godown5,ifuncs.godown30,ifuncs.goup5]
-xpattern2 = [ifuncs.gapdown,ifuncs.inside_up,ifuncs.br75,ifuncs.br30]  
-xpattern3 = []  #效果堪忧
+#xpattern = [ifuncs.gd30,ifuncs.gu30,ifuncs.godown5,ifuncs.godown30,ifuncs.goup5]
+#xpattern2 = [ifuncs.gapdown,ifuncs.inside_up,ifuncs.br75,ifuncs.br30]  
+#xpattern3 = []  #效果堪忧
+
+#xpattern: 基于信号发出后再捕捉1分钟同向叉
+xpattern = [ifuncs.godown5,ifuncs.godown30,ifuncs.inside_up,ifuncs.br30]
+#xpattern2:直接根据信号动作
+xpattern2 = [ifuncs.gapdown,ifuncs.br75,ifuncs.goup5,ifuncs.gd30,ifuncs.gu30]  
 
 xuds = [ifuncs.xud30,ifuncs.xud30c,ifuncs.xud15]
 
 xnormal2 = [ifuncs.ipmacd_short_x,ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.ma60_short,ifuncs.down01,ifuncs.up0]
-
 
 
 

@@ -77,6 +77,7 @@ def gd30(sif,sopened=None):
 
     signal = gand(signal
             ,strend2(sif.sdiff30x - sif.sdea30x)<0
+            #,strend2(sif.sdiff5x - sif.sdea5x)<0            
             ,sif.sdiff5x < sif.sdea5x
             ,strend2(sif.ma135)<0
             #,sif.ma5<sif.ma13

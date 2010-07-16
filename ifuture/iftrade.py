@@ -694,6 +694,16 @@ ltrade3y6_5 = fcustom(itrade3,stop_closer=atr5_uxstop_6_6,bclosers=[ifuncs.xmacd
 
 ltrade3y0525_5 = fcustom(itrade3,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
 
+ltrade3y0520_5 = fcustom(itrade3,stop_closer=atr5_uxstop_05_2,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
+
+ltrade3y0515_5 = fcustom(itrade3,stop_closer=atr5_uxstop_05_15,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
+
+ltrade3y0530_5 = fcustom(itrade3,stop_closer=atr5_uxstop_05_3,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
+
+ltrade3y1025_5 = fcustom(itrade3,stop_closer=atr5_uxstop_1_25,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
+
+ltrade3y1525_5 = fcustom(itrade3,stop_closer=atr5_uxstop_15_25,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
+
 
 itrade3x45_5 = fcustom(itrade3,stop_closer=atr5_uxstop_15_6_45,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1,ifuncs.ipmacd_long_devi1],sclosers=[ifuncs.daystop_long,ifuncs.xmacd_stop_long1,ifuncs.xdevi_stop_long1])
 

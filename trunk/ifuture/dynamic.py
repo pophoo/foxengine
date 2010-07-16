@@ -17,10 +17,11 @@ def xcalc(name,strategy,functor):
     iftrade.last_action(tradesy)
 
 calc = fcustom(xcalc,functor=iftrade.ltrade3y)
-xcalc1 = fcustom(xcalc,functor=iftrade.ltrade3y1)
-xcalc2 = fcustom(xcalc,functor=iftrade.ltrade3y2)
-xcalc3 = fcustom(xcalc,functor=iftrade.ltrade3y3)
-xcalc4 = fcustom(xcalc,functor=iftrade.ltrade3y4)
-xcalc6 = fcustom(xcalc,functor=iftrade.ltrade3y6)
 
 xcalc = fcustom(xcalc,functor=iftrade.ltrade3y0525_5)
+xcalc1 = fcustom(xcalc,functor=iftrade.ltrade3y1_5)
+xcalc2 = fcustom(xcalc,functor=iftrade.ltrade3y2_5)
+xcalc3 = fcustom(xcalc,functor=iftrade.ltrade3y3_5)
+xcalc4 = fcustom(xcalc,functor=iftrade.ltrade3y4_5)
+xcalc6 = fcustom(xcalc,functor=iftrade.ltrade3y6_5)
+

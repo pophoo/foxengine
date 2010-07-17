@@ -197,7 +197,7 @@ def godown5(sif,sopened=None):
 
     signal[sif.i_cof5] = gand(cross(xlowd[sif.i_cof5],sif.close5)<0)
 
-    signal = sfollow(signal,cross(sif.dea1,sif.diff1)<0,15)
+    signal = sfollow(signal,cross(sif.dea1,sif.diff1)<0,20)
 
     signal = gand(signal
             ,strend(sif.ma270)<0

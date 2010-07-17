@@ -239,7 +239,7 @@ def godown5(sif,sopened=None):
 
     signal[sif.i_cof5] = gand(cross(xlowd[sif.i_cof5],sif.close5)<0)
 
-    signal = sfollow(signal,cross(sif.dea1,sif.diff1)<0,15)
+    signal = sfollow(signal,cross(sif.dea1,sif.diff1)<0,20)
 
     signal = gand(signal
             ,strend(sif.ma270)<0
@@ -1470,6 +1470,8 @@ def ipmacd_short_5(sif,sopened=None):
     s30_13 = extend2next(s30_13)
 
     signal = gand(cross(sif.dea1,sif.diff1)<0
+            #,sif.diff30<0
+            #,sif.diff5<0
             ,sif.sdiff30x<0
             ,sif.sdiff5x<0
             ,s30_13 < 0
@@ -1480,6 +1482,8 @@ def ipmacd_short_5(sif,sopened=None):
             ,strend2(sif.ma30)<0
             ,ksfilter
             )
+
+    #signal = gand(rollx(signal,1),sif.diff1<sif.dea1)
     return signal * XSELL
 
 

@@ -95,6 +95,15 @@ FBASE=10    #只用于macd提高精度，因为是整数运算，再往上就要
 
 def prepare_index(sif):
     trans = sif.transaction
+    
+    sif.close = trans[ICLOSE]
+    sif.open = trans[IOPEN]
+    sif.high = trans[IHIGH]
+    sif.low = trans[ILOW]
+    sif.vol = trans[IVOL]
+    sif.holding = trans[IHOLDING]
+    sif.i_cof = sif.i_oof = np.arange(len(sif.close))
+
     sif.diff1,sif.dea1 = cmacd(trans[ICLOSE]*FBASE)
     sif.diff2,sif.dea2 = cmacd(trans[ICLOSE]*FBASE,19,39,15)    
     sif.diff5,sif.dea5 = cmacd(trans[ICLOSE]*FBASE,60,130,45)

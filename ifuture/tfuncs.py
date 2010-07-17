@@ -20,24 +20,88 @@ def tfunc(sif,sopened=None):
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
 
-    signal = gand(trans[ILOW] > rollx(trans[IHIGH])
-            #,trans[IOPEN] > rollx(trans[IHIGH])
-            ,trans[ITIME] > 915
-        )
+    ibs = trans[ICLOSE] < rollx(trans[ICLOSE],4)
+    bsetup = equals(msum(ibs,9),9)
 
-    signal = gand(signal
-            ,trans[ILOW] > rollx(tmax(trans[IHIGH],120))
+    iss = trans[ICLOSE] > rollx(trans[ICLOSE],4)
+    ssetup = equals(msum(iss,9),9)
+
+    lhv3 = tmax(trans[ILOW],3)
+    xx = trans[IHIGH] > rollx(lhv3,3)
+
+    sbs = gand(bsetup
+            ,gor(xx,rollx(xx))
             )
 
-    signal = gand(signal
-            ,strend2(sif.sdiff30x - sif.sdea30x)>0
-            ,sif.sdiff5x > sif.sdea5x
-            #,sif.sdiff30x > sif.sdea30x
-            ,strend2(sif.ma60)>0
-            #,sif.ma5<sif.ma13
-            )
+    ibs2 = trans[ICLOSE] < rollx(tmin(trans[ILOW],2),2)
+
+    hhv9 = tmax(trans[IHIGH],9)
+
+    signal = demark(sbs,bsetup,trans[ICLOSE],ibs2,ssetup,hhv9)
 
     return signal * XBUY
+
+def demark1(sif,sopened=None):
+    #不起作用
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<00)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+    ibs = sif.close < rollx(sif.close,4)
+    bsetup = equals(msum(ibs,9),9)
+
+    iss = sif.close > rollx(sif.close,4)
+    ssetup = equals(msum(iss,9),9)
+
+    lhv3 = tmax(sif.low,3)
+    xx = sif.high > rollx(lhv3,3)
+
+    sbs = gand(bsetup
+            ,gor(xx,rollx(xx))
+            )
+
+    ibs2 = sif.close < rollx(tmin(sif.low,2),2)
+
+    hhv9 = tmax(sif.high,9)
+
+    signal = np.zeros_like(sif.close)
+
+    signal[sif.i_cof] = demark(sbs,bsetup,sif.close,ibs2,ssetup,hhv9)
+
+    signal = sfollow(signal,cross(sif.dea1,sif.diff1)>0,30)
+
+    return signal * XBUY
+
+def demark(sbs,bsetup,sclose,ibs2,ssetup,hhv9):
+    #暂不考虑numpy方式
+    
+    rev = np.zeros_like(bsetup)
+    
+    bb = 0
+    count = 0
+    chigh = 0
+
+    for i in xrange(len(sbs)):
+        xi = sbs[i]
+        bi = bsetup[i]        
+        if xi == 1:#开始
+            print u'开始:',i
+            bb = 1
+            count = 0
+            chigh = hhv9[i]
+            bi = 0  #用于不激发下面的取消条件
+        elif bb == 0:   #未进入
+            continue
+        if bi or ssetup[i] or sclose[i]>chigh: #取消计数
+            print u'取消:',i
+            bb = 0
+            continue
+        if ibs2[i]:
+            count += 1
+            print u'计数:', count
+            if count == 13:
+                rev[i] = 1
+    return rev
 
 
 def gu30(sif,sopened=None):

@@ -103,6 +103,8 @@ def prepare_index(sif):
     sif.vol = trans[IVOL]
     sif.holding = trans[IHOLDING]
     sif.i_cof = sif.i_oof = np.arange(len(sif.close))
+    sif.time = trans[ITIME]
+    sif.date = trans[IDATE]
 
     sif.diff1,sif.dea1 = cmacd(trans[ICLOSE]*FBASE)
     sif.diff2,sif.dea2 = cmacd(trans[ICLOSE]*FBASE,19,39,15)    

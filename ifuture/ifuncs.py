@@ -92,7 +92,7 @@ xnormal = [ifuncs.ipmacd_short_5,ifuncs.ipmacd_long_5,ifuncs.gd30,ifuncs.gu30]
 #xpattern: 基于信号发出后再捕捉1分钟同向叉
 xpattern = [ifuncs.godown5,ifuncs.godown30,ifuncs.inside_up,ifuncs.br30]
 #xpattern2:直接根据信号动作
-xpattern2 = [ifuncs.gapdown,ifuncs.br75,ifuncs.goup5,ifuncs.gd30,ifuncs.gu30]  
+xpattern2 = [ifuncs.gapdown,ifuncs.br75,ifuncs.goup5,ifuncs.gd30,ifuncs.gu30,ifuncs.opendown,ifuncs.openup]  
 
 xuds = [ifuncs.xud30,ifuncs.xud30c,ifuncs.xud15]
 
@@ -141,6 +141,80 @@ def fmacd1_short(sif,covered=3,sfilter=None):
 
     signal = gand(rollx(msignal,covered),fsignal)
     return signal
+
+def opendown(sif,sopened=None):
+    '''
+        与945无关
+    '''
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+
+    xopend = np.zeros_like(sif.close)
+
+    xopend[sif.i_oofd] = sif.opend
+    xopend = extend2next(xopend)
+
+    x945 = np.select([sif.time==945],[sif.close-xopend],0)
+    x945 = extend2next(x945)
+
+    xlow = rollx(tmin(sif.low,15),1)
+
+    signal = gand(cross(xopend,sif.close)<0
+                #,x945 < 0
+                ,sif.low<xlow
+                )
+
+    #signal = sfollow(signal,strend(sif.diff1-sif.dea1)==1,15)
+
+    signal = gand(signal
+            ,strend(sif.sdiff5x-sif.sdea5x)<0            
+            ,sif.diff1 > 0
+            ,sif.sdiff30x<0
+            )
+
+    return signal * XSELL
+
+
+def openup(sif,sopened=None):
+    '''
+        突破开盘价
+        要点是945的收盘价大于开盘价
+    '''
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+
+    xopend = np.zeros_like(sif.close)
+
+    xopend[sif.i_oofd] = sif.opend
+    xopend = extend2next(xopend)
+
+    x945 = np.select([sif.time==945],[sif.close-xopend],0)
+    x945 = extend2next(x945)
+
+    xhigh = rollx(tmax(sif.high,60),1)
+
+
+    signal = gand(cross(xopend,sif.high)>0
+                ,x945 > 0
+                ,sif.high>xhigh
+                )
+
+    #signal = sfollow(signal,strend(sif.diff1-sif.dea1)==1,15)
+
+
+    signal = gand(signal
+            ,strend(sif.diff1-sif.dea1)>0
+            ,strend(sif.sdiff5x-sif.sdea5x)>0            
+            ,strend(sif.sdiff30x-sif.sdea30x)>0
+            ,sif.diff1 > 0
+            #,sif.sdiff5x < sif.sdea5x
+            )
+
+    return signal * XBUY
 
 def goup5(sif,sopened=None):
     ''' 

@@ -15,31 +15,150 @@ from wolfox.fengine.ifuture.ifuncs import fmacd1_long,fmacd1_short
 ama1 = ama_maker()
 ama2 = ama_maker(covered=30,dfast=6,dslow=100)
 
+
+
 def tfunc(sif,sopened=None):
     trans = sif.transaction
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
 
-    ibs = trans[ICLOSE] < rollx(trans[ICLOSE],4)
-    bsetup = equals(msum(ibs,9),9)
 
-    iss = trans[ICLOSE] > rollx(trans[ICLOSE],4)
-    ssetup = equals(msum(iss,9),9)
+    xopend = np.zeros_like(sif.close)
 
-    lhv3 = tmax(trans[ILOW],3)
-    xx = trans[IHIGH] > rollx(lhv3,3)
+    xopend[sif.i_oofd] = sif.opend
+    xopend = extend2next(xopend)
 
-    sbs = gand(bsetup
-            ,gor(xx,rollx(xx))
+    x945 = np.select([sif.time==945],[sif.close-xopend],0)
+    x945 = extend2next(x945)
+
+    xlow = rollx(tmin(sif.low,15),1)
+
+    signal = gand(cross(xopend,sif.close)<0
+                ,x945 < 0
+                ,sif.low<xlow
+                )
+
+    #signal = sfollow(signal,strend(sif.diff1-sif.dea1)==1,15)
+
+    signal = gand(signal
+            ,strend(sif.sdiff5x-sif.sdea5x)<0            
+            ,sif.diff1 > 0
+            ,sif.sdiff30x<0
             )
 
-    ibs2 = trans[ICLOSE] < rollx(tmin(trans[ILOW],2),2)
+    return signal * XSELL
 
-    hhv9 = tmax(trans[IHIGH],9)
+def opendown(sif,sopened=None):
+    '''
+        与945无关
+    '''
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
 
-    signal = demark(sbs,bsetup,trans[ICLOSE],ibs2,ssetup,hhv9)
+
+    xopend = np.zeros_like(sif.close)
+
+    xopend[sif.i_oofd] = sif.opend
+    xopend = extend2next(xopend)
+
+    x945 = np.select([sif.time==945],[sif.close-xopend],0)
+    x945 = extend2next(x945)
+
+    xlow = rollx(tmin(sif.low,15),1)
+
+    signal = gand(cross(xopend,sif.close)<0
+                #,x945 < 0
+                ,sif.low<xlow
+                )
+
+    #signal = sfollow(signal,strend(sif.diff1-sif.dea1)==1,15)
+
+    signal = gand(signal
+            ,strend(sif.sdiff5x-sif.sdea5x)<0            
+            ,sif.diff1 > 0
+            ,sif.sdiff30x<0
+            )
+
+    return signal * XSELL
+
+
+def openup(sif,sopened=None):
+    '''
+        突破开盘价
+        要点是945的收盘价大于开盘价
+    '''
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+
+    xopend = np.zeros_like(sif.close)
+
+    xopend[sif.i_oofd] = sif.opend
+    xopend = extend2next(xopend)
+
+    x945 = np.select([sif.time==945],[sif.close-xopend],0)
+    x945 = extend2next(x945)
+
+    xhigh = rollx(tmax(sif.high,60),1)
+
+
+    signal = gand(cross(xopend,sif.high)>0
+                ,x945 > 0
+                ,sif.high>xhigh
+                )
+
+    #signal = sfollow(signal,strend(sif.diff1-sif.dea1)==1,15)
+
+
+    signal = gand(signal
+            ,strend(sif.diff1-sif.dea1)>0
+            ,strend(sif.sdiff5x-sif.sdea5x)>0            
+            ,strend(sif.sdiff30x-sif.sdea30x)>0
+            ,sif.diff1 > 0
+            #,sif.sdiff5x < sif.sdea5x
+            )
 
     return signal * XBUY
+
+
+def dmi15(sif,sopened=None):
+    '''
+        没啥用
+    '''
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+
+    pdm,ndm = dm(sif.high15,sif.low15)
+    xtr = msum(tr(sif.close15,sif.high15,sif.low15),6)
+    pdi,ndi = di(pdm,ndm,xtr,14)
+    adxx = xadx(pdi,ndi,6)
+
+    signalx = gand(strend2(adxx) == -1
+                ,pdi<ndi
+                )
+
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof15] = signalx
+
+    #signal = sfollow(signal,cross(sif.dea1,sif.diff1)>0,30)
+
+    signal = gand(signal
+            ,sif.diff1<0
+            ,sif.diff30<0
+            #,sif.ma5>sif.ma13
+            #,strend(sif.ma5)>0
+            #,strend(sif.ma5-sif.ma30)>0
+            #,strend(sif.diff5-sif.dea5)>0
+            #,dsfilter
+            )
+
+
+    return signal * XSELL
+
 
 def demark1(sif,sopened=None):
     #不起作用
@@ -1469,12 +1588,16 @@ def ipmacd_short_5(sif,sopened=None):
     s30_13[sif.i_cof30] = strend2(ma(sif.close30,13))
     s30_13 = extend2next(s30_13)
 
+    sd = sif.diff1-sif.dea1
+    sdd = strend(sd - rollx(sd))
+
     signal = gand(cross(sif.dea1,sif.diff1)<0
             #,sif.diff30<0
             #,sif.diff5<0
             ,sif.sdiff30x<0
             ,sif.sdiff5x<0
             ,s30_13 < 0
+            #,sdd<0
             )
     signal = gand(signal
             ,sif.ma5 < sif.ma13

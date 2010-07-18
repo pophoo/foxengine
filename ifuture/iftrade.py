@@ -387,6 +387,12 @@ def RR(trades,datefrom=20100401,dateto=20200101):
         return XBASE
     return (wsum+lsum)*XBASE/abs(lsum) * wtime * ltime /(wtime+ltime)/(wtime+ltime)
 
+def psum(trades,datefrom=0,dateto=99999999):
+    '''
+        [x,y)区间
+    '''
+    return sum([trade.profit for trade in trades if trade.actions[0].date>=datefrom and trade.actions[0].date<dateto])
+
 afm = {1:lambda sif:sif.atr
         ,5:lambda sif:sif.atr5x
         ,15:lambda sif:sif.atr15x

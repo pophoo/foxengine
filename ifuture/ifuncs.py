@@ -85,7 +85,9 @@ tradesy =  iftrade.itrade3y05_25(i07,xfollow+xagainst+xmiddle)    #xfollow作为
 
 #把xfollow作为平仓条件加入。因为xfollow为顺势信号，所以一般不会出现一个xfollow信号干掉另一个xfollow信号的情况，除非在diff30穿越0线的过程中；
 
-#优先级: xnormal > xpattern > xuds > xpattern2 >> xnormal2
+#优先级: xnormal > xpattern > xuds > xpattern2 >> xnormal2. 如果该优先级内出现反向信号，反向操作
+# >xpattern3
+#xpattern4与其它组合无增益
 xnormal = [ifuncs.ipmacd_short_5,ifuncs.ipmacd_long_5,ifuncs.gd30,ifuncs.gu30]
 
 #xpattern对远期合约的效果要好于近期的
@@ -95,6 +97,8 @@ xpattern = [ifuncs.godown5,ifuncs.godown30,ifuncs.inside_up,ifuncs.br30]
 #xpattern2:直接根据信号动作
 xpattern2 = [ifuncs.gapdown15,ifuncs.br75,ifuncs.goup5,ifuncs.gd30,ifuncs.gu30,ifuncs.opendown,ifuncs.openup]  
 xpattern3 = [ifuncs.gapdown5,ifuncs.gapdown]
+
+xpattern4 = [ifuncs.xup,ifuncs.xdown]   #与其它组合有矛盾? 暂不使用。盈利部分被其它覆盖，亏损部分没有，导致副作用
 
 xuds = [ifuncs.xud30,ifuncs.xud30c,ifuncs.xud15]
 
@@ -531,6 +535,67 @@ def br75(sif,sopened=None):
 
 
     return signal * XBUY
+
+def xup(sif,sopened=None):
+    '''
+        创30分钟新高
+    '''
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+
+    signal = cross(sif.dea1,sif.diff1)>0
+    xhigh = rollx(tmax(sif.high,30))
+ 
+    signal = gand(signal
+              ,sif.high>xhigh
+              #,x945>0
+              ,strend(sif.ma30)>0
+              ,strend(sif.sdiff30x-sif.sdea30x)>0
+              ,sif.sdiff5x>0
+              #,strend(sif.sdiff5x - sif.sdea5x)>0
+              #,sif.sdiff5x > sif.sdea5x
+              ,sif.ma5 > sif.ma13
+              #,strend(sif.ma270)>0
+            )
+
+    return signal * XBUY
+
+
+def xdown(sif,sopened=None):
+    '''
+        创30分钟新低
+    '''
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+
+    signal = cross(sif.dea1,sif.diff1)<0
+    xlow = rollx(tmin(sif.low,30))
+ 
+    xopend = np.zeros_like(sif.close)
+
+    xopend[sif.i_oofd] = sif.opend
+    xopend = extend2next(xopend)
+ 
+    x945 = np.select([sif.time==945],[sif.close-xopend],0)
+    x945 = extend2next(x945)
+
+
+    signal = gand(signal
+              ,sif.low<xlow
+              ,x945<0
+              ,strend(sif.ma30)<0
+              ,strend(sif.sdiff30x-sif.sdea30x)<0
+              ,strend(sif.sdiff5x - sif.sdea5x)>0
+              ,sif.sdiff5x < sif.sdea5x
+              ,sif.ma5 < sif.ma13
+              #,strend(sif.ma270)<0
+            )
+
+    return signal * XSELL
 
 
 def br30(sif,sopened=None):

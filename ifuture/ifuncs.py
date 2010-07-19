@@ -76,7 +76,8 @@ trades3 = iftrade.itrade3x(i07,xmiddle)
 
 trades =  iftrade.itrade3x(i07,xfollow+xagainst+xmiddle)
 
-tradesy =  iftrade.itrade3y(i07,xfollow+xagainst+xmiddle)    #xfollow作为平仓信号，且去掉了背离平仓的信号
+#tradesy =  iftrade.itrade3y(i07,xfollow+xagainst+xmiddle)    #xfollow作为平仓信号，且去掉了背离平仓的信号
+tradesy =  iftrade.itrade3y05_25(i07,xfollow+xagainst+xmiddle)    #xfollow作为平仓信号，且去掉了背离平仓的信号
 
 #貌似trade3x和trade3y不分上下
 

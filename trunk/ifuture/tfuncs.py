@@ -22,24 +22,74 @@ def tfunc(sif,sopened=None):
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
 
-    rsi6 = rsi2(sif.close5,6)
-    rsi12 = rsi2(sif.close5,12)
 
-    signal = np.zeros_like(sif.close)
-
-    signal[sif.i_cof15] = cross(rsi12,rsi6)<0
-
-    signal = sfollow(signal,cross(sif.dea1,sif.diff1)<0,30)
-
+    signal = cross(sif.dea1,sif.diff1)>0
+    xhigh = rollx(tmax(sif.high,30))
+ 
     signal = gand(signal
-            #,sif.ma5  < sif.ma13
-            #,strend(sif.ma30)<0
-            #,sif.diff1-sif.dea1<0            
-            ,sif.sdiff5x-sif.sdea5x<0
-            ,sif.sdiff30x-sif.sdea30x<0
-            #,strend(sif.ma13-sif.ma60)>0
+              ,sif.high>xhigh
+              #,x945>0
+              ,strend(sif.ma30)>0
+              ,strend(sif.sdiff30x-sif.sdea30x)>0
+              ,sif.sdiff5x>0
+              #,strend(sif.sdiff5x - sif.sdea5x)>0
+              #,sif.sdiff5x > sif.sdea5x
+              ,sif.ma5 > sif.ma13
             )
 
+    return signal * XBUY
+
+
+def xup(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+
+    signal = cross(sif.dea1,sif.diff1)>0
+    xhigh = rollx(tmax(sif.high,30))
+ 
+    signal = gand(signal
+              ,sif.high>xhigh
+              #,x945>0
+              ,strend(sif.ma30)>0
+              ,strend(sif.sdiff30x-sif.sdea30x)>0
+              ,sif.sdiff5x>0
+              #,strend(sif.sdiff5x - sif.sdea5x)>0
+              #,sif.sdiff5x > sif.sdea5x
+              ,sif.ma5 > sif.ma13
+            )
+
+    return signal * XBUY
+
+
+def xdown(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+
+    signal = cross(sif.dea1,sif.diff1)<0
+    xlow = rollx(tmin(sif.low,30))
+ 
+    xopend = np.zeros_like(sif.close)
+
+    xopend[sif.i_oofd] = sif.opend
+    xopend = extend2next(xopend)
+ 
+    x945 = np.select([sif.time==945],[sif.close-xopend],0)
+    x945 = extend2next(x945)
+
+
+    signal = gand(signal
+              ,sif.low<xlow
+              ,x945<0
+              ,strend(sif.ma30)<0
+              ,strend(sif.sdiff30x-sif.sdea30x)<0
+              ,strend(sif.sdiff5x - sif.sdea5x)>0
+              ,sif.sdiff5x < sif.sdea5x
+              ,sif.ma5 < sif.ma13
+            )
 
     return signal * XSELL
 

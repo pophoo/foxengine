@@ -623,6 +623,24 @@ def rsi(source,length):
         pre = cur
     return rev
 
+def rsi2(source,length):
+    ''' 
+        np方式的rsi算法
+        国内通用方式
+    '''
+    rev = np.zeros_like(source)
+
+    ds = source - rollx(source)
+    pds = np.select([ds>0],[ds],0)
+    
+    mpds = sma(pds,length,1)
+    ms = sma(np.abs(ds),length,1)
+
+    return mpds * BASE / ms
+
+
+
+
 def dm(shigh,slow):
     ''' 动向计算
         通达信公式

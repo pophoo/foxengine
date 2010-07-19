@@ -283,6 +283,10 @@ class ModuleTest(unittest.TestCase):
         source = np.array([100,120,130,120,100,120,150,180,160,160,140,150])
         self.assertEquals([0,0,0,750,250,400,714,1000,750,600,0,333],rsi(source,3).tolist())
 
+    def test_rsi2(self):
+        source = np.array([100,120,130,120,100,120,150,180,160,160,140,150])
+        self.assertEquals([0,1000,1000,555,250,600,800,913,636,600,352,500],rsi2(source,3).tolist())
+
     def test_dm(self):
         pdm,ndm = dm(np.array([]),np.array([]))
         self.assertEquals([],pdm.tolist())

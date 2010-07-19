@@ -92,7 +92,8 @@ xnormal = [ifuncs.ipmacd_short_5,ifuncs.ipmacd_long_5,ifuncs.gd30,ifuncs.gu30]
 #xpattern: 基于信号发出后再捕捉1分钟同向叉
 xpattern = [ifuncs.godown5,ifuncs.godown30,ifuncs.inside_up,ifuncs.br30]
 #xpattern2:直接根据信号动作
-xpattern2 = [ifuncs.gapdown,ifuncs.br75,ifuncs.goup5,ifuncs.gd30,ifuncs.gu30,ifuncs.opendown,ifuncs.openup]  
+xpattern2 = [ifuncs.gapdown15,ifuncs.br75,ifuncs.goup5,ifuncs.gd30,ifuncs.gu30,ifuncs.opendown,ifuncs.openup]  
+xpattern3 = [ifuncs.gapdown5,ifuncs.gapdown]
 
 xuds = [ifuncs.xud30,ifuncs.xud30c,ifuncs.xud15]
 
@@ -240,8 +241,9 @@ def goup5(sif,sopened=None):
     #signal = sfollow(signal,cross(sif.dea1,sif.diff1)>0,30)
 
     signal = gand(signal
+            ,sif.ma5>sif.ma13
             ,strend(sif.sdiff30x-sif.sdea30x)>0
-            ,strend(sif.ma30)>0
+            #,strend(sif.ma30)>0
             ,strend(sif.ma60)>0
             ,strend(sif.ma270)>0
             ,strend(sif.ma13-sif.ma60)>0
@@ -274,9 +276,10 @@ def godown5(sif,sopened=None):
     signal = sfollow(signal,cross(sif.dea1,sif.diff1)<0,20)
 
     signal = gand(signal
-            ,strend(sif.ma270)<0
+            #,strend(sif.ma270)<0
             ,strend(sif.sdiff30x-sif.sdea30x)<0
-            ,strend(sif.ma30)<0
+            ,sif.ma5<sif.ma13
+            #,strend(sif.ma30)<0
             )
 
 
@@ -406,8 +409,37 @@ def gd30(sif,sopened=None):
 
     return signal * XSELL
 
-
 def gapdown(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+    high30 = np.select([trans[ITIME][sif.i_cof30]==945],[sif.high30],default=0)
+
+    xhighd,xlowd = np.zeros_like(sif.diff1),np.zeros_like(sif.diff1)
+    xhighd[sif.i_cofd] = sif.highd
+
+    xhighd = extend2next(xhighd)
+
+    hgap = gand(trans[ILOW]>xhighd,trans[ITIME]==915)
+
+
+    hgap = scover(hgap,260)   #当日信号都在缺口内发出
+
+    signal = np.zeros_like(sif.diff1)
+
+    signal = gand(cross(xhighd,sif.low)<0,hgap)
+
+    signal = gand(signal
+            ,sif.ma5  < sif.ma13
+            ,strend(sif.ma30)<0
+            )
+
+
+    return signal * XSELL
+
+
+def gapdown15(sif,sopened=None):
     '''
         向上跳开后，15分钟补缺
         一次补失败后还可以补第二次
@@ -436,6 +468,37 @@ def gapdown(sif,sopened=None):
 
 
     return signal * XSELL
+
+def gapdown5(sif,sopened=None):
+    '''
+        向上跳开后，5分钟补缺
+        一次补失败后还可以补第二次
+    '''
+
+
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+    
+    high30 = np.select([trans[ITIME][sif.i_cof30]==945],[sif.high30],default=0)
+
+    xhighd,xlowd = np.zeros_like(sif.diff1),np.zeros_like(sif.diff1)
+    xhighd[sif.i_cofd] = sif.highd
+
+    xhighd = extend2next(xhighd)
+
+    hgap = gand(trans[ILOW]>xhighd,trans[ITIME]==915)
+
+
+    hgap = scover(hgap,260)   #当日信号都在缺口内发出
+
+    signal = np.zeros_like(sif.diff1)
+
+    signal[sif.i_cof5] = gand(cross(xhighd[sif.i_cof5],sif.low5)<0,hgap[sif.i_cof5])
+
+
+    return signal * XSELL
+
 
 def br75(sif,sopened=None):
     '''

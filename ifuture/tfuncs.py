@@ -22,19 +22,30 @@ def tfunc(sif,sopened=None):
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
 
+    xopend = np.zeros_like(sif.close)
+
+    xopend[sif.i_oofd] = sif.opend
+    xopend = extend2next(xopend)
+ 
+    x945 = np.select([sif.time==945],[sif.close-xopend],0)
+    x945 = extend2next(x945)
+
+    ma3 = ma(sif.close,3)
+
 
     signal = cross(sif.dea1,sif.diff1)>0
-    xhigh = rollx(tmax(sif.high,30))
  
     signal = gand(signal
-              ,sif.high>xhigh
-              #,x945>0
-              ,strend(sif.ma30)>0
-              ,strend(sif.sdiff30x-sif.sdea30x)>0
+              ,x945>0
+              ,strend(sif.ma10)>0
+              ,strend(sif.ma5)>0
+              ,sif.sdiff30x-sif.sdea30x>0
               ,sif.sdiff5x>0
               #,strend(sif.sdiff5x - sif.sdea5x)>0
               #,sif.sdiff5x > sif.sdea5x
-              ,sif.ma5 > sif.ma13
+              #,sif.ma5 > sif.ma13
+              #,sif.diff1>0
+              #,sif.sdiff30x>0
             )
 
     return signal * XBUY

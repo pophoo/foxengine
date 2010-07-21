@@ -658,9 +658,14 @@ atr5_uxstop_05_25 = fcustom(atr_uxstop,lost_times=50,win_times=250,max_drawdown=
 atr5_uxstop_05_3 = fcustom(atr_uxstop,lost_times=50,win_times=300,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_05_15 = fcustom(atr_uxstop,lost_times=50,win_times=150,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_05_1 = fcustom(atr_uxstop,lost_times=50,win_times=100,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_05_05 = fcustom(atr_uxstop,lost_times=50,win_times=50,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_1_6 = fcustom(atr_uxstop,lost_times=100,win_times=600,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_05_6 = fcustom(atr_uxstop,lost_times=50,win_times=600,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_1_25 = fcustom(atr_uxstop,lost_times=100,win_times=250,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_1_15 = fcustom(atr_uxstop,lost_times=100,win_times=150,max_drawdown=200,min_lost=30,natr=5)
+
+
+atr5_uxstop_05_25b = fcustom(atr_uxstop,lost_times=50,win_times=250,max_drawdown=200,min_lost=50,natr=5)
 
 
 itrade3y_5 = fcustom(itrade3,stop_closer=atr5_uxstop_15_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
@@ -679,13 +684,23 @@ itrade3y05_5 = fcustom(itrade3,stop_closer=atr5_uxstop_05_6,bclosers=[ifuncs.day
 
 itrade3y05_15 = fcustom(itrade3,stop_closer=atr5_uxstop_05_15,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
 
+itrade3y05_1 = fcustom(itrade3,stop_closer=atr5_uxstop_05_1,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
+itrade3y05_05 = fcustom(itrade3,stop_closer=atr5_uxstop_05_05,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
+
+
 itrade3y05_2 = fcustom(itrade3,stop_closer=atr5_uxstop_05_2,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
 
 itrade3y05_25 = fcustom(itrade3,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser) ###最好的搭配
+
+itrade3y05_25b = fcustom(itrade3,stop_closer=atr5_uxstop_05_25b,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser) ###最好的搭配
+
+
 itrade3y05_3 = fcustom(itrade3,stop_closer=atr5_uxstop_05_3,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
 itrade3y05_4 = fcustom(itrade3,stop_closer=atr5_uxstop_05_4,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
 
 itrade3y1_2 = fcustom(itrade3,stop_closer=atr5_uxstop_1_2,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
+itrade3y1_15 = fcustom(itrade3,stop_closer=atr5_uxstop_1_15,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
+
 itrade3y1_25 = fcustom(itrade3,stop_closer=atr5_uxstop_1_25,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
 
 

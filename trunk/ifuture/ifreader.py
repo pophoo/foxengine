@@ -114,6 +114,7 @@ def prepare_index(sif):
 
     sif.diff1,sif.dea1 = cmacd(trans[ICLOSE]*FBASE)
     sif.diff2,sif.dea2 = cmacd(trans[ICLOSE]*FBASE,19,39,15)    
+    sif.diff3,sif.dea3 = cmacd(trans[ICLOSE]*FBASE,36,78,27)
     sif.diff5,sif.dea5 = cmacd(trans[ICLOSE]*FBASE,60,130,45)
     sif.diff15,sif.dea15 = cmacd(trans[ICLOSE]*FBASE,180,390,135)
     sif.diff30,sif.dea30 = cmacd(trans[ICLOSE]*FBASE,360,780,270)
@@ -141,6 +142,7 @@ def prepare_index(sif):
     sif.atr2 = atr2(trans[ICLOSE]*XBASE,trans[IHIGH]*XBASE,trans[ILOW]*XBASE,20)    
     sif.xatr = sif.atr * XBASE * XBASE / trans[ICLOSE]
     sif.mxatr = ma(sif.xatr,13)
+
     sif.i_cof5 = np.where(
             gor(gand(trans[ITIME]%5==0,trans[ITIME]%1000 != 915)
                 ,gand(trans[ITIME]%10000 == 1514,rollx(trans[ITIME],-1)%10000!=1515) #如果没有1515，则取1514
@@ -181,9 +183,54 @@ def prepare_index(sif):
     strend_macd5x = strend(sif.diff5x-sif.dea5x)
     sif.smacd5x = np.zeros_like(trans[ICLOSE])
     sif.smacd5x[sif.i_cof5] = strend_macd5x
-    sif.seacd5x=extend2next(sif.smacd5x)
+    sif.smacd5x=extend2next(sif.smacd5x)
 
 
+    ##3分钟
+    sif.i_cof3 = np.where(
+            gor(gand((trans[ITIME]%100+1)%3 == 0)
+                ,gand(trans[ITIME]%10000 == 1514,rollx(trans[ITIME],-1)%10000!=1515) #如果没有1515，则取1514
+            )
+        )[0]    #5分钟收盘线,不考虑隔日的因素
+    sif.i_oof3 = roll0(sif.i_cof3)+1    
+    sif.i_oof3[0] = 0
+    sif.close3 = trans[ICLOSE][sif.i_cof3]
+    #sif.open3 = rollx(sif.close3)   #open3看作是上一个的收盘价,其它方式对应open和close以及还原的逻辑比较复杂
+    sif.open3 = trans[IOPEN][sif.i_oof3]
+    #sif.high3 = tmax(trans[IHIGH],3)[sif.i_cof3]
+    #sif.low3 = tmin(trans[ILOW],3)[sif.i_cof3]
+    sif.high3,sif.low3,sif.vol3 = calc_high_low_vol(trans,sif.i_oof3,sif.i_cof3)
+    sif.holding3 = trans[IHOLDING][sif.i_cof3]
+
+
+    sif.atr3 = atr(sif.close3*XBASE,sif.high3*XBASE,sif.low3*XBASE,20)
+    sif.xatr3 = sif.atr3 * XBASE * XBASE / sif.close3
+    sif.mxatr3 = ma(sif.xatr3,13)
+    sif.xatr3x = np.zeros_like(trans[ICLOSE])
+    sif.xatr3x[sif.i_cof3] = sif.xatr3
+    sif.xatr3x = extend2next(sif.xatr3x)
+
+    sif.atr3x = np.zeros_like(trans[ICLOSE])
+    sif.atr3x[sif.i_cof3] = sif.atr3
+    sif.atr3x = extend2next(sif.atr3x)
+    
+
+    sif.diff3x,sif.dea3x = cmacd(sif.close3*FBASE)
+    sif.diff3x5,sif.dea3x5 = cmacd(sif.close3*FBASE,60,130,45)    
+
+    sif.sdiff3x,sif.sdea3x = np.zeros_like(trans[ICLOSE]),np.zeros_like(trans[ICLOSE])
+    sif.sdiff3x[sif.i_cof3] = sif.diff3x
+    sif.sdea3x[sif.i_cof3] = sif.dea3x
+    sif.sdiff3x=extend2next(sif.sdiff3x)
+    sif.sdea3x=extend2next(sif.sdea3x)
+
+    strend_macd3x = strend(sif.diff3x-sif.dea3x)
+    sif.smacd3x = np.zeros_like(trans[ICLOSE])
+    sif.smacd3x[sif.i_cof3] = strend_macd3x
+    sif.smacd5x=extend2next(sif.smacd3x)
+
+    
+    #30分钟
     sif.i_cof30 = np.where(gor(
         gand(trans[ITIME]%10000==1514,rollx(trans[ITIME],-1)%10000!=1515)   #当不存在1515时，1514
         ,trans[ITIME]%10000==1515

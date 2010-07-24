@@ -67,7 +67,7 @@ def last_filter(sif):
     soc[:275*3] = 0
     return soc
 
-def last_trade(actions,calc_profit=simple_profit):
+def last_trades(actions,calc_profit=simple_profit,length=10):
     '''
         最后交易
     '''
@@ -76,11 +76,11 @@ def last_trade(actions,calc_profit=simple_profit):
     #for action in actions:
     #    print 'action:',action.date,action.time,action.position,action.price
     if len(actions)>0:
-        trade = BaseObject(actions = actions[-10:])
+        trade = BaseObject(actions = actions[-length:])
         trades.append(trade)
     return trades
 
-def last_action(trades):
+def last_actions(trades):
     if trades:
         for action in trades[-1].actions:
             xposition = "long" if action.position==LONG else 'short'
@@ -89,6 +89,22 @@ def last_action(trades):
             #print 'action:',action.date,action.time,action.position,action.price
     else:
         print u"没有交易"
+
+def last_xactions(sif,trades,acstrategy=late_strategy):
+    xactions = []
+    for trade in trades:
+        for action in trade.actions:
+            action.functor = trade.functor
+            action.trade = trade
+        xactions.extend(trade.actions)
+    xactions.sort(DTSORT)
+    xactions.reverse() 
+    for action in xactions:
+        xposition = "long" if action.position==LONG else 'short'
+        xaction = "open" if action.xtype == XOPEN else 'close'
+        print u"name=%s,time=%s:%s,%s:%s,price=%s,priority=%s" % (action.name,action.date,action.time,xaction,xposition,action.price,action.functor.priority)
+        #print 'action:',action.date,action.time,action.position,action.price
+
 
 def simple_trades(actions,calc_profit=simple_profit):  #简单的trades,每个trade只有一次开仓和平仓
     ''' 不支持同时双向开仓
@@ -223,6 +239,215 @@ def itrade3(sif,openers,bclosers,sclosers,stop_closer,longfilter=ocfilter,shortf
     trades = make_trades(actions)   #trade: [open , close] 的序列, 其中前部分都是open,后部分都是close
     return trades
 
+
+def itradex(sif     #期指
+            ,openers    #opener函数集合
+            ,bclosers   #默认的多平仓函数集合(空头平仓)
+            ,sclosers   #默认的空平仓函数集合(多头平仓)
+            ,stop_closer    #止损closer函数，只能有一个，通常是atr_uxstop,    
+                            #有针对性是指与买入价相关的 stop_closer必须处理之前的closers系列发出的卖出信号
+            ,longfilter=ocfilter    #opener过滤器,多空仓必须满足各自过滤器条件才可以发出信号. 
+                                    #比如抑制在0915-0919以及1510-1514开仓等
+                                    #closer没有过滤器,设置过滤器会导致合约一直开口
+            ,shortfilter=ocfilter   #opener过滤器,多空仓必须满足各自过滤器条件才可以发出信号. 
+            ,make_trades=simple_trades  #根据开平仓动作撮合交易的函数。对于最后交易序列，用last_trades
+            ,sync_trades=sync_tradess    #汇总各opener得到的交易，计算优先级和平仓。
+                                            #对于最后交易序列，用null_sync_tradess
+            ,acstrategy=late_strategy   #增强开仓时的平仓策略。late_strategy是平最晚的那个信号
+            ,priority_level=2500    #筛选opener的优先级, 忽略数字大于此的开仓
+        ):
+    '''
+        本函数针对每个opener计算出各自的闭合交易
+        然后集中处理这些闭合交易，根据优先级来确认交易的持续性
+            最终得到从开仓到平仓的单个交易的集合
+            其中单个交易的要素有：
+                开仓价格、时间、交易量
+                平仓价格、时间、交易量
+                当前主方法名(持有合约的方法)
+                filtered: 开仓后被过滤掉的同向低优先级方法名及其信号价格和时间
+                rfiltered:开仓后被过滤掉的反向低优先级方法名及其信号价格和时间
+                extended: 曾经起效，但因优先级低而被取代的同向方法名及其信号价格和时间. 第一个价格即是开仓价格
+                reversed: 逆转持仓的方法及其信号价格和时间
+                          如优先级高的中止本次持仓的方法。通常导致反向开仓。  
+            要求每个方法的属性有：
+                direction:  多/空方向 XBUY/XSELL
+                priority:   优先级, 数字越低越高
+                            如果不存在，默认为0
+                closer:     平仓方法
+                            签名为 closer(closers):closers
+                                根据传入的closers，返回处理后的，这样，可以取代默认的，也可以在默认之后附加
+                            如果不存在，就使用默认的
+                stop_closer 止损方法[单个], 如果存在，就取代默认的                                
+                filter:     符合filter签名的filter
+                name:       名字
+
+    '''
+    slongfilter = longfilter(sif)
+    sshortfilter = shortfilter(sif)
+    snull = np.zeros_like(sif.close)
+    if not isinstance(openers,list):   #单个函数
+        openers = [openers]
+    if not isinstance(bclosers,list):   #单个函数
+        bclosers = [bclosers]
+    if not isinstance(sclosers,list):   #单个函数
+        sclosers = [sclosers]
+    
+    openers = [opener for opener in openers if opener.priority<priority_level]
+
+    tradess = []
+    for opener in openers:
+        if 'filter' not in opener.__dict__:
+            myfilter = slongfilter if opener.direction == XBUY else sshortfilter
+        else:
+            myfilter = opener.filter(sif)
+        opens = open_position(sif.transaction,opener(sif),myfilter,myfilter) #因为opener只返回一个方向的操作,所以两边都用myfilter，但实际上只有相应的一个有效，另一个是虚的
+        #opens.sort(DTSORT)
+        sopened = np.zeros(len(sif.transaction[IDATE]),int)   #为开仓价格序列,负数为开多仓,正数为开空仓
+        for aopen in opens:
+            sopened[aopen.index] = aopen.price * aopen.position
+        sclose = np.zeros(len(sif.transaction[IDATE]),int)
+        if 'closer' in opener.__dict__:
+            if opener.direction == XBUY:
+                #print 'buy closer:',opener.closer
+                closers = opener.closer(sclosers)
+            elif opener.direction == XSELL:
+                closers = opener.closer(bclosers)
+        else:
+            #print 'opener without close opener.direction = %s' % ('XBUY' if opener.direction == XBUY else 'XSELL',)
+            closers = sclosers if opener.direction == XBUY else bclosers
+        for closer in closers:
+            sclose = gor(sclose,closer(sif,sopened)) * (-opener.direction)
+        closes = close_position(sif.transaction,stop_closer(sif,sopened,sclose,sclose)) #因为是单向的，只有一个sclose起作用
+        actions = sorted(opens + closes,DTSORT)
+        for action in actions:
+            action.name = sif.name
+        trades = make_trades(actions)   #trade: [open , close] 的序列, 其中前部分都是open,后部分都是close
+        for trade in trades:
+            trade.functor = opener
+            trade.direction = trade.actions[0].position   #LONG/SHORT
+        tradess.append(trades)
+    return sync_trades(sif,tradess,acstrategy)
+
+
+def null_sync_tradess(sif,tradess,acstrategy=late_strategy):
+    xtrades = []
+    for trades in tradess:
+        xtrades.extend(trades)
+    return xtrades
+
+##平仓比较函数中，第一个参数的优先级低于第二个
+def early_strategy(action1,action2):#多选时的平仓策略，最早平仓
+    return action1 if action1.date<action2.date else action2
+
+def late_strategy(action1,action2):#多选时的平仓策略，最晚平仓. 从止损的角度来看比较兼顾
+    return action1 if action1.date>=action2.date else action2
+
+def min_strategy(action1,action2):#多选时的平仓策略，最窄平仓.取得是最高的平仓价，有预读的可能性
+    if action1.position == LONG:#多平仓，即买入平仓的，以低者为窄
+        return action1 if action1.price < action2.price else action2
+    else:#空平仓，即卖出平多仓的，平仓位应越来越高
+        return action1 if action1.price > action2.price else action2
+
+def max_strategy(action1,action2):#多选时的平仓策略，最宽平仓. 取得都是最低的平仓价，不合理
+    if action1.position == LONG:#多平仓，即买入平仓的，以高者为宽
+        return action1 if action1.price > action2.price else action2
+    else:#空平仓，即卖出平多仓的，平仓位应越来越低
+        return action1 if action1.price < action2.price else action2
+
+def a1_strategy(action1,action2):#始终选择第1次的平仓位,从止损来看最合理
+    return action1
+
+def a2_strategy(action1,action2):#始终选择第2次的平仓位
+    ##a2的问题是可能会抬高臀位，比如本来2700买入，2720出现新的高优先级信号，那么按之前的方法，其止损在2700左右，而新的情况导致止损到了2715左右，
+    return action2
+
+
+
+DTSORT2 = lambda x,y: int(((x.date%1000000 * 10000)+x.time) - ((y.date%1000000 * 10000)+y.time))
+def sync_tradess(sif,tradess,acstrategy=late_strategy):
+    trans = sif.transaction
+    sdate = trans[IDATE]
+    stime = trans[ITIME]
+    sopen = trans[IOPEN]
+    sclose = trans[ICLOSE]
+    shigh = trans[IHIGH]
+    slow = trans[ILOW]    
+    
+    xtrades = []
+    finished =False
+    cur_trade = find_first(tradess)
+    if cur_trade == None:
+        return []
+    extended,filtered,rfiltered,reversed = [],[],[],[]
+    close_action = cur_trade.actions[-1]
+    print '#####################first:',close_action.time
+    while True:
+        trade = find_first(tradess)
+        if trade == None:
+            xtrades.append(close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed))
+            break
+        print 'find:date=%s,time=%s,functor=%s' % (trade.actions[0].date,trade.actions[0].time,trade.functor)  
+        if DTSORT2(trade.actions[0],close_action)>0:  #时间超过
+            #print u'时间超过'
+            xtrades.append(close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed))
+            cur_trade = trade
+            close_action = cur_trade.actions[-1]
+            extended,filtered,rfiltered,reversed = [],[],[],[]
+            continue
+           
+        #print trade.functor,trade.functor.priority ,cur_trade.functor,cur_trade.functor.priority
+        if trade.functor.priority < cur_trade.functor.priority:
+            #print u'高优先级'
+            if trade.direction == cur_trade.direction:  #同向取代关系
+                print u'同向增强,%s|%s:%s被%s增强'%(cur_trade.functor,cur_trade.actions[0].date,cur_trade.actions[0].time,trade.functor)
+                close_action = acstrategy(close_action,trade.actions[-1])
+                extended.append(cur_trade)
+                cur_trade = trade
+            else:   #逆向平仓
+                print u'逆向平仓'
+                reversed.append(trade)
+                xindex = reversed[0].actions[0].index
+                cposition = BaseObject(index=xindex,date=sdate[xindex],time=stime[xindex],position=reversed[0].direction,xtype=XCLOSE)    #因为已经抑制了1514开仓,必然不会溢出
+                cposition.price = make_price(cposition.position,sopen[xindex],sclose[xindex],shigh[xindex],slow[xindex])
+                xtrades.append(close_trade(sif,cur_trade,cposition,extended,filtered,rfiltered,reversed))
+                cur_trade = trade
+                extended,filtered,rfiltered,reversed = [],[],[],[]
+                close_action = cur_trade.actions[-1]                
+        else:   #低优先级
+            #print u'低优先级'
+            if trade.direction == cur_trade.direction:  #同向屏蔽
+                filtered.append(trade)
+            else:   #逆向屏蔽
+                rfiltered.append(trade)
+    return xtrades
+
+def close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed,calc_profit=simple_profit):
+    open_action = extended[0].actions[0] if extended else cur_trade.actions[0]
+    trade = BaseObject(actions=[open_action,close_action])
+    trade.profit = calc_profit(trade.actions)
+    trade.extended = extended
+    trade.filtered = filtered
+    trade.rfiltered = rfiltered
+    trade.reversed = reversed
+    trade.functor = cur_trade.functor
+    trade.trade = cur_trade
+    return trade
+
+
+def find_first(tradess):
+    curdt = BaseObject(date=999999,time=9999)
+    cur_trades = None
+    ftrade = None
+    for trades in tradess:
+        if trades and DTSORT2(curdt,trades[0].actions[0])>0:
+            curdt = BaseObject(date=trades[0].actions[0].date,time=trades[0].actions[0].time)
+            cur_trades = trades
+    if cur_trades:
+        ftrade = cur_trades[0]
+        del cur_trades[0]
+        #print 'find:date=%s,time=%s' % (ftrade.actions[0].date,ftrade.actions[0].time)
+    return ftrade
+            
 
 
 action_dtime = lambda action: action.date%1000000 * 10000 + action.time
@@ -576,7 +801,7 @@ del lycloser[0] #去掉daystop_long
 itrade3y = fcustom(itrade3,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
 
 
-ltrade3y = fcustom(itrade3,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
+ltrade3y = fcustom(itrade3,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter)
 
 
 
@@ -595,11 +820,11 @@ itrade3y4 = fcustom(itrade3,stop_closer=atr_uxstop_4_6,bclosers=[ifuncs.daystop_
 itrade3y6 = fcustom(itrade3,stop_closer=atr_uxstop_6_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
 
 
-ltrade3y1 = fcustom(itrade3,stop_closer=atr_uxstop_1_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
-ltrade3y2 = fcustom(itrade3,stop_closer=atr_uxstop_2_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
-ltrade3y3 = fcustom(itrade3,stop_closer=atr_uxstop_3_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
-ltrade3y4 = fcustom(itrade3,stop_closer=atr_uxstop_4_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
-ltrade3y6 = fcustom(itrade3,stop_closer=atr_uxstop_6_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
+ltrade3y1 = fcustom(itrade3,stop_closer=atr_uxstop_1_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter)
+ltrade3y2 = fcustom(itrade3,stop_closer=atr_uxstop_2_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter)
+ltrade3y3 = fcustom(itrade3,stop_closer=atr_uxstop_3_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter)
+ltrade3y4 = fcustom(itrade3,stop_closer=atr_uxstop_4_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter)
+ltrade3y6 = fcustom(itrade3,stop_closer=atr_uxstop_6_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter)
 
 
 
@@ -666,12 +891,13 @@ atr5_uxstop_1_15 = fcustom(atr_uxstop,lost_times=100,win_times=150,max_drawdown=
 
 
 atr5_uxstop_05_25b = fcustom(atr_uxstop,lost_times=50,win_times=250,max_drawdown=200,min_lost=50,natr=5)
+atr5_uxstop_05_25c = fcustom(atr_uxstop,lost_times=50,win_times=250,max_drawdown=200,min_lost=60,natr=5)
 
 
 itrade3y_5 = fcustom(itrade3,stop_closer=atr5_uxstop_15_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
 
 
-ltrade3y_5 = fcustom(itrade3,stop_closer=atr5_uxstop_15_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
+ltrade3y_5 = fcustom(itrade3,stop_closer=atr5_uxstop_15_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter)
 
 
 
@@ -694,6 +920,7 @@ itrade3y05_25 = fcustom(itrade3,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.d
 
 itrade3y05_25b = fcustom(itrade3,stop_closer=atr5_uxstop_05_25b,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser) ###最好的搭配
 
+itrade3y05_25c = fcustom(itrade3,stop_closer=atr5_uxstop_05_25c,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser) ###最好的搭配
 
 itrade3y05_3 = fcustom(itrade3,stop_closer=atr5_uxstop_05_3,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
 itrade3y05_4 = fcustom(itrade3,stop_closer=atr5_uxstop_05_4,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
@@ -714,23 +941,23 @@ itrade3y4_5 = fcustom(itrade3,stop_closer=atr5_uxstop_4_6,bclosers=[ifuncs.dayst
 itrade3y6_5 = fcustom(itrade3,stop_closer=atr5_uxstop_6_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
 
 
-ltrade3y1_5 = fcustom(itrade3,stop_closer=atr5_uxstop_1_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
-ltrade3y2_5 = fcustom(itrade3,stop_closer=atr5_uxstop_2_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
-ltrade3y3_5 = fcustom(itrade3,stop_closer=atr5_uxstop_3_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
-ltrade3y4_5 = fcustom(itrade3,stop_closer=atr5_uxstop_4_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
-ltrade3y6_5 = fcustom(itrade3,stop_closer=atr5_uxstop_6_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
+ltrade3y1_5 = fcustom(itrade3,stop_closer=atr5_uxstop_1_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter)
+ltrade3y2_5 = fcustom(itrade3,stop_closer=atr5_uxstop_2_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter)
+ltrade3y3_5 = fcustom(itrade3,stop_closer=atr5_uxstop_3_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter)
+ltrade3y4_5 = fcustom(itrade3,stop_closer=atr5_uxstop_4_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter)
+ltrade3y6_5 = fcustom(itrade3,stop_closer=atr5_uxstop_6_6,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter)
 
-ltrade3y0525_5 = fcustom(itrade3,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
+ltrade3y0525_5 = fcustom(itrade3,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter)
 
-ltrade3y0520_5 = fcustom(itrade3,stop_closer=atr5_uxstop_05_2,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
+ltrade3y0520_5 = fcustom(itrade3,stop_closer=atr5_uxstop_05_2,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter)
 
-ltrade3y0515_5 = fcustom(itrade3,stop_closer=atr5_uxstop_05_15,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
+ltrade3y0515_5 = fcustom(itrade3,stop_closer=atr5_uxstop_05_15,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter)
 
-ltrade3y0530_5 = fcustom(itrade3,stop_closer=atr5_uxstop_05_3,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
+ltrade3y0530_5 = fcustom(itrade3,stop_closer=atr5_uxstop_05_3,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter)
 
-ltrade3y1025_5 = fcustom(itrade3,stop_closer=atr5_uxstop_1_25,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
+ltrade3y1025_5 = fcustom(itrade3,stop_closer=atr5_uxstop_1_25,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter)
 
-ltrade3y1525_5 = fcustom(itrade3,stop_closer=atr5_uxstop_15_25,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trade,longfilter=last_filter,shortfilter=last_filter)
+ltrade3y1525_5 = fcustom(itrade3,stop_closer=atr5_uxstop_15_25,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter)
 
 
 itrade3x45_5 = fcustom(itrade3,stop_closer=atr5_uxstop_15_6_45,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1,ifuncs.ipmacd_long_devi1],sclosers=[ifuncs.daystop_long,ifuncs.xmacd_stop_long1,ifuncs.xdevi_stop_long1])
@@ -744,4 +971,16 @@ itrade256_5 = fcustom(itrade3,stop_closer=atr5_uxstop_15_6,bclosers=[ifuncs.days
 
 #空头不把即刻反叉作为平仓选项
 itrade3xk_5 = fcustom(itrade3,stop_closer=atr5_uxstop_15_6,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long,ifuncs.xmacd_stop_long1,ifuncs.xdevi_stop_long1])
+
+#相比较物
+itrade3yx = fcustom(itrade3,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop_short],sclosers=sycloser)
+itrade3yx_0525 = fcustom(itrade3,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.daystop_short],sclosers=sycloser)
+
+#############新的方式
+
+itradex_y = fcustom(itradex,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop_short],sclosers=sycloser)
+itradex5_y = fcustom(itradex,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.daystop_short],sclosers=sycloser)
+
+ltrade3x0525 = fcustom(itradex,stop_closer=atr5_uxstop_05_25,bclosers=[],sclosers=[],make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter,sync_trades=null_sync_tradess)
+
 

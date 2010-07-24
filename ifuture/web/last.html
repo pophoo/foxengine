@@ -1,0 +1,54 @@
+$def with(fname,lasttime,xactions)
+<html>
+    <head>
+        <style type="text/css">
+            tr.xopen  {background-color:red
+            }
+            tr.xclose  {background-color:yellow
+                }
+        </style>
+    </head>
+<body>
+文件名:&nbsp&nbsp&nbsp&nbsp&nbsp $fname
+<br/>
+最后更新时间:$lasttime
+<br/>
+注意：优先级数字越小优先级越高，2500以下都较好
+<table border>
+<tr>
+    <th>日期</th>
+    <th>时间</th>
+    <th>优先级</th>
+    <th>开平仓</th>
+    <th>方向</th>
+    <th>价格</th>
+    <th>方法</th>
+</tr>
+$for action in xactions
+    <tr class="
+        $if action.xtype == -1:
+            xopen
+        $else:
+            xclose
+    "
+    >
+        <td>$action.date</td>
+        <td>$action.time</td>        
+        <td>$action.functor.priority</td>
+        <td>
+            $if action.xtype == -1:
+                开仓
+            $else:
+                平仓
+        </td>     
+        <td>
+            $if action.position == -1:
+                买入
+            $else:
+                卖出
+        </td>
+        <td>$action.price</td>
+        <td>$action.functor</td>
+    </tr>
+</table>
+</body></html>

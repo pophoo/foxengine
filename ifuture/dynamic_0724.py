@@ -72,17 +72,3 @@ wcalc3 = fcustom(wcalc,functor=iftrade.ltrade3y3_5)
 wcalc4 = fcustom(wcalc,functor=iftrade.ltrade3y4_5)
 wcalc6 = fcustom(wcalc,functor=iftrade.ltrade3y6_5)
 
-
-def wxcalc(strategy,functor):
-    fname = find_cur()
-    name = get_if_name(fname)
-    path = get_if_path(fname)
-    #print path,wh_path
-    ifmap = ifreader.readp(path,name,extractor=extract_if_wh)  # fname ==> BaseObject(name='$name',transaction=trans)
-    sif = ifmap[name]
-    tradesy =  functor(sif,strategy)    #xfollow作为平仓信号，且去掉了背离平仓的信号
-    print tradesy
-    iftrade.last_xactions(sif,tradesy)
-
-wxcalc = fcustom(wxcalc,functor=iftrade.ltrade3x0525)
-

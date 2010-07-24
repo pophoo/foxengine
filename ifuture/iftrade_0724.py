@@ -90,20 +90,20 @@ def last_actions(trades):
     else:
         print u"没有交易"
 
-def last_xactions(sif,trades,acstrategy=late_strategy):
+def last_xactions(sif,tradess,acstrategy=late_strategy):
     xactions = []
-    for trade in trades:
-        for action in trade.actions:
-            action.functor = trade.functor
-            action.trade = trade
-        xactions.extend(trade.actions)
+    for trades in tradess:
+        if trades:
+            xactions.extend(trades[0].actions)
     xactions.sort(DTSORT)
     xactions.reverse() 
     for action in xactions:
         xposition = "long" if action.position==LONG else 'short'
         xaction = "open" if action.xtype == XOPEN else 'close'
-        print u"name=%s,time=%s:%s,%s:%s,price=%s,priority=%s" % (action.name,action.date,action.time,xaction,xposition,action.price,action.functor.priority)
-        #print 'action:',action.date,action.time,action.position,action.price
+        print u"name=%s,time=%s:%s,%s:%s,price=%s" % (action.name,action.date,action.time,xaction,xposition,action.price)
+            #print 'action:',action.date,action.time,action.position,action.price
+    else:
+        print u"没有交易"
 
 
 def simple_trades(actions,calc_profit=simple_profit):  #简单的trades,每个trade只有一次开仓和平仓
@@ -251,8 +251,8 @@ def itradex(sif     #期指
                                     #closer没有过滤器,设置过滤器会导致合约一直开口
             ,shortfilter=ocfilter   #opener过滤器,多空仓必须满足各自过滤器条件才可以发出信号. 
             ,make_trades=simple_trades  #根据开平仓动作撮合交易的函数。对于最后交易序列，用last_trades
-            ,sync_trades=sync_tradess    #汇总各opener得到的交易，计算优先级和平仓。
-                                            #对于最后交易序列，用null_sync_tradess
+            ,collect_trades=sync_tradess    #汇总各opener得到的交易，计算优先级和平仓。
+                                            #对于最后交易序列，用last_xactions
             ,acstrategy=late_strategy   #增强开仓时的平仓策略。late_strategy是平最晚的那个信号
             ,priority_level=2500    #筛选opener的优先级, 忽略数字大于此的开仓
         ):
@@ -308,7 +308,6 @@ def itradex(sif     #期指
         sclose = np.zeros(len(sif.transaction[IDATE]),int)
         if 'closer' in opener.__dict__:
             if opener.direction == XBUY:
-                #print 'buy closer:',opener.closer
                 closers = opener.closer(sclosers)
             elif opener.direction == XSELL:
                 closers = opener.closer(bclosers)
@@ -326,10 +325,11 @@ def itradex(sif     #期指
             trade.functor = opener
             trade.direction = trade.actions[0].position   #LONG/SHORT
         tradess.append(trades)
-    return sync_trades(sif,tradess,acstrategy)
+    #return null_sync_tradess(tradess)
+    return collect_trades(sif,tradess,acstrategy)
 
 
-def null_sync_tradess(sif,tradess,acstrategy=late_strategy):
+def null_sync_tradess(tradess):
     xtrades = []
     for trades in tradess:
         xtrades.extend(trades)
@@ -972,15 +972,11 @@ itrade256_5 = fcustom(itrade3,stop_closer=atr5_uxstop_15_6,bclosers=[ifuncs.days
 #空头不把即刻反叉作为平仓选项
 itrade3xk_5 = fcustom(itrade3,stop_closer=atr5_uxstop_15_6,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long,ifuncs.xmacd_stop_long1,ifuncs.xdevi_stop_long1])
 
-#相比较物
-itrade3yx = fcustom(itrade3,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop_short],sclosers=sycloser)
-itrade3yx_0525 = fcustom(itrade3,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.daystop_short],sclosers=sycloser)
-
-#############新的方式
 
 itradex_y = fcustom(itradex,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop_short],sclosers=sycloser)
 itradex5_y = fcustom(itradex,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.daystop_short],sclosers=sycloser)
 
-ltrade3x0525 = fcustom(itradex,stop_closer=atr5_uxstop_05_25,bclosers=[],sclosers=[],make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter,sync_trades=null_sync_tradess)
+#相比较物
+itrade3yx = fcustom(itrade3,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop_short],sclosers=sycloser)
 
 

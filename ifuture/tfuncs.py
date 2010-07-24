@@ -17,35 +17,127 @@ ama2 = ama_maker(covered=30,dfast=6,dslow=100)
 
 
 
+#TODO
+#   1. 确认ATR5的大小变化与大的上涨或下跌趋势的相关性，如涨势中ATR5上涨放大下跌缩小，跌势中下跌放大上涨缩小？
+#      暂无结论 
+#   2. 测试3分钟上叉买入，1分钟卖出及其相反的可行性
+#      结论: 
+#   3. 测试上叉买入，macd下行(或连续两分钟下行，或连续两分钟不能创新高)卖出及其相反的可行性. 买入点可参考diff5的变化
+#      测试macd翻转上行(macd>0)买入，下行卖出的可行性；或下行2分钟或以上后的反转上行
+#      结论:没用用处 
+
+def s1(sif,sopened=None):
+    trans = sif.transaction
+    signal = gand(cross(sif.dea1,sif.diff1)<0)
+    #md = sif.diff1-sif.dea1
+    #signal = gand(md<rollx(md))#,rollx(md)>rollx(md,2))
+    return signal * XSELL
+
+
 def tfunc(sif,sopened=None):
     trans = sif.transaction
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+    
 
-    xopend = np.zeros_like(sif.close)
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof3] = cross(sif.dea3x,sif.diff3x)<0
 
-    xopend[sif.i_oofd] = sif.opend
-    xopend = extend2next(xopend)
- 
-    x945 = np.select([sif.time==945],[sif.close-xopend],0)
-    x945 = extend2next(x945)
-
-    ma3 = ma(sif.close,3)
-
-
-    signal = cross(sif.dea1,sif.diff1)>0
- 
     signal = gand(signal
-              ,x945>0
-              ,strend(sif.ma10)>0
-              ,strend(sif.ma5)>0
-              ,sif.sdiff30x-sif.sdea30x>0
+            ,sif.ma3<sif.ma13
+            ,strend2(sif.sdiff5x-sif.sdea5x)<0
+            ,strend2(sif.sdiff30x-sif.sdea30x)<0
+            ,strend(sif.ma30)<0
+            ,strend(sif.ma13)<0
+            #,strend(sif.ma7-sif.ma30)>0              
+            )
+
+    return signal * XSELL
+
+tfunc.direction = XSELL
+tfunc.priority = 1000
+#tfunc.closer = lambda c:c+[s1]
+
+
+def ipmacd_long_6(sif,sopened=None):
+    trans = sif.transaction
+    
+    s30_13 = np.zeros_like(sif.diff1)
+    s30_13[sif.i_cof30] = strend2(ma(sif.close30,13))
+    s30_13 = extend2next(s30_13)
+    
+    signal = cross(sif.dea1,sif.diff1)>0
+
+    signal = gand(signal
+              ,sif.ma3>sif.ma13  
+              ,strend(sif.sdiff5x-sif.sdea5x)>0            
+              #,strend(sif.sdiff15x-sif.sdea15x)>0            
+              ,strend(sif.sdiff30x-sif.sdea30x)>0
+              ,strend(sif.ma30)>0
+              ,strend(sif.ma13)>0
+              ,strend(sif.ma7-sif.ma30)>0              
+              #,s30_13>0
+              #,sif.sdiff5x>0
+            )
+
+    return signal * XBUY
+ipmacd_long_6.direction = XBUY
+ipmacd_long_6.priority = 2400
+
+
+
+def up3(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+    #ma33 = ma(sif.close3,3)
+
+    signal3 = gand(sif.low3>rollx(sif.low3)
+                ,rollx(sif.low3)>rollx(sif.low3,2)
+                ,sif.high3 > rollx(sif.high3)
+                #,sif.high3 > rollx(sif.high3,2)
+                ,rollx(sif.high3)>rollx(sif.high3,2)
+                #,rollx(sif.high3,2)>rollx(sif.high3,3)
+                ,sif.diff3x>sif.dea3x
+                #,strend(ma33)>1
+                #,sif.close3 > sif.open3
+                #,rollx(sif.close3)>rollx(sif.close3,2)
+            )
+
+    signal = np.zeros_like(sif.close)
+
+    signal[sif.i_cof3] = signal3
+
+    signal = gand(signal
+              ,strend(sif.sdiff5x-sif.sdea5x)>0            
+              ,strend(sif.sdiff30x-sif.sdea30x)>0
+              ,strend(sif.ma30)>0
+            )
+
+    return signal * XBUY
+
+
+def rsi3x(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+    rsi6 = rsi2(sif.close3,6)
+    rsi24 = rsi2(sif.close3,24)
+
+    signal = np.zeros_like(sif.close)
+
+    signal[sif.i_cof3] = gand(cross(rsi24,rsi6)>0
+                            ,cross(sif.dea3x,sif.diff3x)>0
+                            )
+
+    
+    signal = gand(signal
+              ,strend(sif.ma270)>0
+              ,strend(sif.sdiff30x-sif.sdea30x)>0
               ,sif.sdiff5x>0
-              #,strend(sif.sdiff5x - sif.sdea5x)>0
-              #,sif.sdiff5x > sif.sdea5x
-              #,sif.ma5 > sif.ma13
-              #,sif.diff1>0
-              #,sif.sdiff30x>0
+              ,sif.sdiff30x>sif.sdea30x
             )
 
     return signal * XBUY
@@ -363,12 +455,16 @@ def goup5(sif,sopened=None):
     ''' 
         5分钟冲击昨日高点时买入, 过滤器向下浮动. 即不论是否突破，都介入
     ''' 
+def goup5(sif,sopened=None):
+    ''' 
+        5分钟冲击昨日高点时买入, 过滤器向下浮动. 即不论是否突破，都介入
+    ''' 
     trans = sif.transaction
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
 
  
-    highd = sif.highd #+ sif.atrd/XBASE/8 #gmax(sif.closed,sif.opend)+sif.atrd/XBASE/10
+    highd = sif.highd #- sif.atrd/XBASE/8 #gmax(sif.closed,sif.opend)+sif.atrd/XBASE/10
 
 
     xhighd = np.zeros(len(sif.diff1),np.int32)
@@ -381,6 +477,7 @@ def goup5(sif,sopened=None):
     signal[sif.i_cof5] = gand(cross(xhighd[sif.i_cof5],sif.close5)>0)
 
     #signal = sfollow(signal,cross(sif.dea1,sif.diff1)>0,30)
+    thigh = tmax(sif.high,30)
 
     signal = gand(signal
             ,sif.ma5>sif.ma13
@@ -389,6 +486,7 @@ def goup5(sif,sopened=None):
             ,strend(sif.ma60)>0
             ,strend(sif.ma270)>0
             ,strend(sif.ma13-sif.ma60)>0
+            ,sif.high>rollx(thigh)
             )
 
 
@@ -495,10 +593,16 @@ def inside_up(sif,sopened=None):
 
     signal = sfollow(signal,cross(sif.dea1,sif.diff1)>0,15)
 
+    h60 = tmax(sif.high,15)
 
     signal = gand(signal
             ,strend(sif.ma270)>0
+            #,sif.high < rollx(h60)
             )
+
+
+    return signal * XBUY
+
 
     return signal * XBUY
 

@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
+import os.path
 import web
 from wolfox.fengine.ifuture.ibase import *
 import wolfox.fengine.ifuture.dynamic as dynamic
 import wolfox.fengine.ifuture.ifuncs as ifuncs
 
 #必须写绝对路径名，否则在apache中相对路径的起始是site-packages/web
-render = web.template.render('D:/work/applications/gcode/wolfox/fengine/ifuture/web')
+path_name = os.path.dirname(__file__)
+#path_name = 'D:/work/applications/gcode/wolfox/fengine/ifuture/web'
+render = web.template.render(path_name)
 
 
 urls = (

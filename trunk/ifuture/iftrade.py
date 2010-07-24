@@ -67,6 +67,32 @@ def last_filter(sif):
     soc[:275*3] = 0
     return soc
 
+##平仓比较函数中，第一个参数的优先级低于第二个
+def early_strategy(action1,action2):#多选时的平仓策略，最早平仓
+    return action1 if action1.date<action2.date else action2
+
+def late_strategy(action1,action2):#多选时的平仓策略，最晚平仓. 从止损的角度来看比较兼顾
+    return action1 if action1.date>=action2.date else action2
+
+def min_strategy(action1,action2):#多选时的平仓策略，最窄平仓.取得是最高的平仓价，有预读的可能性
+    if action1.position == LONG:#多平仓，即买入平仓的，以低者为窄
+        return action1 if action1.price < action2.price else action2
+    else:#空平仓，即卖出平多仓的，平仓位应越来越高
+        return action1 if action1.price > action2.price else action2
+
+def max_strategy(action1,action2):#多选时的平仓策略，最宽平仓. 取得都是最低的平仓价，不合理
+    if action1.position == LONG:#多平仓，即买入平仓的，以高者为宽
+        return action1 if action1.price > action2.price else action2
+    else:#空平仓，即卖出平多仓的，平仓位应越来越低
+        return action1 if action1.price < action2.price else action2
+
+def a1_strategy(action1,action2):#始终选择第1次的平仓位,从止损来看最合理
+    return action1
+
+def a2_strategy(action1,action2):#始终选择第2次的平仓位
+    ##a2的问题是可能会抬高臀位，比如本来2700买入，2720出现新的高优先级信号，那么按之前的方法，其止损在2700左右，而新的情况导致止损到了2715左右，
+    return action2
+
 def last_trades(actions,calc_profit=simple_profit,length=10):
     '''
         最后交易
@@ -105,6 +131,16 @@ def last_xactions(sif,trades,acstrategy=late_strategy):
         print u"name=%s,time=%s:%s,%s:%s,price=%s,priority=%s" % (action.name,action.date,action.time,xaction,xposition,action.price,action.functor.priority)
         #print 'action:',action.date,action.time,action.position,action.price
 
+def last_wactions(sif,trades,acstrategy=late_strategy):
+    xactions = []
+    for trade in trades:
+        for action in trade.actions:
+            action.functor = trade.functor
+            action.trade = trade
+        xactions.extend(trade.actions)
+    xactions.sort(DTSORT)
+    xactions.reverse() 
+    return xactions
 
 def simple_trades(actions,calc_profit=simple_profit):  #简单的trades,每个trade只有一次开仓和平仓
     ''' 不支持同时双向开仓
@@ -132,6 +168,7 @@ def simple_trades(actions,calc_profit=simple_profit):  #简单的trades,每个tr
             pass
     return trades
  
+
 def itrade(sif,openers,closers,longfilter=ocfilter,shortfilter=ocfilter,make_trades=simple_trades):
     '''
         所有开仓信号排序交易
@@ -238,6 +275,70 @@ def itrade3(sif,openers,bclosers,sclosers,stop_closer,longfilter=ocfilter,shortf
         action.name = sif.name
     trades = make_trades(actions)   #trade: [open , close] 的序列, 其中前部分都是open,后部分都是close
     return trades
+def null_sync_tradess(sif,tradess,acstrategy=late_strategy):
+    xtrades = []
+    for trades in tradess:
+        xtrades.extend(trades)
+    return xtrades
+
+
+DTSORT2 = lambda x,y: int(((x.date%1000000 * 10000)+x.time) - ((y.date%1000000 * 10000)+y.time))
+def sync_tradess(sif,tradess,acstrategy=late_strategy):
+    trans = sif.transaction
+    sdate = trans[IDATE]
+    stime = trans[ITIME]
+    sopen = trans[IOPEN]
+    sclose = trans[ICLOSE]
+    shigh = trans[IHIGH]
+    slow = trans[ILOW]    
+    
+    xtrades = []
+    finished =False
+    cur_trade = find_first(tradess)
+    if cur_trade == None:
+        return []
+    extended,filtered,rfiltered,reversed = [],[],[],[]
+    close_action = cur_trade.actions[-1]
+    print '#####################first:',close_action.time
+    while True:
+        trade = find_first(tradess)
+        if trade == None:
+            xtrades.append(close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed))
+            break
+        print 'find:date=%s,time=%s,functor=%s' % (trade.actions[0].date,trade.actions[0].time,trade.functor)  
+        if DTSORT2(trade.actions[0],close_action)>0:  #时间超过
+            #print u'时间超过'
+            xtrades.append(close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed))
+            cur_trade = trade
+            close_action = cur_trade.actions[-1]
+            extended,filtered,rfiltered,reversed = [],[],[],[]
+            continue
+           
+        #print trade.functor,trade.functor.priority ,cur_trade.functor,cur_trade.functor.priority
+        if trade.functor.priority < cur_trade.functor.priority:
+            #print u'高优先级'
+            if trade.direction == cur_trade.direction:  #同向取代关系
+                print u'同向增强,%s|%s:%s被%s增强'%(cur_trade.functor,cur_trade.actions[0].date,cur_trade.actions[0].time,trade.functor)
+                close_action = acstrategy(close_action,trade.actions[-1])
+                extended.append(cur_trade)
+                cur_trade = trade
+            else:   #逆向平仓
+                print u'逆向平仓'
+                reversed.append(trade)
+                xindex = reversed[0].actions[0].index
+                cposition = BaseObject(index=xindex,date=sdate[xindex],time=stime[xindex],position=reversed[0].direction,xtype=XCLOSE)    #因为已经抑制了1514开仓,必然不会溢出
+                cposition.price = make_price(cposition.position,sopen[xindex],sclose[xindex],shigh[xindex],slow[xindex])
+                xtrades.append(close_trade(sif,cur_trade,cposition,extended,filtered,rfiltered,reversed))
+                cur_trade = trade
+                extended,filtered,rfiltered,reversed = [],[],[],[]
+                close_action = cur_trade.actions[-1]                
+        else:   #低优先级
+            #print u'低优先级'
+            if trade.direction == cur_trade.direction:  #同向屏蔽
+                filtered.append(trade)
+            else:   #逆向屏蔽
+                rfiltered.append(trade)
+    return xtrades
 
 
 def itradex(sif     #期指
@@ -329,97 +430,6 @@ def itradex(sif     #期指
     return sync_trades(sif,tradess,acstrategy)
 
 
-def null_sync_tradess(sif,tradess,acstrategy=late_strategy):
-    xtrades = []
-    for trades in tradess:
-        xtrades.extend(trades)
-    return xtrades
-
-##平仓比较函数中，第一个参数的优先级低于第二个
-def early_strategy(action1,action2):#多选时的平仓策略，最早平仓
-    return action1 if action1.date<action2.date else action2
-
-def late_strategy(action1,action2):#多选时的平仓策略，最晚平仓. 从止损的角度来看比较兼顾
-    return action1 if action1.date>=action2.date else action2
-
-def min_strategy(action1,action2):#多选时的平仓策略，最窄平仓.取得是最高的平仓价，有预读的可能性
-    if action1.position == LONG:#多平仓，即买入平仓的，以低者为窄
-        return action1 if action1.price < action2.price else action2
-    else:#空平仓，即卖出平多仓的，平仓位应越来越高
-        return action1 if action1.price > action2.price else action2
-
-def max_strategy(action1,action2):#多选时的平仓策略，最宽平仓. 取得都是最低的平仓价，不合理
-    if action1.position == LONG:#多平仓，即买入平仓的，以高者为宽
-        return action1 if action1.price > action2.price else action2
-    else:#空平仓，即卖出平多仓的，平仓位应越来越低
-        return action1 if action1.price < action2.price else action2
-
-def a1_strategy(action1,action2):#始终选择第1次的平仓位,从止损来看最合理
-    return action1
-
-def a2_strategy(action1,action2):#始终选择第2次的平仓位
-    ##a2的问题是可能会抬高臀位，比如本来2700买入，2720出现新的高优先级信号，那么按之前的方法，其止损在2700左右，而新的情况导致止损到了2715左右，
-    return action2
-
-
-
-DTSORT2 = lambda x,y: int(((x.date%1000000 * 10000)+x.time) - ((y.date%1000000 * 10000)+y.time))
-def sync_tradess(sif,tradess,acstrategy=late_strategy):
-    trans = sif.transaction
-    sdate = trans[IDATE]
-    stime = trans[ITIME]
-    sopen = trans[IOPEN]
-    sclose = trans[ICLOSE]
-    shigh = trans[IHIGH]
-    slow = trans[ILOW]    
-    
-    xtrades = []
-    finished =False
-    cur_trade = find_first(tradess)
-    if cur_trade == None:
-        return []
-    extended,filtered,rfiltered,reversed = [],[],[],[]
-    close_action = cur_trade.actions[-1]
-    print '#####################first:',close_action.time
-    while True:
-        trade = find_first(tradess)
-        if trade == None:
-            xtrades.append(close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed))
-            break
-        print 'find:date=%s,time=%s,functor=%s' % (trade.actions[0].date,trade.actions[0].time,trade.functor)  
-        if DTSORT2(trade.actions[0],close_action)>0:  #时间超过
-            #print u'时间超过'
-            xtrades.append(close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed))
-            cur_trade = trade
-            close_action = cur_trade.actions[-1]
-            extended,filtered,rfiltered,reversed = [],[],[],[]
-            continue
-           
-        #print trade.functor,trade.functor.priority ,cur_trade.functor,cur_trade.functor.priority
-        if trade.functor.priority < cur_trade.functor.priority:
-            #print u'高优先级'
-            if trade.direction == cur_trade.direction:  #同向取代关系
-                print u'同向增强,%s|%s:%s被%s增强'%(cur_trade.functor,cur_trade.actions[0].date,cur_trade.actions[0].time,trade.functor)
-                close_action = acstrategy(close_action,trade.actions[-1])
-                extended.append(cur_trade)
-                cur_trade = trade
-            else:   #逆向平仓
-                print u'逆向平仓'
-                reversed.append(trade)
-                xindex = reversed[0].actions[0].index
-                cposition = BaseObject(index=xindex,date=sdate[xindex],time=stime[xindex],position=reversed[0].direction,xtype=XCLOSE)    #因为已经抑制了1514开仓,必然不会溢出
-                cposition.price = make_price(cposition.position,sopen[xindex],sclose[xindex],shigh[xindex],slow[xindex])
-                xtrades.append(close_trade(sif,cur_trade,cposition,extended,filtered,rfiltered,reversed))
-                cur_trade = trade
-                extended,filtered,rfiltered,reversed = [],[],[],[]
-                close_action = cur_trade.actions[-1]                
-        else:   #低优先级
-            #print u'低优先级'
-            if trade.direction == cur_trade.direction:  #同向屏蔽
-                filtered.append(trade)
-            else:   #逆向屏蔽
-                rfiltered.append(trade)
-    return xtrades
 
 def close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed,calc_profit=simple_profit):
     open_action = extended[0].actions[0] if extended else cur_trade.actions[0]

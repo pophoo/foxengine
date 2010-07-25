@@ -14,6 +14,8 @@ $def with(fname,lasttime,xactions)
 最后更新时间:$lasttime
 <br/>
 注意：优先级数字越小优先级越高，2500以下都较好
+<br>
+平仓请等待本分钟结束，在下一分钟开始时处理
 <table border>
 <tr>
     <th>日期</th>
@@ -22,6 +24,11 @@ $def with(fname,lasttime,xactions)
     <th>开平仓</th>
     <th>方向</th>
     <th>价格</th>
+    <!--
+    <th>止损1</th>
+    <th>止损2</th>
+    -->
+    <th>止损</th>
     <th>方法</th>
 </tr>
 $for action in xactions
@@ -48,6 +55,27 @@ $for action in xactions
                 卖出
         </td>
         <td>$action.price</td>
+        <!--
+        <td>
+            $if action.xtype==-1:
+                $action.stop1
+            $else:
+                &nbsp    
+        </td>
+        <td>
+            $if action.xtype==-1:
+                $action.stop2
+            $else:
+                &nbsp
+        </td>
+        -->    
+        <td>
+            $if action.xtype==-1:
+                $action.stop
+            $else:
+                &nbsp
+        </td>        
+            
         <td>$action.functor</td>
     </tr>
 </table>

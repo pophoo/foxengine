@@ -100,6 +100,27 @@ def whget(strategy,functor):
     xactions = iftrade.last_wactions(sif,tradesy)
     for action in xactions:
         action.price = action.price / 10.0
+        calc_stop(sif,action)
     return fname,sif,xactions
+
+def calc_stop(sif,action):
+    stop1 = sif.atr5x[action.index]/2000.0
+    stop2 = sif.atr[action.index]*1.5/1000
+    if stop1 < 3:
+        stop1 = 3
+    if stop2 < 3:
+        stop2 = 3
+    if action.position == LONG:
+        action.stop1 = action.price - stop1
+        action.stop2 = action.price - stop2
+        action.stop = min(action.stop1,action.stop2)
+    else:
+        action.stop1 = action.price + stop1
+        action.stop2 = action.price + stop2
+        action.stop = max(action.stop1,action.stop2)
+    action.stop1 = round(action.stop1,1)    #对空头可能多了0.05个点
+    action.stop2 = round(action.stop2,1) 
+    action.stop = round(action.stop,1) 
+    
 
 whget = fcustom(whget,functor=iftrade.ltrade3x0525)

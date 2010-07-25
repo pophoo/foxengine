@@ -13,17 +13,24 @@ render = web.template.render(path_name)
 
 
 urls = (
-  '/last', 'LastUpdate'
+  '/last', 'LastUpdate',
+  '/last/(.*)','LastUpdate'
 )
 
 application = web.application(urls, globals()).wsgifunc()
 
 class LastUpdate:
-    def GET(self):
-        fname,sif,xactions = dynamic.whget(ifuncs.xxx)
+    def GET(self,priority=2500):
+        try:
+            priority = int(priority)    #除默认外，传入的是字符串
+        except:
+            return u'优先级请输入合法的数字，您输入的是:%s' % priority
+        fname,sif,xactions = dynamic.whget(ifuncs.xxx4,priority=priority)
         #return "name=%s,lastupdate=%s:%s" % (fname,sif.transaction[IDATE][-1],sif.transaction[ITIME][-1])
         lasttime = "%s-%s" % (sif.transaction[IDATE][-1],sif.transaction[ITIME][-1])
+        #print priority
         return render.last(fname,lasttime,xactions)
+
 
 
 if __name__ == "__main__": 

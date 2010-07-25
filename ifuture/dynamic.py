@@ -87,7 +87,7 @@ def wxcalc(strategy,functor):
 
 wxcalc = fcustom(wxcalc,functor=iftrade.ltrade3x0525)
 
-def whget(strategy,functor):
+def whget(strategy,functor,priority=2500):
     fname = find_cur()
     name = get_if_name(fname)
     path = get_if_path(fname)
@@ -95,7 +95,7 @@ def whget(strategy,functor):
     ifmap = ifreader.readp(path,name,extractor=extract_if_wh)  # fname ==> BaseObject(name='$name',transaction=trans)
     sif = ifmap[name]
     print 'last updated--%s:%s' % (sif.transaction[IDATE][-1],sif.transaction[ITIME][-1])
-    tradesy =  functor(sif,strategy)    #xfollow作为平仓信号，且去掉了背离平仓的信号
+    tradesy =  functor(sif,strategy,priority_level=priority)    #xfollow作为平仓信号，且去掉了背离平仓的信号
     #print tradesy
     xactions = iftrade.last_wactions(sif,tradesy)
     for action in xactions:

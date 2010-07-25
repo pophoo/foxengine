@@ -2451,4 +2451,5 @@ xpattern3 = [gapdown15,br75]  #互有出入
 xuds = [xud30,xud30c,xud15]
 xnormal2 = [ipmacd_short_x,ipmacd_long_6,ipmacd_short5,ma30_short,ma60_short,down01,up0,rsi3x]
 xxx = xnormal+xnormal2+xpattern+xpattern2+xuds+xpattern3
-
+xpattern4 = [xup,xdown,up3]   #与其它组合有矛盾? 暂不使用。盈利部分被其它覆盖，亏损部分没有，导致副作用
+xxx4 = xxx + xpattern4

@@ -89,7 +89,7 @@ tradesy =  iftrade.itrade3y05_25(i07,xfollow+xagainst+xmiddle)    #xfollow作为
 #优先级: xnormal > xpattern2 > xuds > xpattern >> xnormal2. 如果该优先级内出现反向信号，反向操作
 # >xpattern3/xpattern4
 #xpattern4与其它组合无增益
-xnormal = [ifuncs.ipmacd_short_5,ifuncs.ipmacd_long_5,ifuncs.gd30,ifuncs.gu30]
+xnormal = [ifuncs.ipmacd_short_5,ifuncs.ipmacd_short_6a,ifuncs.ipmacd_long_5,ifuncs.gd30,ifuncs.gu30]
 
 #xpattern对远期合约的效果要好于近期的
 
@@ -1244,6 +1244,32 @@ def ipmacd_short_5(sif,sopened=None):
 ipmacd_short_5.direction = XSELL
 ipmacd_short_5.priority = 1000
 
+def ipmacd_short_6a(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+    
+    s30_13 = np.zeros_like(sif.diff1)
+    s30_13[sif.i_cof30] = strend2(ma(sif.close30,13))
+    s30_13 = extend2next(s30_13)
+
+    signal = gand(cross(sif.dea1,sif.diff1)<0
+            #,gor(strend2(sif.sdiff30x-sif.sdea30x)<0,sif.sdiff30x<sif.sdea30x)
+            #,strend2(sif.sdiff5x-sif.sdea5x)<0
+            ,sif.sdiff5x<sif.sdea5x
+            ,strend2(sif.sdiff30x-sif.sdea30x)<0
+            #,sif.sdiff30x<sif.sdea30x
+            ,s30_13 < 0
+            )
+    signal = gand(signal
+            ,sif.ma5 < sif.ma13
+            ,strend2(sif.ma30)<0
+            ,strend2(sif.ma270)<0
+            ,ksfilter
+            )
+    return signal * ipmacd_short_6a.direction 
+ipmacd_short_6a.direction = XSELL
+ipmacd_short_6a.priority = 1000
 
 def ipmacd_short_x(sif,sopened=None):
     trans = sif.transaction
@@ -2466,7 +2492,7 @@ def nonefilter(sif):    #全清除
 
 
 
-xnormal = [ipmacd_short_5,ipmacd_long_5,gd30,gu30]
+xnormal = [ipmacd_short_5,ipmacd_short_6a,ipmacd_long_5,gd30,gu30]
 xpattern = [godown5,godown30,inside_up,br30]
 xpattern2 = [goup5,opendown,openup,gapdown5,gapdown]  
 xpattern3 = [gapdown15,br75]  #互有出入

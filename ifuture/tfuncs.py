@@ -39,23 +39,66 @@ def tfunc(sif,sopened=None):
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
     
+    s30_13 = np.zeros_like(sif.diff1)
+    s30_13[sif.i_cof30] = strend2(ma(sif.close30,13))
+    s30_13 = extend2next(s30_13)
 
-    signal = np.zeros_like(sif.close)
-    signal[sif.i_cof3] = cross(sif.dea3x,sif.diff3x)<0
 
-    signal = gand(signal
-            ,sif.ma3<sif.ma13
-            ,strend2(sif.sdiff5x-sif.sdea5x)<0
-            ,strend2(sif.sdiff30x-sif.sdea30x)<0
-            ,strend(sif.ma30)<0
-            ,strend(sif.ma13)<0
-            #,strend(sif.ma7-sif.ma30)>0              
+    xs = np.zeros_like(sif.close)
+    hdevi5 = hdevi(sif.high5,sif.diff5x,sif.dea5x)
+    sc = cross(sif.dea5x,sif.diff5x)
+    scc = np.select([sc>0],[-sc],0)  #上叉为-1
+
+    xs[sif.i_cof5] = hdevi5 + scc   
+    
+    xs = extend2next(xs)    #底背离的有效期是下一次反向叉之前
+
+    signal = gand(cross(sif.dea1,sif.diff1)<0
+            ,xs>0
             )
-
-    return signal * XSELL
-
+    signal = gand(signal
+            ,ksfilter
+            )
+    return signal * tfunc.direction
 tfunc.direction = XSELL
 tfunc.priority = 1000
+#tfunc.closer = lambda c:c+[s1]
+
+
+def ldevi30(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+    
+    s30_13 = np.zeros_like(sif.diff1)
+    s30_13[sif.i_cof30] = strend2(ma(sif.close30,13))
+    s30_13 = extend2next(s30_13)
+
+
+    xs = np.zeros_like(sif.close)
+    l30 = ldevi(sif.low30,sif.diff30x,sif.dea30x)
+    sc = cross(sif.dea30x,sif.diff30x)
+    scc = np.select([sc<0],[sc],0)  #下叉为-1
+
+    xs[sif.i_cof30] = l30 + scc   
+    
+    xs = extend2next(xs)    #5分钟底背离的有效期是下一次下叉之前
+
+    signal = gand(cross(sif.dea1,sif.diff1)>0)
+    signal = gand(signal
+                ,xs > 0
+                ,sif.ma3>sif.ma13  
+                ,strend(sif.sdiff5x-sif.sdea5x)>0            
+                #,strend(sif.sdiff15x-sif.sdea15x)>0            
+                ,strend(sif.sdiff30x-sif.sdea30x)>0
+                ,strend(sif.ma30)>0
+                ,strend(sif.ma13)>0
+                ,strend(sif.ma7-sif.ma30)>0              
+                #,dsfilter
+                )
+    return signal * ldevi30.direction
+ldevi30.direction = XBUY
+ldevi30.priority = 1000
 #tfunc.closer = lambda c:c+[s1]
 
 

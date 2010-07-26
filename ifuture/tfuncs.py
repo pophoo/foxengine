@@ -43,27 +43,81 @@ def tfunc(sif,sopened=None):
     s30_13[sif.i_cof30] = strend2(ma(sif.close30,13))
     s30_13 = extend2next(s30_13)
 
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof15] = cross(sif.dea15x,sif.diff15x)<0
 
-    xs = np.zeros_like(sif.close)
-    hdevi5 = hdevi(sif.high5,sif.diff5x,sif.dea5x)
-    sc = cross(sif.dea5x,sif.diff5x)
-    scc = np.select([sc>0],[-sc],0)  #上叉为-1
+    signal = sfollow(signal,cross(sif.dea1,sif.diff1)<0,30)
 
-    xs[sif.i_cof5] = hdevi5 + scc   
-    
-    xs = extend2next(xs)    #底背离的有效期是下一次反向叉之前
-
-    signal = gand(cross(sif.dea1,sif.diff1)<0
-            ,xs>0
+    signal = gand(signal
+            ,sif.diff1<0
+            ,strend2(sif.sdiff30x-sif.sdea30x)<0
+            ,sif.sdiff30x<sif.sdea30x
+            ,s30_13 < 0
             )
     signal = gand(signal
+            ,sif.ma5 < sif.ma13
+            ,strend2(sif.ma30)<0
+            ,strend2(sif.ma270)<0
             ,ksfilter
             )
-    return signal * tfunc.direction
+    return signal * XSELL
 tfunc.direction = XSELL
 tfunc.priority = 1000
 #tfunc.closer = lambda c:c+[s1]
 
+def ipmacd_short_6a(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+    
+    s30_13 = np.zeros_like(sif.diff1)
+    s30_13[sif.i_cof30] = strend2(ma(sif.close30,13))
+    s30_13 = extend2next(s30_13)
+
+    signal = gand(cross(sif.dea1,sif.diff1)<0
+            #,gor(strend2(sif.sdiff30x-sif.sdea30x)<0,sif.sdiff30x<sif.sdea30x)
+            #,strend2(sif.sdiff5x-sif.sdea5x)<0
+            ,sif.sdiff5x<sif.sdea5x
+            ,strend2(sif.sdiff30x-sif.sdea30x)<0
+            #,sif.sdiff30x<sif.sdea30x
+            ,s30_13 < 0
+            )
+    signal = gand(signal
+            ,sif.ma5 < sif.ma13
+            ,strend2(sif.ma30)<0
+            ,strend2(sif.ma270)<0
+            ,ksfilter
+            )
+    return signal * ipmacd_short_6a.direction 
+ipmacd_short_6a.direction = XSELL
+ipmacd_short_6a.priority = 1000
+
+def ipmacd_short_6b(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+    
+    s30_13 = np.zeros_like(sif.diff1)
+    s30_13[sif.i_cof30] = strend2(ma(sif.close30,13))
+    s30_13 = extend2next(s30_13)
+
+    signal = gand(cross(sif.dea1,sif.diff1)<0
+            #,gor(strend2(sif.sdiff30x-sif.sdea30x)<0,sif.sdiff30x<sif.sdea30x)
+            #,strend2(sif.sdiff5x-sif.sdea5x)<0
+            ,sif.sdiff5x<sif.sdea5x
+            #,strend2(sif.sdiff30x-sif.sdea30x)<0
+            ,sif.sdiff30x<sif.sdea30x
+            ,s30_13 < 0
+            )
+    signal = gand(signal
+            ,sif.ma5 < sif.ma13
+            ,strend2(sif.ma30)<0
+            ,strend2(sif.ma270)<0
+            ,ksfilter
+            )
+    return signal * ipmacd_short_6b.direction 
+ipmacd_short_6b.direction = XSELL
+ipmacd_short_6b.priority = 1000
 
 def ldevi30(sif,sopened=None):
     trans = sif.transaction

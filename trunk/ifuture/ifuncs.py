@@ -2502,3 +2502,6 @@ xnormal2 = [ipmacd_short_x,ipmacd_long_6,ipmacd_short5,ma30_short,ma60_short,dow
 xxx = xnormal+xnormal2+xpattern+xpattern2+xuds+xpattern3
 xpattern4 = [xup,xdown,up3]   #与其它组合有矛盾? 暂不使用。盈利部分被其它覆盖，亏损部分没有，导致副作用
 xxx4 = xxx + xpattern4
+#tradesy =  iftrade.itradex5_y(i05,xxx)
+#tradesy =  iftrade.itradex5_y(i05,xxx4,priority_level=3000)
+

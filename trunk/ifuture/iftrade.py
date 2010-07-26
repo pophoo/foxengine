@@ -315,8 +315,8 @@ def sync_tradess(sif,tradess,acstrategy=late_strategy):
             continue
            
         #print trade.functor,trade.functor.priority ,cur_trade.functor,cur_trade.functor.priority
-        if trade.functor.priority < cur_trade.functor.priority:
-            #print u'高优先级'
+        if trade.functor.priority <= cur_trade.functor.priority:
+            #print u'高/平优先级'   #后发的同优先级信号优先
             if trade.direction == cur_trade.direction:  #同向取代关系
                 print u'同向增强,%s|%s:%s被%s增强'%(cur_trade.functor,cur_trade.actions[0].date,cur_trade.actions[0].time,trade.functor)
                 close_action = acstrategy(close_action,trade.actions[-1])
@@ -983,14 +983,14 @@ itrade256_5 = fcustom(itrade3,stop_closer=atr5_uxstop_15_6,bclosers=[ifuncs.days
 itrade3xk_5 = fcustom(itrade3,stop_closer=atr5_uxstop_15_6,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long,ifuncs.xmacd_stop_long1,ifuncs.xdevi_stop_long1])
 
 #相比较物
-itrade3yx = fcustom(itrade3,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop_short],sclosers=sycloser)
-itrade3yx_0525 = fcustom(itrade3,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.daystop_short],sclosers=sycloser)
+itrade3yx = fcustom(itrade3,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itrade3yx_0525 = fcustom(itrade3,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 
 #############新的方式
 
-itradex_y = fcustom(itradex,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop_short],sclosers=sycloser)
-itradex5_y = fcustom(itradex,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.daystop_short],sclosers=sycloser)
+itradex_y = fcustom(itradex,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex5_y = fcustom(itradex,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 
-ltrade3x0525 = fcustom(itradex,stop_closer=atr5_uxstop_05_25,bclosers=[],sclosers=[],make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter,sync_trades=null_sync_tradess)
+ltrade3x0525 = fcustom(itradex,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter,sync_trades=null_sync_tradess)
 
 

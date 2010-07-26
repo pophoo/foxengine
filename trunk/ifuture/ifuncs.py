@@ -40,19 +40,19 @@ sif = i08
 #单个测试
 #trades = iftrade.itrade(i06,[ifuncs.xx],[ifuncs.daystop_long,ifuncs.daystop_short,ifuncs.atr_xstop_15_6])
 #trades = iftrade.itrade3x(i06,[ifuncs.xx])
-trades = iftrade.itrade3x(i06,[tfuncs.tfunc])
+tradesy = iftrade.itrade3x(i06,[tfuncs.tfunc])
 
 
-sum([trade.profit for trade in trades])
-sum([trade.profit>0 for trade in trades])
-sum([trade.profit for trade in trades])/len(trades)
-len(trades)
-iftrade.R(trades)
+sum([trade.profit for trade in tradesy])
+sum([trade.profit>0 for trade in tradesy])
+sum([trade.profit for trade in tradesy])/len(tradesy)
+len(tradesy)
+iftrade.R(tradesy)
 
-iftrade.max_drawdown(trades)    #最大连续回撤和单笔回撤
-iftrade.max_win(trades)         #最大连续盈利和单笔盈利
+iftrade.max_drawdown(tradesy)    #最大连续回撤和单笔回撤
+iftrade.max_win(tradesy)         #最大连续盈利和单笔盈利
 
-for trade in trades:print trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].date,trade.actions[1].time,trade.actions[1].position,trade.actions[1].price
+for trade in tradesy:print trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].date,trade.actions[1].time,trade.actions[1].position,trade.actions[1].price
 
 
 
@@ -1990,7 +1990,10 @@ def xldevi2(sif,sopened=None):#+
                 #,strend(sif.ma135-sif.ma270)>0
                 ,dsfilter
                 )
-    return signal * XBUY
+    return signal * xldevi2.direction
+xldevi2.direction = XBUY
+xldevi2.priority = 1000
+
 
 
 def xldevi2_old(sif,sopened=None):#+
@@ -2287,7 +2290,7 @@ atr_stop_25_4 = fcustom(atr_stop,lost_times=250,win_times=400)
 def daystop_long(sif,sopened):
     '''
         每日收盘前的平仓,平多仓
-        最后3分钟也平仓，用于动态计算和到期日(最后交易时间为1500)
+        最后3分钟也平仓，用于兼容到期日(最后交易时间为1500)
     '''
     stime = sif.transaction[ITIME]
     sl = greater(stime,1511)
@@ -2297,11 +2300,31 @@ def daystop_long(sif,sopened):
 def daystop_short(sif,sopened):
     '''
         每日收盘前的平仓,平空仓
-        最后3分钟也平仓，用于动态计算和到期日(最后交易时间为1500)
+        最后3分钟也平仓，用于兼容到期日(最后交易时间为1500)
     '''
     stime = sif.transaction[ITIME]
     sl = greater(stime,1511)
     sl[-4:] = 1
+    return sl * XBUY
+
+def xdaystop_long(sif,sopened):
+    '''
+        每日收盘前的平仓,平多仓
+        最后3分钟不平仓
+        用于动态计算
+    '''
+    stime = sif.transaction[ITIME]
+    sl = greater(stime,1511)
+    return  sl * XSELL
+
+def xdaystop_short(sif,sopened):
+    '''
+        每日收盘前的平仓,平空仓
+        最后3分钟不平仓.
+        用于动态计算
+    '''
+    stime = sif.transaction[ITIME]
+    sl = greater(stime,1511)
     return sl * XBUY
 
 

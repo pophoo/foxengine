@@ -112,6 +112,8 @@ def prepare_index(sif):
     sif.time = trans[ITIME]
     sif.date = trans[IDATE]
 
+    
+
     sif.diff1,sif.dea1 = cmacd(trans[ICLOSE]*FBASE)
     sif.diff2,sif.dea2 = cmacd(trans[ICLOSE]*FBASE,19,39,15)    
     sif.diff3,sif.dea3 = cmacd(trans[ICLOSE]*FBASE,36,78,27)
@@ -142,6 +144,22 @@ def prepare_index(sif):
     sif.atr2 = atr2(trans[ICLOSE]*XBASE,trans[IHIGH]*XBASE,trans[ILOW]*XBASE,20)    
     sif.xatr = sif.atr * XBASE * XBASE / trans[ICLOSE]
     sif.mxatr = ma(sif.xatr,13)
+
+    sm270 = sif.ma270 - rollx(sif.ma270)
+    sif.state_270 = msum(sm270,20)
+    sif.state_270s = strend(sif.state_270)
+
+    sm135 = sif.ma135 - rollx(sif.ma135)
+    sif.state_135 = msum(sm135,20)
+    sif.state_135s = strend(sif.state_135)
+
+    sm60 = sif.ma60 - rollx(sif.ma60)
+    sif.state_60 = msum(sm60,20)
+    sif.state_60s = strend(sif.state_60)
+
+    sm30 = sif.ma30 - rollx(sif.ma30)
+    sif.state_30 = msum(sm30,20)
+    sif.state_30s = strend(sif.state_30)
 
     sif.i_cof5 = np.where(
             gor(gand(trans[ITIME]%5==0,trans[ITIME]%1000 != 915)
@@ -373,6 +391,10 @@ def prepare_index(sif):
     sif.atrdx = np.zeros_like(trans[ICLOSE])
     sif.atrdx[sif.i_cofd] = sif.atrd
     sif.atrdx = extend2next(sif.atrdx)
+
+    s30_13 = np.zeros_like(sif.diff1)
+    s30_13[sif.i_cof30] = strend2(ma(sif.close30,13))
+    sif.state_30_13 = extend2next(s30_13)
 
 
 def calc_high_low_vol(trans,i_oof,i_cof):

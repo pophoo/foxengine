@@ -63,7 +63,7 @@ def ocfilter(sif):  #在开盘前30分钟和收盘前5分钟不开仓，头三�
 def last_filter(sif):  
     stime = sif.transaction[ITIME]
     soc = np.ones_like(stime)
-    soc = gand(greater(stime,944),lesser(stime,1510))    
+    soc = gand(greater(stime,934),lesser(stime,1510))    
     soc[:275*3] = 0
     return soc
 

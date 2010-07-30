@@ -52,7 +52,7 @@ iftrade.R(tradesy)
 iftrade.max_drawdown(tradesy)    #最大连续回撤和单笔回撤
 iftrade.max_win(tradesy)         #最大连续盈利和单笔盈利
 
-for trade in tradesy:print trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].date,trade.actions[1].time,trade.actions[1].position,trade.actions[1].price
+for trade in tradesy:print trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].date,trade.actions[1].time,trade.actions[1].position,trade.actions[1].price,trade.actions[1].index-trade.actions[0].index
 
 
 

@@ -101,7 +101,7 @@ xpattern3 = [ifuncs.gapdown15,ifuncs.br75]  #互有出入
 
 #xpattern4 = [ifuncs.xup,ifuncs.xdown,ifuncs.up3]   #与其它组合有矛盾? 暂不使用。盈利部分被其它覆盖，亏损部分没有，导致副作用
 
-xuds = [ifuncs.xud30,ifuncs.xud30c,ifuncs.xud15]
+xuds = [ifuncs.xud30,ifuncs.xud30c,ifuncs.xud15,ifuncs.xud10s]
 
 xnormal2 = [ifuncs.ipmacd_short_x,ifuncs.ipmacd_long_6,ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.ma60_short,ifuncs.down01,ifuncs.up0,ifuncs.rsi3x]
 
@@ -110,7 +110,7 @@ tradesy =  iftrade.itradex5_y(i05,xnormal+xnormal2+xpattern+xpattern2+xuds+xpatt
 #RU1011
 ru = ifmap['RU1011']
 fu = ifmap['FU1009']
-cu = ifmap['CU1009']
+cu = ifmap['CU1011']
 
 s_short =[ifuncs.ipmacd_short,ifuncs.dmacd_short5]
 s_long=[ifuncs.ipmacd_long5,ifuncs.ipmacd_long_f]   #稳定于RU1011
@@ -1630,6 +1630,34 @@ ipmacd_short5.direction = XSELL
 ipmacd_short5.priority = 2000
 
 
+def xud10s(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+    mxc = xc0s(sif.open10,sif.close10,sif.high10,sif.low10,13) < 0
+    signal = np.zeros_like(sif.diff1)
+    signal[sif.i_cof10] = mxc
+
+    #fsignal = gand(cross(sif.dea1,sif.diff1)<0)
+
+    #signal = sfollow(signal,fsignal,15)
+
+    signal = gand(signal
+            ,strend(sif.diff1)<0
+            ,sif.sdiff60x<sif.sdea60x
+            ,sif.sdiff30x<sif.sdea30x
+            ,strend2(sif.sdiff5x-sif.sdea5x)<0
+            #,sif.ma5<sif.ma13
+            ,strend(sif.ma270)<0
+            ,ksfilter
+            )
+
+    return signal * xud10s.direction
+xud10s.direction = XSELL
+xud10s.priority = 800
+
+
 def xud15(sif,sopened=None):
     trans = sif.transaction
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
@@ -2497,7 +2525,7 @@ xpattern = [godown5,godown30,inside_up,br30]
 xpattern2 = [goup5,opendown,openup,gapdown5,gapdown]  
 xpattern3 = [gapdown15,br75]  #互有出入
 #xpattern4 = [xup,xdown,up3]   #与其它组合有矛盾? 暂不使用。盈利部分被其它覆盖，亏损部分没有，导致副作用
-xuds = [xud30,xud30c,xud15]
+xuds = [xud30,xud30c,xud15,xud10s]
 xnormal2 = [ipmacd_short_x,ipmacd_long_6,ipmacd_short5,ma30_short,ma60_short,down01,up0,rsi3x]
 xxx = xnormal+xnormal2+xpattern+xpattern2+xuds+xpattern3
 xpattern4 = [xup,xdown,up3]   #与其它组合有矛盾? 暂不使用。盈利部分被其它覆盖，亏损部分没有，导致副作用

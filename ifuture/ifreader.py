@@ -75,7 +75,7 @@ def read_if(filename,extractor=extract_if):
 
 FPATH = 'D:/work/applications/gcode/wolfox/data/ifuture/'
 prefix = 'SF'
-IFS = 'IF1005','IF1006','IF1007','IF1008','IF1009','IF1012','RU1011','FU1009','CU1009'
+IFS = 'IF1005','IF1006','IF1007','IF1008','IF1009','IF1012','RU1011','FU1009','CU1011'
 SUFFIX = '.txt'
 
 def readp(path,name,extractor=extract_if):
@@ -247,6 +247,48 @@ def prepare_index(sif):
     sif.smacd3x[sif.i_cof3] = strend_macd3x
     sif.smacd5x=extend2next(sif.smacd3x)
 
+    ##10分钟
+    sif.i_cof10 = np.where(
+            gor(gand((trans[ITIME]%10) == 0)#,trans[ITIME]%1000!=915)
+                ,gand(trans[ITIME]%10000 == 1514,rollx(trans[ITIME],-1)%10000!=1515) #如果没有1515，则取1514
+            )
+        )[0]    #5分钟收盘线,不考虑隔日的因素
+    sif.i_oof10 = roll0(sif.i_cof10)+1    
+    sif.i_oof10[0] = 0
+    sif.close10 = trans[ICLOSE][sif.i_cof10]
+    #sif.open10 = rollx(sif.close10)   #open10看作是上一个的收盘价,其它方式对应open和close以及还原的逻辑比较复杂
+    sif.open10 = trans[IOPEN][sif.i_oof10]
+    #sif.high10 = tmax(trans[IHIGH],10)[sif.i_cof10]
+    #sif.low10 = tmin(trans[ILOW],10)[sif.i_cof10]
+    sif.high10,sif.low10,sif.vol10 = calc_high_low_vol(trans,sif.i_oof10,sif.i_cof10)
+    sif.holding10 = trans[IHOLDING][sif.i_cof10]
+
+
+    sif.atr10 = atr(sif.close10*XBASE,sif.high10*XBASE,sif.low10*XBASE,20)
+    sif.xatr10 = sif.atr10 * XBASE * XBASE / sif.close10
+    sif.mxatr10 = ma(sif.xatr10,13)
+    sif.xatr10x = np.zeros_like(trans[ICLOSE])
+    sif.xatr10x[sif.i_cof10] = sif.xatr10
+    sif.xatr10x = extend2next(sif.xatr10x)
+
+    sif.atr10x = np.zeros_like(trans[ICLOSE])
+    sif.atr10x[sif.i_cof10] = sif.atr10
+    sif.atr10x = extend2next(sif.atr10x)
+    
+
+    sif.diff10x,sif.dea10x = cmacd(sif.close10*FBASE)
+    sif.diff10x5,sif.dea10x5 = cmacd(sif.close10*FBASE,60,130,45)    
+
+    sif.sdiff10x,sif.sdea10x = np.zeros_like(trans[ICLOSE]),np.zeros_like(trans[ICLOSE])
+    sif.sdiff10x[sif.i_cof10] = sif.diff10x
+    sif.sdea10x[sif.i_cof10] = sif.dea10x
+    sif.sdiff10x=extend2next(sif.sdiff10x)
+    sif.sdea10x=extend2next(sif.sdea10x)
+
+    strend_macd10x = strend(sif.diff10x-sif.dea10x)
+    sif.smacd10x = np.zeros_like(trans[ICLOSE])
+    sif.smacd10x[sif.i_cof10] = strend_macd10x
+    sif.smacd5x=extend2next(sif.smacd10x)
     
     #30分钟
     sif.i_cof30 = np.where(gor(

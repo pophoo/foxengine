@@ -124,8 +124,7 @@ s_long=[ifuncs.ipmacd_long5,ifuncs.ipmacd_long_f]   #稳定于RU1011
 
 
 from wolfox.fengine.ifuture.ibase import *
-import wolfox.fengine.ifuture.iftrade as iftrade
-
+from wolfox.fengine.ifuture.iftrade import delay_filter
 
 #5分钟系列以strend(ma60)为判断
 #1分钟系列以strend(ma30)为判断
@@ -864,7 +863,7 @@ def ma60_short(sif,sopened=None):
     signal = sfollow(msignal,fsignal,5)
     return signal * ma60_short.direction
 ma60_short.direction = XSELL
-ma60_short.priority = 2500
+ma60_short.priority = 2499
 
 
 def ma60_short_0715(sif,sopened=None):
@@ -2505,6 +2504,7 @@ atr_xstop_05_1 = fcustom(atr_xstop,lost_times=50,win_times=100,max_drawdown=200,
 
 
 from wolfox.fengine.ifuture.iftrade import ocfilter
+
 
 def longfilter(sif):  #在开盘前30分钟和收盘前5分钟不开仓，头三个交易日不开张
     soc = ocfilter(sif)

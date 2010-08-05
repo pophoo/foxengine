@@ -137,6 +137,13 @@ class ModuleTest(unittest.TestCase):
         signal2 = np.array([1,0,-1,0,1,0])
         self.assertEquals([10,15,30,35,50,55],ravg(source,signal2).tolist())
 
+    def test_ssub(self):
+        self.assertEquals([],ssub(np.array([])).tolist())
+        source = np.array([10,20,30,40,50,60])
+        self.assertEquals([10,10,10,10,10,10],ssub(source).tolist())
+        source = np.array([0,20,0,80,0,60])
+        self.assertEquals([0,20,0,60,0,-20],ssub(source).tolist())
+
     def test_rsub(self):
         self.assertEquals([],rsub(np.array([]),np.array([])).tolist())
         source = np.array([10,20,30,40,50,60])
@@ -287,6 +294,15 @@ class ModuleTest(unittest.TestCase):
         sdiff = np.array([3,19,12,8,9,2,12,15,0,0,0])
         sdea = np.array([2,22,0,0,0,0,15,9,0,0,0])        
         self.assertEquals([0,0,0,0,0,0,0,0,0,0,0],ldevi(slow,sdiff,sdea,covered=5).tolist())
+
+    def test_hpeak(self):#测试通路
+        self.assertEquals([],hpeak(np.array([]),np.array([]),np.array([])).tolist())
+
+    def test_lpeak(self):#测试通路
+        self.assertEquals([],lpeak(np.array([]),np.array([]),np.array([])).tolist())
+
+    def test_hlpeak(self):#测试通路
+        self.assertEquals([],hlpeak(np.array([]),np.array([]),np.array([]),np.array([])).tolist())
 
     def test_swing(self):
         self.assertEquals([0,0,0,0,0],swing(np.array([10,30,25,15,45])).tolist())

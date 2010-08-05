@@ -101,7 +101,7 @@ xpattern3 = [ifuncs.gapdown15,ifuncs.br75]  #互有出入
 
 #xpattern4 = [ifuncs.xup,ifuncs.xdown,ifuncs.up3]   #与其它组合有矛盾? 暂不使用。盈利部分被其它覆盖，亏损部分没有，导致副作用
 
-xuds = [ifuncs.xud30,ifuncs.xud30c,ifuncs.xud15,ifuncs.xud10s]
+xuds = [ifuncs.xud30,ifuncs.xud30c,ifuncs.xud15]#,ifuncs.xud10s]
 
 xnormal2 = [ifuncs.ipmacd_short_x,ifuncs.ipmacd_long_6,ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.ma60_short,ifuncs.down01,ifuncs.up0,ifuncs.rsi3x]
 
@@ -124,6 +124,8 @@ s_long=[ifuncs.ipmacd_long5,ifuncs.ipmacd_long_f]   #稳定于RU1011
 
 
 from wolfox.fengine.ifuture.ibase import *
+import wolfox.fengine.ifuture.iftrade as iftrade
+
 
 #5分钟系列以strend(ma60)为判断
 #1分钟系列以strend(ma30)为判断
@@ -1243,6 +1245,7 @@ def ipmacd_short_5(sif,sopened=None):
     return signal * ipmacd_short_5.direction
 ipmacd_short_5.direction = XSELL
 ipmacd_short_5.priority = 1000
+#ipmacd_short_5.xfilter = fcustom(iftrade.delay_filter,delayed=15)
 
 def ipmacd_short_6a(sif,sopened=None):
     trans = sif.transaction
@@ -1270,6 +1273,7 @@ def ipmacd_short_6a(sif,sopened=None):
     return signal * ipmacd_short_6a.direction 
 ipmacd_short_6a.direction = XSELL
 ipmacd_short_6a.priority = 1000
+#ipmacd_short_6a.xfilter = fcustom(iftrade.delay_filter,delayed=10)
 
 def ipmacd_short_x(sif,sopened=None):
     trans = sif.transaction
@@ -1655,7 +1659,7 @@ def xud10s(sif,sopened=None):
 
     return signal * xud10s.direction
 xud10s.direction = XSELL
-xud10s.priority = 800
+xud10s.priority = 3100
 
 
 def xud15(sif,sopened=None):

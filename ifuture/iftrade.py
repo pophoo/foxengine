@@ -51,6 +51,28 @@ DTSORT = lambda x,y: int(((x.date%1000000 * 10000)+x.time) - ((y.date%1000000 * 
 
 simple_profit = lambda actions: actions[0].price * actions[0].position + actions[1].price * actions[1].position - TAX
 
+def delay_filter(sif,signal,delayed=5,limit=60):
+    '''
+        对signal进行delay处理
+        delay值为信号延后发送的周期数
+        limit是信号破位的限制
+    '''
+    sb = signal == XBUY
+    ss = signal == XSELL
+    smax = tmax(sif.high,delayed)
+    smin = tmin(sif.low,delayed)
+    psb = (sif.open+sif.high)/2 - limit  #买入止损
+    pss = (sif.open+sif.low)/2 + limit  #卖出止损
+    sb2 = gand(rollx(sb,delayed),rollx(psb,delayed-1)<smin) #psb在信号的下一周期发生
+    ss2 = gand(rollx(ss,delayed),rollx(pss,delayed-1)>smax)
+    return np.select([sb2,ss2],[XBUY,XSELL],default=0)
+
+def gothrough_filter(sif,signal,delayed=5,limit=60):
+    ''' 直通
+    '''
+    return signal
+
+
 def ocfilter(sif):  #在开盘前30分钟和收盘前5分钟不开仓，头三个交易日不开张
     stime = sif.transaction[ITIME]
     soc = np.ones_like(stime)
@@ -63,7 +85,7 @@ def ocfilter(sif):  #在开盘前30分钟和收盘前5分钟不开仓，头三�
 def last_filter(sif):  
     stime = sif.transaction[ITIME]
     soc = np.ones_like(stime)
-    soc = gand(greater(stime,934),lesser(stime,1510))    
+    soc = gand(greater(stime,944),lesser(stime,1510))    
     soc[:275*3] = 0
     return soc
 
@@ -397,17 +419,21 @@ def itradex(sif     #期指
 
     tradess = []
     for opener in openers:
-        if 'filter' not in opener.__dict__:
+        if 'filter' not in opener.__dict__: #用于对信号进行过滤,如开盘30分钟内不发出信号等
             myfilter = slongfilter if opener.direction == XBUY else sshortfilter
         else:
             myfilter = opener.filter(sif)
-        opens = open_position(sif.transaction,opener(sif),myfilter,myfilter) #因为opener只返回一个方向的操作,所以两边都用myfilter，但实际上只有相应的一个有效，另一个是虚的
+        if 'xfilter' not in opener.__dict__:    #xfilter用于自定义的信号变换,如根据5分钟内的波动决定延迟发送还是吞没
+            xfilter = gothrough_filter
+        else:
+            xfilter = opener.xfilter
+        opens = open_position(sif.transaction,xfilter(sif,opener(sif)),myfilter,myfilter) #因为opener只返回一个方向的操作,所以两边都用myfilter，但实际上只有相应的一个有效，另一个是虚的
         #opens.sort(DTSORT)
         sopened = np.zeros(len(sif.transaction[IDATE]),int)   #为开仓价格序列,负数为开多仓,正数为开空仓
         for aopen in opens:
             sopened[aopen.index] = aopen.price * aopen.position
         sclose = np.zeros(len(sif.transaction[IDATE]),int)
-        if 'closer' in opener.__dict__:
+        if 'closer' in opener.__dict__: #是否有特定的closer,如要将macd下叉也作为多头持仓的平仓条件,则可设置函数,在返回值中添加该下叉信号算法
             if opener.direction == XBUY:
                 #print 'buy closer:',opener.closer
                 closers = opener.closer(sclosers)

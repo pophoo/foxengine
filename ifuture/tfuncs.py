@@ -18,13 +18,9 @@ ama2 = ama_maker(covered=30,dfast=6,dslow=100)
 
 
 #TODO
-#   1. 确认ATR5的大小变化与大的上涨或下跌趋势的相关性，如涨势中ATR5上涨放大下跌缩小，跌势中下跌放大上涨缩小？
-#      暂无结论 
-#   2. 测试3分钟上叉买入，1分钟卖出及其相反的可行性
-#      结论: 
-#   3. 测试上叉买入，macd下行(或连续两分钟下行，或连续两分钟不能创新高)卖出及其相反的可行性. 买入点可参考diff5的变化
-#      测试macd翻转上行(macd>0)买入，下行卖出的可行性；或下行2分钟或以上后的反转上行
-#      结论:没用用处 
+#1. 如何搞定大趋势的问题。升破某线或者跌破某线，或者n周期最高最低?
+#2. 逆小趋势的问题，如1分钟线最低价上穿2700线，且2700线正在上行
+#   下穿正在下行的270线
 
 def s1(sif,sopened=None):
     trans = sif.transaction
@@ -33,48 +29,96 @@ def s1(sif,sopened=None):
     #signal = gand(md<rollx(md))#,rollx(md)>rollx(md,2))
     return signal * XSELL
 
-
 def tfunc(sif,sopened=None):
     trans = sif.transaction
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
  
+    signal = cross(sif.ma270,sif.high)<0
+    #signal = cross(sif.dea1,sif.diff1) > 0
+    #fsignal = gand(sif.close>sif.ma5)
 
-    bp = sif.close - gmin(sif.low,rollx(sif.close))
-    bps7 = msum(bp,7)
-    bps14 = msum(bp,14)
-    bps28 = msum(bp,28)
-    TR = tr(sif.close,sif.high,sif.low)
-    trs7 = msum(TR,7)
-    trs14 = msum(TR,14)
-    trs28 = msum(TR,28)
-    rawuo = bps7*XBASE/trs7*4 + bps14*XBASE/trs14*2 + bps28*XBASE/trs28
-    uo = rawuo/7
-
-    #print uo[-1000:]
-
-    signal = cross(np.ones_like(sif.close)*60,uo)>0
-
+    #signal = sfollow(signal,fsignal,5)
 
     signal = gand(signal
-            #,sif.state_270>0
-            #,strend(sif.ma270)>0
-            ,strend(sif.ma30)>0
-            #,sif.ma30<sif.ma270
-            #,strend2(sif.ma5<sif.ma30)>0
-            ,sif.ma30>sif.ma270
-            #,xx>0
-            #,strend(xma)>0
-            ,sif.diff1>0
-            #,sif.diff1<sif.dea1
-            #,strend(sif.sdiff30x-sif.sdea30x)<0
-            ,strend(sif.sdiff5x-sif.sdea5x)>0            
-            #,strend(sif.diff5-sif.dea5)<0
+            ,strend2(sif.ma270)<0
+            ,strend2(sif.ma13)<0
+            ,strend2(sif.sdiff5x-sif.sdea5x)<0
+            #,strend2(sif.ma13)>0
             )
     return signal * tfunc.direction
-tfunc.direction = XBUY
+tfunc.direction = XSELL
 tfunc.priority = 1000
 #tfunc.closer = lambda c:c+[s1]
+
+def m2700(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+ 
+    ma2700 = ma(sif.close,2700)
+
+    signal = cross(ma2700+10,sif.low)>0
+    #signal = cross(sif.dea1,sif.diff1) > 0
+    #fsignal = gand(sif.close>sif.ma5)
+
+    #signal = sfollow(signal,fsignal,5)
+
+    signal = gand(signal
+            ,strend2(ma2700)>0
+            #,sif.ma5>sif.ma13
+            #,strend2(sif.ma13)>0
+            )
+    return signal * m2700.direction
+m2700.direction = XBUY
+m2700.priority = 1000
+
+
+def skdj30(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+    k,d = skdj(sif.high30,sif.low30,sif.close30)
+    lsignal = gand(cross(d,k)>0,k<50)
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof30] = lsignal
+    signal = gand(signal
+            #,sif.ma5>sif.ma13
+            ,strend2(sif.ma30)>0
+            )
+    return signal * skdj30.direction
+skdj30.direction = XBUY
+skdj30.priority = 1000
+#skdj30.closer = lambda c:c+[s1]
+
+
+def lastbuy(sif,sopened=None):
+    '''
+        最后的买入防线. 叠加效果比较差
+    '''
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+ 
+    signal = gand(sif.close>sif.ma5
+            ,strend2(sif.ma5)>0
+            ,strend2(sif.ma13)>0
+            ,strend2(sif.ma30)>0
+            ,strend2(sif.ma60)>0
+            ,strend2(sif.ma135)>0
+            ,strend2(sif.ma270)>0
+            ,sif.ma5>sif.ma13
+            ,sif.ma13>sif.ma30
+            ,sif.ma30>sif.ma60
+            ,sif.ma60>sif.ma135
+            ,sif.ma135>sif.ma270
+            )
+    return signal * tfunc.direction
+lastbuy.direction = XBUY
+lastbuy.priority = 1000
+#tfunc.closer = lambda c:c+[s1]
+
 
 def xud10s(sif,sopened=None):
     trans = sif.transaction

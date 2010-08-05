@@ -145,6 +145,8 @@ def prepare_index(sif):
     sif.xatr = sif.atr * XBASE * XBASE / trans[ICLOSE]
     sif.mxatr = ma(sif.xatr,13)
 
+    sif.sk,sif.sd = skdj(sif.high,sif.low,sif.close)
+
     sm270 = sif.ma270 - rollx(sif.ma270)
     sif.state_270 = msum(sm270,20)
     sif.state_270s = strend(sif.state_270)

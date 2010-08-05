@@ -335,7 +335,7 @@ def ravg(source,signal):
         rev[i] = (sum + n/2) / n
     return rev
 
-def rsub(source,signal):
+def rsub_old(source,signal):
     ''' 相邻信号日signal的减法(相当于比较) 
         d(n+1) = src(n+1) -  s(n)
         d(0) = src(0)
@@ -350,6 +350,35 @@ def rsub(source,signal):
             cv = source[i]
             rev[i] = cv - pre
             pre = cv
+    return rev
+
+def ssub(source):
+    '''
+        相邻信号量相减
+        约等于rsub(source,source),当第一个元素不等于0时第一个元素不相同
+    '''
+    isc = np.nonzero(source)
+    ssource = nsubd(source[isc])
+    rev = np.zeros_like(source)
+    if(len(isc[0])>0):
+        rev[isc] = ssource
+    return rev
+
+def rsub(source,signal):
+    ''' 相邻信号日signal的减法(相当于比较) 
+        d(n+1) = src(n+1) -  s(n)
+        d(0) = src(0)
+    '''
+    assert len(source) == len(signal)
+    if len(source) == 0:
+        return source.copy()
+    isc = np.nonzero(signal)
+    ssource = nsubd(source[isc])
+    if(len(ssource)>0): #第一个元素应该减去序列的第一个,因为它没东西减
+        ssource[0] -= source[0]
+    rev = np.zeros_like(source)
+    if(len(isc[0])>0):
+        rev[isc] = ssource
     return rev
 
 def rsub2(source,signal,distance=1):
@@ -579,17 +608,17 @@ def devi(shigh,sdiff,regr=96):
     xdev = gand(xhighA,xhigh == xhigh60,xdiff7<xdiff60)
     return xdev
 
-def hdevi(shigh,sdiff,sdea,sbase=None,covered=20,distance=1):
+def hdevi(shigh,ref_quick,ref_slow,sbase=None,covered=20,distance=1):
     '''
         顶背离
-        sdiff,sdea用于确认顶底
+        ref_quick,ref_slow(sdiff,ref_slow)用于确认顶底
         sbase是比较线,即顶底确认后的比较
         distance表示与前面第几个顶背离
         这个算法根据macd下叉来确认顶，可能更好？
     '''
     if sbase == None:
-        sbase = sdiff
-    sc = gand(cross(sdea,sdiff)<0)
+        sbase = ref_quick
+    sc = gand(cross(ref_slow,ref_quick)<0)
     xhigh = tmax(shigh,covered)
     dhigh = tmax(sbase,covered)
     dxhigh = rsub2(xhigh,sc,distance)
@@ -597,17 +626,17 @@ def hdevi(shigh,sdiff,sdea,sbase=None,covered=20,distance=1):
     signal = gand(dxhigh>0,ddhigh<0)
     return signal
 
-def ldevi(slow,sdiff,sdea,sbase=None,covered=20,distance=1):
+def ldevi(slow,ref_quick,ref_slow,sbase=None,covered=20,distance=1):
     '''
         底背离
-        sdiff,sdea用于确认顶底
+        ref_quick,ref_slow用于确认顶底
         sbase是比较线,即顶底确认后的比较
         distance表示与前面第几个底背离
         这个算法根据macd下叉来确认底，可能更好？
     '''
     if sbase == None:
-        sbase = sdiff
-    sc = gand(cross(sdea,sdiff)>0)
+        sbase = ref_quick
+    sc = gand(cross(ref_slow,ref_quick)>0)
     xlow = tmin(slow,covered)
     dlow = tmin(sbase,covered)
     #print sc,xlow.tolist(),dlow.tolist()
@@ -616,6 +645,38 @@ def ldevi(slow,sdiff,sdea,sbase=None,covered=20,distance=1):
     #print dxlow,ddlow
     signal = gand(dxlow<0,ddlow>0)
     return signal
+
+def hpeak(shigh,ref_quick,ref_slow,covered=10):
+    '''
+        寻找最近高点
+        ref_quick,ref_slow(skdj/k,skdj/d)用于确认顶底
+        用一分钟skdj的时候，比较快捷，所以covered默认为10
+    '''
+    sc = gand(cross(ref_slow,ref_quick)<0)
+    xhigh = tmax(shigh,covered)
+    return np.select([sc],[xhigh],0)
+
+def lpeak(slow,ref_quick,ref_slow,covered=10):
+    '''
+        寻找最近低点
+        ref_quick,ref_slow(skdj/k,skdj/d)用于确认顶底
+        用一分钟skdj的时候，比较快捷，所以covered默认为10
+    '''
+    sc = gand(cross(ref_slow,ref_quick)>0)
+    xlow = tmin(slow,covered)
+    return np.select([sc],[xlow],0)
+
+def hlpeak(shigh,slow,ref_quick,ref_slow,covered=10):
+    '''
+        寻找最近高/低点,其中低点以负数表示
+        ref_quick,ref_slow(skdj/k,skdj/d)用于确认顶底
+        用一分钟skdj的时候，比较快捷，所以covered默认为10
+    '''
+    sc = cross(ref_slow,ref_quick)
+    xhigh = tmax(shigh,covered)    
+    xlow = tmin(slow,covered)
+    return np.select([sc==-1,sc==1],[xhigh,-xlow],0)
+
 
 def swing(source,covered=1):    #波动幅度
     return swing2(source,source,covered)

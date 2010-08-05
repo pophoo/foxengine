@@ -29,27 +29,62 @@ def s1(sif,sopened=None):
     #signal = gand(md<rollx(md))#,rollx(md)>rollx(md,2))
     return signal * XSELL
 
+def s3(sif,sopened=None):
+    trans = sif.transaction
+    #signal = gor(sif.open-sif.close>20,rollx(sif.open)-sif.close>40)
+    rsi6 = rsi2(sif.close,6)
+    rsi24 = rsi2(sif.close,24)
+    
+    rss = rsi6<rsi24
+    mrss = msum(rss,2)
+
+    #md = sif.diff1-sif.dea1
+    #signal = gand(md<rollx(md))#,rollx(md)>rollx(md,2))
+
+    #signal = cross(rsi24,rsi6)<0
+    signal = mrss == 2
+    return signal * XSELL
+
+
 def tfunc(sif,sopened=None):
     trans = sif.transaction
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
  
-    signal = cross(sif.ma270,sif.high)<0
-    #signal = cross(sif.dea1,sif.diff1) > 0
-    #fsignal = gand(sif.close>sif.ma5)
+    #m810 = ma(sif.close,30)
+    #signal = cross(m810,sif.low)
+    
+    #signal = cross(sif.dea1,sif.diff1)<0
 
-    #signal = sfollow(signal,fsignal,5)
+    
+
+    hh = hpeak(sif.high,sif.sk,sif.sd)
+    ll = lpeak(sif.low,sif.sk,sif.sd)
+
+    rhh = extend2next(ssub(hh))
+    rll = extend2next(ssub(ll))
+
+    xhh = extend2next(hh)
+
+    signal = gand(#rhh>0
+                rll>10
+                #,sif.diff1<0
+                ,cross(xhh,sif.high)>0
+                )
 
     signal = gand(signal
-            ,strend2(sif.ma270)<0
-            ,strend2(sif.ma13)<0
-            ,strend2(sif.sdiff5x-sif.sdea5x)<0
-            #,strend2(sif.ma13)>0
+            
+            #,strend2(sif.sdiff5x-sif.sdea5x)>0
+            #,strend2(sif.diff1-sif.dea1)>0
+            #,strend2(sif.sdiff30x-sif.sdea30x)>0
+            #,strend2(sif.ma30)>0
+            #,strend2(sif.ma60)>0
+            #,sif.ma30>sif.ma60
             )
     return signal * tfunc.direction
-tfunc.direction = XSELL
+tfunc.direction = XBUY
 tfunc.priority = 1000
-#tfunc.closer = lambda c:c+[s1]
+tfunc.closer = lambda c:[s1] #lambda c:c+[s3]
 
 def m2700(sif,sopened=None):
     trans = sif.transaction
@@ -74,23 +109,32 @@ m2700.direction = XBUY
 m2700.priority = 1000
 
 
+def sks(sif,sopened=None):
+    #k,d = skdj(sif.high5,sif.low5,sif.close5)
+    #lsignal = gand(cross(d,k)<0)
+    #signal = np.zeros_like(sif.close)
+    #signal[sif.i_cof5] = lsignal
+    signal = rollx(sopened,15)
+    return signal * XSELL
+    
+
 def skdj30(sif,sopened=None):
     trans = sif.transaction
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
 
-    k,d = skdj(sif.high30,sif.low30,sif.close30)
-    lsignal = gand(cross(d,k)>0,k<50)
+    k,d = skdj(sif.high5,sif.low5,sif.close5)
+    lsignal = gand(cross(d,k)>0)#,k<50)
     signal = np.zeros_like(sif.close)
-    signal[sif.i_cof30] = lsignal
+    signal[sif.i_cof5] = lsignal
     signal = gand(signal
             #,sif.ma5>sif.ma13
-            ,strend2(sif.ma30)>0
+            #,strend2(sif.ma60)<0
             )
     return signal * skdj30.direction
 skdj30.direction = XBUY
 skdj30.priority = 1000
-#skdj30.closer = lambda c:c+[s1]
+skdj30.closer = lambda c:[sks]
 
 
 def lastbuy(sif,sopened=None):
@@ -1780,27 +1824,57 @@ def ipmacd_short_devi1(sif,sopened=None):
 
     trans = sif.transaction
 
-    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120)
+    th = tmax(trans[IHIGH],120)
+    th2 = tmax(trans[IHIGH],10)
 
-    signal = gand(hdevi(trans[IHIGH],sif.diff1,sif.dea1))
+    signal = gand(hdevi(trans[IHIGH],sif.diff1,sif.dea1)
+                ,th2 == th
+                )
 
-    fsignal = strend(sif.diff1-sif.dea1)==-1
+    fsignal = strend2(sif.diff1-sif.dea1)<0
 
     signal = sfollow(signal,fsignal,15)
 
     signal = gand(signal
-                ,sif.diff5<0
-                ,sif.diff30<0
-                ,strend(sif.diff30)<0
-                #,strend(sif.diff5-sif.dea5)<0
-                #,strend(sif.ma135-sif.ma270)<0                
-                ,strend(sif.ma5)<0
-                ,ksfilter
+                ,strend2(sif.sdiff5x)>0
+                ,strend(sif.sdiff5x-sif.sdea5x)<0   #diff5在上行，但macd5已经开始向下
+                ,strend(sif.sdiff30x)<0
             )
-    return signal * XSELL
-
+    return signal * ipmacd_short_devi1.direction
+ipmacd_short_devi1.direction = XSELL
+ipmacd_short_devi1.priority = 1000
 
 def ipmacd_long_devi1(sif,sopened=None):
+    '''
+        底背离操作
+    '''
+
+    trans = sif.transaction
+
+    th = tmin(sif.low,120)
+    th2 = tmin(sif.low,10)
+
+    signal = gand(ldevi(sif.low,sif.diff1,sif.dea1)
+                ,th2 == th
+                )
+
+    #fsignal = strend2(sif.diff1-sif.dea1)==1
+
+    #signal = sfollow(signal,fsignal,15)
+
+    signal = gand(signal
+                #,strend2(sif.sdiff5x)>0
+                #,strend(sif.sdiff5x-sif.sdea5x)>0   
+                #,strend(sif.sdiff30x-sif.sdea5x)>0
+            )
+    return signal * ipmacd_long_devi1.direction
+
+ipmacd_long_devi1.direction = XBUY
+ipmacd_long_devi1.priority = 1000
+
+
+
+def ipmacd_long_devi1__old(sif,sopened=None):
     '''
         底背离操作，去掉了诸多条件
     '''

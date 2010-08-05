@@ -924,6 +924,7 @@ atr5_uxstop_1_6 = fcustom(atr_uxstop,lost_times=100,win_times=600,max_drawdown=2
 atr5_uxstop_05_6 = fcustom(atr_uxstop,lost_times=50,win_times=600,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_1_25 = fcustom(atr_uxstop,lost_times=100,win_times=250,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_1_15 = fcustom(atr_uxstop,lost_times=100,win_times=150,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_15_15 = fcustom(atr_uxstop,lost_times=150,win_times=150,max_drawdown=200,min_lost=30,natr=5)
 
 
 atr5_uxstop_05_25b = fcustom(atr_uxstop,lost_times=50,win_times=250,max_drawdown=200,min_lost=50,natr=5)
@@ -1016,6 +1017,8 @@ itrade3yx_0525 = fcustom(itrade3,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.
 
 itradex_y = fcustom(itradex,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 itradex5_y = fcustom(itradex,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex1_y = fcustom(itradex,stop_closer=atr5_uxstop_1_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex15_y = fcustom(itradex,stop_closer=atr5_uxstop_15_15,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 
 ltrade3x0525 = fcustom(itradex,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter,sync_trades=null_sync_tradess)
 

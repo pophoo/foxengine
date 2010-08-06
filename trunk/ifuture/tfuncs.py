@@ -61,15 +61,28 @@ def tfunc(sif,sopened=None):
     hh = hpeak(sif.high,sif.sk,sif.sd)
     ll = lpeak(sif.low,sif.sk,sif.sd)
 
-    rhh = extend2next(ssub(hh))
-    rll = extend2next(ssub(ll))
+    ihh = np.nonzero(hh)[0]
+    ill = np.nonzero(ll)[0]
+    
+    sh = np.zeros_like(sif.close)
+    sl = np.zeros_like(sif.close)
 
-    xhh = extend2next(hh)
+    sh[ihh] = strend2(hh[ihh])
+    sl[ill] = strend2(ll[ill])
 
-    signal = gand(#rhh>0
-                rll>10
-                #,sif.diff1<0
-                ,cross(xhh,sif.high)>0
+    sh = extend2next(sh)
+    sl = extend2next(sl)
+    #rhh = extend2next(ssub(hh))
+    #rll = extend2next(ssub(ll))
+
+    #xhh = extend2next(hh)
+
+    signal = gand(sh>1,sl==3)
+    #signal = derepeatc(signal)
+
+    signal = gand(signal
+                #,strend2(sif.diff1-sif.dea1)>0
+                ,strend2(sif.sdiff30x-sif.sdea30x)>0
                 )
 
     signal = gand(signal
@@ -134,7 +147,7 @@ def skdj30(sif,sopened=None):
     return signal * skdj30.direction
 skdj30.direction = XBUY
 skdj30.priority = 1000
-skdj30.closer = lambda c:[sks]
+
 
 
 def lastbuy(sif,sopened=None):
@@ -2172,6 +2185,43 @@ def ipmacd_short_5(sif,sopened=None):
 ipmacd_short_5.direction = XSELL
 ipmacd_short_5.priority = 2400
 
+def ipmacd_short_5k(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+    sm = sif.ma270 - rollx(sif.ma270)
+    ss2 = msum(sm,3)
+    sss = strend(ss2)
+
+    s30_13 = np.zeros_like(sif.diff1)
+    s30_13[sif.i_cof30] = strend2(ma(sif.close30,13))
+    s30_13 = extend2next(s30_13)
+
+
+    sk5,sd5 = skdj(sif.high5,sif.low5,sif.close5)
+
+    signal = gand(cross(sif.sd,sif.sk)>0
+            #,strend(sif.diff1-sif.dea1)<0
+            #,sif.diff1>sif.dea1
+            ,strend2(sif.diff1-sif.dea1)>0            
+            ,strend2(sif.sdiff5x-sif.sdea5x)>0
+            ,strend2(sif.sdiff30x-sif.sdea30x)>0            
+            ,s30_13 > 0
+            )
+    signal = gand(signal
+            ,sif.ma3 > sif.ma7
+            ,strend2(sif.ma13)>0
+            #,strend2(sif.ma270)<0            
+            ,strend(sif.ma30)>0
+            ,strend(sif.ma7-sif.ma30)>0
+            ,dsfilter
+            )
+
+    #signal = gand(rollx(signal,1),sif.diff1<sif.dea1)
+    return signal * ipmacd_short_5k.direction
+ipmacd_short_5k.direction = XBUY
+ipmacd_short_5k.priority = 1200
 
 def ipmacd_short_2(sif,sopened=None):#+++
     trans = sif.transaction

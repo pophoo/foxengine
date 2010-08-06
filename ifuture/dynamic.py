@@ -123,4 +123,5 @@ def calc_stop(sif,action):
     action.stop = round(action.stop,1) 
     
 
-whget = fcustom(whget,functor=iftrade.ltrade3x0525)
+#whget = fcustom(whget,functor=iftrade.ltrade3x0525)
+whget = fcustom(whget,functor=iftrade.ltrade3x156)

@@ -85,7 +85,7 @@ def ocfilter(sif):  #在开盘前30分钟和收盘前5分钟不开仓，头三�
 def last_filter(sif):  
     stime = sif.transaction[ITIME]
     soc = np.ones_like(stime)
-    soc = gand(greater(stime,944),lesser(stime,1510))    
+    soc = gand(greater(stime,934),lesser(stime,1510))    
     soc[:275*3] = 0
     return soc
 
@@ -1021,5 +1021,5 @@ itradex1_y = fcustom(itradex,stop_closer=atr5_uxstop_1_25,bclosers=[ifuncs.dayst
 itradex15_y = fcustom(itradex,stop_closer=atr5_uxstop_15_15,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 
 ltrade3x0525 = fcustom(itradex,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter,sync_trades=null_sync_tradess)
-
+ltrade3x156 = fcustom(itradex,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter,sync_trades=null_sync_tradess)
 

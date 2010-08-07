@@ -21,13 +21,21 @@ ama2 = ama_maker(covered=30,dfast=6,dslow=100)
 #1. 如何搞定大趋势的问题。升破某线或者跌破某线，或者n周期最高最低?
 #2. 逆小趋势的问题，如1分钟线最低价上穿2700线，且2700线正在上行
 #   下穿正在下行的270线
-#3. 1分钟:一个长期低点之后，出现高点比高点高，低点比低点高之后的又一个低点，此时介入
+#1. 90分钟线可以作为多头止损线？(60向下)   
 
 def s1(sif,sopened=None):
     trans = sif.transaction
     signal = gand(cross(sif.dea1,sif.diff1)<0)
     #md = sif.diff1-sif.dea1
     #signal = gand(md<rollx(md))#,rollx(md)>rollx(md,2))
+    return signal * XSELL
+
+def s90(sif,sopened=None):
+    trans = sif.transaction
+    signal = gand(cross(sif.ma90,sif.low)<0
+                ,sif.ma60>sif.ma90
+                ,sif.ma30>sif.ma90
+                )
     return signal * XSELL
 
 def s3(sif,sopened=None):
@@ -52,18 +60,22 @@ def tfunc(sif,sopened=None):
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
  
-    signal = cross(sif.dea1,sif.diff1)<0
+    ma5_7 = ma(sif.close5,7)
+    ma5_13 = ma(sif.close5,13)
+    ma5_30 = ma(sif.close5,30)
 
-    
+    signal5 = gand(cross(ma5_7,sif.close5)>0
+                ,cross(ma5_13,sif.close5)>0
+                ,sif.close5>sif.open5
+                #,strend2(ma5_7)>0
+                #,strend2(ma5_13)>0
+                #,strend2(ma5_30)>0
+                )
+
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof5] = signal5
 
     signal = gand(signal
-            
-            ,strend2(sif.sdiff5x-sif.sdea5x)>0
-            #,strend2(sif.diff1-sif.dea1)>0
-            ,strend2(sif.sdiff30x-sif.sdea30x)>0
-            ,strend2(sif.ma30)>0
-            ,strend2(sif.ma60)>0
-            #,sif.ma30>sif.ma60
             )
     return signal * tfunc.direction
 tfunc.direction = XBUY
@@ -1401,20 +1413,31 @@ def down30(sif,sopened=None):
 
 
 
-def svap(sif,sopened=None):
+def xsvap(sif,sopened=None):
     trans = sif.transaction
-    svap,v2i = svap_ma(trans[IVOL],trans[ICLOSE],67)
-    ma_svapfast = ma(svap,5)
-    ma_svapslow = ma(svap,13)
+    svap,v2i = svap_ma(sif.vol,sif.close,120)
+    ma_svapfast = ma(svap,30)
+    ma_svapslow = ma(svap,60)
     trend_ma_svapfast = strend(ma_svapfast) > 0
     trend_ma_svapslow = strend(ma_svapslow) > 0
     cross_fast_slow = gand(cross(ma_svapslow,ma_svapfast)>0,trend_ma_svapfast,trend_ma_svapslow)
     msvap = transform(cross_fast_slow,v2i,len(trans[IVOL]))
-    s1 = cross(sif.dea1,sif.diff1)>0
-    signal = sfollow(msvap,s1,10)
-    signal = gand(signal,strend(sif.diff5-sif.dea5)>0,strend(sif.ma5)>2)
-    return signal
-
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof] = msvap
+    s1 = cross(sif.sd,sif.sk)>0
+    signal = sfollow(signal,s1,10)
+    signal = gand(signal
+                ,strend(sif.sdiff5x-sif.sdea5x)>0
+                ,strend(sif.diff1-sif.dea1)>0
+                ,sif.ma3>sif.ma7
+                ,sif.ma7>sif.ma13
+                ,strend(sif.ma13)>0
+                ,sif.diff1<0
+            )
+    return signal * xsvap.direction
+xsvap.direction = XBUY
+xsvap.priority = 1000
+#xsvap.closer= lambda c:c+[s90]
 
 def long5x(sif,sopened=None):#
     '''
@@ -1827,6 +1850,51 @@ def ipmacd_short_devi1(sif,sopened=None):
     return signal * ipmacd_short_devi1.direction
 ipmacd_short_devi1.direction = XSELL
 ipmacd_short_devi1.priority = 1000
+
+
+def ipmacd_short_devi1k(sif,sopened=None):
+    '''
+        顶背离操作，去掉了诸多条件
+        尤其是xatr<2000
+    '''
+
+    trans = sif.transaction
+
+    th = tmax(trans[IHIGH],120)
+    th2 = tmax(trans[IHIGH],10)
+
+    signal = gand(hdevi(trans[IHIGH],sif.sk,sif.sd)
+                ,th2 == th
+                )
+
+    hh = hpeak(sif.high,sif.sk,sif.sd)
+
+    ihh = np.nonzero(hh)[0]
+    
+    sh = np.zeros_like(sif.close)
+
+    sh[ihh] = strend2(hh[ihh])
+
+    sh = extend2next(sh)
+
+    fsignal = strend2(sif.sk-sif.sd)<-1
+
+    signal = sfollow(signal,fsignal,15)
+
+    signal = gand(signal
+                #,sh<0
+                #,strend2(sif.sdiff5x)>0
+                ,sif.diff1>0
+                ,strend2(sif.diff1-sif.dea1)<0
+                ,strend2(sif.sdiff5x-sif.sdea5x)<0  
+                ,sif.ma3<sif.ma7
+                ,strend2(sif.ma5)<0
+                ,sif.ma5<sif.ma13
+            )
+    return signal * ipmacd_short_devi1.direction
+ipmacd_short_devi1k.direction = XSELL
+ipmacd_short_devi1k.priority = 1000
+
 
 def ipmacd_long_devi1(sif,sopened=None):
     '''

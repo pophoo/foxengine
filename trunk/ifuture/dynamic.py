@@ -104,7 +104,7 @@ def whget(strategy,functor,priority=2500):
     return fname,sif,xactions
 
 def calc_stop(sif,action):
-    stop1 = sif.atr5x[action.index]/2000.0
+    stop1 = sif.atr5x[action.index]/1250.0
     stop2 = sif.atr[action.index]*1.5/1000
     if stop1 < 3:
         stop1 = 3
@@ -124,4 +124,5 @@ def calc_stop(sif,action):
     
 
 #whget = fcustom(whget,functor=iftrade.ltrade3x0525)
-whget = fcustom(whget,functor=iftrade.ltrade3x156)
+#whget = fcustom(whget,functor=iftrade.ltrade3x156)
+whget = fcustom(whget,functor=iftrade.ltrade3x0825)

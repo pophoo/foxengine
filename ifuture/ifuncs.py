@@ -5,6 +5,11 @@
 主力合约、次月合约与半年合约的成交量还可以，下季合约严重没量，被操控
 但因为次月合约开张日晚，如if1007在0524才开张，所以测试不准
 
+主力合约转换
+    当月合约最后3天左右开始转换。具体转换日为：
+        下月合约持仓量超过当月合约的次日
+
+
 #数据准备
 from wolfox.fengine.ifuture.ifreader import read_ifs
 
@@ -100,6 +105,7 @@ xpattern2 = [ifuncs.goup5,ifuncs.opendown,ifuncs.openup,ifuncs.gapdown5,ifuncs.g
 #xpattern2:直接根据信号动作
 xpattern2 = [ifuncs.goup5,ifuncs.opendown,ifuncs.openup,ifuncs.gapdown5,ifuncs.gapdown]  
 xpattern3 = [ifuncs.gapdown15,ifuncs.br75]  #互有出入
+kpattern = [ifuncs.k5_lastup,ifuncs.k15_lastdown]
 
 #xpattern4 = [ifuncs.xup,ifuncs.xdown,ifuncs.up3]   #与其它组合有矛盾? 暂不使用。盈利部分被其它覆盖，亏损部分没有，导致副作用
 
@@ -107,7 +113,7 @@ xuds = [ifuncs.xud30,ifuncs.xud30c,ifuncs.xud15]#,ifuncs.xud10s]
 
 xnormal2 = [ifuncs.ipmacd_short_x,ifuncs.ipmacd_long_6,ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.ma60_short,ifuncs.down01,ifuncs.up0,ifuncs.rsi3x,ifuncs.skdj_bup]
 
-tradesy =  iftrade.itradex5_y(i05,xnormal+xnormal2+xpattern+xpattern2+xuds+xpattern3)
+tradesy =  iftrade.itradex5_y(i05,xnormal+xnormal2+xpattern+xpattern2+xuds+xpattern3+kpattern)
 
 #RU1011
 ru = ifmap['RU1011']
@@ -2289,23 +2295,179 @@ def emv_long(sif,sopened=None):#+--
     #signal = gand(signal,strend(sif.ma60)>0,strend(sif.ma13)>0,sif.ma5>sif.ma30)
     return signal * XBUY    #XSELL,比较失败，居然作为反向信号更好. 目前没办法处理5分钟数据?
 
+#K线形态
+def k5_lastup(sif,sopened=None):
+    '''
+        底部衰竭模式
+        5分钟底部阴线后出现孕线，后10分钟内1分钟最高线突破该孕线(high+close)/2
+    '''
+    trans = sif.transaction
+ 
+    ma5_500 = ma(sif.close5,500)
+    ma5_200 = ma(sif.close5,200)
+    ma5_60 = ma(sif.close5,60) 
+    ma5_13 = ma(sif.close5,13)     
+    ma5_30 = ma(sif.close5,30) 
+    ma5_7 = ma(sif.close5,7)         
+    ma5_3 = ma(sif.close5,3)         
+    
+    signal5 = gand(sif.high5<rollx(sif.high5)
+                ,sif.low5>rollx(sif.low5)
+                ,rollx(sif.low5) == tmin(sif.low5,20)
+                ,rollx(sif.vol5) > sif.vol5
+                ,rollx(sif.vol5) > rollx(sif.vol5,2)
+                #,rollx(sif.close5)<rollx(sif.open5)
+                ,strend2(ma5_60)<-20
+                #,strend2(ma5_30)<0
+                #,strend2(sif.diff5x)<0
+                #,strend2(ma5_13)<0                
+                #,strend2(ma5_7)<0                                
+                #,ma5_30 < ma5_60
+                #,ma5_7 < ma5_13
+                #,strend2(ma5_500)>0
+                )
+
+    delay = 10
+
+    ss = np.zeros_like(sif.close)
+    ss[sif.i_cof5] = signal5
+    ssh = np.zeros_like(sif.close)
+    ssh[sif.i_cof5] = (sif.high5 + sif.close5)/2
+    bline = np.select([ss>0],[ssh],0)
+    bline = extend(bline,delay)
+    
+    #fsignal = cross(bline,sif.high)>0
+    fsignal = sif.high > bline
+
+    #signal = np.zeros_like(sif.close)
+    #signal[sif.i_cof5] = signal5
+
+    signal = sfollow(ss,fsignal,delay)
+    signal = gand(signal
+            ,strend(sif.ma7)>0
+            ,rollx(strend2(sif.sdiff5x-sif.sdea5x),5)<0
+            )
+
+    return signal * k5_lastup.direction
+k5_lastup.direction = XBUY
+k5_lastup.priority = 900
+
+def k15_lastdown(sif,sopened=None):
+    '''
+        新高衰竭模式
+        1. 15分钟新高后,15分钟内1分钟跌破前15分钟的开盘价(收盘价的低者)/最低价
+    '''
+    
+    trans = sif.transaction
+
+    ma15_500 = ma(sif.close15,500)
+    ma15_200 = ma(sif.close15,200)
+    ma15_60 = ma(sif.close15,60) 
+    ma15_13 = ma(sif.close15,13)     
+    ma15_30 = ma(sif.close15,30) 
+    ma15_7 = ma(sif.close15,7)         
+    ma15_3 = ma(sif.close15,3)         
+    
+    signal15 = gand(sif.high15>rollx(sif.high15)
+                ,sif.low15>rollx(sif.low15)
+                ,sif.high15 - gmax(sif.open15,sif.close15) > np.abs(sif.open15-sif.close15) #上影线长于实体
+                ,sif.high15 == tmax(sif.high15,5)
+                #,sif.high15 > gmax(ma15_3,ma15_30,ma15_60)
+                #,rollx(sif.vol5) > sif.vol5
+                #,rollx(sif.vol5) > rollx(sif.vol5,2)
+                #,rollx(sif.close5)<rollx(sif.open5)
+                ,strend2(ma15_60)>0
+                ,strend2(sif.diff15x-sif.dea15x)>0
+                #,sif.diff15x>sif.dea15x
+                #,strend2(ma15_7)>0                                
+                #,ma15_7 > ma15_13
+                #,strend2(ma15_500)>0
+                )
+
+    #print np.nonzero(signal15)
+    delay = 15
+
+    ss = np.zeros_like(sif.close)
+    ss[sif.i_cof15] = signal15
+    ssh = np.zeros_like(sif.close)
+    ssh[sif.i_cof15] = gmin(sif.open15,sif.close15)
+    bline = np.select([ss>0],[ssh],0)
+    bline = extend(bline,delay)
+    
+    #fsignal = cross(bline,sif.high)>0
+    fsignal = sif.close < bline
 
 
+    signal = sfollow(ss,fsignal,delay)
+    signal = gand(signal
+            #,strend2(sif.diff1-sif.dea1)<0
+            #,strend(sif.ma7)>0
+            #,rollx(strend2(sif.sdiff5x-sif.sdea5x),5)<0
+            )
+
+    return signal * k15_lastdown.direction
+k15_lastdown.direction = XSELL
+k15_lastdown.priority = 2100 #对i09时200即优先级最高的效果最好
 
 
+def k5_relay(sif,sopened=None):
+    '''
+        中继模式 用于解决隔日连续上升的问题
+        5分钟阳线新高后，阴线盘整，但未突破阳线开盘
+        后60分钟内突破新高日收盘/盘整日开盘的高点
 
 
+        对i07效果很差，其它很好
+        但是叠加的效果不佳，是副作用
+    '''
+    
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+ 
 
+    ma5_500 = ma(sif.close5,500)
+    ma5_200 = ma(sif.close5,200)
+    ma5_60 = ma(sif.close5,60) 
+    ma5_13 = ma(sif.close5,13)     
+    ma5_30 = ma(sif.close5,30) 
+    ma5_7 = ma(sif.close5,7)         
+    ma5_3 = ma(sif.close5,3)         
+    
+    signal5 = gand(sif.close5<rollx(sif.close5)
+                ,sif.low5>rollx(sif.low5)
+                ,rollx(sif.close5)>rollx(sif.open5)
+                #,np.abs(sif.open5-sif.close5) > gmax(sif.open5,sif.close5)-sif.low5  #实体长于下影线
+                ,rollx(sif.high5) == tmax(sif.high5,10)
+                ,strend2(ma5_30)>0
+                #,sif.diff5x-sif.dea5x>0
+                )
 
+    #print np.nonzero(signal5)
+    delay = 15
 
+    ss = np.zeros_like(sif.close)
+    ss[sif.i_cof5] = signal5
+    ssh = np.zeros_like(sif.close)
+    ssh[sif.i_cof5] = gmax(sif.open5,rollx(sif.close5),sif.high5)#,rollx(sif.high5))
+    bline = np.select([ss>0],[ssh],0)
+    bline = extend(bline,delay)
+    #print bline[-200:]
+    
+    #fsignal = cross(bline,sif.high)>0
+    fsignal = sif.low > bline
 
+    signal = ss
+    signal = sfollow(signal,fsignal,delay)
+    signal = gand(signal
+            #,strend2(sif.diff1-sif.dea1)<0
+            #,strend(sif.ma7)>0
+            #,rollx(strend2(sif.sdiff5x-sif.sdea5x),5)<0
+            )
 
-
-
-
-
-
-
+    return signal * k5_relay.direction
+k5_relay.direction = XBUY
+k5_relay.priority = 2400 #对i07效果很差
 
 
 def imacd_stop5(sif,sopened=None):
@@ -2711,10 +2873,11 @@ xnormal = [ipmacd_short_5,ipmacd_short_6a,ipmacd_long_5,gd30,gu30,ipmacd_long_5k
 xpattern = [godown5,godown30,inside_up,br30,ipmacd_short_devi1]
 xpattern2 = [goup5,opendown,openup,gapdown5,gapdown,skdj_bup]  
 xpattern3 = [gapdown15,br75]  #互有出入
+kpattern = [k5_lastup,k15_lastdown]
 #xpattern4 = [xup,xdown,up3]   #与其它组合有矛盾? 暂不使用。盈利部分被其它覆盖，亏损部分没有，导致副作用
 xuds = [xud30,xud30c,xud15,xud10s]
 xnormal2 = [ipmacd_short_x,ipmacd_long_6,ipmacd_short5,ma30_short,ma60_short,down01,up0,rsi3x]
-xxx = xnormal+xnormal2+xpattern+xpattern2+xuds+xpattern3
+xxx = xnormal+xnormal2+xpattern+xpattern2+xuds+xpattern3+kpattern
 xpattern4 = [xup,xdown,up3]   #与其它组合有矛盾? 暂不使用。盈利部分被其它覆盖，亏损部分没有，导致副作用
 xxx4 = xxx + xpattern4
 #tradesy =  iftrade.itradex5_y(i05,xxx)

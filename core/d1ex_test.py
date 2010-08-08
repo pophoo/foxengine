@@ -5,14 +5,28 @@ from wolfox.fengine.core.d1ex import *
 
 class ModuleTest(unittest.TestCase):
     def test_ma(self):
+        self.assertEquals([],ma([],3).tolist())
         a= np.array([1,2,3,4,5,6,7,8,9,0])
         av = ma(a,3)
         self.assertEquals([0, 0, 2, 3, 4, 5, 6, 7, 8, 6],av.tolist())
 
     def test_nma(self):
+        self.assertEquals([],nma([],3).tolist())
         a= np.array([1,2,3,4,5,6,7,8,9,0])
         av = nma(a,3)
         self.assertEquals([1, 2, 2, 3, 4, 5, 6, 7, 8, 6],av.tolist())
+
+    def test_fma(self):
+        self.assertEquals([],fma([],3).tolist())   
+        a= np.array([1,2,3,4,5,6,7,8,9,0])
+        av = fma(a,3)
+        self.assertEquals([0, 0, 2, 3, 4, 5, 6, 7, 8, 17/3.0],av.tolist())
+
+    def test_fnma(self):
+        self.assertEquals([],fnma([],3).tolist())    
+        a= np.array([1,2,3,4,5,6,7,8,9,0])
+        av = fnma(a,3)
+        self.assertEquals([1, 1.5, 2, 3, 4, 5, 6, 7, 8, 17/3.0],av.tolist())
 
     def test_trend(self):
         a = np.array([1,2,3,2,2,10,2,10,10,4])
@@ -177,6 +191,43 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([10,30,60,90,120,150,180,210],msum2(np.array([10,20,30,40,50,60,70,80]),3).tolist())  #normal,length < len(source)
         self.assertEquals([10,30,60,100,150,210,280,360],msum2(np.array([10,20,30,40,50,60,70,80]),10).tolist())   #length > len(source)
         self.assertEquals([10,30,60,100,150,210,280,360],msum2(np.array([10,20,30,40,50,60,70,80]),8).tolist())   #length = len(source)
+
+    def test_kfactor(self):
+        self.assertEquals([],kfactor(np.array([])).tolist())
+        self.assertEquals([],kfactor(np.array([]),np.array([])).tolist())
+        self.assertEquals([0,0,7.250,7.250,7.250,7.250,-20*1.0/3,-20/3.0,-20/3.0],kfactor(np.array([0,1,0,0,0,30,0,0,10])).tolist())
+        self.assertEquals([0,0,0,10,10,10,10,10,10],kfactor(np.array([0,1,0,0,0,30,0,0,10]),np.array([0,0,1,0,0,1,0,0,0])).tolist())
+        self.assertEquals([0,0,0,0,0,0,0,0,0],kfactor(np.array([0,1,0,0,0,30,0,0,10]),np.array([0,0,1,0,0,0,0,0,0])).tolist())
+        self.assertEquals([0,0,0,0,0,0,0,0,0],kfactor(np.array([0,1,0,0,0,30,0,0,10]),np.array([0,0,0,0,0,0,0,0,0])).tolist())
+
+    def test_kx(self):
+        self.assertEquals([],kx(np.array([]),10).tolist())
+        self.assertEquals([],kx(np.array([]),10,np.array([])).tolist())
+        self.assertEquals([0,0,0,0],kx(np.array([0,0,0,0]),3).tolist())        
+        self.assertEquals([0,0,10,13,16,19,13,16,19,15,1,2,5],kx(np.array([0,0,10,0,0,0,13,0,0,15,1,2,0]),3).tolist())
+        self.assertEquals([0,0,10,13,16,5,1],kx(np.array([0,0,10,0,0,5,1]),3).tolist())
+        self.assertEquals([0,0,10,0,0,5,1],kx(np.array([0,0,10,0,0,5,1]),3,np.array([0,0,0,0,0,0,0])).tolist())
+        self.assertEquals([0,0,3,6,0,3,6],kx(np.array([0,0,10,0,0,5,1]),3,np.array([0,1,0,0,1,0,0])).tolist())
+        self.assertEquals([0,0,3,6,0,3,1],kx(np.array([0,0,10,0,0,5,1]),3,np.array([0,1,0,0,1,0,1])).tolist())        
+        self.assertEquals([0,0,3,6,0,5,8],kx(np.array([0,0,10,0,0,5,1]),3,np.array([0,1,0,0,1,1,0])).tolist())
+        self.assertEquals([0,0,3.1,3.1+3.1,0,5,5+3.1],kx(np.array([0,0,10,0,0,5,1]),3.1,np.array([0,1,0,0,1,1,0])).tolist())
+
+    def test_kx2(self):
+        self.assertEquals([],kx2(np.array([]),np.array([])).tolist())
+        self.assertEquals([],kx2(np.array([]),np.array([]),np.array([])).tolist())
+        self.assertEquals([],kx2(np.array([]),np.array([10]),np.array([])).tolist())        
+        self.assertEquals([0,0,0,0],kx2(np.array([0,0,0,0]),np.array([3,3,3,3])).tolist())        
+        self.assertEquals([0,0,10,13,16,19,13,16,19,15,1,2,5],kx2(np.array([0,0,10,0,0,0,13,0,0,15,1,2,0]),np.array([3,3,3,3,3,3,3,3,3,3,3,3,3])).tolist())
+        self.assertEquals([0,0,10,13,16,19,13,16,19,15,1,2,5],kx2(np.array([0,0,10,0,0,0,13,0,0,15,1,2,0]),np.array([0,0,3,0,0,0,3,0,0,3,3,3,0])).tolist())        
+        self.assertEquals([0,0,10,13,16,19,13,15,17,15,1,2,7],kx2(np.array([0,0,10,0,0,0,13,0,0,15,1,2,0]),np.array([0,0,3,0,0,0,2,0,0,3,4,5,0])).tolist())
+        self.assertEquals([0,0,10,13,16,5,1],kx2(np.array([0,0,10,0,0,5,1]),np.array([3,3,3,3,3,3,3])).tolist())
+        self.assertEquals([0,0,10,0,0,5,1],kx2(np.array([0,0,10,0,0,5,1]),np.array([0,0,0,0,0,0,0]),np.array([0,0,0,0,0,0,0])).tolist())
+        self.assertEquals([0,0,3,6,0,3,6],kx2(np.array([0,0,10,0,0,5,1]),np.array([0,3,0,0,3,0,0]),np.array([0,1,0,0,1,0,0])).tolist())
+        self.assertEquals([0,0,0,0,0,3,6],kx2(np.array([0,0,10,0,0,5,1]),np.array([0,0,0,0,3,0,0]),np.array([0,1,0,0,1,0,0])).tolist())        
+        self.assertEquals([0,0,3,6,0,3,1],kx2(np.array([0,0,10,0,0,5,1]),np.array([0,3,0,0,3,0,3]),np.array([0,1,0,0,1,0,1])).tolist())        
+        self.assertEquals([0,0,3,6,0,5,8],kx2(np.array([0,0,10,0,0,5,1]),np.array([0,3,0,0,3,3,0]),np.array([0,1,0,0,1,1,0])).tolist())
+        self.assertEquals([0,0,3.1,3.1+3.1,0,5,5+3.1],kx2(np.array([0,0,10,0,0,5,1]),np.array([0,3.1,0,0,3.1,3.1,0]),np.array([0,1,0,0,1,1,0])).tolist())
+
 
     def test_emax(self):
         source = np.array([10,20,30,20,10,0,10,15,10,45,55])

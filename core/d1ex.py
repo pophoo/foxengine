@@ -49,6 +49,41 @@ def nma(source,length):    #自然ma算法，前length个元素为各自的累�
     rev /= dividen
     return rev
 
+def fma(source,length):    #使用numpy，array更加的惯用法
+    """ 计算移动平均线, 返回浮点数
+        @param source 源数组
+        @param length 均线跨度
+        @return 移动平均序列
+    """
+    if(len(source) < length):
+        return np.zeros(len(source),np.float);
+    
+    rev = np.zeros(len(source),np.float); ##预先的0,不采用zeros_like是为了避免
+
+    acc = np.add.accumulate(source)
+    rev[length-1] = acc[length-1] #第length个元素是第一个非零值
+
+    np.subtract(acc[length:],acc[:len(acc)-length],rev[length:])
+    rev /= (length*1.0)
+
+    return rev
+
+def fnma(source,length):    #自然ma算法，前length个元素为各自的累积和除以累积元素个数
+    """ 计算移动平均线,返回浮点数
+        @param source 源数组
+        @param length 均线跨度
+        @return 移动平均序列
+    """
+    
+    dividen = np.arange(len(source))+1
+    dividen[dividen > length] = length
+
+    acc = np.add.accumulate(source)
+    rev = nsubd(acc,length)
+
+    rev = rev*1.0/dividen
+    return rev
+
 
 #简单趋势，1表示向上，-1表示向下.
 def trend(source,interval=1):
@@ -431,6 +466,99 @@ def msum2(source,length):
     rev = acc - dacc
     rev[:length-1] = acc[:length-1]
     return rev
+
+def kfactor(source,signal=None):
+    '''
+        计算source中相邻信号的k因子
+        k因子指值差除以距离
+        返回的是浮点数
+        这里不设置interval参数，是因为如果interval>1，则有kfactor的交叠问题
+            如1-->3,2-->4，则1-->2用13的斜率，而2-4用24斜率，直觉无意义
+    '''
+    if len(source)==0:
+        return np.array([])
+    if signal == None:  #对于数值正好为0的情况，需要signal
+        signal = source 
+    else:
+        assert len(source) == len(signal)
+    rev = np.zeros(len(source),np.float)
+    si = np.nonzero(signal)[0]
+    if len(si) == 0:
+        return rev
+    ss = source[si]
+    drev = nsubd(ss) * 1.0 / nsubd(si)
+    rev[rollx(si)] = drev
+    rev = extend2next(rev)
+    #rev[si] = rev[si-1] #起点/转折点斜率为0
+    rev = np.select([signal!=0],[rollx(rev)],rev)
+    return rev
+
+def kx(source,kfactor,signal=None):
+    '''
+        根据kfactor对source中的信号划线, kfactor为倍数为BASE的整数
+        该线一直划到下一个信号处或终点
+        用于拉支撑阻力线
+        返回的是浮点数
+    '''
+    if len(source)==0:
+        return np.array([])
+    if signal == None:  #对于数值正好为0的情况，需要signal
+        signal = source 
+    else:
+        assert len(source) == len(signal)
+    rev = np.select([source!=0],[source*1.0],0)
+    si = np.nonzero(signal)[0]
+    rev[si] = source[si]
+    if len(si) == 0:
+        return rev
+    pre = si[0]
+    for iv in si[1:]:
+        prev = rev[pre]
+        for irev in xrange(pre+1,iv):
+            prev += kfactor
+            rev[irev] = prev
+        pre = iv
+    #尾部
+    prev = rev[pre]
+    for irev in xrange(pre+1,len(source)):
+        prev += kfactor
+        rev[irev] = prev        
+    return rev
+
+def kx2(source,skfactor,signal=None):
+    '''
+        根据skfactor对source中的信号划线,skfactor为序列，source中信号以对应的kfactor划线
+        该线一直划到下一个信号处
+        用于拉支撑阻力线
+    '''
+    if len(source)==0:
+        return np.array([])
+    assert len(source) == len(skfactor)
+    if signal == None:  #对于数值正好为0的情况，需要signal
+        signal = source 
+    else:
+        assert len(source) == len(signal)
+    rev = np.select([source!=0],[source*1.0],0)
+    si = np.nonzero(signal)[0]
+    rev[si] = source[si]
+    if len(si) == 0:
+        return rev
+    pre = si[0]
+    for iv in si[1:]:
+        prev = rev[pre]
+        kfactor = skfactor[pre]
+        for irev in xrange(pre+1,iv):
+            prev += kfactor
+            rev[irev] = prev
+        pre = iv
+    #尾部
+    prev = rev[pre]
+    kfactor = skfactor[pre]
+    for irev in xrange(pre+1,len(source)):
+        prev += kfactor
+        rev[irev] = prev        
+    return rev
+
 
 def l_emaxmin(source,functor):
     ''' 近似新高/新低覆盖，因为两层循环内多次用到索引操作，所以用list来计算，用np.array效率会极低

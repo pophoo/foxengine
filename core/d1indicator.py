@@ -6,7 +6,7 @@
 import numpy as np
 
 from wolfox.fengine.core.d1 import BASE,gand,gmax,greater,subd,rollx,roll0,nsubd
-from wolfox.fengine.core.d1ex import tmax,tmin,trend,msum,ma
+from wolfox.fengine.core.d1ex import tmax,tmin,trend,msum,ma,fma
 
 import logging
 logger = logging.getLogger('wolfox.fengine.core.d1indicator')
@@ -638,8 +638,24 @@ def rsi2(source,length):
 
     return mpds * BASE / ms
 
+def avedev(source,length):
+    '''
+        平均绝对偏差
+    '''
+    rev = np.zeros(len(source),np.float)
+    lma = fma(source,length)
+    for i in xrange(length-1,len(source)):
+        rev[i] = np.abs(source[i-length+1:i+1] - lma[i]).mean()
+    return rev
 
-
+def cci(shigh,slow,sclose,length):
+    '''
+        cci路径指标
+    '''
+    typ = (shigh+slow+sclose)/3
+    rev = (typ-ma(typ,length))/(0.015*avedev(typ,length))
+    rev[:length-1] = 0
+    return np.cast['int32'](rev*BASE)
 
 def dm(shigh,slow):
     ''' 动向计算

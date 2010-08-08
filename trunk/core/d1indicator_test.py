@@ -287,6 +287,19 @@ class ModuleTest(unittest.TestCase):
         source = np.array([100,120,130,120,100,120,150,180,160,160,140,150])
         self.assertEquals([0,1000,1000,555,250,600,800,913,636,600,352,500],rsi2(source,3).tolist())
 
+    def test_avedev(self):
+        self.assertEquals([],avedev(np.array([]),3).tolist())
+        source = np.array([1950,2400,2000,2300,2250,2450,2150])
+        self.assertEquals([0,0,0,0,0,0,0],np.cast['int32'](avedev(source,10)).tolist())        
+        self.assertEquals([0,0,188,155,122,77,111],np.cast['int32'](avedev(source,3)).tolist())
+        self.assertEquals([0,0,0,0,0,0,155],np.cast['int32'](avedev(source,7)).tolist())
+
+    def test_cci(self):#只测试通路
+        na = np.array([])
+        self.assertEquals([],cci(na,na,na,10).tolist())
+        sa = np.array([100,200,300,400,500,700])
+        self.assertEquals([0,66666,66666,66666,66666,66666],cci(sa,sa,sa,2).tolist())
+
     def test_dm(self):
         pdm,ndm = dm(np.array([]),np.array([]))
         self.assertEquals([],pdm.tolist())

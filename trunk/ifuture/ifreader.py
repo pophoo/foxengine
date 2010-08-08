@@ -67,7 +67,9 @@ def read_if(filename,extractor=extract_if):
     records = []
     for line in file(filename):
         if len(line.strip()) > 0:
-            records.append(extractor(line))
+            record = extractor(line)
+            if record.time < 1516 and record.time > 900:  #排除错误数据
+                records.append(record)
     return records
 
 

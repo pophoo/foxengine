@@ -80,10 +80,10 @@ trades1 = iftrade.itrade3x(i07,xfollow)
 trades2 = iftrade.itrade3x(i07,xagainst)
 trades3 = iftrade.itrade3x(i07,xmiddle)
 
-trades =  iftrade.itrade3x(i07,xfollow+xagainst+xmiddle)
+###trades =  iftrade.itrade3x(i07,xfollow+xagainst+xmiddle)
 
 #tradesy =  iftrade.itrade3y(i07,xfollow+xagainst+xmiddle)    #xfollow作为平仓信号，且去掉了背离平仓的信号
-tradesy =  iftrade.itrade3y05_25(i07,xfollow+xagainst+xmiddle)    #xfollow作为平仓信号，且去掉了背离平仓的信号
+###tradesy =  iftrade.itrade3y05_25(i07,xfollow+xagainst+xmiddle)    #xfollow作为平仓信号，且去掉了背离平仓的信号
 
 #貌似trade3x和trade3y不分上下
 
@@ -94,7 +94,7 @@ tradesy =  iftrade.itrade3y05_25(i07,xfollow+xagainst+xmiddle)    #xfollow作为
 #优先级: xnormal > xpattern2 > xuds > xpattern >> xnormal2. 如果该优先级内出现反向信号，反向操作
 # >xpattern3/xpattern4
 #xpattern4与其它组合无增益
-xnormal = [ifuncs.ipmacd_short_5,ifuncs.ipmacd_short_6a,ifuncs.ipmacd_long_5,ifuncs.gd30,ifuncs.gu30,ifuncs.ipmacd_long_5k,ifuncs.ipmacd_short_devi1]
+xnormal = [ifuncs.ipmacd_short_5,ifuncs.ipmacd_short_6a,ifuncs.ipmacd_long_5,ifuncs.gd30,ifuncs.gu30,ifuncs.ipmacd_long_5k,ifuncs.cci_up15]
 
 #xpattern对远期合约的效果要好于近期的
 
@@ -2101,6 +2101,43 @@ def down30_0630(sif,sopened=None):
 
     return signal*XSELL
 
+def cci_up15(sif,sopened=None):
+    '''
+        15分钟cci上穿110
+        叠加貌似无增强，但除if1005之外也无削弱. 即使是if1005，也只是略微削弱
+    '''
+    
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+ 
+
+    scci = cci(sif.high15,sif.low15,sif.close15,14)
+
+    signal15 = gand(cross(cached_ints(len(sif.close15),110),scci/BASE)>0
+                ,strend2(sif.diff15x-sif.dea15x)>0
+                )
+
+
+    ss = np.zeros_like(sif.close)
+    ss[sif.i_cof15] = signal15
+
+    signal = ss
+    #fsignal = cross(sif.sd,sif.sk)>0
+    #signal = sfollow(signal,fsignal,15)
+
+    signal = gand(signal
+            ,strend2(sif.diff1-sif.dea1)>0
+            #,strend(sif.ma7)>0
+            #,rollx(strend2(sif.sdiff5x-sif.sdea5x),5)<0
+            ,strend2(sif.sdiff30x-sif.sdea30x)>0
+            ,strend2(sif.ma13)>0
+            )
+
+    return signal * cci_up15.direction
+cci_up15.direction = XBUY
+cci_up15.priority = 900 
+
 
 def down30(sif,sopened=None):
     '''
@@ -2869,7 +2906,7 @@ def nonefilter(sif):    #全清除
 
 
 
-xnormal = [ipmacd_short_5,ipmacd_short_6a,ipmacd_long_5,gd30,gu30,ipmacd_long_5k]
+xnormal = [ipmacd_short_5,ipmacd_short_6a,ipmacd_long_5,gd30,gu30,ipmacd_long_5k,cci_up15]
 xpattern = [godown5,godown30,inside_up,br30,ipmacd_short_devi1]
 xpattern2 = [goup5,opendown,openup,gapdown5,gapdown,skdj_bup]  
 xpattern3 = [gapdown15,br75]  #互有出入

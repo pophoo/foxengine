@@ -7,6 +7,7 @@ import numpy as np
 from collections import deque
 from wolfox.fengine.core.base import cache,wcache
 from wolfox.fengine.core.d1 import BASE,band,gand,nsubd,roll0,rollx,equals,nequals,greater_equals,subd,greater,lesser_equals
+from wolfox.fengine.core.utils import fcustom
 
 def ma(source,length):    #使用numpy，array更加的惯用法
     """ 计算移动平均线
@@ -805,6 +806,29 @@ def hlpeak(shigh,slow,ref_quick,ref_slow,covered=10):
     xlow = tmin(slow,covered)
     return np.select([sc==-1,sc==1],[xhigh,-xlow],0)
 
+fhigh = lambda sx:gand(sx>rollx(sx),sx>=rollx(sx,-1))   #连续同高，以第一个高点为准
+flow = lambda sx:gand(sx<rollx(sx),sx<=rollx(sx,-1))    #连续同低，以第一个低点为准
+
+def zpeak(source,order=1,fpeak=fhigh):
+    '''
+        寻找n阶高点, 含未来数据，只能用于划线
+        order默认为1
+    '''
+    tsx1 = fpeak(source)
+    sx1 = np.select([tsx1!=0],[source],0)
+    if order <= 1:
+        return sx1
+    icursx = np.nonzero(tsx1)[0]
+    for i in xrange(1,order):
+        sxx = source[icursx]
+        tsxx = fpeak(sxx)
+        icursx = icursx[np.nonzero(tsxx)[0]]
+    osx = np.zeros_like(source)
+    osx[icursx] = source[icursx]
+    return osx
+        
+zhpeak = fcustom(zpeak,fpeak=fhigh)
+zlpeak = fcustom(zpeak,fpeak=flow)
 
 def swing(source,covered=1):    #波动幅度
     return swing2(source,source,covered)

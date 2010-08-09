@@ -355,6 +355,24 @@ class ModuleTest(unittest.TestCase):
     def test_hlpeak(self):#测试通路
         self.assertEquals([],hlpeak(np.array([]),np.array([]),np.array([]),np.array([])).tolist())
 
+    def test_zpeak(self):
+        self.assertEquals([],zpeak(np.array([])).tolist())
+        source = np.array([10,20,30,20,10,5,37,5,3,1,2,1,0,1,0])
+        self.assertEquals([0,0,30,0,0,0,37,0,0,0,2,0,0,1,0],zpeak(source).tolist())
+        self.assertEquals([0,0,0,0,0,0,37,0,0,0,0,0,0,0,0],zpeak(source,2).tolist())        
+
+    def test_zhpeak(self):  #同zpeak
+        self.assertEquals([],zhpeak(np.array([])).tolist())
+        source = np.array([10,20,30,20,10,5,37,5,3,1,2,1,0,1,0])
+        self.assertEquals([0,0,30,0,0,0,37,0,0,0,2,0,0,1,0],zhpeak(source).tolist())
+        self.assertEquals([0,0,0,0,0,0,37,0,0,0,0,0,0,0,0],zhpeak(source,2).tolist())        
+
+    def test_zlpeak(self):  #同zpeak
+        self.assertEquals([],zhpeak(np.array([])).tolist())
+        source = np.array([10,20,10,20,10,5,37,15,13,10,12,14])
+        self.assertEquals([0,0,10,0,0,5,0,0,0,10,0,0],zlpeak(source).tolist())
+        self.assertEquals([0,0,0,0,0,5,0,0,0,0,0,0],zlpeak(source,2).tolist())
+
     def test_swing(self):
         self.assertEquals([0,0,0,0,0],swing(np.array([10,30,25,15,45])).tolist())
         self.assertEquals([0,2000,200,666,2000],swing(np.array([10,30,25,15,45]),2).tolist())

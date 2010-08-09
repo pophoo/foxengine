@@ -57,9 +57,6 @@ def s3(sif,sopened=None):
 
 def tfunc(sif,sopened=None):
     '''
-        中继模式
-        5分钟阳线新高后，阴线盘整，但未突破阳线开盘
-        后60分钟内突破新高日收盘/盘整日开盘的高点
     '''
     
     trans = sif.transaction
@@ -75,41 +72,83 @@ def tfunc(sif,sopened=None):
     ma5_7 = ma(sif.close5,7)         
     ma5_3 = ma(sif.close5,3)         
     
-    signal5 = gand(sif.close5<rollx(sif.close5)
-                ,sif.low5>rollx(sif.low5)
-                ,rollx(sif.close5)>rollx(sif.open5)
-                #,np.abs(sif.open5-sif.close5) > gmax(sif.open5,sif.close5)-sif.low5  #实体长于下影线
-                ,rollx(sif.high5) == tmax(sif.high5,10)
-                ,strend2(ma5_30)>0
-                #,sif.diff5x-sif.dea5x>0
+    cci5 = cci(sif.high5,sif.low5,sif.close5,14)
+
+    signal5 = gand(cross(cached_ints(len(sif.close5),0),cci5/BASE)<0
+                #,strend2(sif.diff5x-sif.dea5x)<0
+                ,strend2(cci5)<-2
+                #,ma5_3<ma5_60
+                #,ma5_3<ma5_7
                 )
 
     #print np.nonzero(signal5)
-    delay = 15
 
     ss = np.zeros_like(sif.close)
     ss[sif.i_cof5] = signal5
-    ssh = np.zeros_like(sif.close)
-    ssh[sif.i_cof5] = gmax(sif.open5,rollx(sif.close5),sif.high5)#,rollx(sif.high5))
-    bline = np.select([ss>0],[ssh],0)
-    bline = extend(bline,delay)
-    #print bline[-200:]
-    
-    #fsignal = cross(bline,sif.high)>0
-    fsignal = sif.low > bline
 
     signal = ss
-    signal = sfollow(signal,fsignal,delay)
+    #fsignal = cross(sif.sd,sif.sk)>0
+    #signal = sfollow(signal,fsignal,15)
+
     signal = gand(signal
             #,strend2(sif.diff1-sif.dea1)<0
-            #,strend(sif.ma7)>0
-            #,rollx(strend2(sif.sdiff5x-sif.sdea5x),5)<0
+            #,sif.ma7<sif.ma60
+            #,strend(sif.ma7)<0
+            #,sif.ma7 < sif.ma13
+            ,sif.ma13 < sif.ma30
+            #,strend2(sif.ma7)<0            
+            #,strend2(sif.ma13)<0
+            #,strend2(sif.ma30)<0
+            #,strend2(sif.ma60)<0
+            #,strend2(sif.ma135)<0            
+            #,sif.ma30 < sif.ma60
+            #,strend(sif.sdiff15x-sif.sdea15x)<0
+            #,strend(sif.sdiff3x-sif.sdea3x)<0
             )
 
     return signal * tfunc.direction
-tfunc.direction = XBUY
-tfunc.priority = 2400 #对i07效果很差
+tfunc.direction = XSELL
+tfunc.priority = 1900 
 #tfunc.closer = lambda c:[s1] #lambda c:c+[s3]
+
+def cci_up15(sif,sopened=None):
+    '''
+        15分钟cci上穿110
+        叠加貌似无增强，但除if1005之外也无削弱. 即使是if1005，也只是略微削弱
+    '''
+    
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+ 
+
+    scci = cci(sif.high15,sif.low15,sif.close15,14)
+
+    signal15 = gand(cross(cached_ints(len(sif.close15),110),scci/BASE)>0
+                ,strend2(sif.diff15x-sif.dea15x)>0
+                )
+
+
+    ss = np.zeros_like(sif.close)
+    ss[sif.i_cof15] = signal15
+
+    signal = ss
+    #fsignal = cross(sif.sd,sif.sk)>0
+    #signal = sfollow(signal,fsignal,15)
+
+    signal = gand(signal
+            ,strend2(sif.diff1-sif.dea1)>0
+            #,strend(sif.ma7)>0
+            #,rollx(strend2(sif.sdiff5x-sif.sdea5x),5)<0
+            ,strend2(sif.sdiff30x-sif.sdea30x)>0
+            ,strend2(sif.ma13)>0
+            )
+
+    return signal * cci_up15.direction
+cci_up15.direction = XBUY
+cci_up15.priority = 900 
+
+
 
 def k5_relay(sif,sopened=None):
     '''

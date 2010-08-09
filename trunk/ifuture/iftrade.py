@@ -73,21 +73,25 @@ def gothrough_filter(sif,signal,delayed=5,limit=60):
     return signal
 
 
-def ocfilter(sif):  #在开盘前30分钟和收盘前5分钟不开仓，头三个交易日不开张
+def ocfilter(sif,tbegin=944,tend=1510):  #在开盘前30分钟和收盘前5分钟不开仓，头三个交易日不开张
     stime = sif.transaction[ITIME]
     soc = np.ones_like(stime)
-    soc = gand(greater(stime,944),lesser(stime,1510))
+    soc = gand(greater(stime,tbegin),lesser(stime,tend))
     soc[:275*3] = 0
     soc[-5:] = 0    #最后交易日收盘在1500，防止溢出(因为买入点通常在下一分钟，那么1500不被屏蔽的话，如果有信号就会溢出)
     
     return soc
 
-def last_filter(sif):  
+ocfilter_c = fcustom(ocfilter,tbegin=930,tend=1455) #商品期货的交易时间为9:00-1500（中间有休息），故filter也修改
+
+def last_filter(sif,tbegin=944,tend=1510):  
     stime = sif.transaction[ITIME]
     soc = np.ones_like(stime)
-    soc = gand(greater(stime,944),lesser(stime,1510))    
+    soc = gand(greater(stime,tbegin),lesser(stime,tend))    
     soc[:275*3] = 0
     return soc
+
+last_filter_c = fcustom(last_filter,tbegin=930,tend=1455)
 
 ##平仓比较函数中，第一个参数的优先级低于第二个
 def early_strategy(action1,action2):#多选时的平仓策略，最早平仓
@@ -1035,4 +1039,21 @@ itradex515_y = fcustom(itradex,stop_closer=atr5_uxstop_05_15,bclosers=[ifuncs.da
 ltrade3x0525 = fcustom(itradex,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter,sync_trades=null_sync_tradess)
 ltrade3x156 = fcustom(itradex,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter,sync_trades=null_sync_tradess)
 ltrade3x0825 = fcustom(itradex,stop_closer=atr5_uxstop_08_25,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter,sync_trades=null_sync_tradess)
+
+
+citradex_y = fcustom(itradex,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop_short_c],sclosers=[ifuncs.daystop_long_c],longfilter=ocfilter_c,shortfilter=ocfilter_c)
+citradex5_y = fcustom(itradex,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.daystop_short_c],sclosers=[ifuncs.daystop_long_c],longfilter=ocfilter_c,shortfilter=ocfilter_c)
+citradex7_y = fcustom(itradex,stop_closer=atr5_uxstop_07_25,bclosers=[ifuncs.daystop_short_c],sclosers=[ifuncs.daystop_long_c],longfilter=ocfilter_c,shortfilter=ocfilter_c)
+citradex8_y = fcustom(itradex,stop_closer=atr5_uxstop_08_25,bclosers=[ifuncs.daystop_short_c],sclosers=[ifuncs.daystop_long_c],longfilter=ocfilter_c,shortfilter=ocfilter_c)
+citradex6_y = fcustom(itradex,stop_closer=atr5_uxstop_06_25,bclosers=[ifuncs.daystop_short_c],sclosers=[ifuncs.daystop_long_c],longfilter=ocfilter_c,shortfilter=ocfilter_c)
+citradex3_y = fcustom(itradex,stop_closer=atr5_uxstop_03_25,bclosers=[ifuncs.daystop_short_c],sclosers=[ifuncs.daystop_long_c],longfilter=ocfilter_c,shortfilter=ocfilter_c)
+
+citradex1_y = fcustom(itradex,stop_closer=atr5_uxstop_1_25,bclosers=[ifuncs.daystop_short_c],sclosers=[ifuncs.daystop_long_c],longfilter=ocfilter_c,shortfilter=ocfilter_c)
+citradex1525_y = fcustom(itradex,stop_closer=atr5_uxstop_15_25,bclosers=[ifuncs.daystop_short_c],sclosers=[ifuncs.daystop_long_c],longfilter=ocfilter_c,shortfilter=ocfilter_c)
+citradex15_y = fcustom(itradex,stop_closer=atr5_uxstop_15_15,bclosers=[ifuncs.daystop_short_c],sclosers=[ifuncs.daystop_long_c],longfilter=ocfilter_c,shortfilter=ocfilter_c)
+citradex515_y = fcustom(itradex,stop_closer=atr5_uxstop_05_15,bclosers=[ifuncs.daystop_short_c],sclosers=[ifuncs.daystop_long_c],longfilter=ocfilter_c,shortfilter=ocfilter_c)
+
+cltrade3x0525 = fcustom(itradex,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.xdaystop_short_c],sclosers=[ifuncs.xdaystop_long_c],make_trades=last_trades,longfilter=last_filter_c,shortfilter=last_filter_c,sync_trades=null_sync_tradess)
+cltrade3x156 = fcustom(itradex,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.xdaystop_short_c],sclosers=[ifuncs.xdaystop_long_c],make_trades=last_trades,longfilter=last_filter_c,shortfilter=last_filter_c,sync_trades=null_sync_tradess)
+cltrade3x0825 = fcustom(itradex,stop_closer=atr5_uxstop_08_25,bclosers=[ifuncs.xdaystop_short_c],sclosers=[ifuncs.xdaystop_long_c],make_trades=last_trades,longfilter=last_filter_c,shortfilter=last_filter_c,sync_trades=null_sync_tradess)
 

@@ -29,8 +29,11 @@ xcalc6 = fcustom(xcalc,functor=iftrade.ltrade3y6_5)
 
 wh_path = u'E:/光大期货Mytrader行情交易系统/'
 wh_path2 = u'E:/文华财经Mytrader行情交易系统/'
-wh_pattern = wh_path + 'IF*.txt'
-wh_pattern2 = wh_path2 + 'IF*.txt'
+#wh_pattern = wh_path + 'IF*.txt'
+#wh_pattern2 = wh_path2 + 'IF*.txt'
+wh_pattern = wh_path + '*.txt'
+wh_pattern2 = wh_path2 + '*.txt'
+
 
 import glob
 import os.path

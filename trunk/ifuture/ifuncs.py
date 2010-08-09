@@ -2726,46 +2726,54 @@ atr_stop_15_25 = fcustom(atr_stop,lost_times=150,win_times=250)
 atr_stop_2_3 = fcustom(atr_stop,lost_times=200,win_times=300)
 atr_stop_25_4 = fcustom(atr_stop,lost_times=250,win_times=400)
 
-def daystop_long(sif,sopened):
+def daystop_long(sif,sopened,tend=1511):
     '''
         每日收盘前的平仓,平多仓
         最后3分钟也平仓，用于兼容到期日(最后交易时间为1500)
     '''
     stime = sif.transaction[ITIME]
-    sl = greater(stime,1511)
+    sl = greater(stime,tend)
     sl[-4:] = 1
     return  sl * XSELL
 
-def daystop_short(sif,sopened):
+daystop_long_c = fcustom(daystop_long,tend=1456)
+
+def daystop_short(sif,sopened,tend=1511):
     '''
         每日收盘前的平仓,平空仓
         最后3分钟也平仓，用于兼容到期日(最后交易时间为1500)
     '''
     stime = sif.transaction[ITIME]
-    sl = greater(stime,1511)
+    sl = greater(stime,tend)
     sl[-4:] = 1
     return sl * XBUY
 
-def xdaystop_long(sif,sopened):
+daystop_short_c = fcustom(daystop_short,tend=1456)
+
+def xdaystop_long(sif,sopened,tend=1511):
     '''
         每日收盘前的平仓,平多仓
         最后3分钟不平仓
         用于动态计算
     '''
     stime = sif.transaction[ITIME]
-    sl = greater(stime,1511)
+    sl = greater(stime,tend)
     return  sl * XSELL
 
-def xdaystop_short(sif,sopened):
+xdaystop_long_c = fcustom(xdaystop_long,tend=1456)
+
+
+def xdaystop_short(sif,sopened,tend=1511):
     '''
         每日收盘前的平仓,平空仓
         最后3分钟不平仓.
         用于动态计算
     '''
     stime = sif.transaction[ITIME]
-    sl = greater(stime,1511)
+    sl = greater(stime,tend)
     return sl * XBUY
 
+xdaystop_short_c = fcustom(xdaystop_short,tend=1456)
 
 def atr_xstop(sif,sopened,lost_times=200,win_times=300,max_drawdown=200,min_lost=30):
     '''

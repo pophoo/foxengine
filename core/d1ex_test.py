@@ -367,11 +367,38 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,0,30,0,0,0,37,0,0,0,2,0,0,1,0],zhpeak(source).tolist())
         self.assertEquals([0,0,0,0,0,0,37,0,0,0,0,0,0,0,0],zhpeak(source,2).tolist())        
 
-    def test_zlpeak(self):  #同zpeak
-        self.assertEquals([],zhpeak(np.array([])).tolist())
+    def test_zlpeak(self):  #
+        self.assertEquals([],zlpeak(np.array([])).tolist())
         source = np.array([10,20,10,20,10,5,37,15,13,10,12,14])
         self.assertEquals([0,0,10,0,0,5,0,0,0,10,0,0],zlpeak(source).tolist())
         self.assertEquals([0,0,0,0,0,5,0,0,0,0,0,0],zlpeak(source,2).tolist())
+
+    def test_zpeaki(self):
+        self.assertEquals([],zpeaki(np.array([]))[0].tolist())
+        self.assertEquals([],zpeaki(np.array([]))[1].tolist())        
+        source = np.array([10,20,30,20,10,5,37,5,3,1,2,1,0,1,0])
+        self.assertEquals([0,0,30,0,0,0,37,0,0,0,2,0,0,1,0],zpeaki(source)[0].tolist())
+        self.assertEquals([0,0,3,0,0,0,7,0,0,0,11,0,0,14,0],zpeaki(source)[1].tolist())        
+        self.assertEquals([0,0,0,0,0,0,37,0,0,0,0,0,0,0,0],zpeaki(source,2)[0].tolist())        
+        self.assertEquals([0,0,0,0,0,0,11,0,0,0,0,0,0,0,0],zpeaki(source,2)[1].tolist())        
+
+    def test_zhpeaki(self):  #同zpeaki
+        self.assertEquals([],zhpeaki(np.array([]))[0].tolist())
+        self.assertEquals([],zhpeaki(np.array([]))[1].tolist())        
+        source = np.array([10,20,30,20,10,5,37,5,3,1,2,1,0,1,0])
+        self.assertEquals([0,0,30,0,0,0,37,0,0,0,2,0,0,1,0],zhpeaki(source)[0].tolist())
+        self.assertEquals([0,0,3,0,0,0,7,0,0,0,11,0,0,14,0],zhpeaki(source)[1].tolist())        
+        self.assertEquals([0,0,0,0,0,0,37,0,0,0,0,0,0,0,0],zhpeaki(source,2)[0].tolist())        
+        self.assertEquals([0,0,0,0,0,0,11,0,0,0,0,0,0,0,0],zhpeaki(source,2)[1].tolist())        
+
+    def test_zlpeaki(self):  #
+        self.assertEquals([],zlpeaki(np.array([]))[0].tolist())
+        self.assertEquals([],zlpeaki(np.array([]))[1].tolist())        
+        source = np.array([10,20,10,20,10,5,37,15,13,10,12,14])
+        self.assertEquals([0,0,10,0,0,5,0,0,0,10,0,0],zlpeaki(source)[0].tolist())
+        self.assertEquals([0,0,3,0,0,6,0,0,0,10,0,0],zlpeaki(source)[1].tolist())        
+        self.assertEquals([0,0,0,0,0,5,0,0,0,0,0,0],zlpeaki(source,2)[0].tolist())
+        self.assertEquals([0,0,0,0,0,10,0,0,0,0,0,0],zlpeaki(source,2)[1].tolist())        
 
     def test_swing(self):
         self.assertEquals([0,0,0,0,0],swing(np.array([10,30,25,15,45])).tolist())

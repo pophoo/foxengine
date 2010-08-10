@@ -811,8 +811,8 @@ flow = lambda sx:gand(sx<rollx(sx),sx<=rollx(sx,-1))    #连续同低，以第�
 
 def zpeak(source,order=1,fpeak=fhigh):
     '''
-        寻找n阶高点, 含未来数据，只能用于划线
-        order默认为1
+        寻找n阶高/低点, 含未来数据，只能用于划线
+        order默认为1,小于1当作1
     '''
     tsx1 = fpeak(source)
     sx1 = np.select([tsx1!=0],[source],0)
@@ -829,6 +829,36 @@ def zpeak(source,order=1,fpeak=fhigh):
         
 zhpeak = fcustom(zpeak,fpeak=fhigh)
 zlpeak = fcustom(zpeak,fpeak=flow)
+
+def zpeaki(source,order=1,fpeak=fhigh):
+    '''
+        寻找n阶高/低点
+        返回值为高点数据序列，以及该高点最大跨度的坐标(即计算该高/低点所需用到的最远的未来数据的坐标)
+        order默认为1,小于1当作1
+        返回值中第一个是高/低点非0,其余为0的序列 sh
+                第二个是该高低点的最远未来数据的坐标序列 si
+                其中 sh[np.nonzero(sh)]为高点序列, si[np.nonzero(sh)]为坐标序列,sif.time[si[np.nonzero(sh)]]为坐标的影响时间序列
+    '''
+    tsx1 = fpeak(source)
+    sx1 = np.select([tsx1!=0],[source],0)
+    icovered = rollx(np.arange(len(source)),-1)
+    if order <= 1:
+        return sx1,np.select([tsx1],[icovered],0)
+    icursx = np.nonzero(tsx1)[0]
+    for i in xrange(1,order):   #必然进入循环
+        sxx = source[icursx]
+        tsxx = fpeak(sxx)
+        icovered[icursx] = rollx(icovered[icursx],-1)   #当前高/低点的计算范围,即之前顶点的范围左转一位(排除掉不是顶点的)
+        icursx = icursx[np.nonzero(tsxx)[0]]
+    osx = np.zeros_like(source)
+    osx[icursx] = source[icursx]
+    iz = np.zeros_like(source)
+    iz[icursx] = icovered[icursx]   #去掉icovered之中不必要的那些数字
+    return osx,iz
+
+zhpeaki = fcustom(zpeaki,fpeak=fhigh)
+zlpeaki = fcustom(zpeaki,fpeak=flow)
+
 
 def swing(source,covered=1):    #波动幅度
     return swing2(source,source,covered)

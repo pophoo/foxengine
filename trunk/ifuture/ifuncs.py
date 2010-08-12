@@ -100,10 +100,9 @@ xnormal = [ifuncs.ipmacd_short_5,ifuncs.ipmacd_short_6a,ifuncs.ipmacd_long_5,ifu
 
 #xpattern: 基于信号发出后再捕捉1分钟同向叉
 xpattern = [ifuncs.godown5,ifuncs.godown30,ifuncs.inside_up,ifuncs.br30,ifuncs.ipmacd_short_devi1]
-xpattern2 = [ifuncs.goup5,ifuncs.opendown,ifuncs.openup,ifuncs.gapdown5,ifuncs.gapdown,ifuncs.skdj_bup]  
+xpattern2 = [ifuncs.goup5,ifuncs.opendown,ifuncs.openup,ifuncs.gapdown5,ifuncs.gapdown,ifuncs.skdj_bup,ifuncs.xdown30,ifuncs.xdown60]  
 
 #xpattern2:直接根据信号动作
-xpattern2 = [ifuncs.goup5,ifuncs.opendown,ifuncs.openup,ifuncs.gapdown5,ifuncs.gapdown]  
 xpattern3 = [ifuncs.gapdown15,ifuncs.br75]  #互有出入
 kpattern = [ifuncs.k5_lastup,ifuncs.k15_lastdown]
 
@@ -409,6 +408,90 @@ def godown30(sif,sopened=None):
     return signal * godown30.direction
 godown30.direction = XSELL
 godown30.priority = 2000
+
+def xdown30(sif,sopened=None):
+    '''
+        30分钟的稳定下挫
+        5分钟内各最低价都低于30分钟前的最低价, 后macd下叉
+    '''
+    trans = sif.transaction
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+ 
+    covered = 30
+
+    snewlow = sif.low < rollx(sif.low,covered)
+
+    msnl = msum2(snewlow,5)
+
+    #signal = gand(msnl>4)   #最大值就是5
+    signal = equals(msnl,5)
+
+    s30_13 = np.zeros_like(sif.diff1)
+    s30_13[sif.i_cof30] = strend2(ma(sif.close30,13))
+    s30_13 = extend2next(s30_13)
+
+    rsi7 = rsi2(sif.close,7)
+    rsi14 = rsi2(sif.close,14)
+
+    #fsignal = cross(rsi14,rsi7)<0
+    fsignal = cross(sif.dea1,sif.diff1)<0
+    #fsignal = cross(sif.sd,sif.sk)<0   
+
+    signal = sfollow(signal,fsignal,5)
+
+    signal = gand(signal
+            ,s30_13<0
+            ,sif.ma5 < sif.ma13
+            #,sif.low > rollx(sif.low,4) #还在下行,这个限制太大了，极大消灭了统计样本
+            #,strend2(sif.diff1-sif.dea1)<0
+            ,sif.diff5<0
+            ,strend2(sif.ma270)<0
+            #,strend2(sif.ma30)<0
+            #,strend2(sif.ma13)<0            
+            ,strend2(sif.sdiff30x-sif.sdea30x)<0
+            ,ksfilter
+            )
+    
+    return signal * xdown30.direction
+xdown30.direction = XSELL
+xdown30.priority = 900
+
+def xdown60(sif,sopened=None):
+    '''
+        连续5分钟内出现60分钟最低点4个以上
+    '''
+    trans = sif.transaction
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+    covered = 60
+
+    snewlow = sif.low < rollx(tmin(sif.low,covered))
+
+    msnl = msum2(snewlow,5)
+
+    signal = gand(msnl>3)
+
+    s30_13 = np.zeros_like(sif.diff1)
+    s30_13[sif.i_cof30] = strend2(ma(sif.close30,13))
+    s30_13 = extend2next(s30_13)
+
+
+    signal = gand(signal
+            ,s30_13<0
+            ,sif.ma5 < sif.ma13
+            ,strend2(sif.diff1-sif.dea1)<0
+            #,sif.diff5<0
+            ,strend2(sif.ma270)<0
+            #,strend2(sif.ma30)<0
+            #,strend2(sif.ma13)<0            
+            ,strend2(sif.sdiff5x-sif.sdea5x)<0
+            ,strend2(sif.sdiff15x-sif.sdea15x)<0
+            ,ksfilter
+            )
+    
+    return signal * xdown60.direction
+xdown60.direction = XSELL
+xdown60.priority = 1200 
 
 
 def inside_up(sif,sopened=None):
@@ -739,7 +822,7 @@ def br30(sif,sopened=None):
 
     return signal * br30.direction
 br30.direction = XBUY
-br30.priority = 200
+br30.priority = 2410
 
 
 def up0(sif,sopened=None):
@@ -871,7 +954,7 @@ def ma60_short(sif,sopened=None):
     signal = sfollow(msignal,fsignal,5)
     return signal * ma60_short.direction
 ma60_short.direction = XSELL
-ma60_short.priority = 2499
+ma60_short.priority = 2401
 
 
 def ma60_short_0715(sif,sopened=None):
@@ -1851,7 +1934,7 @@ def xud15(sif,sopened=None):
 
     return signal * xud15.direction
 xud15.direction = XBUY
-xud15.priority = 500
+xud15.priority = 3001
 
 
 def xud30(sif,sopened=None):
@@ -2337,6 +2420,8 @@ def k5_lastup(sif,sopened=None):
     '''
         底部衰竭模式
         5分钟底部阴线后出现孕线，后10分钟内1分钟最高线突破该孕线(high+close)/2
+        效果不佳，稳定性不好
+        很难取舍，虽然稳定性不好，但叠加效果好
     '''
     trans = sif.transaction
  
@@ -2353,7 +2438,7 @@ def k5_lastup(sif,sopened=None):
                 ,rollx(sif.low5) == tmin(sif.low5,20)
                 ,rollx(sif.vol5) > sif.vol5
                 ,rollx(sif.vol5) > rollx(sif.vol5,2)
-                #,rollx(sif.close5)<rollx(sif.open5)
+                ,rollx(sif.close5)<rollx(sif.open5)
                 ,strend2(ma5_60)<-20
                 #,strend2(ma5_30)<0
                 #,strend2(sif.diff5x)<0
@@ -2445,6 +2530,70 @@ def k15_lastdown(sif,sopened=None):
     return signal * k15_lastdown.direction
 k15_lastdown.direction = XSELL
 k15_lastdown.priority = 2100 #对i09时200即优先级最高的效果最好
+
+def k5_lastdown(sif,sopened=None):
+    '''
+        新高衰竭模式
+        1. 5分钟长上影新高后,5分钟内1分钟跌破前5分钟的最低价
+    '''
+    
+    trans = sif.transaction
+
+    ma5_500 = ma(sif.close5,500)
+    ma5_200 = ma(sif.close5,200)
+    ma5_60 = ma(sif.close5,60) 
+    ma5_13 = ma(sif.close5,13)     
+    ma5_30 = ma(sif.close5,30) 
+    ma5_7 = ma(sif.close5,7)         
+    ma5_3 = ma(sif.close5,3)         
+    
+    signal5 = gand(sif.high5>rollx(tmax(sif.high5,15))
+                ,sif.close5>rollx(sif.close5)
+                #,sif.low5>rollx(sif.low5)
+                ,sif.high5 - gmax(sif.open5,sif.close5) > np.abs(sif.open5-sif.close5) #上影线长于实体
+                #,np.abs(sif.open5-sif.close5) > gmin(sif.open5,sif.close5) - sif.low5#上影线长于实体
+                #,sif.high5 > gmax(ma5_3,ma5_30,ma5_60)
+                #,rollx(sif.vol5) > sif.vol5
+                #,rollx(sif.vol5) > rollx(sif.vol5,2)
+                #,rollx(sif.close5)>rollx(sif.open5)
+                #,strend2(ma5_60)>0
+                #,strend2(sif.diff5x-sif.dea5x)>0
+                #,sif.diff5x>sif.dea5x
+                #,strend2(ma5_500)<0                                
+                #,ma5_7 > ma5_13
+                #,strend2(ma5_500)>0
+                )
+
+    #print np.nonzero(signal5)
+    delay = 30
+
+    ss = np.zeros_like(sif.close)
+    ss[sif.i_cof5] = signal5
+    ssh = np.zeros_like(sif.close)
+    ssh[sif.i_cof5] = sif.low5 #gmin(sif.open5,sif.close5)
+    bline = np.select([ss>0],[ssh],0)
+    bline = extend(bline,delay)
+    
+    #fsignal = cross(bline,sif.high)>0
+    #fsignal = sif.high < bline
+    fsignal = sif.close < bline    
+
+
+    signal = sfollow(ss,fsignal,delay)
+    signal = gand(signal
+            ,strend2(sif.diff1-sif.dea1)<0
+            ,sif.ma5<sif.ma13
+            ,strend2(sif.sdiff5x-sif.sdea5x)<0
+            ,strend2(sif.ma270)<0
+            #,strend2(sif.sdiff30x-sif.sdea30x)<0
+            #,gor(sif.sdiff30x-sif.sdea30x<0,strend2(sif.sdiff30x-sif.sdea30x)<0)
+            #,strend(sif.ma7)<0
+            #,rollx(strend2(sif.sdiff5x-sif.sdea5x),5)<0
+            )
+
+    return signal * k5_lastdown.direction
+k5_lastdown.direction = XSELL
+k5_lastdown.priority = 2400 #对i09时200即优先级最高的效果最好
 
 
 def k5_relay(sif,sopened=None):
@@ -2916,9 +3065,9 @@ def nonefilter(sif):    #全清除
 
 xnormal = [ipmacd_short_5,ipmacd_short_6a,ipmacd_long_5,gd30,gu30,ipmacd_long_5k,cci_up15]
 xpattern = [godown5,godown30,inside_up,br30,ipmacd_short_devi1]
-xpattern2 = [goup5,opendown,openup,gapdown5,gapdown,skdj_bup]  
+xpattern2 = [goup5,opendown,openup,gapdown5,gapdown,skdj_bup,xdown30,xdown60]  
 xpattern3 = [gapdown15,br75]  #互有出入
-kpattern = [k5_lastup,k15_lastdown]
+kpattern = [k5_lastup,k15_lastdown,k5_lastdown]
 #xpattern4 = [xup,xdown,up3]   #与其它组合有矛盾? 暂不使用。盈利部分被其它覆盖，亏损部分没有，导致副作用
 xuds = [xud30,xud30c,xud15,xud10s]
 xnormal2 = [ipmacd_short_x,ipmacd_long_6,ipmacd_short5,ma30_short,ma60_short,down01,up0,rsi3x]

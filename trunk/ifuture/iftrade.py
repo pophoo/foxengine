@@ -84,7 +84,7 @@ def ocfilter(sif,tbegin=944,tend=1510):  #在开盘前30分钟和收盘前5分�
 
 ocfilter_c = fcustom(ocfilter,tbegin=930,tend=1455) #商品期货的交易时间为9:00-1500（中间有休息），故filter也修改
 
-def last_filter(sif,tbegin=944,tend=1510):  
+def last_filter(sif,tbegin=930,tend=1510):  
     stime = sif.transaction[ITIME]
     soc = np.ones_like(stime)
     soc = gand(greater(stime,tbegin),lesser(stime,tend))    
@@ -918,22 +918,50 @@ atr5_uxstop_15_4 = fcustom(atr_uxstop,lost_times=150,win_times=400,max_drawdown=
 atr5_uxstop_1_4 = fcustom(atr_uxstop,lost_times=100,win_times=400,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_05_4 = fcustom(atr_uxstop,lost_times=50,win_times=400,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_1_5 = fcustom(atr_uxstop,lost_times=100,win_times=500,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_05_2 = fcustom(atr_uxstop,lost_times=50,win_times=200,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_05_20 = fcustom(atr_uxstop,lost_times=50,win_times=200,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_05_25 = fcustom(atr_uxstop,lost_times=50,win_times=250,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_03_25 = fcustom(atr_uxstop,lost_times=30,win_times=250,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_06_25 = fcustom(atr_uxstop,lost_times=66,win_times=250,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_07_25 = fcustom(atr_uxstop,lost_times=75,win_times=250,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_08_25 = fcustom(atr_uxstop,lost_times=80,win_times=250,max_drawdown=200,min_lost=30,natr=5)
 
+atr5_uxstop_05_25_30 = fcustom(atr_uxstop,lost_times=50,win_times=250,max_drawdown=300,min_lost=30,natr=5)
+atr5_uxstop_03_25_30 = fcustom(atr_uxstop,lost_times=30,win_times=250,max_drawdown=300,min_lost=30,natr=5)
+atr5_uxstop_06_25_30 = fcustom(atr_uxstop,lost_times=66,win_times=250,max_drawdown=300,min_lost=30,natr=5)
+atr5_uxstop_07_25_30 = fcustom(atr_uxstop,lost_times=75,win_times=250,max_drawdown=300,min_lost=30,natr=5)
+atr5_uxstop_08_25_30 = fcustom(atr_uxstop,lost_times=80,win_times=250,max_drawdown=300,min_lost=30,natr=5)
+
+atr5_uxstop_05_25_25 = fcustom(atr_uxstop,lost_times=50,win_times=250,max_drawdown=250,min_lost=30,natr=5)
+atr5_uxstop_03_25_25 = fcustom(atr_uxstop,lost_times=30,win_times=250,max_drawdown=250,min_lost=30,natr=5)
+atr5_uxstop_06_25_25 = fcustom(atr_uxstop,lost_times=66,win_times=250,max_drawdown=250,min_lost=30,natr=5)
+atr5_uxstop_07_25_25 = fcustom(atr_uxstop,lost_times=75,win_times=250,max_drawdown=250,min_lost=30,natr=5)
+atr5_uxstop_08_25_25 = fcustom(atr_uxstop,lost_times=80,win_times=250,max_drawdown=250,min_lost=30,natr=5)
+
+
+atr5_uxstop_05_3_30 = fcustom(atr_uxstop,lost_times=50,win_times=300,max_drawdown=300,min_lost=30,natr=5)
+atr5_uxstop_03_3_30 = fcustom(atr_uxstop,lost_times=30,win_times=300,max_drawdown=300,min_lost=30,natr=5)
+atr5_uxstop_06_3_30 = fcustom(atr_uxstop,lost_times=66,win_times=300,max_drawdown=300,min_lost=30,natr=5)
+atr5_uxstop_07_3_30 = fcustom(atr_uxstop,lost_times=75,win_times=300,max_drawdown=300,min_lost=30,natr=5)
+atr5_uxstop_08_3_30 = fcustom(atr_uxstop,lost_times=80,win_times=300,max_drawdown=300,min_lost=30,natr=5)
+
+atr5_uxstop_05_35_30 = fcustom(atr_uxstop,lost_times=50,win_times=350,max_drawdown=300,min_lost=30,natr=5)
+atr5_uxstop_03_35_30 = fcustom(atr_uxstop,lost_times=30,win_times=350,max_drawdown=300,min_lost=30,natr=5)
+atr5_uxstop_06_35_30 = fcustom(atr_uxstop,lost_times=66,win_times=350,max_drawdown=300,min_lost=30,natr=5)
+atr5_uxstop_07_35_30 = fcustom(atr_uxstop,lost_times=75,win_times=350,max_drawdown=300,min_lost=30,natr=5)
+atr5_uxstop_08_35_30 = fcustom(atr_uxstop,lost_times=80,win_times=350,max_drawdown=300,min_lost=30,natr=5)
+
 atr5_uxstop_05_3 = fcustom(atr_uxstop,lost_times=50,win_times=300,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_05_15 = fcustom(atr_uxstop,lost_times=50,win_times=150,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_05_1 = fcustom(atr_uxstop,lost_times=50,win_times=100,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_05_10 = fcustom(atr_uxstop,lost_times=50,win_times=100,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_05_05 = fcustom(atr_uxstop,lost_times=50,win_times=50,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_1_6 = fcustom(atr_uxstop,lost_times=100,win_times=600,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_05_6 = fcustom(atr_uxstop,lost_times=50,win_times=600,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_1_25 = fcustom(atr_uxstop,lost_times=100,win_times=250,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_1_15 = fcustom(atr_uxstop,lost_times=100,win_times=150,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_15_15 = fcustom(atr_uxstop,lost_times=150,win_times=150,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_03_15 = fcustom(atr_uxstop,lost_times=30,win_times=150,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_03_10 = fcustom(atr_uxstop,lost_times=30,win_times=100,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_03_05 = fcustom(atr_uxstop,lost_times=30,win_times=50,max_drawdown=200,min_lost=30,natr=5)
 
 
 atr5_uxstop_05_25b = fcustom(atr_uxstop,lost_times=50,win_times=250,max_drawdown=200,min_lost=50,natr=5)
@@ -956,11 +984,11 @@ itrade3y05_5 = fcustom(itrade3,stop_closer=atr5_uxstop_05_6,bclosers=[ifuncs.day
 
 itrade3y05_15 = fcustom(itrade3,stop_closer=atr5_uxstop_05_15,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
 
-itrade3y05_1 = fcustom(itrade3,stop_closer=atr5_uxstop_05_1,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
+itrade3y05_1 = fcustom(itrade3,stop_closer=atr5_uxstop_05_10,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
 itrade3y05_05 = fcustom(itrade3,stop_closer=atr5_uxstop_05_05,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
 
 
-itrade3y05_2 = fcustom(itrade3,stop_closer=atr5_uxstop_05_2,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
+itrade3y05_2 = fcustom(itrade3,stop_closer=atr5_uxstop_05_20,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)
 
 itrade3y05_25 = fcustom(itrade3,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser) ###最好的搭配
 
@@ -995,7 +1023,7 @@ ltrade3y6_5 = fcustom(itrade3,stop_closer=atr5_uxstop_6_6,bclosers=[ifuncs.xmacd
 
 ltrade3y0525_5 = fcustom(itrade3,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter)
 
-ltrade3y0520_5 = fcustom(itrade3,stop_closer=atr5_uxstop_05_2,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter)
+ltrade3y0520_5 = fcustom(itrade3,stop_closer=atr5_uxstop_05_20,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter)
 
 ltrade3y0515_5 = fcustom(itrade3,stop_closer=atr5_uxstop_05_15,bclosers=[ifuncs.xmacd_stop_short1],sclosers=sycloser_d,make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter)
 
@@ -1031,15 +1059,46 @@ itradex8_y = fcustom(itradex,stop_closer=atr5_uxstop_08_25,bclosers=[ifuncs.days
 itradex6_y = fcustom(itradex,stop_closer=atr5_uxstop_06_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 itradex3_y = fcustom(itradex,stop_closer=atr5_uxstop_03_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 
+itradex5_y_30 = fcustom(itradex,stop_closer=atr5_uxstop_05_25_30,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex7_y_30 = fcustom(itradex,stop_closer=atr5_uxstop_07_25_30,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex8_y_30 = fcustom(itradex,stop_closer=atr5_uxstop_08_25_30,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex6_y_30 = fcustom(itradex,stop_closer=atr5_uxstop_06_25_30,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex3_y_30 = fcustom(itradex,stop_closer=atr5_uxstop_03_25_30,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+
+itradex5_y_25 = fcustom(itradex,stop_closer=atr5_uxstop_05_25_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex7_y_25 = fcustom(itradex,stop_closer=atr5_uxstop_07_25_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex8_y_25 = fcustom(itradex,stop_closer=atr5_uxstop_08_25_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex6_y_25 = fcustom(itradex,stop_closer=atr5_uxstop_06_25_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex3_y_25 = fcustom(itradex,stop_closer=atr5_uxstop_03_25_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+
+itradex5_y_3530 = fcustom(itradex,stop_closer=atr5_uxstop_05_35_30,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex7_y_3530 = fcustom(itradex,stop_closer=atr5_uxstop_07_35_30,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex8_y_3530 = fcustom(itradex,stop_closer=atr5_uxstop_08_35_30,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex6_y_3530 = fcustom(itradex,stop_closer=atr5_uxstop_06_35_30,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex3_y_3530 = fcustom(itradex,stop_closer=atr5_uxstop_03_35_30,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+
+itradex5_y_330 = fcustom(itradex,stop_closer=atr5_uxstop_05_3_30,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex7_y_330 = fcustom(itradex,stop_closer=atr5_uxstop_07_3_30,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex8_y_330 = fcustom(itradex,stop_closer=atr5_uxstop_08_3_30,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex6_y_330 = fcustom(itradex,stop_closer=atr5_uxstop_06_3_30,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex3_y_330 = fcustom(itradex,stop_closer=atr5_uxstop_03_3_30,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+
+itradex525_y = fcustom(itradex,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+
 itradex1_y = fcustom(itradex,stop_closer=atr5_uxstop_1_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 itradex1525_y = fcustom(itradex,stop_closer=atr5_uxstop_15_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 itradex15_y = fcustom(itradex,stop_closer=atr5_uxstop_15_15,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 itradex515_y = fcustom(itradex,stop_closer=atr5_uxstop_05_15,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex510_y = fcustom(itradex,stop_closer=atr5_uxstop_05_10,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex520_y = fcustom(itradex,stop_closer=atr5_uxstop_05_20,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+
+itradex315_y = fcustom(itradex,stop_closer=atr5_uxstop_03_15,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex310_y = fcustom(itradex,stop_closer=atr5_uxstop_03_10,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex305_y = fcustom(itradex,stop_closer=atr5_uxstop_03_05,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 
 ltrade3x0525 = fcustom(itradex,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter,sync_trades=null_sync_tradess)
 ltrade3x156 = fcustom(itradex,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter,sync_trades=null_sync_tradess)
 ltrade3x0825 = fcustom(itradex,stop_closer=atr5_uxstop_08_25,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=last_trades,longfilter=last_filter,shortfilter=last_filter,sync_trades=null_sync_tradess)
-
 
 citradex_y = fcustom(itradex,stop_closer=atr_uxstop_15_6,bclosers=[ifuncs.daystop_short_c],sclosers=[ifuncs.daystop_long_c],longfilter=ocfilter_c,shortfilter=ocfilter_c)
 citradex5_y = fcustom(itradex,stop_closer=atr5_uxstop_05_25,bclosers=[ifuncs.daystop_short_c],sclosers=[ifuncs.daystop_long_c],longfilter=ocfilter_c,shortfilter=ocfilter_c)

@@ -141,6 +141,7 @@ def prepare_index(sif):
     sif.ma30 = ma(trans[ICLOSE],30)
     sif.ma60 = ma(trans[ICLOSE],60)
     sif.ma90 = ma(trans[ICLOSE],90)    
+    sif.ma120 = ma(trans[ICLOSE],120)  
     sif.ma135 = ma(trans[ICLOSE],135)    
     sif.ma270 = ma(trans[ICLOSE],270)        
     sif.atr = atr(trans[ICLOSE]*XBASE,trans[IHIGH]*XBASE,trans[ILOW]*XBASE,20)

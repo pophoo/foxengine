@@ -110,7 +110,7 @@ kpattern = [ifuncs.k5_lastup,ifuncs.k15_lastdown,ifuncs.k5_lastdown,ifuncs.k3_la
 
 xuds = [ifuncs.xud30,ifuncs.xud30c,ifuncs.xud15]#,ifuncs.xud10s]
 
-xnormal2 = [ifuncs.ipmacd_short_x,ifuncs.ipmacd_long_6,ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.ma60_short,ifuncs.down01,ifuncs.up0,ifuncs.rsi3x,ifuncs.skdj_bup]
+xnormal2 = [ifuncs.ipmacd_short_x,ifuncs.ipmacd_long_6,ifuncs.ipmacd_short5,ifuncs.ma30_short,ifuncs.ma60_short,ifuncs.down01,ifuncs.up0,ifuncs.rsi3x,ifuncs.skdj_bup,ifuncs.ipmacd_longt]
 
 tradesy =  iftrade.itradex5_y(i05,xnormal+xnormal2+xpattern+xpattern2+xuds+xpattern3+kpattern)
 
@@ -1076,7 +1076,9 @@ def ipmacd_longt(sif,sopened=None):#+
                 ,gor(strend(sif.ma270)>0,strend(sif.ma135)>0)
                 ,dsfilter
                 )
-    return signal * XBUY
+    return signal * ipmacd_longt.direction
+ipmacd_longt.direction= XBUY
+ipmacd_longt.priority = 2000
 
 def ipmacd_longt_0630(sif,sopened=None):#+
     trans = sif.transaction
@@ -1623,7 +1625,7 @@ def skdj_bup3b(sif,sopened=None):
     return signal * skdj_bup.direction
 
 skdj_bup3b.direction = XBUY
-skdj_bup3b.priority = 2400
+skdj_bup3b.priority = 12400
 
 
 def ma3x10_short(sif,sopened=None):#
@@ -3215,7 +3217,7 @@ xpattern3 = [gapdown15,br75]  #互有出入
 kpattern = [k5_lastup,k15_lastdown,k5_lastdown,k3_lastdown,k15_relay]
 #xpattern4 = [xup,xdown,up3]   #与其它组合有矛盾? 暂不使用。盈利部分被其它覆盖，亏损部分没有，导致副作用
 xuds = [xud30,xud30c,xud15,xud10s]
-xnormal2 = [ipmacd_short_x,ipmacd_long_6,ipmacd_short5,ma30_short,ma60_short,down01,up0,rsi3x]
+xnormal2 = [ipmacd_short_x,ipmacd_long_6,ipmacd_short5,ma30_short,ma60_short,down01,up0,rsi3x,ipmacd_longt]
 xxx = xnormal+xnormal2+xpattern+xpattern2+xuds+xpattern3+kpattern
 xpattern4 = [xup,xdown,up3]   #与其它组合有矛盾? 暂不使用。盈利部分被其它覆盖，亏损部分没有，导致副作用
 xxx4 = xxx + xpattern4

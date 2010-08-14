@@ -210,9 +210,9 @@ def prepare_index(sif):
     sif.smacd5x=extend2next(sif.smacd5x)
 
 
-    ##3分钟
+    ##3分钟,与文华一致
     sif.i_cof3 = np.where(
-            gor(gand((trans[ITIME]%100+1)%3 == 0)
+            gor(gand((trans[ITIME]%100)%3 == 2)
                 ,gand(trans[ITIME]%10000 == 1514,rollx(trans[ITIME],-1)%10000!=1515) #如果没有1515，则取1514
             )
         )[0]    #5分钟收盘线,不考虑隔日的因素

@@ -1087,6 +1087,33 @@ def rsi3x(sif,sopened=None):
     return signal * XBUY
 
 
+def rsi5x(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+    rsis = rsi2(sif.close5,7)
+    rsil = rsi2(sif.close5,14)
+
+    signal = np.zeros_like(sif.close)
+
+    signal[sif.i_cof5] = gand(cross(rsil,rsis)>0
+                            #,cross(sif.dea5x,sif.diff5x)>0
+                            )
+
+    
+    signal = gand(signal
+              ,strend(sif.ma270)>0
+              ,strend(sif.sdiff30x-sif.sdea30x)>0
+              #,sif.sdiff5x>0
+              ,sif.sdiff30x>sif.sdea30x
+            )
+
+    return signal * XBUY
+rsi5x.direction = XBUY
+rsi5x.priority = 2000  #
+
+
 def xup(sif,sopened=None):
     trans = sif.transaction
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
@@ -2249,18 +2276,20 @@ def ipmacd_5x13(sif,sopened=None):
 
 def ipmacd_longt(sif,sopened=None):#+
     trans = sif.transaction
-    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<2000) #向上突变过滤
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500) #向上突变过滤
 
     signal = gand(cross(sif.dea1,sif.diff1)>0
-                ,strend(sif.diff5-sif.dea5)>0
-                ,sif.diff30<sif.dea30
-                #,strend(sif.diff30-sif.dea30)>0 #+
+                ,strend(sif.sdiff5x-sif.sdea5x)>0
+                #,sif.sdiff30x<sif.sde30x
+                ,strend(sif.sdiff30x-sif.sdea30x)>0 #+
                 ,sif.ma5>sif.ma13
                 ,strend(sif.ma5)>2 #
                 ,gor(strend(sif.ma270)>0,strend(sif.ma135)>0)
                 ,dsfilter
                 )
-    return signal * XBUY
+    return signal * ipmacd_longt.direction
+ipmacd_longt.direction= XBUY
+ipmacd_longt.priority = 2000
 
 def ipmacd_longt2(sif,sopened=None):#+
     '''
@@ -2599,67 +2628,55 @@ def ipmacd_long_devi1(sif,sopened=None):
 ipmacd_long_devi1.direction = XBUY
 ipmacd_long_devi1.priority = 1000
 
-def skdj_bup3b(sif,sopened=None):
+def macd_bup(sif,sopened=None):
     '''
         底部抬高
+        且前一个底部至少是中期低点
     '''
 
     trans = sif.transaction
 
-    hh = hpeak(sif.high,sif.sk,sif.sd)
-    ll = lpeak(sif.low,sif.sk,sif.sd)
+    hh5 = hpeak(sif.high5,sif.diff5x,sif.dea5x)
+    ll5 = lpeak(sif.low5,sif.diff5x,sif.dea5x,covered=15)
 
-    ihh = np.nonzero(hh)[0]
-    ill = np.nonzero(ll)[0]
+    ill = np.nonzero(ll5)[0]
     
-    xll = ll[ill]
-
-    sh = np.zeros_like(sif.close)
-    sl = np.zeros_like(sif.close)
-    ssl = np.zeros_like(sif.close)
-    sl3 = np.zeros_like(sif.close)
-
-    sh[ihh] = strend2(hh[ihh])
-    sl[ill] = strend2(ll[ill])
-    #sl3[ill] = rollx(strend2(ll[ill]),3)
-
-    
-    sl3 = gand(xll<rollx(xll),xll<rollx(xll,2),xll<rollx(xll,3))
-    lll = gand(strend2(ll[ill])==3,rollx(sl3,3))
+    xll = ll5[ill]
+    rxll = rollx(xll)
+    rll5 = np.zeros_like(sif.close5)
+    rll5[ill] = rxll
 
 
-    #print len(xll),len(lll),ill[np.nonzero(lll)]
-
-    ssl[ill[np.nonzero(lll)]] = 1
-
-    sh = extend2next(sh)
-
-    signal = gand(sh>0,
-                  ssl
-                  )
-
-    fsignal= gand(cross(sif.sd,sif.sk)>0
-                ,sl>0
+    ssl = np.zeros_like(sif.close5)
+    sfilter = xll < rollx(tmin(xll,3))
+    isignal = gand(xll>rxll
+                ,rxll < rollx(tmin(xll,3),2)
                 )
-    signal = sfollow(signal,fsignal,10)
+    ssl[ill[np.nonzero(isignal)]] = 1
+
+
+    signal5 = gand(ssl
+                )
+
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof5] = signal5
 
     signal = gand(signal
                 #,sif.diff1>0
-                ,sif.diff1>sif.dea1
-                ,sif.sdiff5x>sif.sdea5x
-                ,sif.ma3>sif.ma7
-                ,strend(sif.ma13)>0
-                ,strend(sif.ma30)>0
+                #,sif.diff1>sif.dea1
+                #,sif.sdiff5x>sif.sdea5x
+                #,sif.ma3>sif.ma7
+                #,strend(sif.ma13)>0
+                #,strend(sif.ma30)>0
                 #,strend(sif.ma13-sif.ma60)>0   
                 #,strend(sif.diff1-sif.dea1)>0
                 #,strend2(sif.sdiff5x)>0
                 #,strend(sif.sdiff5x-sif.sdea5x)>0   
                 #,strend(sif.sdiff30x-sif.sdea30x)>0
             )
-    return signal * skdj_bup.direction
-
-skdj_bup3b.direction = XBUY
-skdj_bup3b.priority = 2400
+    return signal * macd_bup.direction
+macd_bup.direction = XBUY
+macd_bup.priority = 2400
 
 def skdj_bup3(sif,sopened=None):
     '''

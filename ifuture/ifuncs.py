@@ -132,6 +132,22 @@ fo.close()
 #跨市场特性比较难，只能是同一类的跨时间市场
 
 #反向平仓，未必优
+
+#合约交换日: 下月合约持仓量或成交量大于当月合约的次日
+if1005:->517止
+if1006:->617止
+if1007:->714止
+if1008:
+
+#5月合约
+sum([trade.profit for trade in tradesy if trade.actions[0].date<=20100517])
+#6月合约
+sum([trade.profit for trade in tradesy if trade.actions[0].date>20100517 and trade.actions[0].date<=20100617])
+#7月合约
+sum([trade.profit for trade in tradesy if trade.actions[0].date>20100617 and trade.actions[0].date<=20100714])
+#8月合约
+sum([trade.profit for trade in tradesy if trade.actions[0].date>20100714 and trade.actions[0].date<=20100818])
+
 '''
 
 
@@ -1508,7 +1524,7 @@ def ipmacd_long_6(sif,sopened=None):
 
     return signal * XBUY
 ipmacd_long_6.direction = XBUY
-ipmacd_long_6.priority = 2430
+ipmacd_long_6.priority = 2430#2430
 
 
 def skdj_bup(sif,sopened=None):
@@ -2249,7 +2265,7 @@ def cci_up15(sif,sopened=None):
 
     return signal * cci_up15.direction
 cci_up15.direction = XBUY
-cci_up15.priority = 900 
+cci_up15.priority = 2900#900 
 
 
 def down30(sif,sopened=None):
@@ -2549,6 +2565,7 @@ def k15_lastdown(sif,sopened=None):
             #,strend(sif.ma7)>0
             #,rollx(strend2(sif.sdiff5x-sif.sdea5x),5)<0
             )
+    signal = derepeatc(signal)
 
     return signal * k15_lastdown.direction
 k15_lastdown.direction = XSELL
@@ -2800,6 +2817,87 @@ def x5_lastdown(sif,sopened=None):
     return signal * x5_lastdown.direction
 x5_lastdown.direction = XSELL
 x5_lastdown.priority = 21600 #对i09时200即优先级最高的效果最好
+
+
+def ma2x(sif,sopened=None):
+    s30_13 = np.zeros_like(sif.diff1)
+    s30_13[sif.i_cof30] = strend2(ma(sif.close30,13))
+    s30_13 = extend2next(s30_13)
+    
+    ma5_5 = ma(sif.close15,5)
+    ma5_10 = ma(sif.close15,10)
+    ma5_20 = ma(sif.close15,20)
+
+    m5x10 = cross(ma5_10,ma5_5)>0
+    m5x20 = cross(ma5_20,ma5_5)>0
+    m10x20 = cross(ma5_20,ma5_10)>0
+
+    signal30 = sfollow(m5x10,m5x20,2)
+    signal30 = sfollow(signal30,m10x20,2)
+
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof15] = signal30
+
+    fsignal = cross(sif.sd,sif.sk)>0
+    signal = sfollow(signal,fsignal,15)
+
+    signal = gand(signal
+              ,s30_13>0
+              #,strend2(sif.sdiff30x-sif.sdea30x)>0
+            )
+
+    return signal * ma2x.direction
+ma2x.direction = XBUY
+ma2x.priority = 800
+
+def ma1x(sif,sopened=None):
+    ''' 只适用于当月合约和远期合约
+    '''
+
+    signal = cross(sif.ma60,sif.ma5)>0
+
+    #fsignal = cross(sif.sd,sif.sk)>0
+    #signal = sfollow(signal,fsignal,30)
+
+    signal = gand(signal
+              ,sif.mtrend>0
+              ,sif.ltrend>0 #sif.mtrend
+              ,strend2(sif.ma270)>0
+              ,sif.s30>0
+              #,strend2(sif.sdiff5x-sif.sdea5x)>0              
+              #,sif.diff1>0#sif.dea1
+            )
+
+    return signal * ma1x.direction
+ma1x.direction = XBUY
+ma1x.priority = 800
+
+def s5(sif,sopened=None):
+    
+    ma_a = ma(sif.close5,5)
+    ma_b = ma(sif.close5,13)
+    ma_c = ma(sif.close5,30)
+
+
+    signala = gand(cross(ma_b,ma_a)>0
+                ,strend2(ma_c)>0
+                )
+
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof5] = signala
+
+
+    signal = gand(signal
+              ,sif.mtrend>0
+              ,strend2(sif.sdiff30x-sif.sdea30x)>0
+              ,sif.diff1>0
+              ,sif.ma5>sif.ma13
+              ,strend(sif.ma30)>0
+            )
+
+    return signal * s5.direction
+s5.direction = XBUY
+s5.priority = 1200
 
 
 
@@ -3210,11 +3308,11 @@ def nonefilter(sif):    #全清除
 
 
 
-xnormal = [ipmacd_short_5,ipmacd_short_6a,ipmacd_long_5,gd30,gu30,ipmacd_long_5k,cci_up15]
+xnormal = [ipmacd_short_5,ipmacd_short_6a,ipmacd_long_5,gd30,gu30,ipmacd_long_5k,cci_up15,ma2x,s5,ma1x]
 xpattern = [godown5,godown30,inside_up,br30,ipmacd_short_devi1,ipmacd_long_devi1_o5]
 xpattern2 = [goup5,opendown,openup,gapdown5,gapdown,skdj_bup,xdown30,xdown60]  
 xpattern3 = [gapdown15,br75]  #互有出入
-kpattern = [k5_lastup,k15_lastdown,k5_lastdown,k3_lastdown,k15_relay]
+kpattern = [k5_lastup,k15_lastdown,k5_lastdown,k3_lastdown,k15_relay]   #逆势指标
 #xpattern4 = [xup,xdown,up3]   #与其它组合有矛盾? 暂不使用。盈利部分被其它覆盖，亏损部分没有，导致副作用
 xuds = [xud30,xud30c,xud15,xud10s]
 xnormal2 = [ipmacd_short_x,ipmacd_long_6,ipmacd_short5,ma30_short,ma60_short,down01,up0,rsi3x,ipmacd_longt]

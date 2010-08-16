@@ -545,6 +545,11 @@ def prepare_common_common(s):
     o = s.transaction[OPEN]
     c = s.transaction[CLOSE]
     v = s.transaction[VOLUME]
+    s.open = s.transaction[OPEN]
+    s.close = s.transaction[CLOSE]
+    s.vol = s.transaction[VOLUME]
+    s.high = s.transaction[HIGH]
+    s.low = s.transaction[LOW]
     s.ma0 = ma(c,3)
     s.ma1= ma(c,7)
     s.ma2 = ma(c,13)

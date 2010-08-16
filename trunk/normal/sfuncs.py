@@ -2253,7 +2253,7 @@ def ldxx(stock,mlen=60): #low down xcross
                 平盘次数=0
     
     '''
-    linelog('%s:%s' % (tsvama3.__name__,stock.code))
+    linelog('%s:%s' % (ldxx.__name__,stock.code))
     t = stock.transaction
     
     ma_s = ma(t[CLOSE],mlen)

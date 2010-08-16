@@ -440,9 +440,39 @@ def prepare_index(sif):
     sif.atrdx[sif.i_cofd] = sif.atrd
     sif.atrdx = extend2next(sif.atrdx)
 
-    s30_13 = np.zeros_like(sif.diff1)
-    s30_13[sif.i_cof30] = strend2(ma(sif.close30,13))
-    sif.state_30_13 = extend2next(s30_13)
+    s30_13 = np.zeros_like(sif.close)
+    s30_13[sif.i_cof30] = strend2(nma(sif.close30,13))  #nma避免strend2将初始批量0也当作正数计入的问题
+    sif.mtrend = extend2next(s30_13)
+
+    s30_120 = np.zeros_like(sif.close)
+    s30_120[sif.i_cof30] = strend2(nma(sif.close30,120))    #nma避免strend2将初始批量0也当作正数计入的问题
+    sif.ltrend = extend2next(s30_120)
+ 
+    d60 = strend2(ma(sif.diff60x-sif.dea60x,3))
+    sd60 = np.zeros_like(sif.close)
+    sd60[sif.i_cof60] = d60
+    sif.s60 = extend2next(sd60)
+ 
+    d30 = strend2(ma(sif.diff30x-sif.dea30x,3))
+    sd30 = np.zeros_like(sif.close)
+    sd30[sif.i_cof30] = d30
+    sif.s30 = extend2next(sd30)
+ 
+
+    d15 = strend2(ma(sif.diff15x-sif.dea15x,3))
+    sd15 = np.zeros_like(sif.close)
+    sd15[sif.i_cof15] = d15
+    sif.s15 = extend2next(sd15)
+
+    d5 = strend2(ma(sif.diff5x-sif.dea5x,3))
+    sd5 = np.zeros_like(sif.close)
+    sd5[sif.i_cof5] = d5
+    sif.s5 = extend2next(sd5)
+
+    d3 = strend2(ma(sif.diff3x-sif.dea3x,3))
+    sd3 = np.zeros_like(sif.close)
+    sd3[sif.i_cof3] = d3
+    sif.s3 = extend2next(sd3)
 
 
 def calc_high_low_vol(trans,i_oof,i_cof):

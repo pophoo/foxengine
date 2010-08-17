@@ -8,7 +8,8 @@ from wolfox.fengine.ifuture.ifreader import *
 import wolfox.fengine.ifuture.iftrade as iftrade
 import wolfox.fengine.ifuture.ifuncs as ifuncs
 import wolfox.fengine.ifuture.tfuncs as tfuncs
-from wolfox.fengine.ifuture.ifuncs import *
+import wolfox.fengine.ifuture.fcontrol as control
+
 
 def xcalc(name,strategy,functor):
     ifmap = ifreader.read1(name,extractor=extract_if_wh)  # fname ==> BaseObject(name='$name',transaction=trans)
@@ -16,14 +17,14 @@ def xcalc(name,strategy,functor):
     tradesy =  functor(sif,strategy)    
     iftrade.last_actions(tradesy)
 
-calc = fcustom(xcalc,functor=iftrade.ltrade3y)
+calc = fcustom(xcalc,functor=control.ltrade3y)
 
-xcalc = fcustom(xcalc,functor=iftrade.ltrade3y0525_5)
-xcalc1 = fcustom(xcalc,functor=iftrade.ltrade3y1_5)
-xcalc2 = fcustom(xcalc,functor=iftrade.ltrade3y2_5)
-xcalc3 = fcustom(xcalc,functor=iftrade.ltrade3y3_5)
-xcalc4 = fcustom(xcalc,functor=iftrade.ltrade3y4_5)
-xcalc6 = fcustom(xcalc,functor=iftrade.ltrade3y6_5)
+xcalc = fcustom(xcalc,functor=control.ltrade3y0525_5)
+xcalc1 = fcustom(xcalc,functor=control.ltrade3y1_5)
+xcalc2 = fcustom(xcalc,functor=control.ltrade3y2_5)
+xcalc3 = fcustom(xcalc,functor=control.ltrade3y3_5)
+xcalc4 = fcustom(xcalc,functor=control.ltrade3y4_5)
+xcalc6 = fcustom(xcalc,functor=control.ltrade3y6_5)
 
 
 
@@ -66,14 +67,14 @@ def wcalc(strategy,functor):
     tradesy =  functor(sif,strategy)    #xfollow作为平仓信号，且去掉了背离平仓的信号
     iftrade.last_actions(tradesy)
 
-calc = fcustom(wcalc,functor=iftrade.ltrade3y)
+calc = fcustom(wcalc,functor=control.ltrade3y)
 
-wcalc = fcustom(wcalc,functor=iftrade.ltrade3y0525_5)
-wcalc1 = fcustom(wcalc,functor=iftrade.ltrade3y1_5)
-wcalc2 = fcustom(wcalc,functor=iftrade.ltrade3y2_5)
-wcalc3 = fcustom(wcalc,functor=iftrade.ltrade3y3_5)
-wcalc4 = fcustom(wcalc,functor=iftrade.ltrade3y4_5)
-wcalc6 = fcustom(wcalc,functor=iftrade.ltrade3y6_5)
+wcalc = fcustom(wcalc,functor=control.ltrade3y0525_5)
+wcalc1 = fcustom(wcalc,functor=control.ltrade3y1_5)
+wcalc2 = fcustom(wcalc,functor=control.ltrade3y2_5)
+wcalc3 = fcustom(wcalc,functor=control.ltrade3y3_5)
+wcalc4 = fcustom(wcalc,functor=control.ltrade3y4_5)
+wcalc6 = fcustom(wcalc,functor=control.ltrade3y6_5)
 
 
 def wxcalc(strategy,functor):
@@ -88,7 +89,7 @@ def wxcalc(strategy,functor):
     #print tradesy
     iftrade.last_xactions(sif,tradesy)
 
-wxcalc = fcustom(wxcalc,functor=iftrade.ltrade3x0525)
+wxcalc = fcustom(wxcalc,functor=control.ltrade3x0525)
 
 def whget(strategy,functor,priority=2500):
     fname = find_cur()
@@ -126,6 +127,6 @@ def calc_stop(sif,action):
     action.stop = round(action.stop,1) 
     
 
-#whget = fcustom(whget,functor=iftrade.ltrade3x0525)
-#whget = fcustom(whget,functor=iftrade.ltrade3x156)
-whget = fcustom(whget,functor=iftrade.ltrade3x0825)
+#whget = fcustom(whget,functor=control.ltrade3x0525)
+#whget = fcustom(whget,functor=control.ltrade3x156)
+whget = fcustom(whget,functor=control.ltrade3x0825)

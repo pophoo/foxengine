@@ -152,7 +152,7 @@ sum([trade.profit for trade in tradesy if trade.actions[0].date>20100714 and tra
 
 
 from wolfox.fengine.ifuture.ibase import *
-from wolfox.fengine.ifuture.iftrade import delay_filter,atr5_uxstop_1_25
+from wolfox.fengine.ifuture.iftrade import delay_filter,atr5_uxstop_1_25,atr5_uxstop_08_25,atr5_uxstop_05_25
 
 #5分钟系列以strend(ma60)为判断
 #1分钟系列以strend(ma30)为判断
@@ -1474,6 +1474,29 @@ def ipmacd_short_x(sif,sopened=None):
 ipmacd_short_x.direction = XSELL
 ipmacd_short_x.priority = 2000
 
+def ipmacd_short_x2(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+
+    signal = gand(cross(sif.dea1,sif.diff1)<0
+            ,sif.mtrend < 0
+            ,sif.s10<0
+            ,sif.ltrend<0
+            #,sif.sdiff5x<0
+            )
+    signal = gand(signal
+            ,sif.ma3 < sif.ma13
+            ,sif.ma13 < sif.ma60
+            ,strend2(sif.ma30)<0
+            ,strend2(sif.ma270)<0
+            ,ksfilter
+            )
+    return signal * ipmacd_short_x2.direction
+ipmacd_short_x2.direction = XSELL
+ipmacd_short_x2.priority = 1600
+
 
 def ipmacd_long_5(sif,sopened=None):
     trans = sif.transaction
@@ -2619,7 +2642,7 @@ def k15_lastdown(sif,sopened=None):
     return signal * k15_lastdown.direction
 k15_lastdown.direction = XSELL
 k15_lastdown.priority = 2100 #对i09时200即优先级最高的效果最好
-
+k15_lastdown.stop_closer = atr5_uxstop_05_25
 
 def k3_lastdown(sif,sopened=None):
     '''
@@ -2738,7 +2761,7 @@ def k5_lastdown(sif,sopened=None):
     return signal * k5_lastdown.direction
 k5_lastdown.direction = XSELL
 k5_lastdown.priority = 2400 #对i09时200即优先级最高的效果最好
-
+#k5_lastdown.stop_closer = atr5_uxstop_05_25
 
 def k5_relay(sif,sopened=None):
     '''
@@ -3357,7 +3380,7 @@ def nonefilter(sif):    #全清除
 
 
 
-xnormal = [ipmacd_short_5,ipmacd_short_6a,ipmacd_long_5,ipmacd_long_x,gd30,gu30,ipmacd_long_5k,cci_up15,ma2x,s5,ma1x]
+xnormal = [ipmacd_short_5,ipmacd_short_6a,ipmacd_long_5,ipmacd_long_x,ipmacd_short_x2,gd30,gu30,ipmacd_long_5k,cci_up15,ma2x,s5,ma1x]
 xpattern = [godown5,godown30,inside_up,br30,ipmacd_short_devi1,ipmacd_long_devi1_o5]
 xpattern2 = [goup5,opendown,openup,gapdown5,gapdown,skdj_bup,xdown30,xdown60]  
 xpattern3 = [gapdown15,br75]  #互有出入

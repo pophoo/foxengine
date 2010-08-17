@@ -9291,5 +9291,8 @@ Larry Williams的策略
 
 2010-08-04
 600588: ldxx
-600588: ldxx
 
+2010-08-13
+best:
+002099: nhighxt2:n=10
+002246: nhighxt2:n=10

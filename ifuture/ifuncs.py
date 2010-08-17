@@ -152,7 +152,7 @@ sum([trade.profit for trade in tradesy if trade.actions[0].date>20100714 and tra
 
 
 from wolfox.fengine.ifuture.ibase import *
-from wolfox.fengine.ifuture.iftrade import delay_filter
+from wolfox.fengine.ifuture.iftrade import delay_filter,atr5_uxstop_1_25
 
 #5分钟系列以strend(ma60)为判断
 #1分钟系列以strend(ma30)为判断
@@ -1526,6 +1526,27 @@ def ipmacd_long_6(sif,sopened=None):
 ipmacd_long_6.direction = XBUY
 ipmacd_long_6.priority = 2430#2430
 
+def ipmacd_long_x(sif,sopened=None):
+    trans = sif.transaction
+    
+    
+    signal = cross(sif.dea1,sif.diff1)>0
+
+    signal = gand(signal
+              ,sif.ma3>sif.ma13  
+              ,sif.ma7> sif.ma30              
+              ,sif.ma30>sif.ma135
+              ,sif.sdiff5x>0            
+              ,strend(sif.sdiff15x-sif.sdea15x)>0
+              ,strend(sif.ma30)>0
+              ,sif.s30>0
+              ,gor(sif.mtrend>0,sif.ltrend>0)
+            )
+
+    return signal * ipmacd_long_x.direction
+ipmacd_long_x.direction = XBUY
+ipmacd_long_x.priority = 1800
+
 
 def skdj_bup(sif,sopened=None):
     '''
@@ -2001,7 +2022,7 @@ def xud30(sif,sopened=None):
     return signal * xud30.direction
 xud30.direction = XBUY
 xud30.priority = 500
-
+xud30.stop_closer = atr5_uxstop_1_25
 
 def xud30c(sif,sopened=None):
     #xud30和xud30c通常对其他算法集合的叠加作用是一增一减，但是如果两个都一起上，则多数是增。
@@ -2022,7 +2043,35 @@ def xud30c(sif,sopened=None):
     return signal * xud30c.direction
 xud30c.direction = XBUY
 xud30c.priority = 500
+xud30c.stop_closer = atr5_uxstop_1_25
 
+def xud10l(sif,sopened=None):
+    su,sd = supdowns(sif.open10,sif.close10,sif.high10,sif.low10)
+
+    msu = cexpma(su,13)
+    msd = cexpma(sd,13)
+
+    #msu = ma(su,7)
+    #msd = ma(sd,7)
+
+
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof10] = msu>msd
+
+    fsignal = cross(sif.sd,sif.sk)>0
+    signal = sfollow(signal,fsignal,15)
+
+    signal = gand(signal
+            ,sif.s30>0
+            ,sif.mtrend>0
+            ,sif.ltrend>0
+            ,strend2(sif.ma60)>0
+            #,sif.ma60 > sif.ma270
+            )
+
+    return signal * xud10l.direction
+xud10l.direction = XBUY
+xud10l.priority = 1601
 
 
 def dmacd_short2_old(sif,sopened=None):#++
@@ -3308,13 +3357,13 @@ def nonefilter(sif):    #全清除
 
 
 
-xnormal = [ipmacd_short_5,ipmacd_short_6a,ipmacd_long_5,gd30,gu30,ipmacd_long_5k,cci_up15,ma2x,s5,ma1x]
+xnormal = [ipmacd_short_5,ipmacd_short_6a,ipmacd_long_5,ipmacd_long_x,gd30,gu30,ipmacd_long_5k,cci_up15,ma2x,s5,ma1x]
 xpattern = [godown5,godown30,inside_up,br30,ipmacd_short_devi1,ipmacd_long_devi1_o5]
 xpattern2 = [goup5,opendown,openup,gapdown5,gapdown,skdj_bup,xdown30,xdown60]  
 xpattern3 = [gapdown15,br75]  #互有出入
 kpattern = [k5_lastup,k15_lastdown,k5_lastdown,k3_lastdown,k15_relay]   #逆势指标
 #xpattern4 = [xup,xdown,up3]   #与其它组合有矛盾? 暂不使用。盈利部分被其它覆盖，亏损部分没有，导致副作用
-xuds = [xud30,xud30c,xud15,xud10s]
+xuds = [xud30,xud30c,xud15,xud10s,xud10l]
 xnormal2 = [ipmacd_short_x,ipmacd_long_6,ipmacd_short5,ma30_short,ma60_short,down01,up0,rsi3x,ipmacd_longt]
 xxx = xnormal+xnormal2+xpattern+xpattern2+xuds+xpattern3+kpattern
 xpattern4 = [xup,xdown,up3]   #与其它组合有矛盾? 暂不使用。盈利部分被其它覆盖，亏损部分没有，导致副作用

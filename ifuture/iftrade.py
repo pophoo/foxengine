@@ -448,7 +448,9 @@ def itradex(sif     #期指
             closers = sclosers if opener.direction == XBUY else bclosers
         for closer in closers:
             sclose = gor(sclose,closer(sif,sopened)) * (-opener.direction)
-        closes = close_position(sif.transaction,stop_closer(sif,sopened,sclose,sclose)) #因为是单向的，只有一个sclose起作用
+        ms_closer = stop_closer if 'stop_closer' not in opener.__dict__ else opener.stop_closer
+        #closes = close_position(sif.transaction,stop_closer(sif,sopened,sclose,sclose)) #因为是单向的，只有一个sclose起作用
+        closes = close_position(sif.transaction,ms_closer(sif,sopened,sclose,sclose)) #因为是单向的，只有一个sclose起作用        
         actions = sorted(opens + closes,DTSORT)
         for action in actions:
             action.name = sif.name
@@ -804,6 +806,85 @@ atr_uxstop_05_2 = fcustom(atr_uxstop,lost_times=50,win_times=200,max_drawdown=20
 atr_uxstop_05_15 = fcustom(atr_uxstop,lost_times=50,win_times=150,max_drawdown=200,min_lost=30)
 atr_uxstop_05_1 = fcustom(atr_uxstop,lost_times=50,win_times=100,max_drawdown=200,min_lost=30)
 atr_uxstop_1_6 = fcustom(atr_uxstop,lost_times=100,win_times=600,max_drawdown=200,min_lost=30)
+####5分钟atr5
+atr5_uxstop_15_45 = fcustom(atr_uxstop,lost_times=150,win_times=450,max_drawdown=200,min_lost=30,natr=5)  
+atr5_uxstop_15_5 = fcustom(atr_uxstop,lost_times=150,win_times=500,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_15_6 = fcustom(atr_uxstop,lost_times=150,win_times=600,max_drawdown=200,min_lost=30,natr=5)   #
+atr5_uxstop_15_A = fcustom(atr_uxstop,lost_times=150,win_times=1000,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_15_15 = fcustom(atr_uxstop,lost_times=150,win_times=150,max_drawdown=200,min_lost=30,natr=5)  
+atr5_uxstop_2_2 = fcustom(atr_uxstop,lost_times=200,win_times=200,max_drawdown=200,min_lost=30,natr=5)  
+atr5_uxstop_15_2 = fcustom(atr_uxstop,lost_times=150,win_times=200,max_drawdown=200,min_lost=30,natr=5)  
+atr5_uxstop_2_6 = fcustom(atr_uxstop,lost_times=200,win_times=600,max_drawdown=200,min_lost=30,natr=5)   
+atr5_uxstop_3_6 = fcustom(atr_uxstop,lost_times=300,win_times=600,max_drawdown=200,min_lost=30,natr=5)   
+atr5_uxstop_4_6 = fcustom(atr_uxstop,lost_times=400,win_times=600,max_drawdown=200,min_lost=30,natr=5)   
+
+atr5_uxstop_6_6 = fcustom(atr_uxstop,lost_times=600,win_times=600,max_drawdown=200,min_lost=30,natr=5)   
+
+
+
+atr5_uxstop_15_6_45 = fcustom(atr_uxstop,lost_times=150,win_times=600,max_drawdown=200,min_lost=45,natr=5)   #
+
+
+atr5_uxstop_1_2 = fcustom(atr_uxstop,lost_times=100,win_times=200,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_15_25 = fcustom(atr_uxstop,lost_times=150,win_times=250,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_2_3 = fcustom(atr_uxstop,lost_times=200,win_times=300,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_25_4 = fcustom(atr_uxstop,lost_times=250,win_times=400,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_25_6 = fcustom(atr_uxstop,lost_times=250,win_times=600,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_2_4 = fcustom(atr_uxstop,lost_times=200,win_times=400,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_3_4 = fcustom(atr_uxstop,lost_times=300,win_times=400,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_15_4 = fcustom(atr_uxstop,lost_times=150,win_times=400,max_drawdown=200,min_lost=30,natr=5)    
+atr5_uxstop_1_4 = fcustom(atr_uxstop,lost_times=100,win_times=400,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_05_4 = fcustom(atr_uxstop,lost_times=50,win_times=400,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_1_5 = fcustom(atr_uxstop,lost_times=100,win_times=500,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_05_20 = fcustom(atr_uxstop,lost_times=50,win_times=200,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_05_25 = fcustom(atr_uxstop,lost_times=50,win_times=250,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_03_25 = fcustom(atr_uxstop,lost_times=30,win_times=250,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_06_25 = fcustom(atr_uxstop,lost_times=66,win_times=250,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_07_25 = fcustom(atr_uxstop,lost_times=75,win_times=250,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_08_25 = fcustom(atr_uxstop,lost_times=80,win_times=250,max_drawdown=200,min_lost=30,natr=5)
+
+atr5_uxstop_05_25_30 = fcustom(atr_uxstop,lost_times=50,win_times=250,max_drawdown=300,min_lost=30,natr=5)
+atr5_uxstop_03_25_30 = fcustom(atr_uxstop,lost_times=30,win_times=250,max_drawdown=300,min_lost=30,natr=5)
+atr5_uxstop_06_25_30 = fcustom(atr_uxstop,lost_times=66,win_times=250,max_drawdown=300,min_lost=30,natr=5)
+atr5_uxstop_07_25_30 = fcustom(atr_uxstop,lost_times=75,win_times=250,max_drawdown=300,min_lost=30,natr=5)
+atr5_uxstop_08_25_30 = fcustom(atr_uxstop,lost_times=80,win_times=250,max_drawdown=300,min_lost=30,natr=5)
+
+atr5_uxstop_05_25_25 = fcustom(atr_uxstop,lost_times=50,win_times=250,max_drawdown=250,min_lost=30,natr=5)
+atr5_uxstop_03_25_25 = fcustom(atr_uxstop,lost_times=30,win_times=250,max_drawdown=250,min_lost=30,natr=5)
+atr5_uxstop_06_25_25 = fcustom(atr_uxstop,lost_times=66,win_times=250,max_drawdown=250,min_lost=30,natr=5)
+atr5_uxstop_07_25_25 = fcustom(atr_uxstop,lost_times=75,win_times=250,max_drawdown=250,min_lost=30,natr=5)
+atr5_uxstop_08_25_25 = fcustom(atr_uxstop,lost_times=80,win_times=250,max_drawdown=250,min_lost=30,natr=5)
+
+
+atr5_uxstop_05_3_30 = fcustom(atr_uxstop,lost_times=50,win_times=300,max_drawdown=300,min_lost=30,natr=5)
+atr5_uxstop_03_3_30 = fcustom(atr_uxstop,lost_times=30,win_times=300,max_drawdown=300,min_lost=30,natr=5)
+atr5_uxstop_06_3_30 = fcustom(atr_uxstop,lost_times=66,win_times=300,max_drawdown=300,min_lost=30,natr=5)
+atr5_uxstop_07_3_30 = fcustom(atr_uxstop,lost_times=75,win_times=300,max_drawdown=300,min_lost=30,natr=5)
+atr5_uxstop_08_3_30 = fcustom(atr_uxstop,lost_times=80,win_times=300,max_drawdown=300,min_lost=30,natr=5)
+
+atr5_uxstop_05_35_30 = fcustom(atr_uxstop,lost_times=50,win_times=350,max_drawdown=300,min_lost=30,natr=5)
+atr5_uxstop_03_35_30 = fcustom(atr_uxstop,lost_times=30,win_times=350,max_drawdown=300,min_lost=30,natr=5)
+atr5_uxstop_06_35_30 = fcustom(atr_uxstop,lost_times=66,win_times=350,max_drawdown=300,min_lost=30,natr=5)
+atr5_uxstop_07_35_30 = fcustom(atr_uxstop,lost_times=75,win_times=350,max_drawdown=300,min_lost=30,natr=5)
+atr5_uxstop_08_35_30 = fcustom(atr_uxstop,lost_times=80,win_times=350,max_drawdown=300,min_lost=30,natr=5)
+
+atr5_uxstop_05_3 = fcustom(atr_uxstop,lost_times=50,win_times=300,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_05_15 = fcustom(atr_uxstop,lost_times=50,win_times=150,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_05_10 = fcustom(atr_uxstop,lost_times=50,win_times=100,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_05_05 = fcustom(atr_uxstop,lost_times=50,win_times=50,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_1_6 = fcustom(atr_uxstop,lost_times=100,win_times=600,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_05_6 = fcustom(atr_uxstop,lost_times=50,win_times=600,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_1_25 = fcustom(atr_uxstop,lost_times=100,win_times=250,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_1_15 = fcustom(atr_uxstop,lost_times=100,win_times=150,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_15_15 = fcustom(atr_uxstop,lost_times=150,win_times=150,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_03_15 = fcustom(atr_uxstop,lost_times=30,win_times=150,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_03_10 = fcustom(atr_uxstop,lost_times=30,win_times=100,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_03_05 = fcustom(atr_uxstop,lost_times=30,win_times=50,max_drawdown=200,min_lost=30,natr=5)
+
+
+atr5_uxstop_05_25b = fcustom(atr_uxstop,lost_times=50,win_times=250,max_drawdown=200,min_lost=50,natr=5)
+atr5_uxstop_05_25c = fcustom(atr_uxstop,lost_times=50,win_times=250,max_drawdown=200,min_lost=60,natr=5)
+
 
 import wolfox.fengine.ifuture.ifuncs as ifuncs
 
@@ -887,85 +968,6 @@ import wolfox.fengine.ifuture.tfuncs as tfuncs
 
 
 
-
-####5分钟atr5
-atr5_uxstop_15_45 = fcustom(atr_uxstop,lost_times=150,win_times=450,max_drawdown=200,min_lost=30,natr=5)  
-atr5_uxstop_15_5 = fcustom(atr_uxstop,lost_times=150,win_times=500,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_15_6 = fcustom(atr_uxstop,lost_times=150,win_times=600,max_drawdown=200,min_lost=30,natr=5)   #
-atr5_uxstop_15_A = fcustom(atr_uxstop,lost_times=150,win_times=1000,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_15_15 = fcustom(atr_uxstop,lost_times=150,win_times=150,max_drawdown=200,min_lost=30,natr=5)  
-atr5_uxstop_2_2 = fcustom(atr_uxstop,lost_times=200,win_times=200,max_drawdown=200,min_lost=30,natr=5)  
-atr5_uxstop_15_2 = fcustom(atr_uxstop,lost_times=150,win_times=200,max_drawdown=200,min_lost=30,natr=5)  
-atr5_uxstop_2_6 = fcustom(atr_uxstop,lost_times=200,win_times=600,max_drawdown=200,min_lost=30,natr=5)   
-atr5_uxstop_3_6 = fcustom(atr_uxstop,lost_times=300,win_times=600,max_drawdown=200,min_lost=30,natr=5)   
-atr5_uxstop_4_6 = fcustom(atr_uxstop,lost_times=400,win_times=600,max_drawdown=200,min_lost=30,natr=5)   
-
-atr5_uxstop_6_6 = fcustom(atr_uxstop,lost_times=600,win_times=600,max_drawdown=200,min_lost=30,natr=5)   
-
-
-
-atr5_uxstop_15_6_45 = fcustom(atr_uxstop,lost_times=150,win_times=600,max_drawdown=200,min_lost=45,natr=5)   #
-
-
-atr5_uxstop_1_2 = fcustom(atr_uxstop,lost_times=100,win_times=200,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_15_25 = fcustom(atr_uxstop,lost_times=150,win_times=250,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_2_3 = fcustom(atr_uxstop,lost_times=200,win_times=300,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_25_4 = fcustom(atr_uxstop,lost_times=250,win_times=400,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_25_6 = fcustom(atr_uxstop,lost_times=250,win_times=600,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_2_4 = fcustom(atr_uxstop,lost_times=200,win_times=400,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_3_4 = fcustom(atr_uxstop,lost_times=300,win_times=400,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_15_4 = fcustom(atr_uxstop,lost_times=150,win_times=400,max_drawdown=200,min_lost=30,natr=5)    
-atr5_uxstop_1_4 = fcustom(atr_uxstop,lost_times=100,win_times=400,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_05_4 = fcustom(atr_uxstop,lost_times=50,win_times=400,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_1_5 = fcustom(atr_uxstop,lost_times=100,win_times=500,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_05_20 = fcustom(atr_uxstop,lost_times=50,win_times=200,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_05_25 = fcustom(atr_uxstop,lost_times=50,win_times=250,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_03_25 = fcustom(atr_uxstop,lost_times=30,win_times=250,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_06_25 = fcustom(atr_uxstop,lost_times=66,win_times=250,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_07_25 = fcustom(atr_uxstop,lost_times=75,win_times=250,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_08_25 = fcustom(atr_uxstop,lost_times=80,win_times=250,max_drawdown=200,min_lost=30,natr=5)
-
-atr5_uxstop_05_25_30 = fcustom(atr_uxstop,lost_times=50,win_times=250,max_drawdown=300,min_lost=30,natr=5)
-atr5_uxstop_03_25_30 = fcustom(atr_uxstop,lost_times=30,win_times=250,max_drawdown=300,min_lost=30,natr=5)
-atr5_uxstop_06_25_30 = fcustom(atr_uxstop,lost_times=66,win_times=250,max_drawdown=300,min_lost=30,natr=5)
-atr5_uxstop_07_25_30 = fcustom(atr_uxstop,lost_times=75,win_times=250,max_drawdown=300,min_lost=30,natr=5)
-atr5_uxstop_08_25_30 = fcustom(atr_uxstop,lost_times=80,win_times=250,max_drawdown=300,min_lost=30,natr=5)
-
-atr5_uxstop_05_25_25 = fcustom(atr_uxstop,lost_times=50,win_times=250,max_drawdown=250,min_lost=30,natr=5)
-atr5_uxstop_03_25_25 = fcustom(atr_uxstop,lost_times=30,win_times=250,max_drawdown=250,min_lost=30,natr=5)
-atr5_uxstop_06_25_25 = fcustom(atr_uxstop,lost_times=66,win_times=250,max_drawdown=250,min_lost=30,natr=5)
-atr5_uxstop_07_25_25 = fcustom(atr_uxstop,lost_times=75,win_times=250,max_drawdown=250,min_lost=30,natr=5)
-atr5_uxstop_08_25_25 = fcustom(atr_uxstop,lost_times=80,win_times=250,max_drawdown=250,min_lost=30,natr=5)
-
-
-atr5_uxstop_05_3_30 = fcustom(atr_uxstop,lost_times=50,win_times=300,max_drawdown=300,min_lost=30,natr=5)
-atr5_uxstop_03_3_30 = fcustom(atr_uxstop,lost_times=30,win_times=300,max_drawdown=300,min_lost=30,natr=5)
-atr5_uxstop_06_3_30 = fcustom(atr_uxstop,lost_times=66,win_times=300,max_drawdown=300,min_lost=30,natr=5)
-atr5_uxstop_07_3_30 = fcustom(atr_uxstop,lost_times=75,win_times=300,max_drawdown=300,min_lost=30,natr=5)
-atr5_uxstop_08_3_30 = fcustom(atr_uxstop,lost_times=80,win_times=300,max_drawdown=300,min_lost=30,natr=5)
-
-atr5_uxstop_05_35_30 = fcustom(atr_uxstop,lost_times=50,win_times=350,max_drawdown=300,min_lost=30,natr=5)
-atr5_uxstop_03_35_30 = fcustom(atr_uxstop,lost_times=30,win_times=350,max_drawdown=300,min_lost=30,natr=5)
-atr5_uxstop_06_35_30 = fcustom(atr_uxstop,lost_times=66,win_times=350,max_drawdown=300,min_lost=30,natr=5)
-atr5_uxstop_07_35_30 = fcustom(atr_uxstop,lost_times=75,win_times=350,max_drawdown=300,min_lost=30,natr=5)
-atr5_uxstop_08_35_30 = fcustom(atr_uxstop,lost_times=80,win_times=350,max_drawdown=300,min_lost=30,natr=5)
-
-atr5_uxstop_05_3 = fcustom(atr_uxstop,lost_times=50,win_times=300,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_05_15 = fcustom(atr_uxstop,lost_times=50,win_times=150,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_05_10 = fcustom(atr_uxstop,lost_times=50,win_times=100,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_05_05 = fcustom(atr_uxstop,lost_times=50,win_times=50,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_1_6 = fcustom(atr_uxstop,lost_times=100,win_times=600,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_05_6 = fcustom(atr_uxstop,lost_times=50,win_times=600,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_1_25 = fcustom(atr_uxstop,lost_times=100,win_times=250,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_1_15 = fcustom(atr_uxstop,lost_times=100,win_times=150,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_15_15 = fcustom(atr_uxstop,lost_times=150,win_times=150,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_03_15 = fcustom(atr_uxstop,lost_times=30,win_times=150,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_03_10 = fcustom(atr_uxstop,lost_times=30,win_times=100,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_03_05 = fcustom(atr_uxstop,lost_times=30,win_times=50,max_drawdown=200,min_lost=30,natr=5)
-
-
-atr5_uxstop_05_25b = fcustom(atr_uxstop,lost_times=50,win_times=250,max_drawdown=200,min_lost=50,natr=5)
-atr5_uxstop_05_25c = fcustom(atr_uxstop,lost_times=50,win_times=250,max_drawdown=200,min_lost=60,natr=5)
 
 
 itrade3y_5 = fcustom(itrade3,stop_closer=atr5_uxstop_15_6,bclosers=[ifuncs.daystop_short,ifuncs.xmacd_stop_short1],sclosers=sycloser)

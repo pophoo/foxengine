@@ -868,15 +868,16 @@ def ipmacd_short_6a(sif,sopened=None):
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
     
+    s30_13 = np.zeros_like(sif.diff1)
+    s30_13[sif.i_cof30] = strend2(ma(sif.close30,13))
+    s30_13 = extend2next(s30_13)
 
-    sm = sif.ma270 - rollx(sif.ma270)
-    ss2 = msum(sm,20)
-    
     signal = gand(cross(sif.dea1,sif.diff1)<0
             ,sif.sdiff5x<sif.sdea5x
-            ,strend2(sif.sdiff30x-sif.sdea30x)<0
+            #,sif.s30<0 #strend2(sif.sdiff30x-sif.sdea30x)<0
+            #,sif.sdiff30x<sif.sdea30x
             ,sif.mtrend<0
-            ,ss2<0
+            ,sif.s10<0
             )
     signal = gand(signal
             ,sif.ma5 < sif.ma13
@@ -3158,33 +3159,29 @@ def ipmacd_short_1(sif,sopened=None):#+++
     return signal * XSELL
 
 
-def ipmacd_short_x(sif,sopened=None):
+def ipmacd_short_x2(sif,sopened=None):
     trans = sif.transaction
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
 
 
-    s30_13 = np.zeros_like(sif.diff1)
-    s30_13[sif.i_cof30] = strend2(ma(sif.close30,13))
-    s30_13 = extend2next(s30_13)
-
-    ma800 = ma(sif.close,800)
-
-    signal = gand(cross(sif.sd,sif.sk)<0
-            ,strend2(sif.sdiff30x-sif.sdea30x)<0    #
-            ,sif.sdiff5x<0
-            ,s30_13 < 0
+    signal = gand(cross(sif.dea1,sif.diff1)<0
+            ,sif.mtrend < 0
+            ,sif.s10<0
+            ,sif.ltrend<0
+            #,sif.sdiff5x<0
             )
     signal = gand(signal
-            ,sif.ma5 < sif.ma13
-            #,strend2(ma800)<0
-            #,gor(gand(sif.ma13 < sif.ma60,strend2(sif.ma30)<0),sif.low < rollx(tmin(sif.low,10)))
+            ,sif.ma3 < sif.ma13
+            ,sif.ma13 < sif.ma60
+            ,strend2(sif.ma30)<0
             ,strend2(sif.ma270)<0
             ,ksfilter
             )
-    return signal * ipmacd_short_x.direction
-ipmacd_short_x.direction = XSELL
-ipmacd_short_x.priority = 1800
+    return signal * ipmacd_short_x2.direction
+ipmacd_short_x2.direction = XSELL
+ipmacd_short_x2.priority = 1600
+
 
 def ipmacd_short_5(sif,sopened=None):
     trans = sif.transaction

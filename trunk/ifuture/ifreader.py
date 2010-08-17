@@ -464,6 +464,12 @@ def prepare_index(sif):
     sd15[sif.i_cof15] = d15
     sif.s15 = extend2next(sd15)
 
+    d10 = strend2(ma(sif.diff10x-sif.dea10x,3))
+    sd10 = np.zeros_like(sif.close)
+    sd10[sif.i_cof10] = d10
+    sif.s10 = extend2next(sd10)
+
+
     d5 = strend2(ma(sif.diff5x-sif.dea5x,3))
     sd5 = np.zeros_like(sif.close)
     sd5[sif.i_cof5] = d5

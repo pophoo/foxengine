@@ -378,17 +378,68 @@ k15_relay.direction = XBUY
 k15_relay.priority = 1200 #对i07效果很差
 #tfunc.closer = lambda c:[s1] #lambda c:c+[s3]
 
+def k15_lastdownb(sif,sopened=None):
+    '''
+        新高衰竭模式
+        15分钟新高后,15分钟内1分钟跌破前15分钟的开盘价(收盘价的低者)/最低价
+        15分钟判断是连续的，而不是离散的
+    '''
+    
+    trans = sif.transaction
+
+    
+    length = 15
+    sopen = rollx(sif.open,length-1)
+    sclose = sif.close
+    shigh = tmax(sif.high,length-1)
+    slow = tmin(sif.low,length-1)
+    svol = msum2(sif.vol,length)
+
+    ssignal = gand(shigh> rollx(shigh,length)
+                ,slow>rollx(slow,length)
+                ,shigh - gmax(sopen,sclose) > np.abs(sopen-sclose) #上影线长于实体
+                ,shigh == tmax(shigh,length*5)
+                #,sif.t3<0
+                ,sif.s3<0
+                ,sif.s15>0
+                ,svol < rollx(svol,length)
+                #,strend2(sif.ma30-sif.ma135)>0
+                )
+
+    #print np.nonzero(signal15)
+    delay = 15
+
+    ssh = gmin(sopen,sclose)
+    bline = np.select([ssignal>0],[ssh],0)
+    bline = extend(bline,delay)
+    
+    #fsignal = cross(bline,sif.high)>0
+    fsignal = sif.close < bline
+
+
+    signal = sfollow(ssignal,fsignal,delay)
+    #signal = ssignal
+    signal = gand(signal
+            #,strend2(sif.ma13)<0
+            ,strend2(sif.diff1-sif.dea1)<0
+            #,rollx(strend2(sif.sdiff5x-sif.sdea5x),5)<0
+            )
+    signal = derepeatc(signal)
+
+    return signal * k15_lastdownb.direction
+k15_lastdownb.direction = XSELL
+k15_lastdownb.priority = 2100 #对i09时200即优先级最高的效果最好
+#k15_lastdown.stop_closer = atr5_uxstop_05_25
+
 
 
 def k15_lastdown(sif,sopened=None):
-    trans = sif.transaction
-    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
-    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
- 
     '''
         新高衰竭模式
         1. 15分钟新高后,15分钟内1分钟跌破前15分钟的开盘价(收盘价的低者)/最低价
     '''
+    
+    trans = sif.transaction
 
     ma15_500 = ma(sif.close15,500)
     ma15_200 = ma(sif.close15,200)
@@ -400,7 +451,8 @@ def k15_lastdown(sif,sopened=None):
     
     signal15 = gand(sif.high15>rollx(sif.high15)
                 ,sif.low15>rollx(sif.low15)
-                ,sif.high15 - gmax(sif.open15,sif.close15) > np.abs(sif.open15-sif.close15) #上影线长于实体
+                #,sif.high15 - gmax(sif.open15,sif.close15) > np.abs(sif.open15-sif.close15) #上影线长于实体
+                ,sif.high15 - gmax(sif.open15,sif.close15) > gmin(sif.open15,sif.close15) - sif.low15
                 ,sif.high15 == tmax(sif.high15,5)
                 #,sif.high15 > gmax(ma15_3,ma15_30,ma15_60)
                 #,rollx(sif.vol5) > sif.vol5
@@ -414,8 +466,8 @@ def k15_lastdown(sif,sopened=None):
                 #,strend2(ma15_500)>0
                 )
 
-    print np.nonzero(signal15)
-    delay = 15
+    #print np.nonzero(signal15)
+    delay = 30
 
     ss = np.zeros_like(sif.close)
     ss[sif.i_cof15] = signal15
@@ -429,15 +481,18 @@ def k15_lastdown(sif,sopened=None):
 
 
     signal = sfollow(ss,fsignal,delay)
+    #signal = ss
     signal = gand(signal
             #,strend2(sif.diff1-sif.dea1)<0
             #,strend(sif.ma7)>0
             #,rollx(strend2(sif.sdiff5x-sif.sdea5x),5)<0
             )
+    #signal = derepeatc(signal)
 
     return signal * k15_lastdown.direction
 k15_lastdown.direction = XSELL
 k15_lastdown.priority = 2100 #对i09时200即优先级最高的效果最好
+#k15_lastdown.stop_closer = atr5_uxstop_05_25
 
 def x5_lastdown(sif,sopened=None):
     '''
@@ -2458,6 +2513,35 @@ def ipmacd_longt(sif,sopened=None):#+
 ipmacd_longt.direction= XBUY
 ipmacd_longt.priority = 2000
 
+def ipmacd_longta(sif,sopened=None):#+
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500) #向上突变过滤
+
+    signal = gand(cross(sif.dea1,sif.diff1)>0
+                ,strend(sif.diff5-sif.dea5)>0
+                ,sif.diff30<sif.dea30
+                #,strend(sif.diff30-sif.dea30)>0 #+
+                ,sif.ma5>sif.ma13
+                ,strend(sif.ma5)>2 #
+                #,gor(strend(sif.ma270)>0,strend(sif.ma135)>0)
+                #,dsfilter
+                )
+
+    rsi7 = rsi2(sif.close,7)
+    rsi14 = rsi2(sif.close,14)
+    
+    fsignal = cross(sif.sd,sif.sk)>0
+    #fsignal = cross(rsi14,rsi7)>0
+    signal = sfollow(signal,fsignal,15)
+    signal = gand(signal
+                ,sif.ma3>sif.ma13
+                ,strend(sif.ma13)>0
+                )
+    return signal * ipmacd_longta.direction
+ipmacd_longta.direction= XBUY
+ipmacd_longta.priority = 2000
+
+
 def ipmacd_longt2(sif,sopened=None):#+
     '''
         R=488,w/t = 7/11,s=2498
@@ -2648,6 +2732,25 @@ def ipmacd_short_x5(sif,sopened=None):#+++
     signal = gand(rollx(signal,1),fsignal,sif.diff5<0,sif.diff30<0)
 
     return signal * XSELL
+
+def ipmacd_short_x(sif,sopened=None):
+    ksfilter = gand(sif.open - sif.close < 60,rollx(sif.open - sif.close) < 120,sif.xatr<2000) 
+    signal = gand(cross(sif.dea1,sif.diff1)<0
+            ,sif.t3<0
+            ,sif.mtrend<0
+            ,strend2(sif.sdiff30x-sif.sdea30x)<0    #
+            ,sif.sdiff5x<0
+            #,sif.s5<0
+            )
+    signal = gand(signal
+            ,sif.ma3 < sif.ma13
+            ,strend2(sif.ma30)<0
+            ,strend2(sif.ma135)<0
+            ,ksfilter
+            )
+    return signal * ipmacd_short_x.direction
+ipmacd_short_x.direction = XSELL
+ipmacd_short_x.priority = 2000
 
 
 def ipmacd_short_f(sif,sopened=None):#+

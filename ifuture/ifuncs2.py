@@ -603,7 +603,6 @@ xud30.priority = 500
 xud30.stop_closer = atr5_uxstop_1_25
 
 def xud30c(sif,sopened=None):
-    #xud30和xud30c通常对其他算法集合的叠加作用是一增一减，但是如果两个都一起上，则多数是增。
     trans = sif.transaction
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)

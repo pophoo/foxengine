@@ -452,6 +452,10 @@ def prepare_index(sif):
     s30_120[sif.i_cof30] = strend2(nma(sif.close30,120))    #nma避免strend2将初始批量0也当作正数计入的问题
     sif.ltrend = extend2next(s30_120)
  
+    s30_3 = np.zeros_like(sif.close)
+    s30_3[sif.i_cof30] = strend2(nma(sif.close30,3))  #nma避免strend2将初始批量0也当作正数计入的问题
+    sif.t3 = extend2next(s30_3)
+
     s30_30 = np.zeros_like(sif.close)
     s30_30[sif.i_cof30] = strend2(nma(sif.close30,30))  #nma避免strend2将初始批量0也当作正数计入的问题
     sif.t30 = extend2next(s30_30)

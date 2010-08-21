@@ -28,7 +28,7 @@ i08 = ifmap['IF1008']
 i09 = ifmap['IF1009']
 i12 = ifmap['IF1012']
     
-tradesy =  control.itradex8_y(i08,ifuncs.xxx)
+tradesy =  control.itradex8_y(i08,ifuncs2.xxx)
 
 for trade in tradesy:print trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].date,trade.actions[1].time,trade.actions[1].position,trade.actions[1].price,trade.actions[1].index-trade.actions[0].index
 

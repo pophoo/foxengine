@@ -443,15 +443,18 @@ def prepare_index(sif):
     s30_7 = np.zeros_like(sif.close)
     s30_7[sif.i_cof30] = strend2(nma(sif.close30,7))  #nma避免strend2将初始批量0也当作正数计入的问题
     sif.strend = extend2next(s30_7)
+    sif.t7 = sif.strend
 
     s30_13 = np.zeros_like(sif.close)
     s30_13[sif.i_cof30] = strend2(nma(sif.close30,13))  #nma避免strend2将初始批量0也当作正数计入的问题
     sif.mtrend = extend2next(s30_13)
+    sif.t13 = sif.mtrend
 
     s30_120 = np.zeros_like(sif.close)
     s30_120[sif.i_cof30] = strend2(nma(sif.close30,120))    #nma避免strend2将初始批量0也当作正数计入的问题
     sif.ltrend = extend2next(s30_120)
- 
+    sif.t120 = sif.ltrend
+
     s30_3 = np.zeros_like(sif.close)
     s30_3[sif.i_cof30] = strend2(nma(sif.close30,3))  #nma避免strend2将初始批量0也当作正数计入的问题
     sif.t3 = extend2next(s30_3)
@@ -472,6 +475,9 @@ def prepare_index(sif):
     s30_90[sif.i_cof30] = strend2(nma(sif.close30,90))  #nma避免strend2将初始批量0也当作正数计入的问题
     sif.t90 = extend2next(s30_90)
 
+    s30x = np.zeros_like(sif.diff1)
+    s30x[sif.i_cof30] = strend2(nma(sif.close30,7)-nma(sif.close30,30))
+    sif.t7_30 = extend2next(s30x)
 
     d60 = strend2(ma(sif.diff60x-sif.dea60x,3))
     sd60 = np.zeros_like(sif.close)
@@ -483,7 +489,6 @@ def prepare_index(sif):
     sd30[sif.i_cof30] = d30
     sif.s30 = extend2next(sd30)
  
-
     d15 = strend2(ma(sif.diff15x-sif.dea15x,3))
     sd15 = np.zeros_like(sif.close)
     sd15[sif.i_cof15] = d15
@@ -504,6 +509,54 @@ def prepare_index(sif):
     sd3 = np.zeros_like(sif.close)
     sd3[sif.i_cof3] = d3
     sif.s3 = extend2next(sd3)
+
+    sif.s1 = strend2(ma(sif.diff1-sif.dea1,3))
+
+    r120 = np.zeros_like(sif.close)
+    r120[sif.i_cof15] = strend2(nma(sif.close15,120))    #nma避免strend2将初始批量0也当作正数计入的问题
+    sif.r120 = extend2next(r120)
+
+    r60 = np.zeros_like(sif.close)
+    r60[sif.i_cof15] = strend2(nma(sif.close15,60))    #nma避免strend2将初始批量0也当作正数计入的问题
+    sif.r60 = extend2next(r60)
+    sif.rl_trend = sif.r60
+
+    r30 = np.zeros_like(sif.close)
+    r30[sif.i_cof15] = strend2(nma(sif.close15,30))    #nma避免strend2将初始批量0也当作正数计入的问题
+    sif.r30 = extend2next(r30)
+    sif.rm_trend = sif.r30
+
+    r20 = np.zeros_like(sif.close)
+    r20[sif.i_cof15] = strend2(nma(sif.close15,20))    #nma避免strend2将初始批量0也当作正数计入的问题
+    sif.r20 = extend2next(r20)
+
+    r13 = np.zeros_like(sif.close)
+    r13[sif.i_cof15] = strend2(nma(sif.close15,13))    #nma避免strend2将初始批量0也当作正数计入的问题
+    sif.r13 = extend2next(r13)
+    sif.rs_trend = sif.r13
+
+    r7 = np.zeros_like(sif.close)
+    r7[sif.i_cof15] = strend2(nma(sif.close15,7))    #nma避免strend2将初始批量0也当作正数计入的问题
+    sif.r7 = extend2next(r7)
+
+    r3 = np.zeros_like(sif.close)
+    r3[sif.i_cof15] = strend2(nma(sif.close15,3))    #nma避免strend2将初始批量0也当作正数计入的问题
+    sif.r3 = extend2next(r3)
+
+    mx = np.zeros_like(sif.diff1)
+    mx[sif.i_cof15] = strend2(nma(sif.close15,7)-nma(sif.close15,30))
+    sif.m7_30 = extend2next(mx)
+    sif.ms = sif.m7_30
+
+    mx = np.zeros_like(sif.diff1)
+    mx[sif.i_cof15] = strend2(nma(sif.close15,13)-nma(sif.close15,60))
+    sif.m13_60 = extend2next(mx)
+    sif.mm = sif.m13_60
+
+    mx = np.zeros_like(sif.diff1)
+    mx[sif.i_cof15] = strend2(nma(sif.close15,30)-nma(sif.close15,120))
+    sif.m30_120 = extend2next(mx)
+    sif.ml = sif.m30_120
 
 
 def calc_high_low_vol(trans,i_oof,i_cof):

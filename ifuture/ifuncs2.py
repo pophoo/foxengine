@@ -4,6 +4,9 @@ from wolfox.fengine.ifuture.ibase import *
 from wolfox.fengine.ifuture.iftrade import delay_filter,atr5_uxstop_1_25,atr5_uxstop_08_25,atr5_uxstop_05_25
 
 def ipmacd_short_5(sif,sopened=None):
+    '''
+        高度顺势放空操作
+    '''
     ksfilter = gand(sif.open - sif.close < 60,rollx(sif.open - sif.close) < 120,sif.xatr<2000)
 
     signal = gand(cross(sif.dea1,sif.diff1)<0
@@ -22,6 +25,28 @@ def ipmacd_short_5(sif,sopened=None):
     return signal * ipmacd_short_5.direction
 ipmacd_short_5.direction = XSELL
 ipmacd_short_5.priority = 1000
+
+def ipmacd_short_5a(sif,sopened=None):
+    ksfilter = gand(sif.open - sif.close < 60,rollx(sif.open - sif.close) < 120,sif.xatr<2000)
+
+
+    signal = gand(cross(sif.dea1,sif.diff1)<0
+            ,sif.mtrend < 0
+            ,sif.ltrend<0
+            ,sif.ms<0
+            ,sif.sdiff30x<0
+            ,sif.sdiff5x<0
+            )
+    signal = gand(signal
+            ,sif.ma5 < sif.ma13
+            ,strend2(sif.ma30)<0
+            ,ksfilter
+            )
+
+    return signal * ipmacd_short_5a.direction
+ipmacd_short_5a.direction = XSELL
+ipmacd_short_5a.priority = 1000
+
 
 def ipmacd_short_6a(sif,sopened=None):
     ksfilter = gand(sif.open - sif.close < 60,rollx(sif.open - sif.close) < 120,sif.xatr<2000) 
@@ -47,12 +72,11 @@ def ipmacd_short_x(sif,sopened=None):
     ksfilter = gand(sif.open - sif.close < 60,rollx(sif.open - sif.close) < 120,sif.xatr<2000) 
     signal = gand(cross(sif.dea1,sif.diff1)<0
             ,sif.mtrend<0
-            ,sif.ltrend<0
-            ,strend2(sif.sdiff30x-sif.sdea30x)<0    #
-            ,sif.sdiff5x<0
+            ,sif.sdiff30x>0
+            ,sif.s3<0
             )
     signal = gand(signal
-            ,sif.ma5 < sif.ma13
+            ,sif.ma3 < sif.ma13
             ,sif.ma13 < sif.ma60
             ,strend2(sif.ma30)<0
             ,strend2(sif.ma270)<0
@@ -60,7 +84,7 @@ def ipmacd_short_x(sif,sopened=None):
             )
     return signal * ipmacd_short_x.direction
 ipmacd_short_x.direction = XSELL
-ipmacd_short_x.priority = 2000
+ipmacd_short_x.priority = 1500
 
 def ipmacd_short_x2(sif,sopened=None):
     ksfilter = gand(sif.open - sif.close < 60,rollx(sif.open - sif.close) < 120,sif.xatr<2000) 
@@ -102,11 +126,12 @@ def gd30(sif,sopened=None):
             ,sif.sdiff5x < sif.sdea5x
             ,strend2(sif.ma135)<0
             ,sif.ltrend<0
+            ,sif.s3<0
             )
 
     return signal * gd30.direction
 gd30.direction = XSELL
-gd30.priority = 500
+gd30.priority = 1800
 
 def godown5(sif,sopened=None):
     '''
@@ -134,9 +159,10 @@ def godown5(sif,sopened=None):
     signal = gand(signal
             #,strend(sif.ma270)<0
             ,strend(sif.sdiff30x-sif.sdea30x)<0
-            #,sif.s30<0
             ,sif.ma5<sif.ma13
-            #,strend(sif.ma30)<0
+            ,strend(sif.ma30)<0
+            ,sif.ltrend<0
+            ,sif.ms<0
             )
 
 
@@ -172,14 +198,98 @@ def godown30(sif,sopened=None):
     signal = gand(signal
             ,strend(sif.ma270)<0
             #,strend(sif.diff30-sif.dea30)<0
-            ,strend(sif.sdiff30x-sif.sdea30x)<0            
+            ,sif.s30<0
+            ,sif.s10<0
             ,strend(sif.ma30)<0
+            ,sif.ltrend<0
+            ,sif.mtrend<0            
             )
 
 
     return signal * godown30.direction
 godown30.direction = XSELL
 godown30.priority = 20000
+
+def rsi_long_x(sif,sopened=None,rshort=7,rlong=19):
+    '''
+        比较妥当的是 7/19和13/41参数,其中前者明显优于后者
+    '''
+
+    #signal = cross(sif.dea1,sif.diff1)>0
+    rsia = rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = rsi2(sif.close,rlong)
+    signal = cross(rsib,rsia)>0    
+
+    signal = gand(signal
+              ,sif.t7_30>0
+              ,sif.ltrend>0
+              ,sif.mtrend>0
+              #,sif.strend>0
+              ,sif.ma3>sif.ma13  
+              ,sif.ma7> sif.ma30              
+              ,sif.s30>0
+            )
+
+    return signal * rsi_long_x.direction
+rsi_long_x.direction = XBUY
+rsi_long_x.priority = 1200
+
+
+def rsi_long_x2(sif,sopened=None,rshort=7,rlong=19):
+    '''
+        比较妥当的是 7/19和13/41参数,其中前者明显优于后者
+    '''
+
+    #signal = cross(sif.dea1,sif.diff1)>0
+    rshort = 7
+    rlong = 19
+    rsia = rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = rsi2(sif.close,rlong)
+    signal = cross(rsib,rsia)>0    
+
+    signal = gand(signal
+              ,sif.rs_trend>0
+              ,sif.rm_trend>0
+              ,sif.ltrend>0               
+              ,sif.ms>0
+              ,sif.ma3>sif.ma13  
+              ,sif.ma7> sif.ma30              
+              ,sif.s30>0
+            )
+
+    return signal * rsi_long_x2.direction
+rsi_long_x2.direction = XBUY
+rsi_long_x2.priority = 1500
+
+
+def rsi_long_x2a(sif,sopened=None,rshort=7,rlong=19):
+    '''
+        比较妥当的是 7/19和13/41参数,其中前者明显优于后者
+        是rsi_long_x2的增条件版本，添加了rl_trend>0,mtrend>0
+    '''
+
+    #signal = cross(sif.dea1,sif.diff1)>0
+    rshort = 7
+    rlong = 19
+    rsia = rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = rsi2(sif.close,rlong)
+    signal = cross(rsib,rsia)>0    
+
+    signal = gand(signal
+              ,sif.rs_trend>0
+              ,sif.rm_trend>0
+              ,sif.rl_trend>0
+              ,sif.mtrend>0
+              ,sif.ltrend>0                            
+              ,sif.ms>0
+              ,sif.ma3>sif.ma13  
+              ,sif.ma7> sif.ma30              
+              ,sif.s30>0
+            )
+
+    return signal * rsi_long_x2a.direction
+rsi_long_x2a.direction = XBUY
+rsi_long_x2a.priority = 1410
 
 def ipmacd_long_5(sif,sopened=None):
     trans = sif.transaction
@@ -228,20 +338,18 @@ ipmacd_long_6.direction = XBUY
 ipmacd_long_6.priority = 2430#2430
 
 def ipmacd_long_x(sif,sopened=None):
-    trans = sif.transaction
-    
-    
     signal = cross(sif.dea1,sif.diff1)>0
 
     signal = gand(signal
               ,sif.ma3>sif.ma13  
               ,sif.ma7> sif.ma30              
               ,sif.ma30>sif.ma135
-              ,sif.sdiff5x>0            
-              ,strend(sif.sdiff15x-sif.sdea15x)>0
-              ,strend(sif.ma30)>0
               ,sif.s30>0
-              ,gor(sif.mtrend>0,sif.ltrend>0)
+              ,sif.s5>0
+              ,strend2(sif.ma30)>0
+              ,sif.mm>0
+              ,sif.ltrend<0
+              ,sif.rs_trend>0
             )
 
     return signal * ipmacd_long_x.direction
@@ -273,34 +381,44 @@ gu30.direction = XBUY
 gu30.priority = 500
 
 def ipmacd_long_5k(sif,sopened=None):
-    trans = sif.transaction
-    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
-
-    sm = sif.ma270 - rollx(sif.ma270)
-    ss2 = msum(sm,3)
-    sss = strend(ss2)
+    dsfilter = gand(sif.close-sif.open<100,rollx(sif.close-sif.open)<200,sif.xatr<1500)#: 向上突变过滤
 
     sk5,sd5 = skdj(sif.high5,sif.low5,sif.close5)
 
-    signal = gand(cross(sif.sd,sif.sk)>0
-            #,strend2(sif.diff1-sif.dea1)>0            
-            ,strend2(sif.sdiff3x-sif.sdea3x)>0            
-            #,strend2(sif.sdiff5x-sif.sdea5x)>0
-            ,strend2(sif.sdiff30x-sif.sdea30x)>0            
-            ,sif.mtrend > 0
-            )
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof5] = cross(sd5,sk5)
+
     signal = gand(signal
+            ,strend2(sif.sdiff30x-sif.sdea30x)>0            
+            ,sif.s5>0
+            ,sif.s10>0
             ,sif.ma3 > sif.ma7
-            #,strend2(sif.ma13)>0
             ,strend(sif.ma30)>0
             ,strend(sif.ma7-sif.ma30)>0
+            ,sif.rm_trend>0
             ,dsfilter
             )
 
-    #signal = gand(rollx(signal,1),sif.diff1<sif.dea1)
     return signal * ipmacd_long_5k.direction
 ipmacd_long_5k.direction = XBUY
 ipmacd_long_5k.priority = 1200
+
+def ipmacd_long_1k(sif,sopened=None):
+    dsfilter = gand(sif.close-sif.open<100,rollx(sif.close-sif.open)<200,sif.xatr<1500)#: 向上突变过滤
+    
+    signal = gand(cross(sif.sd,sif.sk)>0
+            ,sif.s30>0
+            ,sif.s10>0
+            ,sif.ma3 > sif.ma13
+            ,strend(sif.ma30)>0
+            ,strend(sif.ma7-sif.ma30)>0
+            ,sif.mtrend>0
+            ,dsfilter
+            )
+
+    return signal * ipmacd_long_1k.direction
+ipmacd_long_1k.direction = XBUY
+ipmacd_long_1k.priority = 2250
 
 
 def cci_up15(sif,sopened=None):
@@ -330,17 +448,16 @@ def cci_up15(sif,sopened=None):
 
     signal = gand(signal
             ,strend2(sif.diff1-sif.dea1)>0
-            #,strend(sif.ma7)>0
-            #,rollx(strend2(sif.sdiff5x-sif.sdea5x),5)<0
-            #,strend2(sif.sdiff30x-sif.sdea30x)>0
             ,sif.s30>0
             ,strend2(sif.ma13)>0
-            ,sif.ltrend>0
+            ,sif.rs_trend>0
+            ,sif.rm_trend>0            
+            ,sif.mm>0
             )
 
     return signal * cci_up15.direction
 cci_up15.direction = XBUY
-cci_up15.priority = 2400#900 
+cci_up15.priority = 1900 
 
 def ma2x(sif,sopened=None):
     
@@ -363,6 +480,10 @@ def ma2x(sif,sopened=None):
 
     signal = gand(signal
               ,sif.mtrend>0
+              #,sif.s30>0
+              #,sif.s15>0
+              ,sif.rm_trend>0
+              ,sif.mm>0
               #,strend2(sif.sdiff30x-sif.sdea30x)>0
             )
 
@@ -374,20 +495,19 @@ def ma1x(sif,sopened=None):
     ''' 只适用于当月合约和远期合约
     '''
 
-    signal = cross(sif.ma60,sif.ma5)>0
+    signal = cross(sif.ma60,sif.close)>0
 
     #fsignal = cross(sif.sd,sif.sk)>0
     #signal = sfollow(signal,fsignal,30)
 
     signal = gand(signal
               ,sif.mtrend>0
-              ,sif.ltrend>0 #sif.mtrend
-              ,strend2(sif.ma270)>0
+              ,sif.ltrend>0              
+              ,sif.rm_trend>0              
               ,sif.s30>0
-              #,strend2(sif.sdiff5x-sif.sdea5x)>0              
-              #,sif.diff1>0#sif.dea1
+              ,sif.ms>0
+              ,sif.t7_30>0
             )
-
     return signal * ma1x.direction
 ma1x.direction = XBUY
 ma1x.priority = 800
@@ -421,6 +541,31 @@ def s5(sif,sopened=None):
 s5.direction = XBUY
 s5.priority = 1200
 
+def xs5(sif,sopened=None):
+    
+    ma_a = ma(sif.close5,5)
+    ma_b = ma(sif.close5,13)
+    ma_c = ma(sif.close5,30)
+
+
+    signala = gand(cross(ma_b,ma_a)>0
+                ,strend2(ma_c)>0
+                )
+
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof5] = signala
+
+    signal = gand(signal
+              ,sif.mtrend>0
+              ,sif.s30>0
+              ,sif.s10>0
+            )
+
+    return signal * xs5.direction
+xs5.direction = XBUY
+xs5.priority = 1200
+
+
 def inside_up(sif,sopened=None):
     '''
         内移日次日向上
@@ -452,14 +597,15 @@ def inside_up(sif,sopened=None):
 
 
     signal = gand(signal
-            ,strend(sif.ma270)>0
-            ,sif.mtrend>0
+            #,strend(sif.ma270)>0
+            ,sif.rs_trend>0
             )
 
 
     return signal * inside_up.direction
 inside_up.direction = XBUY
 inside_up.priority = 2000
+
 
 def br30(sif,sopened=None):
     '''
@@ -474,7 +620,7 @@ def br30(sif,sopened=None):
     high30 = np.select([trans[ITIME][sif.i_cof30]==945],[sif.high30],default=0)
 
     xhigh30,xlow30 = np.zeros_like(sif.diff1),np.zeros_like(sif.diff1)
-    xhigh30[sif.i_oof30] = high30
+    xhigh30[sif.i_cof30] = high30   #因为屏蔽了前30分钟，所以i_cof30和i_oof30效果一样
 
     xhigh30 = extend2next(xhigh30)
 
@@ -482,7 +628,8 @@ def br30(sif,sopened=None):
 
     signal[sif.i_cof5] = cross(xhigh30[sif.i_cof5],sif.high5)>0
 
-    signal = sfollow(signal,cross(sif.dea1,sif.diff1)>0,15)
+    #signal = sfollow(signal,cross(sif.dea1,sif.diff1)>0,15)
+    signal = sfollow(signal,cross(sif.dea1,sif.diff1)>0,15)    #20虽然更好，叠加不佳
 
     signal = gand(signal
             ,strend(sif.diff30-sif.dea30)>0
@@ -495,6 +642,26 @@ def br30(sif,sopened=None):
     return signal * br30.direction
 br30.direction = XBUY
 br30.priority = 300
+
+def lwr15(sif,sopened=None):
+
+    c,mc = lwr(sif.high15,sif.low15,sif.close15)
+
+    signal = np.zeros_like(sif.diff1)
+    signal[sif.i_cof15] = cross(mc,c)<0
+
+    signal = gand(
+            signal
+            ,sif.rl_trend>0
+            ,sif.rm_trend>0            
+            ,sif.ml>0
+            ,strend(sif.diff30-sif.dea30)>0
+            )
+
+    return signal * XBUY
+lwr15.direction = XBUY
+lwr15.priority = 1500
+
 
 def br75(sif,sopened=None):
     '''
@@ -528,7 +695,7 @@ def br75(sif,sopened=None):
 
     return signal * br75.direction
 br75.direction = XBUY
-br75.priority = 2400
+br75.priority = 22400
 
 def ipmacd_short_devi1(sif,sopened=None):
     '''
@@ -551,12 +718,13 @@ def ipmacd_short_devi1(sif,sopened=None):
 
     signal = gand(signal
                 ,strend2(sif.sdiff5x)>0
-                ,strend(sif.sdiff5x-sif.sdea5x)<0   #diff5在上行，但macd5已经开始向下
-                ,strend(sif.sdiff30x)<0
+                ,sif.s5<0
+                ,strend2(sif.sdiff30x)<0
             )
     return signal * ipmacd_short_devi1.direction
 ipmacd_short_devi1.direction = XSELL
 ipmacd_short_devi1.priority = 400
+
 
 def ipmacd_long_devi1_o5(sif,sopened=None):
     '''
@@ -580,6 +748,8 @@ def ipmacd_long_devi1_o5(sif,sopened=None):
 ipmacd_long_devi1_o5.direction = XBUY
 ipmacd_long_devi1_o5.priority = 910
 
+ipmacd_short_5.closer = lambda c:c+[ipmacd_long_devi1_o5]
+
 def xud30(sif,sopened=None):
     trans = sif.transaction
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
@@ -592,8 +762,9 @@ def xud30(sif,sopened=None):
     signal = gand(signal
             ,strend(sif.diff1)>0
             ,strend(sif.ma270)>0
-            ,sif.mtrend>0
-            ,sif.ltrend<0
+            #,sif.mtrend>0
+            #,sif.ltrend<0
+            #,sif.rm_trend>0
             #,dsfilter
             )
 
@@ -615,7 +786,7 @@ def xud30c(sif,sopened=None):
             ,strend(sif.diff1)>0
             ,strend(sif.ma270)>0
             #,sif.s30>0
-            ,sif.mtrend>0
+            #sif.rm_trend>0
             #,dsfilter
             )
 
@@ -712,7 +883,7 @@ def xud15(sif,sopened=None):
 xud15.direction = XBUY
 xud15.priority = 3001
 
-def ipmacd_short5(sif,sopened=None):#-
+def ipmacd_short5(sif,sopened=None):
     trans = sif.transaction
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr < 2000)
     
@@ -723,7 +894,6 @@ def ipmacd_short5(sif,sopened=None):#-
             )
     signal = gand(signal
             ,strend(sif.ma13-sif.ma60)<0
-            #,strend(sif.ma30)<-4
             ,strend(sif.ma135-sif.ma270)<0
             ,ksfilter
             )   
@@ -798,46 +968,40 @@ def down01(sif,sopened=None): #++
 down01.direction = XSELL
 down01.priority = 250
 
+
 def up0(sif,sopened=None):
     '''
-        难以周期化
+        上穿0线
     '''
     trans = sif.transaction
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
 
     signal = gand(cross(cached_zeros(len(sif.diff1)),sif.diff1)>0
             ,sif.diff5<0
-            ,strend(sif.diff30-sif.dea30)>1
+            #,strend(sif.diff30-sif.dea30)>1
+            ,sif.s30>0
             ,strend(sif.diff5-sif.dea5)>1
-            ,strend(sif.diff1-sif.dea1)>1
             ,strend(sif.diff1)>4
-            ,strend(sif.ma5-sif.ma30)>0
-            ,strend(sif.ma135-sif.ma270)>0
             ,strend(sif.ma30)>0
-            #,sif.mtrend>0
             ,dsfilter
             )
 
     return signal * up0.direction
 up0.direction = XBUY
-up0.priority = 500  #叠加时，远期互有盈亏
+up0.priority = 1800  #叠加时，远期互有盈亏
 
-def ipmacd_longt(sif,sopened=None):#+
-    trans = sif.transaction
-    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500) #向上突变过滤
+def ipmacd_long_t(sif,sopened=None):#+
 
     signal = gand(cross(sif.dea1,sif.diff1)>0
-                ,strend(sif.diff5-sif.dea5)>0
-                ,sif.diff30<sif.dea30
-                #,strend(sif.diff30-sif.dea30)>0 #+
+                ,sif.s5>0
+                ,sif.sdiff30x<sif.sdea30x
+                ,sif.s30>0
                 ,sif.ma5>sif.ma13
-                ,strend(sif.ma5)>2 #
-                ,gor(strend(sif.ma270)>0,strend(sif.ma135)>0)
-                ,dsfilter
+                ,strend(sif.ma3)>2
                 )
-    return signal * ipmacd_longt.direction
-ipmacd_longt.direction= XBUY
-ipmacd_longt.priority = 2000
+    return signal * ipmacd_long_t.direction
+ipmacd_long_t.direction= XBUY
+ipmacd_long_t.priority = 2000
 
 def gapdown15(sif,sopened=None):
     '''
@@ -954,7 +1118,7 @@ def k15_lastdown(sif,sopened=None):
                 ,sif.low15>rollx(sif.low15)
                 ,sif.high15 - gmax(sif.open15,sif.close15) > np.abs(sif.open15-sif.close15) #上影线长于实体
                 ,sif.high15 == tmax(sif.high15,5)
-                #,sif.high15 > gmax(ma15_3,ma15_30,ma15_60)
+                ,sif.high15 > gmax(ma15_3,ma15_30,ma15_60)
                 #,rollx(sif.vol5) > sif.vol5
                 #,rollx(sif.vol5) > rollx(sif.vol5,2)
                 #,rollx(sif.close5)<rollx(sif.open5)
@@ -1037,7 +1201,6 @@ def k3_lastdown(sif,sopened=None):
             ,strend2(sif.diff1-sif.dea1)<0
             ,sif.ma3<sif.ma13
             ,strend2(sif.sdiff5x-sif.sdea5x)<0
-            #,strend2(sif.sdiff3x-sif.sdea3x)<0
             ,strend2(sif.ma270)<0
             ,strend2(sif.sdiff30x-sif.sdea30x)<0
             )
@@ -1069,16 +1232,6 @@ def k5_lastdown(sif,sopened=None):
                 #,sif.low5>rollx(sif.low5)
                 ,sif.high5 - gmax(sif.open5,sif.close5) > np.abs(sif.open5-sif.close5) #上影线长于实体
                 #,np.abs(sif.open5-sif.close5) > gmin(sif.open5,sif.close5) - sif.low5#上影线长于实体
-                #,sif.high5 > gmax(ma5_3,ma5_30,ma5_60)
-                #,rollx(sif.vol5) > sif.vol5
-                #,rollx(sif.vol5) > rollx(sif.vol5,2)
-                #,rollx(sif.close5)>rollx(sif.open5)
-                #,strend2(ma5_60)>0
-                #,strend2(sif.diff5x-sif.dea5x)>0
-                #,sif.diff5x>sif.dea5x
-                #,strend2(ma5_500)<0                                
-                #,ma5_7 > ma5_13
-                #,strend2(ma5_500)>0
                 )
 
     #print np.nonzero(signal5)
@@ -1102,6 +1255,8 @@ def k5_lastdown(sif,sopened=None):
             ,sif.ma5<sif.ma13
             ,strend2(sif.sdiff5x-sif.sdea5x)<0
             ,strend2(sif.ma270)<0
+            ,sif.rm_trend>0 #
+            
             #,strend2(sif.sdiff30x-sif.sdea30x)<0
             #,gor(sif.sdiff30x-sif.sdea30x<0,strend2(sif.sdiff30x-sif.sdea30x)<0)
             #,strend(sif.ma7)<0
@@ -1112,6 +1267,7 @@ def k5_lastdown(sif,sopened=None):
 k5_lastdown.direction = XSELL
 k5_lastdown.priority = 2400 #对i09时200即优先级最高的效果最好
 #k5_lastdown.stop_closer = atr5_uxstop_05_25
+
 
 def k5_relay(sif,sopened=None):
     '''
@@ -1195,7 +1351,7 @@ def k15_relay(sif,sopened=None):
     signal = np.zeros_like(sif.close)
     signal[sif.i_cof15] = signal5
     signal = gand(signal
-            ,strend2(sif.sdiff30x-sif.sdea30x)>0
+            ,sif.s30>0#strend2(sif.sdiff30x-sif.sdea30x)>0
             ,sif.diff1>0
             ,sif.sdiff5x>0
             ,sif.mtrend>0
@@ -1206,7 +1362,7 @@ def k15_relay(sif,sopened=None):
 
     return signal * k5_relay.direction
 k15_relay.direction = XBUY
-k15_relay.priority = 1200 #对i07效果很差
+k15_relay.priority = 1800 
 
 def goup5(sif,sopened=None):
     ''' 
@@ -1249,25 +1405,16 @@ goup5.priority = 1500
 
 def opendown(sif,sopened=None):
     '''
-        与945无关
+        跌破开盘线，且是新低
     '''
-    trans = sif.transaction
-    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
-    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
-
-
     xopend = np.zeros_like(sif.close)
 
     xopend[sif.i_oofd] = sif.opend
     xopend = extend2next(xopend)
 
-    x945 = np.select([sif.time==945],[sif.close-xopend],0)
-    x945 = extend2next(x945)
-
     xlow = rollx(tmin(sif.low,15),1)
 
     signal = gand(cross(xopend,sif.close)<0
-                #,x945 < 0
                 ,sif.low<xlow
                 )
 
@@ -1282,7 +1429,7 @@ def opendown(sif,sopened=None):
 
     return signal * opendown.direction
 opendown.direction = XSELL
-opendown.priority = 1000
+opendown.priority = 2000
 
 
 def openup(sif,sopened=None):
@@ -1315,17 +1462,16 @@ def openup(sif,sopened=None):
 
 
     signal = gand(signal
-            ,strend(sif.diff1-sif.dea1)>0
-            ,strend(sif.sdiff5x-sif.sdea5x)>0            
-            ,strend(sif.sdiff30x-sif.sdea30x)>0
+            ,strend2(sif.diff1-sif.dea1)>0
+            ,sif.s5>0
+            ,sif.s30>0
             ,sif.diff1 > 0
-            ,sif.ltrend>0
-            #,sif.sdiff5x < sif.sdea5x
+            ,sif.mm>0
             )
 
     return signal * openup.direction
 openup.direction = XBUY
-openup.priority = 1000
+openup.priority = 1800
 
 
 
@@ -1393,21 +1539,13 @@ def xdown60(sif,sopened=None):
 
     signal = gand(msnl>3)
 
-    s30_13 = np.zeros_like(sif.diff1)
-    s30_13[sif.i_cof30] = strend2(ma(sif.close30,13))
-    s30_13 = extend2next(s30_13)
-
-
     signal = gand(signal
-            ,s30_13<0
             ,sif.ma5 < sif.ma13
             ,strend2(sif.diff1-sif.dea1)<0
-            #,sif.diff5<0
             ,strend2(sif.ma270)<0
-            #,strend2(sif.ma30)<0
-            #,strend2(sif.ma13)<0            
             ,strend2(sif.sdiff5x-sif.sdea5x)<0
             ,strend2(sif.sdiff15x-sif.sdea15x)<0
+            ,sif.mtrend<0            
             ,sif.ltrend<0
             ,ksfilter
             )
@@ -1452,43 +1590,106 @@ def skdj_bup(sif,sopened=None):
     signal = sfollow(signal,fsignal,10)
 
     signal = gand(signal
-                ,sif.diff1>sif.dea1
-                ,sif.sdiff5x>sif.sdea5x
-                ,sif.ma3>sif.ma7
+                ,sif.diff1> sif.dea1
+                ,sif.s30>0
+                ,sif.ma5>sif.ma13
                 ,strend(sif.ma13)>0
                 ,strend(sif.ma30)>0
-                #,strend(sif.ma13-sif.ma60)>0   
-                #,strend(sif.diff1-sif.dea1)>0
-                #,strend2(sif.sdiff5x)>0
-                #,strend(sif.sdiff5x-sif.sdea5x)>0   
-                #,strend(sif.sdiff30x-sif.sdea30x)>0
             )
     return signal * skdj_bup.direction
-
 skdj_bup.direction = XBUY
-skdj_bup.priority = 2400
+skdj_bup.priority = 1200
+
+def ems(sif,sopened=None):
+    ''' 过滤条件的完全集合
+    '''
+
+    signal = cross(sif.ma60,sif.close)>0
+
+    signal = gand(
+              sif.mtrend>0
+              ,sif.ltrend>0              
+              ,sif.rm_trend>0              
+              ,sif.s30>0
+              ,sif.s5>0
+              ,sif.ms>0
+              ,sif.mm>0
+              ,sif.t7_30>0
+            )
+    signal = derepeatc(signal)
+    return signal * ems.direction
+ems.direction = XBUY
+ems.priority = 2400
 
 
 
 xshort = [ipmacd_short_5,ipmacd_short_x,gd30,godown5,godown30,ipmacd_short_devi1
         ,ipmacd_short5
         ,down01
-        ,k15_lastdown,k5_lastdown,k3_lastdown,k15_relay
+        ,k15_lastdown,k5_lastdown,k3_lastdown
         ,opendown        
         ,xdown60#,xdown30
         ]
 #xshort = [ipmacd_short_5,ipmacd_short_6a,ipmacd_short_x,ipmacd_short_x2]#,gd30,godown5]
-xlong = [ipmacd_long_5,ipmacd_long_x,ipmacd_long_6
+xlong = [ipmacd_long_5,rsi_long_x,rsi_long_x2#,rsi_long_x2a#,ipmacd_long_x,ipmacd_long_6
         ,gu30 #,br75
         ,ipmacd_long_5k,cci_up15,ma2x,ma1x,s5,inside_up,br30,ipmacd_long_devi1_o5
         ,xud30,xud30c,xud10s#,xud10l
         ,up0#
-        ,ipmacd_longt
-        ,k5_lastup
+        ,ipmacd_long_t
+        ,k5_lastup,k15_relay
         ,skdj_bup #,goup5
         ,openup
+        ,lwr15
         
         ]
 
 
 xxx = xshort + xlong
+
+#基本原则
+#常规识别 macd/rsi/skdj 用于顺势交易，确保ltrend,mtrend,t7_30的方向性
+#形态识别, k,30分钟涨势等, 用于震荡期交易
+#底/顶部识别, 用于逆势交易?
+xlong2 = [ ###基本网格
+          rsi_long_x2,rsi_long_x2a#,rsi_long_x    #主趋势为mtrend,ltrend
+          ,ipmacd_long_t   #主趋势 s30>0
+          ,ipmacd_long_5k  #rm_trend>0
+          ,ems  #过滤条件的完全集合          
+          ,up0  #上穿0线    s30>0
+          #,ipmacd_long_1k  #mtrend 
+          ####均线
+          ,ma2x #sif.rm_trend>0,mm>0, 金三角
+          ,ma1x #mtrend,ltrend,rm_trend,s30,t7_30,ms
+          ,xs5 #主趋势为mtrend. 5分钟均线的交叉
+          ####重要的自定义指标
+          ,xud30c,xud30 #主趋势为ma(270)
+          #### 形态识别  
+          ,br30         #主趋势为mtrend #5分钟突破开盘30分钟最高之后，1分钟上叉
+          ,k15_relay          
+          ,lwr15        #主趋势为rm_trend+rl_trend
+          ,skdj_bup     #主趋势为s30>0,底部向上
+          ,inside_up    #主趋势为rs_trend   内移日次日向上
+          ,openup
+          #,ipmacd_long_devi1_o5    #不够稳定,远期合约爆损，貌似是作为止损用来尽早平空仓的          
+          ####其它指标
+          ,cci_up15
+        ]
+
+xshort2 = [ #基本网络
+            ipmacd_short_5  #,ipmacd_short_5a
+           ,ipmacd_short_x  #主趋势为mtrend或ltrend,并且rs_trend 
+           #形态识别
+           ,k15_lastdown
+           ,k5_lastdown
+           ,k3_lastdown
+           ,opendown
+           ,gd30    #主趋势 ltrend
+           ,godown5 #ltrend
+           ,ipmacd_short_devi1
+           ,ipmacd_short5   #diff5下叉dea5,最老的方法，未作改动
+           ,down01  #ltrend
+           ,xdown60
+        ]
+
+xxx2 = xlong2 + xshort2

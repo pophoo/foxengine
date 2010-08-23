@@ -2794,23 +2794,25 @@ def ma30_short(sif,sopened=None):
     trans = sif.transaction
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr < 2000)
 
-    sf = msum(trans[IHIGH]>sif.ma30,5) < 3
+    sf = msum(trans[IHIGH]>sif.ma30,5) < 2
 
     signal = gand(cross(sif.ma30,trans[IHIGH])<0
             ,strend(sif.ma30)<0
             ,sf
             )
     fsignal = gand(cross(sif.dea1,sif.diff1)<0
-            ,sif.diff1<0
             ,sif.sdiff5x<0
-            ,strend2(sif.sdiff30x-sif.sdea30x)<0
-            ,strend(sif.ma13-sif.ma60)<0
+            ,sif.s30<0
             ,sif.ma5<sif.ma13
+            ,sif.strend<0
+            #,sif.rm_trend<0
+            #,sif.s15<0
             ,ksfilter
             )
     signal = sfollow(signal,fsignal,10)
-    return signal * XSELL
-
+    return signal * ma30_short.direction
+ma30_short.direction = XSELL
+ma30_short.priority = 2400
 
 def ma60_short2(sif,sopened=None):
     ''' 下行中下叉60线
@@ -2858,14 +2860,17 @@ def ma60_short(sif,sopened=None):
     msignal = gand(strend(sif.ma60) == -1
                 )
     fsignal = gand(cross(sif.dea1,sif.diff1)<0
-                ,sif.sdiff30x<0
                 ,strend2(sif.sdiff5x-sif.sdea5x)>0
-                ,strend(sif.ma5-sif.ma30)<0
+                ,sif.ltrend<0
+                ,sif.mtrend<0
+                ,sif.ms<0
+                ,sif.strend<0
                 ,ksfilter                
                 )
     signal = sfollow(msignal,fsignal,5)
-    return signal * XSELL
-
+    return signal * ma60_short.direction
+ma60_short.direction = XSELL
+ma60_short.priority = 2401
 
 
 def ma30_short2(sif,sopened=None):

@@ -107,6 +107,15 @@ def whget(strategy,functor,priority=2500):
         calc_stop(sif,action)
     return fname,sif,xactions
 
+def fget(strategy,priority=2500):
+    fname = find_cur()
+    name = get_if_name(fname)
+    path = get_if_path(fname)
+    #print path,wh_path
+    ifmap = ifreader.readp(path,name,extractor=extract_if_wh)  # fname ==> BaseObject(name='$name',transaction=trans)
+    sif = ifmap[name]
+    return fname,sif
+
 def calc_stop(sif,action):
     stop1 = sif.atr5x[action.index]/1250.0
     stop2 = sif.atr[action.index]*1.5/1000

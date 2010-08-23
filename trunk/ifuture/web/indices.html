@@ -1,0 +1,53 @@
+$def with(fname,lasttime,indices)
+<html>
+    <head>
+        <style type="text/css">
+            td.xup  {background-color:red}
+            td.xdown  {background-color:green}
+            td.xhead {background-color:yellow}
+        </style>
+    </head>
+<body>
+文件名:&nbsp&nbsp&nbsp&nbsp&nbsp $fname
+<br/>
+最后更新时间:$lasttime
+<br/>
+注意：优先级数字越小优先级越高，2500以下都较好
+<br>
+平仓请等待本分钟结束，在下一分钟开始时处理
+<table border>
+<tr>
+    <th>日期</th>
+    <th>时间</th>
+    <th>ltrend</th>
+    <th>rl_trend</th>
+    <th>ml</th>    
+    <th>t7_30</th>
+    <th>s30</th>
+    <th>mtrend</th>
+    <th>rm_trend</th>
+    <th>mm</th>    
+    <th>s15</th>    
+    <th>strend</th>
+    <th>rs_trend</th>
+    <th>ms</th>
+    <th>s5</th>    
+    
+</tr>
+$for index in indices
+    <tr>
+        <td class="xhead">$index[0]</td>
+        <td class="xhead">$index[1]</td>
+        $for ii in index[2:]
+        <td class = "
+            $if ii>0:
+                xup
+            $else:
+                xdown
+        "
+        >
+            $ii
+            </td>
+    </tr>
+</table>
+</body></html>

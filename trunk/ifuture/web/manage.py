@@ -21,7 +21,8 @@ urls = (
   '/last1/(.*)','LastUpdate1',
   '/last2', 'LastUpdate2',
   '/last2/(.*)','LastUpdate2',
-  
+  '/indices','Indices', 
+  '/indices/(.*)','Indices',   
 )
 
 application = web.application(urls, globals()).wsgifunc()
@@ -63,6 +64,34 @@ class LastUpdate2:
         lasttime = "%s-%s" % (sif.transaction[IDATE][-1],sif.transaction[ITIME][-1])
         #print priority
         return render.last(fname,lasttime,xactions)
+
+class Indices:
+    def GET(self,length=2000):
+        try:
+            length = int(length)    #除默认外，传入的是字符串
+        except:
+            return u'覆盖长度请输入合法的数字，您输入的是:%s' % length
+        fname,sif = dynamic.fget(ifuncs2.xxx)
+        #return "name=%s,lastupdate=%s:%s" % (fname,sif.transaction[IDATE][-1],sif.transaction[ITIME][-1])
+        lasttime = "%s-%s" % (sif.transaction[IDATE][-1],sif.transaction[ITIME][-1])
+        indices = zip(sif.date
+                    ,sif.time
+                    ,sif.ltrend                    
+                    ,sif.rl_trend
+                    ,sif.ml
+                    ,sif.t7_30
+                    ,sif.s30
+                    ,sif.mtrend
+                    ,sif.rm_trend                        
+                    ,sif.mm
+                    ,sif.s15
+                    ,sif.rs_trend
+                    ,sif.ms
+                    ,sif.strend
+                    ,sif.s5
+        )
+        #print priority
+        return render.indices(fname,lasttime,indices[:-length:-1])
 
 
 if __name__ == "__main__": 

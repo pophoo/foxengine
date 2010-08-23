@@ -6,7 +6,7 @@
 import numpy as np
 from collections import deque
 from wolfox.fengine.core.base import cache,wcache
-from wolfox.fengine.core.d1 import BASE,band,gand,nsubd,roll0,rollx,equals,nequals,greater_equals,subd,greater,lesser_equals
+from wolfox.fengine.core.d1 import BASE,band,gand,gor,nsubd,roll0,rollx,equals,nequals,greater_equals,subd,greater,lesser_equals
 from wolfox.fengine.core.utils import fcustom
 
 def ma(source,length):    #使用numpy，array更加的惯用法
@@ -151,6 +151,9 @@ def strend2(source):
         rev[i] = cur
         pre_v = cur_v
     return rev    
+
+#趋势的翻转次数
+rturn = lambda sx:sum(gor(gand(rollx(sx)>0,sx<0),gand(rollx(sx)<0,sx>0)))
 
 
 def cross(target,follow):

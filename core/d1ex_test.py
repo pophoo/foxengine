@@ -42,6 +42,12 @@ class ModuleTest(unittest.TestCase):
         source = np.array([10,20,30,30,40,50,40,30,20,20,10,20])
         self.assertEquals([0,1,2,3,4,5,-1,-2,-3,-4,-5,1],strend2(source).tolist())
 
+    def test_rturn(self):
+        self.assertEquals(0,rturn(np.array([])))
+        self.assertEquals(0,rturn(np.array([0,1,2,3,4,5,6])))
+        self.assertEquals(2,rturn(np.array([0,1,2,-1,4,5,6])))
+        self.assertEquals(3,rturn(np.array([0,1,2,-1,4,5,-1])))
+        self.assertEquals(4,rturn(np.array([0,1,2,-1,4,-2,6])))
 
     def test_cross(self):
         target = np.array([10,20,30,40,50,40,30,20,10,12,11,12])

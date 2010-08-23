@@ -24,7 +24,55 @@ def ipmacd_short_5(sif,sopened=None):
 
     return signal * ipmacd_short_5.direction
 ipmacd_short_5.direction = XSELL
-ipmacd_short_5.priority = 1000
+ipmacd_short_5.priority = 1500
+
+def ipmacd_short_5y(sif,sopened=None):
+    '''
+        顺势放空操作,长期逆势，短期顺势
+    '''
+    ksfilter = gand(sif.open - sif.close < 60,rollx(sif.open - sif.close) < 120,sif.xatr<2000)
+
+    signal = gand(cross(sif.dea1,sif.diff1)<0
+            ,sif.ms<0
+            ,sif.mm<0
+            ,sif.ml<0
+            ,sif.rs_trend<0
+            ,sif.ltrend>0
+            ,sif.s1<0
+            ,sif.sdiff3x<0
+            ,sif.s30<0
+            )
+    signal = gand(signal
+            ,sif.ma3<sif.ma13
+            ,strend(sif.ma30)<0
+            )
+
+    return signal * ipmacd_short_5y.direction
+ipmacd_short_5y.direction = XSELL
+ipmacd_short_5y.priority = 1000
+
+
+def ipmacd_short_5z(sif,sopened=None):
+    '''
+        顺势放空操作,长期逆势，中期顺势
+    '''
+    ksfilter = gand(sif.open - sif.close < 60,rollx(sif.open - sif.close) < 120,sif.xatr<2000)
+
+    signal = gand(cross(sif.dea1,sif.diff1)<0
+            ,sif.mtrend<0
+            ,sif.ltrend>0
+            ,sif.mm<0
+            ,sif.ms<0
+            )
+    signal = gand(signal
+            ,sif.ma5 < sif.ma13
+            ,strend2(sif.ma30)<0
+            ,ksfilter
+            )
+
+    return signal * ipmacd_short_5z.direction
+ipmacd_short_5z.direction = XSELL
+ipmacd_short_5z.priority = 1500
 
 def ipmacd_short_5a(sif,sopened=None):
     ksfilter = gand(sif.open - sif.close < 60,rollx(sif.open - sif.close) < 120,sif.xatr<2000)
@@ -1068,7 +1116,6 @@ def k5_lastup(sif,sopened=None):
                 ,rollx(sif.vol5) > sif.vol5
                 ,rollx(sif.vol5) > rollx(sif.vol5,2)
                 ,rollx(sif.close5)<rollx(sif.open5)
-                ,strend2(ma5_60)<-20
                 )
 
     delay = 10
@@ -1088,15 +1135,17 @@ def k5_lastup(sif,sopened=None):
 
     signal = sfollow(ss,fsignal,delay)
     signal = gand(signal
-            ,strend(sif.ma7)>0
-            ,rollx(strend2(sif.sdiff5x-sif.sdea5x),5)<0
-            #,sif.ltrend>0
+            ,strend(sif.ma13)>0
+            ,sif.ltrend>0
+            ,sif.mtrend<0
+            ,sif.rl_trend>0
+            ,sif.rm_trend>0
             )
     signal = derepeatc(signal)
 
     return signal * k5_lastup.direction
 k5_lastup.direction = XBUY
-k5_lastup.priority = 900
+k5_lastup.priority = 1900
 
 def k15_lastdown(sif,sopened=None):
     '''
@@ -1265,8 +1314,61 @@ def k5_lastdown(sif,sopened=None):
     signal = derepeatc(signal)
     return signal * k5_lastdown.direction
 k5_lastdown.direction = XSELL
-k5_lastdown.priority = 2400 #对i09时200即优先级最高的效果最好
+k5_lastdown.priority = 2400 
 #k5_lastdown.stop_closer = atr5_uxstop_05_25
+
+def k5_lastdown2(sif,sopened=None):
+    '''
+        新高衰竭模式
+        1. 5分钟长上影新高后,5分钟内1分钟跌破前5分钟的最低价
+    '''
+    
+    trans = sif.transaction
+
+    ma5_500 = ma(sif.close5,500)
+    ma5_200 = ma(sif.close5,200)
+    ma5_60 = ma(sif.close5,60) 
+    ma5_13 = ma(sif.close5,13)     
+    ma5_30 = ma(sif.close5,30) 
+    ma5_7 = ma(sif.close5,7)         
+    ma5_3 = ma(sif.close5,3)         
+    
+    signal5 = gand(sif.high5>rollx(tmax(sif.high5,10))
+                #,sif.close5>rollx(sif.close5)
+                #,sif.low5>rollx(sif.low5)
+                ,sif.high5 - gmax(sif.open5,sif.close5) > np.abs(sif.open5-sif.close5)*2/3 #上影线长于实体的2/3
+                #,np.abs(sif.open5-sif.close5) > gmin(sif.open5,sif.close5) - sif.low5#上影线长于实体
+                #,sif.high5 - gmax(sif.open5,sif.close5) > gmin(sif.open5,sif.close5) - sif.low5#上影线长于实体
+                )
+
+    #print np.nonzero(signal5)
+    delay = 20
+
+    ss = np.zeros_like(sif.close)
+    ss[sif.i_cof5] = signal5
+    ssh = np.zeros_like(sif.close)
+    ssh[sif.i_cof5] = sif.low5 #gmin(sif.open5,sif.close5)
+    bline = np.select([ss>0],[ssh],0)
+    bline = extend(bline,delay)
+    
+    #fsignal = cross(bline,sif.high)>0
+    #fsignal = sif.high < bline
+    fsignal = sif.close < bline    
+
+
+    signal = sfollow(ss,fsignal,delay)
+    signal = gand(signal
+            ,sif.s1<0
+            ,strend2(sif.ma270)<0
+            ,strend2(sif.ma13)<0
+            ,sif.s5<0
+            ,sif.rm_trend>0 #
+            )
+    signal = derepeatc(signal)
+    return signal * k5_lastdown2.direction
+k5_lastdown2.direction = XSELL
+k5_lastdown2.priority = 2410 
+#k5_lastdown2.stop_closer = atr5_uxstop_05_25
 
 
 def k5_relay(sif,sopened=None):
@@ -1666,6 +1768,7 @@ xlong2 = [ ###基本网格
           ,xud30c,xud30 #主趋势为ma(270)
           #### 形态识别  
           ,br30         #主趋势为mtrend #5分钟突破开盘30分钟最高之后，1分钟上叉
+          ,k5_lastup
           ,k15_relay          
           ,lwr15        #主趋势为rm_trend+rl_trend
           ,skdj_bup     #主趋势为s30>0,底部向上
@@ -1679,9 +1782,12 @@ xlong2 = [ ###基本网格
 xshort2 = [ #基本网络
             ipmacd_short_5  #,ipmacd_short_5a
            ,ipmacd_short_x  #主趋势为mtrend或ltrend,并且rs_trend 
+           ,ipmacd_short_5y #ltrend>0,mtrend<0           
+           ,ipmacd_short_5z #ltrend>0,mtrend<0
            #形态识别
            ,k15_lastdown
            ,k5_lastdown
+           ,k5_lastdown2
            ,k3_lastdown
            ,opendown
            ,gd30    #主趋势 ltrend
@@ -1693,3 +1799,12 @@ xshort2 = [ #基本网络
         ]
 
 xxx2 = xlong2 + xshort2
+
+'''
+i05:    4589    4576    4645    4831    4752    5166
+i06:    5548    6073    6148    6229    6311    6488            6478
+i07:    5523    5766    5819    5851    5888    5925            6107
+i08:    6532            6777    6591    6491    6435    6558    6527    6742
+i09:    12267   12440   12845   12470   12341   12603   12586   12745   13309
+i12:    12022   13207   13313   12906   12826   13116   13166   13420   13503
+'''

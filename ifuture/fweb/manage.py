@@ -74,20 +74,20 @@ class Indices:
         fname,sif = dynamic.fget(ifuncs2.xxx)
         #return "name=%s,lastupdate=%s:%s" % (fname,sif.transaction[IDATE][-1],sif.transaction[ITIME][-1])
         lasttime = "%s-%s" % (sif.transaction[IDATE][-1],sif.transaction[ITIME][-1])
-        indices = zip(sif.date
+        indices = zip(sif.date  #这里的次序必须与模板中的次序一致
                     ,sif.time
                     ,sif.ltrend                    
                     ,sif.rl_trend
-                    ,sif.ml
-                    ,sif.t7_30
-                    ,sif.s30
                     ,sif.mtrend
                     ,sif.rm_trend                        
-                    ,sif.mm
-                    ,sif.s15
-                    ,sif.rs_trend
-                    ,sif.ms
+                    ,sif.s30
+                    ,sif.ml
+                    ,sif.t7_30
                     ,sif.strend
+                    ,sif.mm
+                    ,sif.rs_trend
+                    ,sif.s15
+                    ,sif.ms
                     ,sif.s5
         )
         #print priority

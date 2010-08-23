@@ -955,24 +955,26 @@ def ma30_short(sif,sopened=None):
     trans = sif.transaction
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr < 2000)
 
-    sf = msum(trans[IHIGH]>sif.ma30,5) < 3
+    sf = msum(trans[IHIGH]>sif.ma30,5) < 2
 
     signal = gand(cross(sif.ma30,trans[IHIGH])<0
             ,strend(sif.ma30)<0
             ,sf
             )
     fsignal = gand(cross(sif.dea1,sif.diff1)<0
-            ,sif.diff1<0
             ,sif.sdiff5x<0
-            ,strend2(sif.sdiff30x-sif.sdea30x)<0
-            ,strend(sif.ma13-sif.ma60)<0
+            ,sif.s30<0
             ,sif.ma5<sif.ma13
+            ,sif.strend<0
+            #,sif.rm_trend<0
+            #,sif.s15<0
             ,ksfilter
             )
     signal = sfollow(signal,fsignal,10)
     return signal * ma30_short.direction
 ma30_short.direction = XSELL
 ma30_short.priority = 2400
+
 
 
 def ma60_short(sif,sopened=None):
@@ -984,9 +986,11 @@ def ma60_short(sif,sopened=None):
     msignal = gand(strend(sif.ma60) == -1
                 )
     fsignal = gand(cross(sif.dea1,sif.diff1)<0
-                ,sif.sdiff30x<0
                 ,strend2(sif.sdiff5x-sif.sdea5x)>0
-                ,strend(sif.ma5-sif.ma30)<0
+                ,sif.ltrend<0
+                ,sif.mtrend<0
+                ,sif.ms<0
+                ,sif.strend<0
                 ,ksfilter                
                 )
     signal = sfollow(msignal,fsignal,5)
@@ -1796,15 +1800,17 @@ xshort2 = [ #基本网络
            ,ipmacd_short5   #diff5下叉dea5,最老的方法，未作改动
            ,down01  #ltrend
            ,xdown60
+           ,ma60_short
+           ,ma30_short
         ]
 
 xxx2 = xlong2 + xshort2
 
 '''
-i05:    4589    4576    4645    4831    4752    5166
-i06:    5548    6073    6148    6229    6311    6488            6478
-i07:    5523    5766    5819    5851    5888    5925            6107
-i08:    6532            6777    6591    6491    6435    6558    6527    6742
-i09:    12267   12440   12845   12470   12341   12603   12586   12745   13309
-i12:    12022   13207   13313   12906   12826   13116   13166   13420   13503
+i05:    4589    4576    4645    4831    4752    5166                           5365
+i06:    5548    6073    6148    6229    6311    6488            6478           6982
+i07:    5523    5766    5819    5851    5888    5925            6107           6210
+i08:    6532            6777    6591    6491    6435    6558    6527    6742   6733
+i09:    12267   12440   12845   12470   12341   12603   12586   12745   13309  13651
+i12:    12022   13207   13313   12906   12826   13116   13166   13420   13503  13696
 '''

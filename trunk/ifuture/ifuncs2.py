@@ -363,10 +363,6 @@ ipmacd_long_5.priority = 1000
 def ipmacd_long_6(sif,sopened=None):
     trans = sif.transaction
     
-    s30_13 = np.zeros_like(sif.diff1)
-    s30_13[sif.i_cof30] = strend2(ma(sif.close30,13))
-    s30_13 = extend2next(s30_13)
-    
     signal = cross(sif.dea1,sif.diff1)>0
 
     signal = gand(signal
@@ -1080,6 +1076,21 @@ def ipmacd_long_t(sif,sopened=None):#+
 ipmacd_long_t.direction= XBUY
 ipmacd_long_t.priority = 2000
 
+def ipmacd_long_t2(sif,sopened=None):#+
+    signal = gand(cross(sif.dea1,sif.diff1)>0
+                ,sif.s5>0
+                ,sif.sdiff30x<sif.sdea30x
+                ,strend2(sif.diff30-sif.dea30)>0
+                ,sif.ma5>sif.ma13
+                ,strend(sif.ma3)>2
+                ,sif.ms>0
+                ,sif.s15>0
+                )
+    return signal * ipmacd_long_t2.direction
+ipmacd_long_t2.direction= XBUY
+ipmacd_long_t2.priority = 2000
+
+
 def gapdown15(sif,sopened=None):
     '''
         向上跳开后，15分钟补缺
@@ -1458,7 +1469,7 @@ def k5_relay(sif,sopened=None):
     signal = derepeatc(signal)
     return signal * k5_relay.direction
 k5_relay.direction = XBUY
-k5_relay.priority = 12400 #对i07效果很差
+k5_relay.priority = 2400 #对i07效果很差
 
 def k15_relay(sif,sopened=None):
     '''
@@ -1785,8 +1796,9 @@ xxx = xshort + xlong
 xlong2 = [ ###基本网格
           rsi_long_x2,rsi_long_x2a#,rsi_long_x    #主趋势为mtrend,ltrend
           ,ipmacd_long_t   #主趋势 s30>0
+          ,ipmacd_long_t2   #主趋势 strend2(d30)
           ,ipmacd_long_5k  #rm_trend>0
-          ,ems  #过滤条件的完全集合          
+          #,ems  #过滤条件的完全集合          
           ,up0  #上穿0线    s30>0
           #,ipmacd_long_1k  #mtrend 
           ####均线
@@ -1798,21 +1810,21 @@ xlong2 = [ ###基本网格
           #### 形态识别  
           ,br30         #主趋势为mtrend #5分钟突破开盘30分钟最高之后，1分钟上叉
           ,k5_lastup
-          ,k15_relay          
-          ,lwr15        #主趋势为rm_trend+rl_trend
+          #,k15_relay          
+          #,lwr15        #主趋势为rm_trend+rl_trend
           ,skdj_bup     #主趋势为s30>0,底部向上
           ,inside_up    #主趋势为rs_trend   内移日次日向上
           ,openup
           #,ipmacd_long_devi1_o5    #不够稳定,远期合约爆损，貌似是作为止损用来尽早平空仓的          
           ####其它指标
-          ,cci_up15
+          #,cci_up15
         ]
 
 xshort2 = [ #基本网络
             ipmacd_short_5  #,ipmacd_short_5a
            ,ipmacd_short_x  #主趋势为mtrend或ltrend,并且rs_trend 
            ,ipmacd_short_5y #ltrend>0,mtrend<0           
-           ,ipmacd_short_5z #ltrend>0,mtrend<0
+           #,ipmacd_short_5z #ltrend>0,mtrend<0
            #形态识别
            ,k15_lastdown
            ,k5_lastdown
@@ -1832,11 +1844,63 @@ xshort2 = [ #基本网络
 
 xxx2 = xlong2 + xshort2
 
-'''
-i05:    4589    4576    4645    4831    4752    5166                           5365
-i06:    5548    6073    6148    6229    6311    6488            6478           6982     6982
-i07:    5523    5766    5819    5851    5888    5925            6107           6210     6130
-i08:    6532            6777    6591    6491    6435    6558    6527    6742   6733     6739
-i09:    12267   12440   12845   12470   12341   12603   12586   12745   13309  13651    13672
-i12:    12022   13207   13313   12906   12826   13116   13166   13420   13503  13696    13740
+xlong3 = [ ###基本网格
+          rsi_long_x2 #,rsi_long_x#,rsi_long_x2a    #主趋势为mtrend,ltrend
+          ,ipmacd_long_t   #主趋势 s30>0
+          ,ipmacd_long_t2   #主趋势 strend2(d30)          
+          ,ipmacd_long_5k  #rm_trend>0 
+          #,ems
+          ,up0
+          ####均线
+          ,ma2x #sif.rm_trend>0,mm>0, 金三角
+          ,ma1x #mtrend,ltrend,rm_trend,s30,t7_30,ms
+          ,xs5 #主趋势为mtrend. 5分钟均线的交叉
+          ####重要的自定义指标
+          ,xud30#
+          #,xud30 #主趋势为ma(270)
+          #### 形态识别  
+          ,br30         #主趋势为mtrend #5分钟突破开盘30分钟最高之后，1分钟上叉
+          ,k5_lastup
+          #,k15_relay          
+          #,lwr15        #主趋势为rm_trend+rl_trend
+          ,skdj_bup     #主趋势为s30>0,底部向上
+          ,inside_up    #主趋势为rs_trend   内移日次日向上
+          ,openup
+          ,ipmacd_long_devi1_o5    #不够稳定,远期合约爆损，貌似是作为止损用来尽早平空仓的          
+          ####其它指标
+          #,cci_up15
+          ]
+
+xshort3 = [ #基本网络
+          ipmacd_short_5  #,ipmacd_short_5a        
+          ,ipmacd_short_x  #主趋势为mtrend或ltrend,并且rs_trend 
+          ,ipmacd_short_5y #ltrend>0,mtrend<0           
+          ,ipmacd_short5   #diff5下叉dea5,最老的方法，未作改动          
+          #,ipmacd_short_5z #ltrend>0,mtrend<0
+          ,k15_lastdown #主要
+          #,k5_lastdown
+          ,k5_lastdown2
+          ,k3_lastdown
+          ,opendown
+          #,gd30    #主趋势 ltrend
+          #,godown5 #ltrend
+          ,ipmacd_short_devi1
+          ,down01  #ltrend
+          ,xdown60
+          ,ma60_short
+          #,ma30_short
+          #,devi30x3
+          ]
+
+xxx2 = xlong3 + xshort3
+xxx3 = xlong3 + xshort3
+
+
+'''     
+i05:    3512            3659                    3657    3817    4163    4434    5009    5423    5775    
+i06:    4589    4580    4747    4624    5027    5756    6019    6282    7163    7049    7222    8100    
+i07:    4485    4460    5132    5041    5045    5280    5367    5678    5796            5979    5897   
+i08:    5704            6837    6840    6851    7032    7090    7006    7067            6960          
+i09:    10801   10783   12507   12221   12360   12538   13062   13094   13166   13229   13465   13532
+i12:    7959            8729    8739    9391    10067   9813    10161   10331   10930   10672   10905
 '''

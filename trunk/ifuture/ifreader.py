@@ -168,7 +168,9 @@ def prepare_index(sif):
     sif.state_30s = strend(sif.state_30)
 
     sif.i_cof5 = np.where(
-            gor(gand(trans[ITIME]%5==0,trans[ITIME]%1000 != 915)
+            gor(
+                #gand(trans[ITIME]%5==0,trans[ITIME]%1000 != 915)
+                gand((trans[ITIME]+1)%5==0,trans[ITIME]%1000 != 914)
                 ,gand(trans[ITIME]%10000 == 1514,rollx(trans[ITIME],-1)%10000!=1515) #如果没有1515，则取1514
             )
         )[0]    #5分钟收盘线,不考虑隔日的因素
@@ -254,11 +256,16 @@ def prepare_index(sif):
     sif.smacd5x=extend2next(sif.smacd3x)
 
     ##10分钟
+    #sif.i_cof10 = np.where(
+    #        gor(gand((trans[ITIME]%10) == 0)#,trans[ITIME]%1000!=915)
+    #            ,gand(trans[ITIME]%10000 == 1514,rollx(trans[ITIME],-1)%10000!=1515) #如果没有1515，则取1514
+    #        )
+    #    )[0]    #5分钟收盘线,不考虑隔日的因素
     sif.i_cof10 = np.where(
-            gor(gand((trans[ITIME]%10) == 0)#,trans[ITIME]%1000!=915)
+            gor(gand((trans[ITIME]+1)%10 == 0)#,trans[ITIME]%1000!=915)
                 ,gand(trans[ITIME]%10000 == 1514,rollx(trans[ITIME],-1)%10000!=1515) #如果没有1515，则取1514
             )
-        )[0]    #5分钟收盘线,不考虑隔日的因素
+        )[0]    #10分钟收盘线,不考虑隔日的因素. 文华方式(00-09为10分钟范围) 同花顺为01-10
     sif.i_oof10 = roll0(sif.i_cof10)+1    
     sif.i_oof10[0] = 0
     sif.close10 = trans[ICLOSE][sif.i_cof10]
@@ -306,9 +313,27 @@ def prepare_index(sif):
         ,trans[ITIME]%10000==1015
         #,trans[ITIME]%10000==915
         ,trans[ITIME]%100==45))[0]    #30分钟收盘线,不考虑隔日的因素
+    #sif.i_cof30 = np.where(gor(
+    #    trans[ITIME]%10000==1514
+    #    ,trans[ITIME]%10000==1414
+    #    ,trans[ITIME]%10000==1314
+    #    ,trans[ITIME]%10000==1114
+    #    ,trans[ITIME]%10000==1014
+    #    ,trans[ITIME]%100==45))[0]    #30分钟收盘线,不考虑隔日的因素
+    #sif.i_cof30 = np.where(
+    #        gand(
+    #            gor(
+    #                trans[ITIME]%100==14
+    #                ,trans[ITIME]%100==44
+    #                )
+    #            ,trans[ITIME]%1000!=914
+    #        )
+    #    )[0]    #30分钟收盘线,不考虑隔日的因素
+    
     sif.i_oof30 = roll0(sif.i_cof30)+1    
     sif.i_oof30[0] = 0    
     sif.close30 = trans[ICLOSE][sif.i_cof30]
+    #sif.close30 = ((sif.close+sif.open)/2)[sif.i_cof30]
     #sif.open30 = rollx(sif.close30)   #open5看作是上一个的收盘价,其它方式对应open和close以及还原的逻辑比较复杂
     sif.open30 = trans[IOPEN][sif.i_oof30]
     #sif.high30 = tmax(trans[IHIGH],30)[sif.i_cof30]
@@ -339,15 +364,20 @@ def prepare_index(sif):
 
     sif.i_cof15 = np.where(
             gand(
-                gor(trans[ITIME]%100==15
-                    ,trans[ITIME]%100==30
-                    ,trans[ITIME]%100==45
-                    ,trans[ITIME]%100==0
-                    ,gand(trans[ITIME]%10000 == 1514,rollx(trans[ITIME],-1)%10000!=1515)   #当不存在1515时，取1514
+                gor(
+                    #trans[ITIME]%100==15
+                    #,trans[ITIME]%100==30
+                    #,trans[ITIME]%100==45
+                    #,trans[ITIME]%100==0
+                    #,gand(trans[ITIME]%10000 == 1514,rollx(trans[ITIME],-1)%10000!=1515)   #当不存在1515时，取1514                    
+                    trans[ITIME]%100==14
+                    ,trans[ITIME]%100==29
+                    ,trans[ITIME]%100==44
+                    ,trans[ITIME]%100==59
                     )
-                ,trans[ITIME]%1000!=915
+                ,trans[ITIME]%1000!=914
             )
-        )[0]    #5分钟收盘线,不考虑隔日的因素
+        )[0]    #15分钟收盘线,不考虑隔日的因素
     sif.i_oof15 = roll0(sif.i_cof15)+1
     sif.i_oof15[0] = 0    
     sif.close15 = trans[ICLOSE][sif.i_cof15]
@@ -382,13 +412,20 @@ def prepare_index(sif):
 
 
     #60分钟线，每天最后半小时交易也算一小时
+    #sif.i_cof60 = np.where(gor(
+    #    gand(trans[ITIME]%10000==1514,rollx(trans[ITIME],-1)%10000!=1515)   #当不存在1515时，1514
+    #    ,trans[ITIME]%10000==1515
+    #    ,trans[ITIME]%10000==1445
+    #    ,trans[ITIME]%10000==1345
+    #    ,trans[ITIME]%10000==1115
+    #    ,trans[ITIME]%10000==1015
+    #    ))[0]    #60分钟收盘线,不考虑隔日的因素
     sif.i_cof60 = np.where(gor(
-        gand(trans[ITIME]%10000==1514,rollx(trans[ITIME],-1)%10000!=1515)   #当不存在1515时，1514
-        ,trans[ITIME]%10000==1515
-        ,trans[ITIME]%10000==1445
-        ,trans[ITIME]%10000==1345
-        ,trans[ITIME]%10000==1115
-        ,trans[ITIME]%10000==1015
+        trans[ITIME]%10000==1514
+        ,trans[ITIME]%10000==1444
+        ,trans[ITIME]%10000==1344
+        ,trans[ITIME]%10000==1114
+        ,trans[ITIME]%10000==1014
         ))[0]    #60分钟收盘线,不考虑隔日的因素
     sif.i_oof60 = roll0(sif.i_cof60)+1    
     sif.i_oof60[0] = 0    

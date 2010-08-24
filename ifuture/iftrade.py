@@ -34,7 +34,7 @@ def gothrough_filter(sif,signal,delayed=5,limit=60):
     return signal
 
 
-def ocfilter(sif,tbegin=944,tend=1510):  #在开盘前30分钟和收盘前5分钟不开仓，头三个交易日不开张
+def ocfilter(sif,tbegin=930,tend=1510):  #在开盘前30分钟和收盘前5分钟不开仓，头三个交易日不开张
     stime = sif.transaction[ITIME]
     soc = np.ones_like(stime)
     soc = gand(greater(stime,tbegin),lesser(stime,tend))

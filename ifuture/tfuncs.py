@@ -470,6 +470,63 @@ k15_lastdownb.direction = XSELL
 k15_lastdownb.priority = 2100 #对i09时200即优先级最高的效果最好
 #k15_lastdown.stop_closer = atr5_uxstop_05_25
 
+def k5_lastdown(sif,sopened=None):
+    '''
+        新高衰竭模式
+        1. 5分钟长上影新高后,5分钟内1分钟跌破前5分钟的最低价
+    '''
+    
+    trans = sif.transaction
+
+    ma5_500 = ma(sif.close5,500)
+    ma5_200 = ma(sif.close5,200)
+    ma5_60 = ma(sif.close5,60) 
+    ma5_13 = ma(sif.close5,13)     
+    ma5_30 = ma(sif.close5,30) 
+    ma5_7 = ma(sif.close5,7)         
+    ma5_3 = ma(sif.close5,3)         
+    
+    signal5 = gand(sif.high5>rollx(tmax(sif.high5,15))
+                ,sif.close5>rollx(sif.close5)
+                #,sif.low5>rollx(sif.low5)
+                ,sif.high5 - gmax(sif.open5,sif.close5) > np.abs(sif.open5-sif.close5) #上影线长于实体
+                #,np.abs(sif.open5-sif.close5) > gmin(sif.open5,sif.close5) - sif.low5#上影线长于实体
+                )
+
+    #print np.nonzero(signal5)
+    delay = 30
+
+    ss = np.zeros_like(sif.close)
+    ss[sif.i_cof5] = signal5
+    ssh = np.zeros_like(sif.close)
+    ssh[sif.i_cof5] = sif.low5 #gmin(sif.open5,sif.close5)
+    bline = np.select([ss>0],[ssh],0)
+    bline = extend(bline,delay)
+    
+    #fsignal = cross(bline,sif.high)>0
+    #fsignal = sif.high < bline
+    fsignal = sif.close < bline    
+
+
+    signal = sfollow(ss,fsignal,delay)
+    signal = gand(signal
+            #,strend2(sif.diff1-sif.dea1)<0
+            #,sif.ma5<sif.ma13
+            #,strend2(sif.sdiff5x-sif.sdea5x)<0
+            #,strend2(sif.ma270)<0
+            #,sif.rm_trend>0 #
+            
+            #,strend2(sif.sdiff30x-sif.sdea30x)<0
+            #,gor(sif.sdiff30x-sif.sdea30x<0,strend2(sif.sdiff30x-sif.sdea30x)<0)
+            #,strend(sif.ma7)<0
+            #,rollx(strend2(sif.sdiff5x-sif.sdea5x),5)<0
+            )
+    signal = derepeatc(signal)
+    return signal * k5_lastdown.direction
+k5_lastdown.direction = XSELL
+k5_lastdown.priority = 2400 
+#k5_lastdown.stop_closer = atr5_uxstop_05_25
+
 
 def k5_lastdown2(sif,sopened=None):
     '''
@@ -1081,19 +1138,18 @@ def ipmacd_long_6(sif,sopened=None):
 
     signal = gand(signal
               ,sif.ma3>sif.ma13  
-              ,strend(sif.sdiff5x-sif.sdea5x)>0            
-              ,strend(sif.sdiff30x-sif.sdea30x)>0
+              ,sif.s5>0
+              ,strend2(sif.diff1-sif.dea1)>0
               ,strend(sif.ma30)>0
               ,strend(sif.ma13)>0
-              ,strend(sif.ma7-sif.ma30)>0 
-              #,s30_13>0
-              #,sif.sdiff5x>0
-              ,strend(sif.ma270)<strend(sif.ma135)
+              ,sif.ltrend>0
+              ,sif.diff1>0
             )
 
     return signal * XBUY
 ipmacd_long_6.direction = XBUY
-ipmacd_long_6.priority = 2400
+ipmacd_long_6.priority = 2430#2430
+
 
 
 
@@ -1102,32 +1158,31 @@ def ipmacd_long_x(sif,sopened=None):
 
     signal = gand(signal
               ,sif.ma3>sif.ma13  
-              ,sif.ma7> sif.ma30              
-              ,sif.ma30>sif.ma135
+              #,strend2(sif.sdiff30x-sif.sdea30x)>0
               ,sif.s30>0
               ,sif.s5>0
               ,strend2(sif.ma30)>0
-              ,sif.mm>0
-              ,sif.ltrend<0
-              ,sif.rs_trend>0
+              ,sif.ms>0
+              ,sif.ltrend>0
             )
 
     return signal * ipmacd_long_x.direction
 ipmacd_long_x.direction = XBUY
 ipmacd_long_x.priority = 1800
 
-def ipmacd_long_t(sif,sopened=None):#+
-
+def ipmacd_long_t2(sif,sopened=None):#+
     signal = gand(cross(sif.dea1,sif.diff1)>0
                 ,sif.s5>0
                 ,sif.sdiff30x<sif.sdea30x
-                ,sif.s30>0
+                ,strend2(sif.diff30-sif.dea30)>0
                 ,sif.ma5>sif.ma13
                 ,strend(sif.ma3)>2
+                ,sif.ms>0
+                ,sif.s15>0
                 )
-    return signal * ipmacd_long_t.direction
-ipmacd_long_t.direction= XBUY
-ipmacd_long_t.priority = 2000
+    return signal * ipmacd_long_t2.direction
+ipmacd_long_t2.direction= XBUY
+ipmacd_long_t2.priority = 2000
 
 
 
@@ -2022,6 +2077,7 @@ def br30(sif,sopened=None):
             ,strend(sif.ma30)>0
             ,sif.ma5>sif.ma13
             ,sif.mtrend>0
+            #,sif.ms>0
             )
 
     return signal * br30.direction

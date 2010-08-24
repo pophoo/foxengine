@@ -67,35 +67,53 @@ def tfunc(sif,sopened=None):
     '''
     '''
 
-    rshort = 7
-    rlong = 19
-    rsia = rsi2(sif.close,rshort)   #7,19/13,41
-    rsib = rsi2(sif.close,rlong)
-
-    
-    hl5 = hlpeak(sif.high5,sif.close5,sif.diff5x,sif.dea5x)
-    hl5x = np.abs(hl5[np.nonzero(hl5)[0]])
-    s5x = gand(hl5x-rollx(hl5x) < (rollx(hl5x,2)-rollx(hl5x))*1/3)
-    s5a = np.zeros_like(hl5)
-    s5a[np.nonzero(hl5)] = s5x
-    s5 = np.select([hl5>0],[s5a],0)
+    signalx = gand(hdevi(sif.high30,sif.diff30x,sif.dea30x)
+                )
 
     signal = np.zeros_like(sif.close)
-    signal[sif.i_cof5] = s5
+    signal[sif.i_cof30] = signalx
 
-    
+
+    fsignalx = cross(sif.dea3x,sif.diff3x)<0
+    fsignal = np.zeros_like(sif.close)
+    fsignal[sif.i_cof3] = fsignalx
+
+    signal = sfollow(signal,fsignal,240)
 
     signal = gand(signal
             ,sif.mm<0
-            ,sif.rs_trend<0
-            ,sif.ms<0
-            ,sif.ml<0
             )
     
     return signal * tfunc.direction
 tfunc.direction = XSELL
 tfunc.priority = 2400
 #tfunc.closer = lambda c:[s1] #lambda c:c+[s3]
+
+
+def devi30x3(sif,sopened=None):
+    ''' 30分钟顶背离后3分钟下叉
+    '''
+
+    signalx = gand(hdevi(sif.high30,sif.diff30x,sif.dea30x)
+                )
+
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof30] = signalx
+
+
+    fsignalx = cross(sif.dea3x,sif.diff3x)<0
+    fsignal = np.zeros_like(sif.close)
+    fsignal[sif.i_cof3] = fsignalx
+
+    signal = sfollow(signal,fsignal,240)
+
+    signal = gand(signal
+            ,sif.mm<0
+            )
+    
+    return signal * devi30x3.direction
+devi30x3.direction = XSELL
+devi30x3.priority = 900
 
 
 def xdown60(sif,sopened=None):

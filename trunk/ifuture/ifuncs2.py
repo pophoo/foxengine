@@ -795,8 +795,33 @@ def ipmacd_long_devi1_o5(sif,sopened=None):
     return signal * ipmacd_long_devi1_o5.direction
 ipmacd_long_devi1_o5.direction = XBUY
 ipmacd_long_devi1_o5.priority = 910
-
 ipmacd_short_5.closer = lambda c:c+[ipmacd_long_devi1_o5]
+
+def devi30x3(sif,sopened=None):
+    ''' 30分钟顶背离后3分钟下叉
+    '''
+
+    signalx = gand(hdevi(sif.high30,sif.diff30x,sif.dea30x)
+                )
+
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof30] = signalx
+
+
+    fsignalx = cross(sif.dea3x,sif.diff3x)<0
+    fsignal = np.zeros_like(sif.close)
+    fsignal[sif.i_cof3] = fsignalx
+
+    signal = sfollow(signal,fsignal,240)
+
+    signal = gand(signal
+            ,sif.mm<0
+            )
+    
+    return signal * devi30x3.direction
+devi30x3.direction = XSELL
+devi30x3.priority = 1800
+
 
 def xud30(sif,sopened=None):
     trans = sif.transaction
@@ -1802,15 +1827,16 @@ xshort2 = [ #基本网络
            ,xdown60
            ,ma60_short
            ,ma30_short
+           ,devi30x3
         ]
 
 xxx2 = xlong2 + xshort2
 
 '''
 i05:    4589    4576    4645    4831    4752    5166                           5365
-i06:    5548    6073    6148    6229    6311    6488            6478           6982
-i07:    5523    5766    5819    5851    5888    5925            6107           6210
-i08:    6532            6777    6591    6491    6435    6558    6527    6742   6733
-i09:    12267   12440   12845   12470   12341   12603   12586   12745   13309  13651
-i12:    12022   13207   13313   12906   12826   13116   13166   13420   13503  13696
+i06:    5548    6073    6148    6229    6311    6488            6478           6982     6982
+i07:    5523    5766    5819    5851    5888    5925            6107           6210     6130
+i08:    6532            6777    6591    6491    6435    6558    6527    6742   6733     6739
+i09:    12267   12440   12845   12470   12341   12603   12586   12745   13309  13651    13672
+i12:    12022   13207   13313   12906   12826   13116   13166   13420   13503  13696    13740
 '''

@@ -26,30 +26,6 @@ def ipmacd_short_5(sif,sopened=None):
 ipmacd_short_5.direction = XSELL
 ipmacd_short_5.priority = 1500
 
-def ipmacd_short_5y(sif,sopened=None):
-    '''
-        顺势放空操作,长期逆势，短期顺势
-    '''
-    ksfilter = gand(sif.open - sif.close < 60,rollx(sif.open - sif.close) < 120,sif.xatr<2000)
-
-    signal = gand(cross(sif.dea1,sif.diff1)<0
-            ,sif.ms<0
-            ,sif.mm<0
-            ,sif.ml<0
-            ,sif.rs_trend<0
-            ,sif.ltrend>0
-            ,sif.s1<0
-            ,sif.sdiff3x<0
-            ,sif.s30<0
-            )
-    signal = gand(signal
-            ,sif.ma3<sif.ma13
-            ,strend(sif.ma30)<0
-            )
-
-    return signal * ipmacd_short_5y.direction
-ipmacd_short_5y.direction = XSELL
-ipmacd_short_5y.priority = 1000
 
 
 def ipmacd_short_5z(sif,sopened=None):
@@ -607,7 +583,7 @@ def xs5(sif,sopened=None):
 
     return signal * xs5.direction
 xs5.direction = XBUY
-xs5.priority = 1200
+xs5.priority = 2300
 
 
 def inside_up(sif,sopened=None):
@@ -655,13 +631,12 @@ def br30(sif,sopened=None):
     '''
         5分钟最高突破开盘前30分钟最高之后，下一次1分钟上叉
         属于突破回调的模式
-        难以周期化
     '''
     trans = sif.transaction
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
     
-    high30 = np.select([trans[ITIME][sif.i_cof30]==945],[sif.high30],default=0)
+    high30 = np.select([trans[ITIME][sif.i_cof30]==944],[sif.high30],default=0)
 
     xhigh30,xlow30 = np.zeros_like(sif.diff1),np.zeros_like(sif.diff1)
     xhigh30[sif.i_cof30] = high30   #因为屏蔽了前30分钟，所以i_cof30和i_oof30效果一样
@@ -1102,7 +1077,7 @@ def gapdown15(sif,sopened=None):
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
     
-    high30 = np.select([trans[ITIME][sif.i_cof30]==945],[sif.high30],default=0)
+    high30 = np.select([trans[ITIME][sif.i_cof30]==944],[sif.high30],default=0)
 
     xhighd,xlowd = np.zeros_like(sif.diff1),np.zeros_like(sif.diff1)
     xhighd[sif.i_cofd] = sif.highd
@@ -1589,7 +1564,7 @@ def openup(sif,sopened=None):
     xopend[sif.i_oofd] = sif.opend
     xopend = extend2next(xopend)
 
-    x945 = np.select([sif.time==945],[sif.close-xopend],0)
+    x945 = np.select([sif.time==944],[sif.close-xopend],0)
     x945 = extend2next(x945)
 
     xhigh = rollx(tmax(sif.high,60),1)
@@ -1823,7 +1798,6 @@ xlong2 = [ ###基本网格
 xshort2 = [ #基本网络
             ipmacd_short_5  #,ipmacd_short_5a
            ,ipmacd_short_x  #主趋势为mtrend或ltrend,并且rs_trend 
-           ,ipmacd_short_5y #ltrend>0,mtrend<0           
            #,ipmacd_short_5z #ltrend>0,mtrend<0
            #形态识别
            ,k15_lastdown
@@ -1849,58 +1823,58 @@ xlong3 = [ ###基本网格
           ,ipmacd_long_t   #主趋势 s30>0
           ,ipmacd_long_t2   #主趋势 strend2(d30)          
           ,ipmacd_long_5k  #rm_trend>0 
-          #,ems
-          ,up0
+          ,up0          
+          #,ems          
           ####均线
           ,ma2x #sif.rm_trend>0,mm>0, 金三角
-          ,ma1x #mtrend,ltrend,rm_trend,s30,t7_30,ms
-          ,xs5 #主趋势为mtrend. 5分钟均线的交叉
+          #,ma1x #mtrend,ltrend,rm_trend,s30,t7_30,ms          
+          ,xs5 #主趋势为mtrend. 5分钟均线的交叉          
           ####重要的自定义指标
-          ,xud30#
+          #,xud30c
           #,xud30 #主趋势为ma(270)
           #### 形态识别  
           ,br30         #主趋势为mtrend #5分钟突破开盘30分钟最高之后，1分钟上叉
-          ,k5_lastup
-          #,k15_relay          
-          #,lwr15        #主趋势为rm_trend+rl_trend
+          ,k5_lastup          
+          #,k15_relay                    
+          #,lwr15        #主趋势为rm_trend+rl_trend          
           ,skdj_bup     #主趋势为s30>0,底部向上
-          ,inside_up    #主趋势为rs_trend   内移日次日向上
-          ,openup
-          ,ipmacd_long_devi1_o5    #不够稳定,远期合约爆损，貌似是作为止损用来尽早平空仓的          
+          #,inside_up    #主趋势为rs_trend   内移日次日向上
+          #,openup          
+          #,ipmacd_long_devi1_o5    #不够稳定,远期合约爆损，貌似是作为止损用来尽早平空仓的                    
           ####其它指标
           #,cci_up15
           ]
 
 xshort3 = [ #基本网络
           ipmacd_short_5  #,ipmacd_short_5a        
-          ,ipmacd_short_x  #主趋势为mtrend或ltrend,并且rs_trend 
-          ,ipmacd_short_5y #ltrend>0,mtrend<0           
+          ,ipmacd_short_x  #主趋势为mtrend或ltrend,并且rs_trend         
           ,ipmacd_short5   #diff5下叉dea5,最老的方法，未作改动          
-          #,ipmacd_short_5z #ltrend>0,mtrend<0
+          ,ipmacd_short_5z #ltrend>0,mtrend<0          
+          ####形态识别
           ,k15_lastdown #主要
-          #,k5_lastdown
-          ,k5_lastdown2
-          ,k3_lastdown
-          ,opendown
+          #,k5_lastdown          
+          #,k5_lastdown2          
+          ,k3_lastdown          
+          #,opendown
           #,gd30    #主趋势 ltrend
-          #,godown5 #ltrend
-          ,ipmacd_short_devi1
+          #,godown5 #ltrend          
+          ,ipmacd_short_devi1          
           ,down01  #ltrend
           ,xdown60
-          ,ma60_short
-          #,ma30_short
-          #,devi30x3
+          ,ma60_short          
+          #,ma30_short          
+          ,devi30x3          
           ]
-
-xxx2 = xlong3 + xshort3
+#xxx2 = xlong3 + xshort3
 xxx3 = xlong3 + xshort3
 
 
 '''     
-i05:    3512            3659                    3657    3817    4163    4434    5009    5423    5775    
-i06:    4589    4580    4747    4624    5027    5756    6019    6282    7163    7049    7222    8100    
-i07:    4485    4460    5132    5041    5045    5280    5367    5678    5796            5979    5897   
-i08:    5704            6837    6840    6851    7032    7090    7006    7067            6960          
-i09:    10801   10783   12507   12221   12360   12538   13062   13094   13166   13229   13465   13532
-i12:    7959            8729    8739    9391    10067   9813    10161   10331   10930   10672   10905
+i09/i12均>20100600
+i05:3262    3526            4110    3894            4291    4705    4904
+i06:5431    5354            5487    5742    6005    5891    6317    7049
+i07:4267    4460            4409    4644    4955    4979    4957    4875
+i08:6037    6232    6467    6361    6405    6371            6264    
+i09:6058    6146    6632    6727    6664    6692    6584    6518    6585
+i12:6693    6560            6582    6715    6736    6873    6676    6666
 '''

@@ -320,15 +320,15 @@ def prepare_index(sif):
     #    ,trans[ITIME]%10000==1114
     #    ,trans[ITIME]%10000==1014
     #    ,trans[ITIME]%100==45))[0]    #30分钟收盘线,不考虑隔日的因素
-    #sif.i_cof30 = np.where(
-    #        gand(
-    #            gor(
-    #                trans[ITIME]%100==14
-    #                ,trans[ITIME]%100==44
-    #                )
-    #            ,trans[ITIME]%1000!=914
-    #        )
-    #    )[0]    #30分钟收盘线,不考虑隔日的因素
+    sif.i_cof30 = np.where(
+            gand(
+                gor(
+                    trans[ITIME]%100==14
+                    ,trans[ITIME]%100==44
+                    )
+                ,trans[ITIME]%1000!=914
+            )
+        )[0]    #30分钟收盘线,不考虑隔日的因素
     
     sif.i_oof30 = roll0(sif.i_cof30)+1    
     sif.i_oof30[0] = 0    

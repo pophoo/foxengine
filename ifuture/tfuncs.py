@@ -789,8 +789,8 @@ k5_lastup.priority = 1900
 def k5_lastup2(sif,sopened=None):
     '''
         底部衰竭模式
-        5分钟底部阴线后出现孕线，后10分钟内1分钟最高线突破该孕线(high+close)/2
-        效果不佳，稳定性不好
+        5分钟底部出现长下影
+        30分钟之内收盘突破最高价
     '''
     trans = sif.transaction
  
@@ -802,46 +802,40 @@ def k5_lastup2(sif,sopened=None):
     ma5_7 = ma(sif.close5,7)         
     ma5_3 = ma(sif.close5,3)         
     
-    signal5 = gand(sif.high5<rollx(sif.high5)
-                ,sif.low5>rollx(sif.low5)
-                ,rollx(sif.low5) == tmin(sif.low5,20)
-                ,rollx(sif.vol5) > sif.vol5
-                ,rollx(sif.vol5) > rollx(sif.vol5,2)
-                #,rollx(sif.close5)<rollx(sif.open5)
-                #,strend2(ma5_30)<0
-                #,strend2(sif.diff5x)<0
-                #,strend2(ma5_13)<0                
-                #,strend2(ma5_7)<0                                
-                #,ma5_30 < ma5_60
-                #,ma5_7 < ma5_13
-                #,strend2(ma5_500)>0
+    signal5 = gand(
+                gmin(sif.open5,sif.close5) - sif.low5 > np.abs(sif.open5-sif.close5) #下影大于实体
+                ,sif.low5 < rollx(tmin(sif.low5,20))
+                ,sif.vol5 > rollx(sif.vol5)  
                 )
 
-    delay = 10
+    delay = 5
 
-    ss = np.zeros_like(sif.close)
-    ss[sif.i_cof5] = signal5
-    ssh = np.zeros_like(sif.close)
-    ssh[sif.i_cof5] = sif.low5#close5#(sif.high5 + sif.close5)/2
-    bline = np.select([ss>0],[ssh],0)
+    bline = np.select([signal5>0],[sif.high5],0)
     bline = extend(bline,delay)
     
     #fsignal = cross(bline,sif.high)>0
-    fsignal = sif.low < bline
+    fsignal5 = sif.close5 > bline
 
     #signal = np.zeros_like(sif.close)
     #signal[sif.i_cof5] = signal5
 
-    signal = sfollow(ss,fsignal,delay)
+    signal5 = sfollow(signal5,fsignal5,delay)
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof5] = signal5
+
     signal = gand(signal
             ,strend(sif.ma13)>0
-            ,sif.rm_trend>0
-
+            ,sif.ltrend>0
+            ,sif.mtrend<0
+            #,sif.rl_trend>0
+            #,sif.rm_trend>0
             )
+    #signal = derepeatc(signal)
 
     return signal * k5_lastup2.direction
-k5_lastup2.direction = XSELL
-k5_lastup2.priority = 1000
+k5_lastup2.direction = XBUY
+k5_lastup2.priority = 1900
+
 
 def k5_lastup3(sif,sopened=None):
     '''
@@ -3299,9 +3293,9 @@ def ipmacd_long_devi1_o5(sif,sopened=None):
             #,strend(sif.diff5-sif.dea5)>0
             #,sif.s5>0
             #,ksfilter
-            ,sif.s30>0
-            ,sif.sdiff30x>0
-            ,sif.sdiff5x<0
+            #,sif.s30>0
+            #,sif.sdiff30x>0
+            #,sif.sdiff5x<0
             )
 
     return signal * ipmacd_long_devi1_o5.direction

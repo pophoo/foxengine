@@ -92,9 +92,9 @@ def read1(name,extractor=extract_if):
     prepare_index(ifs[name])
     return ifs
 
-def read_ifs(extractor=extract_if):
+def read_ifs(extractor=extract_if,names=IFS):
     ifs = {}
-    for ifn in IFS:
+    for ifn in names:
         ifs[ifn] = BaseObject(name=ifn,transaction=read_if_as_np(FPATH + prefix + ifn + SUFFIX,extractor=extractor))
         prepare_index(ifs[ifn])
     return ifs

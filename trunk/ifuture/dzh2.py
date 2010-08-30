@@ -325,8 +325,7 @@ class DynamicScheduler:
         '''
             调度过程
         '''
-        #while(self.get_itime()<1516):
-        while(self.get_itime()<1716):            
+        while(self.get_itime()<1516):
             self.prepare_data()
             print u'读取数据成功,最新时间:%s' % self.dyn_datas[self.names[0]].transaction[ITIME][-1]
             self.check_signal()
@@ -485,3 +484,7 @@ class DynamicScheduler:
             narrays[IMID][i] = (record.close*4 + record.low + record.high)/6
             i += 1
         return narrays
+
+if __name__ == '__main__':
+    scheduler = DynamicScheduler('d:/dzh2/data/sf/reportl.dat',['IF1009'])
+    scheduler.run()

@@ -109,6 +109,8 @@ def last_xactions(sif,trades,acstrategy=late_strategy):
         for action in trade.actions:
             action.functor = trade.functor
             action.trade = trade
+            func_name = str(action.functor)
+            action.fname = func_name[10:func_name.find('at')]
         xactions.extend(trade.actions)
     xactions.sort(DTSORT)
     xactions.reverse() 
@@ -124,6 +126,8 @@ def last_wactions(sif,trades,acstrategy=late_strategy):
         for action in trade.actions:
             action.functor = trade.functor
             action.trade = trade
+            func_name = str(action.functor)
+            action.fname = func_name[10:func_name.find('at')]
         xactions.extend(trade.actions)
     xactions.sort(DTSORT)
     xactions.reverse() 
@@ -655,7 +659,7 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
         if willlost > max_lost:
             willlost = max_lost
         if i < ilong_closed or i<ishort_closed:    #已经开了仓，且未平，不再计算            
-            print 'skiped',trans[IDATE][i],trans[ITIME][i],trans[IDATE][ilong_closed],trans[ITIME][ilong_closed],trans[IDATE][ishort_closed],trans[ITIME][ishort_closed]
+            #print 'skiped',trans[IDATE][i],trans[ITIME][i],trans[IDATE][ilong_closed],trans[ITIME][ilong_closed],trans[IDATE][ishort_closed],trans[ITIME][ishort_closed]
             continue
         if price<0: #多头止损
             #print 'find long stop:',i
@@ -668,7 +672,8 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
             win_stop = cur_high - satr[i] * win_times / XBASE / XBASE
             cur_stop = lost_stop if lost_stop > win_stop else win_stop
             if ssclose[i] == XSELL:
-                print 'sell signali:',trans[IDATE][i],trans[ITIME][i],trans[ICLOSE][i]
+                #print 'sell signali:',trans[IDATE][i],trans[ITIME][i],trans[ICLOSE][i]
+                pass
             if trans[ICLOSE][i] < cur_stop or ssclose[i] == XSELL:#到达止损或平仓
                 #print '----sell----------:',trans[IDATE][i],trans[ITIME][i],cur_stop,trans[ICLOSE][i],cur_high,lost_stop
                 ilong_closed = i
@@ -676,7 +681,8 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
             else:
                 for j in range(i+1,len(rev)):
                     if ssclose[j] == XSELL:
-                        print 'sell signalj:',trans[IDATE][j],trans[ITIME][j],cur_stop,trans[ICLOSE][j]
+                        #print 'sell signalj:',trans[IDATE][j],trans[ITIME][j],cur_stop,trans[ICLOSE][j]
+                        pass
                     #print trans[ITIME][j],buy_price,lost_stop,cur_high,win_stop,cur_stop,trans[ILOW][j],satr[j]
                     if trans[ILOW][j] < cur_stop or ssclose[j] == XSELL:    #
                         rev[j] = XSELL
@@ -705,7 +711,8 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
             win_stop = cur_low + satr[i] * win_times / XBASE / XBASE
             cur_stop = lost_stop if lost_stop < win_stop else win_stop
             if sbclose[i] == XBUY:
-                print 'buy signali:',trans[IDATE][i],trans[ITIME][i],trans[ICLOSE][i]
+                #print 'buy signali:',trans[IDATE][i],trans[ITIME][i],trans[ICLOSE][i]
+                pass
             if trans[ICLOSE][i] > cur_stop or sbclose[i] == XBUY:
                 #print '----buy----------:',cur_stop,trans[ICLOSE][i],cur_high,lost_stop
                 ishort_closed = i
@@ -713,7 +720,8 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
             else:
                 for j in range(i+1,len(rev)):
                     if sbclose[j] == XBUY:
-                        print 'buy signalj:',trans[IDATE][j],trans[ITIME][j],cur_stop,trans[ICLOSE][j]
+                        #print 'buy signalj:',trans[IDATE][j],trans[ITIME][j],cur_stop,trans[ICLOSE][j]
+                        pass
                     #print trans[ITIME][j],sell_price,lost_stop,cur_low,win_stop,cur_stop,trans[IHIGH][j],satr[j]                
                     if trans[IHIGH][j] > cur_stop or sbclose[j] == XBUY:#
                         ishort_closed = j
@@ -762,7 +770,7 @@ def atr_rxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
         if willlost > max_lost:
             willlost = max_lost
         if i < ilong_closed or i<ishort_closed:    #已经开了仓，且未平，不再计算            
-            print 'skiped',trans[IDATE][i],trans[ITIME][i],trans[IDATE][ilong_closed],trans[ITIME][ilong_closed],trans[IDATE][ishort_closed],trans[ITIME][ishort_closed]
+            #print 'skiped',trans[IDATE][i],trans[ITIME][i],trans[IDATE][ilong_closed],trans[ITIME][ilong_closed],trans[IDATE][ishort_closed],trans[ITIME][ishort_closed]
             continue
         if price<0: #多头止损
             #print 'find long stop:',i
@@ -783,7 +791,8 @@ def atr_rxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
             else:
                 for j in range(i+1,len(rev)):
                     if ssclose[j] == XSELL:
-                        print 'sell signalj:',trans[IDATE][j],trans[ITIME][j],cur_stop,trans[ICLOSE][j]
+                        #print 'sell signalj:',trans[IDATE][j],trans[ITIME][j],cur_stop,trans[ICLOSE][j]
+                        pass
                     #print trans[ITIME][j],buy_price,lost_stop,cur_high,win_stop,cur_stop,trans[ILOW][j],satr[j]
                     if trans[ILOW][j] < cur_stop or ssclose[j] == XSELL:    #
                         rev[j] = XSELL
@@ -812,7 +821,8 @@ def atr_rxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
             win_stop = cur_low + satr[i] * win_times / XBASE / XBASE
             cur_stop = lost_stop if lost_stop < win_stop else win_stop
             if sbclose[i] == XBUY:
-                print 'buy signali:',trans[IDATE][i],trans[ITIME][i],trans[ICLOSE][i]
+                #print 'buy signali:',trans[IDATE][i],trans[ITIME][i],trans[ICLOSE][i]
+                pass
             if trans[ICLOSE][i] > cur_stop or sbclose[i] == XBUY:
                 #print '----buy----------:',cur_stop,trans[ICLOSE][i],cur_high,lost_stop
                 ishort_closed = i
@@ -820,7 +830,8 @@ def atr_rxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
             else:
                 for j in range(i+1,len(rev)):
                     if sbclose[j] == XBUY:
-                        print 'buy signalj:',trans[IDATE][j],trans[ITIME][j],cur_stop,trans[ICLOSE][j]
+                        #print 'buy signalj:',trans[IDATE][j],trans[ITIME][j],cur_stop,trans[ICLOSE][j]
+                        pass
                     #print trans[ITIME][j],sell_price,lost_stop,cur_low,win_stop,cur_stop,trans[IHIGH][j],satr[j]                
                     if trans[IHIGH][j] > cur_stop or sbclose[j] == XBUY:#
                         ishort_closed = j

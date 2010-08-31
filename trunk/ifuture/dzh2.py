@@ -488,7 +488,7 @@ class DynamicScheduler:
     def prepare_data1(self,info,dyn_data):
         records = self.reader.read_records(info,dyn_data.lastsecs)
         if len(records)>0:
-            SecReader.save_records(records)            
+            #SecReader.save_records(records)            
             ldate = records[-1].date
             ltime = records[-1].time
             dyn_data.lastsecs = cal.timegm((ldate/10000,(ldate%10000)/100,ldate%100,ltime/10000,(ltime%10000)/100,0,0,0,0))

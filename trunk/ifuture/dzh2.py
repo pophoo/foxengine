@@ -12,8 +12,8 @@
 实际上，即便如此，也是存在问题的。后面回谈到，每个品种有25个页索引，指向25页，
 也就是说，最大的记录容量是25*630 = 15750
 而股指期货每日交易秒数为 60 * 270 = 16200
-大智慧免费行情的分笔数据最大频度是每秒一笔，因此很可能导致交易频繁的主力合约数据存储溢出。
-分笔数据和逐笔数据的不同：分笔是该秒内逐笔的合计。
+对于交易频繁的期指主力合约，非常容易引起溢出. 溢出后数据刷入方式不明.
+分笔数据和逐笔数据的不同：分笔应该是逐笔的短期合计。
 
 2. 文件结构
 文件结构同一般的大智慧数据
@@ -43,7 +43,7 @@
 每块格式如下：
 0-0x3: 整型，自1970/1/1以来的秒数
 0x4-0x7:浮点，成交价
-0x8-0xb:浮点，累计成交量
+0x8-0xb:浮点，累计成交量    #这种累计量的方式，即便中间丢失了记录，也能确保区间成交量数据的一致性
 0xc-0xf:浮点，累计成交金额
 0x10-0x11:短整型, 当前持仓量
 0x12-0x13:没用
@@ -141,7 +141,7 @@ class SecReader:
             indices[info.name] = info
         return indices
 
-    def read_records(self,info,seclast):
+    def read_records(self,info,seclast=0):
         '''
             info:索引信息
             seclast:自纪元以来的秒数. 大于该秒数的才读取(即开区间)
@@ -153,9 +153,24 @@ class SecReader:
                 records.extend(self.read_page(self.fh,index,seclast))
             else:
                 pass
-                print 'skip a block'
-        #对成交量和成交额做差额调整, 大智慧给的是累计值
+                #print 'skip a block'
+        records = self.adjust_records(records)   #整理record
         return records
+
+    @staticmethod
+    def adjust_records(records):
+        if len(records) == 0:
+            return records
+        i = 1
+        pre_time = records[0].time
+        for record in records[1:]:
+            if record.time < pre_time:
+                #linelog(u'发现断层:%s-%s' % (pre_time,record.time))
+                print u'发现断层:%s-%s' % (pre_time,record.time)
+                break
+            i += 1
+            pre_time = record.time
+        return records[:i]
 
     def check_page(self,index,seclast):
         '''
@@ -272,7 +287,22 @@ class SecReader:
                 break   #发现之前的数据
             end_record = record
         mrecords.append(SecReader.create_record(end_record.date,end_record.time/100,min_high,min_low,begin_record.price,end_record.price,end_record.svol,end_record.holding))
+        SecReader.save_mrecords(mrecords)
         return mrecords
+
+    @staticmethod
+    def save_mrecords(mrecords):
+        wf = open('d:/temp/min.txt','w')
+        for record in mrecords:
+            wf.write('%s-%s:%s-%s,%s-%s\n'%(record.date,record.time,record.open,record.close,record.high,record.low))
+        wf.close()
+
+    @staticmethod
+    def save_records(records):
+        wf = open('d:/temp/detail%s.txt' % records[-1].time,'w')
+        for record in records:
+            wf.write('%s-%s:%s,%s,%s\n'%(record.date,record.time,record.price,record.svol,record.holding))
+        wf.close()
 
     @staticmethod
     def create_record(cur_date,cur_min,min_high,min_low,min_open,min_close,min_svol,min_holding):
@@ -393,7 +423,7 @@ class DynamicScheduler:
         调度者
         scheduler = dzh2.DynamicScheduler('d:/dzh2/data/sf/reportl.dat',['IF1009'])        
     '''
-    def __init__(self,dyn_path,names):
+    def __init__(self,dyn_path,names,sms_begin=915):
         '''
             his_path:历史数据路径
             dyn_path:动态数据路径
@@ -401,7 +431,8 @@ class DynamicScheduler:
         self.his_datas = ifreader.read_ifs(names=names)   #返回 name=>transaction的映射
         self.reader = SecReader(dyn_path)
         self.names = names
-        self.dyn_datas = self.init_dyn(names)       
+        self.dyn_datas = self.init_dyn(names)
+        self.sms_begin = sms_begin
 
     def init_dyn(self,names):
         dyn_datas = {}
@@ -433,10 +464,11 @@ class DynamicScheduler:
         '''
             调度过程
         '''
-        while(self.get_itime()<1516):
+        while(self.get_itime()<1916):
             self.prepare_data()
             #print u'读取数据成功,最新时间:%s' % self.dyn_datas[self.names[0]].transaction[ITIME][-1]
-            linelog(u'读取数据成功,最新时间:%s' % self.dyn_datas[self.names[0]].transaction[ITIME][-1])
+            ct = self.dyn_datas[self.names[0]].transaction
+            linelog(u'读取数据成功,%s-%s:%s-%s,%s-%s' % (ct[IDATE][-1],ct[ITIME][-1],ct[IOPEN][-1],ct[ICLOSE][-1],ct[IHIGH][-1],ct[ILOW][-1]))
             self.check_signal()
             time.sleep(5)    #计算需要10秒，因此总延迟15秒
 
@@ -456,6 +488,7 @@ class DynamicScheduler:
     def prepare_data1(self,info,dyn_data):
         records = self.reader.read_records(info,dyn_data.lastsecs)
         if len(records)>0:
+            SecReader.save_records(records)            
             ldate = records[-1].date
             ltime = records[-1].time
             dyn_data.lastsecs = cal.timegm((ldate/10000,(ldate%10000)/100,ldate%100,ltime/10000,(ltime%10000)/100,0,0,0,0))
@@ -468,7 +501,7 @@ class DynamicScheduler:
             dyn_data = self.dyn_datas[name]
             his_data = self.his_datas[name] #必然要求有
             sms_actions = self.check_signal1(name,his_data,dyn_data)
-            self.inform(name,sms_actions)
+            self.inform(name,sms_actions,self.sms_begin)
 
     @staticmethod
     def check_signal1(name,his_data,dyn_data):
@@ -492,7 +525,7 @@ class DynamicScheduler:
         return sms_actions        
 
     @staticmethod
-    def inform(name,sms_actions):
+    def inform(name,sms_actions,sms_begin):
         ''' 屏蔽掉12分钟内连续的同类算法信号, 但不屏蔽最后一个
             返回发送的条数
         '''
@@ -504,20 +537,23 @@ class DynamicScheduler:
         successed = 0
         mnum = 0
         for action in mq:
+            direction = u'买入' if action.position == LONG else u'卖出'
+            msg = u'%s|%s:%s%s开仓%s,算法:%s,优先级:%s' % (name,action.date,action.time,direction,action.price,action.fname,action.functor.priority)
+            if action.time < sms_begin:
+                print u'\n忽略%s之前的信号:%s,%s' % (sms_begin,action.time,msg)
+                continue
             atime = cal.timegm((action.date/10000,(action.date%10000)/100,action.date%100
                 ,action.time/100,action.time%100,0,0,0,0))  #转化为纪元后秒数
             if action.fname == pre_fname and atime - pre_time <= 720:   #720秒,15分钟
-                print u'忽略10分钟之内的同类信号 : %s:%s' % (action.fname,action.time)
+                print u'\n忽略10分钟之内的同类信号 : %s:%s' % (action.fname,action.time)
                 continue
             pre_fname = action.fname
             pre_time = atime
-            direction = u'买入' if action.position == LONG else u'卖出'
-            msg = u'%s|%s:%s%s开仓%s,算法:%s' % (name,action.date,action.time,direction,action.price,action.fname)
-            #successed += DynamicScheduler.send_sms1(msg)
-            successed += DynamicScheduler.sms_stub(msg)
+            successed += DynamicScheduler.send_sms1(msg)
+            #successed += DynamicScheduler.sms_stub(msg)
             mnum += 1
             #break  #测试短信用
-        print u'计划发送 %s 条，成功发送 %s 条' % (mnum,successed)
+        print u'\n计划发送 %s 条，成功发送 %s 条' % (mnum,successed)
         return successed
 
     @staticmethod
@@ -594,6 +630,22 @@ class DynamicScheduler:
             i += 1
         return narrays
 
+import sys
+import getopt   #简单情形，不使用optparse
 if __name__ == '__main__':
-    scheduler = DynamicScheduler('d:/dzh2/data/sf/reportl.dat',['IF1009'])
+    #scheduler = DynamicScheduler('d:/dzh2/data/sf/reportl.dat',['IF1009'])
+    #scheduler.run()
+    sms_begin = 915
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], 't:', ['sms_begin='])
+        #print opts,args
+        for opt,v in opts:
+            if opt in ('-t','--sms_begin'):
+                sms_begin = v
+        print u'sms_begin=%s' % sms_begin
+    except getopt.GetoptError:
+        pass
+    
+    scheduler = DynamicScheduler('d:/dzh2/data/sf/reportl.dat',['IF1009'],sms_begin=sms_begin)
     scheduler.run()
+    

@@ -24,6 +24,10 @@ DATA_BLOCK_SIZE = 0x34
 DATA_BLOCK_NUM = 0x276  #630
 DATA_PAGE_SIZE = DATA_BLOCK_NUM * 0x34  #数据页面大小
 
+STOCK_DATA_BLOCK_NUM = 0xec  #236
+STOCK_DATA_PAGE_SIZE = STOCK_DATA_BLOCK_NUM * 0x34  #数据页面大小
+
+
 class DataObject:
     pass
 
@@ -206,6 +210,8 @@ class SecReader:
                 mrecords.append(SecReader.create_record(end_record.date,end_record.time/100,min_high,min_low,begin_record.price,end_record.price,end_record.svol,end_record.holding))
                 min_high = min_low = record.price
                 begin_record = record
+            elif record.date < end_record.date:
+                break   #发现之前的数据
             end_record = record
         mrecords.append(SecReader.create_record(end_record.date,end_record.time/100,min_high,min_low,begin_record.price,end_record.price,end_record.svol,end_record.holding))
         return mrecords
@@ -279,6 +285,50 @@ class SecReader:
             records.append(record)        
         return records
 
+
+class SecReaderStock(SecReader):    #貌似有所不同
+    def check_page(self,index,seclast):
+        '''
+            index:索引块号
+            seclast: 起始秒数(开区间)
+            确认该数据块中是否有需要的数据
+            这个判断有问题。reportl.dat是覆盖方式的，一个块里面可能有前一天的数据
+        '''
+        return True
+
+
+    @staticmethod
+    def read_page(fh,index,seclast):
+        '''
+            index:索引块号
+            seclast: 起始秒数(开区间)
+                
+        '''
+        records = []
+        fh.seek(DATA_BEGIN + index * STOCK_DATA_PAGE_SIZE)    
+        for i in range(STOCK_DATA_BLOCK_NUM):
+            db = fh.read(DATA_BLOCK_SIZE)
+            sdb = struct.unpack('I3f2H2b10h10b',db)
+            if sdb[0] == 0:
+                break
+            if sdb[0] <= seclast:   
+                continue
+            record = DataObject()
+            stime = time.gmtime(sdb[0])
+            record.date = stime.tm_year*10000 + stime.tm_mon*100 + stime.tm_mday
+            record.time = stime.tm_hour*10000 + stime.tm_min*100 + stime.tm_sec
+            record.price = sdb[1]
+            record.svol = sdb[2]
+            record.samount = sdb[3]
+            record.holding = sdb[4]
+            record.vol_buy1 = sdb[8]
+            record.vol_sell1 = sdb[13]
+            record.price_buy1 = record.price + sdb[18]/100.0
+            record.price_sell1 = record.price + sdb[23]/100.0
+            record.seq = i
+            records.append(record)        
+        return records
+
     
 class DynamicScheduler:
     '''
@@ -308,7 +358,7 @@ class DynamicScheduler:
                 ltime = 0
             ddata = DataObject()
             ddata.pre_svol = 0
-            ddata.lastsecs = cal.timegm((ldate/10000,(ldate%10000)/100,ldate%100,ltime/10000,(ltime%10000)/100,0,0,0,0))
+            ddata.lastsecs = cal.timegm((ldate/10000,(ldate%10000)/100,ldate%100,ltime/100,ltime%100,0,0,0,0))
             ddata.last_checked_date = ldate + 1 #最后信号检查时间, 前一天加1，以屏蔽前一天
             ddata.last_checked_time = 0  #最后信号检查时间
             ddata.transaction = [np.zeros(0,int),np.zeros(0,int),np.zeros(0,int),np.zeros(0,int),np.zeros(0,int),np.zeros(0,int),np.zeros(0,int),np.zeros(0,int),np.zeros(0,int)]
@@ -404,8 +454,8 @@ class DynamicScheduler:
             pre_time = atime
             direction = u'买入' if action.position == LONG else u'卖出'
             msg = u'%s|%s:%s%s开仓%s,算法:%s' % (name,action.date,action.time,direction,action.price,action.fname)
-            successed += DynamicScheduler.send_sms1(msg)
-            #successed += DynamicScheduler.sms_stub(msg)
+            #successed += DynamicScheduler.send_sms1(msg)
+            successed += DynamicScheduler.sms_stub(msg)
             mnum += 1
             #break  #测试短信用
         print u'计划发送 %s 条，成功发送 %s 条' % (mnum,successed)

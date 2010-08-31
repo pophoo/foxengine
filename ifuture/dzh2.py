@@ -1,4 +1,61 @@
 # -*- coding: utf-8 -*-
+'''
+大智慧(新一代)股指期货实时行情数据格式
+
+1. 路径
+安装目录/data/sf/reportl.dat
+注意：股票行情数据的数据文件名为report.dat，股指期货是reportl.dat
+这两哥们的数据页大小不同. 
+网上流传的是report.dat的格式，每页数据为236个数据块
+股指期货数据文件每页大小为630个数据
+
+实际上，即便如此，也是存在问题的。后面回谈到，每个品种有25个页索引，指向25页，
+也就是说，最大的记录容量是25*630 = 15750
+而股指期货每日交易秒数为 60 * 270 = 16200
+大智慧免费行情的分笔数据最大频度是每秒一笔，因此很可能导致交易频繁的主力合约数据存储溢出。
+分笔数据和逐笔数据的不同：分笔是该秒内逐笔的合计。
+
+2. 文件结构
+文件结构同一般的大智慧数据
+    文件头  24 字节
+    索引块  从0x24开始 
+        64 字节一块，每块表示一个品种。
+    数据体  从0x41000开始，按页存储
+        每页为32760字节，包含630个数据，每个数据52字节
+
+3. 具体数据格式
+3.1 文件头
+0x0-0x3字节为标志F49B13FC
+0xc-0xf字节为整数，表示品种总数
+其它字节作用不明
+
+3.2 索引块
+0-0x9: 品种名称
+0xa-0xd:整数，表示记录总数
+0xe-0x34: 每两字节为一短整数，表示数据页号. 共25个数据块
+    其中ffff表示空
+    该品种当日行情数据即由这些数据页组成
+    每页的具体地址计算为:
+        数据页起始地址 = 0x41000 + 数据页号 * 32760
+
+3.3 数据页
+每个数据页由630个数据块组成
+每块格式如下：
+0-0x3: 整型，自1970/1/1以来的秒数
+0x4-0x7:浮点，成交价
+0x8-0xb:浮点，累计成交量
+0xc-0xf:浮点，累计成交金额
+0x10-0x11:短整型, 当前持仓量
+0x12-0x13:没用
+0x14:持仓量溢出标志, 目前还没用. 持仓没超过65535
+0x15:买卖标志，没用。因为分笔是逐笔的合计，这个标志标的是最后一个逐笔的方向
+0x16-0x17: 短整型, 买1量，无实际用处
+0x20-0x21: 短整型, 卖1量，无实际用处
+0x2a: 单字节整数,买一价差，无实际用处
+0x2f: 单字节整数,卖一价差，无实际用处
+
+'''
+
 
 import struct
 import time
@@ -12,6 +69,7 @@ import wolfox.fengine.ifuture.iftrade as iftrade
 import wolfox.fengine.ifuture.ifuncs2 as ifuncs
 import wolfox.fengine.ifuture.fcontrol as control
 import wolfox.fengine.ifuture.dynamic as dynamic
+from wolfox.foxit.base.tutils import linelog
 
 trade_strategy = ifuncs.xxx3
 trade_functor = control.ltrade3x0825
@@ -377,7 +435,8 @@ class DynamicScheduler:
         '''
         while(self.get_itime()<1516):
             self.prepare_data()
-            print u'读取数据成功,最新时间:%s' % self.dyn_datas[self.names[0]].transaction[ITIME][-1]
+            #print u'读取数据成功,最新时间:%s' % self.dyn_datas[self.names[0]].transaction[ITIME][-1]
+            linelog(u'读取数据成功,最新时间:%s' % self.dyn_datas[self.names[0]].transaction[ITIME][-1])
             self.check_signal()
             time.sleep(5)    #计算需要10秒，因此总延迟15秒
 

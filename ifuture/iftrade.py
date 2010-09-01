@@ -110,7 +110,7 @@ def last_xactions(sif,trades,acstrategy=late_strategy):
             action.functor = trade.functor
             action.trade = trade
             func_name = str(action.functor)
-            action.fname = func_name[10:func_name.find('at')]
+            action.fname = func_name[10:func_name.find(' at')]
         xactions.extend(trade.actions)
     xactions.sort(DTSORT)
     xactions.reverse() 
@@ -127,7 +127,7 @@ def last_wactions(sif,trades,acstrategy=late_strategy):
             action.functor = trade.functor
             action.trade = trade
             func_name = str(action.functor)
-            action.fname = func_name[10:func_name.find('at')]
+            action.fname = func_name[10:func_name.find(' at')]
         xactions.extend(trade.actions)
     xactions.sort(DTSORT)
     xactions.reverse() 

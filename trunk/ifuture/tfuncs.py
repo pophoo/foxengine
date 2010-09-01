@@ -67,27 +67,124 @@ def tfunc(sif,sopened=None):
     '''
     '''
 
-    signalx = gand(hdevi(sif.high30,sif.diff30x,sif.dea30x)
-                )
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+    
+    high10 = np.select([gand(sif.time>=914,sif.time<=924)],[sif.high],default=0)
+    atr10 = np.zeros_like(sif.close)
+    atr10[sif.i_cof10] = rollx(sif.atr10) *2/3  #掠过914-919的atr10
+    atr10 = extend2next(atr10)
+    xhigh10 = np.select([sif.time==924],[tmax(high10,11)+atr10/XBASE],0)
+
+    xhigh10 = extend2next(xhigh10)
+
+    #print xhigh10[-300:]
 
     signal = np.zeros_like(sif.close)
-    signal[sif.i_cof30] = signalx
 
+    xcontinue = 5
+    signal_a = gand(sif.close > xhigh10
+                    ,msum2(sif.close>xhigh10,xcontinue)>4
+                    ,rollx(sif.close,xcontinue)>xhigh10
+                    )
 
-    fsignalx = cross(sif.dea3x,sif.diff3x)<0
-    fsignal = np.zeros_like(sif.close)
-    fsignal[sif.i_cof3] = fsignalx
+    signal_a = np.select([sif.time>944],[signal_a],0)   #避免944之前的信号掩盖之后的信号,先过滤掉   
+    signal_a = extend2diff(signal_a,sif.date)
+    signal_a = derepeatc(signal_a)
 
-    signal = sfollow(signal,fsignal,240)
-
-    signal = gand(signal
-            ,sif.mm<0
+    signal = gand(signal_a
             )
     
     return signal * tfunc.direction
-tfunc.direction = XSELL
+tfunc.direction = XBUY
 tfunc.priority = 2400
 #tfunc.closer = lambda c:[s1] #lambda c:c+[s3]
+
+def acd_ua(sif,sopened=None):
+    '''
+    '''
+
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+    
+    high10 = np.select([gand(sif.time>=914,sif.time<=924)],[sif.high],default=0)
+    atr10 = np.zeros_like(sif.close)
+    atr10[sif.i_cof10] = rollx(sif.atr10) *2/3  #掠过914-919的atr10
+    atr10 = extend2next(atr10)
+    xhigh10 = np.select([sif.time==924],[tmax(high10,11)+atr10/XBASE],0)
+
+    xhigh10 = extend2next(xhigh10)
+
+    #print xhigh10[-300:]
+
+    signal = np.zeros_like(sif.close)
+
+    xcontinue = 5
+    signal_a = gand(sif.close > xhigh10
+                    ,msum2(sif.close>xhigh10,xcontinue)>4
+                    ,rollx(sif.close,xcontinue)>xhigh10
+                    )
+
+    signal_a = np.select([sif.time>944],[signal_a],0)   #避免944之前的信号掩盖之后的信号,先过滤掉   
+    signal_a = extend2diff(signal_a,sif.date)
+    signal_a = derepeatc(signal_a)
+
+    signal = gand(signal_a
+            )
+    
+    return signal * acd_ua.direction
+acd_ua.direction = XBUY
+acd_ua.priority = 2400
+#tfunc.closer = lambda c:[s1] #lambda c:c+[s3]
+
+
+def acd_ua_sz(sif,sopened=None):
+    '''
+    '''
+
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+    
+    high10 = np.select([gand(sif.time>=914,sif.time<=924)],[sif.high],default=0)
+    atr10 = np.zeros_like(sif.close)
+    atr10[sif.i_cof10] = rollx(sif.atr10) *2/3  #掠过914-919的atr10
+    atr10 = extend2next(atr10)
+    xhigh10 = np.select([sif.time==924],[tmax(high10,11)+atr10/XBASE],0)
+    xhigh10 = extend2next(xhigh10)
+
+    sz0 = (sif.closed+sif.highd+sif.lowd)/3
+    sz2 = (sif.highd+sif.lowd)/2
+    sf = np.abs(sz0-sz2)
+    szh = sz0 + sf
+    
+    sz = np.zeros_like(sif.close)
+    sz[sif.i_cofd] = szh
+    sz = extend2next(sz)
+
+    #print xhigh10[-300:]
+
+    signal = np.zeros_like(sif.close)
+
+    xcontinue = 5
+    signal_a = gand(sif.close > xhigh10
+                    ,msum2(sif.close>xhigh10,xcontinue)>4
+                    ,rollx(sif.close,xcontinue)>xhigh10
+                    ,xhigh10 > sz
+                    )
+
+    signal_a = np.select([sif.time>944],[signal_a],0)   #避免944之前的信号掩盖之后的信号,先过滤掉   
+    signal_a = extend2diff(signal_a,sif.date)
+    signal_a = derepeatc(signal_a)
+
+    signal = gand(signal_a
+            )
+    
+    return signal * acd_ua_sz.direction
+acd_ua_sz.direction = XBUY
+acd_ua_sz.priority = 2400
 
 
 def devi30x3(sif,sopened=None):

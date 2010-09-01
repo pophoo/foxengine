@@ -839,6 +839,27 @@ xud30c.direction = XBUY
 xud30c.priority = 500
 xud30c.stop_closer = atr5_uxstop_1_25
 
+def xud30s(sif,sopened=None):
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+
+    mxc = xc0c(sif.open30,sif.close30,sif.high30,sif.low30,13) < 0
+    signal30 = gand(mxc
+                ,sif.high30 == tmax(sif.high30,9)
+                )
+
+    signal = np.zeros_like(sif.diff1)
+    signal[sif.i_cof30] = signal30
+
+    signal = gand(signal
+            )
+
+    return signal * xud30s.direction
+xud30s.direction = XSELL
+xud30s.priority = 1601
+
+
 def xud10l(sif,sopened=None):
     su,sd = supdowns(sif.open10,sif.close10,sif.high10,sif.low10)
 
@@ -1855,6 +1876,7 @@ xshort3 = [ #基本网络
           #,k5_lastdown          
           #,k5_lastdown2          
           ,k3_lastdown          
+          ,xud30s
           #,opendown
           #,gd30    #主趋势 ltrend
           #,godown5 #ltrend          
@@ -1871,10 +1893,10 @@ xxx3 = xlong3 + xshort3
 
 '''     
 i09/i12均>20100600
-i05:3262    3526            4110    3894            4291    4705    4904/134    4947/130    4478/116
-i06:5431    5354            5487    5742    6005    5891    6317    6978/125    7440/136    7424/136
-i07:4267    4460            4409    4644    4955    4979    4957    4795/146    4883/145    5079/151
-i08:6037    6232    6467    6361    6405    6371            6264    6400/152    6906/170    6906/170
-i09:6058    6146    6632    6727    6664    6692    6584    6518    6513/84     6778/88     6823/90
-i12:6693    6560            6582    6715    6736    6873    6676    6635/129    6524/123    6524/123
+i05:3262    3526            4110    3894            4291    4705    4904/134    4947/130    4478/116    4904/134
+i06:5431    5354            5487    5742    6005    5891    6317    6978/125    7440/136    7424/136    7001/124
+i07:4267    4460            4409    4644    4955    4979    4957    4795/146    4883/145    5079/151    4675/138
+i08:6037    6232    6467    6361    6405    6371            6264    6400/152    6906/170    6906/170    6400/152
+i09:6058    6146    6632    6727    6664    6692    6584    6518    6513/84     6778/88     6823/90     6833/87
+i12:6693    6560            6582    6715    6736    6873    6676    6635/129    6524/123    6524/123    6751/120
 '''

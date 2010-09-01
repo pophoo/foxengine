@@ -1,5 +1,27 @@
 # -*- coding: utf-8 -*-
 '''
+大智慧全推行情数据说明
+从上周六开始安装大智慧(8月28),经过两天测试,大概判断如下:
+1. 大智慧的全推模式是相对可靠的
+我的测试方法是,首先把所有股指期货品种放入到自选股
+然后打开IF1009
+测试数据是否被完整刷入到大智慧的reportl.dat文件中
+当时因为疏忽,所以在9:21分以后才打开大智慧
+在日中曾数次用程序读写该数据文件,发现IF1010/1012/1103确实在同步更新,包括当月/下月/当季/隔季连续
+同时,从股票数据文件中读取了两个不曾浏览过的股票,其行情也是完整的.
+
+2.大智慧主力合约的实时数据是相对详细的. 但存在数据溢出后已过行情数据被裁减(但不影响一致性)的情况.
+实时情形下,一秒钟刷好几下的也有.
+
+3. 如果是盘中打开软件的情况, 前面已经过去的行情数据不会自动补全
+数据补全的方式也不太清楚.
+IF1009补全了09:14之后的数据,但其它合约没有. 可能需要手工浏览停留过.
+
+4. 基本可用于实时提醒处理
+应该算是唯一官方免费的全推行情了
+
+
+附录:
 大智慧(新一代)股指期货实时行情数据格式
 
 1. 路径
@@ -9,11 +31,14 @@
 网上流传的是report.dat的格式，每页数据为236个数据块
 股指期货数据文件每页大小为630个数据
 
-实际上，即便如此，也是存在问题的。后面回谈到，每个品种有25个页索引，指向25页，
+实际上，即便如此，也是存在问题的。后面会谈到，每个品种有25个页索引，指向25页，
 也就是说，最大的记录容量是25*630 = 15750
 而股指期货每日交易秒数为 60 * 270 = 16200
-对于交易频繁的期指主力合约，非常容易引起溢出. 溢出后数据刷入方式不明.
-分笔数据和逐笔数据的不同：分笔应该是逐笔的短期合计。
+对于交易频繁的期指主力合约，非常容易引起溢出. 
+溢出后大智慧会重新整理数据，按删减掉之前的部分行情数据(但不影响一致性)，然后在已占用的数据块中按顺序完全从头刷入(老数据不清零)
+这里需要注意的是,25个页索引值是不变的, 也就是说后面的某些索引页的数据可能是无效的老数据.
+如果自己编写读取程序,这个需要谨慎处理. 
+我今天一开始就发出了5-6个错误信号.原因就是1分钟数据出现了重复,从914-1440,然后又从11xx-1440,某些数据被抽取了两遍.
 
 2. 文件结构
 文件结构同一般的大智慧数据
@@ -537,11 +562,6 @@ class DynamicScheduler:
         successed = 0
         mnum = 0
         for action in mq:
-            direction = u'买入' if action.position == LONG else u'卖出'
-            msg = u'%s|%s:%s%s开仓%s,算法:%s,优先级:%s' % (name,action.date,action.time,direction,action.price,action.fname,action.functor.priority)
-            if action.time < sms_begin:
-                print u'\n忽略%s之前的信号:%s,%s' % (sms_begin,action.time,msg)
-                continue
             atime = cal.timegm((action.date/10000,(action.date%10000)/100,action.date%100
                 ,action.time/100,action.time%100,0,0,0,0))  #转化为纪元后秒数
             if action.fname == pre_fname and atime - pre_time <= 720:   #720秒,15分钟
@@ -549,6 +569,15 @@ class DynamicScheduler:
                 continue
             pre_fname = action.fname
             pre_time = atime
+            
+            direction = u'买入' if action.position == LONG else u'卖出'
+            #msg = u'%s|%s:%s%s开仓%s,算法:%s,优先级:%s,止损:%s,条件单:%s' % (name,action.date,action.time,direction,action.price,action.fname,action.functor.priority,action.stop,action.mstop)
+            #msg = u'%s|%s%s开仓%s,算法:%s,优先级:%s,止损:%s,条件单:%s' % (name,action.time,direction,action.price,action.fname,action.functor.priority,action.stop,action.mstop)
+            msg = u'%s|%s:%s%s开仓%s,平仓%s:%s,条件单:%s%s' % (name,action.date%10000,action.time,direction,action.price,action.close,action.stop,action.condition,action.mstop)            
+            if action.time < sms_begin:
+                print u'\n忽略%s之前的信号:%s,%s' % (sms_begin,action.time,msg)
+                #print action.time,sms_begin,type(action.time),int(action.time)>int(sms_begin)
+                continue
             successed += DynamicScheduler.send_sms1(msg)
             #successed += DynamicScheduler.sms_stub(msg)
             mnum += 1
@@ -641,7 +670,7 @@ if __name__ == '__main__':
         #print opts,args
         for opt,v in opts:
             if opt in ('-t','--sms_begin'):
-                sms_begin = v
+                sms_begin = int(v)
         print u'sms_begin=%s' % sms_begin
     except getopt.GetoptError:
         pass

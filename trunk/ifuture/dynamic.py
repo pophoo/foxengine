@@ -120,21 +120,31 @@ def fget(strategy,priority=2500):
 def calc_stop(sif,action):
     stop1 = sif.atr5x[action.index]/1250.0
     stop2 = sif.atr[action.index]*1.5/1000
+    stop3 = 6   #最小6个点
     if stop1 < 3:
         stop1 = 3
     if stop2 < 3:
         stop2 = 3
+    mstop1 = max(stop1,stop2)  #实际止损 
+    mstop = max(mstop1,stop3)  #最大止损线设置
     if action.position == LONG:
         action.stop1 = action.price - stop1
         action.stop2 = action.price - stop2
-        action.stop = min(action.stop1,action.stop2)
+        action.stop = action.price - mstop1
+        action.mstop = action.price - mstop
+        action.condition = u'小于等于'
+        action.close = u'卖出'
     else:
         action.stop1 = action.price + stop1
         action.stop2 = action.price + stop2
-        action.stop = max(action.stop1,action.stop2)
+        action.stop = action.price + mstop1
+        action.mstop = action.price + mstop
+        action.condition = u'大于等于'        
+        action.close = u'买入'        
     action.stop1 = round(action.stop1,1)    #对空头可能多了0.05个点
     action.stop2 = round(action.stop2,1) 
     action.stop = round(action.stop,1) 
+    action.mstop = round(action.mstop,1) 
     
 
 #whget = fcustom(whget,functor=control.ltrade3x0525)

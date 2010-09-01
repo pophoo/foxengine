@@ -109,6 +109,16 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,0,5,5,-5,-5,-5,-5,-5,-5,1,1,1,3,3,3,-1,1,2,2,2,2,2,6,6],extend2next(source).tolist())
         self.assertEquals([],extend2next(np.array([])).tolist())
 
+    def test_extend2diff(self):
+        self.assertEquals([],extend2diff(np.array([]),np.array([])).tolist())                
+        source = np.array([0,0,5,0,-5,0,0,0,0,0,1,0,0,3,0,0,-1,1,2,0,0,0,0,6,0])
+        signal1 = np.ones_like(source)
+        self.assertEquals([0,0,5,5,-5,-5,-5,-5,-5,-5,1,1,1,3,3,3,-1,1,2,2,2,2,2,6,6],extend2diff(source,signal1).tolist())
+        signal2 = np.array([0,0,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4,5,5,5])
+        self.assertEquals([0,0,5,5,-5,-5,-5,0,0,0,1,1,0,3,3,3,-1,1,2,2,2,2,0,6,6],extend2diff(source,signal2).tolist())
+        signal2 = np.array([0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,3,3,3,3,3,3,3,3])
+        self.assertEquals([0,0,5,5,-5,-5,-5,-5,-5,-5,1,1,0,3,3,3,-1,1,2,2,2,2,2,6,6],extend2diff(source,signal2).tolist())
+
     def test_sresume(self):
         source = np.array([0,0,5,0,-5,0,0,0,0,0,1,0,0,3,0,0,-1,1,2,0,0,0,0,6,0])
         self.assertEquals([0,0,1,0,1, 0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,1,0],sresume(source,2).tolist())

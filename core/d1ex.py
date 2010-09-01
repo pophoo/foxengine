@@ -273,6 +273,29 @@ def extend2next(source):
         rev[i] = cur
     return rev
 
+def extend2diff(source,signal):
+    '''
+        信号延伸到signal不同的位置
+        和derepeatc结合，用于实现一天只取第一个信号
+         signal_a = extend2diff(signal_a,sif.date)
+         signal_a = derepeatc(signal_a)
+    '''
+    rev = np.zeros_like(source)
+    prev = 0
+    pres = 0
+    for i in xrange(len(source)):
+        cv = source[i]
+        cs = signal[i]
+        if cv != 0:
+            rev[i] = cv
+            prev = cv
+        elif cs == pres and prev !=0:
+            rev[i] = prev
+        elif cs != pres:
+            prev = 0
+        pres = cs
+    return rev
+
 def sresume(source,length=5,covered=1):
     ''' 连续>=length个零随后covered个非零日
     '''

@@ -453,7 +453,7 @@ class DynamicScheduler:
             his_path:历史数据路径
             dyn_path:动态数据路径
         '''
-        self.his_datas = ifreader.read_ifs(names=names)   #返回 name=>transaction的映射
+        self.his_datas = ifreader.read_ifs2(names=names)   #返回 name=>transaction的映射
         self.reader = SecReader(dyn_path)
         self.names = names
         self.dyn_datas = self.init_dyn(names)

@@ -1760,6 +1760,52 @@ ems.direction = XBUY
 ems.priority = 2400
 
 
+def acd_ua_sz(sif,sopened=None):
+    '''
+    '''
+
+    trans = sif.transaction
+    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
+    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
+    
+    high10 = np.select([gand(sif.time>=914,sif.time<=924)],[sif.high],default=0)
+    atr10 = np.zeros_like(sif.close)
+    atr10[sif.i_cof10] = rollx(sif.atr10) *2/3  #掠过914-919的atr10
+    atr10 = extend2next(atr10)
+    xhigh10 = np.select([sif.time==924],[tmax(high10,11)+atr10/XBASE],0)
+    xhigh10 = extend2next(xhigh10)
+
+    sz0 = (sif.closed+sif.highd+sif.lowd)/3
+    sz2 = (sif.highd+sif.lowd)/2
+    sf = np.abs(sz0-sz2)
+    szh = sz0 + sf
+    
+    sz = np.zeros_like(sif.close)
+    sz[sif.i_cofd] = szh
+    sz = extend2next(sz)
+
+    #print xhigh10[-300:]
+
+    signal = np.zeros_like(sif.close)
+
+    xcontinue = 5
+    signal_a = gand(sif.close > xhigh10
+                    ,msum2(sif.close>xhigh10,xcontinue)>4
+                    ,rollx(sif.close,xcontinue)>xhigh10
+                    ,xhigh10 > sz
+                    )
+
+    signal_a = np.select([sif.time>944],[signal_a],0)   #避免944之前的信号掩盖之后的信号,先过滤掉   
+    signal_a = extend2diff(signal_a,sif.date)
+    signal_a = derepeatc(signal_a)
+
+    signal = gand(signal_a
+            )
+    
+    return signal * acd_ua_sz.direction
+acd_ua_sz.direction = XBUY
+acd_ua_sz.priority = 2400
+
 
 xshort = [ipmacd_short_5,ipmacd_short_x,gd30,godown5,godown30,ipmacd_short_devi1
         ,ipmacd_short5
@@ -1864,6 +1910,8 @@ xlong3 = [ ###基本网格
           #,ipmacd_long_devi1_o5    #不够稳定,远期合约爆损，貌似是作为止损用来尽早平空仓的                    
           ####其它指标
           #,cci_up15
+          ####ACD族
+          ,acd_ua_sz
           ]
 
 xshort3 = [ #基本网络
@@ -1894,9 +1942,9 @@ xxx3 = xlong3 + xshort3
 '''     
 i09/i12均>20100600
 i05:3262    5180
-i06:5431    7689
+i06:5431    7689    
 i07:4267    4648
-i08:6037    7099
+i08:6037    7099    8004
 i09:6058    7378
 i12:6693    7358
 '''

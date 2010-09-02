@@ -76,6 +76,7 @@ def read_if(filename,extractor=extract_if):
 
 
 FPATH = 'D:/work/applications/gcode/wolfox/data/ifuture/'
+FPATH2 = 'D:/work/applications/gcode/wolfox/fengine/ifuture/data/'
 prefix = 'SF'
 IFS = 'IF1005','IF1006','IF1007','IF1008','IF1009','IF1012','IF1103'#,'RU1011','FU1009','CU1011','CU1009'
 SUFFIX = '.txt'
@@ -92,12 +93,15 @@ def read1(name,extractor=extract_if):
     prepare_index(ifs[name])
     return ifs
 
-def read_ifs(extractor=extract_if,names=IFS):
+def read_ifs(extractor=extract_if,names=IFS,path=FPATH):
     ifs = {}
     for ifn in names:
-        ifs[ifn] = BaseObject(name=ifn,transaction=read_if_as_np(FPATH + prefix + ifn + SUFFIX,extractor=extractor))
+        ifs[ifn] = BaseObject(name=ifn,transaction=read_if_as_np(path + prefix + ifn + SUFFIX,extractor=extractor))
         prepare_index(ifs[ifn])
     return ifs
+
+read_ifs2 = fcustom(read_ifs,path=FPATH2)
+
 
 FBASE=10    #只用于macd提高精度，因为是整数运算，再往上就要溢出了
 

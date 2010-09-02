@@ -296,6 +296,24 @@ def extend2diff(source,signal):
         pres = cs
     return rev
 
+def sum2diff(source,signal):
+    '''
+        累加到信号变化处
+    '''
+    rev = np.zeros_like(source)
+    ss = 0
+    pres = 0
+    for i in xrange(len(source)):
+        cv = source[i]
+        cs = signal[i]
+        if cs == pres:
+            ss += cv
+        else:
+            ss = cv
+        pres = cs
+        rev[i] = ss
+    return rev
+
 def sresume(source,length=5,covered=1):
     ''' 连续>=length个零随后covered个非零日
     '''

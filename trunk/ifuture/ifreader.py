@@ -101,6 +101,7 @@ def read_ifs(extractor=extract_if,names=IFS,path=FPATH):
     return ifs
 
 read_ifs2 = fcustom(read_ifs,path=FPATH2)
+read_ifs = fcustom(read_ifs,path=FPATH2)
 
 
 FBASE=10    #只用于macd提高精度，因为是整数运算，再往上就要溢出了

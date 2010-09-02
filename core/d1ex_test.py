@@ -119,6 +119,18 @@ class ModuleTest(unittest.TestCase):
         signal2 = np.array([0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,3,3,3,3,3,3,3,3])
         self.assertEquals([0,0,5,5,-5,-5,-5,-5,-5,-5,1,1,0,3,3,3,-1,1,2,2,2,2,2,6,6],extend2diff(source,signal2).tolist())
 
+    def test_sum2diff(self):
+        self.assertEquals([],sum2diff(np.array([]),np.array([])).tolist())                
+        source = np.array([0,0,0,1,1,1,2,2,2,3,3,3,-1,-1,-1,4,4,4,5,5,5])
+        signal1 = np.ones_like(source)
+        self.assertEquals([0,0,0,1,2,3,5,7,9,12,15,18,17,16,15,19,23,27,32,37,42],sum2diff(source,signal1).tolist())
+        signal2 = np.array([0,0,0,1,1,1,2,2,2,3,3,3,-1,-1,-1,4,4,4,5,5,5])
+        self.assertEquals([0,0,0,1,2,3,2,4,6,3,6,9,-1,-2,-3,4,8,12,5,10,15],sum2diff(source,signal2).tolist())
+        signal3 = np.array([0,0,0,0,0,0,0,0,0,1,1,1,3,3,3,3,3,3,3,3,3])
+        self.assertEquals([0,0,0,1,2,3,5,7,9,3,6,9,-1,-2,-3,1,5,9,14,19,24],sum2diff(source,signal3).tolist())
+        source[0] = 1
+        self.assertEquals([1,1,1,2,3,4,6,8,10,13,16,19,18,17,16,20,24,28,33,38,43],sum2diff(source,signal1).tolist())
+
     def test_sresume(self):
         source = np.array([0,0,5,0,-5,0,0,0,0,0,1,0,0,3,0,0,-1,1,2,0,0,0,0,6,0])
         self.assertEquals([0,0,1,0,1, 0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,1,0],sresume(source,2).tolist())

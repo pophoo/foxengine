@@ -1759,52 +1759,189 @@ def ems(sif,sopened=None):
 ems.direction = XBUY
 ems.priority = 2400
 
+def range_a(sif,tbegin,tend,wave):
+    high10 = np.select([gand(sif.time>=tbegin,sif.time<=tend)],[sif.high],default=0)
+    low10 = np.select([gand(sif.time>=tbegin,sif.time<=tend)],[sif.low],default=0)    
+
+    xhigh10 = np.select([sif.time==924],[tmax(high10,11)],0)
+    xlow10 = np.select([sif.time==924],[tmin(low10,11)],0)    
+
+    UA = np.select([sif.time==tend],[xhigh10+wave],0)        
+    DA = np.select([sif.time==tend],[xlow10-wave],0)    
+
+    xhigh10 = extend2next(xhigh10)
+    xlow10  = extend2next(xlow10)
+    UA = extend2next(UA)
+    DA = extend2next(DA)
+    return UA,DA,xhigh10,xlow10
+
 
 def acd_ua_sz(sif,sopened=None):
     '''
+        A点大于枢轴
+        +   add
     '''
 
-    trans = sif.transaction
-    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
-    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
     
-    high10 = np.select([gand(sif.time>=914,sif.time<=924)],[sif.high],default=0)
-    atr10 = np.zeros_like(sif.close)
-    atr10[sif.i_cof10] = rollx(sif.atr10) *2/3  #掠过914-919的atr10
-    atr10 = extend2next(atr10)
-    xhigh10 = np.select([sif.time==924],[tmax(high10,11)+atr10/XBASE],0)
-    xhigh10 = extend2next(xhigh10)
+    wave = np.zeros_like(sif.close)
+    wave[sif.i_cof10] = rollx(sif.atr10) *2/3/XBASE  #掠过914-919的atr10
+    wave = extend2next(wave)
+    
+    UA,DA,xhigh10,xlow10 = range_a(sif,914,924,wave)
+
+    xcontinue = 5
+
+    signal_ua = gand(sif.close >= UA
+                    ,msum2(sif.close>=UA,xcontinue)>4
+                    ,rollx(sif.close,xcontinue)>=UA
+                    )
+
+    signal_ua = np.select([sif.time>944],[signal_ua],0) #924之前的数据因为xhigh10是extend2next来的，所以不准
+
+    signal_da = gand(sif.close <= DA
+                    ,msum2(sif.close<=DA,xcontinue)>4
+                    ,rollx(sif.close,xcontinue)<=DA
+                    )
+
+    signal_da = np.select([sif.time>944],[signal_da],0)
+
 
     sz0 = (sif.closed+sif.highd+sif.lowd)/3
     sz2 = (sif.highd+sif.lowd)/2
     sf = np.abs(sz0-sz2)
-    szh = sz0 + sf
     
-    sz = np.zeros_like(sif.close)
-    sz[sif.i_cofd] = szh
-    sz = extend2next(sz)
+    szh = np.zeros_like(sif.close)
+    szh[sif.i_cofd] = sz0 + sf
+    szh = extend2next(szh)
 
-    #print xhigh10[-300:]
+    szl = np.zeros_like(sif.close)
+    szl[sif.i_cofd] = sz0 - sf
+    szl = extend2next(szl)
 
-    signal = np.zeros_like(sif.close)
+    ms_ua = sum2diff(extend2diff(signal_ua,sif.date),sif.date)
+    ms_da = sum2diff(extend2diff(signal_da,sif.date),sif.date)
 
-    xcontinue = 5
-    signal_a = gand(sif.close > xhigh10
-                    ,msum2(sif.close>xhigh10,xcontinue)>4
-                    ,rollx(sif.close,xcontinue)>xhigh10
-                    ,xhigh10 > sz
+    signal = gand(ms_ua == 1
+                    ,bnot(ms_da)
+                    ,UA >= szh
                     )
 
-    signal_a = np.select([sif.time>944],[signal_a],0)   #避免944之前的信号掩盖之后的信号,先过滤掉   
-    signal_a = extend2diff(signal_a,sif.date)
-    signal_a = derepeatc(signal_a)
 
-    signal = gand(signal_a
-            )
-    
     return signal * acd_ua_sz.direction
 acd_ua_sz.direction = XBUY
 acd_ua_sz.priority = 2400
+
+def acd_ua_sz_b(sif,sopened=None):
+    '''
+        枢轴上限大于价幅上限，但是小于A点
+        +
+    '''
+
+    wave = np.zeros_like(sif.close)
+    wave[sif.i_cof10] = rollx(sif.atr10) *2/3/XBASE  #掠过914-919的atr10
+    wave = extend2next(wave)
+    
+    UA,DA,xhigh10,xlow10 = range_a(sif,914,924,wave)
+
+    xcontinue = 5
+
+    signal_ua = gand(sif.close >= UA
+                    ,msum2(sif.close>=UA,xcontinue)>4
+                    ,rollx(sif.close,xcontinue)>=UA
+                    )
+
+    signal_ua = np.select([sif.time>944],[signal_ua],0) #924之前的数据因为xhigh10是extend2next来的，所以不准
+
+    signal_da = gand(sif.close <= DA
+                    ,msum2(sif.close<=DA,xcontinue)>4
+                    ,rollx(sif.close,xcontinue)<=DA
+                    )
+
+    signal_da = np.select([sif.time>944],[signal_da],0)
+
+
+    sz0 = (sif.closed+sif.highd+sif.lowd)/3
+    sz2 = (sif.highd+sif.lowd)/2
+    sf = np.abs(sz0-sz2)
+    
+    szh = np.zeros_like(sif.close)
+    szh[sif.i_cofd] = sz0 + sf
+    szh = extend2next(szh)
+
+    szl = np.zeros_like(sif.close)
+    szl[sif.i_cofd] = sz0 - sf
+    szl = extend2next(szl)
+
+
+    ms_ua = sum2diff(extend2diff(signal_ua,sif.date),sif.date)
+    ms_da = sum2diff(extend2diff(signal_da,sif.date),sif.date)
+
+    signal = gand(ms_ua == 1
+                    ,bnot(ms_da)
+                    ,szh>=xhigh10 #szl>=xhigh10
+                    ,UA >= szh
+                    )
+
+    return signal * acd_ua_sz_b.direction
+acd_ua_sz_b.direction = XBUY
+acd_ua_sz_b.priority = 2400
+
+def acd_da_sz_b2(sif,sopened=None):
+    '''
+        枢轴下限小于A点
+        过枢轴        
+        +   add
+    '''
+
+    wave = np.zeros_like(sif.close)
+    wave[sif.i_cof10] = rollx(sif.atr10) *2/3/XBASE  #掠过914-919的atr10
+    wave = extend2next(wave)
+    
+    UA,DA,xhigh10,xlow10 = range_a(sif,914,924,wave)
+
+    sz0 = (sif.closed+sif.highd+sif.lowd)/3
+    sz2 = (sif.highd+sif.lowd)/2
+    sf = np.abs(sz0-sz2)
+    
+    szh = np.zeros_like(sif.close)
+    szh[sif.i_cofd] = sz0 + sf
+    szh = extend2next(szh)
+
+    szl = np.zeros_like(sif.close)
+    szl[sif.i_cofd] = sz0 - sf
+    szl = extend2next(szl)
+
+
+    xcontinue = 5
+
+    signal_ua = gand(sif.close >= UA
+                    ,msum2(sif.close>=UA,xcontinue)>4
+                    ,rollx(sif.close,xcontinue)>=UA
+                    )
+
+    signal_ua = np.select([sif.time>944],[signal_ua],0) #924之前的数据因为xhigh10是extend2next来的，所以不准
+
+    signal_da = gand(sif.close <= szl
+                    ,szl<=DA
+                    ,msum2(sif.close<=szl,xcontinue)>4
+                    ,rollx(sif.close,xcontinue)<=szl
+                    )
+
+    signal_da = np.select([sif.time>944],[signal_da],0)
+
+
+
+
+    ms_ua = sum2diff(extend2diff(signal_ua,sif.date),sif.date)
+    ms_da = sum2diff(extend2diff(signal_da,sif.date),sif.date)
+
+    signal = gand(ms_da == 1
+                    ,bnot(ms_ua)
+                    )
+
+    return signal * acd_da_sz_b2.direction
+acd_da_sz_b2.direction = XSELL
+acd_da_sz_b2.priority = 2200
 
 
 xshort = [ipmacd_short_5,ipmacd_short_x,gd30,godown5,godown30,ipmacd_short_devi1
@@ -1912,6 +2049,7 @@ xlong3 = [ ###基本网格
           #,cci_up15
           ####ACD族
           ,acd_ua_sz
+          ,acd_ua_sz_b
           ]
 
 xshort3 = [ #基本网络
@@ -1934,6 +2072,7 @@ xshort3 = [ #基本网络
           ,ma60_short          
           #,ma30_short          
           ,devi30x3          
+          ,acd_da_sz_b2
           ]
 xxx2 = xlong3 + xshort3
 xxx3 = xlong3 + xshort3
@@ -1941,10 +2080,10 @@ xxx3 = xlong3 + xshort3
 
 '''     
 i09/i12均>20100600
-i05:3262    5180
-i06:5431    7689    
-i07:4267    4648
-i08:6037    7099    8004
-i09:6058    7378
-i12:6693    7358
+i05:3262    5180    5267    5244    5101    5180    5217    5138        
+i06:5431    7689    8004    7747    8004    7483    7772    8087
+i07:4267    4648    4509    4091    4514    4669    4648    4514
+i08:6037    7099    6990    6827    6990    7278    7099    6990
+i09:6058    7378    7922    6872    7922    7864    7078    7922
+i12:6693    7358    7234    7041    7320    7287    7272    7234    
 '''

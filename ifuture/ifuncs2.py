@@ -2004,6 +2004,46 @@ xlong = [ipmacd_long_5,rsi_long_x,rsi_long_x2#,rsi_long_x2a#,ipmacd_long_x,ipmac
         
         ]
 
+def acd_da(sif,sopened=None):
+    '''
+        +
+        合并效果较差
+    '''
+    wave = np.zeros_like(sif.close)
+    wave[sif.i_cof10] = rollx(sif.atr10) *2/3/XBASE  #掠过914-919的atr10
+    wave = extend2next(wave)
+    
+    UA,DA,xhigh10,xlow10 = range_a(sif,914,924,wave)
+
+    xcontinue = 5
+
+    signal_ua = gand(sif.close >= UA
+                    ,msum2(sif.close>=UA,xcontinue)>4
+                    ,rollx(sif.close,xcontinue)>=UA
+                    )
+
+    signal_ua = np.select([sif.time>944],[signal_ua],0) #924之前的数据因为xhigh10是extend2next来的，所以不准
+
+    signal_da = gand(sif.close <= DA
+                    ,msum2(sif.close<=DA,xcontinue)>4
+                    ,rollx(sif.close,xcontinue)<=DA
+                    )
+
+    signal_da = np.select([sif.time>944],[signal_da],0)
+
+    ms_ua = sum2diff(extend2diff(signal_ua,sif.date),sif.date)
+    ms_da = sum2diff(extend2diff(signal_da,sif.date),sif.date)
+
+    signal = gand(ms_da==1         #第一个da
+                ,bnot(ms_ua)       #没出现过ua 
+                ,sif.s30<0
+                ,sif.ms<0
+                ,strend2(sif.ma13)<0
+                )
+
+    return signal * acd_da.direction
+acd_da.direction = XSELL
+acd_da.priority = 2400
 
 xxx = xshort + xlong
 
@@ -2120,10 +2160,10 @@ xxx3 = xlong3 + xshort3
 
 '''     
 i09/i12均>20100700
-i05:    5180    5098                    5135
-i06:    7689    8399            8271    8354
-i07:    4648    4726            4678    
-i08:    7099    6930    6876    7055    
-i09:    5879    6113    6514
-i12:    4409    4465    4536            
+i05:    5180    5098                    5135    5024
+i06:    7689    8399            8271    8354    8290
+i07:    4648    4726            4678            
+i08:    7099    6930    6876    7055            
+i09:    5879    6113    6514                    6461
+i12:    4409    4465    4536                    4536
 '''

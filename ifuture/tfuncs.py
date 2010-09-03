@@ -261,7 +261,7 @@ acd_dc.priority = 2400
 
 def acd_da(sif,sopened=None):
     '''
-        -
+        +
     '''
     wave = np.zeros_like(sif.close)
     wave[sif.i_cof10] = rollx(sif.atr10) *2/3/XBASE  #掠过914-919的atr10
@@ -291,7 +291,7 @@ def acd_da(sif,sopened=None):
     signal = gand(ms_da==1         #第一个da
                 ,bnot(ms_ua)       #没出现过ua 
                 ,sif.s30<0
-                #,sif.ms<0
+                ,sif.ms<0
                 ,strend2(sif.ma13)<0
                 )
 

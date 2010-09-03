@@ -149,6 +149,7 @@ def acd_ua(sif,sopened=None):
 
     signal = gand(ms_ua==1         #第一个ua
                 ,bnot(ms_da)       #没出现过da 
+                ,sif.s30>0
                 )
 
     return signal * acd_ua.direction
@@ -289,6 +290,9 @@ def acd_da(sif,sopened=None):
 
     signal = gand(ms_da==1         #第一个da
                 ,bnot(ms_ua)       #没出现过ua 
+                ,sif.s30<0
+                #,sif.ms<0
+                ,strend2(sif.ma13)<0
                 )
 
     return signal * acd_da.direction

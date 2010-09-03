@@ -302,7 +302,7 @@ class SecReader:
             if record.date == end_record.date and record.time/100 == end_record.time/100:
                 if record.price > min_high:
                     min_high = record.price
-                if record.price < min_high:
+                if record.price < min_low:
                     min_low = record.price
             elif record.date > end_record.date or (record.date == end_record.date and record.time/100 > end_record.time/100):
                 mrecords.append(SecReader.create_record(end_record.date,end_record.time/100,min_high,min_low,begin_record.price,end_record.price,end_record.svol,end_record.holding))
@@ -596,7 +596,8 @@ class DynamicScheduler:
             发送成功返回1,否则为0
         '''
         #template = 'http://smsapi.qxt100.com/dapi/send_simple.php?name=wycharon&pwd=88107672&dest=13586682052&content=%s'        
-        template = 'http://smsapi.qxt100.com/dapi/send_simple.php?name=wycharon&pwd=88107672&dest=15968464619&content=%s'
+        #template = 'http://smsapi.qxt100.com/dapi/send_simple.php?name=wycharon&pwd=88107672&dest=15968464619&content=%s'
+        template = 'http://smsapi.qxt100.com/dapi/send_simple.php?name=wycharon&pwd=88107672&dest=13586682052&content=%s'
         p = urllib2.urlopen(template % msg)
         rmsg = p.read()
         #rmsg = 'success' #'error'

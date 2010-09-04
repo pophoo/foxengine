@@ -12,6 +12,13 @@ DTSORT = lambda x,y: int(((x.date%1000000 * 10000)+x.time) - ((y.date%1000000 * 
 
 simple_profit = lambda actions: actions[0].price * actions[0].position + actions[1].price * actions[1].position - TAX
 
+def normal_profit(actions): #8点损失
+    profit = actions[0].price * actions[0].position + actions[1].price * actions[1].position
+    if profit < -80:
+        profit = -80
+    profit -= TAX
+    return profit
+
 def delay_filter(sif,signal,delayed=5,limit=60):
     '''
         对signal进行delay处理
@@ -80,7 +87,7 @@ def a2_strategy(action1,action2):#始终选择第2次的平仓位
     ##a2的问题是可能会抬高臀位，比如本来2700买入，2720出现新的高优先级信号，那么按之前的方法，其止损在2700左右，而新的情况导致止损到了2715左右，
     return action2
 
-def last_trades(actions,calc_profit=simple_profit,length=10):
+def last_trades(actions,calc_profit=normal_profit,length=10):
     '''
         最后交易
     '''
@@ -133,7 +140,7 @@ def last_wactions(sif,trades,acstrategy=late_strategy):
     xactions.reverse() 
     return xactions
 
-def simple_trades(actions,calc_profit=simple_profit):  #简单的trades,每个trade只有一次开仓和平仓
+def simple_trades(actions,calc_profit=normal_profit):  #简单的trades,每个trade只有一次开仓和平仓
     ''' 不支持同时双向开仓
     '''
     state = EMPTY
@@ -428,7 +435,7 @@ def itradex(sif     #期指
 
 
 
-def close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed,calc_profit=simple_profit):
+def close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed,calc_profit=normal_profit):
     open_action = extended[0].actions[0] if extended else cur_trade.actions[0]
     trade = BaseObject(actions=[open_action,close_action])
     trade.profit = calc_profit(trade.actions)

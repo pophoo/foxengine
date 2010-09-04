@@ -4,6 +4,9 @@
     xatr
     如果是突破，则5分钟内稳定
 
+    strend2(sif.ma30)
+    sif.ma3 >/< sif.ma13
+
 优先级：
     普通 1500
     逆势 >2000
@@ -161,33 +164,94 @@ def gd30(sif,sopened=None):
             )
 
     signal = gand(signal
-            ,strend2(sif.sdiff30x - sif.sdea30x)<0
-            ,sif.sdiff5x < sif.sdea5x
-            ,strend2(sif.ma135)<0
-            ,sif.ltrend<0
+            ,sif.xatr<1200
             ,sif.s3<0
+            ,sif.ms<0
             )
 
     return signal * gd30.direction
 gd30.direction = XSELL
 gd30.priority = 1800
 
-def godown5(sif,sopened=None):
+
+def godown(sif,sopened=None):
     '''
-        5分钟收盘击穿昨日低点后30分钟内1分钟下叉卖空
+        1分钟收盘稳定击穿昨日低点后
     '''
     
-    trans = sif.transaction
-    dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
-    ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
-
  
-    lowd = sif.lowd #- sif.atrd/XBASE/8 #gmin(sif.closed,sif.opend)-sif.atrd/XBASE/8
+    lowd = sif.lowd - sif.atrd/XBASE/8 
 
     xlowd = np.zeros(len(sif.diff1),np.int32)
-    xlowd[sif.i_cofd] = lowd
+    xlowd[sif.i_cofd] = lowd 
 
-    xlowd = extend(xlowd,260)
+    xlowd = extend2diff(rollx(xlowd),sif.date)
+
+    signal = gand(sif.close < xlowd
+                ,msum(sif.close<xlowd,3)>1
+                )
+
+    
+    signal = sum2diff(extend2diff(signal,sif.date),sif.date)    #略过了直接跳高的
+    #signal = np.select([sif.time>944],[extend2diff(signal,sif.date)],0)
+    #signal = sum2diff(signal,sif.date)
+
+    signal = gand(signal==1
+            ,sif.s30<0
+            ,strend2(sif.ma30)<0
+            ,sif.ma3<sif.ma13
+            ,strend2(sif.sdiff5x-sif.sdea5x)<0
+            ,strend2(sif.sdiff3x-sif.sdea3x)<0
+            )
+
+
+    return signal * godown.direction
+godown.direction = XSELL
+godown.priority = 1800
+
+def goup(sif,sopened=None):
+    '''
+        1分钟收盘稳定击穿昨日低点后
+    '''
+    
+ 
+    highd = sif.highd + sif.atrd/XBASE/8 
+
+    xhighd = np.zeros(len(sif.diff1),np.int32)
+    xhighd[sif.i_cofd] = highd 
+
+    xhighd = extend2diff(rollx(xhighd),sif.date)
+
+    signal = gand(sif.close > xhighd
+                ,msum(sif.close>xhighd,3)>1
+                )
+
+    #signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = np.select([sif.time>944],[extend2diff(signal,sif.date)],0)
+    signal = sum2diff(signal,sif.date)
+
+
+    signal = gand(signal==1
+            )
+
+
+    return signal * goup.direction
+goup.direction = XBUY
+goup.priority = 1800
+
+
+def godown5(sif,sopened=None):
+    '''
+        5分钟收盘击穿昨日低点后20分钟内1分钟下叉卖空
+    '''
+    
+ 
+    lowd = sif.lowd - sif.atrd/XBASE/8 #gmin(sif.closed,sif.opend)-sif.atrd/XBASE/8
+
+    xlowd = np.zeros(len(sif.diff1),np.int32)
+    xlowd[sif.i_cofd] = lowd 
+
+    xlowd = extend2diff(rollx(xlowd),sif.date)  #转到下一日后，按日铺下
 
     signal = np.zeros_like(sif.diff1)
 
@@ -198,16 +262,17 @@ def godown5(sif,sopened=None):
     signal = gand(signal
             #,strend(sif.ma270)<0
             ,strend(sif.sdiff30x-sif.sdea30x)<0
-            ,sif.ma5<sif.ma13
+            ,sif.ma3<sif.ma13
             ,strend(sif.ma30)<0
-            ,sif.ltrend<0
             ,sif.ms<0
+            ,sif.ltrend<0
+            ,strend2(sif.ma13)<0
             )
 
 
     return signal * godown5.direction
 godown5.direction = XSELL
-godown5.priority = 2000
+godown5.priority = 1800
 
 def godown30(sif,sopened=None):
     '''
@@ -1311,9 +1376,9 @@ def k15_lastdown(sif,sopened=None):
     signal15 = gand(sif.high15>rollx(sif.high15)
                 ,sif.low15>rollx(sif.low15)
                 ,sif.high15 - gmax(sif.open15,sif.close15) > np.abs(sif.open15-sif.close15) #上影线长于实体
-                ,sif.high15 == tmax(sif.high15,5)
+                ,sif.high15 == tmax(sif.high15,6)
                 ,sif.high15 > gmax(ma15_3,ma15_30,ma15_60)
-                #,rollx(sif.vol5) > sif.vol5
+                #,rollx(sif.vol15) > sif.vol15
                 #,rollx(sif.vol5) > rollx(sif.vol5,2)
                 #,rollx(sif.close5)<rollx(sif.open5)
                 ,strend2(ma15_60)>0
@@ -1341,6 +1406,7 @@ def k15_lastdown(sif,sopened=None):
 
     signal = sfollow(ss,fsignal,delay)
     signal = gand(signal
+            ,sif.ma3<sif.ma13
             )
     signal = extend(signal,delay)  #去除delay时间段内的重复信号
     signal = derepeatc(signal)
@@ -2514,7 +2580,8 @@ xshort4 = [ #基本网络
           ,k15_lastdown #主要
           ,k15_lastdown_s
           ,acd_da_sz_b2
-          
+          #,godown5
+          ,godown
           ##补充网络
           ,ipmacd_short_x  #主趋势为mtrend或ltrend,并且rs_trend         
           ,ipmacd_short5   #diff5下叉dea5,最老的方法，未作改动          
@@ -2532,6 +2599,23 @@ xshort4 = [ #基本网络
 
 xxx4 = xlong4 + xshort4
 
+xbreak = [ godown
+           ,godown5 
+           ,br30
+           ,acd_ua
+           ,acd_da
+           ,acd_ua_sz
+           ,acd_ua_sz_b
+           ,acd_da_sz_b2
+           #其它
+           ,rsi_long_x2
+           ,ipmacd_short_5
+           ,xma_long #踩5日线上行           
+           ,xma_short
+           ,xdma_short
+           
+        ]
+
 '''     
 i09/i12均>20100700
 i05:    5017            5128                                    
@@ -2539,14 +2623,14 @@ i06:    8708            8971            9036            9125    9061
 i07:    4645    4992    4906            5013            5100    
 i08:    7630    7870    7984                                    
 i09:    7252    7477    7632                    7717            7919
-i12:    5687    5986    5988    6215            6346            6581
+i12:    5687    5986    5988    6215            6346            6581    
 
-i05:    4135    4339            4234    4722                    5125    5320    5519    5424
-i06:    7689    7654    7773    7809    7856    8119    8489    8375    8631    8863    8850
-i07:    4752    5337    5302    5188    5302    5614    5557            5481    5399    5202
-i08:    7495    7673            7830    7673    7639    7623            7516            7816
-i09:    6346    6563    6926    7150    6926    6944    7002    6930    6930            7058
-i12:    6194    6837            6614    6837    6880    6923            6787    6750    7169
+i05:    5511
+i06:    9056    9111    9021
+i07:    5331    5378    5183
+i08:    7836    7774    7708
+i09:    7058    7104    7185
+i12:    7169    7284    7284
 
 
 '''

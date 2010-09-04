@@ -2599,6 +2599,9 @@ xshort4 = [ #基本网络
 
 xxx4 = xlong4 + xshort4
 
+xxx2 = xlong4 + xshort4
+
+
 xbreak = [ godown
            ,godown5 
            ,br30

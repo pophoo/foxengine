@@ -130,6 +130,9 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,0,0,1,2,3,5,7,9,3,6,9,-1,-2,-3,1,5,9,14,19,24],sum2diff(source,signal3).tolist())
         source[0] = 1
         self.assertEquals([1,1,1,2,3,4,6,8,10,13,16,19,18,17,16,20,24,28,33,38,43],sum2diff(source,signal1).tolist())
+        source4 = np.array([False,False,True,True,True,True])
+        signal4 = np.ones(10,np.int32)
+        self.assertEquals([0,0,1,2,3,4],sum2diff(source4,signal4).tolist())
 
     def test_sresume(self):
         source = np.array([0,0,5,0,-5,0,0,0,0,0,1,0,0,3,0,0,-1,1,2,0,0,0,0,6,0])

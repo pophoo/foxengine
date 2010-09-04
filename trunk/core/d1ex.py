@@ -300,14 +300,14 @@ def sum2diff(source,signal):
     '''
         累加到信号变化处
     '''
-    rev = np.zeros_like(source)
+    rev = np.zeros(len(source),np.int32)
     ss = 0
     pres = 0
     for i in xrange(len(source)):
         cv = source[i]
         cs = signal[i]
         if cs == pres:
-            ss += cv
+            ss += int(cv)
         else:
             ss = cv
         pres = cs

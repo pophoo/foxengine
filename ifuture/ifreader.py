@@ -78,7 +78,8 @@ def read_if(filename,extractor=extract_if):
 FPATH = 'D:/work/applications/gcode/wolfox/data/ifuture/'
 FPATH2 = 'D:/work/applications/gcode/wolfox/fengine/ifuture/data/'
 prefix = 'SF'
-IFS = 'IF1005','IF1006','IF1007','IF1008','IF1009','IF1012','IF1103'#,'RU1011','FU1009','CU1011','CU1009'
+IFS = 'IF0000','IF1005','IF1006','IF1007','IF1008','IF1009','IF1012','IF1103'#,'RU1011','FU1009','CU1011','CU1009'
+#IF0000:当月连续，当某日收盘下月合约持仓超过本月90%时切换
 SUFFIX = '.txt'
 
 def readp(path,name,extractor=extract_if):

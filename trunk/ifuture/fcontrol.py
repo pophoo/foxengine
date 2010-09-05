@@ -21,14 +21,15 @@ ifmap = ifreader.read_ifs()  # fname ==> BaseObject(name='$name',transaction=tra
 
 
 ###计算
+i00 = ifmap['IF0000']   #当月连续
 i05 = ifmap['IF1005']
 i06 = ifmap['IF1006']
 i07 = ifmap['IF1007']
 i08 = ifmap['IF1008']
 i09 = ifmap['IF1009']
 i12 = ifmap['IF1012']
-    
-tradesy =  control.itradex8_y(i09,ifuncs2.xxx)
+
+tradesy =  control.itradex8_y(i09,ifuncs2.xxx2)
 
 for trade in tradesy:print trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].date,trade.actions[1].time,trade.actions[1].position,trade.actions[1].price,trade.actions[1].index-trade.actions[0].index
 

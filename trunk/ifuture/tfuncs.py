@@ -2001,23 +2001,25 @@ def rsi_long_x(sif,sopened=None,rshort=7,rlong=19):
     '''
 
     #signal = cross(sif.dea1,sif.diff1)>0
+    rshort = 7
+    rlong = 19
     rsia = rsi2(sif.close,rshort)   #7,19/13,41
     rsib = rsi2(sif.close,rlong)
     signal = cross(rsib,rsia)>0    
 
     signal = gand(signal
-              ,sif.t7_30>0
-              ,sif.ltrend>0
-              ,sif.mtrend>0
-              #,sif.strend>0
-              ,sif.ma3>sif.ma13  
-              ,sif.ma7> sif.ma30              
-              ,sif.s30>0
+                ,sif.ltrend>0
+                ,sif.mtrend>0                
+                ,sif.t7_30>0
+                ,sif.s30>0
+                ,sif.s10>0                
+                ,sif.s3>0
             )
 
     return signal * rsi_long_x.direction
 rsi_long_x.direction = XBUY
-rsi_long_x.priority = 1200
+rsi_long_x.priority = 1500
+
 
 def rsi_long_x2(sif,sopened=None,rshort=7,rlong=19):
     '''
@@ -2032,105 +2034,176 @@ def rsi_long_x2(sif,sopened=None,rshort=7,rlong=19):
     signal = cross(rsib,rsia)>0    
 
     signal = gand(signal
-              ,sif.rs_trend>0
-              ,sif.rm_trend>0
-              #,sif.rl_trend>0
-              ,sif.ltrend>0
-              ,sif.ms>0
-              ,sif.ma3>sif.ma13  
-              ,sif.ma7> sif.ma30              
-              ,sif.s30>0
+                ,sif.s3>0
+                ,sif.s15>0
+                ,sif.ma3>sif.ma13
+                ,sif.xatr30x<6000
+                ,sif.ms>0
             )
+    signal = np.select([sif.time>944],[signal],0)
+
+    signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal==1)
 
     return signal * rsi_long_x2.direction
 rsi_long_x2.direction = XBUY
 rsi_long_x2.priority = 1500
 
-
-def rsi_long_x2a(sif,sopened=None,rshort=7,rlong=19):
+def macd_long_x(sif,sopened=None):
     '''
-        比较妥当的是 7/19和13/41参数,其中前者明显优于后者
-        是rsi_long_x2的增条件版本，添加了rl_trend>0,mtrend>0
+        居然添加任何ltrend/mtrend/strend条件都会使结果变坏
     '''
-
-    #signal = cross(sif.dea1,sif.diff1)>0
-    rshort = 7
-    rlong = 19
-    rsia = rsi2(sif.close,rshort)   #7,19/13,41
-    rsib = rsi2(sif.close,rlong)
-    signal = cross(rsib,rsia)>0    
+    signal = cross(sif.dea1,sif.diff1)>0    
 
     signal = gand(signal
-              ,sif.rs_trend>0
-              ,sif.rm_trend>0
-              ,sif.rl_trend>0
-              ,sif.ltrend>0              
-              ,sif.mtrend>0
-              ,sif.ms>0
-              ,sif.ma3>sif.ma13  
-              ,sif.ma7> sif.ma30              
-              ,sif.s30>0
+                    ,sif.s30>0
+                    ,sif.s10>0
+                    ,sif.s3>0
+                    ,sif.xatr<1200
+                    ,strend2(sif.ma13)>0                                    
             )
 
-    return signal * rsi_long_x2a.direction
-rsi_long_x2a.direction = XBUY
-rsi_long_x2a.priority = 1410
+    return signal * macd_long_x.direction
+macd_long_x.direction = XBUY
+macd_long_x.priority = 1500
 
-def rsi_long_x2(sif,sopened=None,rshort=7,rlong=19):
+def macd_long_x2(sif,sopened=None):
     '''
-        比较妥当的是 7/19和13/41参数,其中前者明显优于后者
+        去掉s30>0条件
     '''
-
-    #signal = cross(sif.dea1,sif.diff1)>0
-    rshort = 7
-    rlong = 19
-    rsia = rsi2(sif.close,rshort)   #7,19/13,41
-    rsib = rsi2(sif.close,rlong)
-    signal = cross(rsib,rsia)>0    
+    signal = cross(sif.dea1,sif.diff1)>0    
 
     signal = gand(signal
-              ,sif.rs_trend>0
-              ,sif.rm_trend>0
-              ,sif.ltrend>0               
-              ,sif.ms>0
-              ,sif.ma3>sif.ma13  
-              ,sif.ma7> sif.ma30              
-              ,sif.s30>0
-              ,sif.xatr>800
+                    ,sif.ltrend>0
+                    ,sif.mtrend>0
+                    ,sif.strend>0
+                    ,sif.mm>0
+                    ,sif.ms>0
+                    ,sif.s10>0
+                    ,sif.xatr<1200
             )
 
-    return signal * rsi_long_x2.direction
-rsi_long_x2.direction = XBUY
-rsi_long_x2.priority = 1500
+    return signal * macd_long_x2.direction
+macd_long_x2.direction = XBUY
+macd_long_x2.priority = 1500
 
 
 def rsi_short_x(sif,sopened=None,rshort=7,rlong=19):
     '''
+        每天的第一次符合条件的机会为最佳机会
+        一旦第一次失败，后面的都被屏蔽
         比较妥当的是 7/19和13/41参数,其中前者明显优于后者
+        但是合并有副作用
     '''
 
-    #signal = cross(sif.dea1,sif.diff1)>0
     rsia = rsi2(sif.close,rshort)   #7,19/13,41
     rsib = rsi2(sif.close,rlong)
     signal = cross(rsib,rsia)<0    
 
     signal = gand(signal
-              ,sif.rm_trend<0
-              ,sif.rs_trend<0
-              ,sif.mm<0
-              ,sif.ms<0
-              #,sif.rl_trend<0
-              #,sif.strend>0
-              #,sif.ma3<sif.ma13  
-              #,sif.ma7< sif.ma30              
-              ,sif.s30<0
-              #,sif.s15<0
-              ,sif.sdiff30x<0
+            ,sif.s30<0
+            ,sif.rs_trend<0
+            ,sif.ms<0
+            ,strend2(sif.ma30)<0
+            ,sif.xatr30x<6000
             )
+
+    signal = np.select([sif.time>944],[signal],0)
+
+    signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal==1)
 
     return signal * rsi_short_x.direction
 rsi_short_x.direction = XSELL
-rsi_short_x.priority = 1800
+rsi_short_x.priority = 1500
+
+def rsi_short_x2(sif,sopened=None,rshort=7,rlong=19):
+    '''
+        每天的第一次符合条件的机会为最佳机会
+        一旦第一次失败，后面的都被屏蔽
+        以sdiff30x<0为条件
+        且s30>0 #s30<0的由rsi_short_x去捕捉
+    '''
+
+    rsia = rsi2(sif.close,rshort)   
+    rsib = rsi2(sif.close,rlong)
+    signal = cross(rsib,rsia)<0    
+
+    signal = gand(signal
+            ,sif.strend<0
+            ,sif.sdiff30x<0
+            ,sif.s30>0  #s30<0的由rsi_short_x去捕捉
+            ,strend2(sif.ma30)<0
+            ,sif.xatr30x<6000
+            ,sif.ma5<sif.ma13
+            )
+
+    signal = np.select([sif.time>944],[signal],0)
+
+    signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal==1)
+
+    return signal * rsi_short_x.direction
+rsi_short_x2.direction = XSELL
+rsi_short_x2.priority = 1500
+
+
+def macd_short_x(sif,sopened=None):
+    '''
+        操作策略，失败一次之后当日就不应该再操作
+        成功的话，可以继续操作，参见macd_short_x2
+    '''
+    signal = cross(sif.dea1,sif.diff1)<0    
+
+    signal = gand(signal
+            ,sif.ltrend<0            
+            ,sif.mtrend < 0
+            ,strend2(sif.ma30)<0
+            ,sif.ma5 < sif.ma13
+            ,sif.xatr>800
+            ,sif.sdiff30x<0
+            )
+
+    signal = np.select([sif.time>944],[signal],0)
+
+    signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal == 1)
+
+    return signal * macd_short_x.direction
+macd_short_x.direction = XSELL
+macd_short_x.priority = 1500
+
+def macd_short_x2(sif,sopened=None):
+    '''
+        试图找到在盈利退出后的继续开仓
+        没找到好办法. 
+        用状态和时间来模拟
+            1. 因为前次盈利，所以是绝对空头
+            2. 因为前次退出，所以出现一小波的反弹. 但不影响中期左右趋势
+            3. 时间在1345之后
+        操作策略，失败一次之后当日就不应该再操作
+    '''
+    signal = cross(sif.dea1,sif.diff1)<0    
+
+    signal = gand(signal
+            ,sif.ltrend<0            
+            ,sif.mtrend < 0
+            ,strend2(sif.ma30)<0
+            ,sif.ma5 < sif.ma13
+            ,sif.xatr>800
+            ,sif.sdiff30x<0
+            ,sif.mm<0   #处于绝对空头状态
+            ,sif.ms<0
+            )
+
+    signal = np.select([sif.time>1345],[signal],0)    
+    #signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+
+    signal = gand(signal == 1)
+
+    return signal * macd_short_x2.direction
+macd_short_x2.direction = XSELL
+macd_short_x2.priority = 1600   #优先级低于本级
 
 
 

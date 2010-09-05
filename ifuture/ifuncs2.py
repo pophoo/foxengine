@@ -374,6 +374,22 @@ xud30b.direction = XBUY
 xud30b.priority = 1200
 
 
+ama1 = ama_maker()
+ama2 = ama_maker(covered=30,dfast=6,dslow=100)
+
+def ama_short(sif,sopened=None): #+
+    trans = sif.transaction
+    xama1 = ama1(trans[ICLOSE])
+    xama2 = ama2(trans[ICLOSE])
+    signal = gand(cross(xama2,xama1)<0
+            ,sif.s10<0
+            ,sif.xatr<1200
+            ,sif.mtrend<0
+            )
+    return signal * XSELL
+ama_short.direction = XSELL
+ama_short.priority = 1600
+
 
 
 ###acd系列,属于突破算法
@@ -1160,61 +1176,23 @@ xagainst = [#多头
             ipmacd_short_devi1x,
             xud30s_r,
             ma60_short,
+            ama_short,
            ]
 
 xxx2 = xfollow + xbreak + xagainst
 
 
 '''
-16402 17617 17826 18228 18173 18494
+16402 17617 17826 18228 18173 18494 18655
+
+5231
+8150
+4562
+6817
+5493
+5526
+
 '''
 
-ama1 = ama_maker()
-ama2 = ama_maker(covered=30,dfast=6,dslow=100)
 
-def ama_short(sif,sopened=None): #+
-    '''
-        R=62,w/t=9/24
-    '''
-    trans = sif.transaction
-    xama1 = ama1(trans[ICLOSE])
-    xama2 = ama2(trans[ICLOSE])
-    signal = gand(cross(xama2,xama1)<0
-            ,strend(sif.sdiff5x-sif.sdea5x)<0
-            ,strend(sif.sdiff30x-sif.sdea30x)<0
-            ,strend(sif.diff1-sif.dea1)<0
-            )
-
-    return signal * XSELL
-ama_short.direction = XSELL
-ama_short.priority = 1200
-
-
-
-def ama_short2(sif,sopened=None):#-
-    ''' 与其它叠加无意义
-        但作为平多头仓的选项很好
-    '''
-    trans = sif.transaction
-    xama1 = ama1(trans[ICLOSE])
-    xama2 = ama2(trans[ICLOSE])
-    signal = gand(cross(xama2,trans[ICLOSE])<0,strend(sif.diff1)<0
-            ,sif.ltrend<0
-            
-            )
-    return signal * XSELL
-ama_short2.direction = XSELL
-ama_short2.priority = 1200
-
-
-def ama_long(sif,sopened=None):#-
-    trans = sif.transaction
-    xama1 = ama1(trans[ICLOSE])
-    xama2 = ama2(trans[ICLOSE])
-    signal = gand(cross(xama2,trans[ICLOSE])>0,strend(sif.diff5)>0
-            ,sif.xatr<800
-            )
-    return signal * XBUY
-ama_long.direction = XBUY
-ama_long.priority = 1200
 

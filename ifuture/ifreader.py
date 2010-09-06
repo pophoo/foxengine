@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import zipfile
+
 from wolfox.fengine.ifuture.ibase import *
+
 
 def extract_if(line):
     items = line.split(',')
@@ -44,9 +47,34 @@ def extract_if_wh(line):
 
     return record
 
+def read_if(filename,extractor=extract_if):
+    file = open(filename,'r')
+    data = file.read()
+    file.close()
+    return read_records(data,extractor)
 
-def read_if_as_np(filename,extractor=extract_if):
-    records = read_if(filename,extractor)
+def read_if_zip(filename,extractor=extract_if):
+    df = zipfile.ZipFile(filename,'r')
+    data = df.read(df.namelist()[0])    #只包含一个文件
+    data = data.replace('\r','')  #去掉zip文件读出的\r，因为直接读文本没有\r这个符号
+    df.close()
+    return read_records(data,extractor)
+
+def read_records(data,extractor):    
+    '''
+        根据传入的文本数据切割成record数组
+    '''
+    data = data.split('\n')
+    records = []
+    for line in data:
+        if len(line.strip()) > 0:
+            record = extractor(line)
+            if record.time < 1516 and record.time > 900:  #排除错误数据
+                records.append(record)
+    return records
+
+def read_if_as_np(filename,extractor=extract_if,readfunc = read_if):
+    records = readfunc(filename,extractor)
     n = len(records)
     narrays = [np.zeros(n,int),np.zeros(n,int),np.zeros(n,int),np.zeros(n,int),np.zeros(n,int),np.zeros(n,int),np.zeros(n,int),np.zeros(n,int),np.zeros(n,int)]
     i = 0
@@ -63,46 +91,38 @@ def read_if_as_np(filename,extractor=extract_if):
         i += 1
     return narrays
 
-def read_if(filename,extractor=extract_if):
-    records = []
-    for line in file(filename):
-        if len(line.strip()) > 0:
-            record = extractor(line)
-            if record.time < 1516 and record.time > 900:  #排除错误数据
-                records.append(record)
-    return records
-
-
-
-
 FPATH = 'D:/work/applications/gcode/wolfox/data/ifuture/'
 FPATH2 = 'D:/work/applications/gcode/wolfox/fengine/ifuture/data/'
 prefix = 'SF'
-IFS = 'IF0000','IF1005','IF1006','IF1007','IF1008','IF1009','IF1012','IF1103'#,'RU1011','FU1009','CU1011','CU1009'
+IFS = 'IF0001','IF1005','IF1006','IF1007','IF1008','IF1009','IF1012','IF1103'#,'RU1011','FU1009','CU1011','CU1009'
 #IF0000:当月连续，当某日收盘下月合约持仓超过本月90%时切换
 SUFFIX = '.txt'
+SUFFIX_ZIP = '.zip'
 
-def readp(path,name,extractor=extract_if):
+def readp(path,name,extractor=extract_if,readfunc=read_if,suffix=SUFFIX):
     ifs = {}
-    ifs[name] = BaseObject(name=name,transaction=read_if_as_np(path + name + SUFFIX,extractor=extractor))
+    ifs[name] = BaseObject(name=name,transaction=read_if_as_np(path + name + suffix,extractor=extractor,readfunc=readfunc))
     prepare_index(ifs[name])
     return ifs
 
-def read1(name,extractor=extract_if):
+def read1(name,extractor=extract_if,readfunc=read_if,suffix=SUFFIX):
     ifs = {}
-    ifs[name] = BaseObject(name=name,transaction=read_if_as_np(FPATH + prefix + name + SUFFIX,extractor=extractor))
+    ifs[name] = BaseObject(name=name,transaction=read_if_as_np(FPATH + prefix + name + suffix,extractor=extractor,readfunc=readfunc))
     prepare_index(ifs[name])
     return ifs
 
-def read_ifs(extractor=extract_if,names=IFS,path=FPATH):
+def read_ifs(extractor=extract_if,names=IFS,path=FPATH,readfunc=read_if,suffix=SUFFIX):
     ifs = {}
     for ifn in names:
-        ifs[ifn] = BaseObject(name=ifn,transaction=read_if_as_np(path + prefix + ifn + SUFFIX,extractor=extractor))
+        ifs[ifn] = BaseObject(name=ifn,transaction=read_if_as_np(path + prefix + ifn + suffix,extractor=extractor,readfunc=readfunc))
         prepare_index(ifs[ifn])
     return ifs
 
 read_ifs2 = fcustom(read_ifs,path=FPATH2)
 read_ifs = fcustom(read_ifs,path=FPATH2)
+
+read_ifs2_zip = fcustom(read_ifs,path=FPATH2,readfunc=read_if_zip,suffix=SUFFIX_ZIP)
+read_ifs_zip = fcustom(read_ifs,path=FPATH2,readfunc=read_if_zip,suffix=SUFFIX_ZIP)
 
 
 FBASE=10    #只用于macd提高精度，因为是整数运算，再往上就要溢出了

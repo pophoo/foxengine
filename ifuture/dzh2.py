@@ -453,7 +453,7 @@ class DynamicScheduler:
             his_path:历史数据路径
             dyn_path:动态数据路径
         '''
-        self.his_datas = ifreader.read_ifs2(names=names)   #返回 name=>transaction的映射
+        self.his_datas = ifreader.read_ifs2_zip(names=names)   #返回 name=>transaction的映射
         self.reader = SecReader(dyn_path)
         self.names = names
         self.dyn_datas = self.init_dyn(names)
@@ -596,8 +596,8 @@ class DynamicScheduler:
             发送成功返回1,否则为0
         '''
         #template = 'http://smsapi.qxt100.com/dapi/send_simple.php?name=wycharon&pwd=88107672&dest=13586682052&content=%s'        
-        #template = 'http://smsapi.qxt100.com/dapi/send_simple.php?name=wycharon&pwd=88107672&dest=15968464619&content=%s'
-        template = 'http://smsapi.qxt100.com/dapi/send_simple.php?name=wycharon&pwd=88107672&dest=13586682052&content=%s'
+        template = 'http://smsapi.qxt100.com/dapi/send_simple.php?name=wycharon&pwd=88107672&dest=15968464619&content=%s'
+        #template = 'http://smsapi.qxt100.com/dapi/send_simple.php?name=wycharon&pwd=88107672&dest=13586682052&content=%s'
         p = urllib2.urlopen(template % msg)
         rmsg = p.read()
         #rmsg = 'success' #'error'
@@ -664,6 +664,7 @@ import sys
 import getopt   #简单情形，不使用optparse
 if __name__ == '__main__':
     #scheduler = DynamicScheduler('d:/dzh2/data/sf/reportl.dat',['IF1009'])
+    #scheduler = DynamicScheduler('d:/dzh2/data/sf/reportl.dat',['IF0001']) #当月连续
     #scheduler.run()
     sms_begin = 915
     try:
@@ -676,6 +677,7 @@ if __name__ == '__main__':
     except getopt.GetoptError:
         pass
     
-    scheduler = DynamicScheduler('d:/dzh2/data/sf/reportl.dat',['IF1009'],sms_begin=sms_begin)
+    #scheduler = DynamicScheduler('d:/dzh2/data/sf/reportl.dat',['IF1009'],sms_begin=sms_begin)
+    scheduler = DynamicScheduler('d:/dzh2/data/sf/reportl.dat',['IF0001'],sms_begin=sms_begin)  #使用当月连续
     scheduler.run()
     

@@ -12,10 +12,10 @@ DTSORT = lambda x,y: int(((x.date%1000000 * 10000)+x.time) - ((y.date%1000000 * 
 
 simple_profit = lambda actions: actions[0].price * actions[0].position + actions[1].price * actions[1].position - TAX
 
-def normal_profit(actions): #8点损失
+def normal_profit(actions,max_lost=-90): #8点损失
     profit = actions[0].price * actions[0].position + actions[1].price * actions[1].position
-    if profit < -80:
-        profit = -80
+    if profit < max_lost:
+        profit = max_lost
     profit -= TAX
     return profit
 
@@ -639,7 +639,7 @@ afm = {1:lambda sif:sif.atr
         ,270:lambda sif:sif.atrdx
     }
 
-def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_drawdown=200,min_lost=30,max_lost=100,natr=1):
+def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_drawdown=200,min_lost=30,max_lost=90,natr=1):
     '''
         atr止损
         sif为实体
@@ -929,8 +929,9 @@ atr5_uxstop_03_25 = fcustom(atr_uxstop,lost_times=30,win_times=250,max_drawdown=
 atr5_uxstop_06_25 = fcustom(atr_uxstop,lost_times=66,win_times=250,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_07_25 = fcustom(atr_uxstop,lost_times=75,win_times=250,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_08_25 = fcustom(atr_uxstop,lost_times=80,win_times=250,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_15_25 = fcustom(atr_uxstop,lost_times=150,win_times=250,max_drawdown=200,min_lost=30,max_lost=100,natr=5)
-atr5_uxstop_12_25 = fcustom(atr_uxstop,lost_times=125,win_times=250,max_drawdown=200,min_lost=30,max_lost=100,natr=5)
+atr5_uxstop_15_25 = fcustom(atr_uxstop,lost_times=150,win_times=250,max_drawdown=200,min_lost=30,max_lost=90,natr=5)
+atr5_uxstop_12_25 = fcustom(atr_uxstop,lost_times=125,win_times=250,max_drawdown=200,min_lost=30,max_lost=90,natr=5)
+atr5_uxstop_20_25 = fcustom(atr_uxstop,lost_times=200,win_times=250,max_drawdown=200,min_lost=30,max_lost=150,natr=5)
 
 
 atr5_uxstop_08_25_6 = fcustom(atr_uxstop,lost_times=80,win_times=250,max_drawdown=200,min_lost=60,natr=5)

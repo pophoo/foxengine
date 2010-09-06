@@ -17,7 +17,7 @@ import wolfox.fengine.ifuture.dynamic as dynamic
 from wolfox.fengine.ifuture.ifuncs import *
 
 
-ifmap = ifreader.read_ifs()  # fname ==> BaseObject(name='$name',transaction=trans)
+ifmap = ifreader.read_ifs_zip()  # fname ==> BaseObject(name='$name',transaction=trans)
 
 
 ###计算
@@ -239,6 +239,7 @@ itradex6_y = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_06_25,bclos
 itradex3_y = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_03_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 itradex15_y = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_15_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 itradex12_y = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_12_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex20_y = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_20_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 
 itradex8_y6 = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_08_25_6,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 

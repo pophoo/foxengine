@@ -639,7 +639,7 @@ afm = {1:lambda sif:sif.atr
         ,270:lambda sif:sif.atrdx
     }
 
-def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_drawdown=200,min_lost=30,max_lost=70,natr=1):
+def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_drawdown=200,min_lost=30,max_lost=100,natr=1):
     '''
         atr止损
         sif为实体
@@ -661,6 +661,7 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
     for i in isignal:
         price = sopened[i]
         willlost = satr[i] * lost_times / XBASE / XBASE
+        #print willlost
         if willlost < min_lost:
             willlost = min_lost
         if willlost > max_lost:
@@ -678,6 +679,7 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
             cur_high = max(buy_price,trans[ICLOSE][i])
             win_stop = cur_high - satr[i] * win_times / XBASE / XBASE
             cur_stop = lost_stop if lost_stop > win_stop else win_stop
+            #print 'stop init:',cur_stop,lost_stop,willlost,min_lost,max_lost
             if ssclose[i] == XSELL:
                 #print 'sell signali:',trans[IDATE][i],trans[ITIME][i],trans[ICLOSE][i]
                 pass
@@ -693,7 +695,7 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
                     #print trans[ITIME][j],buy_price,lost_stop,cur_high,win_stop,cur_stop,trans[ILOW][j],satr[j]
                     if trans[ILOW][j] < cur_stop or ssclose[j] == XSELL:    #
                         rev[j] = XSELL
-                        #print 'sell:',i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j]
+                        #print 'sell:',i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
                         ilong_closed = j
                         break
                     nhigh = trans[IHIGH][j]
@@ -912,7 +914,6 @@ atr5_uxstop_15_6_45 = fcustom(atr_uxstop,lost_times=150,win_times=600,max_drawdo
 
 
 atr5_uxstop_1_2 = fcustom(atr_uxstop,lost_times=100,win_times=200,max_drawdown=200,min_lost=30,natr=5)
-atr5_uxstop_15_25 = fcustom(atr_uxstop,lost_times=150,win_times=250,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_2_3 = fcustom(atr_uxstop,lost_times=200,win_times=300,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_25_4 = fcustom(atr_uxstop,lost_times=250,win_times=400,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_25_6 = fcustom(atr_uxstop,lost_times=250,win_times=600,max_drawdown=200,min_lost=30,natr=5)
@@ -928,6 +929,9 @@ atr5_uxstop_03_25 = fcustom(atr_uxstop,lost_times=30,win_times=250,max_drawdown=
 atr5_uxstop_06_25 = fcustom(atr_uxstop,lost_times=66,win_times=250,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_07_25 = fcustom(atr_uxstop,lost_times=75,win_times=250,max_drawdown=200,min_lost=30,natr=5)
 atr5_uxstop_08_25 = fcustom(atr_uxstop,lost_times=80,win_times=250,max_drawdown=200,min_lost=30,natr=5)
+atr5_uxstop_15_25 = fcustom(atr_uxstop,lost_times=150,win_times=250,max_drawdown=200,min_lost=30,max_lost=100,natr=5)
+atr5_uxstop_12_25 = fcustom(atr_uxstop,lost_times=125,win_times=250,max_drawdown=200,min_lost=30,max_lost=100,natr=5)
+
 
 atr5_uxstop_08_25_6 = fcustom(atr_uxstop,lost_times=80,win_times=250,max_drawdown=200,min_lost=60,natr=5)
 

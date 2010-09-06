@@ -21,7 +21,7 @@ ifmap = ifreader.read_ifs()  # fname ==> BaseObject(name='$name',transaction=tra
 
 
 ###计算
-i00 = ifmap['IF0000']   #当月连续
+i00 = ifmap['IF0001']   #当月连续
 i05 = ifmap['IF1005']
 i06 = ifmap['IF1006']
 i07 = ifmap['IF1007']
@@ -237,6 +237,8 @@ itradex7_y = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_07_25,bclos
 itradex8_y = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_08_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 itradex6_y = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_06_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 itradex3_y = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_03_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex15_y = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_15_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex12_y = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_12_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 
 itradex8_y6 = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_08_25_6,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 
@@ -278,7 +280,7 @@ itradex525_y = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_05_25,bcl
 
 itradex1_y = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_1_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 itradex1525_y = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_15_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
-itradex15_y = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_15_15,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex1515_y = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_15_15,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 itradex515_y = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_05_15,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 itradex510_y = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_05_10,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 itradex520_y = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_05_20,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])

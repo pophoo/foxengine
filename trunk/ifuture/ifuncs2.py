@@ -142,6 +142,8 @@ def macd_short_x2(sif,sopened=None):
 macd_short_x2.direction = XSELL
 macd_short_x2.priority = 1600   #优先级低于本级
 
+
+
 #####多头
 def rsi_long_x(sif,sopened=None,rshort=7,rlong=19):
     '''
@@ -235,6 +237,32 @@ def macd_long_x2(sif,sopened=None):
     return signal * macd_long_x2.direction
 macd_long_x2.direction = XBUY
 macd_long_x2.priority = 1500
+
+def macd_long_x3(sif,sopened=None):
+    '''
+        去掉s30>0条件
+    '''
+    signal = cross(sif.dea1,sif.diff1)>0    
+
+    rshort = 7
+    rlong = 19
+    rsia = rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = rsi2(sif.close,rlong)
+    #signal = cross(rsib,rsia)>0    
+
+    signal = gand(signal
+                    ,sif.s30>0
+                    ,sif.diff1<0
+                    ,sif.ltrend>0
+                    ,sif.xatr<1200
+                    ,sif.s15>0
+                    ,sif.ma3>sif.ma13
+            )
+
+    return signal * macd_long_x3.direction
+macd_long_x3.direction = XBUY
+macd_long_x3.priority = 1500
+
 
 def up0(sif,sopened=None):
     '''
@@ -667,6 +695,41 @@ def br30(sif,sopened=None):
         5分钟最高突破开盘前30分钟最高之后，下一次1分钟上叉
         属于突破回调的模式
     '''
+    
+    high30 = np.select([sif.time[sif.i_cof30]==944],[sif.high30],default=0)
+
+    xhigh30,xlow30 = np.zeros_like(sif.diff1),np.zeros_like(sif.diff1)
+    xhigh30[sif.i_cof30] = high30   #因为屏蔽了前30分钟，所以i_cof30和i_oof30效果一样
+
+    xhigh30 = extend2next(xhigh30)
+
+    signal = np.zeros_like(sif.diff1)
+
+    signal[sif.i_cof5] = cross(xhigh30[sif.i_cof5],sif.high5)>0
+
+    #signal = sfollow(signal,cross(sif.dea1,sif.diff1)>0,15)
+    rshort = 7
+    rlong = 19
+    rsia = rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = rsi2(sif.close,rlong)
+    
+    signal = sfollow(signal,cross(sif.dea1,sif.diff1)>0,15)    
+    #signal = sfollow(signal,cross(rsib,rsia)>0,15)    
+
+    signal = gand(signal
+            ,sif.s30>0
+            ,sif.mtrend>0
+            )
+
+    return signal * br30.direction
+br30.direction = XBUY
+br30.priority = 1200
+
+def br30_old(sif,sopened=None):
+    '''
+        5分钟最高突破开盘前30分钟最高之后，下一次1分钟上叉
+        属于突破回调的模式
+    '''
     trans = sif.transaction
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
@@ -694,8 +757,9 @@ def br30(sif,sopened=None):
             )
 
     return signal * br30.direction
-br30.direction = XBUY
-br30.priority = 1200
+br30_old.direction = XBUY
+br30_old.priority = 1200
+
 
 def godown(sif,sopened=None):
     '''
@@ -870,6 +934,33 @@ def xdma_short(sif,sopened=None,length=5):
     return signal * xdma_short.direction
 xdma_short.direction = XSELL
 xdma_short.priority = 2400
+
+def ma1x(sif,opened=None,length=60):
+    ''' 
+        1分钟均线
+        第一次碰线
+    '''
+    bma = ma(sif.close,length)
+    
+    signal = cross(bma,sif.low)>0
+
+    signal = gand(signal
+                ,strend2(bma)>0
+                ,sif.ltrend>0
+                ,sif.mtrend>0
+                ,sif.s30>0
+            )
+    signal = np.select([sif.time>944],[signal],0)
+
+    signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal==1)
+    
+    signal = derepeatc(signal)
+
+    return signal * ma1x.direction
+ma1x.direction = XBUY
+ma1x.priority = 2100
+
 
 def k15_lastdown(sif,sopened=None):
     '''
@@ -1168,6 +1259,7 @@ xagainst = [#多头
            #空头
             xma_short, #样本太少
             xdma_short,    #
+            ma1x,
             k15_lastdown,
             k15_lastdown_s,
             k5_lastup,
@@ -1183,7 +1275,7 @@ xxx2 = xfollow + xbreak + xagainst
 xxx3 = xfollow + xbreak + xagainst
 
 '''
-16402 17617 17826 18228 18173 18494 18655
+16402 17617 17826 18228 18173 18494 18655 18663
 
 5231
 8150

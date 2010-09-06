@@ -6,7 +6,7 @@ from wolfox.fengine.ifuture.ibase import *
 import wolfox.fengine.ifuture.dynamic as dynamic
 import wolfox.fengine.ifuture.ifuncs as ifuncs
 import wolfox.fengine.ifuture.ifuncs2 as ifuncs2
-
+import wolfox.fengine.ifuture.ifuncs1a as ifuncs1a
 
 #必须写绝对路径名，否则在apache中相对路径的起始是site-packages/web
 path_name = os.path.dirname(__file__)
@@ -59,7 +59,7 @@ class LastUpdate2:
             priority = int(priority)    #除默认外，传入的是字符串
         except:
             return u'优先级请输入合法的数字，您输入的是:%s' % priority
-        fname,sif,xactions = dynamic.whget(ifuncs2.xxx,priority=priority)
+        fname,sif,xactions = dynamic.whget(ifuncs1a.xxx,priority=priority)
         #return "name=%s,lastupdate=%s:%s" % (fname,sif.transaction[IDATE][-1],sif.transaction[ITIME][-1])
         lasttime = "%s-%s" % (sif.transaction[IDATE][-1],sif.transaction[ITIME][-1])
         #print priority
@@ -71,7 +71,7 @@ class Indices:
             length = int(length)    #除默认外，传入的是字符串
         except:
             return u'覆盖长度请输入合法的数字，您输入的是:%s' % length
-        fname,sif = dynamic.fget(ifuncs2.xxx)
+        fname,sif = dynamic.fget(ifuncs1a.xxx)
         #return "name=%s,lastupdate=%s:%s" % (fname,sif.transaction[IDATE][-1],sif.transaction[ITIME][-1])
         lasttime = "%s-%s" % (sif.transaction[IDATE][-1],sif.transaction[ITIME][-1])
         indices = zip(sif.date  #这里的次序必须与模板中的次序一致

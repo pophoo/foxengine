@@ -1180,7 +1180,7 @@ xagainst = [#多头
            ]
 
 xxx2 = xfollow + xbreak + xagainst
-
+xxx3 = xfollow + xbreak + xagainst
 
 '''
 16402 17617 17826 18228 18173 18494 18655

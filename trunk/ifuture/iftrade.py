@@ -647,7 +647,16 @@ afm = {1:lambda sif:sif.atr
         ,270:lambda sif:sif.atrdx
     }
 
-def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_drawdown=200,min_lost=30,max_lost=90,natr=1):
+def atr_uxstop(sif,sopened
+        ,sbclose
+        ,ssclose
+        ,lost_times=200
+        ,win_times=300
+        ,max_drawdown=200
+        ,min_drawdown=120
+        ,min_lost=30
+        ,max_lost=90
+        ,natr=1):
     '''
         atr止损
         sif为实体
@@ -655,6 +664,7 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
         sbclose是价格无关序列所发出的买入平仓信号集合(平空仓)
         ssclose是价格无关序列所发出的卖出平仓信号集合(平多仓)
         max_drawdown: 从最高点起的最大回落
+        min_drawdown: 从最高点起的最小回落
         min_lost: 最小止损
         max_lost: 最大止损
         只能持有一张合约。即当前合约在未平前会屏蔽掉所有其它开仓
@@ -712,6 +722,8 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
                         drawdown = satr[j] * win_times / XBASE / XBASE
                         if drawdown > max_drawdown:
                             drawdown = max_drawdown
+                        if drawdown < min_drawdown:
+                            drawdown = min_drawdown
                         win_stop = cur_high - drawdown
                         #win_stop = cur_high - satr[j] * win_times / XBASE
                         #print nhigh,cur_stop,win_stop,satr[j]
@@ -752,6 +764,8 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
                         drawdown = satr[j] * win_times / XBASE / XBASE
                         if drawdown > max_drawdown:
                             drawdown = max_drawdown
+                        if drawdown < min_drawdown:
+                            drawdown = min_drawdown
                         win_stop = cur_low + drawdown
                         #print nlow,cur_stop,win_stop,satr[j]
                         #win_stop = cur_low + satr[j] * win_times / XBASE / XBASE
@@ -759,7 +773,16 @@ def atr_uxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_draw
                             cur_stop = win_stop
     return rev
 
-def atr_rxstop(sif,sopened,sbclose,ssclose,lost_times=200,win_times=300,max_drawdown=90,min_lost=30,max_lost=70,natr=1):
+def atr_rxstop(sif
+        ,sopened
+        ,sbclose
+        ,ssclose
+        ,lost_times=200
+        ,win_times=300
+        ,max_drawdown=90
+        ,min_lost=30
+        ,max_lost=70
+        ,natr=1):
     '''
         atr止损
         sif为实体

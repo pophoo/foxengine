@@ -781,12 +781,13 @@ def devi(shigh,sdiff,regr=96):
     xdev = gand(xhighA,xhigh == xhigh60,xdiff7<xdiff60)
     return xdev
 
-def hdevi(shigh,ref_quick,ref_slow,sbase=None,covered=20,distance=1):
+def hdevi(shigh,ref_quick,ref_slow,sbase=None,covered=20,distance=1,delta=0):
     '''
         顶背离
         ref_quick,ref_slow(sdiff,ref_slow)用于确认顶底
         sbase是比较线,即顶底确认后的比较
         distance表示与前面第几个顶背离
+        delta:平滑系数，高点如果低delta也算新高
         这个算法根据macd下叉来确认顶，可能更好？
     '''
     if sbase == None:
@@ -796,15 +797,16 @@ def hdevi(shigh,ref_quick,ref_slow,sbase=None,covered=20,distance=1):
     dhigh = tmax(sbase,covered)
     dxhigh = rsub2(xhigh,sc,distance)
     ddhigh = rsub2(dhigh,sc,distance)
-    signal = gand(dxhigh>0,ddhigh<0)
+    signal = gand(dxhigh + delta>0,ddhigh<0)
     return signal
 
-def ldevi(slow,ref_quick,ref_slow,sbase=None,covered=20,distance=1):
+def ldevi(slow,ref_quick,ref_slow,sbase=None,covered=20,distance=1,delta=0):
     '''
         底背离
         ref_quick,ref_slow用于确认顶底
         sbase是比较线,即顶底确认后的比较
         distance表示与前面第几个底背离
+        delta:平滑系数，低点如果高delta也算新低
         这个算法根据macd下叉来确认底，可能更好？
     '''
     if sbase == None:
@@ -816,7 +818,7 @@ def ldevi(slow,ref_quick,ref_slow,sbase=None,covered=20,distance=1):
     dxlow = rsub2(xlow,sc,distance)
     ddlow = rsub2(dlow,sc,distance)
     #print dxlow,ddlow
-    signal = gand(dxlow<0,ddlow>0)
+    signal = gand(dxlow-delta<0,ddlow>0)
     return signal
 
 def hpeak(shigh,ref_quick,ref_slow,covered=10):

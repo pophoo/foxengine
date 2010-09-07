@@ -295,38 +295,45 @@ def sync_tradess(sif,tradess,acstrategy=late_strategy):
     cur_trade = find_first(tradess)
     if cur_trade == None:
         return []
+    cur_trade.orignal = cur_trade.functor   
     extended,filtered,rfiltered,reversed = [],[],[],[]
     close_action = cur_trade.actions[-1]
-    print '#####################first:',close_action.time
+    #print '#####################first:',close_action.time
     while True:
+        #print cur_trade.orignal
         trade = find_first(tradess)
+        #print trade
         if trade == None:
             xtrades.append(close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed))
             break
-        print 'find:date=%s,time=%s,functor=%s' % (trade.actions[0].date,trade.actions[0].time,trade.functor)  
+        #print 'find:date=%s,time=%s,functor=%s' % (trade.actions[0].date,trade.actions[0].time,trade.functor)  
         if DTSORT2(trade.actions[0],close_action)>0:  #时间超过
             #print u'时间超过'
             xtrades.append(close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed))
+            trade.orignal = trade.functor
             cur_trade = trade
             close_action = cur_trade.actions[-1]
             extended,filtered,rfiltered,reversed = [],[],[],[]
+            #print cur_trade.orignal
             continue
            
         #print trade.functor,trade.functor.priority ,cur_trade.functor,cur_trade.functor.priority
         if trade.functor.priority <= cur_trade.functor.priority:
             #print u'高/平优先级'   #后发的同优先级信号优先
             if trade.direction == cur_trade.direction:  #同向取代关系
-                print u'同向增强,%s|%s:%s被%s增强'%(cur_trade.functor,cur_trade.actions[0].date,cur_trade.actions[0].time,trade.functor)
+                #print u'同向增强,%s|%s:%s被%s增强'%(cur_trade.functor,cur_trade.actions[0].date,cur_trade.actions[0].time,trade.functor)
                 close_action = acstrategy(close_action,trade.actions[-1])
                 extended.append(cur_trade)
+                trade.orignal = cur_trade.orignal
                 cur_trade = trade
             else:   #逆向平仓
-                print u'逆向平仓'
+                #print u'逆向平仓'
                 reversed.append(trade)
                 xindex = reversed[0].actions[0].index
                 cposition = BaseObject(index=xindex,date=sdate[xindex],time=stime[xindex],position=reversed[0].direction,xtype=XCLOSE)    #因为已经抑制了1514开仓,必然不会溢出
                 cposition.price = make_price(cposition.position,sopen[xindex],sclose[xindex],shigh[xindex],slow[xindex])
                 xtrades.append(close_trade(sif,cur_trade,cposition,extended,filtered,rfiltered,reversed))
+                trade.orignal = trade.functor
                 cur_trade = trade
                 extended,filtered,rfiltered,reversed = [],[],[],[]
                 close_action = cur_trade.actions[-1]                
@@ -444,6 +451,7 @@ def close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed,
     trade.rfiltered = rfiltered
     trade.reversed = reversed
     trade.functor = cur_trade.functor
+    trade.orignal = cur_trade.orignal
     trade.trade = cur_trade
     return trade
 

@@ -617,7 +617,7 @@ def gapdown(sif,sopened=None):
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
 
-    high30 = np.select([trans[ITIME][sif.i_cof30]==945],[sif.high30],default=0)
+    high30 = np.select([trans[ITIME][sif.i_cof30]==944],[sif.high30],default=0)
 
     xhighd,xlowd = np.zeros_like(sif.diff1),np.zeros_like(sif.diff1)
     xhighd[sif.i_cofd] = sif.highd
@@ -641,7 +641,7 @@ def gapdown(sif,sopened=None):
 
     return signal * gapdown.direction
 gapdown.direction = XSELL
-gapdown.priority = 2600
+gapdown.priority = 2400
 
 
 def gapdown15(sif,sopened=None):
@@ -689,7 +689,7 @@ def gapdown5(sif,sopened=None):
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
     ksfilter = gand(trans[IOPEN] - trans[ICLOSE] < 60,rollx(trans[IOPEN]) - trans[ICLOSE] < 120,sif.xatr<2000)
     
-    high30 = np.select([trans[ITIME][sif.i_cof30]==945],[sif.high30],default=0)
+    high30 = np.select([trans[ITIME][sif.i_cof30]==944],[sif.high30],default=0)
 
     xhighd,xlowd = np.zeros_like(sif.diff1),np.zeros_like(sif.diff1)
     xhighd[sif.i_cofd] = sif.highd
@@ -708,7 +708,7 @@ def gapdown5(sif,sopened=None):
 
     return signal * gapdown5.direction
 gapdown5.direction = XSELL
-gapdown5.priority = 3000
+gapdown5.priority = 2400
 
 
 def br75(sif,sopened=None):
@@ -742,7 +742,7 @@ def br75(sif,sopened=None):
 
     return signal * br75.direction
 br75.direction = XBUY
-br75.priority = 3000
+br75.priority = 2400
 
 
 def xup(sif,sopened=None):

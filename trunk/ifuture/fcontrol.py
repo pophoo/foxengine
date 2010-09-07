@@ -8,6 +8,7 @@ import wolfox.fengine.ifuture.ifreader as ifreader
 import wolfox.fengine.ifuture.iftrade as iftrade
 import wolfox.fengine.ifuture.ifuncs2 as ifuncs2
 import wolfox.fengine.ifuture.ifuncs as ifuncs
+import wolfox.fengine.ifuture.ifuncs1a as ifuncs1
 import wolfox.fengine.ifuture.tfuncs as tfuncs
 import wolfox.fengine.ifuture.fcontrol as control
 import wolfox.fengine.ifuture.dynamic as dynamic
@@ -29,9 +30,23 @@ i08 = ifmap['IF1008']
 i09 = ifmap['IF1009']
 i12 = ifmap['IF1012']
 
-tradesy =  control.itradex8_y(i09,ifuncs2.xxx2)
+tradesy =  control.itradex8_y(i00,ifuncs2.xxx2)
 
-for trade in tradesy:print trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].date,trade.actions[1].time,trade.actions[1].position,trade.actions[1].price,trade.actions[1].index-trade.actions[0].index
+lx = lambda ii,trade:ii.xatr[trade.actions[0].index]
+lm = lambda ii,trade:ii.mxatr[trade.actions[0].index]
+lx30 = lambda ii,trade:ii.xatr30x[trade.actions[0].index]
+lm30 = lambda ii,trade:ii.mxatr30x[trade.actions[0].index]
+lx15 = lambda ii,trade:ii.xatr15x[trade.actions[0].index]
+lm15 = lambda ii,trade:ii.mxatr15x[trade.actions[0].index]
+lx10 = lambda ii,trade:ii.xatr10x[trade.actions[0].index]
+lm10 = lambda ii,trade:ii.mxatr10x[trade.actions[0].index]
+lx5 = lambda ii,trade:ii.xatr5x[trade.actions[0].index]
+lm5 = lambda ii,trade:ii.mxatr5x[trade.actions[0].index]
+
+
+for trade in tradesy:print trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].time,trade.actions[1].price,trade.actions[1].index-trade.actions[0].index,str(trade.functor)[10:-14],str(trade.orignal)[10:-14]
+
+#for trade in tradesy:print trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].time,trade.actions[1].price,trade.actions[1].index-trade.actions[0].index,str(trade.functor)[10:-14],str(trade.orignal)[10:-14],lx(i00,trade),lm(i00,trade),lx5(i00,trade),lm5(i00,trade),lx15(i00,trade),lm15(i00,trade),lx30(i00,trade),lm30(i00,trade)
 
 sum([trade.profit for trade in tradesy])
 sum([trade.profit>0 for trade in tradesy])
@@ -41,6 +56,9 @@ iftrade.R(tradesy)
 
 iftrade.max_drawdown(tradesy)    #最大连续回撤和单笔回撤
 iftrade.max_win(tradesy)         #最大连续盈利和单笔盈利
+
+
+
 
 
 #5月合约

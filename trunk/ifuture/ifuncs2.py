@@ -42,6 +42,7 @@ def rsi_short_x(sif,sopened=None,rshort=7,rlong=19):
             ,sif.ms<0
             ,strend2(sif.ma30)<0
             ,sif.xatr30x<6000
+            ,sif.mtrend<0
             )
 
     signal = np.select([sif.time>944],[signal],0)
@@ -203,6 +204,7 @@ rsi_long_x2.priority = 1500
 def macd_long_x(sif,sopened=None):
     '''
         居然添加任何ltrend/mtrend/strend条件都会使结果变坏
+        经观察，这是个逆势的方法，所以不能加趋势
     '''
     signal = cross(sif.dea1,sif.diff1)>0    
 
@@ -267,6 +269,7 @@ macd_long_x3.priority = 1500
 def up0(sif,sopened=None):
     '''
         上穿0线
+        是逆势的
     '''
     trans = sif.transaction
     dsfilter = gand(trans[ICLOSE] - trans[IOPEN] < 100,rollx(trans[ICLOSE]) - trans[IOPEN] < 200,sif.xatr<1500)#: 向上突变过滤
@@ -440,6 +443,7 @@ def range_a(sif,tbegin,tend,wave):
 
 def acd_ua(sif,sopened=None):
     '''
+        发现前两天不能有信号(不论前次信号胜负)，否则必败
     '''
     wave = np.zeros_like(sif.close)
     wave[sif.i_cof10] = rollx(sif.atr10) *2/3/XBASE  #掠过914-919的atr10
@@ -1227,7 +1231,6 @@ ipmacd_short_devi1x.priority = 2480
 xfollow = [#多头
             rsi_long_x,
             rsi_long_x2,
-            macd_long_x,
             macd_long_x2,            
            #空头
             rsi_short_x,
@@ -1235,10 +1238,9 @@ xfollow = [#多头
             macd_short_x,
             macd_short_x2,
            #其它
-            up0,
             down01,
             xdown60,    #有合并损失
-            xud30b, 
+            xud30b,     #趋势不明
           ]
 
 xbreak = [#多头
@@ -1256,6 +1258,8 @@ xbreak = [#多头
 xagainst = [#多头
             xma_long,
             xdma_long,
+            macd_long_x,
+            up0,            
            #空头
             xma_short, #样本太少
             xdma_short,    #

@@ -1216,7 +1216,7 @@ def ipmacd_short_devi1x(sif,sopened=None):#+++
     ''' 
     '''
 
-    signal = gand(hdevi(sif.high,sif.diff1,sif.dea1)#,sif.diff1,sif.dea1)
+    signal = gand(hdevi(sif.high,sif.diff1,sif.dea1,delta=10)   #即便新高离上一高点低1点，仍然可视为新高
                 ,sif.s30<0
                 ,sif.mm<0
                 ,sif.xatr30x<6666

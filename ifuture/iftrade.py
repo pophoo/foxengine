@@ -12,7 +12,7 @@ DTSORT = lambda x,y: int(((x.date%1000000 * 10000)+x.time) - ((y.date%1000000 * 
 
 simple_profit = lambda actions: actions[0].price * actions[0].position + actions[1].price * actions[1].position - TAX
 
-def normal_profit(actions,max_lost=-90): #8点损失
+def normal_profit(actions,max_lost=-70): #8点损失
     profit = actions[0].price * actions[0].position + actions[1].price * actions[1].position
     if profit < max_lost:
         profit = max_lost
@@ -655,7 +655,7 @@ def atr_uxstop(sif,sopened
         ,max_drawdown=200
         ,min_drawdown=120
         ,min_lost=30
-        ,max_lost=90
+        ,max_lost=60
         ,natr=1):
     '''
         atr止损

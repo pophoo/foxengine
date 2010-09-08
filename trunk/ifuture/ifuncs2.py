@@ -20,7 +20,7 @@
 
 
 from wolfox.fengine.ifuture.ibase import *
-from wolfox.fengine.ifuture.iftrade import delay_filter,atr5_uxstop_1_25,atr5_uxstop_08_25,atr5_uxstop_05_25
+from wolfox.fengine.ifuture.iftrade import delay_filter,atr5_uxstop_1_25,atr5_uxstop_08_25,atr5_uxstop_05_25,atr5_uxstop_08_25_A
 
 
 ###顺势
@@ -218,7 +218,7 @@ def macd_long_x(sif,sopened=None):
 
     return signal * macd_long_x.direction
 macd_long_x.direction = XBUY
-macd_long_x.priority = 1900
+macd_long_x.priority = 2100
 
 def macd_long_x2(sif,sopened=None):
     '''
@@ -285,7 +285,7 @@ def up0(sif,sopened=None):
 
     return signal * up0.direction
 up0.direction = XBUY
-up0.priority = 1800  #叠加时，远期互有盈亏
+up0.priority = 2100  #叠加时，远期互有盈亏
 
 def down01(sif,sopened=None): #++
     ''' 
@@ -377,7 +377,7 @@ def ma60_short(sif,sopened=None):
     signal = sfollow(msignal,fsignal,5)
     return signal * ma60_short.direction
 ma60_short.direction = XSELL
-ma60_short.priority = 2401
+ma60_short.priority = 1901
 
 def xud30b(sif,sopened=None):
     '''
@@ -1247,6 +1247,11 @@ xfollow = [#多头
             ama_short, #样本数太少，
           ]
 
+#for xf in xfollow:xf.stop_closer = atr5_uxstop_05_25
+for xf in xfollow:
+    xf.stop_closer = atr5_uxstop_08_25_A
+    xf.strategy = XFOLLOW
+
 xbreak = [#多头
             acd_ua,
             acd_ua_sz, 
@@ -1257,6 +1262,9 @@ xbreak = [#多头
             #acd_da, #样本太少，暂缓
             #acd_da_sz_b,#样本太少，暂缓
          ]
+for xf in xbreak:
+    xf.stop_closer = atr5_uxstop_08_25_A
+    xf.strategy = XBREAK
 
 ##xagainst必须提高成功率，否则会引起最大连续回撤的快速放大. 因此对样本数暂不作限制
 xagainst = [#多头
@@ -1275,6 +1283,11 @@ xagainst = [#多头
             ipmacd_short_devi1x, ##样本数太少，暂缓,但即将满足0907
             xud30s_r,  ##样本数太少
            ]
+#for xf in xagainst:xf.stop_closer = atr5_uxstop_08_25_A
+#for xf in xagainst:xf.stop_closer = atr5_uxstop_05_25
+for xf in xagainst:
+    xf.strategy = XAGAINST
+
 
 xxx2 = xfollow + xbreak + xagainst
 xxx3 = xfollow + xbreak + xagainst

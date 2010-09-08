@@ -118,9 +118,17 @@ def fget(strategy,priority=2500):
     return fname,sif
 
 def calc_stop(sif,action):
+    #print action.functor.strategy
     stop1 = sif.atr5x[action.index]/1250.0
     stop2 = sif.atr[action.index]*1.5/1000
-    stop3 = 6   #最小6个点
+    if action.functor.strategy == XFOLLOW:
+        stop3 = 9
+    elif action.functor.strategy == XBREAK:
+        stop3 = 9
+    elif action.functor.strategy == XAGAINST:
+        stop3 = 6   #最小6个点
+    else:
+        stop3 = 6
     if stop1 < 3:
         stop1 = 3
     if stop2 < 3:

@@ -31,6 +31,7 @@ i09 = ifmap['IF1009']
 i12 = ifmap['IF1012']
 
 tradesy =  control.itradex8_y(i00,ifuncs2.xxx2)
+iftrade.limit_profit(tradesy,-70)
 
 lx = lambda ii,trade:ii.xatr[trade.actions[0].index]
 lm = lambda ii,trade:ii.mxatr[trade.actions[0].index]

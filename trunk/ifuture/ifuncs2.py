@@ -371,11 +371,8 @@ def ma60_short(sif,sopened=None):
                 )
     fsignal = gand(cross(sif.dea1,sif.diff1)<0
                 ,strend2(sif.sdiff5x-sif.sdea5x)>0
-                ,sif.ltrend<0
-                ,sif.mtrend<0
-                ,sif.ms<0
-                ,sif.strend<0
                 ,ksfilter                
+                ,sif.xatr3x>sif.mxatr3x
                 )
     signal = sfollow(msignal,fsignal,5)
     return signal * ma60_short.direction
@@ -413,9 +410,10 @@ def ama_short(sif,sopened=None): #+
     xama1 = ama1(trans[ICLOSE])
     xama2 = ama2(trans[ICLOSE])
     signal = gand(cross(xama2,xama1)<0
-            ,sif.s10<0
+            #,sif.s10<0
             ,sif.xatr<1200
             ,sif.mtrend<0
+            ,sif.xatr<sif.mxatr
             )
     return signal * XSELL
 ama_short.direction = XSELL
@@ -473,7 +471,8 @@ def acd_ua(sif,sopened=None):
     signal = gand(ms_ua==1         #第一个ua
                 ,bnot(ms_da)       #没出现过da 
                 ,sif.s30>0
-                ,sif.xatr<1800
+                ,sif.xatr30x<sif.mxatr30x
+                #,sif.xatr<1800
                 )
 
     return signal * acd_ua.direction
@@ -569,7 +568,8 @@ def acd_ua_sz(sif,sopened=None):
                     ,bnot(ms_da)
                     ,UA >= szh
                     ,sif.ms>0
-                    ,sif.xatr<1800
+                    #,sif.xatr<1800
+                    ,sif.xatr30x<sif.mxatr30x
                     )
 
 
@@ -788,10 +788,10 @@ def godown(sif,sopened=None):
     #signal = sum2diff(signal,sif.date)
 
     signal = gand(signal==1
-            ,sif.s30<0
-            ,strend2(sif.ma30)<0
-            ,sif.ma3<sif.ma13
-            ,strend2(sif.sdiff3x-sif.sdea3x)<0
+            #,sif.s30<0
+            #,strend2(sif.ma30)<0
+            #,sif.ma3<sif.ma13
+            #,strend2(sif.sdiff3x-sif.sdea3x)<0
             ,sif.xatr30x<6000
             )
 
@@ -1194,9 +1194,10 @@ def ipmacd_short_devi1(sif,sopened=None):
 
     th = tmax(trans[IHIGH],120)
     th2 = tmax(trans[IHIGH],10)
+    delta = 10 #2点
 
-    signal = gand(hdevi(trans[IHIGH],sif.diff1,sif.dea1)
-                ,th2 == th
+    signal = gand(hdevi(trans[IHIGH],sif.diff1,sif.dea1,delta=delta)
+                ,th2 >= th - delta
                 )
 
     fsignal = strend2(sif.diff1-sif.dea1)<0
@@ -1230,49 +1231,49 @@ ipmacd_short_devi1x.priority = 2480
 ####集合
 xfollow = [#多头
             rsi_long_x,
-            rsi_long_x2,
-            macd_long_x2,            
+            rsi_long_x2,    
+            macd_long_x2,   #样本数太少，暂缓
            #空头
             rsi_short_x,
             rsi_short_x2,
             macd_short_x,
             macd_short_x2,
            #其它
-            down01,
+            down01,     #样本数太少，暂缓
             xdown60,    #有合并损失
             xud30b,     #趋势不明
+            ma1x,            
+            ma60_short,  
+            ama_short, #样本数太少，
           ]
 
 xbreak = [#多头
             acd_ua,
-            acd_ua_sz,
-            acd_ua_sz_b,
+            acd_ua_sz, 
+            #acd_ua_sz_b, #样本太少，暂缓
             br30,
           #空头
             godown,
-            acd_da,
-            acd_da_sz_b,
+            #acd_da, #样本太少，暂缓
+            #acd_da_sz_b,#样本太少，暂缓
          ]
 
-##xagainst必须提高成功率，否则会引起最大连续回撤的快速放大
+##xagainst必须提高成功率，否则会引起最大连续回撤的快速放大. 因此对样本数暂不作限制
 xagainst = [#多头
-            xma_long,
-            xdma_long,
+            xma_long,  
+            xdma_long, 
             macd_long_x,
             up0,            
-           #空头
-            xma_short, #样本太少
+            #空头
+            xma_short, #样本数太少，暂缓
             xdma_short,    #
-            ma1x,
             k15_lastdown,
-            k15_lastdown_s,
-            k5_lastup,
-            ipmacd_long_devi1,#有效放大了回撤?
-            ipmacd_short_devi1,
-            ipmacd_short_devi1x,
-            xud30s_r,
-            ma60_short,
-            ama_short,
+            k15_lastdown_s,    #样本数太少，暂缓
+            k5_lastup, 
+            ipmacd_long_devi1,#有效放大了回撤? ##样本数太少
+            ipmacd_short_devi1,##样本数太少
+            ipmacd_short_devi1x, ##样本数太少，暂缓,但即将满足0907
+            xud30s_r,  ##样本数太少
            ]
 
 xxx2 = xfollow + xbreak + xagainst

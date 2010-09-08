@@ -12,12 +12,19 @@ DTSORT = lambda x,y: int(((x.date%1000000 * 10000)+x.time) - ((y.date%1000000 * 
 
 simple_profit = lambda actions: actions[0].price * actions[0].position + actions[1].price * actions[1].position - TAX
 
-def normal_profit(actions,max_lost=-70): #8点损失
+def normal_profit(actions,max_lost=-120): #最多12点损失
     profit = actions[0].price * actions[0].position + actions[1].price * actions[1].position
     if profit < max_lost:
         profit = max_lost
     profit -= TAX
     return profit
+
+def limit_profit(trades,down_limit):
+    #用于时候处理profit
+    down_limit -= TAX
+    for trade in trades:
+        if trade.profit < down_limit:
+            trade.profit = down_limit
 
 def delay_filter(sif,signal,delayed=5,limit=60):
     '''
@@ -963,6 +970,8 @@ atr5_uxstop_08_25 = fcustom(atr_uxstop,lost_times=80,win_times=250,max_drawdown=
 atr5_uxstop_15_25 = fcustom(atr_uxstop,lost_times=150,win_times=250,max_drawdown=200,min_lost=30,max_lost=90,natr=5)
 atr5_uxstop_12_25 = fcustom(atr_uxstop,lost_times=125,win_times=250,max_drawdown=200,min_lost=30,max_lost=90,natr=5)
 atr5_uxstop_20_25 = fcustom(atr_uxstop,lost_times=200,win_times=250,max_drawdown=200,min_lost=30,max_lost=150,natr=5)
+
+atr5_uxstop_08_25_A = fcustom(atr_uxstop,lost_times=80,win_times=250,max_drawdown=200,min_lost=90,max_lost=90,natr=5)
 
 
 atr5_uxstop_08_25_6 = fcustom(atr_uxstop,lost_times=80,win_times=250,max_drawdown=200,min_lost=60,natr=5)

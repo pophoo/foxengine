@@ -16,6 +16,14 @@
     突破 <=1200
         突破的附属 <2000
 
+趋势确立后
+    xatr60x < mxatr60x  (45/30也可)表示需要紧缩后才能继续趋势
+趋势确立前
+    xatr30x > mxatr30x  表示比较震荡, 震荡的周期要短
+
+    而且不论趋势是否确立，短期应该震荡? xatr>mxatr?
+
+
 收盘操作:
     如果到收盘的时候还有持仓，就把平仓的下限条件单开在15:00价格的上下3点上
         上限条件单开在前15分钟最高/低点
@@ -67,6 +75,33 @@ def rsi_short_x(sif,sopened=None,rshort=7,rlong=19):
 rsi_short_x.direction = XSELL
 rsi_short_x.priority = 1500
 
+def rsi_short_x3(sif,sopened=None,rshort=7,rlong=19):
+    '''
+       使用sif.xatr30x>sif.mxatr30x 
+       表示跌势确立初步时，大幅震荡
+    '''
+
+    rsia = rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = rsi2(sif.close,rlong)
+    
+    signal = cross(rsib,rsia)<0    
+
+
+    signal = gand(signal
+            ,sif.xatr30x<6000
+            ,sif.ms<0
+            ,sif.mtrend<0
+            ,sif.xatr30x>sif.mxatr30x
+            )
+
+    signal = np.select([sif.time>944],[signal],0)
+
+
+    return signal * rsi_short_x3.direction
+rsi_short_x3.direction = XSELL
+rsi_short_x3.priority = 1500
+
+
 def rsi_short_x2(sif,sopened=None,rshort=7,rlong=19):
     '''
         每天的第一次符合条件的机会为最佳机会
@@ -74,6 +109,8 @@ def rsi_short_x2(sif,sopened=None,rshort=7,rlong=19):
         去掉s30<0的限制
         以sdiff30x<0为条件
         且s30>0 #s30<0的由rsi_short_x去捕捉
+
+        ###已经废弃
     '''
 
     rsia = rsi2(sif.close,rshort)   
@@ -94,10 +131,33 @@ def rsi_short_x2(sif,sopened=None,rshort=7,rlong=19):
     signal = sum2diff(extend2diff(signal,sif.date),sif.date)
     signal = gand(signal==1)
 
-    return signal * rsi_short_x.direction
+    return signal * rsi_short_x2.direction
 rsi_short_x2.direction = XSELL
 rsi_short_x2.priority = 1500
 
+def rsi_short_x2x(sif,sopened=None,rshort=7,rlong=19):
+    '''
+        使用了xatr30x<mxatr30x
+        表示跌势确立后，再次下跌需要酝酿
+        包含了rsi_short_x2
+    '''
+
+    rsia = rsi2(sif.close,rshort)   
+    rsib = rsi2(sif.close,rlong)
+    signal = cross(rsib,rsia)<0    
+
+    signal = gand(signal
+            ,sif.sdiff30x<0            
+            ,sif.xatr30x<6000
+            ,sif.xatr60x<sif.mxatr60x
+            ,sif.strend<0
+            ,strend2(sif.ma30)<0
+            )
+
+    return signal * rsi_short_x2x.direction
+rsi_short_x2x.direction = XSELL
+rsi_short_x2x.priority = 1500
+#rsi_short_x2x.stop_closer = atr5_uxstop_08_25_A
 
 def macd_short_x(sif,sopened=None):
     '''
@@ -123,6 +183,33 @@ def macd_short_x(sif,sopened=None):
     return signal * macd_short_x.direction
 macd_short_x.direction = XSELL
 macd_short_x.priority = 1500
+
+def macd_short_xx(sif,sopened=None):
+    '''
+        跌势确立后需要缩小震荡然后继续下跌
+        这个被macd_short_x包含
+    '''
+    signal = cross(sif.dea1,sif.diff1)<0    
+
+    signal = gand(signal
+            ,sif.ltrend<0            
+            ,sif.mtrend<0
+            ,strend2(sif.ma30)<0
+            ,sif.ma5 < sif.ma13
+            ,sif.xatr>800
+            ,sif.sdiff30x<0
+            ,sif.xatr60x<sif.mxatr60x
+            )
+
+    signal = np.select([sif.time>944],[signal],0)
+
+    signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal == 1)
+
+    return signal * macd_short_xx.direction
+macd_short_xx.direction = XSELL
+macd_short_xx.priority = 1000   #提高优先级
+#macd_short_xx.stop_closer = atr5_uxstop_08_25_A
 
 def macd_short_x2(sif,sopened=None):
     '''
@@ -184,6 +271,28 @@ def rsi_long_x(sif,sopened=None,rshort=7,rlong=19):
 rsi_long_x.direction = XBUY
 rsi_long_x.priority = 1500
 
+def rsi_long_xx(sif,sopened=None,rshort=7,rlong=19):
+    '''
+    '''
+
+    #signal = cross(sif.dea1,sif.diff1)>0
+    rsia = rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = rsi2(sif.close,rlong)
+    signal = cross(rsib,rsia)>0    
+
+    signal = gand(signal
+                ,sif.ltrend>0
+                ,sif.mtrend>0                
+                ,sif.t7_30>0
+                ,sif.s30>0
+                ,sif.s10>0                
+                ,sif.s3>0
+                ,sif.xatr30x<sif.mxatr30x
+            )
+
+    return signal * rsi_long_xx.direction
+rsi_long_xx.direction = XBUY
+rsi_long_xx.priority = 1000
 
 def rsi_long_x2(sif,sopened=None,rshort=7,rlong=19):
     '''
@@ -226,7 +335,7 @@ def macd_long_x(sif,sopened=None):
                     ,sif.s10>0
                     ,sif.s3>0
                     ,sif.xatr<1200
-                    ,strend2(sif.ma13)>0                                    
+                    ,strend2(sif.ma13)>0
             )
 
     return signal * macd_long_x.direction
@@ -256,22 +365,18 @@ macd_long_x2.priority = 1500
 def macd_long_x3(sif,sopened=None):
     '''
         去掉s30>0条件
+        上升途中diff到达<0处后上插
     '''
     signal = cross(sif.dea1,sif.diff1)>0    
 
-    rshort = 7
-    rlong = 19
-    rsia = rsi2(sif.close,rshort)   #7,19/13,41
-    rsib = rsi2(sif.close,rlong)
-    #signal = cross(rsib,rsia)>0    
-
     signal = gand(signal
                     ,sif.s30>0
+                    ,sif.s15>0
                     ,sif.diff1<0
                     ,sif.ltrend>0
                     ,sif.xatr<1200
-                    ,sif.s15>0
                     ,sif.ma3>sif.ma13
+                    ,sif.xatr60x<sif.mxatr60x
             )
 
     return signal * macd_long_x3.direction
@@ -294,6 +399,7 @@ def up0(sif,sopened=None):
             ,strend2(sif.ma30)>0
             ,strend2(sif.diff1)>3
             ,dsfilter
+            ,gor(sif.xatr60x<sif.mxatr60x,sif.xatr>sif.mxatr)
             )
 
     return signal * up0.direction
@@ -318,6 +424,24 @@ def down01(sif,sopened=None): #++
     return signal * down01.direction
 down01.direction = XSELL
 down01.priority = 1600
+
+def down01x(sif,sopened=None): #++
+    ''' 
+        30分钟<0且下行
+        5分钟>0且下行
+    '''
+
+    signal = gand(cross(cached_zeros(len(sif.diff1)),sif.diff1)<0
+            ,sif.ltrend<0
+            ,sif.sdiff30x<0
+            ,sif.sdiff5x>0
+            ,sif.xatr60x<sif.mxatr60x
+            ,sif.xatr>sif.mxatr
+            )
+    return signal * down01x.direction
+down01x.direction = XSELL
+down01x.priority = 1600
+
 
 def xdown60(sif,sopened=None):
     '''
@@ -801,10 +925,6 @@ def godown(sif,sopened=None):
     #signal = sum2diff(signal,sif.date)
 
     signal = gand(signal==1
-            #,sif.s30<0
-            #,strend2(sif.ma30)<0
-            #,sif.ma3<sif.ma13
-            #,strend2(sif.sdiff3x-sif.sdea3x)<0
             ,sif.xatr30x<6000
             )
 
@@ -835,6 +955,7 @@ def xma_long(sif,sopened=None,length=5):
                 #,sif.s5>0
                 ,sif.ma3>sif.ma13
                 #,strend2(sif.ma30)>0
+                ,sif.xatr30x<sif.mxatr30x
                 )
 
     signal = np.select([sif.time>944],[signal],0)
@@ -869,6 +990,7 @@ def xma_short(sif,sopened=None,length=20):
 
     signal = gand(cross(xmd-sif.atr/XBASE,sif.close)<0
                 ,xsmd<0
+                ,sif.xatr30x<sif.mxatr30x
                 )
 
     signal = np.select([sif.time>944],[signal],0)
@@ -905,6 +1027,7 @@ def xdma_long(sif,sopened=None,length=20):
 
     signal = gand(cross(dma+sif.atr/XBASE,sif.close)>0
                 ,dma>xbase
+                ,sif.xatr30x<sif.mxatr30x 
                 )
 
     signal = np.select([sif.time>944],[signal],0)
@@ -938,6 +1061,7 @@ def xdma_short(sif,sopened=None,length=5):
 
     signal = gand(cross(dma+sif.atr/XBASE,sif.close)<0
                 ,dma<xbase
+                ,sif.xatr10x>sif.mxatr10x
                 )
 
     signal = np.select([sif.time>944],[signal],0)
@@ -966,6 +1090,7 @@ def ma1x(sif,opened=None,length=60):
                 ,sif.ltrend>0
                 ,sif.mtrend>0
                 ,sif.s30>0
+                ,sif.xatr60x<sif.mxatr60x
             )
     signal = np.select([sif.time>944],[signal],0)
 
@@ -1029,6 +1154,7 @@ def k15_lastdown(sif,sopened=None):
     signal = sfollow(ss,fsignal,delay)
     signal = gand(signal
             ,sif.xatr5x>2000
+            ,sif.xatr90x<sif.mxatr90x   #大尺度不能振荡
             )
     signal = extend(signal,delay)  #去除delay时间段内的重复信号
     signal = derepeatc(signal)
@@ -1090,6 +1216,7 @@ def k15_lastdown_s(sif,sopened=None):
             #,sif.s3<0
             ,sif.strend<0
             #,sif.ma3<sif.ma13
+            ,sif.xatr90x<sif.mxatr90x
             )
     signal = derepeatc(signal)
 
@@ -1171,6 +1298,7 @@ def xud30s_r(sif,sopened=None):
     signal[sif.i_cof30] = signal30
 
     signal = gand(signal
+             ,sif.xatr60x<sif.mxatr60x            
             )
 
     return signal * xud30s_r.direction
@@ -1186,11 +1314,10 @@ def ipmacd_long_devi1(sif,sopened=None):
     msignal = ldevi(sif.low,sif.diff1,sif.dea1)
 
     signal = gand(msignal
-            ,sif.xatr30x<6666
-            ,sif.s30<0
+            ,sif.xatr30x<7000
             ,sif.s10<0
             ,sif.s3>0
-            ,sif.ma3>sif.ma7
+            ,sif.xatr60x > sif.mxatr60x
             )
 
     return signal * ipmacd_long_devi1.direction
@@ -1241,9 +1368,9 @@ def ipmacd_short_devi1(sif,sopened=None):
     signal = sfollow(signal,fsignal,15)
 
     signal = gand(signal
-                ,strend2(sif.sdiff5x)>0
                 ,sif.s5<0
                 ,strend2(sif.sdiff30x)<0
+                ,sif.xatr60x>sif.mxatr60x
             )
     return signal * ipmacd_short_devi1.direction
 ipmacd_short_devi1.direction = XSELL
@@ -1254,9 +1381,9 @@ def ipmacd_short_devi1x(sif,sopened=None):#+++
     '''
 
     signal = gand(hdevi(sif.high,sif.diff1,sif.dea1,delta=10)   #即便新高离上一高点低1点，仍然可视为新高
-                ,sif.s30<0
                 ,sif.mm<0
                 ,sif.xatr30x<6666
+                ,sif.xatr>sif.mxatr                
                 )
     return signal * ipmacd_short_devi1x.direction
 ipmacd_short_devi1x.direction = XSELL
@@ -1267,15 +1394,20 @@ ipmacd_short_devi1x.priority = 2480
 ####集合
 xfollow = [#多头
             rsi_long_x,
+            rsi_long_xx,    #rsi_long_x的增强版. 被其吸收
             rsi_long_x2,    
             macd_long_x2,   #样本数太少，暂缓
+            macd_long_x3,   #样本数太少，暂缓
            #空头
             rsi_short_x,
-            rsi_short_x2,
+            rsi_short_x2x,
+            rsi_short_x3,            
             macd_short_x,
+            macd_short_xx,
             macd_short_x2,
            #其它
             down01,     #样本数太少，暂缓
+            down01x,
             xdown60,    #有合并损失
             xud30b,     #趋势不明
             ma1x,            
@@ -1286,6 +1418,9 @@ xfollow = [#多头
 #for xf in xfollow:xf.stop_closer = atr5_uxstop_05_25
 for xf in xfollow:
     xf.stop_closer = atr5_uxstop_08_25_A
+    #xf.stop_closer = atr5_uxstop_08_30
+    #xf.stop_closer = atr5_uxstop_08_25_C
+    #xf.stop_closer = atr5_uxstop_08_25_D
     xf.strategy = XFOLLOW
 
 xbreak = [#多头
@@ -1300,6 +1435,8 @@ xbreak = [#多头
          ]
 for xf in xbreak:
     xf.stop_closer = atr5_uxstop_08_25_A
+    #xf.stop_closer = atr5_uxstop_08_25_C
+    #xf.stop_closer = atr5_uxstop_08_30
     xf.strategy = XBREAK
 
 ##xagainst必须提高成功率，否则会引起最大连续回撤的快速放大. 因此对样本数暂不作限制
@@ -1314,14 +1451,16 @@ xagainst = [#多头
             k15_lastdown,
             k15_lastdown_s,    #样本数太少，暂缓
             k5_lastup, 
-            #ipmacd_long_devi1,#有效放大了回撤? ##样本数太少
-            #ipmacd_short_devi1,##样本数太少
-            #ipmacd_short_devi1x, ##样本数太少，暂缓,但即将满足0907
+            ipmacd_long_devi1,#有效放大了回撤? ##样本数太少
+            ipmacd_short_devi1,##样本数太少
+            ipmacd_short_devi1x, ##样本数太少，暂缓,但即将满足0907
             xud30s_r,  ##样本数太少
            ]
 #for xf in xagainst:xf.stop_closer = atr5_uxstop_08_25_A
 #for xf in xagainst:xf.stop_closer = atr5_uxstop_05_25
 for xf in xagainst:
+    #xf.stop_closer = atr5_uxstop_08_25_C
+    #xf.stop_closer = atr5_uxstop_08_30
     xf.strategy = XAGAINST
 
 
@@ -1330,14 +1469,6 @@ xxx3 = xfollow + xbreak + xagainst
 
 '''
 16402 17617 17826 18228 18173 18494 18655 18663
-
-5231
-8150
-4562
-6817
-5493
-5526
-
 '''
 
 

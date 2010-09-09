@@ -136,6 +136,7 @@ def prepare_index(sif):
     sif.low = trans[ILOW]
     sif.vol = trans[IVOL]
     sif.holding = trans[IHOLDING]
+    sif.mid = trans[IMID]
     sif.i_cof = sif.i_oof = np.arange(len(sif.close))
     sif.time = trans[ITIME]
     sif.date = trans[IDATE]
@@ -460,12 +461,19 @@ def prepare_index(sif):
     #    ,trans[ITIME]%10000==1115
     #    ,trans[ITIME]%10000==1015
     #    ))[0]    #60分钟收盘线,不考虑隔日的因素
-    sif.i_cof60 = np.where(gor(
+    #sif.i_cof60 = np.where(gor(
+    #    trans[ITIME]%10000==1514
+    #    ,trans[ITIME]%10000==1444
+    #    ,trans[ITIME]%10000==1344
+    #    ,trans[ITIME]%10000==1114
+    #    ,trans[ITIME]%10000==1014
+    #    ))[0]    #60分钟收盘线,不考虑隔日的因素
+    sif.i_cof60 = np.where(gor( #前半小时算一小时(考虑到可能的跳空)
         trans[ITIME]%10000==1514
-        ,trans[ITIME]%10000==1444
-        ,trans[ITIME]%10000==1344
-        ,trans[ITIME]%10000==1114
-        ,trans[ITIME]%10000==1014
+        ,trans[ITIME]%10000==1414
+        ,trans[ITIME]%10000==1314
+        ,trans[ITIME]%10000==1044
+        ,trans[ITIME]%10000==944
         ))[0]    #60分钟收盘线,不考虑隔日的因素
     sif.i_oof60 = roll0(sif.i_cof60)+1    
     sif.i_oof60[0] = 0    
@@ -500,6 +508,86 @@ def prepare_index(sif):
     sif.sdiff60x=extend2next(sif.sdiff60x)
     sif.sdea60x=extend2next(sif.sdea60x)
 
+    #45钟线
+    sif.i_cof45 = np.where(gor( 
+        trans[ITIME]%10000==1514
+        ,trans[ITIME]%10000==1429
+        ,trans[ITIME]%10000==1344
+        ,trans[ITIME]%10000==1129
+        ,trans[ITIME]%10000==1044
+        ,trans[ITIME]%10000==959
+        ))[0]    #45分钟收盘线,不考虑隔日的因素
+    sif.i_oof45 = roll0(sif.i_cof45)+1    
+    sif.i_oof45[0] = 0    
+    sif.close45 = trans[ICLOSE][sif.i_cof45]
+    #sif.open45 = rollx(sif.close45)   #open45看作是上一个的收盘价,其它方式对应open和close以及还原的逻辑比较复杂
+    sif.open45 = trans[IOPEN][sif.i_oof45]
+    #sif.high45 = tmax(trans[IHIGH],45)[sif.i_cof45]
+    #sif.low45 = tmin(trans[ILOW],45)[sif.i_cof45]
+    sif.high45,sif.low45,sif.vol45 = calc_high_low_vol(trans,sif.i_oof45,sif.i_cof45)
+    sif.holding45 = trans[IHOLDING][sif.i_cof45]
+
+
+    sif.atr45 = atr(sif.close45*XBASE,sif.high45*XBASE,sif.low45*XBASE,20)
+    sif.xatr45 = sif.atr45 * XBASE * XBASE / sif.close45
+    sif.mxatr45 = ma(sif.xatr45,13)
+    sif.xatr45x = np.zeros_like(trans[ICLOSE])
+    sif.xatr45x[sif.i_cof45] = sif.xatr45
+    sif.xatr45x = extend2next(sif.xatr45x)
+    sif.mxatr45x = np.zeros_like(trans[ICLOSE])
+    sif.mxatr45x[sif.i_cof45] = sif.mxatr45
+    sif.mxatr45x = extend2next(sif.mxatr45x)
+
+    sif.atr45x = np.zeros_like(trans[ICLOSE])
+    sif.atr45x[sif.i_cof45] = sif.atr45
+    sif.atr45x = extend2next(sif.atr45x)
+    
+    sif.diff45x,sif.dea45x = cmacd(sif.close45*FBASE)
+
+    sif.sdiff45x,sif.sdea45x = np.zeros_like(trans[ICLOSE]),np.zeros_like(trans[ICLOSE])
+    sif.sdiff45x[sif.i_cof45] = sif.diff45x
+    sif.sdea45x[sif.i_cof45] = sif.dea45x
+    sif.sdiff45x=extend2next(sif.sdiff45x)
+    sif.sdea45x=extend2next(sif.sdea45x)
+
+    #90钟线
+    sif.i_cof90 = np.where(gor( 
+        trans[ITIME]%10000==1514
+        ,trans[ITIME]%10000==1344
+        ,trans[ITIME]%10000==1044
+        ))[0]    #90分钟收盘线,不考虑隔日的因素
+    sif.i_oof90 = roll0(sif.i_cof90)+1    
+    sif.i_oof90[0] = 0    
+    sif.close90 = trans[ICLOSE][sif.i_cof90]
+    #sif.open90 = rollx(sif.close90)   #open90看作是上一个的收盘价,其它方式对应open和close以及还原的逻辑比较复杂
+    sif.open90 = trans[IOPEN][sif.i_oof90]
+    #sif.high90 = tmax(trans[IHIGH],90)[sif.i_cof90]
+    #sif.low90 = tmin(trans[ILOW],90)[sif.i_cof90]
+    sif.high90,sif.low90,sif.vol90 = calc_high_low_vol(trans,sif.i_oof90,sif.i_cof90)
+    sif.holding90 = trans[IHOLDING][sif.i_cof90]
+
+
+    sif.atr90 = atr(sif.close90*XBASE,sif.high90*XBASE,sif.low90*XBASE,20)
+    sif.xatr90 = sif.atr90 * XBASE * XBASE / sif.close90
+    sif.mxatr90 = ma(sif.xatr90,13)
+    sif.xatr90x = np.zeros_like(trans[ICLOSE])
+    sif.xatr90x[sif.i_cof90] = sif.xatr90
+    sif.xatr90x = extend2next(sif.xatr90x)
+    sif.mxatr90x = np.zeros_like(trans[ICLOSE])
+    sif.mxatr90x[sif.i_cof90] = sif.mxatr90
+    sif.mxatr90x = extend2next(sif.mxatr90x)
+
+    sif.atr90x = np.zeros_like(trans[ICLOSE])
+    sif.atr90x[sif.i_cof90] = sif.atr90
+    sif.atr90x = extend2next(sif.atr90x)
+    
+    sif.diff90x,sif.dea90x = cmacd(sif.close90*FBASE)
+
+    sif.sdiff90x,sif.sdea90x = np.zeros_like(trans[ICLOSE]),np.zeros_like(trans[ICLOSE])
+    sif.sdiff90x[sif.i_cof90] = sif.diff90x
+    sif.sdea90x[sif.i_cof90] = sif.dea90x
+    sif.sdiff90x=extend2next(sif.sdiff90x)
+    sif.sdea90x=extend2next(sif.sdea90x)
 
     sif.i_cofd = np.append(np.nonzero(trans[IDATE]-rollx(trans[IDATE])>0)[0]-1,len(trans[IDATE])-1)
     sif.i_oofd = roll0(sif.i_cofd)+1

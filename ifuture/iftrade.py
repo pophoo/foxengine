@@ -972,6 +972,7 @@ atr5_uxstop_12_25 = fcustom(atr_uxstop,lost_times=125,win_times=250,max_drawdown
 atr5_uxstop_20_25 = fcustom(atr_uxstop,lost_times=200,win_times=250,max_drawdown=200,min_lost=30,max_lost=150,natr=5)
 
 atr5_uxstop_08_25_A = fcustom(atr_uxstop,lost_times=80,win_times=250,max_drawdown=200,min_lost=90,max_lost=90,natr=5)
+atr5_uxstop_05_25_A = fcustom(atr_uxstop,lost_times=50,win_times=250,max_drawdown=200,min_lost=30,max_lost=30,natr=5)
 
 
 atr5_uxstop_08_25_6 = fcustom(atr_uxstop,lost_times=80,win_times=250,max_drawdown=200,min_lost=60,natr=5)

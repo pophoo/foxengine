@@ -33,7 +33,7 @@
 
 
 from wolfox.fengine.ifuture.ibase import *
-from wolfox.fengine.ifuture.iftrade import delay_filter,atr5_uxstop_1_25,atr5_uxstop_08_25,atr5_uxstop_05_25,atr5_uxstop_08_25_A
+from wolfox.fengine.ifuture.iftrade import *
 
 
 ###顺势
@@ -1197,6 +1197,29 @@ def ipmacd_long_devi1(sif,sopened=None):
 ipmacd_long_devi1.direction = XBUY
 ipmacd_long_devi1.priority = 2100
 
+def rsi_long_devi1(sif,sopened=None):
+    '''
+    '''
+
+    rshort,rlong=13,41
+    rsia = rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = rsi2(sif.close,rlong)
+    signal = cross(rsib,rsia)<0    
+
+    msignal = ldevi(sif.low,rsia,rsib)
+
+    signal = gand(msignal
+            ,sif.xatr<1200
+            ,sif.s30<0
+            ,sif.s3<0
+            ,sif.rl_trend>0
+            )
+
+    return signal * rsi_long_devi1.direction
+rsi_long_devi1.direction = XBUY
+rsi_long_devi1.priority = 2100
+
+
 def ipmacd_short_devi1(sif,sopened=None):
     '''
         顶背离操作，去掉了诸多条件
@@ -1283,7 +1306,7 @@ for xf in xbreak:
 xagainst = [#多头
             xma_long,  
             xdma_long, 
-            macd_long_x,
+            #macd_long_x,
             up0,            
             #空头
             xma_short, #样本数太少，暂缓
@@ -1291,9 +1314,9 @@ xagainst = [#多头
             k15_lastdown,
             k15_lastdown_s,    #样本数太少，暂缓
             k5_lastup, 
-            ipmacd_long_devi1,#有效放大了回撤? ##样本数太少
-            ipmacd_short_devi1,##样本数太少
-            ipmacd_short_devi1x, ##样本数太少，暂缓,但即将满足0907
+            #ipmacd_long_devi1,#有效放大了回撤? ##样本数太少
+            #ipmacd_short_devi1,##样本数太少
+            #ipmacd_short_devi1x, ##样本数太少，暂缓,但即将满足0907
             xud30s_r,  ##样本数太少
            ]
 #for xf in xagainst:xf.stop_closer = atr5_uxstop_08_25_A

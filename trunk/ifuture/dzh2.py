@@ -191,7 +191,7 @@ class SecReader:
         for record in records[1:]:
             if record.time < pre_time:
                 #linelog(u'发现断层:%s-%s' % (pre_time,record.time))
-                print u'发现断层:%s-%s' % (pre_time,record.time)
+                #print u'发现断层:%s-%s' % (pre_time,record.time)
                 break
             i += 1
             pre_time = record.time

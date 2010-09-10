@@ -162,6 +162,31 @@ rsi_short_x2x.direction = XSELL
 rsi_short_x2x.priority = 1500
 #rsi_short_x2x.stop_closer = atr5_uxstop_08_25_A
 
+def macd_short_5(sif,sopened=None):
+    '''
+        高度顺势放空操作
+    '''
+    ksfilter = gand(sif.open - sif.close < 60,rollx(sif.open - sif.close) < 120,sif.xatr<2000)
+
+    signal = gand(cross(sif.dea1,sif.diff1)<0
+            ,sif.mtrend < 0
+            #,sif.ltrend<0
+            ,sif.strend<0
+            ,sif.sdiff30x<0
+            ,sif.sdiff5x<0
+            )
+    signal = gand(signal
+            ,sif.ma5 < sif.ma13
+            ,strend2(sif.ma30)<0
+            ,ksfilter
+            ,sif.xatr30x<6000
+            )
+
+    return signal * macd_short_5.direction
+macd_short_5.direction = XSELL
+macd_short_5.priority = 1500
+
+
 def macd_short_x(sif,sopened=None):
     '''
         操作策略，失败一次之后当日就不应该再操作
@@ -1449,6 +1474,7 @@ xfollow = [#多头
             macd_short_x,
             macd_short_xx,
             macd_short_x2,
+            macd_short_5,
            #其它
             down01,     #样本数太少，暂缓
             down01x,

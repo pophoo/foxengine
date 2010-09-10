@@ -55,7 +55,8 @@ def rsi_short_x(sif,sopened=None,rshort=7,rlong=19):
 
     rsia = rsi2(sif.close,rshort)   #7,19/13,41
     rsib = rsi2(sif.close,rlong)
-    signal = cross(rsib,rsia)<0    
+    #signal = cross(rsib,rsia)<0    
+    signal = gand(cross(rsib,rsia)<0,strend2(rsia)<0)
 
     signal = gand(signal
             ,sif.s30<0
@@ -84,8 +85,8 @@ def rsi_short_x3(sif,sopened=None,rshort=7,rlong=19):
     rsia = rsi2(sif.close,rshort)   #7,19/13,41
     rsib = rsi2(sif.close,rlong)
     
-    signal = cross(rsib,rsia)<0    
-
+    #signal = cross(rsib,rsia)<0    
+    signal = gand(cross(rsib,rsia)<0,strend2(rsia)<0)
 
     signal = gand(signal
             ,sif.xatr30x<6000
@@ -115,7 +116,8 @@ def rsi_short_x2(sif,sopened=None,rshort=7,rlong=19):
 
     rsia = rsi2(sif.close,rshort)   
     rsib = rsi2(sif.close,rlong)
-    signal = cross(rsib,rsia)<0    
+    #signal = cross(rsib,rsia)<0    
+    signal = gand(cross(rsib,rsia)<0,strend2(rsia)<0)
 
     signal = gand(signal
             ,sif.strend<0
@@ -144,7 +146,8 @@ def rsi_short_x2x(sif,sopened=None,rshort=7,rlong=19):
 
     rsia = rsi2(sif.close,rshort)   
     rsib = rsi2(sif.close,rlong)
-    signal = cross(rsib,rsia)<0    
+    #signal = cross(rsib,rsia)<0    
+    signal = gand(cross(rsib,rsia)<0,strend2(rsia)<0)
 
     signal = gand(signal
             ,sif.sdiff30x<0            
@@ -164,7 +167,7 @@ def macd_short_x(sif,sopened=None):
         操作策略，失败一次之后当日就不应该再操作
         成功的话，可以继续操作，参见macd_short_x2
     '''
-    signal = cross(sif.dea1,sif.diff1)<0    
+    signal = gand(cross(sif.dea1,sif.diff1)<0,strend2(sif.diff1)<0)
 
     signal = gand(signal
             ,sif.ltrend<0            
@@ -189,7 +192,7 @@ def macd_short_xx(sif,sopened=None):
         跌势确立后需要缩小震荡然后继续下跌
         这个被macd_short_x包含
     '''
-    signal = cross(sif.dea1,sif.diff1)<0    
+    signal = gand(cross(sif.dea1,sif.diff1)<0,strend2(sif.diff1)<0)
 
     signal = gand(signal
             ,sif.ltrend<0            
@@ -221,7 +224,7 @@ def macd_short_x2(sif,sopened=None):
             3. 时间在1345之后
         操作策略，失败一次之后当日就不应该再操作
     '''
-    signal = cross(sif.dea1,sif.diff1)<0    
+    signal = gand(cross(sif.dea1,sif.diff1)<0,strend2(sif.diff1)<0)
 
     signal = gand(signal
             ,sif.ltrend<0            
@@ -256,7 +259,8 @@ def rsi_long_x(sif,sopened=None,rshort=7,rlong=19):
     rlong = 19
     rsia = rsi2(sif.close,rshort)   #7,19/13,41
     rsib = rsi2(sif.close,rlong)
-    signal = cross(rsib,rsia)>0    
+    #signal = cross(rsib,rsia)>0    
+    signal = gand(cross(rsib,rsia)>0,strend2(rsia)>0)
 
     signal = gand(signal
                 ,sif.ltrend>0
@@ -278,7 +282,8 @@ def rsi_long_xx(sif,sopened=None,rshort=7,rlong=19):
     #signal = cross(sif.dea1,sif.diff1)>0
     rsia = rsi2(sif.close,rshort)   #7,19/13,41
     rsib = rsi2(sif.close,rlong)
-    signal = cross(rsib,rsia)>0    
+    #signal = cross(rsib,rsia)>0    
+    signal = gand(cross(rsib,rsia)>0,strend2(rsia)>0)
 
     signal = gand(signal
                 ,sif.ltrend>0
@@ -305,7 +310,7 @@ def rsi_long_x2(sif,sopened=None,rshort=7,rlong=19):
     rlong = 19
     rsia = rsi2(sif.close,rshort)   #7,19/13,41
     rsib = rsi2(sif.close,rlong)
-    signal = cross(rsib,rsia)>0    
+    signal = gand(cross(rsib,rsia)>0,strend2(rsia)>0)
 
     signal = gand(signal
                 ,sif.s3>0
@@ -655,6 +660,45 @@ def acd_da(sif,sopened=None):
     return signal * acd_da.direction
 acd_da.direction = XSELL
 acd_da.priority = 1200
+
+
+def acd_da2(sif,sopened=None):
+    '''
+        +
+    '''
+    wave = np.zeros_like(sif.close)
+    wave[sif.i_cof10] = rollx(sif.atr10) *2/3/XBASE  #掠过914-919的atr10
+    wave = extend2next(wave)
+    
+    UA,DA,xhigh10,xlow10 = range_a(sif,914,924,wave)
+
+    xcontinue = 5
+
+    signal_ua = gand(sif.close >= UA
+                    ,msum2(sif.close>=UA,xcontinue)>4
+                    ,rollx(sif.close,xcontinue)>=UA
+                    )
+
+    signal_ua = np.select([sif.time>944],[signal_ua],0) #924之前的数据因为xhigh10是extend2next来的，所以不准
+
+    signal_da = gand(sif.close <= DA
+                    ,msum2(sif.close<=DA,xcontinue)>4
+                    ,rollx(sif.close,xcontinue)<=DA
+                    )
+
+    signal_da = np.select([sif.time>944],[signal_da],0)
+
+    ms_ua = sum2diff(extend2diff(signal_ua,sif.date),sif.date)
+    ms_da = sum2diff(extend2diff(signal_da,sif.date),sif.date)
+
+    signal = gand(ms_da==1         #第一个da
+                #,bnot(ms_ua)       #没出现过ua 
+                ,sif.xatr>sif.mxatr
+                )
+
+    return signal * acd_da2.direction
+acd_da2.direction = XSELL
+acd_da2.priority = 1200
 
 def acd_ua_sz(sif,sopened=None):
     '''

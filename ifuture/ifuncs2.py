@@ -1458,9 +1458,153 @@ def ipmacd_short_devi1x(sif,sopened=None):#+++
 ipmacd_short_devi1x.direction = XSELL
 ipmacd_short_devi1x.priority = 2480
 
+###ORB
+
+def orb_normal_day_b(sif,sopened=None):
+    dstretch = ma(gmin(sif.opend-sif.lowd,sif.highd-sif.opend),10)
+    stretch = dnext(dstretch,sif.close,sif.i_cofd)
+    opend = dnext(sif.opend,sif.close,sif.i_oofd)
+
+    signal = cross(opend+stretch,sif.close)
+    signal = gand(signal
+            )
+
+    return signal * orb_normal_b.direction
+
+orb_normal_day_b.direction = XBUY
+orb_normal_day_b.priority = 2480
+
+def orb_normal_5min_b(sif,sopened=None):
+    dstretch = ma(gmin(sif.opend-sif.lowd,sif.highd-sif.opend),10)
+    stretch = dnext(dstretch,sif.close,sif.i_cofd)
+    open5 = np.select([sif.time[sif.i_cof5]==919],[sif.high5],0)
+    open5d = dnext(open5,sif.close,sif.i_cof5)
+
+    signal = cross(open5d+stretch,sif.close)
+    signal = gand(signal
+            )
+    return signal * orb_normal_b.direction
+orb_normal_5min_b.direction = XBUY
+orb_normal_5min_b.priority = 2480
+
+def orb_normal_day_nr_b(sif,sopened=None):
+    dstretch = ma(gmin(sif.opend-sif.lowd,sif.highd-sif.opend),10)
+    stretch = dnext(dstretch,sif.close,sif.i_cofd)
+    opend = dnext(sif.opend,sif.close,sif.i_oofd)
+
+    rd = sif.highd-sif.lowd
+    nr = rd<rollx(rd)
+    sfilter = dnext_cover(nr,sif.close,sif.i_cofd,265)
+
+    signal = cross(opend+stretch,sif.close)
+    signal = gand(signal
+                ,sfilter
+                )
+
+    return signal * orb_normal_day_nr_b.direction
+
+orb_normal_day_nr_b.direction = XBUY
+orb_normal_day_nr_b.priority = 2480
+
+def orb_normal_day_nrx_b(sif,sopened=None,length=4):
+    dstretch = ma(gmin(sif.opend-sif.lowd,sif.highd-sif.opend),10)
+    stretch = dnext(dstretch,sif.close,sif.i_cofd)
+    opend = dnext(sif.opend,sif.close,sif.i_oofd)
+
+    rd = sif.highd-sif.lowd
+    nr = rd<rollx(tmin(rd,length-1))
+    sfilter = dnext_cover(nr,sif.close,sif.i_cofd,265)
+
+    signal = cross(opend+stretch,sif.close)
+    signal = gand(signal
+                ,sfilter
+                )
+
+    return signal * orb_normal_day_nrx_b.direction
+
+orb_normal_day_nrx_b.direction = XBUY
+orb_normal_day_nrx_b.priority = 2480
+
+
+def nr30s(sif,sopened=None):
+    r30 = sif.high30 - sif.low30
+    
+    #r30_x = tmin(r30,3)
+
+    nr = r30<rollx(r30)
+    #nr = r30<rollx(r30_x)
+    
+    sfilter = np.zeros_like(sif.close)
+    sfilter[sif.i_cof30] = nr
+    sfilter = extend(sfilter,30)
+
+    #rshort,rlong=7,19
+    #rsia = rsi2(sif.close,rshort)   #7,19/13,41
+    #rsib = rsi2(sif.close,rlong)
+    #signal = gand(cross(rsib,rsia)<0,strend2(rsia)<0)
+
+    signal = cross(sif.dea1,sif.diff1)<0
+
+    signal = gand(signal
+                ,sfilter
+                ,sif.xatr30x<sif.mxatr30x                
+                ,sif.mtrend<0
+                ,sif.strend<0
+                ,sif.s5<0
+                ,sif.ma3<sif.ma13
+            )
+
+    signal = np.select([sif.time>944],[signal],0)
+
+    signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal==1)
+    
+    return signal * nr30s.direction
+nr30s.direction = XSELL
+nr30s.priority = 2480
+
+
+def nr30b(sif,sopened=None):
+    r30 = sif.high30 - sif.low30
+    
+    r30_x = tmin(r30,3)
+
+    #nr = r30<rollx(r30)
+    nr = r30<rollx(r30_x)
+    
+    sfilter = np.zeros_like(sif.close)
+    sfilter[sif.i_cof30] = nr
+    sfilter = extend(sfilter,30)
+
+    #rshort,rlong=7,19
+    #rsia = rsi2(sif.close,rshort)   #7,19/13,41
+    #rsib = rsi2(sif.close,rlong)
+    #signal = gand(cross(rsib,rsia)<0,strend2(rsia)<0)
+
+    signal = cross(sif.dea1,sif.diff1)>0
+
+    signal = gand(signal
+                ,sfilter
+                ,sif.xatr30x<sif.mxatr30x                
+                ,sif.mtrend>0
+                ,sif.strend>0
+                ,sif.s10>0
+                ,strend2(sif.ma30)>0
+            )
+
+    signal = np.select([sif.time>944],[signal],0)
+
+    signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal==1)
+    
+    return signal * nr30b.direction
+nr30b.direction = XSELL
+nr30b.priority = 2480
 
 
 ####集合
+
+
 xfollow = [#多头
             rsi_long_x,
             rsi_long_xx,    #rsi_long_x的增强版. 被其吸收

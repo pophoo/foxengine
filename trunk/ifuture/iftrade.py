@@ -4,13 +4,24 @@
 '''
 
 
-
+import functools
 
 from wolfox.fengine.ifuture.ibase import *
+
+
 
 DTSORT = lambda x,y: int(((x.date%1000000 * 10000)+x.time) - ((y.date%1000000 * 10000)+y.time)) or -x.xtype+y.xtype #避免溢出, 先平仓再开仓
 
 simple_profit = lambda actions: actions[0].price * actions[0].position + actions[1].price * actions[1].position - TAX
+
+def get_func_attr(func,attr_name):
+    cfunc = func
+    while(isinstance(cfunc,functools.partial)):
+        cfunc = cfunc.func
+    return cfunc.__dict__[attr_name]
+
+fdirection = fcustom(get_func_attr,attr_name='direction')
+fpriority = fcustom(get_func_attr,attr_name='priority')
 
 def normal_profit(actions,max_lost=-120): #最多12点损失
     profit = actions[0].price * actions[0].position + actions[1].price * actions[1].position
@@ -58,6 +69,7 @@ def ocfilter(sif,tbegin=944,tend=1510):  #在开盘前30分钟和收盘前5分�
     return soc
 
 ocfilter_c = fcustom(ocfilter,tbegin=930,tend=1455) #商品期货的交易时间为9:00-1500（中间有休息），故filter也修改
+ocfilter_null = fcustom(ocfilter,tbegin=0,tend=2401)
 
 def last_filter(sif,tbegin=930,tend=1510):  
     stime = sif.transaction[ITIME]
@@ -131,7 +143,7 @@ def last_xactions(sif,trades,acstrategy=late_strategy):
     for action in xactions:
         xposition = "long" if action.position==LONG else 'short'
         xaction = "open" if action.xtype == XOPEN else 'close'
-        print u"name=%s,time=%s:%s,%s:%s,price=%s,priority=%s" % (action.name,action.date,action.time,xaction,xposition,action.price,action.functor.priority)
+        print u"name=%s,time=%s:%s,%s:%s,price=%s,priority=%s" % (action.name,action.date,action.time,xaction,xposition,action.price,fpriority(action.functor))
         #print 'action:',action.date,action.time,action.position,action.price
 
 def last_wactions(sif,trades,acstrategy=late_strategy):
@@ -324,8 +336,8 @@ def sync_tradess(sif,tradess,acstrategy=late_strategy):
             #print cur_trade.orignal
             continue
            
-        #print trade.functor,trade.functor.priority ,cur_trade.functor,cur_trade.functor.priority
-        if trade.functor.priority <= cur_trade.functor.priority:
+        #print trade.functor,fpriority(trade.functor) ,cur_trade.functor,fpriority(cur_trade.functor)
+        if fpriority(trade.functor) <= fpriority(cur_trade.functor):
             #print u'高/平优先级'   #后发的同优先级信号优先
             if trade.direction == cur_trade.direction:  #同向取代关系
                 #print u'同向增强,%s|%s:%s被%s增强'%(cur_trade.functor,cur_trade.actions[0].date,cur_trade.actions[0].time,trade.functor)
@@ -405,12 +417,12 @@ def itradex(sif     #期指
     if not isinstance(sclosers,list):   #单个函数
         sclosers = [sclosers]
     
-    openers = [opener for opener in openers if opener.priority<priority_level]
+    openers = [opener for opener in openers if fpriority(opener)<priority_level]
 
     tradess = []
     for opener in openers:
         if 'filter' not in opener.__dict__: #用于对信号进行过滤,如开盘30分钟内不发出信号等
-            myfilter = slongfilter if opener.direction == XBUY else sshortfilter
+            myfilter = slongfilter if fdirection(opener) == XBUY else sshortfilter
         else:
             myfilter = opener.filter(sif)
         if 'xfilter' not in opener.__dict__:    #xfilter用于自定义的信号变换,如根据5分钟内的波动决定延迟发送还是吞没
@@ -424,16 +436,16 @@ def itradex(sif     #期指
             sopened[aopen.index] = aopen.price * aopen.position
         sclose = np.zeros(len(sif.transaction[IDATE]),int)
         if 'closer' in opener.__dict__: #是否有特定的closer,如要将macd下叉也作为多头持仓的平仓条件,则可设置函数,在返回值中添加该下叉信号算法
-            if opener.direction == XBUY:
+            if fdirection(opener) == XBUY:
                 #print 'buy closer:',opener.closer
                 closers = opener.closer(sclosers)
-            elif opener.direction == XSELL:
+            elif fdirection(opener) == XSELL:
                 closers = opener.closer(bclosers)
         else:
-            #print 'opener without close opener.direction = %s' % ('XBUY' if opener.direction == XBUY else 'XSELL',)
-            closers = sclosers if opener.direction == XBUY else bclosers
+            #print 'opener without close fdirection(opener) = %s' % ('XBUY' if fdirection(opener) == XBUY else 'XSELL',)
+            closers = sclosers if fdirection(opener) == XBUY else bclosers
         for closer in closers:
-            sclose = gor(sclose,closer(sif,sopened)) * (-opener.direction)
+            sclose = gor(sclose,closer(sif,sopened)) * (-fdirection(opener))
         ms_closer = stop_closer if 'stop_closer' not in opener.__dict__ else opener.stop_closer
         #closes = close_position(sif.transaction,stop_closer(sif,sopened,sclose,sclose)) #因为是单向的，只有一个sclose起作用
         closes = close_position(sif.transaction,ms_closer(sif,sopened,sclose,sclose)) #因为是单向的，只有一个sclose起作用        

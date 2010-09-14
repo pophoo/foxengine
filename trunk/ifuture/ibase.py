@@ -25,3 +25,25 @@ from wolfox.fengine.core.d1ex import *;
 from wolfox.fengine.core.d1indicator import *;
 from wolfox.fengine.core.d1idiom import *;
 from wolfox.fengine.core.utils import *;
+
+
+def dnext(xsource,xbase,xindex):
+    '''
+        将长周期的抽样点xsource分派到基础周期xbase，其中这些点的坐标是xindex
+        抽样点进行信号覆盖，直到下一信号
+    '''
+    result = np.zeros_like(xbase)
+    result[xindex] = xsource
+    result = extend2next(result)
+    return result
+
+def dnext_cover(xsource,xbase,xindex,length):
+    '''
+        将长周期的抽样点xsource分派到基础周期xbase，其中这些点的坐标是xindex
+        抽样点进行信号覆盖length点
+    '''
+    result = np.zeros_like(xbase)
+    result[xindex] = xsource
+    result = extend(result,length)
+    return result
+

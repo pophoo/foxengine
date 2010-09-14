@@ -260,6 +260,14 @@ itradex15_y = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_15_25,bclo
 itradex12_y = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_12_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 itradex20_y = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_20_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 
+itradex8_yn = fcustom(iftrade.itradex
+                ,stop_closer=iftrade.atr5_uxstop_08_25
+                ,bclosers=[ifuncs.daystop_short]
+                ,sclosers=[ifuncs.daystop_long]
+                ,longfilter=iftrade.ocfilter_null
+                ,shortfilter=iftrade.ocfilter_null
+                )
+
 itradex8_y6 = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_08_25_6,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 
 

@@ -6,7 +6,7 @@
 import numpy as np
 
 from wolfox.fengine.core.d1 import BASE,gand,gmax,greater,subd,rollx,roll0,nsubd
-from wolfox.fengine.core.d1ex import tmax,tmin,trend,msum,ma,fma
+from wolfox.fengine.core.d1ex import tmax,tmin,trend,msum,ma,fma,extend2next,strend2
 
 import logging
 logger = logging.getLogger('wolfox.fengine.core.d1indicator')
@@ -114,7 +114,6 @@ def sma(source,length,weight):#简单权重移动平均
         i += 1
     return rev
 
-
 def macd(source,ifast=150,islow=75,isignal=200):
     ''' 按照经典定义，MACD=EXPMA(1500)-EXPMA(750)
         信号线为 EXPMA(2000)
@@ -171,6 +170,51 @@ def smacd(source,ifast=12,islow=26,idiff=9):
     diff = fast - slow
     dea = ma(diff,idiff)
     return diff,dea
+
+def gtrend1(shigh,slow):
+    ''' 
+        江恩1周期趋势线
+        #返回trend线,top,bottom线
+        返回trend线，使用时可用strend2来判断当前趋势，当up时当前点为高点，down时为低点
+        如果要找到高点之前的地点，可以用strend2作为选择，找到这些点，然后extend2next
+        如:     t1=strend2(gtrend)
+                thigh = np.select([t1>0],[gtrend])
+                thigh = extend2next(thigh)
+            如此就取到了高点序列，同理可得到低点序列
+
+    一日摆动由江恩定义. 1日转向图. 
+        上升日(Up down:UD): 高点高,低点高
+        下降日(Down day:DD): 高点低,低点低
+        外延日(Outside day,OD):高点高,低点低
+        内移日(Inside day:ID):高点低,低点高
+
+        上升日则趋势线移动到高点,下降日则趋势线移动到低点
+        上升趋势中的外延日,如果先高后低,则移动到低点,否则移动到高点,#这里简单起见,都算延续趋势
+        下降趋势中的外延日,如果先低后高,则移动到高点,否则移动到高点,#这里简单起见,都算延续趋势
+        忽略内移日
+
+        top:上行中的高点,或转为下行前的上一个高点
+        bottom: 下行中的低点,或转为上行前的上一个低点
+            
+    '''
+    dup = gand(shigh>rollx(shigh),slow>rollx(slow))
+    ddown = gand(shigh<rollx(shigh),slow<rollx(slow))
+    dexpand = gand(shigh>rollx(shigh),slow<rollx(slow))
+    #dinside = gand(shigh<rollx(shigh),slow>rollx(slow))    #忽略
+
+    #先不计扩张日，得到原始趋势
+    st = np.select([dup,ddown],[shigh,slow],0)
+    st = extend2next(st)
+    t1 = strend2(st)
+
+    st2 = np.select([dup,gand(dexpand,t1>0),ddown,gand(dexpand,t1<0)],[shigh,shigh,slow,slow])
+    #st_top = np.select([dup,gand(dexpand,t1>0)],[shigh,shigh])
+    #st_bottom = np.select([ddown,gand(dexpand,t1<0)],[slow,slow])    
+    st2 = extend2next(st2)
+    #st_top = extend2next(st_top)
+    #st_bottom = extend2next(st_bottom)
+    return st2  #,st_top,st_bottom
+
 
 def score(sprice,svolume):
     ''' 对当日进行评分

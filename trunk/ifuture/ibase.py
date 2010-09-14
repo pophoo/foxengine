@@ -37,6 +37,18 @@ def dnext(xsource,xbase,xindex):
     result = extend2next(result)
     return result
 
+def dnext2diff(xsource,xbase,xindex,diffbase):
+    '''
+        将长周期的抽样点xsource分派到基础周期xbase，其中这些点的坐标是xindex
+        抽样点进行信号覆盖到diffbase差异日
+            xindex最好不是i_cofd，否则马上换日
+    '''
+    result = np.zeros_like(xbase)
+    result[xindex] = xsource
+    result = extend2diff(result,diffbase)
+    return result
+
+
 def dnext_cover(xsource,xbase,xindex,length):
     '''
         将长周期的抽样点xsource分派到基础周期xbase，其中这些点的坐标是xindex

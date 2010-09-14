@@ -1513,7 +1513,7 @@ def orb_normal_day_nrx_b(sif,sopened=None,length=4):
 
     rd = sif.highd-sif.lowd
     nr = rd<rollx(tmin(rd,length-1))
-    sfilter = dnext_cover(nr,sif.close,sif.i_cofd,265)
+    sfilter = dnext2diff(rollx(nr),sif.close,sif.i_oofd,sif.date)
 
     signal = cross(opend+stretch,sif.close)
     signal = gand(signal
@@ -1525,6 +1525,438 @@ def orb_normal_day_nrx_b(sif,sopened=None,length=4):
 orb_normal_day_nrx_b.direction = XBUY
 orb_normal_day_nrx_b.priority = 2480
 
+def orb_normal_day_pattern_nrx_b(sif,sopened=None,length=2):
+    '''
+        nr: 
+            ++: R=362       
+            --: R=130
+                ---: 3次全中
+                +--: 110 
+            +-: 122
+                ++-: 一次不中
+                -+-: 113
+            -+: 0
+        另，下叉买入也可,但出击日与上叉在同日
+            ++: R=156
+            --: R=64
+            +-:盈利只靠一次
+            -+: R=7
+        nr4: 同上 样本太少
+        nr7: 同上
+        ws: 
+            ++: 89
+                加上首日限制: R=239
+            --:-26 / -100
+            +-: -100
+            -+: -27
+        ws4/7: 均不可
+    '''
+
+    dstretch = ma(gmin(sif.opend-sif.lowd,sif.highd-sif.opend),10)
+    stretch = dnext(dstretch,sif.close,sif.i_cofd)
+    opend = dnext(sif.opend,sif.close,sif.i_oofd)
+
+    pattern = gand(sif.opend < rollx(sif.closed)
+                  ,rollx(sif.closed) > rollx(sif.closed,2)
+                  ,rollx(sif.closed,2) > rollx(sif.closed,3)
+                )
+
+    dpattern = dnext2diff(pattern,sif.close,sif.i_oofd,sif.date)
+
+    rd = sif.highd-sif.lowd
+    nr = rd<rollx(tmin(rd,length-1))
+    sfilter = dnext2diff(rollx(nr),sif.close,sif.i_oofd,sif.date)
+
+    signal = cross(opend+stretch,sif.close) >0
+    signal = gand(signal
+                ,sfilter
+                ,dpattern
+                )
+
+    signal = np.select([gand(sif.time>914,sif.time<1510)],[signal],0)
+    
+    #signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+    #signal = gand(signal==1)
+
+    return signal * orb_normal_day_nrx_b.direction
+
+orb_normal_day_pattern_nrx_b.direction = XBUY
+orb_normal_day_pattern_nrx_b.priority = 2480
+
+def orb_normal_day_pattern_b(sif,sopened=None):
+    '''
+        ++ R=232
+        +- R=131
+        -- R=18
+        -+ R=-5
+        +++ R=158,不如++
+        -++ R=878,> ++, 
+            去掉每日首次的约束 R=246
+        ++- R=-100
+        -+- R=153,> +-
+        --- R=15
+        +-- R=33
+            去掉首次约束更好 R=33
+        +-+ R=35
+        --+ R=-34
+        以下去掉首次约束
+        ++++ R=59
+        -+++ R=66
+        +-++ R=60
+        --++ R=100,次数=1
+    '''
+
+    dstretch = ma(gmin(sif.opend-sif.lowd,sif.highd-sif.opend),10)
+    stretch = dnext(dstretch,sif.close,sif.i_cofd)
+    opend = dnext(sif.opend,sif.close,sif.i_oofd)
+
+    pattern = gand(sif.opend>rollx(sif.closed) 
+                ,rollx(sif.closed) > rollx(sif.closed,2)
+                ,rollx(sif.closed,2) < rollx(sif.closed,3)
+                ,rollx(sif.closed,3) > rollx(sif.closed,4)
+                )
+
+    dpattern = dnext2diff(pattern,sif.close,sif.i_oofd,sif.date)
+
+
+    signal = cross(opend+stretch,sif.close) > 0
+    signal = gand(signal
+                ,dpattern
+                )
+
+    signal = np.select([gand(sif.time>914,sif.time<1510)],[signal],0)
+
+    #signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+    
+    #signal = gand(signal==1)
+
+    return signal * orb_normal_day_pattern_b.direction
+
+orb_normal_day_pattern_b.direction = XBUY
+orb_normal_day_pattern_b.priority = 2480
+
+def orb_normal_day_pattern_trend_b(sif,sopened=None):
+    '''
+        ++ R=350
+        +- R=106    #首次约束: 265,但只有3个
+        -- R=60     #首次约束: 98
+        -+ R=-11    #首次约束: 62
+    '''
+
+    dstretch = ma(gmin(sif.opend-sif.lowd,sif.highd-sif.opend),10)
+    stretch = dnext(dstretch,sif.close,sif.i_cofd)
+    opend = dnext(sif.opend,sif.close,sif.i_oofd)
+
+    trend_line1 = gtrend1(sif.highd,sif.lowd)
+    dtrend = strend2(trend_line1)
+    thigh = np.select([dtrend>0],[trend_line1])
+
+    dtrend = dnext2diff(rollx(dtrend),sif.close,sif.i_oofd,sif.date)
+    dline1 = dnext2diff(rollx(trend_line1),sif.close,sif.i_oofd,sif.date)
+
+    thigh = extend2next(thigh)
+    dthigh = dnext2diff(rollx(thigh),sif.close,sif.i_oofd,sif.date)
+
+    pattern = gand(sif.opend > rollx(sif.closed) 
+                ,rollx(sif.closed) < rollx(sif.closed,2)
+                )
+
+    dpattern = dnext2diff(pattern,sif.close,sif.i_oofd,sif.date)
+
+    
+
+
+    signal = cross(opend+stretch,sif.close) > 0
+    signal = gand(signal
+                ,dpattern
+                #,dtrend>0
+                ,opend>dline1   #不论是跌涨，都大于dline1
+                )
+
+    signal = np.select([gand(sif.time>914,sif.time<1510)],[signal],0)
+
+    signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal==1)
+
+    return signal * orb_normal_day_pattern_trend_b.direction
+
+orb_normal_day_pattern_trend_b.direction = XBUY
+orb_normal_day_pattern_trend_b.priority = 2480
+
+def orb_normal_day_pattern_trend_s(sif,sopened=None):
+    '''
+        +-:-
+        --:-
+        ++:R=111 不取第一个195
+        -+:11   不取第一个42
+    '''
+
+    dstretch = ma(gmin(sif.opend-sif.lowd,sif.highd-sif.opend),10) 
+    stretch = dnext(dstretch,sif.close,sif.i_cofd)
+    opend = dnext(sif.opend,sif.close,sif.i_oofd)
+
+    trend_line1 = gtrend1(sif.highd,sif.lowd)
+    dtrend = strend2(trend_line1)
+    thigh = np.select([dtrend>0],[trend_line1])
+
+    dtrend = dnext2diff(rollx(dtrend),sif.close,sif.i_oofd,sif.date)
+    dline1 = dnext2diff(rollx(trend_line1),sif.close,sif.i_oofd,sif.date)
+
+    thigh = extend2next(thigh)
+    dthigh = dnext2diff(rollx(thigh),sif.close,sif.i_oofd,sif.date)
+
+    pattern = gand(sif.opend > rollx(sif.closed) 
+                ,rollx(sif.closed) > rollx(sif.closed,2)
+                )
+
+    dpattern = dnext2diff(pattern,sif.close,sif.i_oofd,sif.date)
+
+    signal = cross(opend-stretch,sif.close) < 0
+    signal = gand(signal
+                ,dpattern
+                #,dtrend<0
+                ,opend<dline1   #不论是跌涨，都大于dline1
+                )
+
+    signal = np.select([gand(sif.time>914,sif.time<1510)],[signal],0)
+
+    #不取第一个
+    #signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
+    #signal = gand(signal==1,signal_s>1)
+
+    return signal * orb_normal_day_pattern_trend_s.direction
+
+orb_normal_day_pattern_trend_s.direction = XSELL
+orb_normal_day_pattern_trend_s.priority = 2480
+
+
+def orb_normal_30_pattern_trend_b(sif,sopened=None):
+    '''
+        ++ R=-
+        +- R=111 首次:133
+        -- R=-
+        -+ R=-
+    '''
+
+    dstretch = ma(gmin(sif.open30-sif.low30,sif.high30-sif.open30),10) *3
+    stretch = dnext_cover(dstretch,sif.close,sif.i_cof30,30)
+    
+    #dstretch = ma(gmin(sif.opend-sif.lowd,sif.highd-sif.opend),10)
+    #stretch = dnext(dstretch,sif.close,sif.i_cofd)
+    
+    open30 = dnext_cover(sif.open30,sif.close,sif.i_cof30,30)
+
+    trend_line1 = gtrend1(sif.high30,sif.low30)
+    dtrend = strend2(trend_line1)
+    thigh = np.select([dtrend>0],[trend_line1])
+
+    dtrend = dnext_cover(dtrend,sif.close,sif.i_cof30,30)
+    dline1 = dnext_cover(trend_line1,sif.close,sif.i_cof30,30)
+
+    thigh = extend2next(thigh)
+    dthigh = dnext_cover(thigh,sif.close,sif.i_cof30,30)
+
+    pattern = gand(sif.open30 < rollx(sif.close30) 
+                ,rollx(sif.close30) > rollx(sif.close30,2)
+                )
+
+    dpattern = dnext_cover(pattern,sif.close,sif.i_oof30,30)
+
+    signal = cross(open30+stretch,sif.close) > 0
+    signal = gand(signal
+                ,dpattern
+                #,dtrend<0
+                ,open30>dline1   #不论是跌涨，都大于dline1
+                )
+
+    signal = np.select([gand(sif.time>914,sif.time<1510)],[signal],0)
+
+    signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal==1)
+
+    return signal * orb_normal_30_pattern_trend_b.direction
+
+orb_normal_30_pattern_trend_b.direction = XBUY
+orb_normal_30_pattern_trend_b.priority = 2480
+
+
+def orb_normal_60_pattern_trend_b(sif,sopened=None):
+    ''' #加首次约束
+        d=3*
+        ++ R=/101
+        +- R=
+        -- R=
+        -+ R=
+ 
+        d=2.5*
+        ++:/115
+        +-:/29
+        --:
+        -+:
+
+        d=2*
+        ++:103/140
+        +-:/74
+        --:-8
+        -+:/81
+
+        d=1.5*
+        ++:
+        +-:
+        --:
+        -+:
+
+        d=1
+        ++:83
+        +-:49
+        --:13
+        -+:-15
+
+    '''
+
+    dstretch = ma(gmin(sif.open60-sif.low60,sif.high60-sif.open60),10) *5/2
+    stretch = dnext_cover(dstretch,sif.close,sif.i_cof60,60)
+    
+    #dstretch = ma(gmin(sif.opend-sif.lowd,sif.highd-sif.opend),10)
+    #stretch = dnext(dstretch,sif.close,sif.i_cofd)
+    
+    open60 = dnext_cover(sif.open60,sif.close,sif.i_cof60,60)
+
+    trend_line1 = gtrend1(sif.high60,sif.low60)
+    dtrend = strend2(trend_line1)
+    thigh = np.select([dtrend>0],[trend_line1])
+
+    dtrend = dnext_cover(dtrend,sif.close,sif.i_cof60,60)
+    dline1 = dnext_cover(trend_line1,sif.close,sif.i_oof60,60)
+
+    thigh = extend2next(thigh)
+    dthigh = dnext_cover(thigh,sif.close,sif.i_cof60,60)
+
+    pattern = gand(sif.open60 < rollx(sif.close60) 
+                ,rollx(sif.close60) > rollx(sif.close60,2)
+                )
+
+    dpattern = dnext_cover(pattern,sif.close,sif.i_cof60,60)
+
+    signal = cross(open60+stretch,sif.close) > 0
+    signal = gand(signal
+                ,dpattern
+                #,dtrend>0
+                ,open60<dline1   #不论是跌涨，都大于dline1
+                )
+
+    signal = np.select([gand(sif.time>914,sif.time<6010)],[signal],0)
+
+    signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal==1)
+
+    return signal * orb_normal_60_pattern_trend_b.direction
+
+orb_normal_60_pattern_trend_b.direction = XBUY
+orb_normal_60_pattern_trend_b.priority = 2480
+
+
+def orb_normal_day_pattern_s(sif,sopened=None):
+    '''
+        ++ R=-61
+        +-  -82
+        --  -14
+        -+  R=25
+        +++ -58
+        -++ -63
+        ++- -56
+        -+- R=-100
+        --- R=-7
+        +-- R=3
+        +-+ R=-22
+        --+ R=98, 均由某次盈利所得
+        以下去掉首次约束
+        +--+ R=165  ##
+        ---+ R=5
+        ++-- R=190, w/l=2/3
+        -+-- R=-85
+    '''
+
+    dstretch = ma(gmin(sif.opend-sif.lowd,sif.highd-sif.opend),10)
+    stretch = dnext(dstretch,sif.close,sif.i_cofd)
+    opend = dnext(sif.opend,sif.close,sif.i_oofd)
+
+    pattern = gand(sif.opend > rollx(sif.closed)
+                ,rollx(sif.closed) < rollx(sif.closed,2)
+                ,rollx(sif.closed,2) < rollx(sif.closed,3)
+                ,rollx(sif.closed,3) > rollx(sif.closed,4)
+                )
+
+    dpattern = dnext2diff(pattern,sif.close,sif.i_oofd,sif.date)
+
+
+    signal = cross(opend-stretch,sif.close) < 0
+    signal = gand(signal
+                ,dpattern
+                )
+
+    signal = np.select([gand(sif.time>914,sif.time<1510)],[signal],0)
+
+    #signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+    #signal = gand(signal==1)
+
+    return signal * orb_normal_day_pattern_s.direction
+
+orb_normal_day_pattern_s.direction = XSELL
+orb_normal_day_pattern_s.priority = 2480
+
+
+def orb_normal_day_idnrx_b(sif,sopened=None,length=4):
+    '''
+        --: 338
+    '''
+    dstretch = ma(gmin(sif.opend-sif.lowd,sif.highd-sif.opend),10)
+    stretch = dnext(dstretch,sif.close,sif.i_cofd)
+    opend = dnext(sif.opend,sif.close,sif.i_oofd)
+
+    did = dnext2diff(rollx(gand(sif.highd<=rollx(sif.highd),sif.lowd>=rollx(sif.lowd))),sif.close,sif.i_oofd,sif.date)
+
+
+    rd = sif.highd-sif.lowd
+    nr = rd<rollx(tmin(rd,length-1))
+    sfilter = gand(dnext2diff(rollx(nr),sif.close,sif.i_oofd,sif.date)
+                )
+    
+    pattern = gand(sif.opend < rollx(sif.closed)
+                ,rollx(sif.closed) < rollx(sif.closed,2)
+                )
+
+    dpattern = dnext2diff(pattern,sif.close,sif.i_oofd,sif.date)
+
+    signal = cross(opend+stretch,sif.close)
+    signal = gand(signal
+                ,sfilter
+                ,did
+                ,dpattern
+                )
+
+    return signal * orb_normal_day_idnrx_b.direction
+orb_normal_day_idnrx_b.direction = XBUY
+orb_normal_day_idnrx_b.priority = 2480
+
+
+def orb_normal_day_wsx_b(sif,sopened=None,length=4):
+    dstretch = ma(gmin(sif.opend-sif.lowd,sif.highd-sif.opend),10)
+    stretch = dnext(dstretch,sif.close,sif.i_cofd)
+    opend = dnext(sif.opend,sif.close,sif.i_oofd)
+
+    rd = sif.highd-sif.lowd
+    nr = rd>rollx(tmax(rd,length-1))
+    sfilter = dnext2diff(rollx(nr),sif.close,sif.i_oofd,sif.date)
+
+    signal = cross(opend+stretch,sif.close)
+    signal = gand(signal
+                ,sfilter
+                )
+
+    return signal * orb_normal_day_wsx_b.direction
+orb_normal_day_wsx_b.direction = XBUY
+orb_normal_day_wsx_b.priority = 2480
 
 def nr30s(sif,sopened=None):
     r30 = sif.high30 - sif.low30

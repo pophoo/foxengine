@@ -49,7 +49,6 @@ class ModuleTest(unittest.TestCase):
         source = np.array([1000,2000,2000,2000,2000,3000,4000])
         self.assertEquals([200,560,848,1078,1263,1610,2088],sma(source,5,1).tolist())   #相当于5日
         self.assertEquals([],sma(np.array([]),5,1).tolist())   #相当于5日
-
  
 
     def test_macd(self):#因为是其它几个算法的集成，所以不测试实际数据，只测试可执行性
@@ -92,6 +91,10 @@ class ModuleTest(unittest.TestCase):
         #print diff
         source = np.array([63750,65625,63000,62750,63250,65375,66000])
         diff,dea = smacd(source)
+
+    def test_gtrend1(self):
+        self.assertEquals([],gtrend1(np.array([]),np.array([])).tolist())
+        self.assertEquals([0,200,300,80,80,75,250,250,260],gtrend1(np.array([100,200,300,250,200,220,250,200,260]),np.array([80,120,100,80,100,75,125,150,130])).tolist())
 
 
     def test_score(self):

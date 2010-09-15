@@ -1027,6 +1027,10 @@ nr30s.priority = 1400
 
 
 def nr30b(sif,sopened=None):
+    '''
+        搞，这个居然是抄顶的。全部是正向指标，最后居然是XSELL
+        效果倒是不错
+    '''
     r30 = sif.high30 - sif.low30
     
     r30_x = tmin(r30,3)

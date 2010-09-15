@@ -4,21 +4,11 @@
 '''
 
 
-import functools
-
 from wolfox.fengine.ifuture.ibase import *
-
-
 
 DTSORT = lambda x,y: int(((x.date%1000000 * 10000)+x.time) - ((y.date%1000000 * 10000)+y.time)) or -x.xtype+y.xtype #避免溢出, 先平仓再开仓
 
 simple_profit = lambda actions: actions[0].price * actions[0].position + actions[1].price * actions[1].position - TAX
-
-def get_func_attr(func,attr_name):
-    cfunc = func
-    while(isinstance(cfunc,functools.partial)):
-        cfunc = cfunc.func
-    return cfunc.__dict__[attr_name]
 
 fdirection = fcustom(get_func_attr,attr_name='direction')
 fpriority = fcustom(get_func_attr,attr_name='priority')
@@ -79,6 +69,8 @@ def last_filter(sif,tbegin=930,tend=1510):
     return soc
 
 last_filter_c = fcustom(last_filter,tbegin=930,tend=1455)
+ocfilter_orb = fcustom(last_filter,tbegin=915,tend=1440) #orb 1440之后信号忽略
+
 
 ##平仓比较函数中，第一个参数的优先级低于第二个
 def early_strategy(action1,action2):#多选时的平仓策略，最早平仓
@@ -583,6 +575,7 @@ def max_drawdown(trades,datefrom=20100401,dateto=20200101):
     smax = 0    #最大连续回撤
     max1 = 0    #最大单笔回撤
     curs = 0
+    mdate = 20100401
     for trade in trades:
         tdate = trade.actions[-1].date
         if tdate > datefrom and tdate < dateto: #忽略掉小于开始时间的
@@ -592,9 +585,10 @@ def max_drawdown(trades,datefrom=20100401,dateto=20200101):
                 curs += trade.profit   #本为负数
                 if curs < smax:
                     smax = curs
+                    mdate = trade.actions[0].date
             if trade.profit < max1:
                 max1 = trade.profit
-    return smax,max1;
+    return smax,max1,mdate
 
 def max_win(trades,datefrom=20100401,dateto=20200101):
     smax = 0    #最大连续盈利

@@ -59,3 +59,18 @@ def dnext_cover(xsource,xbase,xindex,length):
     result = extend(result,length)
     return result
 
+import functools
+
+def get_func_attr(func,attr_name):
+    cfunc = func
+    while(isinstance(cfunc,functools.partial)):
+        cfunc = cfunc.func
+    return cfunc.__dict__[attr_name]
+
+def func_name(func):
+    cfunc = func
+    while(isinstance(cfunc,functools.partial)):
+        cfunc = cfunc.func
+    return str(cfunc)[10:-14]
+
+

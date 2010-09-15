@@ -1554,7 +1554,6 @@ xorb_b = [##dnr1_dd_b,
         ##n60pt_uu_b,
         #n60pt_uud_b,
         n60pt_dd_b,    #
-        nr30b,    #
         ]
 
 xorb_s = [###dpt_uu_s,
@@ -1562,6 +1561,7 @@ xorb_s = [###dpt_uu_s,
           n15pt_du_s,
           #n60pt_duu_s,
           ##nr30s   #实际上太耦合了
+          ##nr30b,    #  这个也是卖空的
          ]
 
 xorb = xorb_b + xorb_s

@@ -1582,8 +1582,8 @@ for xf in xorb_s:
     xf.filter = ocfilter_orb
     xf.priority = 1550
 
-xxx2 = xfollow + xbreak + xagainst
-xxx3 = xfollow + xbreak + xagainst
+xxx2 = xfollow + xbreak + xagainst + xorb
+xxx3 = xfollow + xbreak + xagainst + xorb
 
 '''
 16402 17617 17826 18228 18173 18494 18655 18663

@@ -1502,6 +1502,7 @@ for xf in xfollow:
     #xf.stop_closer = atr5_uxstop_08_25_C
     #xf.stop_closer = atr5_uxstop_08_25_D
     xf.strategy = XFOLLOW
+    xf.max_drawdown=9
 
 xbreak = [#多头
             acd_ua,
@@ -1556,6 +1557,20 @@ xorb_b = [##dnr1_dd_b,
         n60pt_dd_b,    #
         ]
 
+xorb_b_all = [dnr1_dd_b,
+        #dnr1_uu_b,
+        #dnr1_ud_b,
+        dpt_ux_b,
+        dp_uu_b,
+        #dp_ud_b,
+        n30pt_dud_b,  #
+        #n15pt_dd_b,    #
+        n60pt_uu_b,
+        #n60pt_uud_b,
+        n60pt_dd_b,    #
+        ]
+
+
 xorb_s = [###dpt_uu_s,
           ##n30pt_du_s,
           n15pt_du_s,
@@ -1564,21 +1579,30 @@ xorb_s = [###dpt_uu_s,
           ##nr30b,    #  这个也是卖空的
          ]
 
-xorb = xorb_b + xorb_s
 
+xorb_s_all = [dpt_uu_s,
+          #n30pt_du_s,
+          n15pt_du_s,
+          #n60pt_duu_s,
+          nr30s,   #实际上太耦合了
+          #nr30b,    #  这个也是卖空的
+         ]
+
+xorb = xorb_b + xorb_s
+xorb_all = xorb_b_all + xorb_s_all
 for xf in xorb:
-    xf.strategy = XAGAINST #XBREAK    #等同于xbreak
+    xf.strategy = XORB    
     xf.stop_closer = atr5_uxstop_08_25
     #xf.stop_closer = atr5_uxstop_08_25_A    
     #xf.stop_closer = atr5_uxstop_05_25
     xf.filter = ocfilter_orb
     xf.priority = 1550
 
-for xf in xorb_s:
-    xf.strategy = XAGAINST #XBREAK    #等同于xbreak
-    xf.stop_closer = atr5_uxstop_08_25    
-    #xf.stop_closer = atr5_uxstop_08_25_A
-    #xf.stop_closer = atr5_uxstop_05_25    
+for xf in xorb_all:
+    xf.strategy = XORB   
+    xf.stop_closer = atr5_uxstop_08_25
+    #xf.stop_closer = atr5_uxstop_08_25_A    
+    #xf.stop_closer = atr5_uxstop_05_25
     xf.filter = ocfilter_orb
     xf.priority = 1550
 

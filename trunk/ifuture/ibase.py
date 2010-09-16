@@ -15,7 +15,7 @@ XBASE = 100 #用于一般化的除数基数
 
 TAX = 10    #tax为0.8个点,设为1
 
-XFOLLOW,XBREAK,XAGAINST = 1000,500,-500
+XFOLLOW,XBREAK,XAGAINST,XORB = 1000,500,-500,800
 
 import numpy as np
 

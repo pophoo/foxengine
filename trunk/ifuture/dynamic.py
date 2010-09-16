@@ -127,6 +127,10 @@ def calc_stop(sif,action):
         stop1 = 9
         stop2 = 9
         stop3 = 9
+    elif  'strategy' in action.functor.__dict__ and action.functor.strategy == XORB:
+        stop1 = sif.atr5x[action.index]/1250.0
+        stop2 = sif.atr[action.index]*1.5/1000
+        stop3 = 6
     elif  'strategy' in action.functor.__dict__  and action.functor.strategy == XAGAINST:
         stop1 = sif.atr5x[action.index]/1250.0
         stop2 = sif.atr[action.index]*1.5/1000

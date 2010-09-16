@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 
 
+'''
+    测试orb
+    未测试orb的开盘直接卖出(根据日模式以及与前一日收盘的关系)
+    须进一步测试
+'''
+
 from wolfox.fengine.ifuture.ibase import *
 from wolfox.fengine.ifuture.iftrade import *
 

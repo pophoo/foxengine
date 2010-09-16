@@ -493,7 +493,7 @@ class DynamicScheduler:
         '''
             调度过程
         '''
-        while(self.get_itime()<1916):
+        while(self.get_itime()<2359):
             self.prepare_data()
             #print u'读取数据成功,最新时间:%s' % self.dyn_datas[self.names[0]].transaction[ITIME][-1]
             ct = self.dyn_datas[self.names.keys()[0]].transaction
@@ -688,6 +688,6 @@ if __name__ == '__main__':
         pass
     
     #scheduler = DynamicScheduler('d:/dzh2/data/sf/reportl.dat',['IF1009'],sms_begin=sms_begin)
-    scheduler = DynamicScheduler('d:/dzh2/data/sf/reportl.dat',{'IF0001':'IF1009'},sms_begin=sms_begin)  #使用当月连续
+    scheduler = DynamicScheduler('d:/dzh2/data/sf/reportl.dat',{'IF0001':'IF1010'},sms_begin=sms_begin)  #使用当月连续
     scheduler.run()
     

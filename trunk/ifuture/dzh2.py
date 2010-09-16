@@ -87,6 +87,7 @@ import time
 import calendar as cal
 import numpy as np
 import urllib2
+import win32api
 
 from wolfox.fengine.ifuture.ibase import *
 import wolfox.fengine.ifuture.ifreader as ifreader
@@ -496,8 +497,11 @@ class DynamicScheduler:
             self.prepare_data()
             #print u'读取数据成功,最新时间:%s' % self.dyn_datas[self.names[0]].transaction[ITIME][-1]
             ct = self.dyn_datas[self.names.keys()[0]].transaction
-            linelog(u'读取数据成功,%s-%s:%s-%s,%s-%s' % (ct[IDATE][-1],ct[ITIME][-1],ct[IOPEN][-1],ct[ICLOSE][-1],ct[IHIGH][-1],ct[ILOW][-1]))
-            self.check_signal()
+            if len(ct[IDATE])>0:
+                linelog(u'读取数据成功,%s-%s:%s-%s,%s-%s' % (ct[IDATE][-1],ct[ITIME][-1],ct[IOPEN][-1],ct[ICLOSE][-1],ct[IHIGH][-1],ct[ILOW][-1]))
+                self.check_signal()
+            else:
+                linelog(u'无当日动态数据')
             time.sleep(5)    #计算需要10秒，因此总延迟15秒
 
     def prepare_data(self):
@@ -587,6 +591,8 @@ class DynamicScheduler:
             mnum += 1
             #break  #测试短信用
         print u'\n计划发送 %s 条，成功发送 %s 条' % (mnum,successed)
+        if msum>0:
+            win32api.MessageBox(0,u'请注意眼睛休息','提示',0x00001000L)
         return successed
 
     @staticmethod

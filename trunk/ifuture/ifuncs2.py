@@ -1567,15 +1567,17 @@ xorb_s = [###dpt_uu_s,
 xorb = xorb_b + xorb_s
 
 for xf in xorb:
-    xf.strategy = XBREAK    #等同于xbreak
-    xf.stop_closer = atr5_uxstop_08_25_A    
+    xf.strategy = XAGAINST #XBREAK    #等同于xbreak
+    xf.stop_closer = atr5_uxstop_08_25
+    #xf.stop_closer = atr5_uxstop_08_25_A    
     #xf.stop_closer = atr5_uxstop_05_25
     xf.filter = ocfilter_orb
     xf.priority = 1550
 
 for xf in xorb_s:
-    xf.strategy = XBREAK    #等同于xbreak
-    xf.stop_closer = atr5_uxstop_08_25_A
+    xf.strategy = XAGAINST #XBREAK    #等同于xbreak
+    xf.stop_closer = atr5_uxstop_08_25    
+    #xf.stop_closer = atr5_uxstop_08_25_A
     #xf.stop_closer = atr5_uxstop_05_25    
     xf.filter = ocfilter_orb
     xf.priority = 1550

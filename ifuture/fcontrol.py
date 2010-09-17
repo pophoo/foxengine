@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-控制模块
+#控制模块
 
 from wolfox.fengine.ifuture.ibase import *
 import wolfox.fengine.ifuture.ifreader as ifreader

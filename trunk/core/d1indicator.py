@@ -619,6 +619,36 @@ def roc(source,interval=1):
             rev[i] = (cv - ci) * BASE / ci / interval
     return rev
 
+def sroc(source,interval=1):
+    '''
+        roc的np版本
+    '''
+    assert interval > 0
+    rc = rollx(source,interval)
+    rev = (source - rc)*BASE / rc
+    rev[:interval] = 0
+    return rev
+
+def mfi(source,vol,length=13):
+    '''
+        mfi指标
+        source = (close+high+low)/3
+
+        TYP := (HIGH + LOW + CLOSE)/3;
+        V1=SUM(IF(TYP>REF(TYP,1),TYP*VOL,0),N)/SUM(IF(TYP<REF(TYP,1),TYP*VOL,0),N);
+        MFI:100-(100/(1+V1))
+        设定 PV = SUM(IF(TYP>REF(TYP,1),TYP*VOL,0),N)
+             NV = SUM(IF(TYP<REF(TYP,1),TYP*VOL,0),N);
+        则MFI = 100PV/(PV+NV)
+        
+    '''
+    pvol = np.select([source>rollx(source)],[vol])
+    nvol = np.select([source<rollx(source)],[vol])
+    spv = msum(pvol,length)
+    snv = msum(nvol,length)
+    result = (BASE*spv+(spv+snv)/2)/(spv+snv)   #四舍五入
+    return result
+
 def pvt(signal,energy): 
     ''' PVT
         pvt[n] = pvt[n-1] + energy[n] * (signal[n]-signal[n-1]) /signal[n-1]

@@ -276,6 +276,19 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,0,0,0,0],roc(np.array([1,2,4,6,9]),5).tolist())
         self.assertEquals([0,0,0,0,2000],roc(np.array([1,2,4,6,9]),4).tolist())
 
+    def test_sroc(self):
+        self.assertEquals([],sroc(np.array([])).tolist())
+        self.assertEquals([0,1000,1000,500,500,1000,333,666],sroc(np.array([1,2,4,6,9,18,24,40])).tolist())
+        self.assertEquals([0,0,3000,2000,1250,2000,1666,1222],sroc(np.array([1,2,4,6,9,18,24,40]),2).tolist())
+        self.assertEquals([0,0,0,0,0],sroc(np.array([1,2,4,6,9]),5).tolist())
+        self.assertEquals([0,0,0,0,8000],sroc(np.array([1,2,4,6,9]),4).tolist())
+
+    def test_mfi(self):
+        self.assertEquals([],mfi(np.array([]),np.array([])).tolist())
+        self.assertEquals([0,1000,1000,0,1000,1000,0],mfi(np.array([10,20,30,20,40,50,30]),np.array([10,10,10,10,10,10,10]),1).tolist())
+        self.assertEquals([0,1000,1000,500,500,1000,500],mfi(np.array([10,20,30,20,40,50,30]),np.array([10,10,10,10,10,10,10]),2).tolist())
+
+
     def test_pvt(self):
         tclose = np.array([1000,1010,1020,1030,1020,1030,1000,1000,1020,1030,1020,1030])
         tvolume = np.array([100,100,100,100,100,100,100,100,100,100,100,100])

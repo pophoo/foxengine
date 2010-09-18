@@ -829,7 +829,7 @@ def orb_normal_60_pattern_trend_b(sif,sopened=None,pfunc=pattern_uu,filter=null_
 
     signal = np.select([gand(sif.time>914,sif.time<1510)],[signal],0)
 
-    signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
     #signal = gand(signal==1)
 
     return signal * orb_normal_60_pattern_trend_b.direction

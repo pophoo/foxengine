@@ -13,7 +13,7 @@
 
 from wolfox.fengine.ifuture.ibase import *
 from wolfox.fengine.ifuture.ifuncs import fmacd1_long,fmacd1_short
-from wolfox.fengine.ifuture.iftrade import delay_filter,atr5_uxstop_1_25,atr5_uxstop_08_25,atr5_uxstop_05_25
+from wolfox.fengine.ifuture.iftrade import delay_filter,atr5_uxstop_1_25,atr5_uxstop_08_25,atr5_uxstop_05_25,atr5_uxstop_08_25_A,atr5_uxstop_T1
 
 
 ama1 = ama_maker()
@@ -1745,7 +1745,28 @@ def skdj30(sif,sopened=None):
 skdj30.direction = XBUY
 skdj30.priority = 1000
 
+def tev(sif,sopened=None,length=12,malength=6):
+   
+    mxc = xc0s(sif.open30,sif.close30,sif.high30,sif.low30,13) < 0
+    signal = np.zeros_like(sif.diff1)
+    signal[sif.i_cof30] = mxc
 
+
+    signal = gand(signal
+            #,strend2(sif.ma13)<0
+            #,strend2(sif.ma30)<0
+            ,sif.ltrend<0
+            #,sif.mtrend<0
+            #,sif.strend<0
+            #,sif.ms<0
+            ,sif.xatr30x < sif.mxatr30x
+            #,sif.xatr5x>sif.mxatr5x
+            ,sif.xatr>sif.mxatr
+            )
+    return signal * tev.direction
+tev.direction = XSELL
+tev.priority = 1000
+tev.stop_closer = atr5_uxstop_T1
 
 def lastbuy(sif,sopened=None):
     '''

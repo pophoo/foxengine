@@ -119,6 +119,9 @@ class cache(AbstractCache):
             return self.func(*args,**kwargs)
         return rev
 
+    def __repr__(self,*args,**kwargs):  #这个是不继承的?
+        return 'cached funcs:%s' % str(self.func)
+
 @cache
 def cache_example(i):
     return i+10

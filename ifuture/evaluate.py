@@ -13,10 +13,13 @@ def evaluate(sif
              ,begin = 929   #信号过滤
              ,uplimit = 90  #分割统计的上限
              ,downlimit = 90    #分割统计的下限
+             ,filter = None  #过滤器
              ):
     '''
         对开仓后10分钟内的上下情况进行统计，无所谓买入或卖出，仅统计上下
     '''
+    if filter != None:
+        signal = gand(signal,filter)
     ssignal = np.select([gand(sif.time>begin,sif.time<end)],[rollx(signal)],0)  #信号在下一周期开始发出
     indics = np.nonzero(ssignal)
     s1open = sif.close[indics]  #不可能马上买入,最快在信号发出的分钟末买入
@@ -52,10 +55,13 @@ def evaluate2_b(sif
              ,begin = 929   #信号过滤
              ,downlimit = 60    #止损
              ,uplimit = 90  #分类统计的上限
+             ,filter = None #过滤器
              ):
     ''' 
         对买入开仓后超过下限的进行止损平仓
     '''
+    if filter != None:
+        signal = gand(signal,filter)
     ssignal = np.select([gand(sif.time>begin,sif.time<end)],[rollx(signal)],0)  #信号在下一周期开始发出
     indics = np.nonzero(ssignal)
     s1open = sif.close[indics]  #不可能马上买入,最快在信号发出的分钟末买入
@@ -85,7 +91,6 @@ def evaluate2_b(sif
 
     return (xavg,wavg,lavg,wtimes,ltimes),(nu,-nd,mu,-md),(pinfo,)#,(profits,up_wave,down_wave)
 
-
 def evaluate2_s(sif
              ,signal    #信号序列
              ,interval  #信号之后的价格间隔
@@ -93,10 +98,13 @@ def evaluate2_s(sif
              ,begin = 929   #信号过滤
              ,downlimit = 90    #分类统计的上限
              ,uplimit = 60      #止损
+             ,filter = None #过滤器
              ):
     ''' 
         对卖出开仓后超过上限的进行止损平仓
     '''
+    if filter != None:
+        signal = gand(signal,filter)
     ssignal = np.select([gand(sif.time>begin,sif.time<end)],[rollx(signal)],0)  #信号在下一周期开始发出
     indics = np.nonzero(ssignal)
     s1open = sif.close[indics]  #不可能马上买入,最快在信号发出的分钟末买入
@@ -126,6 +134,260 @@ def evaluate2_s(sif
 
     return (xavg,wavg,lavg,wtimes,ltimes),(-nu,nd,-mu,md),(pinfo,)#,(profits,up_wave,down_wave)
 
+def evaluate3_b(sif
+             ,signal    #信号序列
+             ,interval  #信号之后的价格间隔
+             ,end = 1500    #信号过滤
+             ,begin = 929   #信号过滤
+             ,downlimit = 60    #止损
+             ,uplimit = 90  #分类统计的上限
+             ,filter = None #过滤器
+             ):
+    ''' 
+        对买入开仓后超过下限的进行止损平仓
+        并抑制未平仓前的继续开仓，以避免一次上升被计入多次，最后导致数据与实际操作不符的问题
+    '''
+    if filter != None:
+        signal = gand(signal,filter)
+    ssignal = np.select([gand(sif.time>begin,sif.time<end)],[rollx(signal)],0)  #信号在下一周期开始发出
+    indics = np.nonzero(ssignal)
+    
+    occupy = np.zeros_like(sif.close)
+    slength = len(sif.close)    
+    for index in indics[0]:
+        if occupy[index] != 0:
+            ssignal[index] = 0
+            continue    #被忽略
+        cindex = index + interval if index+interval<slength else slength
+        cdownl = sif.close[index] - downlimit
+        for si in range(index,cindex):
+            occupy[si] = 1
+            if sif.low[si] < cdownl:
+                break
+    indics = np.nonzero(ssignal)
+    
+    s1open = sif.close[indics]  #不可能马上买入,最快在信号发出的分钟末买入
+    s2close = rollx(sif.close,-interval)[indics]
+    #+1以包括开仓那一分钟,计如果次分钟平仓，即interval=1,则实际上也涉及到了2个分钟，即开仓分钟和平仓分钟
+    s0high = rollx(tmax(sif.high,interval+1),-interval)[indics] 
+    s0low = rollx(tmin(sif.low,interval+1),-interval)[indics]
+
+    profits = s2close - s1open
+    up_wave = s0high-s1open
+    down_wave = s1open-s0low
+    profits = np.select([down_wave<downlimit],[profits],-downlimit-5)   #取一半的滑点
+    wtimes = np.sum(profits>0)
+    ltimes = np.sum(profits<=0)
+    xavg = np.sum(profits) / len(profits)
+    wavg = np.sum(profits[profits>0]) / wtimes
+    lavg = np.sum(profits[profits<=0]) / ltimes  
+    nu = np.sum(up_wave > uplimit)
+    nd = np.sum(down_wave > downlimit)
+    mu = 0 if len(up_wave) ==0 else np.max(up_wave)
+    md = 0 if len(down_wave) ==0 else np.max(down_wave)
+    pinfo = []
+    pinfo.append((-downlimit,np.sum(profits<-downlimit)))
+    for step in range(-downlimit,uplimit,10):
+        sn = np.sum(gand(profits>step,profits<=step+10))
+        pinfo.append((step,sn))
+    pinfo.append((uplimit,np.sum(profits>uplimit)))
+
+    return (xavg,wavg,lavg,wtimes,ltimes),(nu,-nd,mu,-md),(pinfo,)#,(profits,up_wave,down_wave)
+
+def evaluate3_s(sif
+             ,signal    #信号序列
+             ,interval  #信号之后的价格间隔
+             ,end = 1500    #信号过滤
+             ,begin = 929   #信号过滤
+             ,downlimit = 90    #分类统计的上限
+             ,uplimit = 60      #止损
+             ,filter = None #过滤器
+             ):
+    ''' 
+        对卖出开仓后超过上限的进行止损平仓
+    '''
+    if filter != None:
+        signal = gand(signal,filter)
+    ssignal = np.select([gand(sif.time>begin,sif.time<end)],[rollx(signal)],0)  #信号在下一周期开始发出
+    indics = np.nonzero(ssignal)
+
+    occupy = np.zeros_like(sif.close)
+    slength = len(sif.close)    
+    for index in indics[0]:
+        if occupy[index] != 0:
+            ssignal[index] = 0
+            continue    #被忽略
+        cindex = index + interval if index+interval<slength else slength
+        cupl = sif.close[index] + uplimit
+        for si in range(index,cindex):
+            occupy[si] = 1
+            if sif.high[si] > cupl:
+                break
+    indics = np.nonzero(ssignal)
+
+    s1open = sif.close[indics]  #不可能马上买入,最快在信号发出的分钟末买入
+    s2close = rollx(sif.close,-interval)[indics]
+    #+1以包括开仓那一分钟,计如果次分钟平仓，即interval=1,则实际上也涉及到了2个分钟，即开仓分钟和平仓分钟
+    s0high = rollx(tmax(sif.high,interval+1),-interval)[indics] 
+    s0low = rollx(tmin(sif.low,interval+1),-interval)[indics]
+    profits = s1open - s2close  #空头利润
+    up_wave = s0high-s1open
+    down_wave = s1open-s0low
+    profits = np.select([up_wave<uplimit],[profits],-uplimit-5)   #取一半的滑点
+    wtimes = np.sum(profits>0)
+    ltimes = np.sum(profits<=0)
+    xavg = np.sum(profits) / len(profits)
+    wavg = np.sum(profits[profits>0]) / wtimes
+    lavg = np.sum(profits[profits<=0]) / ltimes  
+    nu = np.sum(up_wave > uplimit)
+    nd = np.sum(down_wave > downlimit)
+    mu = 0 if len(up_wave) ==0 else np.max(up_wave)
+    md = 0 if len(down_wave) ==0 else np.max(down_wave)
+    pinfo = []
+    pinfo.append((-uplimit,np.sum(profits<-uplimit)))
+    for step in range(-uplimit,downlimit,10):
+        sn = np.sum(gand(profits>step,profits<=step+10))
+        pinfo.append((step,sn))
+    pinfo.append((downlimit,np.sum(profits>downlimit)))
+
+    return (xavg,wavg,lavg,wtimes,ltimes),(-nu,nd,-mu,md),(pinfo,)#,(profits,up_wave,down_wave)
+
+
+
+
+test_funcs = []
+def add_funcs(tests,suffix):
+    test_funcs.extend([(key,value) for key,value in globals().items() if key[:len(suffix)] == suffix])
+
+
+'''
+>>> import wolfox.fengine.ifuture.evaluate as ev
+>>> evf = fcustom(ev.evaluate,interval=60,begin=944,end=1444)
+>>> results = ev.ev_tests(i00,evf,ev.test_funcs)
+>>> ev.ev_output(results,'d:/temp/ev_test.txt',evf)
+
+>>> evf_b = fcustom(ev.evaluate2_b,interval=60,begin=944,end=1414,downlimit=90)
+>>> evf_s = fcustom(ev.evaluate2_s,interval=60,begin=944,end=1414,uplimit=90)
+>>> results_b = ev.ev_tests(i00,evf_b,ev.test_funcs)
+>>> results_s = ev.ev_tests(i00,evf_s,ev.test_funcs)
+>>> ev.ev_output(results_b,'d:/temp/evb_test.txt',evf)
+>>> ev.ev_output(results_s,'d:/temp/evs_test.txt',evf)
+>>> evf_b120 = fcustom(ev.evaluate2_b,interval=120,begin=944,end=1314,downlimit=90)
+>>> evf_s120 = fcustom(ev.evaluate2_s,interval=120,begin=944,end=1314,uplimit=90)
+####120不如60
+>>> results_b120 = ev.ev_tests(i00,evf_b120,ev.test_funcs)
+>>> results_s120 = ev.ev_tests(i00,evf_s120,ev.test_funcs)
+>>> ev.ev_output(results_b120,'d:/temp/evb120_test.txt',evf)
+>>> ev.ev_output(results_s120,'d:/temp/evs120_test.txt',evf)
+>>> ufilter = strend2(i00.ma30)>0
+>>> dfilter = strend2(i00.ma30)<0
+>>> evf_b_s30 = fcustom(ev.evaluate2_b,interval=60,begin=944,end=1414,downlimit=90,filter=ufilter)
+>>> evf_s_s30 = fcustom(ev.evaluate2_s,interval=60,begin=944,end=1414,uplimit=90,filter=dfilter)
+>>> results_b_s30 = ev.ev_tests(i00,evf_b_s30,ev.test_funcs)
+>>> results_s_s30 = ev.ev_tests(i00,evf_s_s30,ev.test_funcs)
+>>> ev.ev_output(results_b_s30,'d:/temp/evb_s30_test.txt',evf)
+>>> ev.ev_output(results_s_s30,'d:/temp/evs_s30_test.txt',evf)
+
+###发现13可以，60不行
+>>> ufilter13 = strend2(i00.ma13)>0
+>>> dfilter13 = strend2(i00.ma13)<0
+>>> dfilter60 = strend2(i00.ma60)<0
+>>> ufilter60 = strend2(i00.ma60)>0
+>>> evf_s_s13 = fcustom(ev.evaluate2_s,interval=60,begin=944,end=1414,uplimit=90,filter=dfilter13)
+>>> evf_s_s60 = fcustom(ev.evaluate2_s,interval=60,begin=944,end=1414,uplimit=90
+>>> evf_b_s13 = fcustom(ev.evaluate2_b,interval=60,begin=944,end=1414,downlimit=90,filter=ufilter13)
+>>> evf_b_s60 = fcustom(ev.evaluate2_b,interval=60,begin=944,end=1414,downlimit=
+>>> results_s_s13 = ev.ev_tests(i00,evf_s_s13,ev.test_funcs)
+>>> results_s_s30 = ev.ev_tests(i00,evf_s_s30,ev.test_funcs)
+>>> results_s_s60 = ev.ev_tests(i00,evf_s_s60,ev.test_funcs)
+>>> results_b_s60 = ev.ev_tests(i00,evf_b_s60,ev.test_funcs)
+>>> results_b_s13 = ev.ev_tests(i00,evf_b_s13,ev.test_funcs)
+>>> ev.ev_output(results_b_s13,'d:/temp/evb_s13_test.txt',evf)
+>>> ev.ev_output(results_b_s60,'d:/temp/evb_s60_test.txt',evf)
+>>> ev.ev_output(results_s_s60,'d:/temp/evs_s60_test.txt',evf)
+>>> ev.ev_output(results_s_s13,'d:/temp/evs_s13_test.txt',evf)
+
+>>> ufilter13_30 = gand(strend2(i00.ma13)>0,strend2(i00.ma30)>0)
+>>> dfilter13_30 = gand(strend2(i00.ma13)<0,strend2(i00.ma30)<0)
+>>> evf_s_s13_30 = fcustom(ev.evaluate2_s,interval=60,begin=944,end=1414,uplimit=90,filter=dfilter13_30)
+>>> evf_b_s13_30 = fcustom(ev.evaluate2_b,interval=60,begin=944,end=1414,downlimit=90,filter=ufilter13_30)
+>>> results_s_s13_30 = ev.ev_tests(i00,evf_s_s13_30,ev.test_funcs)
+>>> results_b_s13_30 = ev.ev_tests(i00,evf_b_s13_30,ev.test_funcs)
+>>> ev.ev_output(results_b_s13_30,'d:/temp/evb_b13_30_test.txt',evf)
+>>> ev.ev_output(results_s_s13_30,'d:/temp/evs_s13_30_test.txt',evf)
+
+##多: 13_30略优于13/30
+##空: 13_30不如13
+##总体来说使用13,但对于大幅度筛选的，使用13-30
+
+
+采用evaluate3_b/s,以与实际更贴近
+>>> evf_b = fcustom(ev.evaluate3_b,interval=60,begin=944,end=1414,downlimit=90)
+>>> evf_s = fcustom(ev.evaluate3_s,interval=60,begin=944,end=1414,uplimit=90)
+>>> results_b = ev.ev_tests(i00,evf_b,ev.test_funcs)
+>>> results_s = ev.ev_tests(i00,evf_s,ev.test_funcs)
+>>> ev.ev_output(results_b,'d:/temp/evb_test.txt',evf_b)
+>>> ev.ev_output(results_s,'d:/temp/evs_test.txt',evf_s)
+>>> evf_b120 = fcustom(ev.evaluate3_b,interval=120,begin=944,end=1314,downlimit=90)
+>>> evf_s120 = fcustom(ev.evaluate3_s,interval=120,begin=944,end=1314,uplimit=90)
+####120不如60
+>>> results_b120 = ev.ev_tests(i00,evf_b120,ev.test_funcs)
+>>> results_s120 = ev.ev_tests(i00,evf_s120,ev.test_funcs)
+>>> ev.ev_output(results_b120,'d:/temp/evb120_test.txt',evf_b120)
+>>> ev.ev_output(results_s120,'d:/temp/evs120_test.txt',evf_s120)
+>>> ufilter = strend2(i00.ma30)>0
+>>> dfilter = strend2(i00.ma30)<0
+>>> evf_b_s30 = fcustom(ev.evaluate3_b,interval=60,begin=944,end=1414,downlimit=90,filter=ufilter)
+>>> evf_s_s30 = fcustom(ev.evaluate3_s,interval=60,begin=944,end=1414,uplimit=90,filter=dfilter)
+>>> results_b_s30 = ev.ev_tests(i00,evf_b_s30,ev.test_funcs)
+>>> results_s_s30 = ev.ev_tests(i00,evf_s_s30,ev.test_funcs)
+>>> ev.ev_output(results_b_s30,'d:/temp/evb_s30_test.txt',evf_b_s30)
+>>> ev.ev_output(results_s_s30,'d:/temp/evs_s30_test.txt',evf_s_s30)
+
+###发现13可以，60不行
+ufilter13 = strend2(i00.ma13)>0
+dfilter13 = strend2(i00.ma13)<0
+dfilter60 = strend2(i00.ma60)<0
+ufilter60 = strend2(i00.ma60)>0
+evf_s_s13 = fcustom(ev.evaluate3_s,interval=60,begin=944,end=1414,uplimit=90,filter=dfilter13)
+evf_s_s60 = fcustom(ev.evaluate3_s,interval=60,begin=944,end=1414,uplimit=90,filter=dfilter60)
+evf_b_s13 = fcustom(ev.evaluate3_b,interval=60,begin=944,end=1414,downlimit=90,filter=ufilter13)
+evf_b_s60 = fcustom(ev.evaluate3_b,interval=60,begin=944,end=1414,downlimit=90,filter=ufilter60)
+results_s_s13 = ev.ev_tests(i00,evf_s_s13,ev.test_funcs)
+results_s_s30 = ev.ev_tests(i00,evf_s_s30,ev.test_funcs)
+results_s_s60 = ev.ev_tests(i00,evf_s_s60,ev.test_funcs)
+results_b_s60 = ev.ev_tests(i00,evf_b_s60,ev.test_funcs)
+results_b_s13 = ev.ev_tests(i00,evf_b_s13,ev.test_funcs)
+ev.ev_output(results_b_s13,'d:/temp/evb_s13_test.txt',evf_b_s13)
+ev.ev_output(results_b_s60,'d:/temp/evb_s60_test.txt',evf_b_s60)
+ev.ev_output(results_s_s60,'d:/temp/evs_s60_test.txt',evf_s_s60)
+ev.ev_output(results_s_s13,'d:/temp/evs_s13_test.txt',evf_s_s13)
+
+ufilter13_30 = gand(strend2(i00.ma13)>0,strend2(i00.ma30)>0)
+dfilter13_30 = gand(strend2(i00.ma13)<0,strend2(i00.ma30)<0)
+evf_s_s13_30 = fcustom(ev.evaluate3_s,interval=60,begin=944,end=1414,uplimit=90,filter=dfilter13_30)
+evf_b_s13_30 = fcustom(ev.evaluate3_b,interval=60,begin=944,end=1414,downlimit=90,filter=ufilter13_30)
+results_s_s13_30 = ev.ev_tests(i00,evf_s_s13_30,ev.test_funcs)
+results_b_s13_30 = ev.ev_tests(i00,evf_b_s13_30,ev.test_funcs)
+ev.ev_output(results_b_s13_30,'d:/temp/evb_b13_30_test.txt',evf_b_s13_30)
+ev.ev_output(results_s_s13_30,'d:/temp/evs_s13_30_test.txt',evf_s_s13_30)
+
+
+'''
+def ev_tests(sif,efunc,tests):
+    #for name,tfunc in tests:
+    #    print name
+    #    signal=tfunc(sif)
+    return [ (name,efunc(sif,signal=tfunc(sif))) for name,tfunc in tests]
+
+def ev_output(results,filename,tfunc):
+    results = sorted(results,lambda x,y:int(y[1][0][0]-x[1][0][0])) #逆序
+    outf = open(filename,'wt+')
+    print >>outf,'%s:%s\n' % (func_name(tfunc),tfunc.paras)
+    for name,result in results:
+        print >>outf,name,result
+    outf.close()
+
 
 xx_up = lambda sfast,sslow:gand(cross(sslow,sfast)>0,strend2(sfast)>0)
 xx_down = lambda sfast,sslow:gand(cross(sslow,sfast)<0,strend2(sfast)<0)
@@ -138,6 +400,7 @@ def sxnative(sclose,sfast,sslow,sindics,sfunc=xx_up):
     signal = np.zeros_like(sclose)
     signal[sindics] = sx
     return signal
+
 
 '''
 发现 
@@ -172,6 +435,7 @@ def sxnative(sclose,sfast,sslow,sindics,sfunc=xx_up):
 ((118, 301, -95, 7, 6), (9, -6, 716, -658), ([(-90, 6), (-90, 0), (-80, 0), (-70
 , 0), (-60, 0), (-50, 0), (-40, 0), (-30, 0), (-20, 0), (-10, 0), (0, 0), (10, 1
 ), (20, 0), (30, 0), (40, 0), (50, 1), (60, 0), (70, 0), (80, 0), (90, 5)],))
+
 >>> ev.evaluate2_b(i00,ev.sxmacd30_b(i00),60,downlimit=90,end=1414,begin=1000)  ####
 ((54, 224, -93, 13, 15), (17, -14, 610, -424), ([(-90, 14), (-90, 0), (-80, 0),
 (-70, 1), (-60, 0), (-50, 0), (-40, 0), (-30, 0), (-20, 0), (-10, 0), (0, 0), (1
@@ -179,7 +443,7 @@ def sxnative(sclose,sfast,sslow,sindics,sfunc=xx_up):
 
 
 #卖出
->>> ev.evaluate2_s(i00,ev.sxmacd5_s(i00),120,uplimit=90,begin=945,end=1314)
+>>> ev.evaluate2_s(i00,ev.sxmacd5_s(i00),120,uplimit=90,begin=945,end=1314) #####
 ((53, 260, -92, 41, 59), (-54, 74, -1272, 1422), ([(-90, 56), (-90, 0), (-80, 0)
 , (-70, 0), (-60, 0), (-50, 0), (-40, 2), (-30, 0), (-20, 0), (-10, 1), (0, 1),
 (10, 2), (20, 2), (30, 2), (40, 2), (50, 1), (60, 0), (70, 0), (80, 0), (90, 31)
@@ -210,10 +474,6 @@ def sxnative(sclose,sfast,sslow,sindics,sfunc=xx_up):
 ((23, 230, -80, 10, 20), (-18, 20, -1170, 1004), ([(-80, 18), (-80, 0), (-70, 0)
 , (-60, 0), (-50, 0), (-40, 1), (-30, 1), (-20, 0), (-10, 0), (0, 1), (10, 2), (
 20, 0), (30, 1), (40, 0), (50, 0), (60, 1), (70, 0), (80, 1), (90, 4)],))
->>> ev.evaluate2_s(i00,ev.sxmacd15_s(i00),120,uplimit=80,begin=1000,end=1314)
-((-2, 153, -80, 9, 18), (-16, 18, -1170, 888), ([(-80, 16), (-80, 0), (-70, 0),
-(-60, 0), (-50, 0), (-40, 1), (-30, 1), (-20, 0), (-10, 0), (0, 1), (10, 2), (20
-, 0), (30, 1), (40, 0), (50, 0), (60, 1), (70, 0), (80, 1), (90, 3)],))
 >>> ev.evaluate2_s(i00,ev.sxmacd15_s(i00),60,uplimit=80,begin=1000,end=1414)        ####
 ((39, 172, -80, 18, 20), (-18, 26, -910, 664), ([(-80, 18), (-80, 0), (-70, 0),
 (-60, 1), (-50, 0), (-40, 0), (-30, 0), (-20, 1), (-10, 0), (0, 1), (10, 2), (20
@@ -222,6 +482,8 @@ def sxnative(sclose,sfast,sslow,sindics,sfunc=xx_up):
 
 
 #之前都没有添加strend2(sif.ma30)条件
+
+
 >>> ev.evaluate(i00,ev.sxmacd1_b(i00),10)
 ((-10, 52, -61, 447, 547), (147, 212, 462, 512), ([(-90, 120), (-90, 19), (-80,
 29), (-70, 24), (-60, 54), (-50, 48), (-40, 50), (-30, 68), (-20, 53), (-10, 75)
@@ -286,6 +548,9 @@ def sxnative(sclose,sfast,sslow,sindics,sfunc=xx_up):
 20, 0), (30, 0), (40, 1), (50, 0), (60, 1), (70, 1), (80, 0), (90, 0)],))
 
 ##添加了strend2(ma30)>/<0条件
+bfilter = strend2(ma30)>0
+sfilter = strend2(ma30)<0
+
 多
 
 >>> ev.evaluate2_b(i00,ev.sxmacd45_b(i00),60,begin=944,end=1414,downlimit=90)
@@ -304,7 +569,7 @@ def sxnative(sclose,sfast,sslow,sindics,sfunc=xx_up):
 ((29, 245, -92, 14, 25), (20, -23, 856, -636), ([(-90, 24), (-90, 0), (-80, 0),
 (-70, 0), (-60, 0), (-50, 0), (-40, 0), (-30, 0), (-20, 1), (-10, 0), (0, 2), (1
 0, 0), (20, 0), (30, 0), (40, 0), (50, 0), (60, 0), (70, 0), (80, 1), (90, 11)],
->>> ev.evaluate2_b(i00,ev.sxmacd10_b(i00),60,begin=944,end=1414,downlimit=90)
+>>> ev.evaluate2_b(i00,ev.sxmacd10_b(i00),60,begin=944,end=1414,downlimit=90)   ####
 ((35, 244, -90, 22, 37), (32, -33, 740, -578), ([(-90, 34), (-90, 0), (-80, 0),
 (-70, 0), (-60, 0), (-50, 1), (-40, 0), (-30, 1), (-20, 1), (-10, 0), (0, 1), (1
 0, 0), (20, 1), (30, 2), (40, 2), (50, 0), (60, 1), (70, 0), (80, 0), (90, 15)],
@@ -312,7 +577,7 @@ def sxnative(sclose,sfast,sslow,sindics,sfunc=xx_up):
 
 
 空
->>> ev.evaluate2_s(i00,ev.sxmacd1_s(i00),60,begin=944,end=1414,uplimit=90)
+>>> ev.evaluate2_s(i00,ev.sxmacd1_s(i00),60,begin=944,end=1414,uplimit=90)  ####
 ((34, 207, -86, 135, 195), (-167, 198, -936, 990), ([(-90, 169), (-90, 1), (-80,
  1), (-70, 1), (-60, 2), (-50, 1), (-40, 3), (-30, 4), (-20, 8), (-10, 5), (0, 8
 ), (10, 8), (20, 7), (30, 7), (40, 5), (50, 0), (60, 5), (70, 6), (80, 5), (90,
@@ -373,37 +638,40 @@ def sxnative(sclose,sfast,sslow,sindics,sfunc=xx_up):
 
 
 
-sxmacd1_b = lambda sif:gand(xx_up(sif.diff1,sif.dea1),strend2(sif.ma30)>0)
-sxmacd1_s = lambda sif:gand(xx_down(sif.diff1,sif.dea1),strend2(sif.ma30)<0)
-sxmacd5_b = lambda sif:gand(sxnative(sif.close,sif.diff5x,sif.dea5x,sif.i_cof5),strend2(sif.ma30)>0)
-sxmacd5_s = lambda sif:gand(sxnative(sif.close,sif.diff5x,sif.dea5x,sif.i_cof5,xx_down),strend2(sif.ma30)<0)
-sxmacd3_b = lambda sif:gand(sxnative(sif.close,sif.diff3x,sif.dea3x,sif.i_cof3),strend2(sif.ma30)>0)
-sxmacd3_s = lambda sif:gand(sxnative(sif.close,sif.diff3x,sif.dea3x,sif.i_cof3,xx_down),strend2(sif.ma30)<0)
-sxmacd10_b = lambda sif:gand(sxnative(sif.close,sif.diff10x,sif.dea10x,sif.i_cof10),strend2(sif.ma30)>0)
-sxmacd10_s = lambda sif:gand(sxnative(sif.close,sif.diff10x,sif.dea10x,sif.i_cof10,xx_down),strend2(sif.ma30)<0)
-sxmacd15_b = lambda sif:gand(sxnative(sif.close,sif.diff15x,sif.dea15x,sif.i_cof15),strend2(sif.ma30)>0)
-sxmacd15_s = lambda sif:gand(sxnative(sif.close,sif.diff15x,sif.dea15x,sif.i_cof15,xx_down),strend2(sif.ma30)<0)
-sxmacd30_b = lambda sif:gand(sxnative(sif.close,sif.diff30x,sif.dea30x,sif.i_cof30),strend2(sif.ma30)>0)
-sxmacd30_s = lambda sif:gand(sxnative(sif.close,sif.diff30x,sif.dea30x,sif.i_cof30,xx_down),strend2(sif.ma30)<0)
-sxmacd45_b = lambda sif:gand(sxnative(sif.close,sif.diff45x,sif.dea45x,sif.i_cof45),strend2(sif.ma30)>0)
-sxmacd45_s = lambda sif:gand(sxnative(sif.close,sif.diff45x,sif.dea45x,sif.i_cof45,xx_down),strend2(sif.ma30)<0)
+sxmacd1_b = lambda sif:xx_up(sif.diff1,sif.dea1)
+sxmacd1_s = lambda sif:xx_down(sif.diff1,sif.dea1)
+sxmacd5_b = lambda sif:sxnative(sif.close,sif.diff5x,sif.dea5x,sif.i_cof5)
+sxmacd5_s = lambda sif:sxnative(sif.close,sif.diff5x,sif.dea5x,sif.i_cof5,xx_down)
+sxmacd3_b = lambda sif:sxnative(sif.close,sif.diff3x,sif.dea3x,sif.i_cof3)
+sxmacd3_s = lambda sif:sxnative(sif.close,sif.diff3x,sif.dea3x,sif.i_cof3,xx_down)
+sxmacd10_b = lambda sif:sxnative(sif.close,sif.diff10x,sif.dea10x,sif.i_cof10)
+sxmacd10_s = lambda sif:sxnative(sif.close,sif.diff10x,sif.dea10x,sif.i_cof10,xx_down)
+sxmacd15_b = lambda sif:sxnative(sif.close,sif.diff15x,sif.dea15x,sif.i_cof15)
+sxmacd15_s = lambda sif:sxnative(sif.close,sif.diff15x,sif.dea15x,sif.i_cof15,xx_down)
+sxmacd30_b = lambda sif:sxnative(sif.close,sif.diff30x,sif.dea30x,sif.i_cof30)
+sxmacd30_s = lambda sif:sxnative(sif.close,sif.diff30x,sif.dea30x,sif.i_cof30,xx_down)
+sxmacd45_b = lambda sif:sxnative(sif.close,sif.diff45x,sif.dea45x,sif.i_cof45)
+sxmacd45_s = lambda sif:sxnative(sif.close,sif.diff45x,sif.dea45x,sif.i_cof45,xx_down)
 
-sxmacd1s_b = lambda sif:gand(xx_bottom(sif.diff1,sif.dea1,length=2),strend2(sif.ma30)>0)
-sxmacd1s_s = lambda sif:gand(xx_top(sif.diff1,sif.dea1),strend2(sif.ma30)<0)
-sxmacd5s_b = lambda sif:gand(sxnative(sif.close,sif.diff5x,sif.dea5x,sif.i_cof5,fcustom(xx_bottom,length=2)),strend2(sif.ma30)>0)   #
-sxmacd5s_s = lambda sif:gand(sxnative(sif.close,sif.diff5x,sif.dea5x,sif.i_cof5,fcustom(xx_top,length=2)),strend2(sif.ma30)<0)
-sxmacd3s_b = lambda sif:gand(sxnative(sif.close,sif.diff3x,sif.dea3x,sif.i_cof3,fcustom(xx_bottom,length=2)),strend2(sif.ma30)>0)   #
-sxmacd3s_s = lambda sif:gand(sxnative(sif.close,sif.diff3x,sif.dea3x,sif.i_cof3,fcustom(xx_top,length=2)),strend2(sif.ma30)<0)
-sxmacd10s_b = lambda sif:gand(sxnative(sif.close,sif.diff10x,sif.dea10x,sif.i_cof10,fcustom(xx_bottom,length=2)),strend2(sif.ma30)>0)   #
-sxmacd10s_s = lambda sif:gand(sxnative(sif.close,sif.diff10x,sif.dea10x,sif.i_cof10,fcustom(xx_top,length=2)),strend2(sif.ma30)<0)
-sxmacd15s_b = lambda sif:gand(sxnative(sif.close,sif.diff15x,sif.dea15x,sif.i_cof15,fcustom(xx_bottom,length=2)),strend2(sif.ma30)>0)   #
-sxmacd15s_s = lambda sif:gand(sxnative(sif.close,sif.diff15x,sif.dea15x,sif.i_cof15,fcustom(xx_top,length=2)),strend2(sif.ma30)<0)
-sxmacd30s_b = lambda sif:gand(sxnative(sif.close,sif.diff30x,sif.dea30x,sif.i_cof30,fcustom(xx_bottom,length=2)),strend2(sif.ma30)>0)   #
-sxmacd30s_s = lambda sif:gand(sxnative(sif.close,sif.diff30x,sif.dea30x,sif.i_cof30,fcustom(xx_top,length=2)),strend2(sif.ma30)<0)
+sxmacd1s_b = lambda sif:xx_bottom(sif.diff1,sif.dea1,length=2)
+sxmacd1s_s = lambda sif:xx_top(sif.diff1,sif.dea1)
+sxmacd5s_b = lambda sif:sxnative(sif.close,sif.diff5x,sif.dea5x,sif.i_cof5,fcustom(xx_bottom,length=2))   #
+sxmacd5s_s = lambda sif:sxnative(sif.close,sif.diff5x,sif.dea5x,sif.i_cof5,fcustom(xx_top,length=2))
+sxmacd3s_b = lambda sif:sxnative(sif.close,sif.diff3x,sif.dea3x,sif.i_cof3,fcustom(xx_bottom,length=2))   #
+sxmacd3s_s = lambda sif:sxnative(sif.close,sif.diff3x,sif.dea3x,sif.i_cof3,fcustom(xx_top,length=2))
+sxmacd10s_b = lambda sif:sxnative(sif.close,sif.diff10x,sif.dea10x,sif.i_cof10,fcustom(xx_bottom,length=2))   #
+sxmacd10s_s = lambda sif:sxnative(sif.close,sif.diff10x,sif.dea10x,sif.i_cof10,fcustom(xx_top,length=2))
+sxmacd15s_b = lambda sif:sxnative(sif.close,sif.diff15x,sif.dea15x,sif.i_cof15,fcustom(xx_bottom,length=2))   #
+sxmacd15s_s = lambda sif:sxnative(sif.close,sif.diff15x,sif.dea15x,sif.i_cof15,fcustom(xx_top,length=2))
+sxmacd30s_b = lambda sif:sxnative(sif.close,sif.diff30x,sif.dea30x,sif.i_cof30,fcustom(xx_bottom,length=2))   #
+sxmacd30s_s = lambda sif:sxnative(sif.close,sif.diff30x,sif.dea30x,sif.i_cof30,fcustom(xx_top,length=2))
+
+
+
 '''
 未加ma30条件
 
->>> ev.evaluate2_b(i00,ev.sxmacd5s_s(i00),60,begin=1414,downlimit=80)
+>>> ev.evaluate2_b(i00,ev.sxmacd5s_s(i00),60,begin=1414,downlimit=80)       ####
 ((64, 161, -74, 17, 12), (19, -10, 470, -710), ([(-80, 10), (-80, 0), (-70, 0),
 (-60, 0), (-50, 0), (-40, 1), (-30, 0), (-20, 0), (-10, 1), (0, 0), (10, 1), (20
 , 0), (30, 0), (40, 1), (50, 0), (60, 0), (70, 0), (80, 0), (90, 15)],))
@@ -411,7 +679,7 @@ sxmacd30s_s = lambda sif:gand(sxnative(sif.close,sif.diff30x,sif.dea30x,sif.i_co
 ((56, 197, -85, 2, 2), (2, -2, 430, -344), ([(-80, 2), (-80, 0), (-70, 0), (-60,
  0), (-50, 0), (-40, 0), (-30, 0), (-20, 0), (-10, 0), (0, 0), (10, 0), (20, 0),
  (30, 0), (40, 0), (50, 0), (60, 1), (70, 0), (80, 0), (90, 1)],))
->>> ev.evaluate2_b(i00,ev.sxmacd3s_s(i00),60,begin=1414,downlimit=80)
+>>> ev.evaluate2_b(i00,ev.sxmacd3s_s(i00),60,begin=1414,downlimit=80)       ####
 ((20, 172, -82, 14, 21), (18, -20, 546, -838), ([(-80, 20), (-80, 0), (-70, 0),
 (-60, 0), (-50, 0), (-40, 0), (-30, 0), (-20, 1), (-10, 0), (0, 0), (10, 0), (20
 , 0), (30, 3), (40, 0), (50, 1), (60, 0), (70, 0), (80, 0), (90, 10)],))
@@ -463,7 +731,7 @@ sxmacd30s_s = lambda sif:gand(sxnative(sif.close,sif.diff30x,sif.dea30x,sif.i_co
 ((51, 197, -95, 2, 2), (2, -2, 430, -344), ([(-90, 2), (-90, 0), (-80, 0), (-70,
  0), (-60, 0), (-50, 0), (-40, 0), (-30, 0), (-20, 0), (-10, 0), (0, 0), (10, 0)
 , (20, 0), (30, 0), (40, 0), (50, 0), (60, 1), (70, 0), (80, 0), (90, 1)],))
->>> ev.evaluate2_b(i00,ev.sxmacd10s_b(i00),60,begin=1414,downlimit=90)
+>>> ev.evaluate2_b(i00,ev.sxmacd10s_b(i00),60,begin=1414,downlimit=90)          
 ((41, 164, -82, 5, 5), (5, -4, 414, -508), ([(-90, 4), (-90, 0), (-80, 0), (-70,
  0), (-60, 0), (-50, 0), (-40, 0), (-30, 1), (-20, 0), (-10, 0), (0, 0), (10, 0)
 , (20, 0), (30, 0), (40, 1), (50, 0), (60, 0), (70, 0), (80, 0), (90, 4)],))
@@ -534,9 +802,9 @@ sx5ma_5_13s = lambda sif:sxnative(sif.close,ma(sif.close5,5),ma(sif.close5,13),s
 sxma_3_13b = lambda sif:xx_up(sif.ma3,sif.ma13)
 sxma_3_13s = lambda sif:xx_down(sif.ma3,sif.ma13)
 
+add_funcs(test_funcs,'sxma')    #包括macd/ma
 
-
-def sxskdj(sclose,sshigh,sslow,ssclose,sindics,sfunc=xx_up):
+def sxfkdj(sclose,sshigh,sslow,ssclose,sindics,sfunc=xx_up):
     sk,sd = skdj(sshigh,sslow,ssclose)    
     sx = sfunc(sk,sd)
     signal = np.zeros_like(sclose)
@@ -550,13 +818,13 @@ skdj全部是反指
 ((36, 158, -65, 24, 29), (-29, 36, -714, 558), ([(-60, 29), (-60, 0), (-50, 0),
 (-40, 0), (-30, 0), (-20, 0), (-10, 0), (0, 0), (10, 0), (20, 0), (30, 2), (40,
 1), (50, 0), (60, 0), (70, 2), (80, 2), (90, 17)],))
->>> ev.evaluate2_s(i00,ev.sxskdj30_b(i00),120,uplimit=60,begin=944,end=1314)
+>>> ev.evaluate2_s(i00,ev.sxskdj30_b(i00),120,uplimit=60,begin=944,end=1314)    ####
 ((81, 316, -65, 15, 24), (-24, 32, -942, 768), ([(-60, 24), (-60, 0), (-50, 0),
 (-40, 0), (-30, 0), (-20, 0), (-10, 0), (0, 0), (10, 0), (20, 0), (30, 0), (40,
 0), (50, 0), (60, 0), (70, 0), (80, 0), (90, 15)],))
 
 #量足
->>> ev.evaluate2_s(i00,ev.sxskdj3_b(i00),120,uplimit=90,begin=944,end=1314)
+>>> ev.evaluate2_s(i00,ev.sxskdj3_b(i00),120,uplimit=90,begin=944,end=1314)     ####
 ((54, 295, -92, 149, 245), (-230, 290, -1260, 1492), ([(-90, 234), (-90, 0), (-8
 0, 0), (-70, 1), (-60, 0), (-50, 1), (-40, 1), (-30, 1), (-20, 2), (-10, 5), (0,
  2), (10, 3), (20, 2), (30, 8), (40, 4), (50, 4), (60, 4), (70, 1), (80, 3), (90
@@ -611,7 +879,7 @@ skdj全部是反指
 多
 
 空
->>> ev.evaluate2_s(i00,ev.sxskdj1_s(i00),60,uplimit=90,end=1414,begin=944)
+>>> ev.evaluate2_s(i00,ev.sxskdj1_s(i00),60,uplimit=90,end=1414,begin=944)      ###
 ((30, 197, -88, 350, 491), (-434, 502, -1064, 1076), ([(-90, 438), (-90, 0), (-8
 0, 3), (-70, 6), (-60, 4), (-50, 3), (-40, 7), (-30, 9), (-20, 7), (-10, 14), (0
 , 16), (10, 13), (20, 20), (30, 16), (40, 8), (50, 12), (60, 16), (70, 17), (80,
@@ -671,21 +939,22 @@ skdj全部是反指
 
 '''
 
-sxskdj1_b = lambda sif:gand(xx_up(sif.sk,sif.sd),strend2(sif.ma30)>0)
-sxskdj1_s = lambda sif:gand(xx_down(sif.sk,sif.sd),strend2(sif.ma30)<0)
-sxskdj5_b = lambda sif:gand(sxskdj(sif.close,sif.high5,sif.low5,sif.close5,sif.i_cof5),strend2(sif.ma30)>0)
-sxskdj5_s = lambda sif:gand(sxskdj(sif.close,sif.high5,sif.low5,sif.close5,sif.i_cof5,xx_down),strend2(sif.ma30)<0)
-sxskdj3_b = lambda sif:gand(sxskdj(sif.close,sif.high3,sif.low3,sif.close3,sif.i_cof3),strend2(sif.ma30)>0)
-sxskdj3_s = lambda sif:gand(sxskdj(sif.close,sif.high3,sif.low3,sif.close3,sif.i_cof3,xx_down),strend2(sif.ma30)<0)
-sxskdj10_b = lambda sif:gand(sxskdj(sif.close,sif.high10,sif.low10,sif.close10,sif.i_cof10),strend2(sif.ma30)>0)
-sxskdj10_s = lambda sif:gand(sxskdj(sif.close,sif.high10,sif.low10,sif.close10,sif.i_cof10,xx_down),strend2(sif.ma30)<0)
-sxskdj15_b = lambda sif:gand(sxskdj(sif.close,sif.high15,sif.low15,sif.close15,sif.i_cof15),strend2(sif.ma30)>0)
-sxskdj15_s = lambda sif:gand(sxskdj(sif.close,sif.high15,sif.low15,sif.close15,sif.i_cof15,xx_down),strend2(sif.ma30)<0)
-sxskdj30_b = lambda sif:gand(sxskdj(sif.close,sif.high30,sif.low30,sif.close30,sif.i_cof30),strend2(sif.ma30)>0)
-sxskdj30_s = lambda sif:gand(sxskdj(sif.close,sif.high30,sif.low30,sif.close30,sif.i_cof30,xx_down),strend2(sif.ma30)<0)
+sxskdj1_b = lambda sif:xx_up(sif.sk,sif.sd)
+sxskdj1_s = lambda sif:xx_down(sif.sk,sif.sd)
+sxskdj5_b = lambda sif:sxfkdj(sif.close,sif.high5,sif.low5,sif.close5,sif.i_cof5)
+sxskdj5_s = lambda sif:sxfkdj(sif.close,sif.high5,sif.low5,sif.close5,sif.i_cof5,xx_down)
+sxskdj3_b = lambda sif:sxfkdj(sif.close,sif.high3,sif.low3,sif.close3,sif.i_cof3)
+sxskdj3_s = lambda sif:sxfkdj(sif.close,sif.high3,sif.low3,sif.close3,sif.i_cof3,xx_down)
+sxskdj10_b = lambda sif:sxfkdj(sif.close,sif.high10,sif.low10,sif.close10,sif.i_cof10)
+sxskdj10_s = lambda sif:sxfkdj(sif.close,sif.high10,sif.low10,sif.close10,sif.i_cof10,xx_down)
+sxskdj15_b = lambda sif:sxfkdj(sif.close,sif.high15,sif.low15,sif.close15,sif.i_cof15)
+sxskdj15_s = lambda sif:sxfkdj(sif.close,sif.high15,sif.low15,sif.close15,sif.i_cof15,xx_down)
+sxskdj30_b = lambda sif:sxfkdj(sif.close,sif.high30,sif.low30,sif.close30,sif.i_cof30)
+sxskdj30_s = lambda sif:sxfkdj(sif.close,sif.high30,sif.low30,sif.close30,sif.i_cof30,xx_down)
 
+add_funcs(test_funcs,'sxskdj')    #包括macd/ma
 
-def sxrsi(sclose,source,rshort,rlong,sindics,sfunc=xx_up):
+def sxfrsi(sclose,source,rshort,rlong,sindics,sfunc=xx_up):
     rsia = rsi2(source,rshort)
     rsib = rsi2(source,rlong)
     sx = sfunc(rsia,rsib)
@@ -771,7 +1040,7 @@ def sxrsi(sclose,source,rshort,rlong,sindics,sfunc=xx_up):
 )],))
 
 空
->>> ev.evaluate2_s(i00,ev.sxrsi1_s(i00),60,begin=944,end=1414,uplimit=80)
+>>> ev.evaluate2_s(i00,ev.sxrsi1_s(i00),60,begin=944,end=1414,uplimit=80)       ###
 ((29, 190, -79, 354, 528), (-468, 537, -936, 970), ([(-80, 475), (-80, 0), (-70,
  2), (-60, 5), (-50, 2), (-40, 6), (-30, 9), (-20, 12), (-10, 17), (0, 14), (10,
  17), (20, 11), (30, 16), (40, 19), (50, 10), (60, 15), (70, 17), (80, 13), (90,
@@ -812,22 +1081,24 @@ def sxrsi(sclose,source,rshort,rlong,sindics,sfunc=xx_up):
 
 
 '''
-sxrsi1_b = lambda sif:gand(sxrsi(sif.close,sif.close,7,19,sif.i_cof),strend2(sif.ma30)>0)
-sxrsi1_s = lambda sif:gand(sxrsi(sif.close,sif.close,7,19,sif.i_cof,xx_down),strend2(sif.ma30)<0)
-sxrsi3_b = lambda sif:gand(sxrsi(sif.close,sif.close3,7,19,sif.i_cof3),strend2(sif.ma30)>0)
-sxrsi3_s = lambda sif:gand(sxrsi(sif.close,sif.close3,7,19,sif.i_cof3,xx_down),strend2(sif.ma30)<0)
-sxrsi5_b = lambda sif:gand(sxrsi(sif.close,sif.close5,7,19,sif.i_cof5),strend2(sif.ma30)>0)
-sxrsi5_s = lambda sif:gand(sxrsi(sif.close,sif.close5,7,19,sif.i_cof5,xx_down),strend2(sif.ma30)<0)
-sxrsi10_b = lambda sif:gand(sxrsi(sif.close,sif.close10,7,19,sif.i_cof10),strend2(sif.ma30)>0)
-sxrsi10_s = lambda sif:gand(sxrsi(sif.close,sif.close10,7,19,sif.i_cof10,xx_down),strend2(sif.ma30)<0)
-sxrsi15_b = lambda sif:gand(sxrsi(sif.close,sif.close15,7,19,sif.i_cof15),strend2(sif.ma30)>0)
-sxrsi15_s = lambda sif:gand(sxrsi(sif.close,sif.close15,7,19,sif.i_cof15,xx_down),strend2(sif.ma30)<0)
-sxrsi30_b = lambda sif:gand(sxrsi(sif.close,sif.close30,7,19,sif.i_cof30),strend2(sif.ma30)>0)    #奇异
-sxrsi30_s = lambda sif:gand(sxrsi(sif.close,sif.close30,7,19,sif.i_cof30,xx_down),strend2(sif.ma30)<0)
-sxrsi60_b = lambda sif:gand(sxrsi(sif.close,sif.close60,7,19,sif.i_cof60),strend2(sif.ma30)>0)
-sxrsi60_s = lambda sif:gand(sxrsi(sif.close,sif.close60,7,19,sif.i_cof60,xx_down),strend2(sif.ma30)<0)
+sxrsi1_b = lambda sif:sxfrsi(sif.close,sif.close,7,19,sif.i_cof)
+sxrsi1_s = lambda sif:sxfrsi(sif.close,sif.close,7,19,sif.i_cof,xx_down)
+sxrsi3_b = lambda sif:sxfrsi(sif.close,sif.close3,7,19,sif.i_cof3)
+sxrsi3_s = lambda sif:sxfrsi(sif.close,sif.close3,7,19,sif.i_cof3,xx_down)
+sxrsi5_b = lambda sif:sxfrsi(sif.close,sif.close5,7,19,sif.i_cof5)
+sxrsi5_s = lambda sif:sxfrsi(sif.close,sif.close5,7,19,sif.i_cof5,xx_down)
+sxrsi10_b = lambda sif:sxfrsi(sif.close,sif.close10,7,19,sif.i_cof10)
+sxrsi10_s = lambda sif:sxfrsi(sif.close,sif.close10,7,19,sif.i_cof10,xx_down)
+sxrsi15_b = lambda sif:sxfrsi(sif.close,sif.close15,7,19,sif.i_cof15)
+sxrsi15_s = lambda sif:sxfrsi(sif.close,sif.close15,7,19,sif.i_cof15,xx_down)
+sxrsi30_b = lambda sif:sxfrsi(sif.close,sif.close30,7,19,sif.i_cof30)    #奇异
+sxrsi30_s = lambda sif:sxfrsi(sif.close,sif.close30,7,19,sif.i_cof30,xx_down)
+sxrsi60_b = lambda sif:sxfrsi(sif.close,sif.close60,7,19,sif.i_cof60)
+sxrsi60_s = lambda sif:sxfrsi(sif.close,sif.close60,7,19,sif.i_cof60,xx_down)
 
-def sxroc(sclose,source,sindics,length=12,malength=6,sfunc=xx_up):
+add_funcs(test_funcs,'sxrsi')    #包括macd/ma
+
+def sxfroc(sclose,source,sindics,length=12,malength=6,sfunc=xx_up):
     sr = sroc(source,length)
     msr = ma(sr,malength)
     sx = sfunc(sr,msr)
@@ -847,12 +1118,12 @@ def sxroc(sclose,source,sindics,length=12,malength=6,sfunc=xx_up):
 (-60, 0), (-50, 0), (-40, 0), (-30, 0), (-20, 0), (-10, 0), (0, 0), (10, 0), (20
 , 0), (30, 0), (40, 0), (50, 1), (60, 1), (70, 0), (80, 0), (90, 9)],))
 
->>> ev.evaluate2_s(i00,ev.sxroc15_b(i00),60,uplimit=90,begin=945,end=1414)
+>>> ev.evaluate2_s(i00,ev.sxroc15_b(i00),60,uplimit=90,begin=945,end=1414)  ####
 ((38, 196, -88, 51, 64), (-56, 70, -682, 1076), ([(-90, 58), (-90, 0), (-80, 0),
  (-70, 0), (-60, 0), (-50, 0), (-40, 1), (-30, 3), (-20, 2), (-10, 0), (0, 3), (
 10, 1), (20, 1), (30, 0), (40, 1), (50, 1), (60, 1), (70, 6), (80, 1), (90, 36)]
 ,))
->>> ev.evaluate2_s(i00,ev.sxroc10_b(i00),120,uplimit=90,begin=945,end=1314)
+>>> ev.evaluate2_s(i00,ev.sxroc10_b(i00),120,uplimit=90,begin=945,end=1314)     ####
 ((62, 285, -93, 47, 68), (-66, 78, -1142, 1452), ([(-90, 66), (-90, 0), (-80, 0)
 , (-70, 0), (-60, 0), (-50, 0), (-40, 0), (-30, 0), (-20, 1), (-10, 1), (0, 1),
 (10, 1), (20, 0), (30, 1), (40, 2), (50, 3), (60, 1), (70, 2), (80, 1), (90, 35)
@@ -900,24 +1171,74 @@ def sxroc(sclose,source,sindics,length=12,malength=6,sfunc=xx_up):
 >>> ev.evaluate(i00,ev.sxroc60_s(i00),10)
 ((14, 68, -43, 22, 21), (7, 9, 380, 200))
 
+#添加sma30，貌似无效
+
+多：无
+空
+>>> ev.evaluate2_s(i00,ev.sxroc30_b(i00),60,uplimit=90,end=1414)        ####
+((39, 181, -92, 26, 28), (-25, 41, -598, 558), ([(-90, 26), (-90, 0), (-80, 0),
+(-70, 0), (-60, 1), (-50, 0), (-40, 1), (-30, 0), (-20, 0), (-10, 0), (0, 1), (1
+0, 1), (20, 1), (30, 0), (40, 1), (50, 1), (60, 1), (70, 2), (80, 1), (90, 17)],
+))
+>>> ev.evaluate2_s(i00,ev.sxroc3_s(i00),60,uplimit=90,end=1414)
+((31, 208, -90, 105, 153), (-138, 157, -766, 990), ([(-90, 139), (-90, 0), (-80,
+ 1), (-70, 0), (-60, 2), (-50, 1), (-40, 5), (-30, 1), (-20, 2), (-10, 2), (0, 4
+), (10, 7), (20, 3), (30, 5), (40, 2), (50, 3), (60, 6), (70, 2), (80, 3), (90,
+70)],))
+>>> ev.evaluate2_s(i00,ev.sxroc30_s(i00),60,uplimit=90,end=1414)        ####
+((47, 164, -86, 26, 23), (-19, 36, -822, 488), ([(-90, 20), (-90, 0), (-80, 0),
+(-70, 0), (-60, 0), (-50, 0), (-40, 0), (-30, 2), (-20, 0), (-10, 1), (0, 3), (1
+0, 1), (20, 1), (30, 1), (40, 2), (50, 1), (60, 1), (70, 0), (80, 0), (90, 16)],
+))
+
+
+
+
+>>> ev.evaluate(i00,ev.sxroc1_b(i00),10)
+((-9, 62, -62, 244, 328), (113, 150, 616, 366))
+>>> ev.evaluate(i00,ev.sxroc1_s(i00),10)
+((-6, 53, -70, 312, 286), (115, 132, 444, 458))
+>>> ev.evaluate(i00,ev.sxroc3_b(i00),10)
+((-9, 58, -50, 120, 192), (53, 67, 304, 366))
+>>> ev.evaluate(i00,ev.sxroc3_s(i00),10)
+((-8, 53, -71, 166, 163), (60, 69, 412, 392))
+>>> ev.evaluate(i00,ev.sxroc5_b(i00),10)
+((-4, 55, -47, 77, 107), (24, 32, 376, 258))
+>>> ev.evaluate(i00,ev.sxroc5_s(i00),10)
+((-5, 57, -55, 93, 114), (34, 45, 580, 358))
+>>> ev.evaluate(i00,ev.sxroc10_b(i00),10)
+((-3, 57, -51, 67, 84), (22, 29, 310, 366))
+>>> ev.evaluate(i00,ev.sxroc10_s(i00),10)
+((-2, 49, -49, 74, 80), (17, 25, 406, 358))
+>>> ev.evaluate(i00,ev.sxroc15_b(i00),10)
+((-16, 53, -58, 50, 80), (18, 22, 320, 382))
+>>> ev.evaluate(i00,ev.sxroc15_s(i00),10)
+((-11, 43, -63, 66, 69), (14, 28, 278, 346))
+>>> ev.evaluate(i00,ev.sxroc30_b(i00),10)
+((-21, 50, -64, 26, 43), (10, 17, 284, 382))
+>>> ev.evaluate(i00,ev.sxroc30_s(i00),10)
+((-8, 42, -52, 30, 35), (7, 13, 220, 256))
+
+
 '''
-sxroc1_b = lambda sif:sxroc(sif.close,sif.close,sif.i_cof)
-sxroc1_s = lambda sif:sxroc(sif.close,sif.close,sif.i_cof,sfunc=xx_down)
-sxroc3_b = lambda sif:sxroc(sif.close,sif.close3,sif.i_cof3)
-sxroc3_s = lambda sif:sxroc(sif.close,sif.close3,sif.i_cof3,sfunc=xx_down)
-sxroc5_b = lambda sif:sxroc(sif.close,sif.close5,sif.i_cof5)
-sxroc5_s = lambda sif:sxroc(sif.close,sif.close5,sif.i_cof5,sfunc=xx_down)
-sxroc10_b = lambda sif:sxroc(sif.close,sif.close10,sif.i_cof10)
-sxroc10_s = lambda sif:sxroc(sif.close,sif.close10,sif.i_cof10,sfunc=xx_down)
-sxroc15_b = lambda sif:sxroc(sif.close,sif.close15,sif.i_cof15)
-sxroc15_s = lambda sif:sxroc(sif.close,sif.close15,sif.i_cof15,sfunc=xx_down)
-sxroc30_b = lambda sif:sxroc(sif.close,sif.close30,sif.i_cof30)    #奇异
-sxroc30_s = lambda sif:sxroc(sif.close,sif.close30,sif.i_cof30,sfunc=xx_down)
-sxroc60_b = lambda sif:sxroc(sif.close,sif.close60,sif.i_cof60)
-sxroc60_s = lambda sif:sxroc(sif.close,sif.close60,sif.i_cof60,sfunc=xx_down)
+sxroc1_b = lambda sif:sxfroc(sif.close,sif.close,sif.i_cof)
+sxroc1_s = lambda sif:sxfroc(sif.close,sif.close,sif.i_cof,sfunc=xx_down)
+sxroc3_b = lambda sif:sxfroc(sif.close,sif.close3,sif.i_cof3)
+sxroc3_s = lambda sif:sxfroc(sif.close,sif.close3,sif.i_cof3,sfunc=xx_down)
+sxroc5_b = lambda sif:sxfroc(sif.close,sif.close5,sif.i_cof5)
+sxroc5_s = lambda sif:sxfroc(sif.close,sif.close5,sif.i_cof5,sfunc=xx_down)
+sxroc10_b = lambda sif:sxfroc(sif.close,sif.close10,sif.i_cof10)
+sxroc10_s = lambda sif:sxfroc(sif.close,sif.close10,sif.i_cof10,sfunc=xx_down)
+sxroc15_b = lambda sif:sxfroc(sif.close,sif.close15,sif.i_cof15)
+sxroc15_s = lambda sif:sxfroc(sif.close,sif.close15,sif.i_cof15,sfunc=xx_down)
+sxroc30_b = lambda sif:sxfroc(sif.close,sif.close30,sif.i_cof30)    #奇异
+sxroc30_s = lambda sif:sxfroc(sif.close,sif.close30,sif.i_cof30,sfunc=xx_down)
+sxroc60_b = lambda sif:sxfroc(sif.close,sif.close60,sif.i_cof60)
+sxroc60_s = lambda sif:sxfroc(sif.close,sif.close60,sif.i_cof60,sfunc=xx_down)
 
+add_funcs(test_funcs,'sxroc')    #包括macd/ma
 
-def sxmfi(sclose,xhigh,xlow,xclose,xvol,sindics,length=14,slimit=400,sfunc=xx_up):
+def sxfmfi(sclose,xhigh,xlow,xclose,xvol,sindics,length=14,slimit=400,sfunc=xx_up):
     xmfi = mfi((xhigh+xlow+xclose)/3,xvol,length)
     sx = sfunc(xmfi,cached_ints(len(xclose),slimit))
     signal = np.zeros_like(sclose)
@@ -938,12 +1259,12 @@ def sxmfi(sclose,xhigh,xlow,xclose,xvol,sindics,length=14,slimit=400,sfunc=xx_up
 ((166, 297, -95, 4, 2), (4, -2, 820, -466), ([(-90, 2), (-90, 0), (-80, 0), (-70
 , 0), (-60, 0), (-50, 0), (-40, 0), (-30, 0), (-20, 0), (-10, 0), (0, 0), (10, 0
 ), (20, 0), (30, 0), (40, 0), (50, 0), (60, 1), (70, 0), (80, 0), (90, 3)],))
->>> ev.evaluate2_b(i00,ev.sxmfi3_b(i00,800),60,begin=944,end=1414,downlimit=90)
+>>> ev.evaluate2_b(i00,ev.sxmfi3_b(i00,800),60,begin=944,end=1414,downlimit=90) ####
 ((66, 218, -92, 29, 28), (38, -25, 1006, -562), ([(-90, 25), (-90, 1), (-80, 0),
  (-70, 0), (-60, 2), (-50, 0), (-40, 0), (-30, 0), (-20, 0), (-10, 0), (0, 1), (
 10, 0), (20, 1), (30, 2), (40, 1), (50, 0), (60, 0), (70, 1), (80, 1), (90, 22)]
 ,))
->>> ev.evaluate2_b(i00,ev.sxmfi3_b(i00,900),60,begin=944,end=1414,downlimit=90)
+>>> ev.evaluate2_b(i00,ev.sxmfi3_b(i00,900),60,begin=944,end=1414,downlimit=90) ####
 ((120, 243, -95, 7, 4), (10, -3, 918, -222), ([(-90, 4), (-90, 0), (-80, 0), (-7
 0, 0), (-60, 0), (-50, 0), (-40, 0), (-30, 0), (-20, 0), (-10, 0), (0, 0), (10,
 0), (20, 0), (30, 0), (40, 1), (50, 1), (60, 0), (70, 0), (80, 1), (90, 4)],))
@@ -953,12 +1274,12 @@ def sxmfi(sclose,xhigh,xlow,xclose,xvol,sindics,length=14,slimit=400,sfunc=xx_up
 ((25, 225, -89, 17, 30), (27, -27, 828, -780), ([(-90, 27), (-90, 0), (-80, 0),
 (-70, 0), (-60, 1), (-50, 0), (-40, 0), (-30, 1), (-20, 1), (-10, 0), (0, 0), (1
 0, 2), (20, 0), (30, 0), (40, 1), (50, 0), (60, 0), (70, 0), (80, 0), (90, 14)],
->>> ev.evaluate2_b(i00,ev.sxmfi1_b(i00,850),60,begin=944,end=1414,downlimit=90)
+>>> ev.evaluate2_b(i00,ev.sxmfi1_b(i00,850),60,begin=944,end=1414,downlimit=90) ####
 ((72, 254, -82, 34, 40), (54, -31, 926, -456), ([(-90, 31), (-90, 0), (-80, 0),
 (-70, 0), (-60, 1), (-50, 2), (-40, 4), (-30, 2), (-20, 0), (-10, 0), (0, 1), (1
 0, 0), (20, 1), (30, 3), (40, 0), (50, 0), (60, 0), (70, 2), (80, 1), (90, 26)],
 ))
->>> ev.evaluate2_b(i00,ev.sxmfi1_s(i00,850),60,begin=944,end=1414,downlimit=90)
+>>> ev.evaluate2_b(i00,ev.sxmfi1_s(i00,850),60,begin=944,end=1414,downlimit=90) 
 ((68, 234, -89, 37, 39), (56, -35, 914, -460), ([(-90, 35), (-90, 0), (-80, 0),
 (-70, 0), (-60, 0), (-50, 0), (-40, 2), (-30, 2), (-20, 0), (-10, 0), (0, 3), (1
 0, 1), (20, 0), (30, 1), (40, 0), (50, 3), (60, 0), (70, 1), (80, 1), (90, 27)],
@@ -967,7 +1288,7 @@ def sxmfi(sclose,xhigh,xlow,xclose,xvol,sindics,length=14,slimit=400,sfunc=xx_up
 , (-70, 1), (-60, 3), (-50, 2), (-40, 3), (-30, 2), (-20, 5), (-10, 2), (0, 1),
 (10, 0), (20, 5), (30, 3), (40, 3), (50, 1), (60, 2), (70, 2), (80, 4), (90, 56)
 ],))
->>> ev.evaluate2_b(i00,ev.sxmfi5_b(i00,800),60,begin=944,end=1414,downlimit=90)
+>>> ev.evaluate2_b(i00,ev.sxmfi5_b(i00,800),60,begin=944,end=1414,downlimit=90) ####
 ((76, 227, -89, 25, 23), (33, -20, 894, -636), ([(-90, 21), (-90, 0), (-80, 0),
 (-70, 0), (-60, 0), (-50, 1), (-40, 0), (-30, 0), (-20, 1), (-10, 0), (0, 0), (1
 0, 1), (20, 0), (30, 1), (40, 0), (50, 0), (60, 2), (70, 0), (80, 1), (90, 20)],
@@ -977,7 +1298,7 @@ def sxmfi(sclose,xhigh,xlow,xclose,xvol,sindics,length=14,slimit=400,sfunc=xx_up
 (-70, 0), (-60, 0), (-50, 0), (-40, 1), (-30, 1), (-20, 0), (-10, 0), (0, 1), (1
 0, 0), (20, 1), (30, 0), (40, 1), (50, 0), (60, 1), (70, 0), (80, 0), (90, 20)],
 ))
->>> ev.evaluate2_b(i00,ev.sxmfi15_b(i00,600),60,begin=944,end=1414,downlimit=80)
+>>> ev.evaluate2_b(i00,ev.sxmfi15_b(i00,600),60,begin=944,end=1414,downlimit=80)    ####
 
 ((72, 230, -78, 20, 21), (26, -18, 932, -450), ([(-80, 18), (-80, 0), (-70, 0),
 (-60, 1), (-50, 0), (-40, 1), (-30, 0), (-20, 1), (-10, 0), (0, 1), (10, 1), (20
@@ -985,35 +1306,36 @@ def sxmfi(sclose,xhigh,xlow,xclose,xvol,sindics,length=14,slimit=400,sfunc=xx_up
 
 
 空
->>> ev.evaluate2_s(i00,ev.sxmfi1_s(i00,200),60,begin=944,end=1414,uplimit=90)
+>>> ev.evaluate2_s(i00,ev.sxmfi1_s(i00,200),60,begin=944,end=1414,uplimit=90)   ####
 ((48, 219, -86, 112, 142), (-120, 155, -806, 854), ([(-90, 122), (-90, 0), (-80,
  0), (-70, 1), (-60, 3), (-50, 3), (-40, 2), (-30, 3), (-20, 5), (-10, 3), (0, 1
 ), (10, 3), (20, 4), (30, 5), (40, 4), (50, 1), (60, 6), (70, 1), (80, 3), (90,
 84)],))
+>>>ev.evaluate2_s(i00,ev.sxmfi1_b(i00,200),60,begin=944,end=1414,uplimit=90)
 ((45, 211, -89, 114, 142), (-126, 162, -802, 860), ([(-90, 127), (-90, 0), (-80,
  2), (-70, 0), (-60, 1), (-50, 1), (-40, 1), (-30, 4), (-20, 3), (-10, 3), (0, 3
 ), (10, 4), (20, 6), (30, 3), (40, 4), (50, 6), (60, 3), (70, 0), (80, 1), (90,
 84)],))
->>> ev.evaluate2_s(i00,ev.sxmfi3_b(i00,200),60,begin=944,end=1414,uplimit=90)
+>>> ev.evaluate2_s(i00,ev.sxmfi3_b(i00,200),60,begin=944,end=1414,uplimit=90)   ###
 ((47, 215, -91, 37, 45), (-41, 54, -800, 856), ([(-90, 41), (-90, 0), (-80, 1),
 (-70, 0), (-60, 0), (-50, 0), (-40, 2), (-30, 0), (-20, 1), (-10, 0), (0, 2), (1
 0, 3), (20, 2), (30, 0), (40, 2), (50, 0), (60, 2), (70, 1), (80, 2), (90, 23)],
 ))
->>> ev.evaluate2_s(i00,ev.sxmfi5_s(i00,200),60,begin=944,end=1414,uplimit=90)
+>>> ev.evaluate2_s(i00,ev.sxmfi5_s(i00,200),60,begin=944,end=1414,uplimit=90)   ####
 ((63, 294, -93, 19, 28), (-27, 27, -828, 780), ([(-90, 27), (-90, 0), (-80, 0),
 (-70, 0), (-60, 0), (-50, 0), (-40, 0), (-30, 0), (-20, 1), (-10, 0), (0, 0), (1
 0, 0), (20, 1), (30, 0), (40, 2), (50, 0), (60, 0), (70, 0), (80, 0), (90, 16)],
 ))
->>> ev.evaluate2_s(i00,ev.sxmfi10_b(i00,200),60,begin=944,end=1414,uplimit=90)
+>>> ev.evaluate2_s(i00,ev.sxmfi10_b(i00,200),60,begin=944,end=1414,uplimit=90)  ###
 ((156, 356, -78, 14, 12), (-9, 19, -604, 1076), ([(-90, 9), (-90, 0), (-80, 0),
 (-70, 0), (-60, 0), (-50, 1), (-40, 0), (-30, 1), (-20, 0), (-10, 1), (0, 0), (1
 0, 0), (20, 0), (30, 1), (40, 0), (50, 0), (60, 0), (70, 1), (80, 0), (90, 12)],
 ))
->>> ev.evaluate2_s(i00,ev.sxmfi10_s(i00,200),60,begin=944,end=1414,uplimit=90)
+>>> ev.evaluate2_s(i00,ev.sxmfi10_s(i00,200),60,begin=944,end=1414,uplimit=90)  ###
 ((105, 282, -88, 12, 11), (-10, 12, -590, 880), ([(-90, 10), (-90, 0), (-80, 0),
  (-70, 0), (-60, 0), (-50, 0), (-40, 0), (-30, 0), (-20, 1), (-10, 0), (0, 0), (
 10, 1), (20, 0), (30, 0), (40, 1), (50, 1), (60, 0), (70, 0), (80, 1), (90, 8)],
->>> ev.evaluate2_s(i00,ev.sxmfi15_s(i00,200),60,begin=944,end=1414,uplimit=90)
+>>> ev.evaluate2_s(i00,ev.sxmfi15_s(i00,200),60,begin=944,end=1414,uplimit=90)  ###
 ((148, 419, -85, 6, 7), (-6, 8, -324, 664), ([(-90, 6), (-90, 0), (-80, 0), (-70
 , 0), (-60, 0), (-50, 0), (-40, 0), (-30, 1), (-20, 0), (-10, 0), (0, 0), (10, 0
 ), (20, 0), (30, 0), (40, 0), (50, 0), (60, 0), (70, 0), (80, 0), (90, 6)],))
@@ -1050,36 +1372,34 @@ def sxmfi(sclose,xhigh,xlow,xclose,xvol,sindics,length=14,slimit=400,sfunc=xx_up
 ((13, 70, -59, 25, 20), (9, 10, 466, 214))
 
 '''
-sxmfi1_b = lambda sif,slimit=400:sxmfi(sif.close,sif.high,sif.low,sif.close,sif.vol,sif.i_cof,slimit=slimit)
-sxmfi1_s = lambda sif,slimit=400:sxmfi(sif.close,sif.high,sif.low,sif.close,sif.vol,sif.i_cof,sfunc=xx_down,slimit=slimit)
+sxmfi1_b = lambda sif,slimit=400:sxfmfi(sif.close,sif.high,sif.low,sif.close,sif.vol,sif.i_cof,slimit=slimit)
+sxmfi1_s = lambda sif,slimit=400:sxfmfi(sif.close,sif.high,sif.low,sif.close,sif.vol,sif.i_cof,sfunc=xx_down,slimit=slimit)
 
-sxmfi5_b = lambda sif,slimit=400:sxmfi(sif.close,sif.high5,sif.low5,sif.close5,sif.vol5,sif.i_cof5,slimit=slimit)
-sxmfi5_s = lambda sif,slimit=400:sxmfi(sif.close,sif.high5,sif.low5,sif.close5,sif.vol5,sif.i_cof5,sfunc=xx_down,slimit=slimit)
+sxmfi5_b = lambda sif,slimit=400:sxfmfi(sif.close,sif.high5,sif.low5,sif.close5,sif.vol5,sif.i_cof5,slimit=slimit)
+sxmfi5_s = lambda sif,slimit=400:sxfmfi(sif.close,sif.high5,sif.low5,sif.close5,sif.vol5,sif.i_cof5,sfunc=xx_down,slimit=slimit)
 
-sxmfi3_b = lambda sif,slimit=400:sxmfi(sif.close,sif.high3,sif.low3,sif.close3,sif.vol3,sif.i_cof3,slimit=slimit)
-sxmfi3_s = lambda sif,slimit=400:sxmfi(sif.close,sif.high3,sif.low3,sif.close3,sif.vol3,sif.i_cof3,slimit,sfunc=xx_down)
+sxmfi3_b = lambda sif,slimit=400:sxfmfi(sif.close,sif.high3,sif.low3,sif.close3,sif.vol3,sif.i_cof3,slimit=slimit)
+sxmfi3_s = lambda sif,slimit=400:sxfmfi(sif.close,sif.high3,sif.low3,sif.close3,sif.vol3,sif.i_cof3,slimit,sfunc=xx_down)
 
-sxmfi10_b = lambda sif,slimit=400:sxmfi(sif.close,sif.high10,sif.low10,sif.close10,sif.vol10,sif.i_cof10,slimit=slimit)
-sxmfi10_s = lambda sif,slimit=400:sxmfi(sif.close,sif.high10,sif.low10,sif.close10,sif.vol10,sif.i_cof10,sfunc=xx_down,slimit=slimit)
+sxmfi10_b = lambda sif,slimit=400:sxfmfi(sif.close,sif.high10,sif.low10,sif.close10,sif.vol10,sif.i_cof10,slimit=slimit)
+sxmfi10_s = lambda sif,slimit=400:sxfmfi(sif.close,sif.high10,sif.low10,sif.close10,sif.vol10,sif.i_cof10,sfunc=xx_down,slimit=slimit)
 
-sxmfi15_b = lambda sif,slimit=400:sxmfi(sif.close,sif.high15,sif.low15,sif.close15,sif.vol15,sif.i_cof15,slimit=slimit)
-sxmfi15_s = lambda sif,slimit=400:sxmfi(sif.close,sif.high15,sif.low15,sif.close15,sif.vol15,sif.i_cof15,sfunc=xx_down,slimit=slimit)
+sxmfi15_b = lambda sif,slimit=400:sxfmfi(sif.close,sif.high15,sif.low15,sif.close15,sif.vol15,sif.i_cof15,slimit=slimit)
+sxmfi15_s = lambda sif,slimit=400:sxfmfi(sif.close,sif.high15,sif.low15,sif.close15,sif.vol15,sif.i_cof15,sfunc=xx_down,slimit=slimit)
 
-sxmfi30_b = lambda sif,slimit=400:sxmfi(sif.close,sif.high30,sif.low30,sif.close30,sif.vol30,sif.i_cof30,slimit=slimit)
-sxmfi30_s = lambda sif,slimit=400:sxmfi(sif.close,sif.high30,sif.low30,sif.close30,sif.vol30,sif.i_cof30,sfunc=xx_down,slimit=slimit)
+sxmfi30_b = lambda sif,slimit=400:sxfmfi(sif.close,sif.high30,sif.low30,sif.close30,sif.vol30,sif.i_cof30,slimit=slimit)
+sxmfi30_s = lambda sif,slimit=400:sxfmfi(sif.close,sif.high30,sif.low30,sif.close30,sif.vol30,sif.i_cof30,sfunc=xx_down,slimit=slimit)
 
-
-
-
+add_funcs(test_funcs,'sxmfi')    #包括macd/ma
 
 
-def sxxud_b(sclose,xhigh,xlow,xopen,xclose,sindics):
+def sxfxud_b(sclose,xhigh,xlow,xopen,xclose,sindics):
     mxc = xc0c(xopen,xclose,xhigh,xlow,13)>0
     signal = np.zeros_like(sclose)
     signal[sindics] = mxc
     return signal
 
-def sxxud_s(sclose,xhigh,xlow,xopen,xclose,sindics):
+def sxfxud_s(sclose,xhigh,xlow,xopen,xclose,sindics):
     mxc = xc0c(xopen,xclose,xhigh,xlow,13)<0
     signal = np.zeros_like(sclose)
     signal[sindics] = mxc
@@ -1116,23 +1436,76 @@ def sxxud_s(sclose,xhigh,xlow,xopen,xclose,sindics):
 (-60, 1), (-50, 0), (-40, 0), (-30, 1), (-20, 1), (-10, 0), (0, 0), (10, 0), (20
 , 0), (30, 2), (40, 1), (50, 0), (60, 0), (70, 0), (80, 0), (90, 16)],))
 
+
+#添加sma30条件
+多无
+空
+>>> ev.evaluate2_s(i00,ev.sxxud15_b(i00),60,uplimit=90,end=1414)
+((23, 178, -92, 43, 58), (-51, 57, -1020, 554), ([(-90, 54), (-90, 0), (-80, 1),
+ (-70, 1), (-60, 0), (-50, 0), (-40, 1), (-30, 1), (-20, 0), (-10, 0), (0, 0), (
+10, 2), (20, 0), (30, 2), (40, 0), (50, 3), (60, 1), (70, 3), (80, 2), (90, 30)]
+,))
+>>> ev.evaluate2_s(i00,ev.sxxud10_s(i00),60,uplimit=90,end=1414)
+((23, 147, -86, 61, 70), (-59, 76, -580, 654), ([(-90, 60), (-90, 0), (-80, 0),
+(-70, 0), (-60, 1), (-50, 1), (-40, 2), (-30, 2), (-20, 3), (-10, 1), (0, 1), (1
+0, 2), (20, 5), (30, 4), (40, 2), (50, 5), (60, 5), (70, 1), (80, 0), (90, 36)],
+))
+>>> ev.evaluate2_s(i00,ev.sxxud3_b(i00),60,uplimit=90,end=1414)
+((25, 168, -87, 158, 202), (-173, 221, -1052, 872), ([(-90, 176), (-90, 0), (-80
+, 1), (-70, 2), (-60, 2), (-50, 1), (-40, 5), (-30, 2), (-20, 5), (-10, 8), (0,
+2), (10, 8), (20, 6), (30, 2), (40, 3), (50, 6), (60, 10), (70, 6), (80, 3), (90
+, 112)],))
+>>> ev.evaluate2_s(i00,ev.sxxud1_s(i00),60,uplimit=90,end=1414)
+((23, 171, -87, 481, 652), (-551, 694, -936, 1084), ([(-90, 568), (-90, 1), (-80
+, 2), (-70, 2), (-60, 8), (-50, 7), (-40, 14), (-30, 17), (-20, 11), (-10, 22),
+(0, 19), (10, 28), (20, 25), (30, 26), (40, 21), (50, 19), (60, 26), (70, 20), (
+80, 30), (90, 267)],))
+
+
+
+>>> ev.evaluate(i00,ev.sxxud1_b(i00),10)
+((-1, 64, -58, 646, 735), (295, 262, 616, 338))
+>>> ev.evaluate(i00,ev.sxxud1_s(i00),10)
+((-10, 50, -65, 675, 729), (218, 300, 364, 490))
+>>> ev.evaluate(i00,ev.sxxud3_b(i00),10)
+((-7, 58, -56, 190, 257), (77, 81, 582, 384))
+>>> ev.evaluate(i00,ev.sxxud3_s(i00),10)
+((-7, 51, -63, 172, 175), (54, 71, 428, 512))
+>>> ev.evaluate(i00,ev.sxxud5_b(i00),10)
+((-8, 57, -51, 114, 173), (39, 48, 376, 366))
+>>> ev.evaluate(i00,ev.sxxud5_s(i00),10)
+((-4, 56, -57, 113, 129), (39, 43, 406, 344))
+>>> ev.evaluate(i00,ev.sxxud10_b(i00),10)
+((3, 68, -47, 75, 96), (30, 28, 310, 370))
+>>> ev.evaluate(i00,ev.sxxud10_s(i00),10)
+((-6, 40, -52, 81, 78), (16, 25, 276, 264))
+>>> ev.evaluate(i00,ev.sxxud15_b(i00),10)
+((-9, 61, -55, 48, 74), (21, 25, 320, 382))
+>>> ev.evaluate(i00,ev.sxxud15_s(i00),10)
+((10, 51, -56, 84, 52), (20, 20, 356, 344))
+>>> ev.evaluate(i00,ev.sxxud30_b(i00),10)
+((9, 80, -45, 34, 45), (13, 9, 466, 170))
+>>> ev.evaluate(i00,ev.sxxud30_s(i00),10)
+((-9, 39, -60, 40, 38), (6, 15, 176, 282))
+
+
+
 '''
 
-sxxud1_b = lambda sif:sxxud_b(sif.close,sif.high,sif.low,sif.open,sif.close,sif.i_cof)
-sxxud1_s = lambda sif:sxxud_s(sif.close,sif.high,sif.low,sif.open,sif.close,sif.i_cof)
-sxxud3_b = lambda sif:sxxud_b(sif.close,sif.high3,sif.low3,sif.open3,sif.close3,sif.i_cof3)
-sxxud3_s = lambda sif:sxxud_s(sif.close,sif.high3,sif.low3,sif.open3,sif.close3,sif.i_cof3)
-sxxud5_b = lambda sif:sxxud_b(sif.close,sif.high5,sif.low5,sif.open5,sif.close5,sif.i_cof5)
-sxxud5_s = lambda sif:sxxud_s(sif.close,sif.high5,sif.low5,sif.open5,sif.close5,sif.i_cof5)
-sxxud10_b = lambda sif:sxxud_b(sif.close,sif.high10,sif.low10,sif.open10,sif.close10,sif.i_cof10)
-sxxud10_s = lambda sif:sxxud_s(sif.close,sif.high10,sif.low10,sif.open10,sif.close10,sif.i_cof10)
-sxxud15_b = lambda sif:sxxud_b(sif.close,sif.high15,sif.low15,sif.open15,sif.close15,sif.i_cof15)
-sxxud15_s = lambda sif:sxxud_s(sif.close,sif.high15,sif.low15,sif.open15,sif.close15,sif.i_cof15)
-sxxud30_b = lambda sif:sxxud_b(sif.close,sif.high30,sif.low30,sif.open30,sif.close30,sif.i_cof30)
-sxxud30_s = lambda sif:sxxud_s(sif.close,sif.high30,sif.low30,sif.open30,sif.close30,sif.i_cof30)
+sxxud1_b = lambda sif:sxfxud_b(sif.close,sif.high,sif.low,sif.open,sif.close,sif.i_cof)
+sxxud1_s = lambda sif:sxfxud_s(sif.close,sif.high,sif.low,sif.open,sif.close,sif.i_cof)
+sxxud3_b = lambda sif:sxfxud_b(sif.close,sif.high3,sif.low3,sif.open3,sif.close3,sif.i_cof3)
+sxxud3_s = lambda sif:sxfxud_s(sif.close,sif.high3,sif.low3,sif.open3,sif.close3,sif.i_cof3)
+sxxud5_b = lambda sif:sxfxud_b(sif.close,sif.high5,sif.low5,sif.open5,sif.close5,sif.i_cof5)
+sxxud5_s = lambda sif:sxfxud_s(sif.close,sif.high5,sif.low5,sif.open5,sif.close5,sif.i_cof5)
+sxxud10_b = lambda sif:sxfxud_b(sif.close,sif.high10,sif.low10,sif.open10,sif.close10,sif.i_cof10)
+sxxud10_s = lambda sif:sxfxud_s(sif.close,sif.high10,sif.low10,sif.open10,sif.close10,sif.i_cof10)
+sxxud15_b = lambda sif:sxfxud_b(sif.close,sif.high15,sif.low15,sif.open15,sif.close15,sif.i_cof15)
+sxxud15_s = lambda sif:sxfxud_s(sif.close,sif.high15,sif.low15,sif.open15,sif.close15,sif.i_cof15)
+sxxud30_b = lambda sif:sxfxud_b(sif.close,sif.high30,sif.low30,sif.open30,sif.close30,sif.i_cof30)
+sxxud30_s = lambda sif:sxfxud_s(sif.close,sif.high30,sif.low30,sif.open30,sif.close30,sif.i_cof30)
 
-
-
+add_funcs(test_funcs,'sxxud')    #包括macd/ma
 
 '''
 对现有算法的回顾

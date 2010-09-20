@@ -937,6 +937,7 @@ def br30(sif,sopened=None):
     signal = gand(signal
             ,sif.s30>0
             ,sif.mtrend>0
+            ,sif.time < 1400    #1400以后突破基本无效
             )
 
     return signal * br30.direction
@@ -2273,7 +2274,7 @@ xagainst = [#多头
             k15_lastdown,
             k15_lastdown_s,    #样本数太少，暂缓
             k5_lastup, 
-            #ipmacd_long_devi1,#有效放大了回撤? ##样本数太少
+            ipmacd_long_devi1,#有效放大了回撤? ##样本数太少
             #ipmacd_short_devi1,##样本数太少
             #ipmacd_short_devi1x, ##样本数太少，暂缓,但即将满足0907
             #xud30s_r,  ##样本数太少
@@ -2333,19 +2334,26 @@ xorb = xorb_b + xorb_s
 xorb_all = xorb_b_all + xorb_s_all
 for xf in xorb:
     xf.strategy = XORB    
-    xf.stop_closer = atr5_uxstop_08_25
+    xf.stop_closer = atr5_uxstop_t_08_25_B
     #xf.stop_closer = atr5_uxstop_08_25_A    
     #xf.stop_closer = atr5_uxstop_05_25
     xf.filter = ocfilter_orb
-    xf.priority = 1550
+    if 'func' in xf.__dict__:   #fcustom过的部分类
+        xf.func.priority = 1550
+    else:
+        xf.priority = 1550
 
 for xf in xorb_all:
     xf.strategy = XORB   
-    xf.stop_closer = atr5_uxstop_08_25
+    xf.stop_closer = atr5_uxstop_t_08_25_B
     #xf.stop_closer = atr5_uxstop_08_25_A    
     #xf.stop_closer = atr5_uxstop_05_25
     xf.filter = ocfilter_orb
-    xf.priority = 1550
+    if 'func' in xf.__dict__:    #fcustom过的部分类
+        xf.func.priority = 1550
+    else:
+        xf.priority = 1550
+        
 
 xevs = [
             roc1_b,
@@ -2372,6 +2380,10 @@ for xf in xevs:
 
 xxx2 = xfollow + xbreak + xagainst + xorb + xevs
 xxx3 = xfollow + xbreak + xagainst + xorb + xevs
+
+for x in xxx2: 
+    x.stop_closer = atr5_uxstop_t_08_25_B
+
 
 '''
 16402 17617 17826 18228 18173 18494 18655 18663

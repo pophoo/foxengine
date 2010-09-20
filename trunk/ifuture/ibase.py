@@ -17,6 +17,8 @@ TAX = 10    #tax为0.8个点,设为1
 
 XFOLLOW,XBREAK,XAGAINST,XORB = 1000,500,-500,800
 
+TREND_UP,TREND_DOWN = 1,-1
+
 import numpy as np
 
 from wolfox.fengine.core.base import BaseObject;

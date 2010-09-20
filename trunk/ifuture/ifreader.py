@@ -645,6 +645,7 @@ def prepare_index(sif):
     
     sif.ltrend = sif.t120
 
+
     s30_90 = np.zeros_like(sif.close)
     s30_90[sif.i_cof30] = strend2(nma(sif.close30,90))  #nma避免strend2将初始批量0也当作正数计入的问题
     sif.t90 = extend2next(s30_90)
@@ -731,6 +732,9 @@ def prepare_index(sif):
     mx[sif.i_cof15] = strend2(nma(sif.close15,30)-nma(sif.close15,120))
     sif.m30_120 = extend2next(mx)
     sif.ml = sif.m30_120
+
+    sif.ntrend = greater(sif.ltrend) + greater(sif.mtrend) + greater(sif.rl_trend) 
+    sif.xtrend = np.select([sif.ntrend>1],[TREND_UP],TREND_DOWN)
 
 
 def calc_high_low_vol(trans,i_oof,i_cof):

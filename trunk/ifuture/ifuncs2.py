@@ -2219,7 +2219,7 @@ xfollow = [#多头
             #macd_long_x2,   #样本数太少，暂缓
             #macd_long_x3,   #样本数太少，暂缓
            #空头
-            rsi_short_x,
+            #rsi_short_x,
             rsi_short_x2x,
             rsi_short_x3,            
             macd_short_x,
@@ -2347,7 +2347,7 @@ for xf in xorb_all:
     xf.filter = ocfilter_orb
     xf.priority = 1550
 
-evs_com = [
+xevs = [
             roc1_b,
             macd10_b,
             mfi30s_b,
@@ -2360,12 +2360,18 @@ evs_com = [
             xud30s_s,
       ]
 
-for xf in evs_com:
+for xf in xevs:
     xf.strategy = XFOLLOW   
     xf.stop_closer = atr5_uxstop_08_25_A
+    xf.priority = 1500
 
-xxx2 = xfollow + xbreak + xagainst + xorb + evs_com
-xxx3 = xfollow + xbreak + xagainst + xorb + evs_com
+
+#重新划分顺势、逆势，不再由算法本身决定，由算法介入的时点决定
+
+
+
+xxx2 = xfollow + xbreak + xagainst + xorb + xevs
+xxx3 = xfollow + xbreak + xagainst + xorb + xevs
 
 '''
 16402 17617 17826 18228 18173 18494 18655 18663

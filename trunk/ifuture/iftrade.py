@@ -284,6 +284,7 @@ def itrade3(sif,openers,bclosers,sclosers,stop_closer,longfilter=ocfilter,shortf
         action.name = sif.name
     trades = make_trades(actions)   #trade: [open , close] 的序列, 其中前部分都是open,后部分都是close
     return trades
+
 def null_sync_tradess(sif,tradess,acstrategy=late_strategy):
     xtrades = []
     for trades in tradess:

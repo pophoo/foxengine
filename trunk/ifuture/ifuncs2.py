@@ -1392,10 +1392,12 @@ def ipmacd_long_devi1(sif,sopened=None):
     msignal = ldevi(sif.low,sif.diff1,sif.dea1)
 
     signal = gand(msignal
-            ,sif.xatr30x<7000
-            ,sif.s10<0
+            #,sif.s10<0
             ,sif.s3>0
-            ,sif.xatr60x > sif.mxatr60x
+            ,sif.xatr45x > sif.mxatr45x
+            ,sif.xtrend == TREND_UP
+            #,sif.xatr30x < sif.mxatr30x
+            ,sif.xatr<sif.mxatr
             )
 
     return signal * ipmacd_long_devi1.direction
@@ -1446,9 +1448,11 @@ def ipmacd_short_devi1(sif,sopened=None):
     signal = sfollow(signal,fsignal,15)
 
     signal = gand(signal
-                ,sif.s5<0
+                #,sif.s5<0
                 ,strend2(sif.sdiff30x)<0
-                ,sif.xatr60x>sif.mxatr60x
+                #,sif.s30<0
+                ,sif.xatr45x>sif.mxatr45x
+                #,sif.xtrend == TREND_DOWN
             )
     return signal * ipmacd_short_devi1.direction
 ipmacd_short_devi1.direction = XSELL
@@ -1461,7 +1465,8 @@ def ipmacd_short_devi1x(sif,sopened=None):#+++
     signal = gand(hdevi(sif.high,sif.diff1,sif.dea1,delta=10)   #即便新高离上一高点低1点，仍然可视为新高
                 ,sif.mm<0
                 ,sif.xatr30x<6666
-                ,sif.xatr>sif.mxatr                
+                #,sif.xatr>sif.mxatr
+                #,sif.xatr30x<sif.mxatr30x
                 )
     return signal * ipmacd_short_devi1x.direction
 ipmacd_short_devi1x.direction = XSELL
@@ -2274,9 +2279,9 @@ xagainst = [#多头
             k15_lastdown,
             k15_lastdown_s,    #样本数太少，暂缓
             k5_lastup, 
-            ipmacd_long_devi1,#有效放大了回撤? ##样本数太少
-            #ipmacd_short_devi1,##样本数太少
-            #ipmacd_short_devi1x, ##样本数太少，暂缓,但即将满足0907
+            #ipmacd_long_devi1,#有效放大了回撤? ##样本数太少
+            ipmacd_short_devi1,##样本数太少
+            ipmacd_short_devi1x, ##
             #xud30s_r,  ##样本数太少
            ]
 #for xf in xagainst:xf.stop_closer = atr5_uxstop_08_25_A

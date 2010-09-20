@@ -196,13 +196,13 @@ def itrade(sif,openers,closers,longfilter=ocfilter,shortfilter=ocfilter,make_tra
     if not isinstance(closers,list):    #单个函数
         closers = [closers]
     for opener in openers:
-        opens.extend(open_position(sif.transaction,opener(sif),slongfilter,sshortfilter))  #开仓必须满足各自sfilter
+        opens.extend(open_position(sif,opener(sif),slongfilter,sshortfilter))  #开仓必须满足各自sfilter
     opens.sort(DTSORT)
     sopened = np.zeros(len(sif.transaction[IDATE]),int)   #为开仓价格序列,负数为开多仓,正数为开空仓
     for aopen in opens:
         sopened[aopen.index] = aopen.price * aopen.position
     for closer in closers:
-        closes.extend(close_position(sif.transaction,closer(sif,sopened)))
+        closes.extend(close_position(sif,closer(sif,sopened)))
     actions = sorted(opens + closes,DTSORT)
     for action in actions:
         action.name = sif.name
@@ -231,13 +231,13 @@ def itrade2(sif,openers,closers,longfilter=ocfilter,shortfilter=ocfilter,make_tr
             curcloser.append(opener[1])
         else:
             curcloser = closers
-        opens = open_position(sif.transaction,opener(sif),slongfilter,sshortfilter)  #开仓必须满足各自sfilter
+        opens = open_position(sif,opener(sif),slongfilter,sshortfilter)  #开仓必须满足各自sfilter
         sopened = np.zeros(len(sif.transaction[IDATE]),int)   #为开仓价格序列,负数为开多仓,正数为开空仓
         for aopen in opens:
             sopened[aopen.index] = aopen.price * aopen.position
         closes = []
         for closer in closers:
-            closes.extend(close_position(sif.transaction,closer(sif,sopened)))
+            closes.extend(close_position(sif,closer(sif,sopened)))
         actions = sorted(opens + closes,DTSORT)
         for action in actions:
             action.name = sif.name
@@ -265,7 +265,7 @@ def itrade3(sif,openers,bclosers,sclosers,stop_closer,longfilter=ocfilter,shortf
     if not isinstance(bclosers,list):   #单个函数
         bclosers = [bclosers]
     for opener in openers:
-        opens.extend(open_position(sif.transaction,opener(sif),slongfilter,sshortfilter))  #开仓必须满足各自sfilter
+        opens.extend(open_position(sif,opener(sif),slongfilter,sshortfilter))  #开仓必须满足各自sfilter
     opens.sort(DTSORT)
     sopened = np.zeros(len(sif.transaction[IDATE]),int)   #为开仓价格序列,负数为开多仓,正数为开空仓
     for aopen in opens:
@@ -273,12 +273,12 @@ def itrade3(sif,openers,bclosers,sclosers,stop_closer,longfilter=ocfilter,shortf
     sbclose = np.zeros(len(sif.transaction[IDATE]),int)
     ssclose = np.zeros(len(sif.transaction[IDATE]),int)
     for closer in bclosers:
-        #closes.extend(close_position(sif.transaction,closer(sif,sopened)))
+        #closes.extend(close_position(sif,closer(sif,sopened)))
         sbclose = gor(sbclose,closer(sif,sopened)) * XBUY
     for closer in sclosers:
-        #closes.extend(close_position(sif.transaction,closer(sif,sopened)))
+        #closes.extend(close_position(sif,closer(sif,sopened)))
         ssclose = gor(ssclose,closer(sif,sopened)) * XSELL
-    closes = close_position(sif.transaction,stop_closer(sif,sopened,sbclose,ssclose))
+    closes = close_position(sif,stop_closer(sif,sopened,sbclose,ssclose))
     actions = sorted(opens + closes,DTSORT)
     for action in actions:
         action.name = sif.name
@@ -358,6 +358,143 @@ def sync_tradess(sif,tradess,acstrategy=late_strategy):
     return xtrades
 
 
+def sync_tradess_pt(sif,tradess,acstrategy=late_strategy):
+    '''
+        结合优先级和顺势逆势关系
+        只有势优先或相等时才能考虑优先级
+    '''
+    trans = sif.transaction
+    sdate = trans[IDATE]
+    stime = trans[ITIME]
+    sopen = trans[IOPEN]
+    sclose = trans[ICLOSE]
+    shigh = trans[IHIGH]
+    slow = trans[ILOW]    
+    
+    xtrades = []
+    finished =False
+    cur_trade = find_first(tradess)
+    if cur_trade == None:
+        return []
+    cur_trade.orignal = cur_trade.functor   
+    extended,filtered,rfiltered,reversed = [],[],[],[]
+    close_action = cur_trade.actions[-1]
+    #print '#####################first:',close_action.time
+    while True:
+        #print cur_trade.orignal
+        trade = find_first(tradess)
+        #print trade
+        if trade == None:
+            xtrades.append(close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed))
+            break
+        #print 'find:date=%s,time=%s,functor=%s' % (trade.actions[0].date,trade.actions[0].time,trade.functor)  
+        if DTSORT2(trade.actions[0],close_action)>0:  #时间超过
+            #print u'时间超过'
+            xtrades.append(close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed))
+            trade.orignal = trade.functor
+            cur_trade = trade
+            close_action = cur_trade.actions[-1]
+            extended,filtered,rfiltered,reversed = [],[],[],[]
+            #print cur_trade.orignal
+            continue
+           
+        #print trade.functor,fpriority(trade.functor) ,cur_trade.functor,fpriority(cur_trade.functor)
+        if fpriority(trade.functor) <= fpriority(cur_trade.functor) and (trade.actions[0].xfollow >= cur_trade.actions[0].xfollow):    #优先级优先且势优或平. 就是说优先级高但逆势也不能搞顺势，以及顺势低优也不能搞逆势
+        #if trade.actions[0].xfollow > cur_trade.actions[0].xfollow or (trade.actions[0].xfollow == cur_trade.actions[0].xfollow and fpriority(trade.functor) <= fpriority(cur_trade.functor)): 
+            #print u'顺势搞逆势，或高/平优先级'   #后发的同优先级信号优先
+            if trade.direction == cur_trade.direction:  #同向取代关系
+                #print u'同向增强,%s|%s:%s被%s增强'%(cur_trade.functor,cur_trade.actions[0].date,cur_trade.actions[0].time,trade.functor)
+                close_action = acstrategy(close_action,trade.actions[-1])
+                extended.append(cur_trade)
+                trade.orignal = cur_trade.orignal
+                cur_trade = trade
+            else:   #逆向平仓
+                #print u'逆向平仓'
+                reversed.append(trade)
+                xindex = reversed[0].actions[0].index
+                cposition = BaseObject(index=xindex,date=sdate[xindex],time=stime[xindex],position=reversed[0].direction,xtype=XCLOSE)    #因为已经抑制了1514开仓,必然不会溢出
+                cposition.price = make_price(cposition.position,sopen[xindex],sclose[xindex],shigh[xindex],slow[xindex])
+                xtrades.append(close_trade(sif,cur_trade,cposition,extended,filtered,rfiltered,reversed))
+                trade.orignal = trade.functor
+                cur_trade = trade
+                extended,filtered,rfiltered,reversed = [],[],[],[]
+                close_action = cur_trade.actions[-1]                
+        else:   #低优先级或逆势对顺势
+            #print u'低优先级'
+            if trade.direction == cur_trade.direction:  #同向屏蔽
+                filtered.append(trade)
+            else:   #逆向屏蔽
+                rfiltered.append(trade)
+    return xtrades
+
+def sync_tradess_t(sif,tradess,acstrategy=late_strategy):
+    '''
+        不考虑优先级，只考虑顺逆势的取代关系
+        效果并不好
+    '''
+    trans = sif.transaction
+    sdate = trans[IDATE]
+    stime = trans[ITIME]
+    sopen = trans[IOPEN]
+    sclose = trans[ICLOSE]
+    shigh = trans[IHIGH]
+    slow = trans[ILOW]    
+    
+    xtrades = []
+    finished =False
+    cur_trade = find_first(tradess)
+    if cur_trade == None:
+        return []
+    cur_trade.orignal = cur_trade.functor   
+    extended,filtered,rfiltered,reversed = [],[],[],[]
+    close_action = cur_trade.actions[-1]
+    #print '#####################first:',close_action.time
+    while True:
+        #print cur_trade.orignal
+        trade = find_first(tradess)
+        #print trade
+        if trade == None:
+            xtrades.append(close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed))
+            break
+        #print 'find:date=%s,time=%s,functor=%s' % (trade.actions[0].date,trade.actions[0].time,trade.functor)  
+        if DTSORT2(trade.actions[0],close_action)>0:  #时间超过
+            #print u'时间超过'
+            xtrades.append(close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed))
+            trade.orignal = trade.functor
+            cur_trade = trade
+            close_action = cur_trade.actions[-1]
+            extended,filtered,rfiltered,reversed = [],[],[],[]
+            #print cur_trade.orignal
+            continue
+           
+        #print trade.functor,fpriority(trade.functor) ,cur_trade.functor,fpriority(cur_trade.functor)
+        if trade.actions[0].xfollow >= cur_trade.actions[0].xfollow:    #优先级优先且势优或平. 就是说优先级高但逆势也不能搞顺势，以及顺势低优也不能搞逆势
+            #print u'顺势搞逆势，或高/平优先级'   #后发的同优先级信号优先
+            if trade.direction == cur_trade.direction:  #同向取代关系
+                #print u'同向增强,%s|%s:%s被%s增强'%(cur_trade.functor,cur_trade.actions[0].date,cur_trade.actions[0].time,trade.functor)
+                close_action = acstrategy(close_action,trade.actions[-1])
+                extended.append(cur_trade)
+                trade.orignal = cur_trade.orignal
+                cur_trade = trade
+            else:   #逆向平仓
+                #print u'逆向平仓'
+                reversed.append(trade)
+                xindex = reversed[0].actions[0].index
+                cposition = BaseObject(index=xindex,date=sdate[xindex],time=stime[xindex],position=reversed[0].direction,xtype=XCLOSE)    #因为已经抑制了1514开仓,必然不会溢出
+                cposition.price = make_price(cposition.position,sopen[xindex],sclose[xindex],shigh[xindex],slow[xindex])
+                xtrades.append(close_trade(sif,cur_trade,cposition,extended,filtered,rfiltered,reversed))
+                trade.orignal = trade.functor
+                cur_trade = trade
+                extended,filtered,rfiltered,reversed = [],[],[],[]
+                close_action = cur_trade.actions[-1]                
+        else:   #逆势对顺势
+            #print u'逆势不能取代顺势'
+            if trade.direction == cur_trade.direction:  #同向屏蔽
+                filtered.append(trade)
+            else:   #逆向屏蔽
+                rfiltered.append(trade)
+    return xtrades
+
 def itradex(sif     #期指
             ,openers    #opener函数集合
             ,bclosers   #默认的多平仓函数集合(空头平仓)
@@ -369,7 +506,7 @@ def itradex(sif     #期指
                                     #closer没有过滤器,设置过滤器会导致合约一直开口
             ,shortfilter=ocfilter   #opener过滤器,多空仓必须满足各自过滤器条件才可以发出信号. 
             ,make_trades=simple_trades  #根据开平仓动作撮合交易的函数。对于最后交易序列，用last_trades
-            ,sync_trades=sync_tradess    #汇总各opener得到的交易，计算优先级和平仓。
+            ,sync_trades=sync_tradess_pt    #汇总各opener得到的交易，计算优先级和平仓。
                                             #对于最后交易序列，用null_sync_tradess
             ,acstrategy=late_strategy   #增强开仓时的平仓策略。late_strategy是平最晚的那个信号
             ,priority_level=2500    #筛选opener的优先级, 忽略数字大于此的开仓
@@ -422,7 +559,7 @@ def itradex(sif     #期指
             xfilter = gothrough_filter
         else:
             xfilter = opener.xfilter
-        opens = open_position(sif.transaction,xfilter(sif,opener(sif)),myfilter,myfilter) #因为opener只返回一个方向的操作,所以两边都用myfilter，但实际上只有相应的一个有效，另一个是虚的
+        opens = open_position(sif,xfilter(sif,opener(sif)),myfilter,myfilter) #因为opener只返回一个方向的操作,所以两边都用myfilter，但实际上只有相应的一个有效，另一个是虚的
         #opens.sort(DTSORT)
         sopened = np.zeros(len(sif.transaction[IDATE]),int)   #为开仓价格序列,负数为开多仓,正数为开空仓
         for aopen in opens:
@@ -440,8 +577,8 @@ def itradex(sif     #期指
         for closer in closers:
             sclose = gor(sclose,closer(sif,sopened)) * (-fdirection(opener))
         ms_closer = stop_closer if 'stop_closer' not in opener.__dict__ else opener.stop_closer
-        #closes = close_position(sif.transaction,stop_closer(sif,sopened,sclose,sclose)) #因为是单向的，只有一个sclose起作用
-        closes = close_position(sif.transaction,ms_closer(sif,sopened,sclose,sclose)) #因为是单向的，只有一个sclose起作用        
+        #closes = close_position(sif,stop_closer(sif,sopened,sclose,sclose)) #因为是单向的，只有一个sclose起作用
+        closes = close_position(sif,ms_closer(sif,sopened,sclose,sclose)) #因为是单向的，只有一个sclose起作用        
         actions = sorted(opens + closes,DTSORT)
         for action in actions:
             action.name = sif.name
@@ -504,31 +641,34 @@ def filter_trades(trades):
     return revs
 
 
-def open_position(trans,sopener,slongfilter,sshortfilter):
+def open_position(sif,sopener,slongfilter,sshortfilter):
     '''
         sopener中,XBUY表示开多仓,XSELL表示开空仓
     '''
+    trans = sif.transaction
     slong = band(equals(sopener,XBUY),slongfilter) * LONG 
     #print slongfilter[-10:],sshortfilter[-10:]
     sshort = band(equals(sopener,XSELL),sshortfilter) * SHORT
     #ss = slong + sshort #多空抵消
-    positions = xposition(trans,slong,XOPEN)
-    positions.extend(xposition(trans,sshort,XOPEN))
+    positions = xposition(sif,slong,XOPEN)
+    positions.extend(xposition(sif,sshort,XOPEN))
     return positions
 
-def close_position(trans,scloser):
+def close_position(sif,scloser):
     ''' scloser中, XBUY表示平空(买入),XSELL表示平多(卖出)
     '''
+    trans = sif.transaction
     #print scloser[scloser.nonzero()]
     slong = equals(scloser,XBUY) * LONG  #避免直接将scloser中的信号表示与LONG/SHORT隐蔽耦合
     #print slong[slong.nonzero()]
     sshort = equals(scloser,XSELL) * SHORT
     #print sshort[sshort.nonzero()],SHORT
-    positions = xposition(trans,slong,XCLOSE)
-    positions.extend(xposition(trans,sshort,XCLOSE))
+    positions = xposition(sif,slong,XCLOSE)
+    positions.extend(xposition(sif,sshort,XCLOSE))
     return positions
 
-def xposition(trans,saction,xtype,defer=1):
+def xposition(sif,saction,xtype,defer=1):
+    trans = sif.transaction
     sdate = trans[IDATE]
     stime = trans[ITIME]
     sopen = trans[IOPEN]
@@ -546,6 +686,9 @@ def xposition(trans,saction,xtype,defer=1):
         position = BaseObject(index=xindex,date=sdate[xindex],time=stime[xindex],position=direct,xtype=xtype)    #因为已经抑制了1514开仓,必然不会溢出
         position.price = make_price(direct,sopen[xindex],sclose[xindex],shigh[xindex],slow[xindex])
         positions.append(position)
+        if xtype == XOPEN:
+            position.xfollow = True if (sif.xtrend[i] == TREND_UP and saction[i] == LONG) or (sif.xtrend[i] == TREND_DOWN and saction[i] == SHORT) else False
+            #print position.xfollow
     return positions
 
 
@@ -690,6 +833,7 @@ def atr_uxstop(sif,sopened
     isignal = np.nonzero(sopened)[0]
     ilong_closed = 0    #多头平仓日
     ishort_closed = 0   #空头平仓日
+    will_losts = []
     for i in isignal:
         price = sopened[i]
         willlost = satr[i] * lost_times / XBASE / XBASE
@@ -698,6 +842,7 @@ def atr_uxstop(sif,sopened
             willlost = min_lost
         if willlost > max_lost:
             willlost = max_lost
+        will_losts.append(willlost)
         if i < ilong_closed or i<ishort_closed:    #已经开了仓，且未平，不再计算            
             #print 'skiped',trans[IDATE][i],trans[ITIME][i],trans[IDATE][ilong_closed],trans[ITIME][ilong_closed],trans[IDATE][ishort_closed],trans[ITIME][ishort_closed]
             continue
@@ -785,7 +930,153 @@ def atr_uxstop(sif,sopened
                         #win_stop = cur_low + satr[j] * win_times / XBASE / XBASE
                         if cur_stop > win_stop:
                             cur_stop = win_stop
+    #print will_losts
     return rev
+
+
+def atr_uxstop_t(sif,sopened    
+        ,sbclose
+        ,ssclose
+        ,lost_times=200
+        ,win_times=300
+        ,max_drawdown=200
+        ,min_drawdown=120
+        ,min_lost_follow=60
+        ,min_lost_against=30
+        ,max_lost_follow = 90   #顺势时的止损
+        ,max_lost_against = 60   #顺势时的止损
+        ,natr=1):
+    '''
+        考虑到顺势逆势介入时的止损。目前只修改初始止损
+        atr止损
+        sif为实体
+        sopen为价格序列，其中负数表示开多仓，正数表示开空仓
+        sbclose是价格无关序列所发出的买入平仓信号集合(平空仓)
+        ssclose是价格无关序列所发出的卖出平仓信号集合(平多仓)
+        max_drawdown: 从最高点起的最大回落
+        min_drawdown: 从最高点起的最小回落
+        min_lost_follow: 顺势最小止损
+        min_lost_against: 逆势最小止损
+        max_lost_follow: 顺势最大止损
+        max_lost_against: 逆势最大止损
+        只能持有一张合约。即当前合约在未平前会屏蔽掉所有其它开仓
+    '''
+    #print sbclose[-10:],ssclose[-10:]
+    satr = afm[natr](sif)
+    trans = sif.transaction
+    rev = np.zeros_like(sopened)
+    isignal = np.nonzero(sopened)[0]
+    ilong_closed = 0    #多头平仓日
+    ishort_closed = 0   #空头平仓日
+    will_losts = []
+    for i in isignal:
+        price = sopened[i]
+        willlost = satr[i] * lost_times / XBASE / XBASE
+        if (sif.xtrend[i] == TREND_UP and price <0) or (sif.xtrend[i] == TREND_DOWN and price >0):
+            #顺势就是最大止损
+            if willlost < min_lost_follow:
+                willlost = min_lost_follow
+            if willlost > max_lost_follow:
+                willlost = max_lost_follow
+            #print u'顺势:',sif.xtrend[i],price
+        else:
+            #逆势计算
+            #print u'逆势:',sif.xtrend[i],price
+            if willlost < min_lost_against:
+                willlost = min_lost_against
+            if willlost > max_lost_against:
+                willlost = max_lost_against
+        will_losts.append(willlost)            
+        if i < ilong_closed or i<ishort_closed:    #已经开了仓，且未平，不再计算            
+            #print 'skiped',trans[IDATE][i],trans[ITIME][i],trans[IDATE][ilong_closed],trans[ITIME][ilong_closed],trans[IDATE][ishort_closed],trans[ITIME][ishort_closed]
+            continue
+        if price<0: #多头止损
+            #print 'find long stop:',i
+            #if i < ilong_closed:    #已经开了多头仓，且未平，不再计算
+            #    print 'skiped',trans[IDATE][i],trans[ITIME][i],trans[IDATE][ilong_closed],trans[ITIME][ilong_closed]
+            #    continue
+            buy_price = -price
+            lost_stop = buy_price - willlost
+            cur_high = max(buy_price,trans[ICLOSE][i])
+            win_stop = cur_high - satr[i] * win_times / XBASE / XBASE
+            cur_stop = lost_stop if lost_stop > win_stop else win_stop
+            #print 'stop init:',cur_stop,lost_stop,willlost,min_lost,my_max_lost
+            if ssclose[i] == XSELL:
+                #print 'sell signali:',trans[IDATE][i],trans[ITIME][i],trans[ICLOSE][i]
+                pass
+            if trans[ICLOSE][i] < cur_stop or ssclose[i] == XSELL:#到达止损或平仓
+                #print '----sell----------:',trans[IDATE][i],trans[ITIME][i],cur_stop,trans[ICLOSE][i],cur_high,lost_stop
+                ilong_closed = i
+                rev[i] = XSELL            
+            else:
+                for j in range(i+1,len(rev)):
+                    if ssclose[j] == XSELL:
+                        #print 'sell signalj:',trans[IDATE][j],trans[ITIME][j],cur_stop,trans[ICLOSE][j]
+                        pass
+                    #print trans[ITIME][j],buy_price,lost_stop,cur_high,win_stop,cur_stop,trans[ILOW][j],satr[j]
+                    if trans[ILOW][j] < cur_stop or ssclose[j] == XSELL:    #
+                        rev[j] = XSELL
+                        #print 'sell:',i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
+                        ilong_closed = j
+                        break
+                    nhigh = trans[IHIGH][j]
+                    if(nhigh > cur_high):
+                        cur_high = nhigh
+                        drawdown = satr[j] * win_times / XBASE / XBASE
+                        if drawdown > max_drawdown:
+                            drawdown = max_drawdown
+                        if drawdown < min_drawdown:
+                            drawdown = min_drawdown
+                        win_stop = cur_high - drawdown
+                        #win_stop = cur_high - satr[j] * win_times / XBASE
+                        #print nhigh,cur_stop,win_stop,satr[j]
+                        if cur_stop < win_stop:
+                            cur_stop = win_stop
+        else:   #空头止损
+            #print 'find short stop:',i
+            #if i < ishort_closed:    #已经开了空头仓，且未平，不再计算
+            #    print 'skiped',trans[IDATE][i],trans[ITIME][i],trans[IDATE][ishort_closed],trans[ITIME][ishort_closed]
+            #    continue
+            sell_price = price
+            lost_stop = sell_price + willlost
+            cur_low = min(sell_price,trans[ICLOSE][i])
+            win_stop = cur_low + satr[i] * win_times / XBASE / XBASE
+            cur_stop = lost_stop if lost_stop < win_stop else win_stop
+            if sbclose[i] == XBUY:
+                #print 'buy signali:',trans[IDATE][i],trans[ITIME][i],trans[ICLOSE][i]
+                pass
+            if trans[ICLOSE][i] > cur_stop or sbclose[i] == XBUY:
+                #print '----buy----------:',cur_stop,trans[ICLOSE][i],cur_high,lost_stop
+                ishort_closed = i
+                rev[i] = XBUY
+            else:
+                for j in range(i+1,len(rev)):
+                    if sbclose[j] == XBUY:
+                        #print 'buy signalj:',trans[IDATE][j],trans[ITIME][j],cur_stop,trans[ICLOSE][j]
+                        pass
+                    #print trans[ITIME][j],sell_price,lost_stop,cur_low,win_stop,cur_stop,trans[IHIGH][j],satr[j]                
+                    if trans[IHIGH][j] > cur_stop or sbclose[j] == XBUY:#
+                        ishort_closed = j
+                        rev[j] = XBUY
+                        #print 'buy:',j
+                        #print 'buy:',i,price,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j]                        
+                        break
+                    nlow = trans[ILOW][j]
+                    if(nlow < cur_low):
+                        cur_low = nlow
+                        drawdown = satr[j] * win_times / XBASE / XBASE
+                        if drawdown > max_drawdown:
+                            drawdown = max_drawdown
+                        if drawdown < min_drawdown:
+                            drawdown = min_drawdown
+                        win_stop = cur_low + drawdown
+                        #print nlow,cur_stop,win_stop,satr[j]
+                        #win_stop = cur_low + satr[j] * win_times / XBASE / XBASE
+                        if cur_stop > win_stop:
+                            cur_stop = win_stop
+    #print will_losts
+    return rev
+
 
 def atr_rxstop(sif
         ,sopened
@@ -985,9 +1276,35 @@ atr5_uxstop_05_25_A = fcustom(atr_uxstop,lost_times=50,win_times=250,max_drawdow
 
 atr5_uxstop_T1 = fcustom(atr_uxstop,lost_times=80,win_times=250,max_drawdown=200,min_lost=90,max_lost=90,natr=5)
 
-
 atr5_uxstop_08_25_C = fcustom(atr_uxstop,lost_times=80,win_times=250,max_drawdown=200,min_drawdown=135,min_lost=90,max_lost=90,natr=5)
 atr5_uxstop_08_25_D = fcustom(atr_uxstop,lost_times=80,win_times=250,max_drawdown=200,min_drawdown=200,min_lost=90,max_lost=90,natr=5)
+
+atr5_uxstop_t_08_25 = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=200,natr=5)
+atr5_uxstop_t_08_25_A = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=200,min_lost_follow=90,min_lost_against=60,max_lost_follow=90,max_lost_against=60,natr=5) ###??### 不如60到底
+
+
+###使用固定的90止损
+atr5_uxstop_t_08_25_B = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=200,min_lost_follow=90,min_lost_against=90,max_lost_follow=90,max_lost_against=90,natr=5)  #累计收益最大，但R不是. 但胜率提高
+
+atr5_uxstop_t_08_25_C = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=200,min_lost_follow=60,min_lost_against=60,max_lost_follow=60,max_lost_against=60,natr=5)  ####R最大,胜率不是
+
+atr5_uxstop_t_08_25_D = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=200,min_lost_follow=60,min_lost_against=40,max_lost_follow=60,max_lost_against=40,natr=5)
+
+atr5_uxstop_t_08_25_E= fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=200,min_lost_follow=80,min_lost_against=60,max_lost_follow=80,max_lost_against=60,natr=5)
+
+atr5_uxstop_t_08_25_F = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=200,min_lost_follow=80,min_lost_against=80,max_lost_follow=80,max_lost_against=80,natr=5)
+
+atr5_uxstop_t_08_25_F2 = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=200,min_lost_follow=85,min_lost_against=85,max_lost_follow=85,max_lost_against=85,natr=5)
+
+
+atr5_uxstop_t_08_25_G = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=200,min_lost_follow=70,min_lost_against=70,max_lost_follow=70,max_lost_against=70,natr=5)
+
+atr5_uxstop_t_08_25_H = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=200,min_lost_follow=50,min_lost_against=50,max_lost_follow=50,max_lost_against=50,natr=5)
+
+atr5_uxstop_t_08_25_K = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=200,min_lost_follow=100,min_lost_against=100,max_lost_follow=100,max_lost_against=100,natr=5)  #
+
+
+
 
 atr5_uxstop_08_30 = fcustom(atr_uxstop,lost_times=80,win_times=300,max_drawdown=200,min_lost=90,max_lost=90,natr=5)
 

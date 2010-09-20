@@ -571,14 +571,16 @@ class DynamicScheduler:
         for action in mq:
             atime = cal.timegm((action.date/10000,(action.date%10000)/100,action.date%100
                 ,action.time/100,action.time%100,0,0,0,0))  #转化为纪元后秒数
-            if action.fname == pre_fname and atime - pre_time <= 720:   #720秒,15分钟
-                print u'\n忽略10分钟之内的同类信号 : %s:%s' % (action.fname,action.time)
+            if action.fname == pre_fname and atime - pre_time <= 1200:   #1800秒,20分钟
+                print u'\n忽略20分钟之内的同类信号 : %s:%s' % (action.fname,action.time)
+                #win32api.MessageBox(0,u'请注意眼睛休息',u'提示',0x00001000L)
                 continue
             pre_fname = action.fname
             pre_time = atime
             
             direction = u'买入' if action.position == LONG else u'卖出'
-            trend = u'顺势' if action.functor.strategy in (XFOLLOW,XBREAK,XORB) else u'逆势'
+            #trend = u'顺势' if action.functor.strategy in (XFOLLOW,XBREAK,XORB) else u'逆势'
+            trend = u'顺势' if action.xfollow else u'逆势'
             trend = u'%s:%s' % (trend,iftrade.fpriority(action.functor))
             #msg = u'%s|%s:%s%s开仓%s,算法:%s,优先级:%s,止损:%s,条件单:%s' % (name,action.date,action.time,direction,action.price,action.fname,action.functor.priority,action.stop,action.mstop)
             #msg = u'%s|%s%s开仓%s,算法:%s,优先级:%s,止损:%s,条件单:%s,%s' % (name,action.time,direction,action.price,action.fname,action.functor.priority,action.stop,action.mstop,trend)

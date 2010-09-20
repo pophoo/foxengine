@@ -119,6 +119,7 @@ def fget(strategy,priority=2500):
 
 def calc_stop(sif,action):
     #print action.functor.strategy
+    '''
     if 'strategy' in action.functor.__dict__ and action.functor.strategy == XFOLLOW:
         stop1 = 9
         stop2 = 9
@@ -143,6 +144,9 @@ def calc_stop(sif,action):
         stop1 = 3
     if stop2 < 3:
         stop2 = 3
+    '''
+        
+    stop1 = stop2 = stop3 = 9   ##不论何种情况都是9
     mstop1 = max(stop1,stop2)  #实际止损 
     mstop = max(mstop1,stop3)  #最大止损线设置
     if action.position == LONG:

@@ -2371,7 +2371,7 @@ xevs = [
 for xf in xevs:
     xf.strategy = XFOLLOW   
     xf.stop_closer = atr5_uxstop_08_25_A
-    xf.priority = 1500
+    xf.priority = 1450
 
 
 #重新划分顺势、逆势，不再由算法本身决定，由算法介入的时点决定

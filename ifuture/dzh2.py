@@ -586,11 +586,11 @@ class DynamicScheduler:
             #msg = u'%s|%s%s开仓%s,算法:%s,优先级:%s,止损:%s,条件单:%s,%s' % (name,action.time,direction,action.price,action.fname,action.functor.priority,action.stop,action.mstop,trend)
             msg = u'%s|%s:%s%s开仓%s,平仓%s:%s,条件单:%s%s,%s' % (name,action.date%10000,action.time,direction,action.price,action.close,action.stop,action.condition,action.mstop,trend) 
             if action.time < sms_begin:
-                print u'\n忽略%s之前的信号:%s,%s' % (sms_begin,action.time,msg)
+                print u'\n忽略%s之前的信号:%s,%s,%s' % (sms_begin,action.time,msg,action.fname)
                 #print action.time,sms_begin,type(action.time),int(action.time)>int(sms_begin)
                 continue
-            successed += DynamicScheduler.send_sms1(msg)
-            #successed += DynamicScheduler.sms_stub(msg)
+            successed += DynamicScheduler.send_sms1(msg,action.fname)
+            #successed += DynamicScheduler.sms_stub(msg,action.fname)
             mnum += 1
             #break  #测试短信用
         print u'\n计划发送 %s 条，成功发送 %s 条' % (mnum,successed)
@@ -599,12 +599,12 @@ class DynamicScheduler:
         return successed
 
     @staticmethod
-    def sms_stub(msg):
-        print msg
+    def sms_stub(msg,fname):
+        print msg,fname
         return 1
 
     @staticmethod
-    def send_sms1(msg):
+    def send_sms1(msg,fname):
         '''
             发送成功返回1,否则为0
         '''
@@ -615,10 +615,10 @@ class DynamicScheduler:
         rmsg = p.read()
         #rmsg = 'success' #'error'
         if rmsg[:7] == 'success':
-            print u'\n发送成功,%s' % msg
+            print u'\n发送成功,%s,%s' % (msg,fname)
             return 1
         else:
-            print u'\n发送失败,%s' % msg            
+            print u'\n发送失败,%s,%s' % (msg,fname)
             return 0
 
     @staticmethod

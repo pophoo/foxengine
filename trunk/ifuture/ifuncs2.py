@@ -2387,7 +2387,7 @@ xxx2 = xfollow + xbreak + xagainst + xorb + xevs
 xxx3 = xfollow + xbreak + xagainst + xorb + xevs
 
 for x in xxx2: 
-    x.stop_closer = atr5_uxstop_t_08_25_B
+    x.stop_closer = atr5_uxstop_t_08_25_B2
 
 
 '''

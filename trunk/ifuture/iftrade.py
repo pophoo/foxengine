@@ -127,8 +127,9 @@ def last_xactions(sif,trades,acstrategy=late_strategy):
         for action in trade.actions:
             action.functor = trade.functor
             action.trade = trade
-            func_name = str(action.functor)
-            action.fname = func_name[10:func_name.find(' at')]
+            #func_name = str(action.functor)
+            #action.fname = func_name[10:func_name.find(' at')]
+            action.fname = func_name(action.functor)
         xactions.extend(trade.actions)
     xactions.sort(DTSORT)
     xactions.reverse() 
@@ -144,8 +145,9 @@ def last_wactions(sif,trades,acstrategy=late_strategy):
         for action in trade.actions:
             action.functor = trade.functor
             action.trade = trade
-            func_name = str(action.functor)
-            action.fname = func_name[10:func_name.find(' at')]
+            #func_name = str(action.functor)
+            #action.fname = func_name[10:func_name.find(' at')]
+            action.fname = func_name(action.functor)            
         xactions.extend(trade.actions)
     xactions.sort(DTSORT)
     xactions.reverse() 
@@ -1285,6 +1287,15 @@ atr5_uxstop_t_08_25_A = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_dra
 
 ###使用固定的90止损
 atr5_uxstop_t_08_25_B = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=200,min_lost_follow=90,min_lost_against=90,max_lost_follow=90,max_lost_against=90,natr=5)  #累计收益最大，但R不是. 但胜率提高
+
+atr5_uxstop_t_08_25_B20 = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=200,min_drawdown=150,min_lost_follow=90,min_lost_against=90,max_lost_follow=90,max_lost_against=90,natr=5)  
+
+
+###使用90-150-250的止损, 9点初始止损，15点最小跟踪止损，25点最大跟踪止损
+atr5_uxstop_t_08_25_B2 = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=250,min_drawdown=150,min_lost_follow=90,min_lost_against=90,max_lost_follow=90,max_lost_against=90,natr=5)  
+
+
+atr5_uxstop_t_08_25_B3 = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=200,min_drawdown=200,min_lost_follow=90,min_lost_against=90,max_lost_follow=90,max_lost_against=90,natr=5)  
 
 atr5_uxstop_t_08_25_C = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=200,min_lost_follow=60,min_lost_against=60,max_lost_follow=60,max_lost_against=60,natr=5)  ####R最大,胜率不是
 

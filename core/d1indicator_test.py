@@ -271,17 +271,17 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals(np.cumsum(trend(tclose)*tvolume).tolist(),obv(tclose,tvolume).tolist())   #与组合算法比较
 
     def test_roc(self):
-        self.assertEquals([0,1000,1000,500,500,1000,333,666],roc(np.array([1,2,4,6,9,18,24,40])).tolist())
-        self.assertEquals([0,0,1500,1000,625,1000,833,611],roc(np.array([1,2,4,6,9,18,24,40]),2).tolist())
+        self.assertEquals([0,1000000,1000000,500000,500000,1000000,333333,666666],roc(np.array([1,2,4,6,9,18,24,40])).tolist())
+        self.assertEquals([0,0,1500000,1000000,625000,1000000,833333,611111],roc(np.array([1,2,4,6,9,18,24,40]),2).tolist())
         self.assertEquals([0,0,0,0,0],roc(np.array([1,2,4,6,9]),5).tolist())
-        self.assertEquals([0,0,0,0,2000],roc(np.array([1,2,4,6,9]),4).tolist())
+        self.assertEquals([0,0,0,0,2000000],roc(np.array([1,2,4,6,9]),4).tolist())
 
     def test_sroc(self):
         self.assertEquals([],sroc(np.array([])).tolist())
-        self.assertEquals([0,1000,1000,500,500,1000,333,666],sroc(np.array([1,2,4,6,9,18,24,40])).tolist())
-        self.assertEquals([0,0,3000,2000,1250,2000,1666,1222],sroc(np.array([1,2,4,6,9,18,24,40]),2).tolist())
+        self.assertEquals([0,1000000,1000000,500000,500000,1000000,333333,666666],sroc(np.array([1,2,4,6,9,18,24,40])).tolist())
+        self.assertEquals([0,0,3000000,2000000,1250000,2000000,1666666,1222222],sroc(np.array([1,2,4,6,9,18,24,40]),2).tolist())
         self.assertEquals([0,0,0,0,0],sroc(np.array([1,2,4,6,9]),5).tolist())
-        self.assertEquals([0,0,0,0,8000],sroc(np.array([1,2,4,6,9]),4).tolist())
+        self.assertEquals([0,0,0,0,8000000],sroc(np.array([1,2,4,6,9]),4).tolist())
 
     def test_mfi(self):
         self.assertEquals([],mfi(np.array([]),np.array([])).tolist())

@@ -30,8 +30,8 @@ i08 = ifmap['IF1008']
 i09 = ifmap['IF1009']
 i12 = ifmap['IF1012']
 
-tradesy =  control.itradex8_y(i00,ifuncs2.xxx2)
-iftrade.limit_profit(tradesy,-70)
+tradesy =  control.itradex8_yt(i00,ifuncs2.xxx2)
+iftrade.limit_profit(tradesy,-90)
 
 lx = lambda ii,trade:ii.xatr[trade.actions[0].index]
 lm = lambda ii,trade:ii.mxatr[trade.actions[0].index]
@@ -268,7 +268,7 @@ itradex8_yn = fcustom(iftrade.itradex
                 ,shortfilter=iftrade.ocfilter_null
                 )
 
-itradex8_yt = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_t_08_25,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex8_yt = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_t_08_25_B2,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 itradex8_yt_a = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_t_08_25_A,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 
 

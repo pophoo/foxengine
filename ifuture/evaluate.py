@@ -321,28 +321,28 @@ def add_funcs(tests,suffix):
 ##总体来说使用13,但对于大幅度筛选的，使用13-30
 
 
-采用evaluate3_b/s,以与实际更贴近
->>> evf_b = fcustom(ev.evaluate3_b,interval=60,begin=944,end=1414,downlimit=90)
->>> evf_s = fcustom(ev.evaluate3_s,interval=60,begin=944,end=1414,uplimit=90)
->>> results_b = ev.ev_tests(i00,evf_b,ev.test_funcs)
->>> results_s = ev.ev_tests(i00,evf_s,ev.test_funcs)
->>> ev.ev_output(results_b,'d:/temp/evb_test.txt',evf_b)
->>> ev.ev_output(results_s,'d:/temp/evs_test.txt',evf_s)
->>> evf_b120 = fcustom(ev.evaluate3_b,interval=120,begin=944,end=1314,downlimit=90)
->>> evf_s120 = fcustom(ev.evaluate3_s,interval=120,begin=944,end=1314,uplimit=90)
+#采用evaluate3_b/s,以与实际更贴近
+evf_b = fcustom(ev.evaluate3_b,interval=60,begin=944,end=1414,downlimit=90)
+evf_s = fcustom(ev.evaluate3_s,interval=60,begin=944,end=1414,uplimit=90)
+results_b = ev.ev_tests(i00,evf_b,ev.test_funcs)
+results_s = ev.ev_tests(i00,evf_s,ev.test_funcs)
+ev.ev_output(results_b,'d:/temp/evb_test.txt',evf_b)
+ev.ev_output(results_s,'d:/temp/evs_test.txt',evf_s)
+evf_b120 = fcustom(ev.evaluate3_b,interval=120,begin=944,end=1314,downlimit=90)
+evf_s120 = fcustom(ev.evaluate3_s,interval=120,begin=944,end=1314,uplimit=90)
 ####120不如60
->>> results_b120 = ev.ev_tests(i00,evf_b120,ev.test_funcs)
->>> results_s120 = ev.ev_tests(i00,evf_s120,ev.test_funcs)
->>> ev.ev_output(results_b120,'d:/temp/evb120_test.txt',evf_b120)
->>> ev.ev_output(results_s120,'d:/temp/evs120_test.txt',evf_s120)
->>> ufilter = strend2(i00.ma30)>0
->>> dfilter = strend2(i00.ma30)<0
->>> evf_b_s30 = fcustom(ev.evaluate3_b,interval=60,begin=944,end=1414,downlimit=90,filter=ufilter)
->>> evf_s_s30 = fcustom(ev.evaluate3_s,interval=60,begin=944,end=1414,uplimit=90,filter=dfilter)
->>> results_b_s30 = ev.ev_tests(i00,evf_b_s30,ev.test_funcs)
->>> results_s_s30 = ev.ev_tests(i00,evf_s_s30,ev.test_funcs)
->>> ev.ev_output(results_b_s30,'d:/temp/evb_s30_test.txt',evf_b_s30)
->>> ev.ev_output(results_s_s30,'d:/temp/evs_s30_test.txt',evf_s_s30)
+results_b120 = ev.ev_tests(i00,evf_b120,ev.test_funcs)
+results_s120 = ev.ev_tests(i00,evf_s120,ev.test_funcs)
+ev.ev_output(results_b120,'d:/temp/evb120_test.txt',evf_b120)
+ev.ev_output(results_s120,'d:/temp/evs120_test.txt',evf_s120)
+ufilter = strend2(i00.ma30)>0
+dfilter = strend2(i00.ma30)<0
+evf_b_s30 = fcustom(ev.evaluate3_b,interval=60,begin=944,end=1414,downlimit=90,filter=ufilter)
+evf_s_s30 = fcustom(ev.evaluate3_s,interval=60,begin=944,end=1414,uplimit=90,filter=dfilter)
+results_b_s30 = ev.ev_tests(i00,evf_b_s30,ev.test_funcs)
+results_s_s30 = ev.ev_tests(i00,evf_s_s30,ev.test_funcs)
+ev.ev_output(results_b_s30,'d:/temp/evb_s30_test.txt',evf_b_s30)
+ev.ev_output(results_s_s30,'d:/temp/evs_s30_test.txt',evf_s_s30)
 
 ###发现13可以，60不行
 ufilter13 = strend2(i00.ma13)>0

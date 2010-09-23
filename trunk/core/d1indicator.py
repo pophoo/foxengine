@@ -616,7 +616,7 @@ def roc(source,interval=1):
         if(ci == 0):
             rev[i] = 0
         else:
-            rev[i] = (cv - ci) * BASE / ci / interval
+            rev[i] = (cv - ci) * BASE * BASE/ ci / interval
     return rev
 
 def sroc(source,interval=1):
@@ -625,7 +625,7 @@ def sroc(source,interval=1):
     '''
     assert interval > 0
     rc = rollx(source,interval)
-    rev = (source - rc)*BASE / rc
+    rev = (source - rc)*BASE*BASE / rc
     rev[:interval] = 0
     return rev
 

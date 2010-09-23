@@ -1540,11 +1540,12 @@ def roc15_b(sif,sopened=None,length=12,malength=6):
     signal[sif.i_cof15] = sx
 
     signal = gand(signal
-            ,strend2(sif.ma13)>0
+            #,strend2(sif.ma13)>0
             ,strend2(sif.ma30)>0
             ,sif.xatr30x < sif.mxatr30x
-            #,sif.xatr5x<sif.mxatr5x
+            ,sif.xatr5x>sif.mxatr5x
             ,sif.xatr<sif.mxatr
+            #,sif.xatr30x<6000
             )
     return signal * roc15_b.direction
 roc15_b.direction = XBUY
@@ -1562,23 +1563,132 @@ def roc5_b(sif,sopened=None,length=12,malength=6):
     signal[sif.i_cof5] = sx
 
     signal = gand(signal
-            ,strend2(sif.ma13)>0
+            ,sif.ltrend>0
+            #,strend2(sif.ma13)>0
             ,strend2(sif.ma30)>0
             ,sif.s30>0
-            ,sif.xatr30x < sif.mxatr30x
-            #,sif.xatr3x<sif.mxatr3x
-            ,sif.xatr<sif.mxatr
+            #,sif.xatr30x < sif.mxatr30x
+            ,sif.xatr5x<sif.mxatr5x
+            ,sif.xatr30x<6000
             )
     return signal * roc5_b.direction
 roc5_b.direction = XBUY
 roc5_b.priority = 1500
+
+
+def roc3_s(sif,sopened=None,length=12,malength=6):
+    sr = sroc(sif.close3,length)
+    msr = ma(sr,malength)
+
+    sx = gand(#cross(msr,sr)<0
+             cross(cached_zeros(len(sr)),sr)<0
+             ,strend2(sr)<0
+             )
+
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof3] = sx
+
+    signal = gand(signal
+            ,sif.mtrend<0
+            ,sif.s30<0
+            ,sif.s5<0
+            ,sif.xatr30x<6000
+            #,sif.xatr30x<sif.mxatr30x
+            ,sif.xatr>sif.mxatr
+            )
+    signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal_s==1)
+    
+    return signal * roc3_s.direction
+roc3_s.direction = XSELL
+roc3_s.priority = 1500
+
+def roc5_s(sif,sopened=None,length=12,malength=6):
+    sr = sroc(sif.close5,length)
+    msr = ma(sr,malength)
+
+    sx = gand(cross(msr,sr)<0
+             ,strend2(sr)<0
+             )
+
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof5] = sx
+
+    signal = gand(signal
+            ,sif.mtrend<0
+            ,sif.s30<0
+            ,sif.s5<0
+            ,sif.xatr30x<6000
+            ,sif.xatr>sif.mxatr
+            )
+    signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal_s==1)
+    
+    return signal * roc5_s.direction
+roc5_s.direction = XSELL
+roc5_s.priority = 1500
+
+
+def roc30_s(sif,sopened=None,length=12,malength=6):
+    sr = sroc(sif.close30,length)
+    msr = ma(sr,malength)
+
+    sx = gand(#cross(msr,sr)<0
+              cross(cached_zeros(len(sr)),sr)<0          
+             ,strend2(sr)<0
+             )
+
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof30] = sx
+
+    signal = gand(signal
+            #,sif.s30<0
+            ,sif.s5<0
+            ,sif.xatr30x<6000
+            )
+    signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal_s==1)
+    
+    return signal * roc30_s.direction
+roc30_s.direction = XSELL
+roc30_s.priority = 1900
+
+
+def roc05_s(sif,sopened=None,length=12,malength=6):
+    '''穿越0线
+    '''
+    sr = sroc(sif.close5,length)
+    msr = ma(sr,malength)
+
+    sx = gand(#cross(msr,sr)<0
+             cross(cached_zeros(len(sr)),sr)<0
+             ,strend2(sr)<0
+             )
+
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof5] = sx
+
+    signal = gand(signal
+            ,sif.mtrend<0
+            ,sif.s30<0
+            ,sif.s5<0
+            ,sif.xatr30x<6000
+            ,sif.xatr>sif.mxatr
+            )
+    signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal_s==1)
+    
+    return signal * roc05_s.direction
+roc05_s.direction = XSELL
+roc05_s.priority = 1500
+
 
 def roc10_b(sif,sopened=None,length=12,malength=6):
     sr = sroc(sif.close10,length)
     msr = ma(sr,malength)
 
     sx = gand(cross(msr,sr)>0
-             ,strend2(sr)>0
+              ,strend2(sr)>0
              )
 
     signal = np.zeros_like(sif.close)
@@ -1587,7 +1697,8 @@ def roc10_b(sif,sopened=None,length=12,malength=6):
     signal = gand(signal
             #,strend2(sif.ma13)>0
             ,strend2(sif.ma30)>0
-            #,sif.s30>0
+            ,sif.s30>0
+            #,sif.s5>0
             ,sif.xatr30x < sif.mxatr30x
             #,sif.xatr5x<sif.mxatr5x
             ,sif.xatr<sif.mxatr
@@ -1597,10 +1708,7 @@ roc10_b.direction = XBUY
 roc10_b.priority = 1500
 
 def roc1_b(sif,sopened=None,length=12,malength=6):
-    '''
-        原始的atr5_uxstop_08_25较好
-    '''
-    sr = sroc(sif.close,length)
+    sr = sroc(sif.close,length)/1000
     msr = ma(sr,malength)
 
     sx = gand(cross(msr,sr)>0
@@ -1612,17 +1720,44 @@ def roc1_b(sif,sopened=None,length=12,malength=6):
     signal = sx
 
     signal = gand(signal
-            ,strend2(sif.ma13)>0
-            ,strend2(sif.ma30)>0
+            #,strend2(sif.ma13)>0
+            #,strend2(sif.ma30)>0
             ,sif.s5>0
             ,sif.s30>0
             ,sif.xatr30x < sif.mxatr30x
             ,sif.xatr5x<sif.mxatr5x
-            #,sif.xatr<sif.mxatr
+            ,sif.xatr<sif.mxatr
             )
     return signal * roc1_b.direction
 roc1_b.direction = XBUY
 roc1_b.priority = 1500
+
+def roc01_b(sif,sopened=None,length=12,malength=6):
+    sr = sroc(sif.close,length)/1000
+    msr = ma(sr,malength)
+
+    sx = gand(#cross(msr,sr)>0
+              cross(cached_zeros(len(sr)),sr)>0            
+             ,strend2(sr)>0
+             )
+
+    #signal = np.zeros_like(sif.close)
+    #signal[sif.i_cof10] = sx
+    signal = sx
+
+    signal = gand(signal
+            #,strend2(sif.ma13)>0
+            #,strend2(sif.ma30)>0
+            ,sif.s5>0
+            ,sif.s30>0
+            ,sif.xatr30x < sif.mxatr30x
+            #,sif.xatr5x<sif.mxatr5x
+            ,sif.xatr<sif.mxatr
+            )
+    return signal * roc01_b.direction
+roc01_b.direction = XBUY
+roc01_b.priority = 1500
+
 
 def mfi30s_b(sif,sopened=None,length=14,slimit=400):
     xmfi = mfi((sif.high30+sif.low30+sif.close30)/3,sif.vol30,length)
@@ -1923,7 +2058,10 @@ def macd3sb_s(sif,sopened=None):
    
     #sx = gand(cross(sif.dea30x,sif.diff30x)>0,strend2(sif.diff30x)>0)
 
-    sx = gand(strend2(sif.diff3x-sif.dea3x)==2,sif.diff3x<sif.dea3x,strend2(sif.diff3x)>0)
+    sx = gand(strend2(sif.diff3x-sif.dea3x)==2
+                ,sif.diff3x<sif.dea3x
+                ,strend2(sif.diff3x)>0
+                )
     signal = np.zeros_like(sif.close)
     signal[sif.i_cof3] = sx
 
@@ -2171,7 +2309,7 @@ def xud30s_s(sif,sopened=None,length=12,malength=6):
 xud30s_s.direction = XSELL
 xud30s_s.priority = 1500
 
-def macd3b(sif,sopened=None):
+def macd3r_b(sif,sopened=None):
     signal = strend2(sif.diff1-sif.dea1) == 1
 
     signal = gand(signal
@@ -2183,9 +2321,9 @@ def macd3b(sif,sopened=None):
                 ,sif.xatr<sif.mxatr
                 ,sif.xatr5x<sif.mxatr5x
                 )
-    return signal * macd3b.direction
-macd3b.direction = XBUY
-macd3b.priority = 1400
+    return signal * macd3r_b.direction
+macd3r_b.direction = XBUY
+macd3r_b.priority = 1400
 
 def macd3s(sif,sopened=None):
     '''
@@ -2206,6 +2344,33 @@ def macd3s(sif,sopened=None):
 macd3s.direction = XSELL
 macd3s.priority = 1500
 
+def waveb(sif,sopened=None):
+    di = np.zeros_like(sif.close)
+    di[sif.i_oofd] = 1
+    dhigh = dmax(sif.high,di)
+    dlow = dmin(sif.low,di)
+
+    xwave = (dhigh-dlow) * XBASE*XBASE/dlow
+    xmid = dlow + (dhigh-dlow)/3
+
+
+    sx = gand(strend2(sif.diff3x-sif.dea3x)==-1,strend2(sif.diff3x)<0)
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof3] = sx
+
+    signal = gand(signal
+            #,strend2(sif.ma13)<0
+            #,strend2(sif.ma30)<0
+            ,sif.ltrend<0
+            ,sif.xatr30x < sif.mxatr30x
+            ,strend2(sif.sdiff30x-sif.sdea30x)<0
+            ,strend2(sif.sdiff10x-sif.sdea10x)<0            
+            )
+
+    return signal * waveb.direction
+waveb.direction = XSELL
+waveb.priority = 1500
+waveb.stop_closer = atr5_uxstop_t_08_25_B2
 
 evs = [roc1_b,
         #roc5_b,
@@ -2255,7 +2420,7 @@ xfollow = [#多头
 
 
             #rsi_long_x,
-            #rsi_long_xx,    #rsi_long_x的增强版. 被其吸收
+            rsi_long_xx,    #rsi_long_x的增强版. 被其吸收
             rsi_long_x2,    
             #macd_long_x2,   #样本数太少，暂缓
             #macd_long_x3,   #样本数太少，暂缓
@@ -2396,7 +2561,14 @@ for xf in xorb_all:
         
 
 xevs = [
-            roc1_b,
+            #roc1_b,
+            roc10_b,
+            roc5_b,
+            #roc30_s,
+            #roc3_s,
+            #roc5_s,
+            #roc05_s,
+            #roc15_b,
             macd10_b,
             mfi30s_b,
             mfi3b_b,
@@ -2406,7 +2578,7 @@ xevs = [
             xud5s_s,
             xud1s_s,
             xud30s_s,
-            macd3b,            
+            macd3r_b,            
       ]
 
 for xf in xevs:

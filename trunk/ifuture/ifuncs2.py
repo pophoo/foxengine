@@ -1353,8 +1353,8 @@ def k5_lastup(sif,sopened=None):
 
     signal = np.select([sif.time>944],[signal],0)
 
-    signal = sum2diff(extend2diff(signal,sif.date),sif.date)
-    signal = gand(signal==1)
+    signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal_s==1)
     
     signal = derepeatc(signal)
 
@@ -1504,7 +1504,7 @@ def macd10_b(sif,sopened=None):
             ,strend2(sif.ma60)>0
             ,sif.xatr30x < sif.mxatr30x
             ,sif.xatr5x>sif.mxatr5x
-            #,sif.xatr>sif.mxatr
+            #,sif.xatr<sif.mxatr
             )
     return signal * macd10_b.direction
 macd10_b.direction = XBUY
@@ -2171,6 +2171,41 @@ def xud30s_s(sif,sopened=None,length=12,malength=6):
 xud30s_s.direction = XSELL
 xud30s_s.priority = 1500
 
+def macd3b(sif,sopened=None):
+    signal = strend2(sif.diff1-sif.dea1) == 1
+
+    signal = gand(signal
+                ,sif.diff1<0
+                ,sif.sdiff5x<0
+                ,strend2(sif.sdiff5x-sif.sdea5x) > 0 
+                ,strend2(sif.sdiff30x-sif.sdea30x) > 0 
+                ,sif.xatr30x<sif.mxatr30x
+                ,sif.xatr<sif.mxatr
+                ,sif.xatr5x<sif.mxatr5x
+                )
+    return signal * macd3b.direction
+macd3b.direction = XBUY
+macd3b.priority = 1400
+
+def macd3s(sif,sopened=None):
+    '''
+        找不到合适的
+    '''
+    signal = strend2(sif.sdiff5x-sif.sdea5x) == -1
+
+    signal = gand(signal
+                #,sif.diff1<0
+                ,sif.sdiff5x<0
+                ,strend2(sif.sdiff15x-sif.sdea15x) < 0 
+                ,strend2(sif.sdiff45x-sif.sdea45x) < 0                 
+                )
+    #signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
+    #signal = gand(signal_s==1)
+    
+    return signal * macd3s.direction
+macd3s.direction = XSELL
+macd3s.priority = 1500
+
 
 evs = [roc1_b,
         #roc5_b,
@@ -2371,6 +2406,7 @@ xevs = [
             xud5s_s,
             xud1s_s,
             xud30s_s,
+            macd3b,            
       ]
 
 for xf in xevs:

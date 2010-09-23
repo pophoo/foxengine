@@ -609,6 +609,24 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,1,2,3,4,5,6],amin0(np.array([7,6,5,4,3,2,1])).tolist())
         self.assertEquals([0,0,2,2,4,4],amin0(np.array([4,5,3,4,1,7])).tolist())
 
+    def test_dmax(self):
+        self.assertEquals([],dmax(np.array([]),np.array([])).tolist())
+        self.assertEquals([7,7,7,7,7,7,7],dmax(np.array([7,6,5,4,3,2,1]),np.array([0,0,0,0,0,0,0])).tolist())
+        self.assertEquals([1,2,3,4,5,6,7],dmax(np.array([1,2,3,4,5,6,7]),np.array([0,0,0,0,0,0,0])).tolist())
+        self.assertEquals([7,6,6,4,4,2,2],dmax(np.array([7,6,5,4,3,2,1]),np.array([0,1,0,1,0,1,0])).tolist())
+        self.assertEquals([7,6,5,4,3,2,1],dmax(np.array([7,6,5,4,3,2,1]),np.array([1,1,1,1,1,1,1])).tolist())
+        self.assertEquals([3,4,5,5,4,7],dmax(np.array([3,4,5,4,4,7]),np.array([0,0,1,0,1,0])).tolist())
+
+
+    def test_dmin(self):
+        self.assertEquals([],dmin(np.array([]),np.array([])).tolist())
+        self.assertEquals([7,6,5,4,3,2,1],dmin(np.array([7,6,5,4,3,2,1]),np.array([0,0,0,0,0,0,0])).tolist())
+        self.assertEquals([1,1,1,1,1,1,1],dmin(np.array([1,2,3,4,5,6,7]),np.array([0,0,0,0,0,0,0])).tolist())
+        self.assertEquals([7,6,5,4,3,2,1],dmin(np.array([7,6,5,4,3,2,1]),np.array([0,1,0,1,0,1,0])).tolist())
+        self.assertEquals([1,2,2,4,4,6,6],dmin(np.array([1,2,3,4,5,6,7]),np.array([0,1,0,1,0,1,0])).tolist())        
+        self.assertEquals([7,6,5,4,3,2,1],dmin(np.array([7,6,5,4,3,2,1]),np.array([1,1,1,1,1,1,1])).tolist())
+        self.assertEquals([3,3,5,4,4,4],dmin(np.array([3,4,5,4,4,7]),np.array([0,0,1,0,1,0])).tolist())
+
     def test_mapping(self):
         self.assertEquals([11,51,41,0,21,0,31],mapping(np.array([11,21,31,41,51]),np.array([0,4,6,2,1]),7).tolist())
         self.assertEquals([11,51,41,0,61,0,31],mapping(np.array([11,21,31,41,51,61]),np.array([0,4,6,2,1,4]),7).tolist())

@@ -558,7 +558,7 @@ class DynamicScheduler:
 
     @staticmethod
     def inform(name,sms_actions,sms_begin):
-        ''' 屏蔽掉12分钟内连续的同类算法信号, 但不屏蔽最后一个
+        ''' 屏蔽掉20分钟内连续的同类算法信号, 但不屏蔽最后一个
             返回发送的条数
         '''
         if len(sms_actions) == 0:

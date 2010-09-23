@@ -1111,6 +1111,48 @@ def amaxmin0(source,functor,limit):    #全周期顺序maxmin位置计算,即返
         rev[i] = index
     return rev
 
+def dmax(source,signal):
+    '''
+        求signal信号量之间的max/min
+        signal以非0为有信号
+        可用于计算当日内的最高/最低
+    '''
+    assert len(source) == len(signal)
+    slength = len(source)
+    rev = np.zeros_like(source)    
+    if slength == 0:
+        return rev
+    cm = source[0]
+    for i in xrange(slength):
+        scur = source[i]
+        if signal[i] != 0:
+            cm = source[i]
+        elif scur > cm:
+            cm = scur
+        rev[i] = cm
+    return rev
+
+def dmin(source,signal):
+    '''
+        求signal信号量之间的max/min
+        signal以非0为有信号
+        可用于计算当日内的最高/最低        
+    '''
+    assert len(source) == len(signal)
+    slength = len(source)
+    rev = np.zeros_like(source)    
+    if slength == 0:
+        return rev
+    cm = source[0]
+    for i in xrange(slength):
+        scur = source[i]
+        if signal[i] != 0:
+            cm = source[i]
+        elif scur < cm:
+            cm = scur
+        rev[i] = cm
+    return rev
+
 def max0(source):
     return maxmin0(source,max,-99999999)
 

@@ -2425,7 +2425,7 @@ xfollow = [#多头
             #macd_long_x2,   #样本数太少，暂缓
             #macd_long_x3,   #样本数太少，暂缓
            #空头
-            #rsi_short_x,
+            rsi_short_x,
             rsi_short_x2x,
             rsi_short_x3,            
             macd_short_x,
@@ -2586,6 +2586,30 @@ for xf in xevs:
     xf.stop_closer = atr5_uxstop_08_25_A
     xf.priority = 1450
 
+
+xevs_all = [
+            roc1_b,
+            roc10_b,
+            roc5_b,
+            roc30_s,
+            roc3_s,
+            roc5_s,
+            roc05_s,
+            roc15_b,
+            macd10_b,
+            mfi30s_b,
+            mfi3b_b,
+            rsi1s_s,
+            macd3sb_s,
+            macd1s_s,#?#
+            xud5s_s,
+            xud1s_s,
+            xud30s_s,
+            macd3r_b,            
+      ]
+
+for x in xevs_all: 
+    x.stop_closer = atr5_uxstop_t_08_25_B2
 
 #重新划分顺势、逆势，不再由算法本身决定，由算法介入的时点决定
 

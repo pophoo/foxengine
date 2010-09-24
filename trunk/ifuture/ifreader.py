@@ -94,7 +94,7 @@ def read_if_as_np(filename,extractor=extract_if,readfunc = read_if):
 FPATH = 'D:/work/applications/gcode/wolfox/data/ifuture/'
 FPATH2 = 'D:/work/applications/gcode/wolfox/fengine/ifuture/data/'
 prefix = 'SF'
-IFS = 'IF0001','IF1005','IF1006','IF1007','IF1008','IF1009','IF1012','IF1103'#,'RU1011','FU1009','CU1011','CU1009'
+IFS = 'IF0001','IF1005','IF1006','IF1007','IF1008','IF1009','IF1010','IF1012','IF1103'#,'RU1011','FU1009','CU1011','CU1009'
 #IF0000:当月连续，当某日收盘下月合约持仓超过本月90%时切换
 SUFFIX = '.txt'
 SUFFIX_ZIP = '.zip'
@@ -734,8 +734,13 @@ def prepare_index(sif):
     sif.ml = sif.m30_120
 
     sif.ntrend = greater(sif.ltrend) + greater(sif.mtrend) + greater(sif.rl_trend) 
-    sif.xtrend = np.select([sif.ntrend>1],[TREND_UP],TREND_DOWN)
-
+    #sif.xtrend = np.select([sif.ntrend>1],[TREND_UP],TREND_DOWN)
+    #sif.xtrend = np.select([sif.t30>0,sif.t30<0],[1,-1],0)
+    #sif.xtrend = np.select([strend2(ma(sif.close,780))>0],[1],-1)   #3日减第一日开盘
+    #m15 = dnext(strend2(ma(sif.close15,54)),sif.close,sif.i_cof15)
+    m10 = dnext(strend2(ma(sif.close10,81)),sif.close,sif.i_cof10)
+    sif.xtrend = np.select([m10>0],[1],-1)
+    
 
 def calc_high_low_vol(trans,i_oof,i_cof):
     xhigh = np.zeros_like(i_oof)

@@ -2544,9 +2544,9 @@ for xf in xorb:
     #xf.stop_closer = atr5_uxstop_05_25
     xf.filter = ocfilter_orb
     if 'func' in xf.__dict__:   #fcustom过的部分类
-        xf.func.priority = 1550
+        xf.func.priority = 1500
     else:
-        xf.priority = 1550
+        xf.priority = 1500
 
 for xf in xorb_all:
     xf.strategy = XORB   
@@ -2555,9 +2555,9 @@ for xf in xorb_all:
     #xf.stop_closer = atr5_uxstop_05_25
     xf.filter = ocfilter_orb
     if 'func' in xf.__dict__:    #fcustom过的部分类
-        xf.func.priority = 1550
+        xf.func.priority = 1500
     else:
-        xf.priority = 1550
+        xf.priority = 1500
         
 
 xevs = [
@@ -2584,7 +2584,7 @@ xevs = [
 for xf in xevs:
     xf.strategy = XFOLLOW   
     xf.stop_closer = atr5_uxstop_08_25_A
-    xf.priority = 1450
+    xf.priority = 1500
 
 
 xevs_all = [

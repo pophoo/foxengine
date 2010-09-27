@@ -363,7 +363,10 @@ def sync_tradess(sif,tradess,acstrategy=late_strategy):
 def sync_tradess_pt(sif,tradess,acstrategy=late_strategy):
     '''
         结合优先级和顺势逆势关系
-        只有势优先或相等时才能考虑优先级
+        顺势信号可以逆反优先级小于等于它的逆势信号
+        逆势信号不能逆反顺势信号
+        低优先级顺势信号不能逆反高优先级顺势信号
+
     '''
     trans = sif.transaction
     sdate = trans[IDATE]
@@ -385,11 +388,10 @@ def sync_tradess_pt(sif,tradess,acstrategy=late_strategy):
     while True:
         #print cur_trade.orignal
         trade = find_first(tradess)
-        #print trade
         if trade == None:
             xtrades.append(close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed))
             break
-        #print 'find:date=%s,time=%s,functor=%s' % (trade.actions[0].date,trade.actions[0].time,trade.functor)  
+        #print 'find:date=%s,time=%s,functor=%s,priority=%s' % (trade.actions[0].date,trade.actions[0].time,trade.functor,fpriority(trade.functor))  
         if DTSORT2(trade.actions[0],close_action)>0:  #时间超过
             #print u'时间超过'
             xtrades.append(close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed))
@@ -404,6 +406,7 @@ def sync_tradess_pt(sif,tradess,acstrategy=late_strategy):
         if fpriority(trade.functor) <= fpriority(cur_trade.functor) and (trade.actions[0].xfollow >= cur_trade.actions[0].xfollow):    #优先级优先且势优或平. 就是说优先级高但逆势也不能搞顺势，以及顺势低优也不能搞逆势
         #if trade.actions[0].xfollow > cur_trade.actions[0].xfollow or (trade.actions[0].xfollow == cur_trade.actions[0].xfollow and fpriority(trade.functor) <= fpriority(cur_trade.functor)): 
             #print u'顺势搞逆势，或高/平优先级'   #后发的同优先级信号优先
+            #print u'xfollow1:%s,xfollow2:%s,time1:%s' % (trade.actions[0].xfollow,cur_trade.actions[0].xfollow,sif.time[trade.actions[0].index])
             if trade.direction == cur_trade.direction:  #同向取代关系
                 #print u'同向增强,%s|%s:%s被%s增强'%(cur_trade.functor,cur_trade.actions[0].date,cur_trade.actions[0].time,trade.functor)
                 close_action = acstrategy(close_action,trade.actions[-1])

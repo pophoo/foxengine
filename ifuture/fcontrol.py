@@ -23,12 +23,13 @@ ifmap = ifreader.read_ifs_zip()  # fname ==> BaseObject(name='$name',transaction
 
 ###计算
 i00 = ifmap['IF0001']   #当月连续
-i05 = ifmap['IF1005']
-i06 = ifmap['IF1006']
-i07 = ifmap['IF1007']
-i08 = ifmap['IF1008']
-i09 = ifmap['IF1009']
-i12 = ifmap['IF1012']
+#i05 = ifmap['IF1005']
+#i06 = ifmap['IF1006']
+#i07 = ifmap['IF1007']
+#i08 = ifmap['IF1008']
+#i09 = ifmap['IF1009']
+#i12 = ifmap['IF1012']
+i10 = ifmap['IF1010']
 
 tradesy =  control.itradex8_yt(i00,ifuncs2.xxx2)
 iftrade.limit_profit(tradesy,-90)

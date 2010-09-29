@@ -2130,6 +2130,7 @@ def macd1s_s(sif,sopened=None):
             #,sif.xatr30x > sif.mxatr30x
             ,sif.xatr5x>sif.mxatr5x
             ,sif.xatr<sif.mxatr
+            #,sif.xtrend == TREND_DOWN   #顺势更有意义但合并不妥
             )
     return signal * macd1s_s.direction
 macd1s_s.direction = XSELL
@@ -2323,7 +2324,7 @@ def macd3r_b(sif,sopened=None):
                 )
     return signal * macd3r_b.direction
 macd3r_b.direction = XBUY
-macd3r_b.priority = 1400
+macd3r_b.priority = 1500
 
 def macd3s(sif,sopened=None):
     '''

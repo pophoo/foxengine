@@ -85,6 +85,7 @@ IF1009补全了09:14之后的数据,但其它合约没有. 可能需要手工浏
 import struct
 import time
 import calendar as cal
+import datetime as dt
 import numpy as np
 import urllib2
 import win32api
@@ -496,7 +497,11 @@ class DynamicScheduler:
         while(self.get_itime()<2359):
             self.prepare_data()
             #print u'读取数据成功,最新时间:%s' % self.dyn_datas[self.names[0]].transaction[ITIME][-1]
+            today = dt.date.today()
+            tt = today.year*10000 + today.month*100 + today.day
             ct = self.dyn_datas[self.names.keys()[0]].transaction
+            if ct[IDATE][-1] < tt:
+                win32api.MessageBox(0,u'请注意课间休息...............',u'提示',0x00001000L)
             if len(ct[IDATE])>0:
                 linelog(u'读取数据成功,%s-%s:%s-%s,%s-%s' % (ct[IDATE][-1],ct[ITIME][-1],ct[IOPEN][-1],ct[ICLOSE][-1],ct[IHIGH][-1],ct[ILOW][-1]))
                 self.check_signal()

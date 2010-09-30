@@ -2544,10 +2544,11 @@ for xf in xorb:
     #xf.stop_closer = atr5_uxstop_08_25_A    
     #xf.stop_closer = atr5_uxstop_05_25
     xf.filter = ocfilter_orb
-    if 'func' in xf.__dict__:   #fcustom过的部分类
-        xf.func.priority = 1500
+    #if 'func' in xf.__dict__:   #fcustom过的部分类, 这个判断有问题
+    if isinstance(xf,functools.partial):
+        xf.func.priority = 1400
     else:
-        xf.priority = 1500
+        xf.priority = 1400
 
 for xf in xorb_all:
     xf.strategy = XORB   
@@ -2555,10 +2556,11 @@ for xf in xorb_all:
     #xf.stop_closer = atr5_uxstop_08_25_A    
     #xf.stop_closer = atr5_uxstop_05_25
     xf.filter = ocfilter_orb
-    if 'func' in xf.__dict__:    #fcustom过的部分类
-        xf.func.priority = 1500
+    #if 'func' in xf.__dict__:    #fcustom过的部分类
+    if isinstance(xf,functools.partial):
+        xf.func.priority = 1400
     else:
-        xf.priority = 1500
+        xf.priority = 1400
         
 
 xevs = [

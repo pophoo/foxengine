@@ -104,8 +104,12 @@ def whget(strategy,functor,priority=2500):
     xactions = iftrade.last_wactions(sif,tradesy)
     for action in xactions:
         action.price = action.price / 10.0
+        action.priority = iftrade.fpriority(action.functor)
         if action.xtype == XOPEN:
             calc_stop(sif,action)
+            action.sfollow = u'顺势' if action.xfollow else u'逆势'
+        else:
+            action.sfollow = u''
     return fname,sif,xactions
 
 def fget(strategy,priority=2500):

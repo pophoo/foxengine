@@ -268,6 +268,7 @@ def range_a(sif,tbegin,tend,wave):
 
 def acd_ua(sif,sopened=None):
     '''
+        发现前两天不能有信号(不论前次信号胜负)，否则必败
     '''
     wave = np.zeros_like(sif.close)
     wave[sif.i_cof10] = rollx(sif.atr10) *2/3/XBASE  #掠过914-919的atr10
@@ -296,13 +297,15 @@ def acd_ua(sif,sopened=None):
 
     signal = gand(ms_ua==1         #第一个ua
                 ,bnot(ms_da)       #没出现过da 
-                ,sif.s30>0
-                ,sif.xatr<1800
+                #,sif.s30>0
+                #,strend2(sif.sdiff30x-sif.sdea30x)>0
+                #,sif.xatr30x<sif.mxatr30x
+                #,sif.xatr<1800
                 )
 
     return signal * acd_ua.direction
 acd_ua.direction = XBUY
-acd_ua.priority = 1800
+acd_ua.priority = 1200
 
 def acd_uc(sif,sopened=None):   
     '''
@@ -494,8 +497,11 @@ def acd_ua_sz(sif,sopened=None):
     ms_da = sum2diff(extend2diff(signal_da,sif.date),sif.date)
 
     signal = gand(ms_ua == 1
-                    #,bnot(ms_da)
+                    ,bnot(ms_da)
                     ,UA >= szh
+                    ,sif.ms>0
+                    #,sif.xatr<1800
+                    ,sif.xatr30x<sif.mxatr30x
                     )
 
 

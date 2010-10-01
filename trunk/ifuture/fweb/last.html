@@ -29,6 +29,7 @@ $def with(fname,lasttime,xactions)
     <th>止损2</th>
     -->
     <th>止损</th>
+    <th>顺逆</th>
     <th>方法</th>
 </tr>
 $for action in xactions
@@ -41,7 +42,7 @@ $for action in xactions
     >
         <td>$action.date</td>
         <td>$action.time</td>        
-        <td>$action.functor.priority</td>
+        <td>$action.priority</td>
         <td>
             $if action.xtype == -1:
                 开仓
@@ -75,7 +76,7 @@ $for action in xactions
             $else:
                 &nbsp
         </td>        
-            
+        <td>$action.sfollow</td>        
         <td>$action.fname</td>
     </tr>
 </table>

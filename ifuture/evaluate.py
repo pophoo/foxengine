@@ -1507,6 +1507,83 @@ sxxud30_s = lambda sif:sxfxud_s(sif.close,sif.high30,sif.low30,sif.open30,sif.cl
 
 add_funcs(test_funcs,'sxxud')    #包括macd/ma
 
+###macd1的参数测试, 
+macd1b_tests = []
+
+macd1x_tests = []
+
+def macd1bt(sif,ifast,islow,idiff):
+    diff,dea = cmacd(sif.close * 10,ifast=ifast,islow=islow,idiff=idiff)
+    signal = gand(cross(dea,diff)>0,strend2(diff)>0)
+    return signal
+    
+for ishort in range(1,60,4):
+    for ilong in range(1,270,8):
+        for ie in range(1,30,6):
+            macd1x_tests.append(('%s-%s/%s'%(ishort,ilong,ie),fcustom(macd1x,ifast=ishort,islow=ilong,idiff=ie)))
+
+from wolfox.foxit.base.tutils import linelog
+def tev_tests(sif,efunc,tests):
+    results = []
+    length = len(tests)
+    for ix in range(len(tests)):
+        name,tfunc = tests[ix][0],tests[ix][1]
+        linelog(u'总%s个,第 %s 个, name=%s'% (length,ix,name))
+        results.append((name,efunc(sif,signal=tfunc(sif))))
+    return results
+
+
+def macd1x(sif,ifast=33,islow=153,idiff=19):
+    ''' 
+        13-57-19
+        17-65-13
+        9-81-19
+        25-65-7
+        9-49-7  #
+        5-41-13 #
+        33-153-19   #
+
+
+                
+    '''
+    diff,dea = cmacd(sif.close * 10,ifast=ifast,islow=islow,idiff=idiff)
+    signal = gand(cross(dea,diff)>0,strend2(diff)>0)
+    signal = gand(signal
+                ,sif.s30>0
+                ,sif.xatr<sif.mxatr
+                ,strend2(sif.mxatr30x)<0
+                ,strend2(sif.ma30)>0
+                )
+    return signal
+macd1x.direction = XBUY
+macd1x.priority = 1500
+
+
+'''    
+evf_b = fcustom(ev.evaluate3_b,interval=60,begin=944,end=1414,downlimit=90)
+evf_s = fcustom(ev.evaluate3_s,interval=60,begin=944,end=1414,uplimit=90)
+results_b = ev.tev_tests(i00,evf_b,ev.macd1b_tests)
+results_s = ev.tev_tests(i00,evf_s,ev.macd1s_tests)
+ev.ev_output(results_b,'d:/temp/macd1bt_test.txt',evf_b)
+ev.ev_output(results_s,'d:/temp/macd1st_test.txt',evf_s)
+
+ufilter30 = strend2(i00.ma30)>0
+evf_b_s13_30 = fcustom(ev.evaluate3_b,interval=60,begin=944,end=1414,downlimit=90,filter=ufilter13_30)
+results_b = ev.tev_tests(i00,evf_b_s13_30,ev.macd1b_tests)
+ev.ev_output(results_b,'d:/temp/macd1bts_test.txt',evf_b_s13_30)
+
+results_t = ev.tev_tests(i00,evf_b,ev.macd1x_tests)
+ev.ev_output(results_t,'d:/temp/macd1xb_test.txt',evf_b_s13_30)
+
+
+dfilter13_30 = gand(strend2(i00.ma13)<0,strend2(i00.ma30)<0)
+evf_s_s13_30 = fcustom(ev.evaluate3_s,interval=60,begin=944,end=1414,uplimit=90,filter=dfilter13_30)
+
+
+
+
+'''
+
 '''
 对现有算法的回顾
 >>> ev.evaluate2_b(i00,ifuncs2.rsi_long_x(i00),60,begin=945,downlimit=80,end=141

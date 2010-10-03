@@ -509,6 +509,29 @@ def acd_ua_sz(sif,sopened=None):
 acd_ua_sz.direction = XBUY
 acd_ua_sz.priority = 2400
 
+def roc5_bx(sif,sopened=None,length=12,malength=6):
+    sr = sroc(sif.close5,length)
+    msr = ma(sr,malength)
+
+    sx = gand(cross(msr,sr)>0
+             ,strend2(sr)>0
+             )
+
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof5] = sx
+
+    signal = gand(signal
+            ,strend2(sif.ma30)>0
+            ,sif.s30>0
+            ,sif.xatr30x<6000
+            ,sif.xatr30x>sif.mxatr30x
+            ,sif.ma13>sif.ma60
+            )
+    return signal * roc5_bx.direction
+roc5_bx.direction = XBUY
+roc5_bx.priority = 1500
+
+
 def acd_da_sz(sif,sopened=None):
     '''
         A点小于枢轴

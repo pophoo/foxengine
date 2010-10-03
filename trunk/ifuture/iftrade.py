@@ -950,6 +950,8 @@ def atr_uxstop_t(sif,sopened
         ,min_lost_against=30
         ,max_lost_follow = 90   #顺势时的止损
         ,max_lost_against = 60   #顺势时的止损
+        ,protected_trigger = 300    #保护性止损触发点,300相当于无保护性止损. 即只有最初止损和跟踪止损
+        ,protected_v = 0    #保护性止损位
         ,natr=1):
     '''
         考虑到顺势逆势介入时的止损。目前只修改初始止损
@@ -991,6 +993,7 @@ def atr_uxstop_t(sif,sopened
                 willlost = min_lost_against
             if willlost > max_lost_against:
                 willlost = max_lost_against
+            #print u'逆势,willlost=%s' %(willlost,)
         will_losts.append(willlost)            
         if i < ilong_closed or i<ishort_closed:    #已经开了仓，且未平，不再计算            
             #print 'skiped',trans[IDATE][i],trans[ITIME][i],trans[IDATE][ilong_closed],trans[ITIME][ilong_closed],trans[IDATE][ishort_closed],trans[ITIME][ishort_closed]
@@ -1003,7 +1006,12 @@ def atr_uxstop_t(sif,sopened
             buy_price = -price
             lost_stop = buy_price - willlost
             cur_high = max(buy_price,trans[ICLOSE][i])
-            win_stop = cur_high - satr[i] * win_times / XBASE / XBASE
+            drawdown = satr[i] * win_times / XBASE / XBASE
+            if drawdown > max_drawdown:
+                drawdown = max_drawdown
+            if drawdown < min_drawdown:
+                drawdown = min_drawdown
+            win_stop = cur_high - drawdown
             cur_stop = lost_stop if lost_stop > win_stop else win_stop
             #print 'stop init:',cur_stop,lost_stop,willlost,min_lost,my_max_lost
             if ssclose[i] == XSELL:
@@ -1025,6 +1033,10 @@ def atr_uxstop_t(sif,sopened
                         ilong_closed = j
                         break
                     nhigh = trans[IHIGH][j]
+                    #计算保护性止损
+                    if(nhigh >= buy_price + protected_trigger and cur_stop < buy_price + protected_v):
+                        cur_stop = buy_price + protected_v
+                    #计算新高止损
                     if(nhigh > cur_high):
                         cur_high = nhigh
                         drawdown = satr[j] * win_times / XBASE / XBASE
@@ -1045,8 +1057,14 @@ def atr_uxstop_t(sif,sopened
             sell_price = price
             lost_stop = sell_price + willlost
             cur_low = min(sell_price,trans[ICLOSE][i])
-            win_stop = cur_low + satr[i] * win_times / XBASE / XBASE
+            drawdown = satr[i] * win_times / XBASE / XBASE
+            if drawdown > max_drawdown:
+                drawdown = max_drawdown
+            if drawdown < min_drawdown:
+                drawdown = min_drawdown
+            win_stop = cur_low + drawdown
             cur_stop = lost_stop if lost_stop < win_stop else win_stop
+            #print u'空头初始止损位: %s, 开仓价位:%s:, 开仓收盘位:%s' % (cur_stop,sell_price,sif.close[i])
             if sbclose[i] == XBUY:
                 #print 'buy signali:',trans[IDATE][i],trans[ITIME][i],trans[ICLOSE][i]
                 pass
@@ -1067,6 +1085,9 @@ def atr_uxstop_t(sif,sopened
                         #print 'buy:',i,price,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j]                        
                         break
                     nlow = trans[ILOW][j]
+                    #计算保护性止损
+                    if(nlow <= sell_price - protected_trigger and cur_stop > sell_price - protected_v):
+                        cur_stop = sell_price - protected_v
                     if(nlow < cur_low):
                         cur_low = nlow
                         drawdown = satr[j] * win_times / XBASE / XBASE

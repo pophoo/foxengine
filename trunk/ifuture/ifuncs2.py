@@ -1,5 +1,25 @@
 # -*- coding: utf-8 -*-
 '''
+
+#######
+todo:   检验1-3-5-10-15-30的xatr和mxatr,以及xatr的短期平均的趋势的影响
+        目测 mxatr30x向下助涨，而向上助跌
+        mxatr5x向上助涨向下助跌
+
+        xatr5x/30x可能更加直接?
+
+todo:
+        测试macd的不同参数
+        测试ma的不同参数的折返效应
+        测试svama不同参数的折返效应，以及交叉效应
+
+todo:   测试向上9个点(或X个点)以上,如果回退到1/0个点就平掉
+    这样，止损分为三类:
+        止损:   彻底的开仓方向错误
+        保护性止损: 开仓后正向运行，且超过9个点，回退到开仓点+/-1/0时
+        跟踪止损:  盈利时的止损 
+#######
+
 使用当月连续
     当某日收盘下月合约的持仓大于本月的90%时，切换
 筛选条件:
@@ -1575,6 +1595,28 @@ def roc5_b(sif,sopened=None,length=12,malength=6):
 roc5_b.direction = XBUY
 roc5_b.priority = 1500
 
+def roc5_bx(sif,sopened=None,length=12,malength=6):
+    sr = sroc(sif.close5,length)
+    msr = ma(sr,malength)
+
+    sx = gand(cross(msr,sr)>0
+             ,strend2(sr)>0
+             )
+
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof5] = sx
+
+    signal = gand(signal
+            ,strend2(sif.ma30)>0
+            ,sif.s30>0
+            ,sif.xatr30x<6000
+            ,sif.xatr30x>sif.mxatr30x
+            ,sif.ma13>sif.ma60
+            )
+    return signal * roc5_bx.direction
+roc5_bx.direction = XBUY
+roc5_bx.priority = 1500
+
 
 def roc3_s(sif,sopened=None,length=12,malength=6):
     sr = sroc(sif.close3,length)
@@ -1708,6 +1750,33 @@ roc10_b.direction = XBUY
 roc10_b.priority = 1500
 
 def roc1_b(sif,sopened=None,length=12,malength=6):
+    sr = sroc(sif.close,length)
+    msr = ma(sr,malength)
+
+    sx = gand(cross(msr,sr)>0
+             ,strend2(sr)>0
+             )
+
+    #signal = np.zeros_like(sif.close)
+    #signal[sif.i_cof10] = sx
+    signal = sx
+
+    signal = gand(signal
+            ,strend2(sif.ma3)>0
+            ,strend2(sif.ma30)>0
+            ,sif.close>rollx(sif.close)
+            ,sif.s5>0
+            ,sif.s10>0
+            ,sif.s30>0
+            ,sif.xatr<1000
+            ,sif.xatr30x<6000
+            ,strend2(sif.xatr30x)<0
+            )
+    return signal * roc1_b.direction
+roc1_b.direction = XBUY
+roc1_b.priority = 1500
+
+def roc1_b000(sif,sopened=None,length=12,malength=6):
     sr = sroc(sif.close,length)/1000
     msr = ma(sr,malength)
 
@@ -1726,11 +1795,13 @@ def roc1_b(sif,sopened=None,length=12,malength=6):
             ,sif.s30>0
             ,sif.xatr30x < sif.mxatr30x
             ,sif.xatr5x<sif.mxatr5x
-            ,sif.xatr<sif.mxatr
+            #,sif.xatr<sif.mxatr
+            ,sif.xatr30x>6000
+            ,sif.xatr<1200
             )
-    return signal * roc1_b.direction
-roc1_b.direction = XBUY
-roc1_b.priority = 1500
+    return signal * roc1_b000.direction
+roc1_b000.direction = XBUY
+roc1_b000.priority = 1500
 
 def roc01_b(sif,sopened=None,length=12,malength=6):
     sr = sroc(sif.close,length)/1000
@@ -2564,7 +2635,7 @@ for xf in xorb_all:
         
 
 xevs = [
-            #roc1_b,
+            roc1_b,
             roc10_b,
             roc5_b,
             #roc30_s,
@@ -2582,6 +2653,8 @@ xevs = [
             xud1s_s,
             xud30s_s,
             macd3r_b,            
+
+            roc5_bx,    #xatr30x>mxatr30x
       ]
 
 for xf in xevs:
@@ -2591,7 +2664,8 @@ for xf in xevs:
 
 
 xevs_all = [
-            roc1_b,
+            #roc1_b,
+            roc1_b000,
             roc10_b,
             roc5_b,
             roc30_s,
@@ -2608,7 +2682,9 @@ xevs_all = [
             xud5s_s,
             xud1s_s,
             xud30s_s,
-            macd3r_b,            
+            macd3r_b,   
+
+            roc5_bx,    #xatr30x>mxatr30x
       ]
 
 for x in xevs_all: 

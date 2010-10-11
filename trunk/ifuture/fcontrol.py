@@ -12,7 +12,7 @@ import wolfox.fengine.ifuture.ifuncs1a as ifuncs1
 import wolfox.fengine.ifuture.tfuncs as tfuncs
 import wolfox.fengine.ifuture.fcontrol as control
 import wolfox.fengine.ifuture.dynamic as dynamic
-
+import wolfox.fengine.ifuture.evaluate as ev
 
 
 from wolfox.fengine.ifuture.ifuncs import *
@@ -74,10 +74,9 @@ sum([trade.profit for trade in tradesy if trade.actions[0].date>20100714 and tra
 
 
 #输出到文件
-fo = open('d:/temp/08xx.txt','w+')
-for trade in tradesy:print >>fo,'%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s' % (trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].date,trade.actions[1].time,trade.actions[1].position,trade.actions[1].price,trade.actions[1].index-trade.actions[0].index,trade.functor)
+fo = open('d:/temp/201000.txt','w+')
+for trade in tradesy:print >>fo,'%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s' % (trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].date,trade.actions[1].time,trade.actions[1].position,trade.actions[1].price,trade.actions[1].index-trade.actions[0].index,func_name(trade.functor),func_name(trade.orignal))
 fo.close()
-
 
 '''
 

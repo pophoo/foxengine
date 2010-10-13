@@ -1575,9 +1575,8 @@ def macd1xs(sif,ifast=17,islow=33,idiff=25):
     signal = gand(signal
                 #,sif.s15<0
                 ,strend2(sif.ma30)<0
-                ,strend2(sif.mxatr30x)<0
-                ,sif.xatr30x < sif.mxatr30x
-                ,sif.xatr30x>9000
+                ,strend2(sif.mxatr15x)<0
+                ,sif.xatr15x>5000
                 ,sif.ltrend<0
                 )
     return signal * macd1xs.direction
@@ -1597,13 +1596,15 @@ ev.ev_output(results_t,'d:/temp/macd1xs_test.txt',evf_s)
 
         ,strend2(sif.ma30)<0
         ,strend2(sif.mxatr30x)<0
-        ,sif.xatr30x < sif.mxatr30x
         ,sif.xatr30x>9000
         ,sif.ltrend<0
 35-100/10
-31-70/26
+44-88/22
+27-152/23   ##
+59-104/6
+
 '''
-m1ts = fcustom(macd1xs,ifast=27,islow=120,idiff=18)
+m1ts = fcustom(macd1xs,ifast=51,islow=148,idiff=18)
 
 
 
@@ -1636,17 +1637,51 @@ def macdns(sif,sclose,source,sindics,ifast=12,islow=26,idiff=9,xlimit=6000):
     signal = np.zeros_like(sclose)
     signal[sindics] = xsignal
     signal = gand(signal
-                ,sif.s30<0
-                ,strend2(sif.ma30)<0
+                #,sif.s30<0
+                #,sif.ltrend<0
+                #,strend2(sif.ma30)<0
                 #,sif.xatr30x<sif.mxatr30x
-                #,sif.xatr30x<xlimit
                 #,strend2(sif.mxatr30x)<0
-                #,sif.xatr30x>7000
-                #,sif.xatr5x>sif.mxatr5x
+                ,sif.xatr<sif.mxatr
+                #,sif.xatr30x > 7000
+                #,sif.xatr>1000
                 )
     return signal * macdns.direction
 macdns.direction = XSELL
 macdns.priority = 1500
+
+
+def smacdn(sif,sclose,source,sindics,ifast=12,islow=26,idiff=9,xlimit=6000):
+    ''' 
+        变周期计算               
+    '''
+    diff,dea = cmacd(source * 10,ifast=ifast,islow=islow,idiff=idiff)
+    xsignal = gand(strend2(diff-dea)==2)
+    signal = np.zeros_like(sclose)
+    signal[sindics] = xsignal
+    signal = gand(signal
+                #,sif.s30>0
+                #,strend2(sif.ma30)>0
+                #,sif.xatr30x<sif.mxatr30x
+                #,sif.xatr30x<xlimit
+                #,strend2(sif.mxatr30x)<0
+                )
+    return signal
+macdn.direction = XBUY
+macdn.priority = 1500
+
+smacdxb = lambda sif,ifast=12,islow=26,idiff=9:smacdn(sif,sif.close,sif.close,sif.i_cof,ifast,islow,idiff)
+smacdxb.direction = XBUY
+smacdxb.priority = 1500
+
+smacdxb_tests = []
+for ishort in range(1,60,4):
+    for ilong in range(ishort*3/2,270,8):
+        for ie in range(6,30,4):
+            smacdxb_tests.append(('%s-%s/%s'%(ishort,ilong,ie),fcustom(smacdxb,ifast=ishort,islow=ilong,idiff=ie)))
+
+
+
 
 
 macd3xb = lambda sif,ifast=12,islow=26,idiff=9:macdn(sif,sif.close,sif.close3,sif.i_cof3,ifast,islow,idiff)
@@ -1676,13 +1711,27 @@ evf_s = fcustom(ev.evaluate2_s,interval=60,begin=944,end=1414,uplimit=90)
 results_t = ev.tev_tests(i00,evf_s,ev.macd3xs_tests)
 ev.ev_output(results_t,'d:/temp/macd3xs_test.txt',evf_s)
 
-      ,sif.s30<0
-      ,sif.xatr30x>7000
-     ,sif.xatr5x>sif.mxatr5x
+                ,sif.s30<0
+                #,sif.ltrend<0
+                ,strend2(sif.ma30)<0
+                ,sif.xatr30x<sif.mxatr30x
+                #,sif.xatr30x<xlimit
+                ,strend2(sif.mxatr30x)<0
+                ,sif.xatr30x<7000
+43-88/22
 51-76/26
+35-100/26
+55-90/18
 
+                ,sif.ltrend<0
+                ,strend2(sif.ma30)<0
+                ,sif.xatr30x<sif.mxatr30x
+                ,strend2(sif.mxatr30x)<0
+                ,sif.xatr30x<7000
+51-76/26
+55-90/18
 '''
-m3ts = fcustom(macd3xs,ifast=51,islow=76,idiff=26)
+m3ts = fcustom(macd3xs,ifast=35,islow=100,idiff=26)
 
 
 macd5xb = lambda sif,ifast=12,islow=26,idiff=9:macdn(sif,sif.close,sif.close5,sif.i_cof5,ifast,islow,idiff)
@@ -1712,8 +1761,22 @@ for ishort in range(3,60,4):
 evf_s = fcustom(ev.evaluate2_s,interval=60,begin=944,end=1414,uplimit=90)
 results_t = ev.tev_tests(i00,evf_s,ev.macd5xs_tests)
 ev.ev_output(results_t,'d:/temp/macd5xs_test.txt',evf_s)
+
+                ,sif.ltrend<0
+                ,sif.xatr30x<sif.mxatr30x
+                ,sif.xatr<sif.mxatr
+
+31-78/18
+                ,sif.ltrend<0
+                ,strend2(sif.ma30)<0
+                ,sif.xatr30x<sif.mxatr30x
+                ,strend2(sif.mxatr30x)<0
+                ,sif.xatr>sif.mxatr
+27-128/18
+43-120/10
+35-132/14
 '''
-m5ts = fcustom(macd5xs,ifast=27,islow=56,idiff=14)
+m5ts = fcustom(macd5xs,ifast=59,islow=96,idiff=6)
 
 
 macd10xb = lambda sif,ifast=12,islow=26,idiff=9:macdn(sif,sif.close,sif.close10,sif.i_cof10,ifast,islow,idiff)
@@ -1738,6 +1801,28 @@ for ishort in range(3,60,4):
         for ie in range(6,mie,4):
             macd10xs_tests.append(('%s-%s/%s'%(ishort,ilong,ie),fcustom(macd10xs,ifast=ishort,islow=ilong,idiff=ie)))
 
+m10ts = fcustom(macd10xs,ifast=59,islow=160,idiff=10)
+'''
+results_t = ev.tev_tests(i00,evf_s,ev.macd10xs_tests)
+ev.ev_output(results_t,'d:/temp/macd10xs_test.txt',evf_s)
+
+                ,sif.ltrend<0
+                ,strend2(sif.mxatr30x)<0
+59-224/6
+                ,sif.s30<0
+                ,strend2(sif.ma30)<0
+                ,sif.xatr<sif.mxatr
+27-184/22
+
+
+results_t = ev.tev_tests(i00,evf_s,ev.macd15xs_tests)
+ev.ev_output(results_t,'d:/temp/macd15xs_test.txt',evf_s)
+results_t = ev.tev_tests(i00,evf_s,ev.macd30xs_tests)
+ev.ev_output(results_t,'d:/temp/macd30xs_test.txt',evf_s)
+
+'''
+
+
 
 macd15xb = lambda sif,ifast=12,islow=26,idiff=9:macdn(sif,sif.close,sif.close15,sif.i_cof15,ifast,islow,idiff)
 macd15xb.direction = XBUY
@@ -1750,10 +1835,37 @@ for ishort in range(5,60,4):
             macd15xb_tests.append(('%s-%s/%s'%(ishort,ilong,ie),fcustom(macd15xb,ifast=ishort,islow=ilong,idiff=ie)))
 
 
+macd15xs = lambda sif,ifast=12,islow=26,idiff=9:macdns(sif,sif.close,sif.close15,sif.i_cof15,ifast,islow,idiff)
+macd15xs.direction = XSELL
+macd15xs.priority = 1500
+
+macd15xs_tests = []
+for ishort in range(3,60,4):
+    for ilong in range(ishort*3/2,270,8):
+        mie = min(30,ishort*3/2)
+        for ie in range(6,mie,4):
+            macd15xs_tests.append(('%s-%s/%s'%(ishort,ilong,ie),fcustom(macd15xs,ifast=ishort,islow=ilong,idiff=ie)))
+
+
+m15ts = fcustom(macd15xs,ifast=27,islow=152,idiff=6)
+'''
+           ,sif.xatr30x > 6000
+59-160/10
+55-266/26
+'''
+
+
+m30ts = fcustom(macd30xs,ifast=47,islow=94,idiff=10)
+
+'''
+                ,sif.xatr<sif.mxatr
+47-94/10
+'''
 
 macd30xb = lambda sif,ifast=12,islow=26,idiff=9,xlimit=6000:macdn(sif,sif.close,sif.close30,sif.i_cof30,ifast,islow,idiff,xlimit)
 macd30xb.direction = XBUY
 macd30xb.priority = 1500
+
 
 macd30xb_tests = []
 for ishort in range(5,60,4):
@@ -1761,6 +1873,18 @@ for ishort in range(5,60,4):
         for ie in range(6,30,3):
             for xlimit in range(5000,10000,1000):
                 macd30xb_tests.append(('%s-%s/%s-%s'%(ishort,ilong,ie,xlimit),fcustom(macd30xb,ifast=ishort,islow=ilong,idiff=ie,xlimit=xlimit)))
+
+
+macd30xs = lambda sif,ifast=12,islow=26,idiff=9:macdns(sif,sif.close,sif.close30,sif.i_cof30,ifast,islow,idiff)
+macd30xs.direction = XSELL
+macd30xs.priority = 1500
+
+macd30xs_tests = []
+for ishort in range(3,60,4):
+    for ilong in range(ishort*3/2,270,8):
+        mie = min(30,ishort*3/2)
+        for ie in range(6,mie,4):
+            macd30xs_tests.append(('%s-%s/%s'%(ishort,ilong,ie),fcustom(macd30xs,ifast=ishort,islow=ilong,idiff=ie)))
 
 
 macd45xb = lambda sif,ifast=12,islow=26,idiff=9:macdn(sif,sif.close,sif.close45,sif.i_cof45,ifast,islow,idiff)
@@ -1895,9 +2019,542 @@ ev.ev_output(results_t,'d:/temp/macd15xb_test.txt',evf_b)
 
 results_t = ev.tev_tests(i00,evf_b,ev.macd30xb_tests)
 ev.ev_output(results_t,'d:/temp/macd30xb_test.txt',evf_b)
+'''
+
+##测试ma
+def xmanb(sif,sclose,source,sindics,length=20,xlen=1):
+    ''' 
+        变周期计算               
+    '''
+    lma = ma(source,length)
+    xsignal = equals(strend2(lma),xlen)
+    signal = np.zeros_like(sclose)
+    signal[sindics] = xsignal
+    signal = gand(signal
+                #,sif.s30>0
+                ,strend2(sif.ma30)>0
+                #,sif.xatr30x<sif.mxatr30x
+                #,strend2(sif.mxatr30x)<0
+                #,sif.ltrend>0
+                #,sif.xatr<sif.mxatr
+                ,sif.xatr30x<8000
+                #,sif.s10>0
+                )
+    return signal
+xmanb.direction = XBUY
+xmanb.priority = 1500
+
+def xmans(sif,sclose,source,sindics,length=20,xlen=1):
+    ''' 
+        变周期计算               
+    '''
+    lma = ma(source,length)
+    xsignal = equals(strend2(lma), -xlen)
+    signal = np.zeros_like(sclose)
+    signal[sindics] = xsignal
+    signal = gand(signal
+                #,sif.s30<0
+                #,sif.ltrend<0
+                #,strend2(sif.ma30)<0
+                #,sif.xatr30x<sif.mxatr30x
+                #,strend2(sif.mxatr30x)<0
+                #,sif.xatr<sif.mxatr
+                #,sif.xatr30x < 6000
+                #,sif.xatr<1000
+                )
+    return signal * xmans.direction
+xmans.direction = XSELL
+xmans.priority = 1500
+
+xmaxb = lambda sif,length=20,xlen=3:xmanb(sif,sif.close,sif.close,sif.i_cof,length,xlen)
+xmaxb.direction = XBUY
+xmaxb.priority = 1500
+
+xmaxb_tests = []
+for ilength in range(3,600,2):
+    xmaxb_tests.append(('%s'%(ilength),fcustom(xmaxb,length=ilength)))
+
+
+xman1b = fcustom(xmaxb,length=500,xlen=3)
+'''
+                ,strend2(sif.ma30)>0
+                ,sif.xatr30x<sif.mxatr30x
+                ,sif.ltrend>0
+                ,sif.xatr<sif.mxatr
+280,xlen=3
+                ,strend2(sif.ma30)>0
+                ,sif.xatr30x<sif.mxatr30x
+                ,sif.xatr<sif.mxatr
+                ,sif.xatr30x<6000
+253,1
+                ,strend2(sif.ma30)>0
+                ,sif.xatr30x<8000
+500,3
+
+'''
+xmaxs = lambda sif,length=20,xlen=3:xmans(sif,sif.close,sif.close,sif.i_cof,length,xlen)
+xmaxs.direction = XSELL
+xmaxs.priority = 1500
+
+xmaxs_tests = []
+for ilength in range(3,600,2):
+    xmaxs_tests.append(('%s'%(ilength),fcustom(xmaxs,length=ilength)))
+
+
+xman1s = fcustom(xmaxs,length=180,xlen=23)
+'''
+                ,strend2(sif.mxatr30x)<0
+                ,sif.xatr30x > 7000
+440,7
+60,9
+40,9
+'''
+
+
+
+xmax3b = lambda sif,length=20,xlen=3:xmanb(sif,sif.close,sif.close3,sif.i_cof3,length,xlen)
+xmax3b.direction = XBUY
+xmax3b.priority = 1500
+
+xmax3b_tests = []
+for ilength in range(3,300,2):
+    xmax3b_tests.append(('%s'%(ilength),fcustom(xmax3b,length=ilength)))
+
+xman3b = fcustom(xmax3b,length=150,xlen=3)
+'''
+                ,sif.xatr<sif.mxatr
+                ,sif.xatr30x<7000
+253,3
+                ,strend2(sif.ma30)>0
+                ,sif.xatr<sif.mxatr
+                ,sif.xatr30x<6000
+80,5
+60,5
+'''
+xmax3s = lambda sif,length=20,xlen=3:xmans(sif,sif.close,sif.close3,sif.i_cof3,length,xlen)
+xmax3s.direction = XSELL
+xmax3s.priority = 1500
+
+xmax3s_tests = []
+for ilength in range(3,600,2):
+    xmax3s_tests.append(('%s'%(ilength),fcustom(xmax3s,length=ilength)))
+
+
+xman3s = fcustom(xmax3s,length=140,xlen=3)
+'''
+540,1
+210,3
+
+                ,sif.xatr>sif.mxatr
+                ,sif.xatr30x < 6000
+140,5
+                ,sif.ltrend<0
+                ,sif.xatr>sif.mxatr
+                ,sif.xatr30x < 6000
+                ,sif.xatr<1000
+45,5
+90,3
+'''
+
+
+
+xmax5b = lambda sif,length=20,xlen=3:xmanb(sif,sif.close,sif.close5,sif.i_cof5,length,xlen)
+xmax5b.direction = XBUY
+xmax5b.priority = 1500
+
+xmax5b_tests = []
+for ilength in range(3,300,2):
+    xmax5b_tests.append(('%s'%(ilength),fcustom(xmax5b,length=ilength)))
+
+xman5b = fcustom(xmax5b,length=30,xlen=5)
+'''
+                ,sif.xatr30x<8000
+137,5
+'''
+xmax5s = lambda sif,length=20,xlen=3:xmans(sif,sif.close,sif.close5,sif.i_cof5,length,xlen)
+xmax5s.direction = XSELL
+xmax5s.priority = 1500
+
+xmax5s_tests = []
+for ilength in range(3,600,2):
+    xmax5s_tests.append(('%s'%(ilength),fcustom(xmax5s,length=ilength)))
+
+
+xman5s = fcustom(xmax5s,length=200,xlen=1)
+'''
+327,3
+569,3
+                ,strend2(sif.ma30)<0
+                ,sif.xatr30x < 6000
+120,3
+30,11
+200,1
+'''
+
+
+
+xmax10b = lambda sif,length=20,xlen=3:xmanb(sif,sif.close,sif.close10,sif.i_cof10,length,xlen)
+xmax10b.direction = XBUY
+xmax10b.priority = 1500
+
+xmax10b_tests = []
+for ilength in range(3,300,2):
+    xmax10b_tests.append(('%s'%(ilength),fcustom(xmax10b,length=ilength)))
+
+xman10b = fcustom(xmax10b,length=140,xlen=5)
+'''
+                ,sif.xatr30x<8000
+273,5
+71,3
+50,5
+'''
+
+xmax10s = lambda sif,length=20,xlen=3:xmans(sif,sif.close,sif.close10,sif.i_cof10,length,xlen)
+xmax10s.direction = XSELL
+xmax10s.priority = 1500
+
+xmax10s_tests = []
+for ilength in range(3,600,2):
+    xmax10s_tests.append(('%s'%(ilength),fcustom(xmax10s,length=ilength)))
+
+
+xman10s = fcustom(xmax10s,length=100,xlen=3)
+'''
+无
+'''
+
+
+xmax15b = lambda sif,length=20,xlen=3:xmanb(sif,sif.close,sif.close15,sif.i_cof15,length,xlen)
+xmax15b.direction = XBUY
+xmax15b.priority = 1500
+
+xmax15b_tests = []
+for ilength in range(3,300,2):
+    xmax15b_tests.append(('%s'%(ilength),fcustom(xmax15b,length=ilength)))
+
+xman15b = fcustom(xmax15b,length=23,xlen=3)
+'''
+                ,sif.xatr30x<8000
+243,3
+45,3
+'''
+
+xmax15s = lambda sif,length=20,xlen=3:xmans(sif,sif.close,sif.close15,sif.i_cof15,length,xlen)
+xmax15s.direction = XSELL
+xmax15s.priority = 1500
+
+xmax15s_tests = []
+for ilength in range(3,600,2):
+    xmax15s_tests.append(('%s'%(ilength),fcustom(xmax15s,length=ilength)))
+
+
+xman15s = fcustom(xmax15s,length=250,xlen=3)
+'''
+300,1
+200,1
+                ,sif.ltrend<0
+                ,sif.xatr<sif.mxatr
+
+25,1
+                ,sif.s30<0
+                ,strend2(sif.ma30)<0
+40,1
+67,1
+'''
+
+
+
+xmax30b = lambda sif,length=20,xlen=3:xmanb(sif,sif.close,sif.close30,sif.i_cof30,length,xlen)
+xmax30b.direction = XBUY
+xmax30b.priority = 1500
+
+xmax30b_tests = []
+for ilength in range(3,300,2):
+    xmax30b_tests.append(('%s'%(ilength),fcustom(xmax30b,length=ilength)))
+
+xman30b = fcustom(xmax30b,length=100,xlen=3)
+'''
+                ,sif.xatr30x<8000
+120,3
+'''
+
+xmax30s = lambda sif,length=20,xlen=1:xmans(sif,sif.close,sif.close30,sif.i_cof30,length,xlen)
+xmax30s.direction = XSELL
+xmax30s.priority = 1500
+
+xmax30s_tests = []
+for ilength in range(3,600,2):
+    xmax30s_tests.append(('%s'%(ilength),fcustom(xmax30s,length=ilength)))
+
+
+xman30s = fcustom(xmax30s,length=200,xlen=1)
+'''
+101,1
+75,1
+                ,strend2(sif.ma30)<0
+                ,sif.xatr<sif.mxatr
+15,1
+
+'''
+
+##测试收盘上ma
+def xman2b(sif,sclose,source,sindics,length=20):
+    ''' 
+        变周期计算               
+    '''
+    lma = ma(source,length)
+    xsignal = gand(cross(lma,source)>0,strend(lma)>0)
+    signal = np.zeros_like(sclose)
+    signal[sindics] = xsignal
+    signal = gand(signal
+                #,sif.s30>0
+                #,strend2(sif.ma13)>0
+                #,sif.xatr30x<sif.mxatr30x
+                #,strend2(sif.mxatr30x)>0
+                #,sif.mtrend>0
+                #,sif.ltrend>0
+                #,sif.xatr<sif.mxatr
+                #,sif.xatr30x>8000
+                #,sif.xatr<1000
+                #,strend2(sif.diff1-sif.dea1)>0
+                #,sif.s15>0
+                
+                )
+    return signal
+xman2b.direction = XBUY
+xman2b.priority = 1500
+
+def xman2s(sif,sclose,source,sindics,length=20,xlen=1):
+    ''' 
+        变周期计算               
+    '''
+    lma = ma(source,length)
+    xsignal = gand(cross(lma,source)<0,strend(lma)<0)
+    signal = np.zeros_like(sclose)
+    signal[sindics] = xsignal
+    signal = gand(signal
+                #,sif.s30<0
+                #,sif.ltrend<0
+                #,strend2(sif.ma30)<0
+                #,sif.xatr30x<sif.mxatr30x
+                #,strend2(sif.mxatr30x)<0
+                #,sif.xatr<sif.mxatr
+                #,sif.xatr30x < 6000
+                #,sif.xatr<1000
+                )
+    return signal * xmans.direction
+xman2s.direction = XSELL
+xman2s.priority = 1500
+
+xma2xb = lambda sif,length=20:xman2b(sif,sif.close,sif.close,sif.i_cof,length)
+xma2xb.direction = XBUY
+xma2xb.priority = 1500
+
+xma2xb_tests = []
+for ilength in range(3,600,2):
+    xma2xb_tests.append(('%s'%(ilength),fcustom(xma2xb,length=ilength)))
+
+
+xma2n1b = fcustom(xma2xb,length=200) 
+'''
+                ,sif.xatr30x<8000
+                ,sif.xatr>1000
+                #,strend2(sif.diff1-sif.dea1)>0
+                ,sif.s15>0
+240
+            ,sif.xatr30x<sif.mxatr30x
+            ,sif.ltrend>0
+            ,sif.xatr>sif.mxatr
+            ,sif.xatr30x<8000
+480
+                ,strend2(sif.ma13)>0
+                ,strend2(sif.mxatr30x)>0
+                ,sif.mtrend>0
+                ,sif.xatr30x<8000
+                ,sif.xatr>600
+
+50
+                ,sif.mtrend>0
+                ,sif.ltrend>0
+                ,sif.xatr>800
+                ,strend2(sif.diff1-sif.dea1)>0
+30
+                ,sif.s30>0
+                ,strend2(sif.ma13)>0
+                ,sif.xatr<sif.mxatr
+                ,sif.xatr<1000
+                ,sif.s10>0
+10
+                ,strend2(sif.mxatr30x)>0
+                ,sif.mtrend>0
+                ,sif.xatr<sif.mxatr
+                ,sif.xatr<1000
+                ,sif.s15>0
+15
+'''
+
+
+
+xma2xs = lambda sif,length=20:xma2ns(sif,sif.close,sif.close,sif.i_cof,length)
+xma2xs.direction = XSELL
+xma2xs.priority = 1500
+
+xma2xs_tests = []
+for ilength in range(3,600,2):
+    xma2xs_tests.append(('%s'%(ilength),fcustom(xma2xs,length=ilength)))
+
+
+xman21s = fcustom(xma2xs,length=180)
+
+
+xma2x3b = lambda sif,length=20:xman2b(sif,sif.close,sif.close3,sif.i_cof3,length)
+xma2x3b.direction = XBUY
+xma2x3b.priority = 1500
+
+xma2x3b_tests = []
+for ilength in range(3,600,2):
+    xma2x3b_tests.append(('%s'%(ilength),fcustom(xma2x3b,length=ilength)))
+
+
+xma2n3b = fcustom(xma2x3b,length=90) 
+'''
+            ,strend2(sif.ma13)>0
+360
+            ,sif.xatr30x<sif.mxatr30x
+430
+                ,sif.xatr30x<8000
+                ,sif.s15>0
+210
+'''
+
+xma2x5b = lambda sif,length=20:xman2b(sif,sif.close,sif.close5,sif.i_cof5,length)
+xma2x5b.direction = XBUY
+xma2x5b.priority = 1500
+
+xma2x5b_tests = []
+for ilength in range(3,600,2):
+    xma2x5b_tests.append(('%s'%(ilength),fcustom(xma2x5b,length=ilength)))
+
+
+xma2n5b = fcustom(xma2x5b,length=200) 
+'''
+200
+                ,sif.xatr<sif.mxatr
+                ,sif.s15>0
+90
+'''
+
+xma2x10b = lambda sif,length=20:xman2b(sif,sif.close,sif.close10,sif.i_cof10,length)
+xma2x10b.direction = XBUY
+xma2x10b.priority = 1500
+
+xma2x10b_tests = []
+for ilength in range(3,600,2):
+    xma2x10b_tests.append(('%s'%(ilength),fcustom(xma2x10b,length=ilength)))
+
+
+xma2n10b = fcustom(xma2x10b,length=300) 
+'''
+100
+'''
+
+xma2x15b = lambda sif,length=20:xman2b(sif,sif.close,sif.close15,sif.i_cof15,length)
+xma2x15b.direction = XBUY
+xma2x15b.priority = 1500
+
+xma2x15b_tests = []
+for ilength in range(3,600,2):
+    xma2x15b_tests.append(('%s'%(ilength),fcustom(xma2x15b,length=ilength)))
+
+
+xma2n15b = fcustom(xma2x15b,length=20) 
+'''
+67
+'''
+
+
+xma2x30b = lambda sif,length=20:xman2b(sif,sif.close,sif.close15,sif.i_cof15,length)
+xma2x30b.direction = XBUY
+xma2x30b.priority = 1500
+xma2n30b = fcustom(xma2x30b,length=100) 
+
+
+#双线交叉
+def x2mab(sif,sclose,source,sindics,len1=3,len2=20):
+    ''' 
+        变周期计算               
+    '''
+    lma1 = ma(source,len1)
+    lma2 = ma(source,len2)    
+    xsignal = gand(cross(lma2,lma1)>0,strend(lma1)>0)
+    signal = np.zeros_like(sclose)
+    signal[sindics] = xsignal
+    signal = gand(signal
+                #,sif.s30>0
+                #,strend2(sif.ma13)>0
+                #,sif.xatr30x<sif.mxatr30x
+                #,strend2(sif.mxatr30x)>0
+                #,sif.mtrend>0
+                #,sif.ltrend>0
+                #,sif.xatr<sif.mxatr
+                #,sif.xatr30x>8000
+                #,sif.xatr<1000
+                #,strend2(sif.diff1-sif.dea1)>0
+                #,sif.s15>0
+                
+                )
+    return signal
+x2mab.direction = XBUY
+x2mab.priority = 1500
+
+def x2mas(sif,sclose,source,sindics,len1=3,len2=20):
+    ''' 
+        变周期计算               
+    '''
+    lma1 = ma(source,len1)
+    lma2 = ma(source,len2)    
+    xsignal = gand(cross(lma2,lma1)<0,strend(lma1)<0)
+    signal = np.zeros_like(sclose)
+    signal[sindics] = xsignal
+    signal = gand(signal
+                #,sif.s30<0
+                #,sif.ltrend<0
+                #,strend2(sif.ma30)<0
+                #,sif.xatr30x<sif.mxatr30x
+                #,strend2(sif.mxatr30x)<0
+                #,sif.xatr<sif.mxatr
+                #,sif.xatr30x < 6000
+                #,sif.xatr<1000
+                )
+    return signal * xmans.direction
+x2mas.direction = XSELL
+x2mas.priority = 1500
+
+x2mab = lambda sif,len1=3,len2=20:x2mas(sif,sif.close,sif.close,sif.i_cof,len1,len2)
+x2mab.direction = XBUY
+x2mab.priority = 1500
+
+x2mab_tests = []
+for ilen1 in range(3,600,3):
+    for ilen2 in range(3,600,5):
+        x2mab_tests.append(('%s'%(ilength),fcustom(x2mab,len1=ilen1,len2=ilen2)))
+
+
+x2mab1 = fcustom(x2mab,len1=3,len2=20) 
+
 
 
 '''
+evf_b = fcustom(ev.evaluate3_b,interval=60,begin=944,end=1414,downlimit=90)
+evf_s = fcustom(ev.evaluate3_s,interval=60,begin=944,end=1414,uplimit=90)
+
+results_t = ev.tev_tests(i00,evf_b,ev.xmaxb_tests)
+ev.ev_output(results_t,'d:/temp/xmaxb_test.txt',evf_b)
+
+
+
+'''
+
 
 '''
 对现有算法的回顾

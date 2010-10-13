@@ -31,6 +31,8 @@ todo:   测试向上9个点(或X个点)以上,如果回退到1/0个点就平掉
         止损:   彻底的开仓方向错误
         保护性止损: 开仓后正向运行，且超过9个点，回退到开仓点+/-1/0时
         跟踪止损:  盈利时的止损 
+
+todo:   研究逆势时止盈点位是否需要重新设置
 #######
 
 使用当月连续
@@ -680,7 +682,9 @@ def acd_ua(sif,sopened=None):
                 ,bnot(ms_da)       #没出现过da 
                 ,sif.s30>0
                 ,sif.xatr30x<sif.mxatr30x
-                #,sif.xatr<1800
+                #,sif.xatr>sif.mxatr
+                #,strend2(sif.mxatr15x)<0
+                #,sif.ltrend<0
                 )
 
     return signal * acd_ua.direction
@@ -1536,7 +1540,7 @@ def macd10_b(sif,sopened=None):
             ,strend2(sif.ma13)>0
             ,strend2(sif.ma60)>0
             ,sif.xatr30x < sif.mxatr30x
-            ,sif.xatr5x>sif.mxatr5x
+            #,sif.xatr5x>sif.mxatr5x
             #,sif.xatr<sif.mxatr
             )
     return signal * macd10_b.direction

@@ -2530,17 +2530,32 @@ def x2mas(sif,sclose,source,sindics,len1=3,len2=20):
 x2mas.direction = XSELL
 x2mas.priority = 1500
 
-x2mab = lambda sif,len1=3,len2=20:x2mas(sif,sif.close,sif.close,sif.i_cof,len1,len2)
-x2mab.direction = XBUY
-x2mab.priority = 1500
+x2ma1b = lambda sif,len1=3,len2=20:x2mab(sif,sif.close,sif.close,sif.i_cof,len1,len2)
+x2ma1b.direction = XBUY
+x2ma1b.priority = 1500
 
-x2mab_tests = []
-for ilen1 in range(3,600,3):
-    for ilen2 in range(3,600,5):
-        x2mab_tests.append(('%s'%(ilength),fcustom(x2mab,len1=ilen1,len2=ilen2)))
+x2ma1b_tests = []
+for ilen1 in range(3,300,4):
+    for ilen2 in range(3,500,7):
+        x2ma1b_tests.append(('%s'%(ilength),fcustom(x2ma1b,len1=ilen1,len2=ilen2)))
 
 
-x2mab1 = fcustom(x2mab,len1=3,len2=20) 
+x2mab1 = fcustom(x2ma1b,len1=3,len2=20) 
+
+
+x2ma3b = lambda sif,len1=3,len2=20:x2mab(sif,sif.close,sif.close3,sif.i_cof3,len1,len2)
+x2ma3b.direction = XBUY
+x2ma3b.priority = 1500
+
+x2ma3b_tests = []
+for ilen1 in range(3,200,4):
+    for ilen2 in range(3,200,7):
+        x2ma3b_tests.append(('%s'%(ilength),fcustom(x2ma3b,len1=ilen1,len2=ilen2)))
+
+
+x2mab3 = fcustom(x2ma3b,len1=3,len2=20) 
+
+
 
 
 

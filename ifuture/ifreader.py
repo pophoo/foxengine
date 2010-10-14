@@ -160,6 +160,9 @@ def prepare_index(sif):
     sif.macd30 = sif.diff30-sif.dea30    
     sif.macd60 = sif.diff60-sif.dea60    
 
+    sif.svap1,sif.v2i1 = svap_ma(sif.vol,sif.close,67)
+    sif.svap2_1,sif.v2i2_1 = svap_ma(sif.vol,sif.close,67,weight=2)
+
     sif.ma3 = ma(trans[ICLOSE],3)
     sif.ma5 = ma(trans[ICLOSE],5)
     sif.ma10 = ma(trans[ICLOSE],10)
@@ -611,6 +614,34 @@ def prepare_index(sif):
     sif.atrdx = np.zeros_like(trans[ICLOSE])
     sif.atrdx[sif.i_cofd] = sif.atrd
     sif.atrdx = extend2next(sif.atrdx)
+
+    sif.svap3,sif.v2i3 = svap_ma(sif.vol3,sif.close3,67)
+    sif.svap2_3,sif.v2i2_3 = svap_ma(sif.vol3,sif.close3,67,weight=2)
+
+    sif.svap5,sif.v2i5 = svap_ma(sif.vol5,sif.close5,67)
+    sif.svap2_5,sif.v2i2_5 = svap_ma(sif.vol5,sif.close5,67,weight=2)
+
+    sif.svap10,sif.v2i10 = svap_ma(sif.vol10,sif.close10,67)
+    sif.svap2_10,sif.v2i2_10 = svap_ma(sif.vol10,sif.close10,67,weight=2)
+
+    sif.svap15,sif.v2i15 = svap_ma(sif.vol15,sif.close15,67)
+    sif.svap2_15,sif.v2i2_15 = svap_ma(sif.vol15,sif.close15,67,weight=2)
+
+    sif.svap30,sif.v2i30 = svap_ma(sif.vol30,sif.close30,67)
+    sif.svap2_30,sif.v2i2_30 = svap_ma(sif.vol30,sif.close30,67,weight=2)
+
+    sif.svap45,sif.v2i45 = svap_ma(sif.vol45,sif.close45,67)
+    sif.svap2_45,sif.v2i2_45 = svap_ma(sif.vol45,sif.close45,67,weight=2)
+
+    sif.svap60,sif.v2i60 = svap_ma(sif.vol60,sif.close60,67)
+    sif.svap2_60,sif.v2i2_60 = svap_ma(sif.vol60,sif.close60,67,weight=2)
+
+    sif.svap90,sif.v2i90 = svap_ma(sif.vol90,sif.close90,67)
+    sif.svap2_90,sif.v2i2_90 = svap_ma(sif.vol90,sif.close90,67,weight=2)
+
+    sif.svapd,sif.v2id = svap_ma(sif.vold,sif.closed,67)
+    sif.svap2_d,sif.v2i2_d = svap_ma(sif.vold,sif.closed,67,weight=2)
+
 
     s30_7 = np.zeros_like(sif.close)
     s30_7[sif.i_cof30] = strend2(nma(sif.close30,7))  #nma避免strend2将初始批量0也当作正数计入的问题

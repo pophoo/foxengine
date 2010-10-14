@@ -82,6 +82,8 @@ from wolfox.fengine.ifuture.orb import dnr1_uu_b,dnr1_dd_b,dnr1_ud_b,dp_uu_b,dp_
 from wolfox.fengine.ifuture.orb import dpt_uu_s,n30pt_dud_b,n30pt_du_s,n15pt_dd_b,n15pt_du_s,n60pt_uu_b
 from wolfox.fengine.ifuture.orb import n60pt_uud_b,n60pt_dd_b,n60pt_duu_s,nr30s,nr30b
 
+from wolfox.fengine.ifuture.xopt import *
+
 xorb = [dnr1_uu_b,dnr1_dd_b,dnr1_ud_b,dp_uu_b,dp_ud_b,dpt_ux_b
         ,dpt_uu_s,n30pt_dud_b,n30pt_du_s,n15pt_dd_b,n15pt_du_s,n60pt_uu_b
         ,n60pt_uud_b,n60pt_dd_b,n60pt_duu_s,nr30s,nr30b
@@ -682,6 +684,8 @@ def acd_ua(sif,sopened=None):
                 ,bnot(ms_da)       #没出现过da 
                 ,sif.s30>0
                 ,sif.xatr30x<sif.mxatr30x
+
+                #,sif.ltrend<0
                 #,sif.xatr>sif.mxatr
                 #,strend2(sif.mxatr15x)<0
                 #,sif.ltrend<0
@@ -818,9 +822,10 @@ def acd_ua_sz(sif,sopened=None):
     signal = gand(ms_ua == 1
                     ,bnot(ms_da)
                     ,UA >= szh
-                    ,sif.ms>0
+                    ,sif.ml>0
                     #,sif.xatr<1800
-                    ,sif.xatr30x<sif.mxatr30x
+                    #,sif.xatr30x<sif.mxatr30x
+                    ,sif.s30>0
                     )
 
 

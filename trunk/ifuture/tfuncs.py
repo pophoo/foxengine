@@ -63,6 +63,32 @@ s3.direction = XBUY
 s3.priority = 1200
 
 
+def macd1500b(sif,sopened=None):
+    signal = cross(sif.dea1,sif.diff1)>0
+    signal = gand(signal
+                ,sif.time>=1440
+                #,sif.time<1510
+                #,sif.diff1<0
+                #,sif.xatr < sif.mxatr
+            )
+
+    return signal * XBUY
+macd1500b.direction = XBUY
+macd1500b.priority = 1200
+
+def macd1500s(sif,sopened=None):
+    signal = cross(sif.dea1,sif.diff1)<0
+    signal = gand(signal
+                ,sif.time>=1440
+                #,sif.strend<0
+                ,sif.xatr > sif.mxatr
+                )
+
+    return signal * XSELL
+macd1500s.direction = XSELL
+macd1500s.priority = 1200
+
+
 def tfunc(sif,sopened=None,length=5):
     '''
     '''

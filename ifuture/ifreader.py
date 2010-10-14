@@ -155,6 +155,7 @@ def prepare_index(sif):
     sif.di60,sif.de60 = smacd(trans[ICLOSE]*FBASE,720,1560,540)  #计算误差太大，改用非指数版
 
     sif.macd1 = sif.diff1-sif.dea1
+    sif.macd3 = sif.diff3-sif.dea3    
     sif.macd5 = sif.diff5-sif.dea5
     sif.macd15 = sif.diff15-sif.dea15
     sif.macd30 = sif.diff30-sif.dea30    
@@ -239,7 +240,7 @@ def prepare_index(sif):
     sif.sdiff5x=extend2next(sif.sdiff5x)
     sif.sdea5x=extend2next(sif.sdea5x)
 
-    strend_macd5x = strend(sif.diff5x-sif.dea5x)
+    strend_macd5x = strend2(sif.diff5x-sif.dea5x)
     sif.smacd5x = np.zeros_like(trans[ICLOSE])
     sif.smacd5x[sif.i_cof5] = strend_macd5x
     sif.smacd5x=extend2next(sif.smacd5x)
@@ -286,10 +287,10 @@ def prepare_index(sif):
     sif.sdiff3x=extend2next(sif.sdiff3x)
     sif.sdea3x=extend2next(sif.sdea3x)
 
-    strend_macd3x = strend(sif.diff3x-sif.dea3x)
+    strend_macd3x = strend2(sif.diff3x-sif.dea3x)
     sif.smacd3x = np.zeros_like(trans[ICLOSE])
     sif.smacd3x[sif.i_cof3] = strend_macd3x
-    sif.smacd5x=extend2next(sif.smacd3x)
+    sif.smacd3x=extend2next(sif.smacd3x)
 
     ##10分钟
     #sif.i_cof10 = np.where(
@@ -337,10 +338,10 @@ def prepare_index(sif):
     sif.sdiff10x=extend2next(sif.sdiff10x)
     sif.sdea10x=extend2next(sif.sdea10x)
 
-    strend_macd10x = strend(sif.diff10x-sif.dea10x)
+    strend_macd10x = strend2(sif.diff10x-sif.dea10x)
     sif.smacd10x = np.zeros_like(trans[ICLOSE])
     sif.smacd10x[sif.i_cof10] = strend_macd10x
-    sif.smacd5x=extend2next(sif.smacd10x)
+    sif.smacd10x=extend2next(sif.smacd10x)
     
     #30分钟
     sif.i_cof30 = np.where(gor(
@@ -403,6 +404,11 @@ def prepare_index(sif):
     sif.sdiff30x=extend2next(sif.sdiff30x)
     sif.sdea30x=extend2next(sif.sdea30x)
 
+    strend_macd30x = strend2(sif.diff30x-sif.dea30x)
+    sif.smacd30x = np.zeros_like(trans[ICLOSE])
+    sif.smacd30x[sif.i_cof30] = strend_macd30x
+    sif.smacd30x=extend2next(sif.smacd30x)
+
 
     sif.i_cof15 = np.where(
             gand(
@@ -454,6 +460,11 @@ def prepare_index(sif):
     sif.sdea15x[sif.i_cof15] = sif.dea15x
     sif.sdiff15x=extend2next(sif.sdiff15x)
     sif.sdea15x=extend2next(sif.sdea15x)
+
+    strend_macd15x = strend2(sif.diff15x-sif.dea15x)
+    sif.smacd15x = np.zeros_like(trans[ICLOSE])
+    sif.smacd15x[sif.i_cof15] = strend_macd15x
+    sif.smacd15x=extend2next(sif.smacd15x)
 
 
     #60分钟线，每天最后半小时交易也算一小时
@@ -512,6 +523,12 @@ def prepare_index(sif):
     sif.sdiff60x=extend2next(sif.sdiff60x)
     sif.sdea60x=extend2next(sif.sdea60x)
 
+    strend_macd60x = strend2(sif.diff60x-sif.dea60x)
+    sif.smacd60x = np.zeros_like(trans[ICLOSE])
+    sif.smacd60x[sif.i_cof60] = strend_macd60x
+    sif.smacd60x=extend2next(sif.smacd60x)
+
+
     #45钟线
     sif.i_cof45 = np.where(gor( 
         trans[ITIME]%10000==1514
@@ -554,6 +571,12 @@ def prepare_index(sif):
     sif.sdiff45x=extend2next(sif.sdiff45x)
     sif.sdea45x=extend2next(sif.sdea45x)
 
+    strend_macd45x = strend2(sif.diff45x-sif.dea45x)
+    sif.smacd45x = np.zeros_like(trans[ICLOSE])
+    sif.smacd45x[sif.i_cof45] = strend_macd45x
+    sif.smacd45x=extend2next(sif.smacd45x)
+
+
     #90钟线
     sif.i_cof90 = np.where(gor( 
         trans[ITIME]%10000==1514
@@ -592,6 +615,12 @@ def prepare_index(sif):
     sif.sdea90x[sif.i_cof90] = sif.dea90x
     sif.sdiff90x=extend2next(sif.sdiff90x)
     sif.sdea90x=extend2next(sif.sdea90x)
+
+    strend_macd90x = strend2(sif.diff90x-sif.dea90x)
+    sif.smacd90x = np.zeros_like(trans[ICLOSE])
+    sif.smacd90x[sif.i_cof90] = strend_macd90x
+    sif.smacd90x=extend2next(sif.smacd90x)
+
 
     sif.i_cofd = np.append(np.nonzero(trans[IDATE]-rollx(trans[IDATE])>0)[0]-1,len(trans[IDATE])-1)
     sif.i_oofd = roll0(sif.i_cofd)+1
@@ -773,6 +802,15 @@ def prepare_index(sif):
     m10 = dnext(strend2(ma(sif.close10,81)),sif.close,sif.i_cof10)  #3日为趋势判断周期
     sif.xtrend = np.select([m10>0],[1],-1)
     
+    sif.macd3x = sif.diff3x-sif.dea3x   
+    sif.macd5x = sif.diff5x-sif.dea5x
+    sif.macd10x = sif.diff10x-sif.dea10x
+    sif.macd15x = sif.diff15x-sif.dea15x
+    sif.macd30x = sif.diff30x-sif.dea30x   
+    sif.macd60x = sif.diff60x-sif.dea60x    
+    sif.macd45x = sif.diff45x-sif.dea45x
+    sif.macd90x = sif.diff90x-sif.dea90x    
+
 
 def calc_high_low_vol(trans,i_oof,i_cof):
     xhigh = np.zeros_like(i_oof)

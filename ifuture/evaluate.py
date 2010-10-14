@@ -2948,15 +2948,16 @@ def svx2b(sif,sclose,svap,v2i,vlen,sindics,len1=3,len2=20):
 svx2b.direction = XBUY
 svx2b.priority = 1500
 
-svxb1 = lambda sif,len1=20:svxb(sif,sif.close,sif.svap1,sif.v2i1,len(sif.vol),sif.i_cof,len1)
-svxb1.direction = XBUY
-svxb1.priority = 1500
+svx2b1 = lambda sif,len1=3,len2=20:svx2b(sif,sif.close,sif.svap1,sif.v2i1,len(sif.vol),sif.i_cof,len1,len2)
+svx2b1.direction = XBUY
+svx2b1.priority = 1500
 
-
+svx2b1_tests=[]
 for ilen1 in range(3,300,2):
     for ilen2 in range(ilen1*3/2,300,4):
-    svxb15_tests.append(('%s,%s'%(ilen1,ilen2),fcustom(svx2b15,len1=ilen1,len2=ilen2)))
+        svx2b1_tests.append(('%s,%s'%(ilen1,ilen2),fcustom(svx2b1,len1=ilen1,len2=ilen2)))
 
+svx2b1e = fcustom(svxb1,len1=3,len2=20) 
 
 '''
 对现有算法的回顾

@@ -2728,3 +2728,17 @@ for x in xxx2:
 '''
 
 
+'''
+    需要判断一直在创新高的情况
+'''
+
+def macd1xb(sif,sopened=None):
+    sx = gand(cross(sif.dea1,sif.diff1)>0
+            ,sif.diff1<0
+            )
+    signal = gand(sx
+            )
+    return signal * macd1xb.direction
+macd1xb.direction = XBUY
+macd1xb.priority = 1500
+

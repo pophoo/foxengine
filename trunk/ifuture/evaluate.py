@@ -2666,7 +2666,7 @@ for ilen1 in range(3,200,4):
         x2ma10b_tests.append(('%s-%s'%(ilen1,ilen2),fcustom(x2ma10b,len1=ilen1,len2=ilen2)))
 
 
-x2mab10 = fcustom(x2ma10b,len1=3,len2=171) 
+x2mab10 = fcustom(x2ma10b,len1=3,len2=59) 
 '''
 19-173
 3-59    ###
@@ -2762,7 +2762,7 @@ for ilen1 in range(3,200,4):
         x2ma30s_tests.append(('%s-%s'%(ilen1,ilen2),fcustom(x2ma30s,len1=ilen1,len2=ilen2)))
 
 
-x2mas30 = fcustom(x2ma30s,len1=19,len2=54) 
+x2mas30 = fcustom(x2ma30s,len1=11,len2=25) 
 '''
 11-123  ##
 11-25   ##

@@ -192,9 +192,93 @@ fcore.peakline_save(i00,i00.lline[7],'d:/temp/peak810_lline.txt')
 
 '''
     计算日内极点
-    第一点必然是
+    第一点必然即是最高也是最低
 '''
 def dpeak(sif):
-    hpeakd,lpeakd = [],[]   #日内极点
-    pass
+    pred = 0
+    sh = np.zeros_like(sif.close)
+    sl = np.zeros_like(sif.close)
+
+    shl = np.zeros_like(sif.close)  #高点时的低
+    slh = np.zeros_like(sif.close)  #低点时的高
+
+    ih = np.zeros_like(sif.close)
+    il = np.zeros_like(sif.close)
+    curh,curl = 0,99999999
+    icurh,icurl = 0,0
+    curhl,curlh = 0,0
+    for ii,dt,tt,h,l,c in zip(range(len(sif.close)),sif.date,sif.time,sif.high,sif.low,sif.close):
+        if dt != pred:
+            pred = dt
+            curh = h
+            curl = l
+            icurh = ii
+            icurl = ii
+        else:
+            if h > curh:
+                curh = h
+                curhl = l
+                icurh = ii
+                cc = c
+            if l < curl:
+                curl = l
+                curlh = h
+                icurl = ii
+                cc = c
+        sh[ii] = curh
+        sl[ii] = curl
+        ih[ii] = icurh
+        il[ii] = icurl
+        shl[ii] = curhl
+        slh[ii] = curlh
+    sif.dhigh = sh
+    sif.dlow = sl
+    sif.idhigh = ih
+    sif.idlow = il
+    sif.dhighl = shl
+    sif.dlowh = slh
+ 
+def dpeak2(sif):
+    pred = 0
+    sh = np.zeros_like(sif.close)
+    sl = np.zeros_like(sif.close)
+
+    ih = np.zeros_like(sif.close)
+    il = np.zeros_like(sif.close)
+    curh,curl = 0,99999999
+    icurh,icurl = 0,0
+    for ii,dt,tt,h,l,c in zip(range(len(sif.close)),sif.date,sif.time,sif.high,sif.low,sif.close):
+        if dt != pred:
+            pred = dt
+            curh = h
+            curl = l
+            icurh = ii
+            icurl = ii
+        else:
+            if h > curh:
+                curh = l
+                icurh = ii
+            if l < curl:
+                curl = h        ##显著不同. 这里得到的点是第一个最低价大于上一分钟最高价时的上一分钟最高价. 相当于暴力起涨点
+                icurl = ii
+        sh[ii] = curh
+        sl[ii] = curl
+        ih[ii] = icurh
+        il[ii] = icurl
+    sif.dhigh2 = sh
+    sif.ih2 = ih
+    sif.dlow2 = sl
+    sif.idlow2 = il
+
+
+
+def dopen(sif):
+    iod = sif.date - rollx(sif.date) > 0
+    ohigh = np.select([iod],[sif.high],default=0)
+    olow = np.select([iod],[sif.low],default=0)    
+    oopen = np.select([iod],[sif.open],default=0)
+    sif.odhigh = extend2next(ohigh)
+    sif.odlow = extend2next(olow)
+    sif.odopen = extend2next(oopen)
+    
 

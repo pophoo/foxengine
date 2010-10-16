@@ -345,6 +345,59 @@ def rsi_long_x(sif,sopened=None,rshort=7,rlong=19):
 rsi_long_x.direction = XBUY
 rsi_long_x.priority = 1500
 
+def rsi_long_hl(sif,sopened=None,rshort=7,rlong=19):
+    '''
+        计算创当日新高后，从暴力起涨点算起回撤不到40%，然后再上升
+        要求在上涨途中，即30分钟的120线向上
+    '''
+    rsia = rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = rsi2(sif.close,rlong)
+    #signal = cross(rsib,rsia)>0    
+    signal = gand(cross(rsib,rsia)>0,strend2(rsia)>0)
+
+    signal = gand(signal
+            ,sif.xatr < sif.mxatr
+            ,sif.xatr < 1200
+            ,sif.xatr30x < 8000
+            #,sif.xatr3x<sif.mxatr3x
+            #,sif.close > sif.dlow2 + (sif.dhigh - sif.dlow2) *0.6
+            ,sif.high > sif.dhigh - (sif.dhigh - sif.dlow2) *0.4
+            
+            #,sif.close > sif.odlow + (sif.dhigh-sif.odlow)*3/5
+            #,sif.idhigh > sif.idlow    #高点后于低点,没必要。如果冲破.4线，不论何时都一样
+            ,sif.r120 > 0
+            )
+
+    return signal * rsi_long_hl.direction
+rsi_long_hl.direction = XBUY
+rsi_long_hl.priority = 1500
+
+def rsi_short_hl(sif,sopened=None,rshort=7,rlong=19):
+    '''
+        计算创当日新低后，从暴力起跌点算起回撤不到40%，然后再下降
+        要求在下降途中，即30分钟的120线向下
+        与上涨不同的是，下跌一半比较墨迹，所以容易缩量
+    '''
+    rsia = rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = rsi2(sif.close,rlong)
+    #signal = cross(rsib,rsia)>0    
+    signal = gand(cross(rsib,rsia)>0,strend2(rsia)>0)
+
+    signal = gand(signal
+            ,sif.xatr30x < 9000
+            #,sif.xatr > sif.mxatr   #暂且屏蔽一部分
+            ,sif.xatr<1200
+            #,sif.xatr30x < sif.mxatr30x
+            #,sif.close < sif.dlow + (sif.dhigh - sif.dlow) *2/5
+            ,sif.low < sif.dlow + (sif.dhigh2 - sif.dlow) *0.4  #低点先冲破
+            #,sif.idlow > sif.idhigh    #低点后于高点,没必要。如果跌破.4线，不论何时都一样
+            ,sif.r120< 0
+            )
+
+    return signal * rsi_short_hl.direction
+rsi_short_hl.direction = XSELL
+rsi_short_hl.priority = 1500
+
 def rsi_long_xx(sif,sopened=None,rshort=7,rlong=19):
     '''
     '''
@@ -2516,12 +2569,14 @@ xfollow = [#多头
             #rsi_long_x,
             rsi_long_xx,    #rsi_long_x的增强版. 被其吸收
             rsi_long_x2,    
+            rsi_long_hl,
             #macd_long_x2,   #样本数太少，暂缓
             #macd_long_x3,   #样本数太少，暂缓
            #空头
             rsi_short_x,
             rsi_short_x2x,
             rsi_short_x3,            
+            rsi_short_hl,
             macd_short_x,
             macd_short_xx,
             macd_short_x2,
@@ -2732,17 +2787,4 @@ for x in xxx2:
     需要判断一直在创新高的情况
 '''
 
-def macd1xb(sif,sopened=None):
-    sx = gand(cross(sif.dea1,sif.diff1)>0
-            ,sif.diff1<0
-            ,sif.mtrend > 0
-            #,strend(sif.ma13)>0
-            ,tmax(sif.high,540) == tmax(sif.high,1350)
-            ,tmin(sif.low,540) > tmin(sif.low,1350)
-            )
-    signal = gand(sx
-            )
-    return signal * macd1xb.direction
-macd1xb.direction = XBUY
-macd1xb.priority = 1500
 

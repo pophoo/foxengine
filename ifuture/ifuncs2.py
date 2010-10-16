@@ -2735,6 +2735,10 @@ for x in xxx2:
 def macd1xb(sif,sopened=None):
     sx = gand(cross(sif.dea1,sif.diff1)>0
             ,sif.diff1<0
+            ,sif.mtrend > 0
+            #,strend(sif.ma13)>0
+            ,tmax(sif.high,540) == tmax(sif.high,1350)
+            ,tmin(sif.low,540) > tmin(sif.low,1350)
             )
     signal = gand(sx
             )

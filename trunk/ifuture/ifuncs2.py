@@ -365,7 +365,8 @@ def rsi_long_hl(sif,sopened=None,rshort=7,rlong=19):
             
             #,sif.close > sif.odlow + (sif.dhigh-sif.odlow)*3/5
             #,sif.idhigh > sif.idlow    #高点后于低点,没必要。如果冲破.4线，不论何时都一样
-            ,sif.r120 > 0
+            #,sif.r120 > 10  #去掉毛刺
+            ,sif.r90 > 10
             )
 
     return signal * rsi_long_hl.direction
@@ -391,7 +392,8 @@ def rsi_short_hl(sif,sopened=None,rshort=7,rlong=19):
             #,sif.close < sif.dlow + (sif.dhigh - sif.dlow) *2/5
             ,sif.low < sif.dlow + (sif.dhigh2 - sif.dlow) *0.167  #低点先冲破. 下跌的时候一般比较狠
             #,sif.idlow > sif.idhigh    #低点后于高点,没必要。如果跌破.4线，不论何时都一样
-            ,sif.r120< 0
+            ,sif.r120 < 0   #下跌具有自由落体情况，不惧毛刺
+            #,sif.r90 < 0
             )
 
     return signal * rsi_short_hl.direction

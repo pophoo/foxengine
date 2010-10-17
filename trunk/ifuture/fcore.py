@@ -256,7 +256,7 @@ def dpeak2(sif):
             icurl = ii
         else:
             if h > curh:
-                curh = l
+                curh = l        ##显著不同
                 icurh = ii
             if l < curl:
                 curl = h        ##显著不同. 这里得到的点是第一个最低价大于上一分钟最高价时的上一分钟最高价. 相当于暴力起涨点

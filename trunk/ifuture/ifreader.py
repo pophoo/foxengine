@@ -756,6 +756,10 @@ def prepare_index(sif):
     r120[sif.i_cof15] = strend2(nma(sif.close15,120))    #nma避免strend2将初始批量0也当作正数计入的问题
     sif.r120 = extend2next(r120)
 
+    r90 = np.zeros_like(sif.close)
+    r90[sif.i_cof15] = strend2(nma(sif.close15,90))    #nma避免strend2将初始批量0也当作正数计入的问题
+    sif.r90 = extend2next(r90)
+
     r60 = np.zeros_like(sif.close)
     r60[sif.i_cof15] = strend2(nma(sif.close15,60))    #nma避免strend2将初始批量0也当作正数计入的问题
     sif.r60 = extend2next(r60)

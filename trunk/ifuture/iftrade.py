@@ -98,7 +98,7 @@ def a2_strategy(action1,action2):#始终选择第2次的平仓位
     ##a2的问题是可能会抬高臀位，比如本来2700买入，2720出现新的高优先级信号，那么按之前的方法，其止损在2700左右，而新的情况导致止损到了2715左右，
     return action2
 
-def last_trades(actions,calc_profit=normal_profit,length=10):
+def last_trades(actions,calc_profit=normal_profit,length=20):
     '''
         最后交易
     '''
@@ -587,13 +587,14 @@ def itradex(sif     #期指
         actions = sorted(opens + closes,DTSORT)
         for action in actions:
             action.name = sif.name
+            #print action.name,action.date,action.time,action.position,action.price
         trades = make_trades(actions)   #trade: [open , close] 的序列, 其中前部分都是open,后部分都是close
         for trade in trades:
             trade.functor = opener
             trade.direction = trade.actions[0].position   #LONG/SHORT
+            #print trade.actions[0].date,trade.actions[0].time,trade.direction
         tradess.append(trades)
     return sync_trades(sif,tradess,acstrategy)
-
 
 
 def close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed,calc_profit=normal_profit):

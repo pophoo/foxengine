@@ -207,7 +207,7 @@ def dpeak(sif):
     curh,curl = 0,99999999
     icurh,icurl = 0,0
     curhl,curlh = 0,0
-    for ii,dt,tt,h,l,c in zip(range(len(sif.close)),sif.date,sif.time,sif.high,sif.low,sif.close):
+    for ii,dt,tt,h,l,c,o in zip(range(len(sif.close)),sif.date,sif.time,sif.high,sif.low,sif.close,sif.open):
         if dt != pred:
             pred = dt
             curh = h
@@ -238,8 +238,19 @@ def dpeak(sif):
     sif.dhighl = shl
     sif.dlowh = slh
  
+
 def dpeak2(sif):
-    pred = 0
+    '''
+        计算每日的起涨点，起跌点，以每日9:15为计算点(比按照日分计算的效果好，因为行情中有些有914,有些有915)
+            因为存在隔日效应，所以连续计算的效果很差
+        唯一有问题的是当日第一个点的设定，curh = h,curl=l
+            按照后面，应该是curh=l,curl=h为好? 但效果不佳
+        这里当h>curh时，设定curh的是该周期的低点，也就是说，如果没有快速脱离的话，很有可能随着
+            高点下移(但是仍然大于curh),导致curl也下移，最终一起下移
+            只有快速脱离，即高点小于前一低点，此时，才会将之前的低点设成的curh固定
+        curl的处理也是如此
+        因此，这就是所谓的起涨点，起跌点，即快速脱离点
+    '''
     sh = np.zeros_like(sif.close)
     sl = np.zeros_like(sif.close)
 
@@ -247,16 +258,15 @@ def dpeak2(sif):
     il = np.zeros_like(sif.close)
     curh,curl = 0,99999999
     icurh,icurl = 0,0
-    for ii,dt,tt,h,l,c in zip(range(len(sif.close)),sif.date,sif.time,sif.high,sif.low,sif.close):
-        if dt != pred:
-            pred = dt
-            curh = h
+    for ii,dt,tt,h,l,c,o in zip(range(len(sif.close)),sif.date,sif.time,sif.high,sif.low,sif.close,sif.open):
+        if tt == 915:
+            curh = h    #原始h/l按照正点来    
             curl = l
             icurh = ii
             icurl = ii
         else:
             if h > curh:
-                curh = l        ##显著不同
+                curh = l        ##显著不同, 这里得到的是起跌点，即第一个最高价小于前一最低价时的前一最低价
                 icurh = ii
             if l < curl:
                 curl = h        ##显著不同. 这里得到的点是第一个最低价大于上一分钟最高价时的上一分钟最高价. 相当于暴力起涨点
@@ -265,10 +275,105 @@ def dpeak2(sif):
         sl[ii] = curl
         ih[ii] = icurh
         il[ii] = icurl
-    sif.dhigh2 = sh
-    sif.ih2 = ih
-    sif.dlow2 = sl
+    sif.idhigh2 = ih    
     sif.idlow2 = il
+    sif.dhigh2 = sh
+    sif.dlow2 = sl
+
+def dpeak2d(sif):
+    '''
+        计算每日的起涨点，起跌点，以日切换为起计点
+        唯一有问题的是当日第一个点的设定，curh = h,curl=l
+            按照后面，应该是curh=l,curl=h为好? 但效果不佳
+        这里当h>curh时，设定curh的是该周期的低点，也就是说，如果没有快速脱离的话，很有可能随着
+            高点下移(但是仍然大于curh),导致curl也下移，最终一起下移
+            只有快速脱离，即高点小于前一低点，此时，才会将之前的低点设成的curh固定
+        curl的处理也是如此
+        因此，这就是所谓的起涨点，起跌点，即快速脱离点
+    '''
+    pred = 0
+    sh = np.zeros_like(sif.close)
+    sl = np.zeros_like(sif.close)
+
+    ih = np.zeros_like(sif.close)
+    il = np.zeros_like(sif.close)
+    curh,curl = 0,99999999
+    icurh,icurl = 0,0
+    for ii,dt,tt,h,l,c,o in zip(range(len(sif.close)),sif.date,sif.time,sif.high,sif.low,sif.close,sif.open):
+        if dt != pred:
+            pred = dt
+            curh = h    
+            curl = l
+            icurh = ii
+            icurl = ii
+        else:
+            if h > curh:
+                curh = l        ##显著不同, 这里得到的是起跌点，即第一个最高价小于前一最低价时的前一最低价
+                icurh = ii
+            if l < curl:
+                curl = h        ##显著不同. 这里得到的点是第一个最低价大于上一分钟最高价时的上一分钟最高价. 相当于暴力起涨点
+                icurl = ii
+        sh[ii] = curh
+        sl[ii] = curl
+        ih[ii] = icurh
+        il[ii] = icurl
+    sif.idhigh2 = ih    
+    sif.idlow2 = il
+    sif.dhigh2 = sh
+    sif.dlow2 = sl
+
+
+def dpeak2d2(sif):
+    '''
+        计算每日的起涨点，起跌点，以日切换为起计点
+        唯一有问题的是当日第一个点的设定，curh = h,curl=l
+            按照后面，应该是curh=l,curl=h为好? 但效果不佳
+        这里当h>curh时，设定curh的是该周期的低点，也就是说，如果没有快速脱离的话，很有可能随着
+            高点下移(但是仍然大于curh),导致curl也下移，最终一起下移
+            只有快速脱离，即高点小于前一低点，此时，才会将之前的低点设成的curh固定
+        curl的处理也是如此
+        因此，这就是所谓的起涨点，起跌点，即快速脱离点
+    '''
+    pred = 0
+    sh = np.zeros_like(sif.close)
+    sl = np.zeros_like(sif.close)
+
+    ih = np.zeros_like(sif.close)
+    il = np.zeros_like(sif.close)
+    curh,curl = 0,99999999
+    icurh,icurl = 0,0
+    preh,prel = 0,0
+    for ii,dt,tt,h,l,c,o in zip(range(len(sif.close)),sif.date,sif.time,sif.high,sif.low,sif.close,sif.open):
+        if dt != pred:
+            pred = dt
+            if h > preh:
+                curh = l
+            else:
+                curh = h
+            if l < prel:
+                curl = h
+            else:
+                curl = l
+            icurh = ii
+            icurl = ii
+        else:
+            if h > curh:
+                curh = l        ##显著不同, 这里得到的是起跌点，即第一个最高价小于前一最低价时的前一最低价
+                icurh = ii
+            if l < curl:
+                curl = h        ##显著不同. 这里得到的点是第一个最低价大于上一分钟最高价时的上一分钟最高价. 相当于暴力起涨点
+                icurl = ii
+        sh[ii] = curh
+        sl[ii] = curl
+        ih[ii] = icurh
+        il[ii] = icurl
+        preh = h
+        prel = l
+    sif.idhigh2 = ih    
+    sif.idlow2 = il
+    sif.dhigh2 = sh
+    sif.dlow2 = sl
+
 
 
 

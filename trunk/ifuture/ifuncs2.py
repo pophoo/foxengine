@@ -357,16 +357,17 @@ def rsi_long_hl(sif,sopened=None,rshort=7,rlong=19):
 
     signal = gand(signal
             ,sif.xatr < sif.mxatr
-            ,sif.xatr < 1200
-            ,sif.xatr30x < 8000
-            #,sif.xatr3x<sif.mxatr3x
-            #,sif.close > sif.dlow2 + (sif.dhigh - sif.dlow2) *0.6
+            ,sif.xatr < 1200 #越小越好
             ,sif.high > sif.dhigh - (sif.dhigh - sif.dlow2) *0.4    #回撤越小越好
-            
-            #,sif.close > sif.odlow + (sif.dhigh-sif.odlow)*3/5
-            #,sif.idhigh > sif.idlow    #高点后于低点,没必要。如果冲破.4线，不论何时都一样
-            #,sif.r120 > 10  #去掉毛刺
-            ,sif.r90 > 10
+            ,sif.xatr30x < 10000    #这个条件几乎等于没有
+            #,strend2(sif.mxatr-sif.mxatr30x)>0
+
+            ,sif.idhigh >= sif.idlow    #高点后于低点,必要性不大。
+            ,sif.r120 > 10 #去掉毛刺
+            #,sif.r90 > 10
+
+            #加成效果明显，但为简单起见,暂时去掉
+            #,sif.xatr3x<sif.mxatr3x
             )
 
     return signal * rsi_long_hl.direction
@@ -385,15 +386,21 @@ def rsi_short_hl(sif,sopened=None,rshort=7,rlong=19):
     signal = gand(cross(rsib,rsia)>0,strend2(rsia)>0)
 
     signal = gand(signal
-            ,sif.xatr30x < 9000
-            #,sif.xatr > sif.mxatr   #暂且屏蔽一部分
-            ,sif.xatr<1200
-            #,sif.xatr30x < sif.mxatr30x
-            #,sif.close < sif.dlow + (sif.dhigh - sif.dlow) *2/5
-            ,sif.low < sif.dlow + (sif.dhigh2 - sif.dlow) *0.167  #低点先冲破. 下跌的时候一般比较狠
-            #,sif.idlow > sif.idhigh    #低点后于高点,没必要。如果跌破.4线，不论何时都一样
-            ,sif.r120 < 0   #下跌具有自由落体情况，不惧毛刺
+            ,sif.xatr<1200  #越小越好
+            ,sif.low < sif.dlow + (sif.dhigh2 - sif.dlow) *0.3  #低点先冲破. 下跌的时候一般比较狠
+            #,sif.idlow >= sif.idhigh    #低点后于高点,必要性不大。如果跌破.4线，不论何时都一样
+            ,sif.r120 < 0   #下跌具有自由落体情况，不惧毛刺, 甚至有吸引力，吸到<10的
             #,sif.r90 < 0
+
+            #有效加成的条件，也可为简单起见暂时去掉
+            ,strend2(sif.mxatr30x)<0   #加成效果极好. 说明下跌的时候是比较猥琐的，一般的会缩摆震荡。必要时放开这个限制
+            
+            #加成效果一般的条件, 暂时禁止
+            #,sif.xatr30x < sif.mxatr30x    #加成效果比较好
+            #,sif.xatr30x < 9000 #越小越好            
+
+            #加成效果不明显的条件, 删除之
+            #,sif.xatr > sif.mxatr   #暂且屏蔽一部分
             )
 
     return signal * rsi_short_hl.direction
@@ -1545,11 +1552,12 @@ def ipmacd_short_devi1(sif,sopened=None):
     signal = sfollow(signal,fsignal,15)
 
     signal = gand(signal
-                #,sif.s5<0
                 ,strend2(sif.sdiff30x)<0
-                #,sif.s30<0
                 ,sif.xatr45x>sif.mxatr45x
-                #,sif.xtrend == TREND_DOWN
+                #,sif.xatr>sif.mxatr 
+                #,strend2(sif.mxatr)>0
+                #,strend2(sif.mxatr5x - sif.mxatr30x)>0
+                
             )
     return signal * ipmacd_short_devi1.direction
 ipmacd_short_devi1.direction = XSELL
@@ -1560,16 +1568,31 @@ def ipmacd_short_devi1x(sif,sopened=None):#+++
     '''
 
     signal = gand(hdevi(sif.high,sif.diff1,sif.dea1,delta=10)   #即便新高离上一高点低1点，仍然可视为新高
-                ,sif.mm<0
-                ,sif.xatr30x<6666
-                #,sif.xatr>sif.mxatr
-                #,sif.xatr30x<sif.mxatr30x
+                ,sif.mm<0   #这个条件可暂时性去掉
+                ,sif.xatr30x< 6666  #长期在减缩震荡,说明上行力量不够
+                #震荡加大才有可能暂时下跌
+                #,sif.xatr>sif.mxatr 
+                #,strend2(sif.mxatr)>0
+                #,strend2(sif.mxatr5x - sif.mxatr30x)>0
                 )
     return signal * ipmacd_short_devi1x.direction
 ipmacd_short_devi1x.direction = XSELL
 ipmacd_short_devi1x.priority = 2480
 
+def ipmacd_short_devi1y(sif,sopened=None):#+++
+    ''' 
+    '''
 
+    signal = gand(hdevi(sif.high,sif.diff1,sif.dea1,delta=10)   #即便新高离上一高点低1点，仍然可视为新高
+                ,sif.xatr30x< 6666  #长期在减缩震荡,说明上行力量不够
+                #震荡加大才有可能暂时下跌
+                ,sif.xatr>sif.mxatr 
+                ,strend2(sif.mxatr)>0
+                ,strend2(sif.mxatr5x - sif.mxatr30x)>0
+                )
+    return signal * ipmacd_short_devi1y.direction
+ipmacd_short_devi1y.direction = XSELL
+ipmacd_short_devi1y.priority = 2480
 ###from evaluate
 def macd15_b(sif,sopened=None):
     sx = gand(cross(sif.dea15x,sif.diff15x)>0
@@ -2566,19 +2589,19 @@ for xf in evs:
 
 
 xfollow = [#多头
-
+            #高度顺势
+            rsi_long_hl,
+            rsi_short_hl,
 
             #rsi_long_x,
             rsi_long_xx,    #rsi_long_x的增强版. 被其吸收
             rsi_long_x2,    
-            rsi_long_hl,
             #macd_long_x2,   #样本数太少，暂缓
             #macd_long_x3,   #样本数太少，暂缓
            #空头
             rsi_short_x,
             rsi_short_x2x,
             rsi_short_x3,            
-            rsi_short_hl,
             macd_short_x,
             macd_short_xx,
             macd_short_x2,
@@ -2633,6 +2656,7 @@ xagainst = [#多头
             #ipmacd_long_devi1,#有效放大了回撤? ##样本数太少
             ipmacd_short_devi1,##样本数太少
             ipmacd_short_devi1x, ##
+            ipmacd_short_devi1y, ##            
             #xud30s_r,  ##样本数太少
            ]
 #for xf in xagainst:xf.stop_closer = atr5_uxstop_08_25_A
@@ -2645,7 +2669,7 @@ for xf in xagainst:
 xorb_b = [##dnr1_dd_b,
         #dnr1_uu_b,
         #dnr1_ud_b,
-        ##dpt_ux_b,
+        dpt_ux_b,
         #dp_uu_b,
         #dp_ud_b,
         n30pt_dud_b,  #
@@ -2775,6 +2799,9 @@ for x in xevs_all:
 
 xxx2 = xfollow + xbreak + xagainst + xorb + xevs
 xxx3 = xfollow + xbreak + xagainst + xorb + xevs
+
+xxx2a = xfollow + xbreak + xagainst + xorb + xevs
+
 
 for x in xxx2: 
     x.stop_closer = atr5_uxstop_t_08_25_B2

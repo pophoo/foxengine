@@ -2632,6 +2632,26 @@ waveb.direction = XSELL
 waveb.priority = 1500
 waveb.stop_closer = atr5_uxstop_t_08_25_B2
 
+def allup(sif,sopened=None):
+    '''
+        多头排列
+    '''
+    signal = gand(sif.ma5>sif.ma13
+            ,sif.ma13>sif.ma30
+            ,sif.ma30 > sif.ma120
+            ,sif.ma60>sif.ma120
+            ,sif.ma120>sif.ma270
+            ,strend2(sif.ma270)>0
+            ,sif.xatr>800
+            ,sif.xatr30x<6000
+            #,sif.xatr<sif.mxatr
+            ,strend2(sif.mxatr30x)>0
+            )
+    return signal * allup.direction
+allup.direction = XBUY
+allup.priority = 1500
+
+
 evs = [roc1_b,
         #roc5_b,
         roc10_b,
@@ -2680,6 +2700,8 @@ xfollow = [#多头
             #高度顺势
             rsi_long_hl,
             rsi_short_hl,
+
+            allup,
 
             rsi_long_x,
             rsi_long_x_1341,
@@ -2771,17 +2793,17 @@ xorb_b = [##dnr1_dd_b,
         n60pt_dd_b,    #
         ]
 
-xorb_b_all = [dnr1_dd_b,
+xorb_b_all = [dnr1_dd_b,#+
         #dnr1_uu_b,
         #dnr1_ud_b,
-        dpt_ux_b,
-        dp_uu_b,
+        dpt_ux_b,   #+
+        dp_uu_b,    #+
         #dp_ud_b,
-        n30pt_dud_b,  #
+        n30pt_dud_b,  #+
         #n15pt_dd_b,    #
-        n60pt_uu_b,
+        n60pt_uu_b, #+
         #n60pt_uud_b,
-        n60pt_dd_b,    #
+        n60pt_dd_b,    #+
         ]
 
 
@@ -2907,5 +2929,6 @@ for x in xxx2:
 '''
     需要判断一直在创新高的情况
 '''
+
 
 

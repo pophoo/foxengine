@@ -2666,7 +2666,7 @@ def alldown(sif,sopened=None):
             ,sif.xatr30x<6000
             #,strend2(sif.mxatr)<0
             ,sif.xatr30x<sif.mxatr30x
-            ,sif.r15<0
+            ,sif.r60<0
             ,sif.xatr > sif.mxatr
             )
     return signal * alldown.direction

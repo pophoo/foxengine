@@ -247,6 +247,7 @@ rsi_short_x2x.priority = 1500
 def macd_short_5(sif,sopened=None):
     '''
         高度顺势放空操作
+        历史最悠久的方法
     '''
     ksfilter = gand(sif.open - sif.close < 60,rollx(sif.open - sif.close) < 120,sif.xatr<2000)
 
@@ -262,12 +263,12 @@ def macd_short_5(sif,sopened=None):
             ,strend2(sif.ma30)<0
             ,ksfilter
             ,sif.xatr30x<6000
+            #,sif.xatr30x < sif.mxatr30x    #单独效果很好，但是合并效果不好
             )
 
     return signal * macd_short_5.direction
 macd_short_5.direction = XSELL
 macd_short_5.priority = 1500
-
 
 def macd_short_x(sif,sopened=None):
     '''
@@ -293,6 +294,34 @@ def macd_short_x(sif,sopened=None):
     return signal * macd_short_x.direction
 macd_short_x.direction = XSELL
 macd_short_x.priority = 1500
+
+def macd_short_xt(sif,sopened=None):
+    '''
+        操作策略，失败一次之后当日就不应该再操作
+        成功的话，可以继续操作，参见macd_short_x2
+    '''
+    signal = gand(cross(sif.dea1,sif.diff1)<0,strend2(sif.diff1)<0)
+
+    signal = gand(signal
+            ,sif.ltrend<0            
+            #,sif.mtrend < 0
+            ,strend2(sif.ma30)<0
+            ,sif.ma5 < sif.ma13
+            #,sif.xatr>800
+            ,sif.sdiff30x<0
+            #,sif.xatr30x < sif.mxatr30x
+            ,strend2(sif.mxatr30x)<0
+            )
+
+    signal = np.select([sif.time>944],[signal],0)
+
+    signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal == 1)
+
+    return signal * macd_short_xt.direction
+macd_short_xt.direction = XSELL
+macd_short_xt.priority = 1500
+
 
 def macd_short_xx(sif,sopened=None):
     '''
@@ -362,8 +391,8 @@ def rsi_long_x(sif,sopened=None,rshort=7,rlong=19):
     '''
 
     #signal = cross(sif.dea1,sif.diff1)>0
-    rshort = 7
-    rlong = 19
+    #rshort = 7
+    #rlong = 19
     rsia = rsi2(sif.close,rshort)   #7,19/13,41
     rsib = rsi2(sif.close,rlong)
     #signal = cross(rsib,rsia)>0    
@@ -381,6 +410,8 @@ def rsi_long_x(sif,sopened=None,rshort=7,rlong=19):
     return signal * rsi_long_x.direction
 rsi_long_x.direction = XBUY
 rsi_long_x.priority = 1500
+
+rsi_long_x_1341 = fcustom(rsi_long_x,rshort=13,rlong=41)
 
 def rsi_long_hl(sif,sopened=None,rshort=7,rlong=19):
     '''
@@ -455,18 +486,31 @@ def rsi_long_xx(sif,sopened=None,rshort=7,rlong=19):
     signal = gand(cross(rsib,rsia)>0,strend2(rsia)>0)
 
     signal = gand(signal
+                #,sif.t120>0
                 ,sif.ltrend>0
-                ,sif.mtrend>0                
-                ,sif.t7_30>0
-                ,sif.s30>0
+                #,sif.mtrend>0                
+                #,sif.t7_30>0
+                #,sif.s30>0
                 ,sif.s10>0                
                 ,sif.s3>0
                 ,sif.xatr30x<sif.mxatr30x
+                ,sif.xatr<sif.mxatr
+                #,sif.xatr>1000
+                ,sif.xatr30x < 8000
+                ,strend2(sif.mxatr)<0
+                ,strend2(sif.mxatr30x)<0
             )
+    signal = np.select([sif.time>944],[signal],0)
+
+    signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal==1)
 
     return signal * rsi_long_xx.direction
 rsi_long_xx.direction = XBUY
 rsi_long_xx.priority = 1000
+
+rsi_long_xx_1341 = fcustom(rsi_long_xx,rshort=13,rlong=41)
+
 
 def rsi_long_x2(sif,sopened=None,rshort=7,rlong=19):
     '''
@@ -475,8 +519,8 @@ def rsi_long_x2(sif,sopened=None,rshort=7,rlong=19):
     '''
 
     #signal = cross(sif.dea1,sif.diff1)>0
-    rshort = 7
-    rlong = 19
+    #rshort = 7
+    #rlong = 19
     rsia = rsi2(sif.close,rshort)   #7,19/13,41
     rsib = rsi2(sif.close,rlong)
     signal = gand(cross(rsib,rsia)>0,strend2(rsia)>0)
@@ -496,6 +540,8 @@ def rsi_long_x2(sif,sopened=None,rshort=7,rlong=19):
     return signal * rsi_long_x2.direction
 rsi_long_x2.direction = XBUY
 rsi_long_x2.priority = 1500
+
+rsi_long_x2_1341 = fcustom(rsi_long_x2,rshort=13,rlong=41)
 
 def macd_long_x(sif,sopened=None):
     '''
@@ -573,7 +619,8 @@ def up0(sif,sopened=None):
             ,strend2(sif.ma30)>0
             ,strend2(sif.diff1)>3
             ,dsfilter
-            ,gor(sif.xatr60x<sif.mxatr60x,sif.xatr>sif.mxatr)
+            
+            #,gor(sif.xatr60x<sif.mxatr60x,sif.xatr>sif.mxatr)
             )
 
     return signal * up0.direction
@@ -633,22 +680,21 @@ def xdown60(sif,sopened=None):
     signal = gand(msnl>3)
 
     signal = gand(signal
-            ,sif.ma5 < sif.ma13
-            ,strend2(sif.diff1-sif.dea1)<0
+            #,sif.ma5 < sif.ma13
+            #,strend2(sif.diff1-sif.dea1)<0
             ,strend2(sif.ma270)<0
-            ,strend2(sif.sdiff5x-sif.sdea5x)<0
-            ,strend2(sif.sdiff15x-sif.sdea15x)<0
+            #,strend2(sif.sdiff5x-sif.sdea5x)<0
+            #,strend2(sif.sdiff15x-sif.sdea15x)<0
             ,sif.mtrend<0            
             ,sif.ltrend<0
             ,ksfilter
             ,sif.xatr>1000
+            ,strend2(sif.mxatr30x)<0
             )
     
     return signal * xdown60.direction
 xdown60.direction = XSELL
 xdown60.priority = 1600 
-
-
 
 def ipmacd_short5(sif,sopened=None):
     '''
@@ -699,6 +745,7 @@ def xud30b(sif,sopened=None):
     signal30 = gand(mxc
                 ,sif.xatr30<sif.mxatr30
                 ,sif.xatr30<8000    #这个条件可以放宽?
+                #,strend2(sif.mxatr30)<0
                 )
 
     signal = np.zeros_like(sif.diff1)
@@ -706,6 +753,7 @@ def xud30b(sif,sopened=None):
 
     signal = gand(signal
             ,sif.s15>0
+            #,sif.s30>0
             )
 
     return signal * xud30b.direction
@@ -725,11 +773,11 @@ def ama_short(sif,sopened=None): #+
             ,sif.xatr<1200
             ,sif.mtrend<0
             ,sif.xatr<sif.mxatr
+            ,strend2(sif.mxatr)<0
             )
     return signal * XSELL
 ama_short.direction = XSELL
 ama_short.priority = 1600
-
 
 
 ###acd系列,属于突破算法
@@ -783,7 +831,6 @@ def acd_ua(sif,sopened=None):
                 ,bnot(ms_da)       #没出现过da 
                 ,sif.s30>0
                 ,sif.xatr30x<sif.mxatr30x
-
                 #,sif.ltrend<0
                 #,sif.xatr>sif.mxatr
                 #,strend2(sif.mxatr15x)<0
@@ -825,7 +872,7 @@ def acd_da(sif,sopened=None):
 
     signal = gand(ms_da==1         #第一个da
                 ,bnot(ms_ua)       #没出现过ua 
-                ,sif.s30<0
+                #,sif.s30<0
                 ,strend2(sif.ma13)<0
                 ,sif.xatr<1000
                 )
@@ -1145,6 +1192,8 @@ def godown(sif,sopened=None):
 
     signal = gand(signal==1
             ,sif.xatr30x<6000
+            #,sif.xatr30x < sif.mxatr30x
+            #,strend2(sif.mxatr30x)<0   #单独效果好，合并效果差
             )
 
 
@@ -1309,7 +1358,8 @@ def ma1x(sif,opened=None,length=60):
                 ,sif.ltrend>0
                 ,sif.mtrend>0
                 ,sif.s30>0
-                ,sif.xatr60x<sif.mxatr60x
+                #,sif.xatr60x<sif.mxatr60x
+                #,strend2(sif.dma7)>0
             )
     signal = np.select([sif.time>944],[signal],0)
 
@@ -1374,6 +1424,7 @@ def k15_lastdown(sif,sopened=None):
     signal = gand(signal
             ,sif.xatr5x>2000
             ,sif.xatr90x<sif.mxatr90x   #大尺度不能振荡
+            #,strend2(sif.mxatr30x)>0
             )
     signal = extend(signal,delay)  #去除delay时间段内的重复信号
     signal = derepeatc(signal)
@@ -1907,7 +1958,7 @@ def roc1_b(sif,sopened=None,length=12,malength=6):
             ,sif.s30>0
             ,sif.xatr<1000
             ,sif.xatr30x<6000
-            ,strend2(sif.xatr30x)<0
+            #,strend2(sif.xatr30x)<0
             )
     return signal * roc1_b.direction
 roc1_b.direction = XBUY
@@ -2630,8 +2681,9 @@ xfollow = [#多头
             rsi_long_hl,
             rsi_short_hl,
 
-            #rsi_long_x,
-            rsi_long_xx,    #rsi_long_x的增强版. 被其吸收
+            rsi_long_x,
+            rsi_long_x_1341,
+            rsi_long_xx,    
             rsi_long_x2,    
             #macd_long_x2,   #样本数太少，暂缓
             #macd_long_x3,   #样本数太少，暂缓
@@ -2640,7 +2692,9 @@ xfollow = [#多头
             rsi_short_x2x,
             rsi_short_x3,
             rsi_short_xt,
+            
             macd_short_x,
+            macd_short_xt,
             macd_short_xx,
             macd_short_x2,
             macd_short_5,

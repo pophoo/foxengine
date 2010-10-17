@@ -569,6 +569,7 @@ def orb_normal_30_pattern_trend_b(sif,sopened=None,pfunc=pattern_uu,filter=null_
                 ,open30>dline1   #不论是跌涨，都大于dline1
                 ,strend2(sif.ma60)>0
                 ,sif.strend<0
+                #,sif.xatr30x<sif.mxatr30x
                 ,sfilter
                 )
 

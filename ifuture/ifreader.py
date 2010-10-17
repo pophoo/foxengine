@@ -787,6 +787,26 @@ def prepare_index(sif):
     r3[sif.i_cof15] = strend2(nma(sif.close15,3))    #nma避免strend2将初始批量0也当作正数计入的问题
     sif.r3 = extend2next(r3)
 
+    dma5 = np.zeros_like(sif.close)
+    dma5[sif.i_cofd] = strend2(nma(sif.closed,5))    #nma避免strend2将初始批量0也当作正数计入的问题
+    sif.dma5 = extend2next(dma5)
+
+    dma7 = np.zeros_like(sif.close)
+    dma7[sif.i_cofd] = strend2(nma(sif.closed,7))    #nma避免strend2将初始批量0也当作正数计入的问题
+    sif.dma7 = extend2next(dma7)
+
+    dma10 = np.zeros_like(sif.close)
+    dma10[sif.i_cofd] = strend2(nma(sif.closed,10))    #nma避免strend2将初始批量0也当作正数计入的问题
+    sif.dma10 = extend2next(dma10)
+
+    dma13 = np.zeros_like(sif.close)
+    dma13[sif.i_cofd] = strend2(nma(sif.closed,13))    #nma避免strend2将初始批量0也当作正数计入的问题
+    sif.dma13 = extend2next(dma13)
+
+    dma20 = np.zeros_like(sif.close)
+    dma20[sif.i_cofd] = strend2(nma(sif.closed,20))    #nma避免strend2将初始批量0也当作正数计入的问题
+    sif.dma20 = extend2next(dma20)
+
     mx = np.zeros_like(sif.diff1)
     mx[sif.i_cof15] = strend2(nma(sif.close15,7)-nma(sif.close15,30))
     sif.m7_30 = extend2next(mx)

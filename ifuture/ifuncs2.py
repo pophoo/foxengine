@@ -173,6 +173,7 @@ def rsi_short_x3(sif,sopened=None,rshort=7,rlong=19):
             ,sif.ms<0
             ,sif.mtrend<0
             ,sif.xatr30x>sif.mxatr30x
+            ,sif.xatr>sif.mxatr
             )
 
     signal = np.select([sif.time>944],[signal],0)
@@ -235,6 +236,7 @@ def rsi_short_x2x(sif,sopened=None,rshort=7,rlong=19):
             ,sif.xatr60x<sif.mxatr60x
             ,sif.strend<0
             ,strend2(sif.ma30)<0
+            #,strend2(sif.xatr5x- sif.mxatr5x)>0
             )
 
     return signal * rsi_short_x2x.direction
@@ -2634,7 +2636,7 @@ xfollow = [#多头
             #macd_long_x2,   #样本数太少，暂缓
             #macd_long_x3,   #样本数太少，暂缓
            #空头
-            rsi_short_x,
+            #rsi_short_x,
             rsi_short_x2x,
             rsi_short_x3,
             rsi_short_xt,

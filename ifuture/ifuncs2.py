@@ -2652,6 +2652,28 @@ allup.direction = XBUY
 allup.priority = 1500
 
 
+def alldown(sif,sopened=None):
+    '''
+        空头排列
+    '''
+    signal = gand(sif.ma5<sif.ma13
+            ,sif.ma13<sif.ma30
+            ,sif.ma30 < sif.ma120
+            ,sif.ma60<sif.ma120
+            ,sif.ma120<sif.ma270
+            ,strend2(sif.ma270)<0
+            ,sif.xatr<1000
+            ,sif.xatr30x<6000
+            #,strend2(sif.mxatr)<0
+            ,sif.xatr30x<sif.mxatr30x
+            ,sif.r15<0
+            ,sif.xatr > sif.mxatr
+            )
+    return signal * alldown.direction
+alldown.direction = XSELL
+alldown.priority = 1500
+
+
 evs = [roc1_b,
         #roc5_b,
         roc10_b,
@@ -2702,7 +2724,9 @@ xfollow = [#多头
             rsi_short_hl,
 
             allup,
+            alldown,
 
+            ##一般顺势
             rsi_long_x,
             rsi_long_x_1341,
             rsi_long_xx,    

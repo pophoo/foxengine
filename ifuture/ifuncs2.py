@@ -121,6 +121,41 @@ def rsi_short_x(sif,sopened=None,rshort=7,rlong=19):
 rsi_short_x.direction = XSELL
 rsi_short_x.priority = 1500
 
+
+def rsi_short_xt(sif,sopened=None,rshort=7,rlong=19):
+    '''
+        每天的第一次符合条件的机会为最佳机会
+        一旦第一次失败，后面的都被屏蔽
+        比较妥当的是 7/19和13/41参数,其中前者明显优于后者
+        但是合并有副作用
+    '''
+
+    rsia = rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = rsi2(sif.close,rlong)
+    #signal = cross(rsib,rsia)<0    
+    signal = gand(cross(rsib,rsia)<0,strend2(rsia)<0)
+
+    signal = gand(signal
+            ,sif.s30<0
+            ,strend2(sif.ma30)<0
+            #,sif.xatr30x<8000
+            ,sif.mtrend<0
+            ,sif.xatr < sif.mxatr
+            #,sif.xatr < 1200
+            #,strend2(sif.xatr30x - sif.mxatr30x)>0
+            ,strend2(sif.mxatr)>0
+            )
+
+    signal = np.select([sif.time>944],[signal],0)
+
+    signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal==1)
+
+    return signal * rsi_short_xt.direction
+rsi_short_xt.direction = XSELL
+rsi_short_xt.priority = 1500
+
+
 def rsi_short_x3(sif,sopened=None,rshort=7,rlong=19):
     '''
        使用sif.xatr30x>sif.mxatr30x 
@@ -2601,7 +2636,8 @@ xfollow = [#多头
            #空头
             rsi_short_x,
             rsi_short_x2x,
-            rsi_short_x3,            
+            rsi_short_x3,
+            rsi_short_xt,
             macd_short_x,
             macd_short_xx,
             macd_short_x2,

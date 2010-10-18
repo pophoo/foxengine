@@ -1165,72 +1165,50 @@ def k15_relay(sif,sopened=None):
 k15_relay.direction = XBUY
 k15_relay.priority = 1800 
 
-def k15_lastdown(sif,sopened=None):
+def k15_lastdown_30(sif,sopened=None):
     '''
-        新高衰竭模式
-        1. 15分钟新高后,15分钟内1分钟跌破前15分钟的开盘价(收盘价的低者)/最低价
+        15分钟调整模式
+        这里最强的筛选条件是 xatr30x>8000
+        说明震荡非常大
     '''
     
-    trans = sif.transaction
-
-    ma15_500 = ma(sif.close15,500)
-    ma15_200 = ma(sif.close15,200)
-    ma15_60 = ma(sif.close15,60) 
-    ma15_13 = ma(sif.close15,13)     
-    ma15_30 = ma(sif.close15,30) 
-    ma15_7 = ma(sif.close15,7)         
-    ma15_3 = ma(sif.close15,3)         
-    
-    signal15 = gand(sif.high15>rollx(sif.high15)
-                ,sif.low15>rollx(sif.low15)
-                ,sif.high15 - gmax(sif.open15,sif.close15) > np.abs(sif.open15-sif.close15) #上影线长于实体
-                ,sif.high15 == tmax(sif.high15,5)
-                ,sif.high15 > gmax(ma15_3,ma15_30,ma15_60)
-                #,rollx(sif.vol5) > sif.vol5
-                #,rollx(sif.vol5) > rollx(sif.vol5,2)
-                #,rollx(sif.close5)<rollx(sif.open5)
-                ,strend2(ma15_60)>0
-                ,strend2(sif.diff15x-sif.dea15x)>0
-                #,sif.diff15x>sif.dea15x
-                #,strend2(ma15_7)>0                                
-                #,ma15_7 > ma15_13
-                #,strend2(ma15_500)>0
+    signal15 = gand(
+                rollx(sif.high15,1) > rollx(sif.high15,2)
+                ,rollx(sif.high15,1) > sif.high15
                 )
 
-    #print np.nonzero(signal15)
-    delay = 15
+    delay = 100
 
     ss = np.zeros_like(sif.close)
     ss[sif.i_cof15] = signal15
     ssh = np.zeros_like(sif.close)
-    ssh[sif.i_cof15] = gmin(sif.open15,sif.close15)
+    ssh[sif.i_cof15] = rollx(gmin(sif.open15,sif.close15),1)
     bline = np.select([ss>0],[ssh],0)
     bline = extend(bline,delay)
-    
-    #fsignal = cross(bline,sif.high)>0
-    fsignal = sif.close < bline
 
+    fsignal = sif.close < bline
 
     signal = sfollow(ss,fsignal,delay)
     signal = gand(signal
-            #,strend2(sif.diff1-sif.dea1)<0
-            #,strend(sif.ma7)>0
-            #,rollx(strend2(sif.sdiff5x-sif.sdea5x),5)<0
-            #,sif.xatr<3000
+            ,sif.xatr<1500
+            #,sif.xatr30x > 8000
+            #,strend2(sif.mxatr)>0
+            #,sif.xatr < sif.mxatr
             )
     signal = derepeatc(signal)
 
-    return signal * k15_lastdown.direction
-k15_lastdown.direction = XSELL
-k15_lastdown.priority = 2100 #对i09时200即优先级最高的效果最好
+    return signal * k15_lastdown_30.direction
+k15_lastdown_30.direction = XSELL
+k15_lastdown_30.priority = 2100 #对i09时200即优先级最高的效果最好
 #k15_lastdown.stop_closer = atr5_uxstop_05_25
 
 
 def k15_lastdownb(sif,sopened=None):
     '''
         新高衰竭模式
-        15分钟新高后,15分钟内1分钟跌破前15分钟的开盘价(收盘价的低者)/最低价
-        15分钟判断是连续的，而不是离散的
+        1. 15分钟新高
+        2. 次15分钟为阴线且无新高
+        3. 下15分钟破掉
     '''
     
     trans = sif.transaction
@@ -1383,23 +1361,25 @@ k15_lastdown_s.priority = 900 #对i09时200即优先级最高的效果最好
 def k5_lastdown2(sif,sopened=None):
     '''
         新高衰竭模式
-        1. 5分钟长上影新高后,5分钟内1分钟跌破前5分钟的最低价
+        1. 15分钟新高
+        2. 次15分钟为阴线且无新高
+        3. 下15分钟破掉
     '''
     
     trans = sif.transaction
 
-    ma5_500 = ma(sif.close5,500)
-    ma5_200 = ma(sif.close5,200)
-    ma5_60 = ma(sif.close5,60) 
-    ma5_13 = ma(sif.close5,13)     
-    ma5_30 = ma(sif.close5,30) 
-    ma5_7 = ma(sif.close5,7)         
-    ma5_3 = ma(sif.close5,3)         
+    ma5_500 = ma(sif.close15,500)
+    ma5_200 = ma(sif.close15,200)
+    ma5_60 = ma(sif.close15,60) 
+    ma5_13 = ma(sif.close15,13)     
+    ma5_30 = ma(sif.close15,30) 
+    ma5_7 = ma(sif.close15,7)         
+    ma5_3 = ma(sif.close15,3)         
     
-    signal5 = gand(sif.high5>rollx(tmax(sif.high5,10))
+    signal5 = gand(sif.high15>rollx(tmax(sif.high15,10))
                 #,sif.close5>rollx(sif.close5)
                 #,sif.low5>rollx(sif.low5)
-                ,sif.high5 - gmax(sif.open5,sif.close5) > np.abs(sif.open5-sif.close5)*2/3 #上影线长于实体的2/3
+                ,sif.high15 - gmax(sif.open15,sif.close15) > np.abs(sif.open5-sif.close5)*2/3 #上影线长于实体的2/3
                 #,np.abs(sif.open5-sif.close5) > gmin(sif.open5,sif.close5) - sif.low5#上影线长于实体
                 #,sif.high5 - gmax(sif.open5,sif.close5) > gmin(sif.open5,sif.close5) - sif.low5#上影线长于实体
                 )

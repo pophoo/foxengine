@@ -614,8 +614,8 @@ class DynamicScheduler:
             发送成功返回1,否则为0
         '''
         #template = 'http://smsapi.qxt100.com/dapi/send_simple.php?name=wycharon&pwd=88107672&dest=13586682052&content=%s'        
-        template = 'http://smsapi.qxt100.com/dapi/send_simple.php?name=wycharon&pwd=88107672&dest=15968464619&content=%s'
-        #template = 'http://smsapi.qxt100.com/dapi/send_simple.php?name=wycharon&pwd=88107672&dest=13586682052&content=%s'
+        #template = 'http://smsapi.qxt100.com/dapi/send_simple.php?name=wycharon&pwd=88107672&dest=15968464619&content=%s'
+        template = 'http://smsapi.qxt100.com/dapi/send_simple.php?name=wycharon&pwd=88107672&dest=13586682052&content=%s'
         p = urllib2.urlopen(template % msg)
         rmsg = p.read()
         #rmsg = 'success' #'error'

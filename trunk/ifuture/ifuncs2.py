@@ -20,8 +20,10 @@ todo:   检验1-3-5-10-15-30的xatr和mxatr,以及xatr的短期平均的趋势�
 
         感觉上xatr30x,mxatr30x变化太慢,不如15分钟效率高
             
+        ####
+        发现xatr/mxatr的交叉点可以用来判断短期顶和底,然后做底部抬高或顶部下跌的判断?
 
-todo:
+todo:   这个基本完成，但是貌似走入了一个误区。未采纳结果
         测试macd的不同参数
         测试ma的不同参数的折返效应. 以及收盘突破均线
         测试svama不同参数的折返效应，以及交叉效应
@@ -1494,6 +1496,44 @@ def k15_lastdown_s(sif,sopened=None):
 k15_lastdown_s.direction = XSELL
 k15_lastdown_s.priority = 2105
 
+def k15_lastdown_30(sif,sopened=None):
+    '''
+        15分钟调整模式
+        这里最强的筛选条件是 xatr30x>8000
+        说明震荡非常大. 通常是顶部震荡
+        效果不错，但是叠加不好
+    '''
+    
+    signal15 = gand(
+                rollx(sif.high15,1) > rollx(sif.high15,2)
+                ,rollx(sif.high15,1) > sif.high15
+                )
+
+    delay = 30
+
+    ss = np.zeros_like(sif.close)
+    ss[sif.i_cof15] = signal15
+    ssh = np.zeros_like(sif.close)
+    ssh[sif.i_cof15] = rollx(gmin(sif.open15,sif.close15),1)
+    bline = np.select([ss>0],[ssh],0)
+    bline = extend(bline,delay)
+
+    fsignal = sif.close < bline
+
+    signal = sfollow(ss,fsignal,delay)
+    signal = gand(signal
+            ,sif.xatr<1500
+            ,sif.xatr30x > 8000
+            ,strend2(sif.mxatr)>0
+            ,sif.xatr < sif.mxatr
+            )
+    signal = derepeatc(signal)
+
+    return signal * k15_lastdown_30.direction
+k15_lastdown_30.direction = XSELL
+k15_lastdown_30.priority = 2100 #对i09时200即优先级最高的效果最好
+
+
 def k5_lastup(sif,sopened=None):
     '''
         底部衰竭模式
@@ -2790,6 +2830,7 @@ xagainst = [#多头
             #xdma_short,    #
             k15_lastdown,
             k15_lastdown_s,    #样本数太少，暂缓
+            k15_lastdown_30,    ##
             k5_lastup, 
             #ipmacd_long_devi1,#有效放大了回撤? ##样本数太少
             ipmacd_short_devi1,##样本数太少

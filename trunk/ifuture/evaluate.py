@@ -1855,8 +1855,6 @@ m15ts = fcustom(macd15xs,ifast=27,islow=152,idiff=6)
 '''
 
 
-m30ts = fcustom(macd30xs,ifast=47,islow=94,idiff=10)
-
 '''
                 ,sif.xatr<sif.mxatr
 47-94/10
@@ -1878,6 +1876,9 @@ for ishort in range(5,60,4):
 macd30xs = lambda sif,ifast=12,islow=26,idiff=9:macdns(sif,sif.close,sif.close30,sif.i_cof30,ifast,islow,idiff)
 macd30xs.direction = XSELL
 macd30xs.priority = 1500
+
+m30ts = fcustom(macd30xs,ifast=47,islow=94,idiff=10)
+
 
 macd30xs_tests = []
 for ishort in range(3,60,4):

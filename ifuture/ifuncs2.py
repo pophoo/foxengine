@@ -1526,12 +1526,127 @@ def k15_lastdown_30(sif,sopened=None):
             ,sif.xatr30x > 8000
             ,strend2(sif.mxatr)>0
             ,sif.xatr < sif.mxatr
+            #,sif.mtrend>0
             )
     signal = derepeatc(signal)
 
     return signal * k15_lastdown_30.direction
 k15_lastdown_30.direction = XSELL
 k15_lastdown_30.priority = 2100 #对i09时200即优先级最高的效果最好
+
+def k15_lastup_30(sif,sopened=None):
+    '''
+        15分钟调整后上涨模式
+        这里最强的筛选条件是strend2(sif.mxatr30x)>0
+        说明震荡在加大
+    '''
+    
+    signal15 = gand(
+                rollx(sif.low15,1) < rollx(sif.low15,2)
+                ,rollx(sif.low15,1) < sif.low15
+                )
+
+    delay = 90
+
+    ss = np.zeros_like(sif.close)
+    ss[sif.i_cof15] = signal15
+    ssh = np.zeros_like(sif.close)
+    ssh[sif.i_cof15] = rollx(gmin(sif.open15,sif.close15),1)
+    bline = np.select([ss>0],[ssh],0)
+    bline = extend(bline,delay)
+
+    fsignal = sif.close > bline
+
+    signal = sfollow(ss,fsignal,delay)
+    signal = gand(signal
+            ,sif.xatr>1000
+            ,sif.xatr30x < 6000
+            ,strend2(sif.mxatr30x)>0
+            ,sif.xatr>sif.mxatr
+            ,sif.r60>0
+            )
+    signal = derepeatc(signal)
+
+    return signal * k15_lastup_30.direction
+k15_lastup_30.direction = XBUY
+k15_lastup_30.priority = 2100 #对i09时200即优先级最高的效果最好
+
+def k10_lastdown_30(sif,sopened=None):
+    '''
+        10分钟调整模式
+        这里最强的筛选条件是 xatr30x>8000
+        说明震荡非常大. 通常是顶部震荡
+        效果不错，但是叠加不好
+    '''
+    
+    signal10 = gand(
+                rollx(sif.high10,1) > rollx(sif.high10,2)
+                ,rollx(sif.high10,1) > sif.high10
+                )
+
+    delay = 30
+
+    ss = np.zeros_like(sif.close)
+    ss[sif.i_cof10] = signal10
+    ssh = np.zeros_like(sif.close)
+    ssh[sif.i_cof10] = rollx(gmin(sif.open10,sif.close10),1)
+    bline = np.select([ss>0],[ssh],0)
+    bline = extend(bline,delay)
+
+    fsignal = sif.close < bline
+
+    signal = sfollow(ss,fsignal,delay)
+    signal = gand(signal
+            ,sif.xatr<1500
+            ,sif.xatr30x > 8000
+            ,strend2(sif.mxatr)>0
+            ,sif.mtrend>0   #说明是顶，不是途中
+            ,sif.r120>0     #这个条件太强，可适当去掉以满足出现率
+            )
+    signal = derepeatc(signal)
+
+    return signal * k10_lastdown_30.direction
+k10_lastdown_30.direction = XSELL
+k10_lastdown_30.priority = 2100 #对i09时200即优先级最高的效果最好
+
+
+def k10_lastup_30(sif,sopened=None):
+    '''
+        10分钟调整后上涨模式
+        这里最强的筛选条件是strend2(sif.mxatr30x)>0
+        说明震荡在加大
+    '''
+    
+    signal10 = gand(
+                rollx(sif.low10,1) < rollx(sif.low10,2)
+                ,rollx(sif.low10,1) < sif.low10
+                )
+
+    delay = 90
+
+    ss = np.zeros_like(sif.close)
+    ss[sif.i_cof10] = signal10
+    ssh = np.zeros_like(sif.close)
+    ssh[sif.i_cof10] = rollx(gmin(sif.open10,sif.close10),1)
+    bline = np.select([ss>0],[ssh],0)
+    bline = extend(bline,delay)
+
+    fsignal = sif.close > bline
+
+    signal = sfollow(ss,fsignal,delay)
+    signal = gand(signal
+            ,sif.xatr>1000
+            ,sif.xatr30x < 6000
+            ,strend2(sif.mxatr30x)>0
+            ,sif.xatr>sif.mxatr
+            ,sif.r60>0
+            )
+    signal = derepeatc(signal)
+
+    return signal * k10_lastup_30.direction
+k10_lastup_30.direction = XBUY
+k10_lastup_30.priority = 2100 #对i09时200即优先级最高的效果最好
+
 
 
 def k5_lastup(sif,sopened=None):
@@ -1581,6 +1696,9 @@ def k5_lastup(sif,sopened=None):
             ,strend2(sif.ma13)>0
             ,sif.ma3>sif.ma13
             ,sif.xatr<1500
+
+            ,sif.xatr<sif.mxatr
+            ,strend2(sif.mxatr)<0
             )
 
     signal = np.select([sif.time>944],[signal],0)
@@ -2831,6 +2949,9 @@ xagainst = [#多头
             k15_lastdown,
             k15_lastdown_s,    #样本数太少，暂缓
             k15_lastdown_30,    ##
+            k15_lastup_30,
+            k10_lastup_30,  
+            k10_lastdown_30,
             k5_lastup, 
             #ipmacd_long_devi1,#有效放大了回撤? ##样本数太少
             ipmacd_short_devi1,##样本数太少

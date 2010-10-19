@@ -113,6 +113,7 @@ STOCK_DATA_BLOCK_NUM = 0xec  #236
 STOCK_DATA_PAGE_SIZE = STOCK_DATA_BLOCK_NUM * 0x34  #数据页面大小
 
 
+
 class DataObject:
     pass
 
@@ -680,17 +681,23 @@ class DynamicScheduler:
 
 import sys
 import getopt   #简单情形，不使用optparse
+import time
 if __name__ == '__main__':
     #scheduler = DynamicScheduler('d:/dzh2/data/sf/reportl.dat',['IF1009'])
     #scheduler = DynamicScheduler('d:/dzh2/data/sf/reportl.dat',['IF0001']) #当月连续
     #scheduler.run()
-    sms_begin = 915
+    sms_begin = -1
+
     try:
         opts, args = getopt.getopt(sys.argv[1:], 't:', ['sms_begin='])
         #print opts,args
         for opt,v in opts:
             if opt in ('-t','--sms_begin'):
                 sms_begin = int(v)
+
+        if sms_begin == -1: #没设置过
+            sltime = time.localtime(time.time())
+            sms_begin = sltime.tm_hour*100 + sltime.tm_min
         print u'sms_begin=%s' % sms_begin
     except getopt.GetoptError:
         pass

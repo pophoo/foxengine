@@ -1743,11 +1743,11 @@ def ipmacd_long_devi1(sif,sopened=None):
 
     signal = gand(msignal
             #,sif.s10<0
-            ,sif.s3>0
-            ,sif.xatr45x > sif.mxatr45x
-            ,sif.xtrend == TREND_UP
+            #,sif.s3>0
+            #,sif.xatr45x > sif.mxatr45x
+            #,sif.xtrend == TREND_UP
             #,sif.xatr30x < sif.mxatr30x
-            ,sif.xatr<sif.mxatr
+            #,sif.xatr<sif.mxatr
             )
 
     return signal * ipmacd_long_devi1.direction

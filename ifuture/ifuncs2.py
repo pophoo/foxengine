@@ -1743,16 +1743,35 @@ def ipmacd_long_devi1(sif,sopened=None):
 
     signal = gand(msignal
             #,sif.s10<0
-            #,sif.s3>0
-            #,sif.xatr45x > sif.mxatr45x
-            #,sif.xtrend == TREND_UP
+            ,sif.s3>0
+            ,sif.xatr45x > sif.mxatr45x
+            ,sif.xtrend == TREND_UP
             #,sif.xatr30x < sif.mxatr30x
-            #,sif.xatr<sif.mxatr
+            ,sif.xatr<sif.mxatr
             )
 
     return signal * ipmacd_long_devi1.direction
 ipmacd_long_devi1.direction = XBUY
 ipmacd_long_devi1.priority = 2100
+
+def ipmacd_long_devi1b(sif,sopened=None):
+    '''
+    '''
+
+    msignal = ldevi(sif.low,sif.sk,sif.sd)
+
+    signal = gand(msignal
+            ,strend2(sif.mxatr)<0
+            ,sif.xatr>sif.mxatr
+            ,sif.xatr30x>5000
+            ,strend2(sif.mxatr30x)>0
+            ,sif.xatr<1500
+            )
+
+    return signal * ipmacd_long_devi1b.direction
+ipmacd_long_devi1b.direction = XBUY
+ipmacd_long_devi1b.priority = 2100
+
 
 def rsi_long_devi1(sif,sopened=None):
     '''

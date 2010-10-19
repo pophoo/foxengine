@@ -444,6 +444,8 @@ def rsi_long_hl(sif,sopened=None,rshort=7,rlong=19):
 rsi_long_hl.direction = XBUY
 rsi_long_hl.priority = 1500
 
+rsi_long_hl_1341 = fcustom(rsi_long_hl,rshort=13,rlong=41)
+
 def rsi_short_hl(sif,sopened=None,rshort=7,rlong=19):
     '''
         计算创当日新低后，从暴力起跌点算起回撤不到40%，然后再下降
@@ -544,6 +546,36 @@ rsi_long_x2.direction = XBUY
 rsi_long_x2.priority = 1500
 
 rsi_long_x2_1341 = fcustom(rsi_long_x2,rshort=13,rlong=41)
+
+def rsi_long_x3(sif,sopened=None,rshort=7,rlong=19):
+    '''
+        去掉s30限制
+        比较妥当的是 7/19和13/41参数,其中前者明显优于后者
+    '''
+
+    rsia = rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = rsi2(sif.close,rlong)
+    signal = gand(cross(rsib,rsia)>0,strend2(rsia)>0)
+
+    signal = gand(signal
+            ,strend2(sif.mxatr30x)>0
+            ,strend2(sif.mxatr)>0
+            ,sif.r60>20
+            ,strend2(sif.ma30)>0
+            ,sif.idhigh2 > sif.idlow2
+            )
+    signal = np.select([sif.time>944],[signal],0)
+
+    #signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+    #signal = gand(signal==1)
+
+    return signal * rsi_long_x3.direction
+rsi_long_x3.direction = XBUY
+rsi_long_x3.priority = 1500
+
+rsi_long_x3_1341 = fcustom(rsi_long_x3,rshort=13,rlong=41)
+
+
 
 def macd_long_x(sif,sopened=None):
     '''
@@ -1534,6 +1566,47 @@ def k15_lastdown_30(sif,sopened=None):
 k15_lastdown_30.direction = XSELL
 k15_lastdown_30.priority = 2100 #对i09时200即优先级最高的效果最好
 
+def k15_lastdown_x(sif,sopened=None):
+    '''
+        15分钟调整模式
+        这里最强的筛选条件是 xatr30x>8000
+        说明震荡非常大. 通常是顶部震荡
+        效果不错，但是叠加不好
+    '''
+    
+    signal15 = gand(
+                rollx(sif.high15,1) > rollx(sif.high15,2)
+                ,rollx(sif.high15,1) > sif.high15
+                ,sif.low15 < rollx(sif.low15)
+                )
+
+    delay = 30
+
+    ss = np.zeros_like(sif.close)
+    ss[sif.i_cof15] = signal15
+    ssh = np.zeros_like(sif.close)
+    ssh[sif.i_cof15] = rollx(gmin(sif.open15,sif.close15),1)
+    bline = np.select([ss>0],[ssh],0)
+    bline = extend(bline,delay)
+
+    fsignal = sif.close < bline
+
+    signal = sfollow(ss,fsignal,delay)
+    signal = gand(signal
+            ,sif.r60 < -40
+            ,strend2(sif.mxatr)>0
+            ,strend2(sif.mxatr30x)<0
+            ,sif.xatr<sif.mxatr
+            ,sif.xatr<1500
+            ,sif.diff1<0
+            )
+    signal = derepeatc(signal)
+
+    return signal * k15_lastdown_x.direction
+k15_lastdown_x.direction = XSELL
+k15_lastdown_x.priority = 2100 #对i09时200即优先级最高的效果最好
+
+
 def k15_lastup_30(sif,sopened=None):
     '''
         15分钟调整后上涨模式
@@ -1711,6 +1784,104 @@ def k5_lastup(sif,sopened=None):
     return signal * k5_lastup.direction
 k5_lastup.direction = XBUY
 k5_lastup.priority = 2100
+
+
+def k5_lastup2(sif,sopened=None):
+    '''
+        底部衰竭模式2
+        5分钟连续下跌时
+            就是说这个一个返回时的压力点，10分钟内突破就突破了
+        关键选择点在: r60>40
+    '''
+    trans = sif.transaction
+ 
+    signal5 = gand(sif.high5<rollx(sif.high5)
+                #,sif.low5>rollx(sif.low5)
+                ,rollx(sif.low5) == tmin(sif.low5,12)
+                #,rollx(sif.close5)<rollx(sif.open5)
+             )
+
+    delay = 10
+
+    ss = np.zeros_like(sif.close)
+    ss[sif.i_cof5] = signal5
+    ssh = np.zeros_like(sif.close)
+    ssh[sif.i_cof5] = sif.low5 
+    bline = np.select([ss>0],[ssh],0)
+    bline = extend(bline,delay)
+    
+    #fsignal = cross(bline,sif.high)>0
+    fsignal = sif.high > bline #-100
+
+    #signal = np.zeros_like(sif.close)
+    #signal[sif.i_cof5] = signal5
+
+    signal = sfollow(ss,fsignal,delay)
+    signal = gand(signal
+            ,sif.mtrend<0            
+            ,sif.r60>40
+            ,strend2(sif.mxatr)<0
+            )
+
+    signal = np.select([sif.time>944],[signal],0)
+
+    #signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
+    #signal = gand(signal_s==1)
+    
+    signal = derepeatc(signal)
+
+    return signal * k5_lastup2.direction
+k5_lastup2.direction = XBUY
+k5_lastup2.priority = 2100
+
+
+def k5_lastdown2(sif,sopened=None):
+    '''
+        顶部衰竭模式2
+        5分钟连续上涨时
+            就是说这个一个返回时的支撑点，3分钟内击穿就击穿了
+        3分钟吞没是假突破
+    '''
+    trans = sif.transaction
+ 
+    signal5 = gand(sif.low5>rollx(sif.low5)
+                ,rollx(sif.high5) == tmax(sif.high5,12)
+             )
+
+    delay = 3
+
+    ss = np.zeros_like(sif.close)
+    ss[sif.i_cof5] = signal5
+    ssh = np.zeros_like(sif.close)
+    ssh[sif.i_cof5] = sif.high5 
+    bline = np.select([ss>0],[ssh],0)
+    bline = extend(bline,delay)
+    
+    #fsignal = cross(bline,sif.high)>0
+    fsignal = sif.low < bline #-100
+
+    #signal = np.zeros_like(sif.close)
+    #signal[sif.i_cof5] = signal5
+
+    signal = sfollow(ss,fsignal,delay)
+    signal = gand(signal
+            ,strend2(sif.mxatr)>0
+            ,sif.xatr>sif.mxatr
+            ,sif.xatr30x > 8000
+            ,strend2(sif.mxatr30x)>0
+            )
+
+    signal = np.select([sif.time>944],[signal],0)
+
+    #signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
+    #signal = gand(signal_s==1)
+    
+    signal = derepeatc(signal)
+
+    return signal * k5_lastdown2.direction
+k5_lastdown2.direction = XSELL
+k5_lastdown2.priority = 2100
+
 
 def xud30s_r(sif,sopened=None):
     '''
@@ -2908,6 +3079,7 @@ xfollow = [#多头
             rsi_long_x_1341,
             rsi_long_xx,    
             rsi_long_x2,    
+            rsi_long_x3,
             #macd_long_x2,   #样本数太少，暂缓
             #macd_long_x3,   #样本数太少，暂缓
            #空头
@@ -2915,7 +3087,7 @@ xfollow = [#多头
             rsi_short_x2x,
             rsi_short_x3,
             rsi_short_xt,
-            
+           
             macd_short_x,
             macd_short_xt,
             macd_short_xx,
@@ -2968,10 +3140,14 @@ xagainst = [#多头
             k15_lastdown,
             k15_lastdown_s,    #样本数太少，暂缓
             k15_lastdown_30,    ##
+            k15_lastdown_x,    ##
+            k5_lastdown2,
+
             k15_lastup_30,
             k10_lastup_30,  
             k10_lastdown_30,
             k5_lastup, 
+            k5_lastup2, 
             #ipmacd_long_devi1,#有效放大了回撤? ##样本数太少
             ipmacd_short_devi1,##样本数太少
             ipmacd_short_devi1x, ##

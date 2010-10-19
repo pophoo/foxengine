@@ -5346,42 +5346,38 @@ k5_lastup.direction = XBUY
 k5_lastup.priority = 2100
 
 
-def xatr_tdown(sif,sopened=None):
+def skdj_tdown(sif,sopened=None):
     '''
         顶部下降
     '''
 
-    trans = sif.transaction
+    sk3,sd3 = skdj(sif.high3,sif.low3,sif.close3)
 
-    hh = hpeak(sif.high,sif.mxatr,sif.xatr)
+    hh = hpeak(sif.high3,sk3,sd3)
 
     ihh = np.nonzero(hh)[0]
     
-    sh = np.zeros_like(sif.close)
+    xhh = hh[ihh]
 
-    sh[ihh] = strend2(hh[ihh])
-    sl[ill] = strend2(ll[ill])
-    sl3[ill] = rollx(strend2(ll[ill]),3)
+    xsignal = np.zeros_like(sif.close3)
 
-    sh = extend2next(sh)
-    sl = extend2next(sl)
-    sl3 = extend2next(sl3)
+    xsignal[ihh] = gand(xhh < rollx(xhh))#,xhh<rollx(xhh,2),xhh<rollx(xhh,3))
 
-    signal = gand(sh>1,
-                  sl==3,
-                  sl3 < -2
-                  )
+    signal = np.zeros_like(sif.close)
 
-    fsignal= gand(cross(sif.sd,sif.sk)>0
-                ,sl>0
-                )
-    signal = sfollow(signal,fsignal,10)
+    signal[sif.i_cof3] = xsignal
+
 
     signal = gand(signal
+            ,strend2(sif.ma20)<0
+            ,sif.xatr < sif.mxatr
+            ,strend2(sif.mxatr30x)<0
+            ,sif.r60<0
+            ,sif.ltrend<0
             )
-    return signal * skdj_bup.direction
-skdj_bup.direction = XBUY
-skdj_bup.priority = 1200
+    return signal * skdj_tdown.direction
+skdj_tdown.direction = XSELL
+skdj_tdown.priority = 1200
 
 
 

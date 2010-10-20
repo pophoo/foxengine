@@ -319,6 +319,44 @@ class SecReader:
         return mrecords
 
     @staticmethod
+    def sec2min2(records):
+        ''' 
+            大智慧在开盘后打开程序时，会出现当日之前的数据均只有59秒的情形
+            此时必须以上分钟59秒为开盘数据，否则ochl四个数据都是本分钟59秒的
+                现在用上一分钟的来算，搞定了open/close，但不能搞定h/l,勉强用
+        '''
+        if len(records) == 0:
+            return []
+        mrecords = []
+        min_high = min_low = records[0].price
+        begin_record = records[0]
+        end_record = records[0]
+        for record in records:
+            if record.date == end_record.date and record.time/100 == end_record.time/100:
+                if record.price > min_high:
+                    min_high = record.price
+                if record.price < min_low:
+                    min_low = record.price
+            elif record.date > end_record.date or (record.date == end_record.date and record.time/100 > end_record.time/100):#切换分钟
+                mrecords.append(SecReader.create_record(end_record.date,end_record.time/100,min_high,min_low,begin_record.price,end_record.price,end_record.svol,end_record.holding))
+                min_high = min_low = record.price
+                if begin_record % 100 == 59:    #begin就是最后一秒
+                    begin_record = end_record   #则begin_record采用上分钟的最后一秒
+                    if record.price > begin_record.price:
+                        min_low = begin_record.price
+                    else:
+                        min_high = begin_record.price
+                else:
+                    begin_record = record
+            elif record.date < end_record.date:
+                break   #发现之前的数据
+            end_record = record
+        mrecords.append(SecReader.create_record(end_record.date,end_record.time/100,min_high,min_low,begin_record.price,end_record.price,end_record.svol,end_record.holding))
+        SecReader.save_mrecords(mrecords)
+        return mrecords
+
+
+    @staticmethod
     def save_mrecords(mrecords):
         wf = open('d:/temp/min.txt','a+')
         wf.write('\n')

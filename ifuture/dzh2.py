@@ -401,6 +401,18 @@ class SecReader:
             records.append(record)        
         return records
 
+    def save_all(self,fname):
+        self.open()
+        infos = self.read_header()
+        if fname in infos:
+            records = self.read_records(infos[fname])
+            self.save_records(records)
+            self.save_mrecords(self.sec2min(records))
+        else:
+            print u'没有 %s 的动态数据' % fname
+        self.close()
+
+
 
 class SecReaderStock(SecReader):    #貌似有所不同
     def check_page(self,index,seclast):
@@ -697,21 +709,29 @@ if __name__ == '__main__':
     sms_begin = -1
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 't:', ['sms_begin='])
+        opts, args = getopt.getopt(sys.argv[1:], 't:v', ['sms_begin=','verify'])
         #print opts,args
         for opt,v in opts:
             if opt in ('-t','--sms_begin'):
                 sms_begin = int(v)
-
+            if opt in ('-v','--verify'):
+                reader =SecReader('d:/dzh2/data/sf/reportl.dat')
+                reader.save_all('IF1011')
+                exit()
+    except getopt.GetoptError:
+        print 'except ---'
+        pass
+    finally:
         if sms_begin == -1: #没设置过
             sltime = time.localtime(time.time())
             sms_begin = sltime.tm_hour*100 + sltime.tm_min
         print u'sms_begin=%s' % sms_begin
-    except getopt.GetoptError:
-        pass
-    
+        
+
     #scheduler = DynamicScheduler('d:/dzh2/data/sf/reportl.dat',['IF1009'],sms_begin=sms_begin)
     #scheduler = DynamicScheduler('d:/dzh2/data/sf/reportl.dat',{'IF0001':'IF1010'},sms_begin=sms_begin)  #使用当月连续
+    
+    
     scheduler = DynamicScheduler('d:/dzh2/data/sf/reportl.dat',{'IF1011':'IF1011'},sms_begin=sms_begin)  #使用主力合约，节省计算时间
     scheduler.run()
     

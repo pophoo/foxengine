@@ -1850,7 +1850,7 @@ def k5_lastdown2(sif,sopened=None):
     trans = sif.transaction
  
     signal5 = gand(sif.low5>rollx(sif.low5)
-                ,rollx(sif.high5) == tmax(sif.high5,12)
+                ,rollx(sif.high5) == tmax(sif.high5,12) #上周期是顶点
              )
 
     delay = 3

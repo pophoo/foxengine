@@ -476,6 +476,7 @@ class DynamicScheduler:
                 sltime = time.localtime(time.time())
                 ldate = sltime.tm_year*10000+sltime.tm_mon*100+sltime.tm_mday
                 ltime = 0
+            print u'历史数据:%s-%s' % (ldate,ltime)
             ddata = DataObject()
             ddata.pre_svol = 0
             ddata.lastsecs = cal.timegm((ldate/10000,(ldate%10000)/100,ldate%100,ltime/100,ltime%100,0,0,0,0))

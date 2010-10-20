@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+?# -*- coding: utf-8 -*-
 '''
 大智慧全推行情数据说明
 从上周六开始安装大智慧(8月28),经过两天测试,大概判断如下:
@@ -324,6 +324,11 @@ class SecReader:
             大智慧在开盘后打开程序时，会出现当日之前的数据均只有59秒的情形
             此时必须以上分钟59秒为开盘数据，否则ochl四个数据都是本分钟59秒的
                 现在用上一分钟的来算，搞定了open/close，但不能搞定h/l,勉强用
+                但实际上因为ATR的问题，这个很难解决
+                可能需要删除以后再重新补齐? 
+                尝试在开盘期间在行情软件工具菜单数据管理项里面清空当天行情数据，
+                    再在工具菜单的下载项里选中需要下载的个股下载当天分笔，
+                    不做这步的话可能之前的成交分笔明细不能补充，或者数据会混乱。
         '''
         if len(records) == 0:
             return []
@@ -340,7 +345,8 @@ class SecReader:
             elif record.date > end_record.date or (record.date == end_record.date and record.time/100 > end_record.time/100):#切换分钟
                 mrecords.append(SecReader.create_record(end_record.date,end_record.time/100,min_high,min_low,begin_record.price,end_record.price,end_record.svol,end_record.holding))
                 min_high = min_low = record.price
-                if begin_record % 100 == 59:    #begin就是最后一秒
+		        #print record.time
+                if record.time % 100 == 59:    #begin就是最后一秒
                     begin_record = end_record   #则begin_record采用上分钟的最后一秒
                     if record.price > begin_record.price:
                         min_low = begin_record.price
@@ -446,7 +452,7 @@ class SecReader:
         if fname in infos:
             records = self.read_records(infos[fname])
             self.save_records(records)
-            self.save_mrecords(self.sec2min(records))
+            self.save_mrecords(self.sec2min2(records))
         else:
             print u'没有 %s 的动态数据' % fname
         self.close()
@@ -582,7 +588,7 @@ class DynamicScheduler:
             ldate = records[-1].date
             ltime = records[-1].time
             dyn_data.lastsecs = cal.timegm((ldate/10000,(ldate%10000)/100,ldate%100,ltime/10000,(ltime%10000)/100,0,0,0,0))
-            mrecords = SecReader.sec2min(records)
+            mrecords = SecReader.sec2min2(records)
             dyn_data.pre_svol = self.calc_vol(mrecords,dyn_data.pre_svol)
             dyn_data.transaction = self.concatenate(dyn_data.transaction,self.records2arrays(mrecords))
 

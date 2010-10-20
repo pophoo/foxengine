@@ -1558,9 +1558,14 @@ def k15_lastdown_30(sif,sopened=None):
             ,sif.xatr30x > 8000
             ,strend2(sif.mxatr)>0
             ,sif.xatr < sif.mxatr
+            
             #,sif.mtrend>0
             )
+    #print zip(sif.time,signal)[-270:]
+    
     signal = derepeatc(signal)
+
+    signal = np.select([sif.time>944],[signal],0)  #如果信号是从93x延续到945以后，那945是必须忽略的
 
     return signal * k15_lastdown_30.direction
 k15_lastdown_30.direction = XSELL
@@ -2657,9 +2662,45 @@ def rsi1s_s(sif,sopened=None,rshort=7,rlong=19):
             #,sif.xatr>sif.mxatr
             ,sif.xatr<800
             )
+    #signal = np.select([sif.time>944],[signal],0)   #允许开盘后944以前连续到944以后的信号平移到945
+    
     return signal * rsi1s_s.direction
 rsi1s_s.direction = XSELL
 rsi1s_s.priority = 1500
+
+def rsi1s_s2(sif,sopened=None,rshort=7,rlong=19):
+    rsia = rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = rsi2(sif.close,rlong)
+ 
+    sx = gand(cross(rsib,rsia)<0,strend2(rsia)<0)
+    
+    #signal = np.zeros_like(sif.close)
+    #signal[sif.i_cof3] = sx
+
+    #sk,sd = skdj(sif.high,sif.low,sif.close)
+    #signal = gand(cross(sd,sk)<0,strend2(sk)<0)
+    
+    signal = sx
+    signal = gand(signal
+            #,strend2(sif.ma13)<0
+            ,strend2(sif.ma30)<0
+            #,sif.strend<0
+            #,sif.s3<0
+            ,sif.xatr30x < sif.mxatr30x
+            ,sif.mxatr30x<6000  #这个约束太强
+            ,sif.rs_trend<0
+            )
+    signal = np.select([sif.time>944],[signal],0)   #允许开盘后944以前连续到944以后的信号平移到945
+    
+    signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)  
+    signal = gand(signal_s==1)
+    
+    
+    return signal * rsi1s_s2.direction
+rsi1s_s2.direction = XSELL
+rsi1s_s2.priority = 1500
+
+
 
 def macd3sb_s(sif,sopened=None):
    
@@ -3041,6 +3082,7 @@ evs = [roc1_b,
         rsi10b_s,
         rsi30s_s,
         rsi1s_s,
+        rsi1s_s2,
         macd3sb_s,
         #macd15s_s,
         #macd10s_s,
@@ -3245,6 +3287,7 @@ xevs = [
             mfi30s_b,
             mfi3b_b,
             rsi1s_s,
+            rsi1s_s2,
             macd3sb_s,
             macd1s_s,#?#
             xud5s_s,

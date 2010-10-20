@@ -614,18 +614,25 @@ class DynamicScheduler:
         '''
             发送成功返回1,否则为0
         '''
-        #template = 'http://smsapi.qxt100.com/dapi/send_simple.php?name=wycharon&pwd=88107672&dest=13586682052&content=%s'        
-        template = 'http://smsapi.qxt100.com/dapi/send_simple.php?name=wycharon&pwd=88107672&dest=15968464619&content=%s'
-        template = 'http://smsapi.qxt100.com/dapi/send_simple.php?name=wycharon&pwd=88107672&dest=13586682052&content=%s'
-        p = urllib2.urlopen(template % msg)
-        rmsg = p.read()
-        #rmsg = 'success' #'error'
-        if rmsg[:7] == 'success':
-            print u'\n发送成功,%s,%s' % (msg,fname)
+        #template = 'http://smsapi.qxt100.com/dapi/send_simple.php?name=wycharon&pwd=88107672&dest=13586682052&content=%s'
+        mobiles = (13586682052,15968464619)
+
+        successed = failed = 0
+
+        for number in mobiles:
+            template = 'http://smsapi.qxt100.com/dapi/send_simple.php?name=wycharon&pwd=88107672&dest=%s&content=%s'
+            p = urllib2.urlopen(template % (number,msg))
+            rmsg = p.read()
+            #rmsg = 'success' #'error'
+            if rmsg[:7] == 'success':
+                successed += 1
+                print u'\n发送成功,%s,%s' % (msg,fname)
+            else:
+                failed += 1
+                print u'\n发送失败,%s,%s' % (msg,fname)
+        if failed > 0:
             return 1
-        else:
-            print u'\n发送失败,%s,%s' % (msg,fname)
-            return 0
+        return 0
 
     @staticmethod
     def concatenate(pre_transaction,itransaction):

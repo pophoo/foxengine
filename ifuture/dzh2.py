@@ -320,7 +320,8 @@ class SecReader:
 
     @staticmethod
     def save_mrecords(mrecords):
-        wf = open('d:/temp/min.txt','w')
+        wf = open('d:/temp/min.txt','a+')
+        wf.write('\n')
         for record in mrecords:
             wf.write('%s-%s:%s-%s,%s-%s\n'%(record.date,record.time,record.open,record.close,record.high,record.low))
         wf.close()

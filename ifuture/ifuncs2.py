@@ -23,6 +23,11 @@ todo:   检验1-3-5-10-15-30的xatr和mxatr,以及xatr的短期平均的趋势�
         ####
         发现xatr/mxatr的交叉点可以用来判断短期顶和底,然后做底部抬高或顶部下跌的判断?
 
+        ####
+        测试 mxatr30x / mxatr 的变化走势. 这个没有意义。因为mxatr30x每30分钟一变，而mxatr每分钟一变
+            所以反映的只是mxatr的变化. 除非有变得方法来处理这个问题
+        尝试不反映走势，反映倍数
+
 todo:   这个基本完成，但是貌似走入了一个误区。未采纳结果
         测试macd的不同参数
         测试ma的不同参数的折返效应. 以及收盘突破均线
@@ -444,7 +449,38 @@ def rsi_long_hl(sif,sopened=None,rshort=7,rlong=19):
 rsi_long_hl.direction = XBUY
 rsi_long_hl.priority = 1500
 
-rsi_long_hl_1341 = fcustom(rsi_long_hl,rshort=13,rlong=41)
+def rsi_long_hl2(sif,sopened=None,rshort=7,rlong=19):
+    '''
+        计算创当日新高后，从暴力起涨点算起回撤不到40%，然后再上升
+        要求在上涨途中，即30分钟的120线向上
+    '''
+    rsia = rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = rsi2(sif.close,rlong)
+    #signal = cross(rsib,rsia)>0    
+    signal = gand(cross(rsib,rsia)>0,strend2(rsia)>0)
+
+    signal = gand(signal
+            #,sif.xatr < sif.mxatr
+            ,sif.xatr < 1800 #越大越好
+            ,sif.xatr> 1200
+            ,sif.high > sif.dhigh - (sif.dhigh - sif.dlow2) *0.4    #回撤越小越好
+            ,strend2(sif.mxatr30x)>0
+            #,strend2(sif.mxatr-sif.mxatr30x)>0
+
+            #,sif.idhigh >= sif.idlow    #高点后于低点,必要性不大。
+            ,sif.r120 > 10 #去掉毛刺
+            #,sif.r90 > 10
+
+            #加成效果明显，但为简单起见,暂时去掉
+            #,sif.xatr3x<sif.mxatr3x
+            )
+
+    return signal * rsi_long_hl2.direction
+rsi_long_hl2.direction = XBUY
+rsi_long_hl2.priority = 1500
+
+
+rsi_long_hl_1341 = fcustom(rsi_long_hl2,rshort=13,rlong=41)
 
 def rsi_short_hl(sif,sopened=None,rshort=7,rlong=19):
     '''
@@ -478,6 +514,10 @@ def rsi_short_hl(sif,sopened=None,rshort=7,rlong=19):
     return signal * rsi_short_hl.direction
 rsi_short_hl.direction = XSELL
 rsi_short_hl.priority = 1500
+
+rsi_short_hl_1341 = fcustom(rsi_short_hl,rshort=13,rlong=41)
+
+
 
 def rsi_long_xx(sif,sopened=None,rshort=7,rlong=19):
     '''
@@ -551,6 +591,7 @@ def rsi_long_x3(sif,sopened=None,rshort=7,rlong=19):
     '''
         去掉s30限制
         比较妥当的是 7/19和13/41参数,其中前者明显优于后者
+        这个感觉太宽松了
     '''
 
     rsia = rsi2(sif.close,rshort)   #7,19/13,41
@@ -574,8 +615,6 @@ rsi_long_x3.direction = XBUY
 rsi_long_x3.priority = 1500
 
 rsi_long_x3_1341 = fcustom(rsi_long_x3,rshort=13,rlong=41)
-
-
 
 def macd_long_x(sif,sopened=None):
     '''
@@ -1406,6 +1445,8 @@ def ma1x(sif,opened=None,length=60):
 ma1x.direction = XBUY
 ma1x.priority = 2100
 
+ma1x_120 = fcustom(ma1x,length=120)
+
 
 def k15_lastdown(sif,sopened=None):
     '''
@@ -1610,6 +1651,51 @@ def k15_lastdown_x(sif,sopened=None):
     return signal * k15_lastdown_x.direction
 k15_lastdown_x.direction = XSELL
 k15_lastdown_x.priority = 2100 #对i09时200即优先级最高的效果最好
+
+
+def k15_lastdown_y(sif,sopened=None):
+    '''
+        15分钟调整模式
+        这里最强的筛选条件是 xatr30x>8000
+        说明震荡非常大. 通常是顶部震荡
+        效果不错，但是叠加不好
+    '''
+    
+    signal15 = gand(
+                rollx(sif.high15,1) > rollx(sif.high15,2)
+                ,rollx(sif.high15,1) > sif.high15
+                ,sif.low15 < rollx(sif.low15)
+                )
+
+    delay = 30
+
+    ss = np.zeros_like(sif.close)
+    ss[sif.i_cof15] = signal15
+    ssh = np.zeros_like(sif.close)
+    ssh[sif.i_cof15] = rollx(gmin(sif.open15,sif.close15),1)
+    bline = np.select([ss>0],[ssh],0)
+    bline = extend(bline,delay)
+
+    fsignal = sif.close < bline
+
+    signal = sfollow(ss,fsignal,delay)
+    signal = gand(signal
+            ,strend2(sif.mxatr)>0
+            ,strend2(sif.mxatr30x)<0
+            ,sif.xatr<sif.mxatr
+            ,sif.diff1<0
+            ,sif.ma3<sif.ma13
+            ,sif.r30< 0 
+            ,sif.xatr<1200
+            )
+
+    signal = np.select([sif.time>944],[signal]) #允许延续过来的信号
+    signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal_s==1)
+
+    return signal * k15_lastdown_y.direction
+k15_lastdown_y.direction = XSELL
+k15_lastdown_y.priority = 2100 #对i09时200即优先级最高的效果最好
 
 
 def k15_lastup_30(sif,sopened=None):
@@ -1840,6 +1926,54 @@ k5_lastup2.direction = XBUY
 k5_lastup2.priority = 2100
 
 
+def k5_lastdown(sif,sopened=None):
+    '''
+        顶部衰竭模式
+        5分钟连续上涨时
+            就是说这个一个返回时的支撑点，3分钟内击穿就击穿了
+        3分钟吞没是假突破
+    '''
+    trans = sif.transaction
+ 
+    signal5 = gand(
+                rollx(sif.high5) == tmax(sif.high5,12) #上周期是顶点
+             )
+
+    delay = 3
+
+    ss = np.zeros_like(sif.close)
+    ss[sif.i_cof5] = signal5
+    ssh = np.zeros_like(sif.close)
+    ssh[sif.i_cof5] = sif.high5
+    bline = np.select([ss>0],[ssh],0)
+    bline = extend(bline,delay)
+    
+    #fsignal = cross(bline,sif.high)>0
+    fsignal = sif.low < bline #-100
+
+    #signal = np.zeros_like(sif.close)
+    #signal[sif.i_cof5] = signal5
+
+    signal = sfollow(ss,fsignal,delay)
+    signal = gand(signal
+            ,strend2(sif.mxatr)>0
+            ,sif.xatr>sif.mxatr
+            ,sif.xatr30x > 8000
+            ,strend2(sif.mxatr30x)>0
+            )
+
+    signal = np.select([sif.time>944],[signal],0)
+
+    #signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
+    #signal = gand(signal_s==1)
+    
+    signal = derepeatc(signal)
+
+    return signal * k5_lastdown.direction
+k5_lastdown.direction = XSELL
+k5_lastdown.priority = 2100
+
+
 def k5_lastdown2(sif,sopened=None):
     '''
         顶部衰竭模式2
@@ -1849,7 +1983,7 @@ def k5_lastdown2(sif,sopened=None):
     '''
     trans = sif.transaction
  
-    signal5 = gand(sif.low5>rollx(sif.low5)
+    signal5 = gand(sif.low5>rollx(sif.low5) #孕线
                 ,rollx(sif.high5) == tmax(sif.high5,12) #上周期是顶点
              )
 
@@ -3112,6 +3246,7 @@ xfollow = [#多头
             #高度顺势
             rsi_long_hl,
             rsi_short_hl,
+            rsi_long_hl2,
 
             allup,
             alldown,
@@ -3183,6 +3318,7 @@ xagainst = [#多头
             k15_lastdown_s,    #样本数太少，暂缓
             k15_lastdown_30,    ##
             k15_lastdown_x,    ##
+            k15_lastdown_y,
             k5_lastdown2,
 
             k15_lastup_30,

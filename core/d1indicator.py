@@ -785,6 +785,36 @@ def tr(sclose,shigh,slow):
     slc = np.abs(slow - sclose)
     return gmax(shl,shc,slc)
 
+def utr(sopen,sclose,shigh,slow):
+    ''' 上升波幅
+        根据最高价-sopen和最高价-rollx(sclose)的大者
+    '''
+    sho = shigh - sopen
+    shc = shigh - rollx(sclose)
+    return gmax(sho,shc) #必然>=0
+
+def dtr(sopen,sclose,shigh,slow):
+    '''
+        下跌波幅
+        根据sopen-最低价和rollx(sclose)-最低价的大者        
+    '''
+    slo = sopen - slow
+    slc = rollx(sclose) - slow
+    return gmax(slo,slc)    #必然>=0
+
+def autr(sopen,sclose,shigh,slow,length=20):
+    return cexpma(utr(sopen,sclose,shigh,slow),length)
+
+def autr2(sopen,sclose,shigh,slow,length=20):
+    return ma(utr(sopen,sclose,shigh,slow),length)
+
+def adtr(sopen,sclose,shigh,slow,length=20):
+    return cexpma(dtr(sopen,sclose,shigh,slow),length)
+
+def adtr2(sopen,sclose,shigh,slow,length=20):
+    return ma(dtr(sopen,sclose,shigh,slow),length)
+
+
 def atr(sclose,shigh,slow,length=20):
     return cexpma(tr(sclose,shigh,slow),length)
 

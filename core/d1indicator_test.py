@@ -357,6 +357,36 @@ class ModuleTest(unittest.TestCase):
         sclose = np.array([150,220,150,300])
         self.assertEquals([100,100,120,250],tr(sclose,shigh,slow).tolist())
 
+
+    def test_utr(self):
+        shigh = np.array([200,250,200,400])
+        slow = np.array([100,200,100,100])
+        sopen = np.array([100,220,120,100])        
+        sclose = np.array([150,220,150,300])
+        self.assertEquals([100,100,80,300],utr(sopen,sclose,shigh,slow).tolist())
+
+    def test_dtr(self):
+        shigh = np.array([200,250,200,400])
+        slow = np.array([100,200,100,200])
+        sopen = np.array([100,200,150,300])        
+        sclose = np.array([150,220,150,300])
+        self.assertEquals([50,0,120,100],dtr(sopen,sclose,shigh,slow).tolist())
+
+    def test_a_u_d_1_2_tr(self):
+        '''
+            只测试通路
+        '''
+        shigh = np.array([200,250,200,400])
+        slow = np.array([100,200,100,200])
+        sopen = np.array([100,200,150,300])        
+        sclose = np.array([150,220,150,300])
+        autr(sopen,sclose,shigh,slow)
+        autr2(sopen,sclose,shigh,slow)        
+        adtr(sopen,sclose,shigh,slow)        
+        adtr2(sopen,sclose,shigh,slow)        
+        self.assertTrue(True)
+
+
     def test_atr(self):
         shigh = np.array([200,250,200,400])
         slow = np.array([100,200,100,200])

@@ -1489,6 +1489,36 @@ ma1x.priority = 2100
 ma1x_120 = fcustom(ma1x,length=120)
 
 
+def ma1xb(sif,opened=None,length=60):
+    ''' 
+        1分钟均线
+        第一次碰线
+    '''
+    bma = ma(sif.close,length)
+    
+    signal = cross(bma,sif.low)>0
+
+    signal = gand(signal
+                ,strend2(bma)>0
+                ,sif.ltrend>0
+                ,sif.mtrend>0
+                ,sif.s30>0
+                #,sif.xatr60x<sif.mxatr60x
+                #,strend2(sif.dma7)>0
+            )
+    signal = np.select([sif.time>944],[signal],0)
+
+    signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal==1)
+    
+    signal = derepeatc(signal)
+
+    return signal * ma1xb.direction
+ma1xb.direction = XBUY
+ma1xb.priority = 2100
+
+
+
 def k15_lastdown(sif,sopened=None):
     '''
         新高衰竭模式
@@ -1633,6 +1663,7 @@ def k15_lastdown_30(sif,sopened=None):
     bline = extend(bline,delay)
 
     fsignal = sif.close < bline
+
 
     signal = sfollow(ss,fsignal,delay)
     signal = gand(signal
@@ -2050,7 +2081,7 @@ def k5_lastup2(sif,sopened=None):
 
     return signal * k5_lastup2.direction
 k5_lastup2.direction = XBUY
-k5_lastup2.priority = 2100
+k5_lastup2.priority = 1300  #r60>40表示是顺势
 
 
 def k3_lastup2(sif,sopened=None):

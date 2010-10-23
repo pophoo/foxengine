@@ -8,6 +8,11 @@
             震荡和后面的持续上升通常没有atr收紧的环节
     熊市中，比较猥琐，大幅下跌后需要酝酿，将atr收紧后继续下跌
 
+todo:
+        检验 上升幅度和下降幅度 
+        A. 使用supdownc  ==>cexpma ==>x/m
+        B. 使用autr,adtr ==>x/m
+
 todo:   检验1-3-5-10-15-30的xatr和mxatr,以及xatr的短期平均的趋势的影响
         目测 mxatr30x向下助涨，而向上助跌
         mxatr5x向上助涨向下助跌

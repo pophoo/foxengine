@@ -184,6 +184,9 @@ def prepare_index(sif):
     sif.atr2 = atr2(trans[ICLOSE]*XBASE,trans[IHIGH]*XBASE,trans[ILOW]*XBASE,20)    
     sif.xatr = sif.atr * XBASE * XBASE / trans[ICLOSE]
     sif.mxatr = ma(sif.xatr,13)
+    sif.xatr2 = sif.atr2 * XBASE * XBASE / trans[ICLOSE]
+    sif.mxatr2 = ma(sif.xatr2,13)
+
 
     sif.sk,sif.sd = skdj(sif.high,sif.low,sif.close)
 
@@ -647,7 +650,8 @@ def prepare_index(sif):
     sif.atrdx = np.zeros_like(trans[ICLOSE])
     sif.atrdx[sif.i_cofd] = sif.atrd
     sif.atrdx = extend2next(sif.atrdx)
-
+    
+    '''
     sif.svap3,sif.v2i3 = svap_ma(sif.vol3,sif.close3,67)
     sif.svap2_3,sif.v2i2_3 = svap_ma(sif.vol3,sif.close3,67,weight=2)
 
@@ -674,7 +678,7 @@ def prepare_index(sif):
 
     sif.svapd,sif.v2id = svap_ma(sif.vold,sif.closed,67)
     sif.svap2_d,sif.v2i2_d = svap_ma(sif.vold,sif.closed,67,weight=2)
-
+    '''
 
     s30_7 = np.zeros_like(sif.close)
     s30_7[sif.i_cof30] = strend2(nma(sif.close30,7))  #nma避免strend2将初始批量0也当作正数计入的问题
@@ -838,6 +842,46 @@ def prepare_index(sif):
     sif.macd60x = sif.diff60x-sif.dea60x    
     sif.macd45x = sif.diff45x-sif.dea45x
     sif.macd90x = sif.diff90x-sif.dea90x    
+
+    #xup/xdown
+    sup,sdown = xupdownc(sif.open,sif.close,sif.high,sif.low)
+    sup = sup * XBASE * XBASE * XBASE / sif.close
+    sdown = sdown * XBASE * XBASE * XBASE / sif.close
+    sif.xup = cexpma(sup,20)
+    sif.xdown = cexpma(sdown,20)
+    sif.mxup = ma(sif.xup,13)
+    sif.mxdown = ma(sif.xdown,13)
+
+    sup,sdown = xupdownc(sif.open30,sif.close30,sif.high30,sif.low30)
+    sup = sup * XBASE * XBASE * XBASE / sif.close30
+    sdown = sdown * XBASE * XBASE * XBASE / sif.close30
+    sif.xup30 = cexpma(sup,20)
+    sif.xdown30 = cexpma(sdown,20)
+    sif.mxup30 = ma(sif.xup30,13)
+    sif.mxdown30 = ma(sif.xdown30,13)
+    sif.xup30x = dnext(sif.xup30,sif.close,sif.i_cof30)
+    sif.xdown30x = dnext(sif.xdown30,sif.close,sif.i_cof30)
+    sif.mxup30x = dnext(sif.mxup30,sif.close,sif.i_cof30)
+    sif.mxdown30x = dnext(sif.mxdown30,sif.close,sif.i_cof30)
+
+    #autr/adtr
+    vautr = autr(sif.open,sif.close,sif.high,sif.low) * XBASE * XBASE * XBASE / sif.close
+    vadtr = adtr(sif.open,sif.close,sif.high,sif.low) * XBASE * XBASE * XBASE / sif.close
+    sif.xautr = cexpma(vautr,20)
+    sif.xadtr = cexpma(vadtr,20)
+    sif.mxautr = ma(sif.xautr,13)
+    sif.mxadtr = ma(sif.xadtr,13)
+
+    vautr = autr(sif.open30,sif.close30,sif.high30,sif.low30) * XBASE * XBASE * XBASE / sif.close30
+    vadtr = adtr(sif.open30,sif.close30,sif.high30,sif.low30) * XBASE * XBASE * XBASE / sif.close30
+    sif.xautr30 = cexpma(vautr,20)
+    sif.xadtr30 = cexpma(vadtr,20)
+    sif.mxautr30 = ma(sif.xautr30,13)
+    sif.mxadtr30 = ma(sif.xadtr30,13)
+    sif.xautr30x = dnext(sif.xautr30,sif.close,sif.i_cof30)
+    sif.xadtr30x = dnext(sif.xadtr30,sif.close,sif.i_cof30)
+    sif.mxautr30x = dnext(sif.mxautr30,sif.close,sif.i_cof30)
+    sif.mxadtr30x = dnext(sif.mxadtr30,sif.close,sif.i_cof30)
 
 
 def calc_high_low_vol(trans,i_oof,i_cof):

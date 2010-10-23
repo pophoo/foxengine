@@ -13,6 +13,29 @@ todo:
         A. 使用supdownc  ==>cexpma ==>x/m
         B. 使用autr,adtr ==>x/m
 
+for d,t,ic,iau,imau,iad,imad,iup,imup,idown,imdown in zip(i00.date[i00.i_cof30],i00.time[i00.i_cof30],i00.close[i00.i_cof30],i00.xautr30,i00.mxautr30,i00.xadtr30,i00.mxadtr30,i00.xup30,i00.mxup30,i00.xdown30,i00.mxdown30):
+    print d,t,ic,iau,imau,iad,imad,iup,imup,idown,imdown
+
+of = open('d:/temp/au.txt','w+')
+for d,t,ic,iau,imau,iad,imad,iup,imup,idown,imdown in zip(i00.date[i00.i_cof30],i00.time[i00.i_cof30],i00.close[i00.i_cof30],i00.xautr30,i00.mxautr30,i00.xadtr30,i00.mxadtr30,i00.xup30,i00.mxup30,i00.xdown30,i00.mxdown30):
+    print >>of,'%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d' %(d,t,ic,iau,imau,iad,imad,iup,imup,idown,imdown)
+of.close()
+
+    发现: mxup30x/mxdown30x   的比较  
+          mxautr30x/mxadtr30x 的比较
+    是比较好的搭配
+    且可以与 xatr30x/mxatr30x的比较/趋势 搭配使用
+
+    根据图形观察，发现规律:
+        强上升趋势中，xatr30>mxatr30/mxatr30上升为涨，xatr30<mxatr30/mxatr30下降为跌
+        强下跌趋势中，xatr30>mxatr30/mxatr30上升为跌，xatr30<mxatr30/mxatr30下降为涨
+        转势过程中，按前一趋势处理
+    而
+        mxautr30/mxadtr30以及mxup30/mxdown30则为短期的强弱
+    反过来说，如果xatr30>mxatr30且mxatr30上升是涨的话，可以确认为上升趋势
+    在使用上，用r120来表示趋势?
+        
+
 todo:   检验1-3-5-10-15-30的xatr和mxatr,以及xatr的短期平均的趋势的影响
         目测 mxatr30x向下助涨，而向上助跌
         mxatr5x向上助涨向下助跌
@@ -128,8 +151,14 @@ def rsi_short_x(sif,sopened=None,rshort=7,rlong=19):
             ,sif.rs_trend<0
             ,sif.ms<0
             ,strend2(sif.ma30)<0
-            ,sif.xatr30x<6000
+            ,sif.xatr30x<8000
             ,sif.mtrend<0
+
+            #,sif.mxup30x < sif.mxdown30x
+            #,sif.mxautr30x < sif.mxadtr30x
+            #,sif.xatr30x > sif.mxatr30x
+            #,sif.r60<0
+            #,strend2(sif.mxatr30x)<0
             )
 
     signal = np.select([sif.time>944],[signal],0)
@@ -174,6 +203,50 @@ def rsi_short_xt(sif,sopened=None,rshort=7,rlong=19):
     return signal * rsi_short_xt.direction
 rsi_short_xt.direction = XSELL
 rsi_short_xt.priority = 1500
+
+
+def rsi_short_yt(sif,sopened=None,rshort=7,rlong=19):
+    '''
+        每天的第一次符合条件的机会为最佳机会
+        一旦第一次失败，后面的都被屏蔽
+        比较妥当的是 7/19和13/41参数,其中前者明显优于后者
+        但是合并有副作用
+    '''
+
+    rsia = rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = rsi2(sif.close,rlong)
+    #signal = cross(rsib,rsia)<0    
+    signal = gand(cross(rsib,rsia)<0,strend2(rsia)<0)
+
+    signal = gand(signal
+            ,strend2(sif.ma30)<0
+
+            #,sif.mxautr30x < sif.mxadtr30x
+            #,sif.xatr30x<8000
+            #,sif.mtrend<0
+            #,sif.xatr < sif.mxatr
+            #,sif.xatr < 1200
+            #,strend2(sif.xatr30x - sif.mxatr30x)>0
+            #,strend2(sif.mxatr)>0
+            #,strend2(sif.mxadtr30x)<0
+            #,strend2(sif.mxautr30x)<0            
+            #,strend2(sif.mxatr30x)<0
+            #,strend2(sif.mxdown30x)<0
+            #,sif.xadtr30x < sif.mxadtr30x
+            #,sif.xdown30x > sif.mxdown30x
+            #,sif.xup30x < sif.mxup30x
+            #,sif.xup < sif.xdown
+            #,strend2(sif.mxdown-sif.mxup)>0
+            )
+
+    signal = np.select([sif.time>944],[signal],0)
+
+    signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal==1)
+
+    return signal * rsi_short_yt.direction
+rsi_short_yt.direction = XSELL
+rsi_short_yt.priority = 1500
 
 
 def rsi_short_x3(sif,sopened=None,rshort=7,rlong=19):

@@ -283,6 +283,7 @@ class SecReader:
             record.time = stime.tm_hour*10000 + stime.tm_min*100 + stime.tm_sec
             record.price = sdb[1]
             record.svol = sdb[2]
+            record.vol = 0  #未设置前为0
             record.samount = sdb[3]
             record.holding = sdb[4]
             record.vol_buy1 = sdb[8]
@@ -358,7 +359,6 @@ class SecReader:
                 break   #发现之前的数据
             end_record = record
         mrecords.append(SecReader.create_record(end_record.date,end_record.time/100,min_high,min_low,begin_record.price,end_record.price,end_record.svol,end_record.holding))
-        SecReader.save_mrecords(mrecords)
         return mrecords
 
 
@@ -367,7 +367,8 @@ class SecReader:
         wf = open('d:/temp/min.txt','a+')
         wf.write('\n')
         for record in mrecords:
-            wf.write('%s-%s:%s-%s,%s-%s\n'%(record.date,record.time,record.open,record.close,record.high,record.low))
+            #wf.write('%s-%s:%s-%s,%s-%s\n'%(record.date,record.time,record.open,record.close,record.high,record.low))
+            wf.write('%s/%s/%s,%s:%s,%s,%s,%s,%s,%s,%s\n' % (record.date/10000,record.date/100%100,record.date%100,record.time/100,record.time%100,record.open,record.high,record.low,record.close,record.vol,record.holding))
         wf.close()
 
     @staticmethod
@@ -452,7 +453,9 @@ class SecReader:
         if fname in infos:
             records = self.read_records(infos[fname])
             self.save_records(records)
-            self.save_mrecords(self.sec2min2(records))
+            mrecords = self.sec2min2(records)
+            DynamicScheduler.calc_vol(mrecords,0)
+            self.save_mrecords(mrecords)
         else:
             print u'没有 %s 的动态数据' % fname
         self.close()
@@ -590,6 +593,7 @@ class DynamicScheduler:
             dyn_data.lastsecs = cal.timegm((ldate/10000,(ldate%10000)/100,ldate%100,ltime/10000,(ltime%10000)/100,0,0,0,0))
             mrecords = SecReader.sec2min2(records)
             dyn_data.pre_svol = self.calc_vol(mrecords,dyn_data.pre_svol)
+            SecReader.save_mrecords(mrecords)            
             dyn_data.transaction = self.concatenate(dyn_data.transaction,self.records2arrays(mrecords))
 
     def check_signal(self):

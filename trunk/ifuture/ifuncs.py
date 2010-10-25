@@ -2843,12 +2843,26 @@ def k15_relay(sif,sopened=None):
 
     signal = np.zeros_like(sif.close)
     signal[sif.i_cof15] = signal5
+
+    rshort,rlong = 7,19
+    rsia = rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = rsi2(sif.close,rlong)
+ 
+    fsignal = gand(cross(rsib,rsia)>0
+            ,strend2(rsia)>0
+            )
+
+    #signal = sfollow(signal,fsignal,30)
+
     signal = gand(signal
-            ,strend2(sif.sdiff30x-sif.sdea30x)>0
-            ,sif.diff1>0
-            ,sif.sdiff5x>0
+            #,strend2(sif.sdiff30x-sif.sdea30x)>0
+            #,sif.diff1>0
+            #,sif.sdiff5x>0
             #,strend(sif.ma7)>0
             #,rollx(strend2(sif.sdiff5x-sif.sdea5x),5)>0
+            ,sif.r120>0
+            ,sif.s30 > 0
+            #,sif.ma3 > sif.ma13
             )
 
     return signal * k5_relay.direction

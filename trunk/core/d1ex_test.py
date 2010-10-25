@@ -134,6 +134,22 @@ class ModuleTest(unittest.TestCase):
         signal4 = np.ones(10,np.int32)
         self.assertEquals([0,0,1,2,3,4],sum2diff(source4,signal4).tolist())
 
+    def test_ssum(self):
+        self.assertEquals([],ssum(np.array([]),np.array([])).tolist())                
+        source = np.array([0,0,0,1,1,1,2,2,2,3,3,3,-1,-1,-1,4,4,4,5,5,5])
+        signal1 = np.ones_like(source)
+        self.assertEquals(source.tolist(),ssum(source,signal1).tolist())
+        signal2 = np.array([0,0,0,1,0,0,2,0,2,0,3,3,0,0,0,4,4,4,0,0,5])
+        self.assertEquals([0,0,0,1,2,3,2,4,2,5,3,3,2,1,0,4,4,4,9,14,5],ssum(source,signal2).tolist())
+        signal3 = np.array([0,0,0,0,0,0,0,0,0,1,1,1,3,3,3,3,3,3,3,3,3])
+        self.assertEquals([0,0,0,0,0,0,0,0,0,3,3,3,-1,-1,-1,4,4,4,5,5,5],ssum(source,signal3).tolist())
+        source[0] = 1
+        self.assertEquals([1,0,0,1,1,1,2,2,2,3,3,3,-1,-1,-1,4,4,4,5,5,5],ssum(source,signal1).tolist())
+        source4 = np.array([False,False,True,True,True,True])
+        signal4 = np.array([0,0,1,0,0,1])
+        self.assertEquals([0,0,1,2,3,1],ssum(source4,signal4).tolist())
+
+
     def test_sresume(self):
         source = np.array([0,0,5,0,-5,0,0,0,0,0,1,0,0,3,0,0,-1,1,2,0,0,0,0,6,0])
         self.assertEquals([0,0,1,0,1, 0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,1,0],sresume(source,2).tolist())

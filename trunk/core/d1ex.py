@@ -314,6 +314,26 @@ def sum2diff(source,signal):
         rev[i] = ss
     return rev
 
+def ssum(source,signal):
+    '''
+        在信号间累加source
+        不等于0为有信号
+    '''
+    rev = np.zeros(len(source),np.int32)
+    ss = 0
+    pres = 0
+    for i in xrange(len(source)):
+        cv = source[i]
+        cs = signal[i]
+        if cs != 0:
+            ss = int(cv)
+            pres = cs
+        elif pres != 0: #避免一开始就开始累计
+            ss += int(cv)            
+        rev[i] = ss
+    return rev
+
+
 def sresume(source,length=5,covered=1):
     ''' 连续>=length个零随后covered个非零日
     '''

@@ -644,25 +644,21 @@ rsi_long_xx_1341 = fcustom(rsi_long_xx,rshort=13,rlong=41)
 
 def rsi_long_y2(sif,sopened=None,rshort=7,rlong=19):
     '''
-        去掉s30限制
-        比较妥当的是 7/19和13/41参数,其中前者明显优于后者
+        比较诡异，合并效果不好
     '''
 
     #signal = cross(sif.dea1,sif.diff1)>0
-    rshort = 13
-    rlong = 41
+    #rshort = 13
+    #rlong = 41
     rsia = rsi2(sif.close,rshort)   #7,19/13,41
     rsib = rsi2(sif.close,rlong)
     signal = gand(cross(rsib,rsia)>0,strend2(rsia)>0)
 
     signal = gand(signal
-                ,sif.s3>0
-                ,sif.s15>0
-                ,sif.ma3>sif.ma13
-                ,sif.xatr30x<6000
-                ,strend2(sif.ma13)>0
-                ,sif.mxatr30x/sif.mxatr < 8
-                ,sif.mtrend>0
+                ,sif.xatr30x > sif.mxatr30x
+                ,strend2(sif.mxatr30x) > 0                
+                ,strend2(sif.mxup30x * 1.0 /  sif.mxdown30x)>0
+                ,sif.r120>10
             )
     signal = np.select([sif.time>944],[signal],0)
 
@@ -672,6 +668,37 @@ def rsi_long_y2(sif,sopened=None,rshort=7,rlong=19):
     return signal * rsi_long_y2.direction
 rsi_long_y2.direction = XBUY
 rsi_long_y2.priority = 1500
+
+rsi_long_y2_1341 = fcustom(rsi_long_y2,rshort=13,rlong=41)
+
+def rsi_short_y2(sif,sopened=None,rshort=7,rlong=19):
+    '''
+        比较诡异，合并效果不好
+    '''
+
+    #signal = cross(sif.dea1,sif.diff1)>0
+    #rshort = 13
+    #rlong = 41
+    rsia = rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = rsi2(sif.close,rlong)
+    signal = gand(cross(rsib,rsia)<0,strend2(rsia)<0)
+
+    signal = gand(signal
+                ,sif.xatr30x > sif.mxatr30x
+                ,strend2(sif.mxatr30x) > 0                
+                ,strend2(sif.mxdown30x * 1.0 /  sif.mxup30x)>0
+                ,sif.r120<0
+            )
+    signal = np.select([sif.time>944],[signal],0)
+
+    signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal==1)
+
+    return signal * rsi_short_y2.direction
+rsi_short_y2.direction = XSELL
+rsi_short_y2.priority = 1500
+
+
 
 def rsi_long_x2(sif,sopened=None,rshort=7,rlong=19):
     '''
@@ -853,7 +880,7 @@ def down01x(sif,sopened=None): #++
             )
     return signal * down01x.direction
 down01x.direction = XSELL
-down01x.priority = 1600
+down01x.priority = 1500
 
 
 def xdown60(sif,sopened=None):
@@ -886,7 +913,7 @@ def xdown60(sif,sopened=None):
     
     return signal * xdown60.direction
 xdown60.direction = XSELL
-xdown60.priority = 1600 
+xdown60.priority = 1500 
 
 def ipmacd_short5(sif,sopened=None):
     '''
@@ -1596,6 +1623,81 @@ ma1xb.direction = XBUY
 ma1xb.priority = 2100
 
 
+def k1_lastup_a(sif,sopened = None):
+    '''
+        一分钟探底上升的K线模式: 单针底
+    '''
+    asignal = gand(rollx(sif.low) == tmin(sif.low,9)   #前一分钟是前n-1分钟最小值，且大于当前分钟
+                )
+
+    sup = np.select([asignal],[rollx(sif.high)],default=0)
+    sup = extend2next(sup)
+    sdown = np.select([asignal],[rollx(sif.low)],default=0)
+    sdown = extend2next(sdown)
+    
+    delay = 10
+
+    fsignal = gand(sif.close > sup
+                ,tmin(sif.low,5) > sdown    #至少5分钟后才突破
+                #,sif.low > sdown
+                )
+
+    signal = sfollow(asignal,fsignal,delay)
+
+    signal = gand(signal
+                ,sif.xatr2 < sif.mxatr2
+                ,sif.xatr2_30x < sif.mxatr2_30x
+                ,strend2(sif.mxatr2_30x)>0
+                ,sif.r120>0
+                ,sif.mtrend<0   #短期反向
+                )
+
+    return signal * k1_lastup_a.direction
+
+k1_lastup_a.direction = XBUY
+k1_lastup_a.priority = 2100 
+
+def k1_lastup_b(sif,sopened = None):
+    '''
+        一分钟探底上升的K线模式: 孕线
+    '''
+    asignal = gand(rollx(sif.low) == tmin(sif.low,13)   #前一分钟是前n-1分钟最小值，且大于当前分钟
+                ,rollx(sif.high) > sif.high
+                )
+
+    sup = np.select([asignal],[rollx(sif.high)],default=0)
+    sup = extend2next(sup)
+    sdown = np.select([asignal],[rollx(sif.low)],default=0)
+    sdown = extend2next(sdown)
+    
+    delay = 30
+
+    rshort,rlong = 7,19
+    rsia = rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = rsi2(sif.close,rlong)
+
+    fsignal = gand(sif.close > sup
+                ,tmin(sif.low,3) > sdown    #至少2分钟后才突破
+                #,sif.low > sdown
+                ,cross(rsib,rsia)>0
+                ,strend2(rsia)>0
+                )
+
+    signal = sfollow(asignal,fsignal,delay)
+
+    signal = gand(signal
+                ,sif.xatr > sif.mxatr
+                ,strend2(sif.mxatr30x)>0
+                ,sif.r60>40
+                ,sif.r120>0
+                #,strend2(sif.ma30)>0
+                )
+
+    return signal * k1_lastup_b.direction
+
+k1_lastup_b.direction = XBUY
+k1_lastup_b.priority = 2100 
+
 
 def k15_lastdown(sif,sopened=None):
     '''
@@ -1655,7 +1757,7 @@ def k15_lastdown(sif,sopened=None):
 
     return signal * k15_lastdown.direction
 k15_lastdown.direction = XSELL
-k15_lastdown.priority = 2100 #对i09时200即优先级最高的效果最好
+k15_lastdown.priority = 2100 
 #k15_lastdown.stop_closer = atr5_uxstop_05_25
 
 def k15_lastdown_s(sif,sopened=None):
@@ -1760,7 +1862,7 @@ def k15_lastdown_30(sif,sopened=None):
 
     return signal * k15_lastdown_30.direction
 k15_lastdown_30.direction = XSELL
-k15_lastdown_30.priority = 2100 #对i09时200即优先级最高的效果最好
+k15_lastdown_30.priority = 2100 
 
 def k15_lastdown_x(sif,sopened=None):
     '''
@@ -1800,8 +1902,8 @@ def k15_lastdown_x(sif,sopened=None):
 
     return signal * k15_lastdown_x.direction
 k15_lastdown_x.direction = XSELL
-k15_lastdown_x.priority = 2100 #对i09时200即优先级最高的效果最好
-
+k15_lastdown_x.priority = 1500 
+#r60<-40相当于顺势
 
 def k15_lastdown_y(sif,sopened=None):
     '''
@@ -1845,7 +1947,7 @@ def k15_lastdown_y(sif,sopened=None):
 
     return signal * k15_lastdown_y.direction
 k15_lastdown_y.direction = XSELL
-k15_lastdown_y.priority = 2100 #对i09时200即优先级最高的效果最好
+k15_lastdown_y.priority = 2100 
 
 
 def k15_lastdown_z(sif,sopened=None):
@@ -1887,7 +1989,7 @@ def k15_lastdown_z(sif,sopened=None):
 
     return signal * k15_lastdown_z.direction
 k15_lastdown_z.direction = XSELL
-k15_lastdown_z.priority = 2100 #对i09时200即优先级最高的效果最好
+k15_lastdown_z.priority = 2100 
 
 
 def k15_lastdown_z2(sif,sopened=None):
@@ -1930,7 +2032,7 @@ def k15_lastdown_z2(sif,sopened=None):
 
     return signal * k15_lastdown_z2.direction
 k15_lastdown_z2.direction = XSELL
-k15_lastdown_z2.priority = 2100 #对i09时200即优先级最高的效果最好
+k15_lastdown_z2.priority = 2100 
 
 
 def k15_lastup_30(sif,sopened=None):
@@ -1968,7 +2070,7 @@ def k15_lastup_30(sif,sopened=None):
 
     return signal * k15_lastup_30.direction
 k15_lastup_30.direction = XBUY
-k15_lastup_30.priority = 2100 #对i09时200即优先级最高的效果最好
+k15_lastup_30.priority = 2100   #r60>0相当于顺势
 
 
 def k10_lastdown_30(sif,sopened=None):
@@ -2007,7 +2109,7 @@ def k10_lastdown_30(sif,sopened=None):
 
     return signal * k10_lastdown_30.direction
 k10_lastdown_30.direction = XSELL
-k10_lastdown_30.priority = 2100 #对i09时200即优先级最高的效果最好
+k10_lastdown_30.priority = 1500 
 
 
 def k10_lastup_30(sif,sopened=None):
@@ -2045,7 +2147,7 @@ def k10_lastup_30(sif,sopened=None):
 
     return signal * k10_lastup_30.direction
 k10_lastup_30.direction = XBUY
-k10_lastup_30.priority = 2100 #对i09时200即优先级最高的效果最好
+k10_lastup_30.priority = 2100 
 
 
 
@@ -3658,6 +3760,7 @@ xagainst = [#多头
             k5_lastdown,
             k5_lastdown2,
             k5_lastdown3,
+            k1_lastup_a,
 
             k15_lastup_30,
             k10_lastup_30,  

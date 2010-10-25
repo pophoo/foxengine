@@ -402,7 +402,22 @@ def prepare_index(sif):
     sif.atr30x = np.zeros_like(trans[ICLOSE])
     sif.atr30x[sif.i_cof30] = sif.atr30
     sif.atr30x = extend2next(sif.atr30x)
-    
+ 
+    sif.atr2_30 = atr2(sif.close30*XBASE,sif.high30*XBASE,sif.low30*XBASE,20)
+    sif.xatr2_30 = sif.atr2_30 * XBASE * XBASE / sif.close30
+    sif.mxatr2_30 = ma(sif.xatr2_30,13)
+    sif.xatr2_30x = np.zeros_like(trans[ICLOSE])
+    sif.xatr2_30x[sif.i_cof30] = sif.xatr2_30
+    sif.xatr2_30x = extend2next(sif.xatr2_30x)
+    sif.mxatr2_30x = np.zeros_like(trans[ICLOSE])
+    sif.mxatr2_30x[sif.i_cof30] = sif.mxatr2_30
+    sif.mxatr2_30x = extend2next(sif.mxatr2_30x)
+
+    sif.atr2_30x = np.zeros_like(trans[ICLOSE])
+    sif.atr2_30x[sif.i_cof30] = sif.atr2_30
+    sif.atr2_30x = extend2next(sif.atr2_30x)
+
+
     sif.diff30x,sif.dea30x = cmacd(sif.close30*FBASE)
 
     sif.sdiff30x,sif.sdea30x = np.zeros_like(trans[ICLOSE]),np.zeros_like(trans[ICLOSE])

@@ -1813,6 +1813,7 @@ def k15_lastdown_s(sif,sopened=None):
             ,sif.strend<0
             #,sif.ma3<sif.ma13
             ,sif.xatr90x<sif.mxatr90x
+            #,sif.r60<0
             )
     signal = derepeatc(signal)
 
@@ -1851,7 +1852,7 @@ def k15_lastdown_30(sif,sopened=None):
             ,sif.xatr30x > 8000
             ,strend2(sif.mxatr)>0
             ,sif.xatr < sif.mxatr
-            
+            ,sif.r60<0       
             #,sif.mtrend>0
             )
     #print zip(sif.time,signal)[-270:]
@@ -2103,13 +2104,14 @@ def k10_lastdown_30(sif,sopened=None):
             ,sif.xatr30x > 8000
             ,strend2(sif.mxatr)>0
             ,sif.mtrend>0   #说明是顶，不是途中
-            ,sif.r120>0     #这个条件太强，可适当去掉以满足出现率
+            #,sif.r120>0     #这个条件太强，可适当去掉以满足出现率
+            ,sif.r60<0
             )
     signal = derepeatc(signal)
 
     return signal * k10_lastdown_30.direction
 k10_lastdown_30.direction = XSELL
-k10_lastdown_30.priority = 1500 
+k10_lastdown_30.priority = 2100 
 
 
 def k10_lastup_30(sif,sopened=None):
@@ -2443,6 +2445,7 @@ def k5_lastdown3(sif,sopened=None):
             ,sif.xatr30x > 8000
             ,sif.xatr < 1600
             ,strend2(sif.mxatr30x)<0
+            ,sif.r60<0
             )
 
     #signal = np.select([sif.time>944],[signal],0)
@@ -3752,7 +3755,7 @@ xagainst = [#多头
             #xma_short, #样本数太少，暂缓
             #xdma_short,    #
             k15_lastdown,
-            k15_lastdown_s,    #样本数太少，暂缓
+            #k15_lastdown_s,    #样本数太少，暂缓
             k15_lastdown_30,    ##
             k15_lastdown_x,    ##
             k15_lastdown_y,
@@ -3920,6 +3923,7 @@ xxx2a = xfollow + xbreak + xagainst + xorb + xevs
 
 for x in xxx2: 
     x.stop_closer = atr5_uxstop_t_08_25_B2
+    #x.stop_closer = atr5_uxstop_t_08_25_B26
 
 
 '''

@@ -1318,6 +1318,9 @@ atr5_uxstop_t_08_25_B20 = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_d
 
 ###使用90-150-250的止损, 9点初始止损，15点最小跟踪止损，25点最大跟踪止损
 atr5_uxstop_t_08_25_B2 = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=250,min_drawdown=150,min_lost_follow=90,min_lost_against=90,max_lost_follow=90,max_lost_against=90,natr=5)  
+atr5_uxstop_t_08_25_B27 = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=270,min_drawdown=150,min_lost_follow=90,min_lost_against=90,max_lost_follow=90,max_lost_against=90,natr=5)  
+atr5_uxstop_t_08_25_B30 = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=300,min_drawdown=150,min_lost_follow=90,min_lost_against=90,max_lost_follow=90,max_lost_against=90,natr=5)  
+atr5_uxstop_t_08_25_B26 = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=260,min_drawdown=150,min_lost_follow=90,min_lost_against=90,max_lost_follow=90,max_lost_against=90,natr=5)  
 
 
 atr5_uxstop_t_08_25_B3 = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=200,min_drawdown=200,min_lost_follow=90,min_lost_against=90,max_lost_follow=90,max_lost_against=90,natr=5)  

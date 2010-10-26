@@ -3838,14 +3838,13 @@ def dbrb(sif,sopened=None):
     signal = cross(rollx(dhigh)+10,sif.close)>0
 
     signal = gand(signal
-            ,sif.ma3 > sif.ma13
+            ,sif.ma5>sif.ma13
             ,sif.ma13 > sif.ma60
             ,strend2(sif.ma30)>0
             ,sif.r60>20
             ,sif.r120>0
             ,strend2(sif.mxatr)>0
             ,sif.xatr30x < 10000
-            ,sif.ma5>sif.ma13
             )
 
     return signal * dbrb.direction

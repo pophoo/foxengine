@@ -762,6 +762,215 @@ rsi_long_x3.priority = 1500
 
 rsi_long_x3_1341 = fcustom(rsi_long_x3,rshort=13,rlong=41)
 
+def uuuxb(sif,sopened=None):
+    '''
+        三上一调整
+    '''
+    signal = gand(rollx(sif.close,1) > rollx(sif.close,2)
+                ,rollx(sif.close,2) > rollx(sif.close,3)
+                ,sif.low < rollx(sif.low)
+                )
+    signal = gand(signal
+                ,sif.r60>20
+                ,sif.r120>0
+                ,sif.xatr30x < sif.mxatr30x
+                ,sif.xatr > sif.mxatr
+                ,sif.xatr > 1200
+                ,(sif.close - rollx(sif.close,3))*XBASE*XBASE / sif.close < 10
+                ,rollx(sif.close,3) > rollx(sif.open,3)
+                #,sif.date < 20101025
+            )
+
+    return signal * uuuxb.direction
+uuuxb.direction = XBUY
+uuuxb.priority = 1500
+
+def udduub(sif,sopened=None):
+    '''
+        上下下上
+    '''
+    signal = gand(rollx(sif.close,4) > rollx(sif.close,5)
+                ,rollx(sif.close,3) < rollx(sif.close,4)
+                ,rollx(sif.close,2) < rollx(sif.close,3)
+                ,rollx(sif.close,1) > rollx(sif.close,2)
+                ,sif.close > rollx(sif.close)
+                #,sif.close == rollx(tmax(sif.high,4))
+                )
+    signal = gand(signal
+                #,sif.xatr30x < sif.mxatr30x
+                #,strend2(sif.mxatr30x)<0
+                #,strend2(sif.ma3)<0
+            )
+
+    return signal * udduub.direction
+udduub.direction = XBUY
+udduub.priority = 1500
+
+
+def duub(sif,sopened=None):
+    '''
+        二夹一
+    '''
+    signal = gand(rollx(sif.close,2) < rollx(sif.close,3)
+                ,rollx(sif.close,1) > rollx(sif.close,2)
+                ,sif.close > rollx(sif.close)                
+                ,rollx(sif.low,2) > rollx(sif.low,3)
+                #,sif.date < 20101025                
+                )
+    signal = gand(signal
+                ,sif.r60>20
+                ,sif.r120>0
+                ,sif.xatr30x < sif.mxatr30x
+                ,sif.xatr > sif.mxatr
+                ,sif.xatr > 1200
+            )
+
+    return signal * duub.direction
+duub.direction = XBUY
+duub.priority = 1500
+
+def dduuds(sif,sopened=None):
+    '''
+        两下两上下
+    '''
+    signal = gand(rollx(sif.close,4) < rollx(sif.close,5)
+                ,rollx(sif.close,3) < rollx(sif.close,4)
+                ,rollx(sif.close,2) > rollx(sif.close,3)
+                ,rollx(sif.close,1) > rollx(sif.close,2)
+                ,sif.close < rollx(sif.close)
+                ,sif.low == tmin(sif.low,5)
+                )
+    signal = gand(signal
+                ,sif.xatr30x < sif.mxatr30x
+                ,sif.xatr < sif.mxatr
+                ,strend2(sif.mxatr30x)<0
+                ,sif.xatr > 1200
+            )
+
+    return signal * dduuds.direction
+dduuds.direction = XSELL
+dduuds.priority = 1500
+
+def duuds(sif,sopened=None):
+    '''
+        下上上下
+    '''
+    signal = gand(#rollx(sif.close,4) < rollx(sif.close,5)
+                rollx(sif.close,3) < rollx(sif.close,4)
+                ,rollx(sif.close,2) > rollx(sif.close,3)
+                ,rollx(sif.close,1) > rollx(sif.close,2)
+                ,sif.close < rollx(sif.close)
+                ,sif.close == rollx(tmin(sif.low,4))
+                )
+    signal = gand(signal
+                ,sif.xatr30x < sif.mxatr30x
+                ,strend2(sif.mxatr30x)<0
+                ,strend2(sif.ma3)<0
+            )
+
+    return signal * duuds.direction
+duuds.direction = XSELL
+duuds.priority = 1500
+
+
+def udub(sif,sopened=None):
+    '''
+        上下上
+    '''
+    signal = gand(
+                rollx(sif.close,2) > rollx(sif.open,2)
+                ,rollx(sif.close)<rollx(sif.open)
+                ,sif.close > sif.open
+                ,rollx(sif.low) > rollx(sif.low,2)
+                ,sif.close > rollx(gmax(sif.close,sif.open))
+                ,sif.high > rollx(sif.high)
+                )
+    signal = gand(signal
+                #,sif.s30>0
+                #,sif.xatr30x < sif.mxatr30x
+                #,strend2(sif.mxatr30x)<0
+                #,strend2(sif.ma3)>0
+            )
+
+    return signal * udub.direction
+udub.direction = XBUY
+udub.priority = 1500
+
+
+def duuuds(sif,sopened=None):
+    '''
+        下上上上下
+    '''
+    signal = gand(rollx(sif.close,4) < rollx(sif.close,5)
+                ,rollx(sif.close,3) > rollx(sif.close,4)
+                ,rollx(sif.close,2) > rollx(sif.close,3)
+                ,rollx(sif.close,1) > rollx(sif.close,2)
+                ,sif.close < rollx(sif.close)
+                ,sif.close < rollx(sif.open,2)
+                #,sif.close == rollx(tmin(sif.low,4))
+                )
+    signal = gand(signal
+                #,sif.xatr30x < sif.mxatr30x
+                #,strend2(sif.mxatr30x)<0
+                ,sif.xatr > sif.mxatr
+                ,strend2(sif.mxatr)<0
+            )
+
+    return signal * duuuds.direction
+duuuds.direction = XSELL
+duuuds.priority = 1500
+
+
+def uuds(sif,sopened=None):
+    '''
+        两上下
+    '''
+    signal = gand(
+                rollx(sif.close,2) > rollx(sif.close,3)
+                ,rollx(sif.close,1) > rollx(sif.close,2)
+                ,sif.close < rollx(sif.close)
+                ,sif.close < rollx(sif.close,3)
+                )
+    signal = gand(signal
+                ,sif.xatr30x < sif.mxatr30x
+                ,sif.xatr > sif.mxatr
+                ,strend2(sif.mxatr30x)<0
+                ,sif.xatr < 1100
+                ,sif.r30 < 0
+                ,sif.r120<0
+            )
+
+    return signal * uuds.direction
+uuds.direction = XSELL
+uuds.priority = 1500
+
+
+def ddduuds(sif,sopened=None):
+    '''
+        三下两上下
+    '''
+    signal = gand(rollx(sif.close,5) < rollx(sif.close,6)
+                ,rollx(sif.close,4) < rollx(sif.close,5)
+                ,rollx(sif.close,3) < rollx(sif.close,4)
+                ,rollx(sif.close,2) > rollx(sif.close,3)
+                ,rollx(sif.close,1) > rollx(sif.close,2)
+                ,sif.close < rollx(sif.close)
+                ,rollx(sif.high,2) < rollx(sif.high,6)
+                )
+    signal = gand(signal
+                ,sif.xatr30x < sif.mxatr30x
+                ,sif.xatr < sif.mxatr
+                ,strend2(sif.mxatr30x)<0
+                ,sif.xatr < 1500
+                ,strend2(sif.ma3)<0
+                #,sif.r30<0
+            )
+
+    return signal * ddduuds.direction
+ddduuds.direction = XSELL
+ddduuds.priority = 1500
+
+
 def macd_long_x(sif,sopened=None):
     '''
         居然添加任何ltrend/mtrend/strend条件都会使结果变坏
@@ -2362,6 +2571,55 @@ def k5_lastdown(sif,sopened=None):
 k5_lastdown.direction = XSELL
 k5_lastdown.priority = 2100
 
+def k5_lastdown5(sif,sopened=None):
+    '''
+        顶部衰竭模式
+        5分钟连续上涨时
+            就是说这个一个返回时的支撑点，3分钟内击穿就击穿了
+        3分钟吞没是假突破
+    '''
+    trans = sif.transaction
+ 
+    signal5 = gand(
+                rollx(sif.high5) == tmax(sif.high5,12) #上周期是顶点
+             )
+
+    delay = 3
+
+    ss = np.zeros_like(sif.close)
+    ss[sif.i_cof5] = signal5
+    ssh = np.zeros_like(sif.close)
+    ssh[sif.i_cof5] = sif.high5
+    bline = np.select([ss>0],[ssh],0)
+    bline = extend(bline,delay)
+    
+    #fsignal = cross(bline,sif.high)>0
+    fsignal = sif.low < bline #-100
+
+    #signal = np.zeros_like(sif.close)
+    #signal[sif.i_cof5] = signal5
+
+    signal = sfollow(ss,fsignal,delay)
+    signal = gand(signal
+            ,strend2(sif.mxatr)>0
+            ,sif.xatr>sif.mxatr
+            ,sif.xatr30x > 8000
+            ,strend2(sif.mxatr30x)>0
+            ,sif.mxatr30x/sif.mxatr < 6
+            )
+
+    signal = np.select([sif.time>944],[signal],0)
+
+    signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal_s==1)
+    
+    signal = derepeatc(signal)
+
+    return signal * k5_lastdown5.direction
+k5_lastdown5.direction = XSELL
+k5_lastdown5.priority = 2100
+
+
 
 def k5_lastdown2(sif,sopened=None):
     '''
@@ -3567,6 +3825,57 @@ def macd3s(sif,sopened=None):
 macd3s.direction = XSELL
 macd3s.priority = 1500
 
+def dbrb(sif,sopened=None):
+    '''
+        日内新高 + 1点
+        日内段刨掉开盘30分钟
+    '''
+    #di = np.zeros_like(sif.close)
+    #di[sif.i_oofd] = 1
+    di = np.select([sif.time==944],[1],0)
+    dhigh = dmax(sif.high,di)
+
+    signal = cross(rollx(dhigh)+10,sif.close)>0
+
+    signal = gand(signal
+            ,sif.ma3 > sif.ma13
+            ,sif.ma13 > sif.ma60
+            ,strend2(sif.ma30)>0
+            ,sif.r60>20
+            ,sif.r120>0
+            ,strend2(sif.mxatr)>0
+            ,sif.xatr30x < 10000
+            ,sif.ma5>sif.ma13
+            )
+
+    return signal * dbrb.direction
+dbrb.direction = XBUY
+dbrb.priority = 1500
+
+def dbrs(sif,sopened=None):
+    '''
+        日内新低 - 1点
+    '''
+    di = np.select([sif.time==915],[1],0)
+    dlow = dmin(sif.low,di)
+
+    signal = cross(rollx(dlow)-20,sif.close)<0
+
+    signal = gand(signal
+            #,sif.ma3 < sif.ma13
+            #,sif.ma13 < sif.ma60
+            #,strend2(sif.ma30)<0
+            #,sif.r30<0
+            #,sif.r120<0
+            ,strend2(sif.mxatr)<0
+            ,sif.xatr30x < 10000
+            )
+
+    return signal * dbrs.direction
+dbrs.direction = XSELL
+dbrs.priority = 1500
+
+
 def waveb(sif,sopened=None):
     di = np.zeros_like(sif.close)
     di[sif.i_oofd] = 1
@@ -3734,6 +4043,7 @@ xbreak = [#多头
             acd_ua_sz, 
             #acd_ua_sz_b, #样本太少，暂缓
             br30,
+            dbrb,
           #空头
             godown,
             #acd_da, #样本太少，暂缓
@@ -3876,6 +4186,14 @@ xevs = [
             macd3r_b,            
 
             roc5_bx,    #xatr30x>mxatr30x
+
+            #uuuxb,
+            duub,
+            #dduuds,
+            duuuds,
+            duuds,
+            ddduuds,
+            uuds,
       ]
 
 for xf in xevs:

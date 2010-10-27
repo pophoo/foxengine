@@ -846,8 +846,10 @@ def prepare_index(sif):
     #sif.xtrend = np.select([sif.t30>0,sif.t30<0],[1,-1],0)
     #sif.xtrend = np.select([strend2(ma(sif.close,780))>0],[1],-1)   #3日减第一日开盘
     #m15 = dnext(strend2(ma(sif.close15,54)),sif.close,sif.i_cof15)
-    m10 = dnext(strend2(ma(sif.close10,81)),sif.close,sif.i_cof10)  #3日为趋势判断周期
-    sif.xtrend = np.select([m10>0],[1],-1)
+    #m10 = dnext(strend2(ma(sif.close10,81)),sif.close,sif.i_cof10)  #3日为趋势判断周期
+    #m10 = dnext(strend2(ma(sif.close10,40)),sif.close,sif.i_cof10)  #3日为趋势判断周期
+    m5 = dnext(strend2(ma(sif.close5,80)),i00.close,i00.i_cof5)
+    sif.xtrend = np.select([m5>0],[1],-1)
     
     sif.macd3x = sif.diff3x-sif.dea3x   
     sif.macd5x = sif.diff5x-sif.dea5x

@@ -762,13 +762,15 @@ rsi_long_x3.priority = 1500
 
 rsi_long_x3_1341 = fcustom(rsi_long_x3,rshort=13,rlong=41)
 
-def uuuxb(sif,sopened=None):
+def uuxb(sif,sopened=None):
     '''
         三上一调整
+        可从9:40开始
     '''
-    signal = gand(rollx(sif.close,1) > rollx(sif.close,2)
-                ,rollx(sif.close,2) > rollx(sif.close,3)
+    signal = gand(rollx(sif.close,2) > rollx(sif.close,3)
+                ,rollx(sif.close,1) > rollx(sif.close,2)
                 ,sif.low < rollx(sif.low)
+                #,sif.low > rollx(sif.low,3)
                 )
     signal = gand(signal
                 ,sif.r60>20
@@ -778,13 +780,13 @@ def uuuxb(sif,sopened=None):
                 ,sif.xatr > 1200
                 ,sif.xatr30x < 10000
                 ,(sif.close - rollx(sif.close,3))*XBASE*XBASE / sif.close < 10
-                ,rollx(sif.close,3) > rollx(sif.open,3)
+                ,rollx(sif.close,2) > rollx(sif.open,2)
                 #,sif.date < 20101025
             )
 
-    return signal * uuuxb.direction
-uuuxb.direction = XBUY
-uuuxb.priority = 1500
+    return signal * uuxb.direction
+uuxb.direction = XBUY
+uuxb.priority = 1500
 
 def udduub(sif,sopened=None):
     '''
@@ -3852,7 +3854,7 @@ dbrb.priority = 1500
 
 def dbrs(sif,sopened=None):
     '''
-        日内新低 - 1点
+        日内新低 - 4点
     '''
     di = np.select([sif.time==915],[1],0)
     dlow = dmin(sif.low,di)
@@ -4187,7 +4189,7 @@ xevs = [
 
             roc5_bx,    #xatr30x>mxatr30x
 
-            #uuuxb,
+            uuxb,
             duub,
             #dduuds,
             duuuds,

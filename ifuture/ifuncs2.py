@@ -921,7 +921,7 @@ def duuuds(sif,sopened=None):
 
     return signal * duuuds.direction
 duuuds.direction = XSELL
-duuuds.priority = 1500
+duuuds.priority = 900
 
 
 def uuds(sif,sopened=None):
@@ -1789,6 +1789,7 @@ def ma1x(sif,opened=None,length=60):
                 ,sif.ltrend>0
                 ,sif.mtrend>0
                 ,sif.s30>0
+                ,sif.ma3>sif.ma13
                 #,sif.xatr60x<sif.mxatr60x
                 #,strend2(sif.dma7)>0
             )
@@ -4189,13 +4190,6 @@ xevs = [
 
             roc5_bx,    #xatr30x>mxatr30x
 
-            uuxb,
-            duub,
-            #dduuds,
-            duuuds,
-            duuds,
-            ddduuds,
-            uuds,
       ]
 
 for xf in xevs:
@@ -4226,19 +4220,33 @@ xevs_all = [
             macd3r_b,   
 
             roc5_bx,    #xatr30x>mxatr30x
-      ]
+        ]
 
 for x in xevs_all: 
     x.stop_closer = atr5_uxstop_t_08_25_B2
 
 #重新划分顺势、逆势，不再由算法本身决定，由算法介入的时点决定
 
+k1s = [     
+            uuxb,
+            duub,
+            #dduuds,
+            duuuds,
+            duuds,
+            ddduuds,
+            uuds,
+    ]
+for xf in k1s:
+    xf.strategy = XORB   
+    xf.stop_closer = atr5_uxstop_t_08_25_B
+    xf.filter = ocfilter_k1s
 
 
-xxx2 = xfollow + xbreak + xagainst + xorb + xevs
-xxx3 = xfollow + xbreak + xagainst + xorb + xevs
 
-xxx2a = xfollow + xbreak + xagainst + xorb + xevs
+xxx2 = xfollow + xbreak + xagainst + xorb + xevs + k1s
+xxx3 = xfollow + xbreak + xagainst + xorb + xevs + k1s
+
+xxx2a = xfollow + xbreak + xagainst + xorb + xevs + k1s
 
 
 for x in xxx2: 

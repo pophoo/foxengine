@@ -776,6 +776,7 @@ def uuuxb(sif,sopened=None):
                 ,sif.xatr30x < sif.mxatr30x
                 ,sif.xatr > sif.mxatr
                 ,sif.xatr > 1200
+                ,sif.xatr30x < 10000
                 ,(sif.close - rollx(sif.close,3))*XBASE*XBASE / sif.close < 10
                 ,rollx(sif.close,3) > rollx(sif.open,3)
                 #,sif.date < 20101025
@@ -3838,13 +3839,11 @@ def dbrb(sif,sopened=None):
     signal = cross(rollx(dhigh)+10,sif.close)>0
 
     signal = gand(signal
-            ,sif.ma5>sif.ma13
-            ,sif.ma13 > sif.ma60
-            ,strend2(sif.ma30)>0
             ,sif.r60>20
-            ,sif.r120>0
+            #,sif.r120>0
             ,strend2(sif.mxatr)>0
             ,sif.xatr30x < 10000
+            ,strend2(sif.ma30)>10
             )
 
     return signal * dbrb.direction
@@ -3858,16 +3857,17 @@ def dbrs(sif,sopened=None):
     di = np.select([sif.time==915],[1],0)
     dlow = dmin(sif.low,di)
 
-    signal = cross(rollx(dlow)-20,sif.close)<0
+    signal = cross(rollx(dlow)-40,sif.close)<0
 
     signal = gand(signal
             #,sif.ma3 < sif.ma13
             #,sif.ma13 < sif.ma60
             #,strend2(sif.ma30)<0
-            #,sif.r30<0
+            ,sif.r30<0
             #,sif.r120<0
-            ,strend2(sif.mxatr)<0
+            #,strend2(sif.mxatr)<0
             ,sif.xatr30x < 10000
+            ,strend2(sif.ma30)<-30
             )
 
     return signal * dbrs.direction
@@ -4043,6 +4043,7 @@ xbreak = [#多头
             #acd_ua_sz_b, #样本太少，暂缓
             br30,
             dbrb,
+            dbrs,
           #空头
             godown,
             #acd_da, #样本太少，暂缓

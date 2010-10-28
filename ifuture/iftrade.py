@@ -69,8 +69,8 @@ def last_filter(sif,tbegin=930,tend=1510):
     return soc
 
 last_filter_c = fcustom(last_filter,tbegin=930,tend=1455)
-ocfilter_orb = fcustom(last_filter,tbegin=915,tend=1440) #orb 1440之后信号忽略
-ocfilter_k1s = fcustom(last_filter,tbegin=929,tend=1500) #orb 1440之后信号忽略
+ocfilter_orb = fcustom(last_filter,tbegin=915,tend=1440) #orb 信号不受影响
+ocfilter_k1s = fcustom(last_filter,tbegin=929,tend=1500) #k1s 信号与隔日无关 
 
 
 ##平仓比较函数中，第一个参数的优先级低于第二个

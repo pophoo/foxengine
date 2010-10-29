@@ -689,16 +689,17 @@ class DynamicScheduler:
                 #rmsg = 'success' #'error'
                 if rmsg[:7] == 'success':
                     successed += 1
-                    print u'\n发送成功,%s,%s' % (msg,fname)
+                    #print u'\n发送成功,%s,%s' % (msg,fname)
                 else:
                     failed += 1
-                    print u'\n发送失败,%s,%s' % (msg,fname)
+                    #print u'\n发送失败,%s,%s' % (msg,fname)
         except:
             pass
         finally:
+            print u'发送: %s,%s,成功:%s 条' % (msg,fname,successed)
             if failed > 0:
-                return 1
-        return 0
+                return 0
+        return 1
 
     @staticmethod
     def concatenate(pre_transaction,itransaction):

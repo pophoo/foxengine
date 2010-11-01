@@ -120,6 +120,7 @@ todo:   研究逆势时止盈点位是否需要重新设置
 
 from wolfox.fengine.ifuture.ibase import *
 from wolfox.fengine.ifuture.iftrade import *
+import wolfox.fengine.ifuture.iftrade as iftrade
 
 from wolfox.fengine.ifuture.orb import dnr1_uu_b,dnr1_dd_b,dnr1_ud_b,dp_uu_b,dp_ud_b,dpt_ux_b
 from wolfox.fengine.ifuture.orb import dpt_uu_s,n30pt_dud_b,n30pt_du_s,n15pt_dd_b,n15pt_du_s,n60pt_uu_b
@@ -4257,7 +4258,7 @@ def waveb(sif,sopened=None):
     return signal * waveb.direction
 waveb.direction = XSELL
 waveb.priority = 1500
-waveb.stop_closer = atr5_uxstop_t_08_25_B2
+#waveb.stop_closer = atr5_uxstop_t_08_25_B2
 
 def allup(sif,sopened=None):
     '''
@@ -4575,8 +4576,8 @@ xevs_all = [
             roc5_bx,    #xatr30x>mxatr30x
         ]
 
-for x in xevs_all: 
-    x.stop_closer = atr5_uxstop_t_08_25_B2
+#for x in xevs_all: 
+#    x.stop_closer = atr5_uxstop_t_08_25_B2
 
 #重新划分顺势、逆势，不再由算法本身决定，由算法介入的时点决定
 
@@ -4626,7 +4627,8 @@ xxx2a = xfollow + xbreak + xagainst + xorb + xevs + k1s + k1s2
 
 
 for x in xxx2: 
-    x.stop_closer = atr5_uxstop_t_08_25_B2
+    #x.stop_closer = atr5_uxstop_t_08_25_B2
+    x.stop_closer = iftrade.atr5_uxstop_f_A
     #x.stop_closer = atr5_uxstop_t_08_25_B26
 
 

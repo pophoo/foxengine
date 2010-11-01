@@ -150,7 +150,8 @@ def calc_stop(sif,action):
         stop2 = 3
     '''
         
-    stop1 = stop2 = stop3 = 9   ##不论何种情况都是9
+    #stop1 = stop2 = stop3 = 9   ##不论何种情况都是9
+    stop1 = stop2 = stop3 = iftrade.FBASE_30(int(abs(action.price*10)))/10.0   ##不论何种情况都是初始止损
     mstop1 = max(stop1,stop2)  #实际止损 
     mstop = max(mstop1,stop3)  #最大止损线设置
     if action.position == LONG:

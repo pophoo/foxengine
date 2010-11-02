@@ -2990,15 +2990,16 @@ def k5_lastdown5(sif,sopened=None):
     trans = sif.transaction
  
     signal5 = gand(
-                rollx(sif.high5) == tmax(sif.high5,12) #上周期是顶点
+                rollx(sif.high5) == tmax(sif.high5,36) #上周期是顶点
+
              )
 
-    delay = 3
+    delay = 5
 
     ss = np.zeros_like(sif.close)
     ss[sif.i_cof5] = signal5
     ssh = np.zeros_like(sif.close)
-    ssh[sif.i_cof5] = sif.high5
+    ssh[sif.i_cof5] = sif.low5
     bline = np.select([ss>0],[ssh],0)
     bline = extend(bline,delay)
     
@@ -3010,17 +3011,16 @@ def k5_lastdown5(sif,sopened=None):
 
     signal = sfollow(ss,fsignal,delay)
     signal = gand(signal
-            ,strend2(sif.mxatr)>0
-            ,sif.xatr>sif.mxatr
-            ,sif.xatr30x > 8000
-            ,strend2(sif.mxatr30x)>0
-            ,sif.mxatr30x/sif.mxatr < 6
+            ,sif.xatr30x < sif.mxatr30x
+            ,strend2(sif.ma13)<0
+            ,sif.s5<0
+            ,sif.r120 < 80
             )
 
     signal = np.select([sif.time>944],[signal],0)
 
-    signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
-    signal = gand(signal_s==1)
+    #signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
+    #signal = gand(signal_s==1)
     
     signal = derepeatc(signal)
 
@@ -3126,6 +3126,48 @@ def k5_lastdown3(sif,sopened=None):
 k5_lastdown3.direction = XSELL
 k5_lastdown3.priority = 2100
 
+def k5_lastdownx(sif,sopened=None):
+    '''
+        顶部衰竭模式3
+        5分钟连续上涨时
+        创新高后下5分钟被吞没
+        
+    '''
+    trans = sif.transaction
+ 
+    signal5 = gand(sif.close5<rollx(sif.low5) 
+                ,rollx(sif.high5) == tmax(sif.high5,24) #上周期是顶点
+                ,sif.close5 < sif.open5
+             )
+
+    delay = 3
+
+    ss = np.zeros_like(sif.close)
+    ss[sif.i_cof5] = signal5
+
+    di = np.select([sif.time==944],[1],0)
+    dhigh = dmax(sif.high,di)
+
+
+    signal = gand(ss
+                )
+    signal = gand(signal
+            ,sif.xatr30x < sif.mxatr30x
+            ,strend2(sif.xatr30x)>0
+            ,sif.xatr < 2000
+            ,strend2(sif.ma13)<0
+            )
+
+    signal = np.select([sif.time>944],[signal],0)
+
+    #signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
+    #signal = gand(signal_s==1)
+    
+    signal = derepeatc(signal)
+
+    return signal * k5_lastdownx.direction
+k5_lastdownx.direction = XSELL
+k5_lastdownx.priority = 2100
 
 
 
@@ -4481,6 +4523,7 @@ xagainst = [#多头
             k5_lastdown,
             k5_lastdown2,
             k5_lastdown3,
+            k5_lastdown5,
             k1_lastup_a,
 
             k15_lastup_30,

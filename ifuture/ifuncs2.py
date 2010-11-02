@@ -2833,6 +2833,57 @@ k5_lastup2.direction = XBUY
 k5_lastup2.priority = 1300  #r60>40表示是顺势
 
 
+def k5_lastup3(sif,sopened=None):
+    '''
+        底部衰竭模式
+        5分钟底部阴线后出现孕线，后10分钟内1分钟最高线突破该孕线(high+close)/2
+        长期顺势，中期逆势，短期顺势
+    '''
+    trans = sif.transaction
+ 
+    signal5 = gand(sif.high5<rollx(sif.high5)
+                ,sif.low5>rollx(sif.low5)
+                ,rollx(sif.low5) == tmin(sif.low5,20)
+                ,rollx(sif.close5)<rollx(sif.open5)
+                )
+
+    delay = 10
+
+    ss = np.zeros_like(sif.close)
+    ss[sif.i_cof5] = signal5
+    ssh = np.zeros_like(sif.close)
+    ssh[sif.i_cof5] = (sif.high5 + sif.close5)/2
+    bline = np.select([ss>0],[ssh],0)
+    bline = extend(bline,delay)
+    
+    #fsignal = cross(bline,sif.high)>0
+    fsignal = sif.high > bline
+
+    #signal = np.zeros_like(sif.close)
+    #signal[sif.i_cof5] = signal5
+
+    signal = sfollow(ss,fsignal,delay)
+    signal = gand(signal
+            ,sif.xatr<2000
+            ,sif.xatr>1200
+            ,sif.xatr<sif.mxatr
+            ,sif.xatr30x > 5000
+            ,sif.r120>0
+            ,strend2(sif.mxatr)>0
+            )
+
+    signal = np.select([sif.time>944],[signal],0)
+
+    signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal_s==1)
+    
+    signal = derepeatc(signal)
+
+    return signal * k5_lastup3.direction
+k5_lastup3.direction = XBUY
+k5_lastup3.priority = 900
+
+
 def k3_lastup2(sif,sopened=None):
     '''
         底部衰竭模式2
@@ -4594,7 +4645,9 @@ for xf in k1s:
     xf.strategy = XORB   
     xf.stop_closer = atr5_uxstop_t_08_25_B
     xf.filter = ocfilter_k1s
-    xf.proirity = 1500
+    #xf.priority = 1500
+
+#duuuds.priority = 900
 
 k1s2 = [     #不能用于944之前
             diiiiub,
@@ -4609,7 +4662,7 @@ k1s2 = [     #不能用于944之前
 for xf in k1s2:
     xf.strategy = XORB   
     xf.stop_closer = atr5_uxstop_t_08_25_B
-    xf.proirity = 1500
+    #xf.priority = 1500
 
 k1s_others = [
             dids,
@@ -4630,6 +4683,7 @@ for x in xxx2:
     #x.stop_closer = atr5_uxstop_t_08_25_B2
     x.stop_closer = iftrade.atr5_uxstop_f_A
     #x.stop_closer = atr5_uxstop_t_08_25_B26
+    #x.priority = 1500
 
 
 '''

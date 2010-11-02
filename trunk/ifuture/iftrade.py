@@ -1106,9 +1106,19 @@ def atr_uxstop_t(sif,sopened
     return rev
 
 
-FBASE_30 = lambda bpoint:30 + (bpoint + 5000) / 5000 * 10  #基准3点，以后每上500点加1点. /5000 * 10是为了向.5取整
-F60_15 = lambda bpoint:60 + (bpoint+5000) / 5000 * 10 * 3/2  #基准6点，以后每上500点加1.5点
-F100_25 = lambda bpoint:100 + (bpoint+5000) / 5000 * 10 * 5/2 #基准10点，以后每上500点加2.5点
+#FBASE_30 = lambda bpoint:30 + (bpoint + 5000) / 5000 * 10  #基准3点，以后每上500点加1点. /5000 * 10是为了向.5取整
+#F60_15 = lambda bpoint:60 + (bpoint+5000) / 5000 * 10 * 3/2  #基准6点，以后每上500点加1.5点
+#F100_25 = lambda bpoint:100 + (bpoint+5000) / 5000 * 10 * 5/2 #基准10点，以后每上500点加2.5点
+
+#FBASE_30 = lambda bpoint:10 + (bpoint+4000) / 4000 * 10  #基准1点，以后每上500点加1点. /5000 * 10是为了向.5取整
+#F60_15 = lambda bpoint:30 + (bpoint+4000) / 4000 * 10 * 3/2  #基准3点，以后每上500点加1.5点
+#F100_25 = lambda bpoint:90 + (bpoint+4000) / 4000 * 10 * 2 #基准10点，以后每上500点加2.5点
+
+#最简化的方式
+FBASE_30 = lambda bpoint: 100 if bpoint < 30000 else 100
+F60_15 = lambda bpoint: 150 if bpoint < 30000 else 150
+F100_25 = lambda bpoint: 250 if bpoint < 30000 else 250
+
 
 def atr_uxstop_f(sif,sopened
         ,sbclose
@@ -1147,7 +1157,6 @@ def atr_uxstop_f(sif,sopened
         max_drawdown = fmax_drawdown(aprice)
         min_drawdown = fmin_drawdown(aprice)
         #print price,willlost,max_drawdown,min_drawdown
-        #print willlost
         will_losts.append(willlost)
         if i < ilong_closed or i<ishort_closed:    #已经开了仓，且未平，不再计算            
             #print 'skiped',trans[IDATE][i],trans[ITIME][i],trans[IDATE][ilong_closed],trans[ITIME][ilong_closed],trans[IDATE][ishort_closed],trans[ITIME][ishort_closed]

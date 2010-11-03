@@ -806,6 +806,18 @@ def prepare_index(sif):
     r3[sif.i_cof15] = strend2(nma(sif.close15,3))    #nma避免strend2将初始批量0也当作正数计入的问题
     sif.r3 = extend2next(r3)
 
+    sif.z3 = dnext(nma(sif.close5,3),sif.close,sif.i_cof5)
+    sif.z5 = dnext(nma(sif.close5,5),sif.close,sif.i_cof5)
+    sif.z7 = dnext(nma(sif.close5,7),sif.close,sif.i_cof5)
+    sif.z13 = dnext(nma(sif.close5,13),sif.close,sif.i_cof5)
+    sif.z20 = dnext(nma(sif.close5,20),sif.close,sif.i_cof5)
+    sif.z30 = dnext(nma(sif.close5,30),sif.close,sif.i_cof5)
+    sif.z40 = dnext(nma(sif.close5,40),sif.close,sif.i_cof5)
+    sif.z60 = dnext(nma(sif.close5,60),sif.close,sif.i_cof5)
+    sif.z80 = dnext(nma(sif.close5,80),sif.close,sif.i_cof5)
+    sif.z120 = dnext(nma(sif.close5,120),sif.close,sif.i_cof5)
+    sif.z250 = dnext(nma(sif.close5,250),sif.close,sif.i_cof5)
+
     dma5 = np.zeros_like(sif.close)
     dma5[sif.i_cofd] = strend2(nma(sif.closed,5))    #nma避免strend2将初始批量0也当作正数计入的问题
     sif.dma5 = extend2next(dma5)

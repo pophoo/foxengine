@@ -2259,11 +2259,49 @@ def k1_lastup_b(sif,sopened = None):
                 #,strend2(sif.ma30)>0
                 )
 
-    return signal * k1_lastup_b.direction
 
 k1_lastup_b.direction = XBUY
 k1_lastup_b.priority = 2100 
 
+def k1_relay_down(sif,sopened = None):
+    '''
+        #注意，这里的high是最近30分钟中的最低,而不是最高
+        这是一个误输入而来的指标
+        是一个中继形态
+    '''
+    signal = gand(rollx(sif.high) == tmin(sif.high,30)   #前一分钟是前n-1分钟最小值，且小于当前分钟
+                ,rollx(sif.close)<rollx(sif.open)   #下行
+                ,sif.close < rollx(sif.low)
+                )
+
+    signal = gand(signal
+                ,sif.xatr < 2000
+                ,sif.r120<0
+                )
+
+    return signal * k1_relay_down.direction
+
+k1_relay_down.direction = XSELL
+k1_relay_down.priority = 1500 
+
+def k1_relay_up(sif,sopened = None):
+    '''
+        上升中继
+    '''
+    signal = gand(rollx(sif.low) == tmax(sif.low,20)   
+                ,rollx(sif.close)>rollx(sif.open)   
+                ,sif.close > rollx(sif.high)
+                )
+
+    signal = gand(signal
+                ,sif.r30>0
+                ,sif.r120>0
+                )
+
+    return signal * k1_relay_up.direction
+
+k1_relay_up.direction = XBUY
+k1_relay_up.priority = 1500 
 
 def k15_lastdown(sif,sopened=None):
     '''
@@ -2883,6 +2921,56 @@ def k5_lastup3(sif,sopened=None):
 k5_lastup3.direction = XBUY
 k5_lastup3.priority = 900
 
+def k5_lastups(sif,sopened=None):
+    '''
+        底部衰竭模式
+        5分钟底部阴线后出现孕线，后10分钟内1分钟最高线突破该孕线(high+close)/2
+        效果不佳，稳定性不好
+        很难取舍，虽然稳定性不好，但叠加效果好
+    '''
+    trans = sif.transaction
+ 
+    ma5_60 = ma(sif.close5,60) 
+    
+    signal5 = gand(sif.high5<rollx(sif.high5)
+                ,sif.low5>rollx(sif.low5)
+                ,rollx(sif.low5) == tmin(sif.low5,20)
+                ,rollx(sif.close5)<rollx(sif.open5)
+                ,strend2(ma5_60)<-20
+                )
+
+    delay = 10
+
+    ss = np.zeros_like(sif.close)
+    ss[sif.i_cof5] = signal5
+    ssh = np.zeros_like(sif.close)
+    ssh[sif.i_cof5] = sif.close5 #(sif.high5 + sif.close5)/2
+    bline = np.select([ss>0],[ssh],0)
+    bline = extend(bline,delay)
+    
+    #fsignal = cross(bline,sif.high)>0
+    fsignal = sif.high > bline
+
+    #signal = np.zeros_like(sif.close)
+    #signal[sif.i_cof5] = signal5
+
+    signal = sfollow(ss,fsignal,delay)
+    signal = gand(signal
+            #,strend(sif.ma7)>0
+            #,rollx(strend2(sif.sdiff5x-sif.sdea5x),5)<0
+            ,sif.xatr > 1200
+            ,strend2(sif.ma13)>0
+            )
+
+    signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal_s==1)
+    
+    signal = derepeatc(signal)
+
+
+    return signal * k5_lastups.direction
+k5_lastups.direction = XBUY
+k5_lastups.priority = 2400  #优先级最低
 
 def k3_lastup2(sif,sopened=None):
     '''
@@ -4525,12 +4613,15 @@ xagainst = [#多头
             k5_lastdown3,
             k5_lastdown5,
             k1_lastup_a,
+            k1_relay_down,
+            k1_relay_up,
 
             k15_lastup_30,
             k10_lastup_30,  
             k10_lastdown_30,
             k5_lastup, 
             k5_lastup2, 
+            k5_lastups,
             #ipmacd_long_devi1,#有效放大了回撤? ##样本数太少
             ipmacd_short_devi1,##样本数太少
             ipmacd_short_devi1x, ##

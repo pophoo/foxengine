@@ -2284,6 +2284,28 @@ def k1_relay_down(sif,sopened = None):
 k1_relay_down.direction = XSELL
 k1_relay_down.priority = 1500 
 
+def k1_lastdown(sif,sopened = None):
+    '''
+        #注意，这里的high是最近30分钟中的最低,而不是最高
+        这是一个误输入而来的指标
+        是一个中继形态
+    '''
+    signal = gand(rollx(sif.high) == tmin(sif.high,30)   #前一分钟是前n-1分钟最小值，且小于当前分钟
+                ,rollx(sif.close)<rollx(sif.open)   #下行
+                ,sif.close < rollx(sif.low)
+                )
+
+    signal = gand(signal
+                ,sif.xatr < 2000
+                ,sif.r120<0
+                )
+
+    return signal * k1_lastdown.direction
+
+k1_lastdown.direction = XSELL
+k1_lastdown.priority = 1500 
+
+
 def k1_relay_up(sif,sopened = None):
     '''
         上升中继

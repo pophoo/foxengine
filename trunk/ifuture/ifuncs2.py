@@ -3257,6 +3257,48 @@ def k5_lastdownx(sif,sopened=None):
 k5_lastdownx.direction = XSELL
 k5_lastdownx.priority = 2100
 
+def k5_lastdownt(sif,sopened=None):
+    '''
+        顶部衰竭模式3
+        5分钟连续上涨时
+        创新高后下5分钟被吞没
+        
+    '''
+    trans = sif.transaction
+ 
+    signal5 = gand(sif.close5<rollx(sif.low5) 
+                ,rollx(sif.high5) == tmax(sif.high5,24) #上周期是顶点
+                ,sif.close5 < sif.open5
+             )
+
+    delay = 3
+
+    ss = np.zeros_like(sif.close)
+    ss[sif.i_cof5] = signal5
+
+    di = np.select([sif.time==944],[1],0)
+    dhigh = dmax(sif.high,di)
+
+
+    signal = gand(ss
+                )
+    signal = gand(signal
+            ,sif.xatr30x < sif.mxatr30x
+            ,strend2(sif.xatr30x)>0
+            ,sif.xatr < 2000
+            ,strend2(sif.ma13)<0
+            )
+
+    signal = np.select([sif.time>944],[signal],0)
+
+    #signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
+    #signal = gand(signal_s==1)
+    
+    signal = derepeatc(signal)
+
+    return signal * k5_lastdownt.direction
+k5_lastdownt.direction = XSELL
+k5_lastdownt.priority = 2100
 
 
 def xud30s_r(sif,sopened=None):

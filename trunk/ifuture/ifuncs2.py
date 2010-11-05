@@ -4708,8 +4708,8 @@ xorb_b = [##dnr1_dd_b,
         n30pt_dud_b,  #
         n15pt_dd_b,    #
         ##n60pt_uu_b,
-        #n60pt_uud_b,
-        n60pt_dd_b,    #
+        n60pt_uud_b,
+        #n60pt_dd_b,    #
         ]
 
 xorb_b_all = [dnr1_dd_b,#+
@@ -4879,11 +4879,11 @@ xxx2a = xfollow + xbreak + xagainst + xorb + xevs + k1s + k1s2
 
 for x in xxx2: 
     #x.stop_closer = atr5_uxstop_t_08_25_B2
-    x.stop_closer = iftrade.atr5_uxstop_f_A
     #x.stop_closer = atr5_uxstop_t_08_25_B26
     #x.priority = 1500
-
-
+    #x.stop_closer = iftrade.atr5_uxstop_f_A
+    x.stop_closer = iftrade.atr5_uxstop_k_A
+    
 '''
 16402 17617 17826 18228 18173 18494 18655 18663
 '''

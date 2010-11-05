@@ -1146,7 +1146,7 @@ def dmax(source,signal):
     for i in xrange(slength):
         scur = source[i]
         if signal[i] != 0:
-            cm = source[i]
+            cm = scur
         elif scur > cm:
             cm = scur
         rev[i] = cm
@@ -1167,10 +1167,55 @@ def dmin(source,signal):
     for i in xrange(slength):
         scur = source[i]
         if signal[i] != 0:
-            cm = source[i]
+            cm = scur
         elif scur < cm:
             cm = scur
         rev[i] = cm
+    return rev
+
+def dsum(source,signal):
+    '''
+        求signal信号量之间sum
+        signal以非0为有信号
+        用于计算日内的平均
+    '''
+    assert len(source) == len(signal)
+    slength = len(source)
+    rev = np.zeros_like(source)    
+    if slength == 0:
+        return rev
+    cm = 0
+    for i in xrange(slength):
+        scur = source[i]
+        if signal[i] != 0:
+            cm = scur
+        else:
+            cm += scur
+        rev[i] = cm
+    return rev
+
+def dsma(source,signal):
+    '''
+        求signal信号量之间ma
+        signal以非0为有信号
+        用于计算日内的平均
+    '''
+    assert len(source) == len(signal)
+    slength = len(source)
+    rev = np.zeros_like(source)    
+    if slength == 0:
+        return rev
+    cm = 0
+    im = 0
+    for i in xrange(slength):
+        scur = source[i]
+        if signal[i] == 0:
+            cm += scur
+            im += 1
+        else:
+            cm = scur
+            im = 1
+        rev[i] = (cm + im/2)/ im
     return rev
 
 def max0(source):

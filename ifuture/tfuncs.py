@@ -1372,45 +1372,6 @@ k15_lastdownb.direction = XSELL
 k15_lastdownb.priority = 2100 #对i09时200即优先级最高的效果最好
 #k15_lastdown.stop_closer = atr5_uxstop_05_25
 
-def k5_lastdown(sif,sopened=None):
-    '''
-        新高衰竭模式
-        1. 5分钟长上影新高后,5分钟内1分钟跌破前5分钟的最低价
-    '''
-    
-    trans = sif.transaction
-
-    ma5_500 = ma(sif.close5,500)
-    ma5_200 = ma(sif.close5,200)
-    ma5_60 = ma(sif.close5,60) 
-    ma5_13 = ma(sif.close5,13)     
-    ma5_30 = ma(sif.close5,30) 
-    ma5_7 = ma(sif.close5,7)         
-    ma5_3 = ma(sif.close5,3)         
-    
-    nhigh5 = gand(sif.high5>rollx(tmax(sif.high5,12)))  #60分钟新高
-    ssl = gmin(sif.low5,rollx(sif.low5))
-    bline = np.select([nhigh5>0],[ssl],0)
-
-    delay = 2
-    bline = extend(bline,delay)
-
-    #print np.nonzero(signal5)
-    fsignal = gand(sif.close5 < bline
-                ,sif.open5-sif.close5 > sif.close5 * 4/1000
-                )
-
-    signal5 = sfollow(nhigh5,fsignal,delay)
-
-    signal = np.zeros_like(sif.close)
-
-    signal[sif.i_cof5] = signal5
-
-    signal = derepeatc(signal)
-    return signal * k5_lastdown.direction
-k5_lastdown.direction = XSELL
-k5_lastdown.priority = 2400 
-#k5_lastdown.stop_closer = atr5_uxstop_05_25
 
 def k15_lastdown_s(sif,sopened=None):
     '''
@@ -5895,4 +5856,53 @@ def xdevi_stop_long12(sif,sopened=None):#平多头
     trans = sif.transaction
     sell_signal = gand(hdevi(trans[IHIGH],sif.diff1,sif.dea1)) * XSELL
     return sell_signal 
+
+
+def k5_lastdown(sif,sopened=None):
+    '''
+        顶部衰竭模式
+        5分钟连续上涨时
+            就是说这个一个返回时的支撑点，3分钟内击穿就击穿了
+        3分钟吞没是假突破
+    '''
+    trans = sif.transaction
+ 
+    signal5 = gand(
+                rollx(sif.high5) == tmax(sif.high5,12) #上周期是顶点
+             )
+
+    delay = 3
+
+    ss = np.zeros_like(sif.close)
+    ss[sif.i_cof5] = signal5
+    ssh = np.zeros_like(sif.close)
+    ssh[sif.i_cof5] = sif.high5
+    bline = np.select([ss>0],[ssh],0)
+    bline = extend(bline,delay)
+    
+    #fsignal = cross(bline,sif.high)>0
+    fsignal = sif.low < bline #-100
+
+    #signal = np.zeros_like(sif.close)
+    #signal[sif.i_cof5] = signal5
+
+    signal = sfollow(ss,fsignal,delay)
+    signal = gand(signal
+            #,strend2(sif.mxatr)>0
+            #,sif.xatr>sif.mxatr
+            ,sif.xatr30x > 8000
+            #,strend2(sif.mxatr30x)>0
+            #,sif.mxatr30x/sif.mxatr < 6
+            )
+
+    signal = np.select([sif.time>944],[signal],0)
+
+    signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal_s==1)
+    
+    signal = derepeatc(signal)
+
+    return signal * k5_lastdown.direction
+k5_lastdown.direction = XSELL
+k5_lastdown.priority = 2100
 

@@ -633,6 +633,21 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([7,6,5,4,3,2,1],dmax(np.array([7,6,5,4,3,2,1]),np.array([1,1,1,1,1,1,1])).tolist())
         self.assertEquals([3,4,5,5,4,7],dmax(np.array([3,4,5,4,4,7]),np.array([0,0,1,0,1,0])).tolist())
 
+    def test_dsum(self):
+        self.assertEquals([],dsum(np.array([]),np.array([])).tolist())
+        self.assertEquals([7,13,18,22,25,27,28],dsum(np.array([7,6,5,4,3,2,1]),np.array([0,0,0,0,0,0,0])).tolist())
+        self.assertEquals([1,3,6,10,15,21,28],dsum(np.array([1,2,3,4,5,6,7]),np.array([0,0,0,0,0,0,0])).tolist())
+        self.assertEquals([7,6,11,4,7,2,3],dsum(np.array([7,6,5,4,3,2,1]),np.array([0,1,0,1,0,1,0])).tolist())
+        self.assertEquals([7,6,5,4,3,2,1],dsum(np.array([7,6,5,4,3,2,1]),np.array([1,1,1,1,1,1,1])).tolist())
+        self.assertEquals([3,7,5,9,4,11],dsum(np.array([3,4,5,4,4,7]),np.array([0,0,1,0,1,0])).tolist())
+
+    def test_dsma(self):
+        self.assertEquals([],dsma(np.array([]),np.array([])).tolist())
+        self.assertEquals([7,7,6,6,5,5,4],dsma(np.array([7,6,5,4,3,2,1]),np.array([0,0,0,0,0,0,0])).tolist())
+        self.assertEquals([1,2,2,3,3,4,4],dsma(np.array([1,2,3,4,5,6,7]),np.array([0,0,0,0,0,0,0])).tolist())
+        self.assertEquals([7,6,6,4,4,2,2],dsma(np.array([7,6,5,4,3,2,1]),np.array([0,1,0,1,0,1,0])).tolist())
+        self.assertEquals([7,6,5,4,3,2,1],dsma(np.array([7,6,5,4,3,2,1]),np.array([1,1,1,1,1,1,1])).tolist())
+        self.assertEquals([3,4,5,5,4,6],dsma(np.array([3,4,5,4,4,7]),np.array([0,0,1,0,1,0])).tolist())
 
     def test_dmin(self):
         self.assertEquals([],dmin(np.array([]),np.array([])).tolist())

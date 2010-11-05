@@ -1119,7 +1119,6 @@ FBASE_30 = lambda bpoint: 100 if bpoint < 30000 else 100
 F60_15 = lambda bpoint: 150 if bpoint < 30000 else 150
 F100_25 = lambda bpoint: 250 if bpoint < 30000 else 250
 
-
 def atr_uxstop_f(sif,sopened
         ,sbclose
         ,ssclose
@@ -1245,6 +1244,151 @@ def atr_uxstop_f(sif,sopened
                         #win_stop = cur_low + satr[j] * win_times / XBASE / XBASE
                         if cur_stop > win_stop:
                             cur_stop = win_stop
+    #print will_losts
+    return rev
+
+
+FKEEP_30 = lambda bpoint: 120   #上升12点后就保证开仓价格
+#设定保证
+def atr_uxstop_k(sif,sopened
+        ,sbclose
+        ,ssclose
+        ,flost_base = FBASE_30    #flost:买入点数 --> 止损点数
+        ,fmax_drawdown = F100_25 #fdmax:买入点数 --> 最大回落
+        ,fmin_drawdown = F60_15#fdmin:买入点数 --> 最小回落
+        ,fkeeper = FKEEP_30 #买入点数-->固定移动止损，移动到价格为止
+        ,win_times=300        
+        ,natr=1):
+    '''
+        利用函数来确定止损. 实际上为按开仓价格比例止损
+        atr止损
+        sif为实体
+        sopen为价格序列，其中负数表示开多仓，正数表示开空仓
+        sbclose是价格无关序列所发出的买入平仓信号集合(平空仓)
+        ssclose是价格无关序列所发出的卖出平仓信号集合(平多仓)
+        flost_base为初始止损函数
+        win_times: 与ATR的乘积，来计算跟踪止损（盈）,如果在[fmin_drawdown(buy_point):fmax_drowdown(buy_point)]之外
+            则取端点值
+        fmax_drawdown: 确定从最高点起的最大回落点数的函数
+        fmin_drawdown: 确定从最高点起的最小回落点数的函数
+        只能持有一张合约。即当前合约在未平前会屏蔽掉所有其它开仓
+    '''
+    #print sbclose[-10:],ssclose[-10:]
+    satr = afm[natr](sif)
+    trans = sif.transaction
+    rev = np.zeros_like(sopened)
+    isignal = np.nonzero(sopened)[0]
+    ilong_closed = 0    #多头平仓日
+    ishort_closed = 0   #空头平仓日
+    will_losts = []
+    for i in isignal:
+        price = sopened[i]
+        aprice = abs(price)
+        willlost = flost_base(aprice)
+        max_drawdown = fmax_drawdown(aprice)
+        min_drawdown = fmin_drawdown(aprice)
+        keeper = fkeeper(aprice)
+        #print price,willlost,max_drawdown,min_drawdown
+        will_losts.append(willlost)
+        if i < ilong_closed or i<ishort_closed:    #已经开了仓，且未平，不再计算            
+            #print 'skiped',trans[IDATE][i],trans[ITIME][i],trans[IDATE][ilong_closed],trans[ITIME][ilong_closed],trans[IDATE][ishort_closed],trans[ITIME][ishort_closed]
+            continue
+        if price<0: #多头止损
+            #print 'find long stop:',i
+            #if i < ilong_closed:    #已经开了多头仓，且未平，不再计算
+            #    print 'skiped',trans[IDATE][i],trans[ITIME][i],trans[IDATE][ilong_closed],trans[ITIME][ilong_closed]
+            #    continue
+            buy_price = -price
+            lost_stop = buy_price - willlost
+            cur_high = max(buy_price,trans[ICLOSE][i])
+            win_stop = cur_high - satr[i] * win_times / XBASE / XBASE
+            cur_stop = lost_stop if lost_stop > win_stop else win_stop
+            #print 'stop init:',cur_stop,lost_stop,willlost,min_lost,max_lost
+            if ssclose[i] == XSELL:
+                #print 'sell signali:',trans[IDATE][i],trans[ITIME][i],trans[ICLOSE][i]
+                pass
+            if trans[ICLOSE][i] < cur_stop or ssclose[i] == XSELL:#到达止损或平仓
+                #print '----sell----------:',trans[IDATE][i],trans[ITIME][i],cur_stop,trans[ICLOSE][i],cur_high,lost_stop
+                ilong_closed = i
+                rev[i] = XSELL            
+            else:
+                for j in range(i+1,len(rev)):
+                    if ssclose[j] == XSELL:
+                        #print 'sell signalj:',trans[IDATE][j],trans[ITIME][j],cur_stop,trans[ICLOSE][j]
+                        pass
+                    #print trans[ITIME][j],buy_price,lost_stop,cur_high,win_stop,cur_stop,trans[ILOW][j],satr[j]
+                    if trans[ILOW][j] < cur_stop or ssclose[j] == XSELL:    #
+                        rev[j] = XSELL
+                        #print 'sell:',i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
+                        ilong_closed = j
+                        break
+                    nhigh = trans[IHIGH][j]
+                    if(nhigh > cur_high):
+                        cur_high = nhigh
+                        drawdown = satr[j] * win_times / XBASE / XBASE
+                        if drawdown > max_drawdown:
+                            drawdown = max_drawdown
+                        if drawdown < min_drawdown:
+                            drawdown = min_drawdown
+                        win_stop = cur_high - drawdown
+                        #win_stop = cur_high - satr[j] * win_times / XBASE
+                        #print nhigh,cur_stop,win_stop,satr[j]
+                        if cur_stop < win_stop:
+                            cur_stop = win_stop
+                        keep_stop = cur_high - keeper
+                        if cur_stop < buy_price and keep_stop > buy_price:  #一次跳变
+                            cur_stop = buy_price 
+                        #if cur_stop < keep_stop:
+                        #    cur_stop = keep_stop if keep_stop < buy_price else buy_price
+        else:   #空头止损
+            #print 'find short stop:',i
+            #if i < ishort_closed:    #已经开了空头仓，且未平，不再计算
+            #    print 'skiped',trans[IDATE][i],trans[ITIME][i],trans[IDATE][ishort_closed],trans[ITIME][ishort_closed]
+            #    continue
+            sell_price = price
+            lost_stop = sell_price + willlost
+            cur_low = min(sell_price,trans[ICLOSE][i])
+            win_stop = cur_low + satr[i] * win_times / XBASE / XBASE
+            cur_stop = lost_stop if lost_stop < win_stop else win_stop
+            if sbclose[i] == XBUY:
+                #print 'buy signali:',trans[IDATE][i],trans[ITIME][i],trans[ICLOSE][i]
+                pass
+            if trans[ICLOSE][i] > cur_stop or sbclose[i] == XBUY:
+                #print '----buy----------:',cur_stop,trans[ICLOSE][i],cur_high,lost_stop
+                ishort_closed = i
+                rev[i] = XBUY
+            else:
+                for j in range(i+1,len(rev)):
+                    if sbclose[j] == XBUY:
+                        #print 'buy signalj:',trans[IDATE][j],trans[ITIME][j],cur_stop,trans[ICLOSE][j]
+                        pass
+                    #print trans[ITIME][j],sell_price,lost_stop,cur_low,win_stop,cur_stop,trans[IHIGH][j],satr[j]                
+                    if trans[IHIGH][j] > cur_stop or sbclose[j] == XBUY:#
+                        ishort_closed = j
+                        rev[j] = XBUY
+                        #print 'buy:',j
+                        #print 'buy:',i,price,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j]                        
+                        break
+                    nlow = trans[ILOW][j]
+                    if(nlow < cur_low):
+                        cur_low = nlow
+                        drawdown = satr[j] * win_times / XBASE / XBASE
+                        if drawdown > max_drawdown:
+                            drawdown = max_drawdown
+                        if drawdown < min_drawdown:
+                            drawdown = min_drawdown
+                        win_stop = cur_low + drawdown
+                        #print nlow,cur_stop,win_stop,satr[j]
+                        #win_stop = cur_low + satr[j] * win_times / XBASE / XBASE
+                        if cur_stop > win_stop:
+                            cur_stop = win_stop
+                        keep_stop = cur_low + keeper
+                        if cur_stop > sell_price and keep_stop < sell_price:
+                            cur_stop = sell_price 
+                        #if cur_stop > keep_stop:
+                        #    cur_stop = keep_stop if keep_stop > sell_price else sell_price
+                        
+                            
     #print will_losts
     return rev
 
@@ -1469,6 +1613,7 @@ atr5_uxstop_t_08_25_B26 = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_d
 ##比例止损
 atr5_uxstop_f_A = fcustom(atr_uxstop_f,win_times=250,natr=5)  
 
+atr5_uxstop_k_A = fcustom(atr_uxstop_k,win_times=250,natr=5)  
 
 
 atr5_uxstop_t_08_25_B3 = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=200,min_drawdown=200,min_lost_follow=90,min_lost_against=90,max_lost_follow=90,max_lost_against=90,natr=5)  

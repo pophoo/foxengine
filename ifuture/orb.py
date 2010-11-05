@@ -446,10 +446,10 @@ def orb_normal_day_pattern_trend_b(sif,sopened=None,pfunc=pattern_uu):
                 ,opend>dline1   #不论是跌涨，都大于dline1
                 )
 
-    signal = np.select([gand(sif.time>914,sif.time<1510)],[signal],0)
+    signal = np.select([gand(sif.time>944,sif.time<1510)],[signal],0)
 
     signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
-    #signal = gand(signal_s==1)
+    signal = gand(signal_s==1)
 
     return signal * orb_normal_day_pattern_trend_b.direction
 orb_normal_day_pattern_trend_b.direction = XBUY
@@ -573,10 +573,10 @@ def orb_normal_30_pattern_trend_b(sif,sopened=None,pfunc=pattern_uu,filter=null_
                 ,sfilter
                 )
 
-    signal = np.select([gand(sif.time>914,sif.time<1510)],[signal],0)
+    signal = np.select([gand(sif.time>943,sif.time<1510)],[signal],0)
 
     signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
-    #signal = gand(signal_s==1)
+    signal = gand(signal_s==1)
 
     return signal * orb_normal_30_pattern_trend_b.direction
 orb_normal_30_pattern_trend_b.direction = XBUY
@@ -687,10 +687,10 @@ def orb_normal_15_pattern_trend_b(sif,sopened=None,pfunc=pattern_uu,filter=null_
                 ,sif.ltrend>0
                 )
 
-    signal = np.select([gand(sif.time>914,sif.time<1510)],[signal],0)
+    signal = np.select([gand(sif.time>943,sif.time<1510)],[signal],0)
 
     signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
-    #signal = gand(signal_s==1)
+    signal = gand(signal_s==1)
 
     return signal * orb_normal_15_pattern_trend_b.direction
 orb_normal_15_pattern_trend_b.direction = XBUY
@@ -824,14 +824,14 @@ def orb_normal_60_pattern_trend_b(sif,sopened=None,pfunc=pattern_uu,filter=null_
     signal = cross(open60+stretch,sif.close) > 0
     signal = gand(signal
                 ,dpattern
-                ,open60>dline1   #不论是跌涨，都大于dline1
+                #,open60>dline1   #不论是跌涨，都大于dline1
                 ,sfilter
                 )
 
-    signal = np.select([gand(sif.time>914,sif.time<1510)],[signal],0)
+    signal = np.select([gand(sif.time>944,sif.time<1510)],[signal],0)
 
     signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
-    #signal = gand(signal==1)
+    signal = gand(signal_s==1)
 
     return signal * orb_normal_60_pattern_trend_b.direction
 orb_normal_60_pattern_trend_b.direction = XBUY

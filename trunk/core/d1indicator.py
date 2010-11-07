@@ -56,6 +56,27 @@ def cexpma(source,n):
         rev[i] = cur
     return rev
 
+def cexpma_s(source,signal,n): 
+    '''
+        signal用于确认是否重新开始计数
+        国内使用的expma,直接用n作为参数
+        内部用整数计算
+        用于整数的source,有四舍五入因子(n+1)/2. 因此不能传入浮点数，会因为该因子而导致数据变化
+    '''
+    assert len(source) == len(signal)
+    rev = np.zeros_like(source)
+    if len(source) == 0:
+        return rev
+    cur = source[0]
+    for i in xrange(0,len(source)):
+        if signal[i] != 0:
+            cur = source[i]
+        else:
+            cur = (source[i]*2 + cur*(n-1) + (n+1)/2)/(n+1) #source[i]/n + (n-1)*cur/n
+        rev[i] = cur
+    return rev
+
+
 def cexpma_f(source,n):   
     '''
         国内使用的expma,直接用n作为参数
@@ -137,6 +158,20 @@ def cmacd(source,ifast=12,islow=26,idiff=9):
     diff = fast - slow
     dea = cexpma(diff,idiff)
     return diff,dea
+
+def cmacd_s(source,signal,ifast=12,islow=26,idiff=9):
+    ''' 国内常用的算法
+        signal用于确认是否开始重新计数
+        1.指数平均用cexpma来计算,周期取fast=12,slow=26,diff的指数平均周期取9
+        2.信号线用dif的指数平均来计算
+        此法与cmacd_f相比误差不大,且比较贴近同花顺的用法
+    '''
+    fast = cexpma_s(source,signal,ifast)
+    slow = cexpma_s(source,signal,islow)
+    diff = fast - slow
+    dea = cexpma(diff,idiff)
+    return diff,dea
+
 
 def cmacd_old(source,ifast=12,islow=26,idiff=9):
     ''' 国内常用的算法

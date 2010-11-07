@@ -82,13 +82,13 @@ class Indices:
                     ,sif.rm_trend                        
                     ,sif.s30
                     ,sif.ml
-                    ,sif.t7_30
-                    ,sif.strend
-                    ,sif.mm
                     ,sif.xatr
                     ,sif.mxatr
                     ,sif.xatr30x
                     ,sif.mxatr30x
+                    ,sif.xtrend
+                    ,sif.dma
+                    ,sif.xstate
         )
         #print priority
         return render.indices(fname,lasttime,indices[:-length:-1])

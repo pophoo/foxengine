@@ -30,6 +30,7 @@ $def with(fname,lasttime,xactions)
     -->
     <th>止损</th>
     <th>顺逆</th>
+    <th>状态</th>
     <th>方法</th>
 </tr>
 $for action in xactions
@@ -76,7 +77,14 @@ $for action in xactions
             $else:
                 &nbsp
         </td>        
-        <td>$action.sfollow</td>        
+        <td>$action.sfollow</td>
+        <td>
+            $if action.state==0:
+                震荡
+            $else:
+                趋势    
+        </td>
+        
         <td>$action.fname</td>
     </tr>
 </table>

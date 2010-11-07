@@ -1553,10 +1553,7 @@ def ama_short(sif,sopened=None): #+
     xama1 = ama1(trans[ICLOSE])
     xama2 = ama2(trans[ICLOSE])
     signal = gand(cross(xama2,xama1)<0
-            #,sif.s10<0
             ,sif.xatr<1200
-            ,sif.mtrend<0
-            ,sif.xatr<sif.mxatr
             ,strend2(sif.mxatr)<0
             )
     return signal * XSELL
@@ -4594,40 +4591,42 @@ for xf in evs:
 
 xfollow = [#多头
             #高度顺势
-            rsi_long_hl,
-            rsi_short_hl,
+            #rsi_long_hl,
+            #rsi_short_hl,
             rsi_long_hl2,
 
             allup,
-            alldown,
+            #alldown,
 
             ##一般顺势
-            rsi_long_x,
-            rsi_long_x_1341,
-            rsi_long_xx,    
+            #rsi_long_x,
+            #rsi_long_x_1341,
+            
+            #rsi_long_xx,    
             rsi_long_x2,    
             rsi_long_x3,
-            #macd_long_x2,   #样本数太少，暂缓
-            #macd_long_x3,   #样本数太少，暂缓
            #空头
-            #rsi_short_x,
-            rsi_short_x2x,
+            #rsi_short_x2x,
             rsi_short_x3,
-            rsi_short_xt,
+            #rsi_short_xt,
            
-            macd_short_x,
+            #macd_short_x,
             macd_short_xt,
-            macd_short_xx,
+            #macd_short_xx,
             macd_short_x2,
-            macd_short_5,
+            #macd_short_5,
            #其它
-            #down01,     #样本数太少，暂缓
-            down01x,
+            #down01x,
             xdown60,    #有合并损失
-            xud30b,     #趋势不明
+            xud30b,     #
             ma1x,            
             ma60_short,  
             ama_short, #样本数太少，
+            
+            down01,     #样本数太少，暂缓
+            #macd_long_x2,   #样本数太少，暂缓
+            #macd_long_x3,   #样本数太少，暂缓
+            #rsi_short_x,
           ]
 
 #for xf in xfollow:xf.stop_closer = atr5_uxstop_05_25
@@ -4641,13 +4640,14 @@ for xf in xfollow:
 
 xbreak = [#多头
             acd_ua,
-            acd_ua_sz, 
-            #acd_ua_sz_b, #样本太少，暂缓
+            #acd_ua_sz, 
             br30,
-            dbrb,
-            dbrs,
+            #dbrb,
+            #dbrs,
           #空头
-            godown,
+            #godown,
+            
+            #acd_ua_sz_b, #样本太少，暂缓
             #acd_da, #样本太少，暂缓
             #acd_da_sz_b,#样本太少，暂缓
          ]
@@ -4659,22 +4659,16 @@ for xf in xbreak:
 
 ##xagainst必须提高成功率，否则会引起最大连续回撤的快速放大. 因此对样本数暂不作限制
 xagainst = [#多头
-            #xma_long,  
-            #xdma_long, 
-            #macd_long_x,
-            up0,            
+            #up0,            
             #空头
-            #xma_short, #样本数太少，暂缓
-            #xdma_short,    #
-            k15_lastdown,
-            #k15_lastdown_s,    #样本数太少，暂缓
+            #k15_lastdown,
             k15_lastdown_30,    ##
-            k15_lastdown_x,    ##
-            k15_lastdown_y,
+            #k15_lastdown_x,    ##
+            #k15_lastdown_y,
             k15_lastdown_z,
-            k5_lastdown,
-            k5_lastdown2,
-            k5_lastdown3,
+            #k5_lastdown,
+            #k5_lastdown2,
+            #k5_lastdown3,
             k5_lastdown5,
             k1_lastup_a,
             k1_relay_down,
@@ -4682,15 +4676,22 @@ xagainst = [#多头
 
             k15_lastup_30,
             k10_lastup_30,  
-            k10_lastdown_30,
-            k5_lastup, 
-            k5_lastup2, 
+            #k10_lastdown_30,
+            #k5_lastup, 
+            #k5_lastup2, 
             k5_lastups,
-            #ipmacd_long_devi1,#有效放大了回撤? ##样本数太少
-            ipmacd_short_devi1,##样本数太少
-            ipmacd_short_devi1x, ##
-            ipmacd_short_devi1y, ##            
+            #ipmacd_short_devi1,##样本数太少
+            #ipmacd_short_devi1x, ##
+            #ipmacd_short_devi1y, ##            
+            ######
             #xud30s_r,  ##样本数太少
+            #k15_lastdown_s,    #样本数太少，暂缓
+            #xma_long,  
+            #xdma_long, 
+            #macd_long_x,
+            #xma_short, #样本数太少，暂缓
+            #xdma_short,    #
+            #ipmacd_long_devi1,#有效放大了回撤? ##样本数太少
            ]
 #for xf in xagainst:xf.stop_closer = atr5_uxstop_08_25_A
 #for xf in xagainst:xf.stop_closer = atr5_uxstop_05_25
@@ -4699,16 +4700,18 @@ for xf in xagainst:
     #xf.stop_closer = atr5_uxstop_08_30
     xf.strategy = XAGAINST
 
-xorb_b = [##dnr1_dd_b,
-        #dnr1_uu_b,
-        #dnr1_ud_b,
+xorb_b = [
         dpt_ux_b,
+        n30pt_dud_b,  #
+        #n60pt_uud_b,
+        #n15pt_dd_b,    #
+        
+        #dnr1_dd_b,
+        dnr1_uu_b,
+        #dnr1_ud_b,
         #dp_uu_b,
         #dp_ud_b,
-        n30pt_dud_b,  #
-        n15pt_dd_b,    #
         ##n60pt_uu_b,
-        n60pt_uud_b,
         #n60pt_dd_b,    #
         ]
 
@@ -4726,12 +4729,15 @@ xorb_b_all = [dnr1_dd_b,#+
         ]
 
 
-xorb_s = [###dpt_uu_s,
-          ##n30pt_du_s,
-          n15pt_du_s,
+xorb_s = [
+          dpt_uu_s,
+          #n30pt_du_s,
+          
+          #n15pt_du_s,
+          
           #n60pt_duu_s,
-          ##nr30s   #实际上太耦合了
-          ##nr30b,    #  这个也是卖空的
+          #nr30s   #实际上太耦合了
+          #nr30b,    #  这个也是卖空的
          ]
 
 
@@ -4750,7 +4756,7 @@ for xf in xorb:
     xf.stop_closer = atr5_uxstop_t_08_25_B
     #xf.stop_closer = atr5_uxstop_08_25_A    
     #xf.stop_closer = atr5_uxstop_05_25
-    xf.filter = ocfilter_orb
+    xf.filter = iftrade.socfilter_orb
     #if 'func' in xf.__dict__:   #fcustom过的部分类, 这个判断有问题
     if isinstance(xf,functools.partial):
         xf.func.priority = 1400
@@ -4762,7 +4768,7 @@ for xf in xorb_all:
     xf.stop_closer = atr5_uxstop_t_08_25_B
     #xf.stop_closer = atr5_uxstop_08_25_A    
     #xf.stop_closer = atr5_uxstop_05_25
-    xf.filter = ocfilter_orb
+    xf.filter = iftrade.socfilter_orb
     #if 'func' in xf.__dict__:    #fcustom过的部分类
     if isinstance(xf,functools.partial):
         xf.func.priority = 1400
@@ -4771,28 +4777,35 @@ for xf in xorb_all:
         
 
 xevs = [
-            roc1_b,
-            roc10_b,
-            roc5_b,
+            #roc1_b,
+            #roc10_b,
+            #roc5_b,
+            
+            macd10_b,   #K
+            #mfi30s_b,
+            #mfi3b_b,
+            
+            #rsi1s_s,   #X
+            #macd3sb_s, #X
+            
+            
+            rsi1s_s2, #K
+            
+            #macd1s_s,#?#
+            xud5s_s,   #K
+            #xud1s_s,   #X
+            #xud30s_s,
+            macd3r_b,  #K
+
+            roc5_bx,    #K #xatr30x>mxatr30x
+
+
             #roc30_s,
-            #roc3_s,
+            roc3_s, #K
             #roc5_s,
             #roc05_s,
             #roc15_b,
-            macd10_b,
-            mfi30s_b,
-            mfi3b_b,
-            rsi1s_s,
-            rsi1s_s2,
-            macd3sb_s,
-            macd1s_s,#?#
-            xud5s_s,
-            xud1s_s,
-            xud30s_s,
-            macd3r_b,            
-
-            roc5_bx,    #xatr30x>mxatr30x
-
+            
       ]
 
 for xf in xevs:
@@ -4833,22 +4846,27 @@ xevs_all = [
 k1s = [     
             uuxb,
             duub,
-            #dduuds,
+            dduuds,
             duuuds,
-            duuds,
+            #duuds,
             ddduuds,
             uuds,
     ]
-for xf in k1s:
-    xf.strategy = XORB   
-    xf.stop_closer = atr5_uxstop_t_08_25_B
-    xf.filter = ocfilter_k1s
-    #xf.priority = 1500
 
 #duuuds.priority = 900
 
+for xf in k1s:
+    xf.strategy = XORB   
+    xf.stop_closer = atr5_uxstop_t_08_25_B
+    xf.filter = iftrade.socfilter_k1s
+    #xf.filter = iftrade.ocfilter_k1s
+    #xf.priority = 1500
+
+ddduuds.filter = iftrade.ocfilter_k1s
+uuds.filter = iftrade.ocfilter_k1s
+
 k1s2 = [     #不能用于944之前
-            diiiiub,
+            #diiiiub,
             diiiub,
             diiub,
             d5iub,
@@ -4860,7 +4878,12 @@ k1s2 = [     #不能用于944之前
 for xf in k1s2:
     xf.strategy = XORB   
     xf.stop_closer = atr5_uxstop_t_08_25_B
+    xf.filter = iftrade.socfilter
+    #xf.filter = iftrade.ocfilter
     #xf.priority = 1500
+
+diiiub.filter = iftrade.ocfilter
+ddxs.filter = iftrade.ocfilter
 
 k1s_others = [
             dids,
@@ -4883,6 +4906,7 @@ for x in xxx2:
     #x.priority = 1500
     #x.stop_closer = iftrade.atr5_uxstop_f_A
     x.stop_closer = iftrade.atr5_uxstop_k_A
+    #xf.filter = iftrade.ocfilter
     
 '''
 16402 17617 17826 18228 18173 18494 18655 18663

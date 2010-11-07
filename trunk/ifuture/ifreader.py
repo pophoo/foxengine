@@ -861,7 +861,8 @@ def prepare_index(sif):
     #m10 = dnext(strend2(ma(sif.close10,81)),sif.close,sif.i_cof10)  #3日为趋势判断周期
     #m10 = dnext(strend2(ma(sif.close10,40)),sif.close,sif.i_cof10)  #3日为趋势判断周期
     m5 = dnext(strend2(ma(sif.close5,80)),sif.close,sif.i_cof5)
-    sif.xtrend = np.select([m5>0],[1],-1)
+    #sif.xtrend = np.select([m5>0],[1],-1)
+    sif.xtrend = m5
     
     sif.macd3x = sif.diff3x-sif.dea3x   
     sif.macd5x = sif.diff5x-sif.dea5x
@@ -911,6 +912,17 @@ def prepare_index(sif):
     sif.xadtr30x = dnext(sif.xadtr30,sif.close,sif.i_cof30)
     sif.mxautr30x = dnext(sif.mxautr30,sif.close,sif.i_cof30)
     sif.mxadtr30x = dnext(sif.mxadtr30,sif.close,sif.i_cof30)
+
+    ddi = np.select([sif.time==915],[1],0)
+    sif.dma = dsma(sif.close,ddi)
+    sif.sdma = strend2(sif.dma)
+    sif.dema = cexpma_s(sif.close,ddi,26)   #没啥用处，变化太快
+    sif.sdema = strend2(sif.dema)
+    
+    #sif.xstate = np.select([gand(sif.xtrend>0,sif.sdma>3),gand(sif.xtrend<0,sif.sdma<-3)],[1,-1],default=0)
+    #对下降更有容忍度
+    sif.xstate = np.select([gand(sif.xtrend>5,sif.sdma>15),gand(sif.xtrend<10,sif.sdma<-7)],[1,-1],default=0)
+    #在xstate=0的时期，效果比较差
 
 
 def calc_high_low_vol(trans,i_oof,i_cof):

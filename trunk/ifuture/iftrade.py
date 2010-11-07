@@ -61,6 +61,12 @@ def ocfilter(sif,tbegin=944,tend=1510):  #在开盘前30分钟和收盘前5分�
 ocfilter_c = fcustom(ocfilter,tbegin=930,tend=1455) #商品期货的交易时间为9:00-1500（中间有休息），故filter也修改
 ocfilter_null = fcustom(ocfilter,tbegin=0,tend=2401)
 
+def state_oc_filter(sif,tbegin=944,tend=1510):
+    soc = ocfilter(sif,tbegin,tend)
+    soc = gand(soc,sif.xstate!=0)
+    return soc
+
+
 def last_filter(sif,tbegin=930,tend=1510):  
     stime = sif.transaction[ITIME]
     soc = np.ones_like(stime)
@@ -68,9 +74,22 @@ def last_filter(sif,tbegin=930,tend=1510):
     soc[:275*3] = 0
     return soc
 
+def state_last_filter(sif,tbegin=930,tend=1510):
+    soc = last_filter(sif,tbegin,tend)
+    soc = gand(soc,sif.xstate!=0)
+    return soc
+
+
 last_filter_c = fcustom(last_filter,tbegin=930,tend=1455)
-ocfilter_orb = fcustom(last_filter,tbegin=915,tend=1440) #orb 信号不受影响
-ocfilter_k1s = fcustom(last_filter,tbegin=929,tend=1500) #k1s 信号与隔日无关 
+slast_filter_c = fcustom(state_last_filter,tbegin=930,tend=1455)
+
+
+socfilter = state_oc_filter
+socfilter_orb = fcustom(state_oc_filter,tbegin=915,tend=1440) #orb 信号不受影响
+socfilter_k1s = fcustom(state_oc_filter,tbegin=929,tend=1500) #k1s 信号与隔日无关 
+
+ocfilter_orb = fcustom(ocfilter,tbegin=915,tend=1440) #orb 信号不受影响
+ocfilter_k1s = fcustom(ocfilter,tbegin=929,tend=1500) #k1s 信号与隔日无关 
 
 
 ##平仓比较函数中，第一个参数的优先级低于第二个
@@ -597,6 +616,7 @@ def itradex(sif     #期指
         tradess.append(trades)
     return sync_trades(sif,tradess,acstrategy)
 
+itradez = fcustom(itradex,longfilter = state_oc_filter,shortfilter = state_oc_filter)
 
 def close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed,calc_profit=normal_profit):
     open_action = extended[0].actions[0] if extended else cur_trade.actions[0]

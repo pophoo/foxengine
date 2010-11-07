@@ -32,7 +32,9 @@ i00 = ifmap['IF0001']   #当月连续
 #i10 = ifmap['IF1010']
 i11 = ifmap['IF1011']
 
-tradesy =  control.itradex8_yt(i00,ifuncs2.xxx2)
+#tradesy =  control.itradex8_yt(i00,ifuncs2.xxx2)
+tradesy =  control.itradex8_zt(i00,ifuncs2.xxx2)
+
 iftrade.limit_profit(tradesy,-90)
 
 lx = lambda ii,trade:ii.xatr[trade.actions[0].index]
@@ -270,6 +272,11 @@ itradex8_yn = fcustom(iftrade.itradex
                 )
 
 itradex8_yt = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_t_08_25_B2,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+
+
+itradex8_zt = fcustom(iftrade.itradez,stop_closer=iftrade.atr5_uxstop_t_08_25_B2,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+
+
 itradex8_yt_a = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_t_08_25_A,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 itradex827_yt = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_t_08_25_B27,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 

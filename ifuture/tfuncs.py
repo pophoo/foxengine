@@ -43,25 +43,50 @@ def s90(sif,sopened=None):
                 )
     return signal * XSELL
 
-def s3(sif,sopened=None):
+def dmab(sif,sopened=None):
     
-    ma_a = ma(sif.close5,5)
-    ma_b = ma(sif.close5,13)
-    ma_c = ma(sif.close5,30)
-
-
-    signal = cross(sif.dea1,sif.diff1)>0
-
-    signal = gand(signal
-              ,sif.mtrend>0
-              ,sif.ltrend>0
-              ,strend2(sif.sdiff30x-sif.sdea30x)>0
+    signal = gand(cross(sif.dma * 10020/10000,sif.close)>0
+               ,strend2(sif.close)>0
+               ,strend2(sif.ma13)>0
+               ,sif.ma3 > sif.ma13
+               ,strend2(sif.ma30)>0
+               ,sif.xatr > 600
+               ,sif.xatr30x < 10000
             )
 
-    return signal * s3.direction
-s3.direction = XBUY
-s3.priority = 1200
+    signal = derepeatc(signal)
 
+    return signal * dmab.direction
+dmab.direction = XBUY
+dmab.priority = 1200
+
+def demab(sif,sopened=None):
+    
+    signal = gand(cross(sif.dema * 10020/10000,sif.close)>0
+               ,sif.ma5 > sif.ma13
+               ,sif.xatr < 1500
+               ,sif.mtrend>0
+               ,sif.xatr > 800
+            )
+
+    return signal * demab.direction
+demab.direction = XBUY
+demab.priority = 1200
+
+
+def dmas(sif,sopened=None):
+    
+    signal = gand(cross(sif.dma * 10020/10000,sif.close)<0
+               ,strend2(sif.close)<0
+               ,strend2(sif.ma60)<0
+               #,sif.xatr30x < 10000
+            )
+
+    signal = derepeatc(signal)
+
+    return signal * dmas.direction
+dmas.direction = XSELL
+dmas.priority = 1200
 
 def macd1500b(sif,sopened=None):
     signal = cross(sif.dea1,sif.diff1)>0

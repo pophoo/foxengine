@@ -105,6 +105,7 @@ def whget(strategy,functor,priority=2500):
     for action in xactions:
         action.price = action.price / 10.0
         action.priority = iftrade.fpriority(action.functor)
+        action.state = sif.xstate[action.index-1]   #信号当时状态
         if action.xtype == XOPEN:
             calc_stop(sif,action)
             action.sfollow = u'顺势' if action.xfollow else u'逆势'
@@ -176,4 +177,4 @@ def calc_stop(sif,action):
 
 #whget = fcustom(whget,functor=control.ltrade3x0525)
 #whget = fcustom(whget,functor=control.ltrade3x156)
-whget = fcustom(whget,functor=control.ltrade3x0825)
+whget = fcustom(whget,functor=control.ltrade3x0825z)

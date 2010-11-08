@@ -14,7 +14,7 @@
 from wolfox.fengine.ifuture.ibase import *
 from wolfox.fengine.ifuture.ifuncs import fmacd1_long,fmacd1_short
 from wolfox.fengine.ifuture.iftrade import delay_filter,atr5_uxstop_1_25,atr5_uxstop_08_25,atr5_uxstop_05_25,atr5_uxstop_08_25_A,atr5_uxstop_T1
-
+import wolfox.fengine.ifuture.iftrade as iftrade
 
 ama1 = ama_maker()
 ama2 = ama_maker(covered=30,dfast=6,dslow=100)
@@ -87,6 +87,42 @@ def dmas(sif,sopened=None):
     return signal * dmas.direction
 dmas.direction = XSELL
 dmas.priority = 1200
+
+
+mystop = fcustom(iftrade.atr5_uxstop_kt,ftarget=iftrade.F100)
+def dlows(sif,sopen=None):
+    di = np.select([sif.time==915],[1],0)
+    dlow = dmin(sif.close,di)
+
+    signal = gand(sif.close - dlow < 20
+            ,sif.high < rollx(sif.high)
+            ,sif.low >rollx(sif.low)
+            ,sif.close > sif.open
+            )
+    return signal * dlows.direction
+
+dlows.direction = XBUY
+dlows.priority = 1200
+dlows.filter = iftrade.nsocfilter
+dlows.stop_closer = mystop
+
+def zdiub(sif,sopen=None):
+    di = np.select([sif.time==915],[1],0)
+    dlow = dmin(sif.close,di)
+
+    signal = gand(sif.close - dlow < 20
+            ,sif.high < rollx(sif.high)
+            ,sif.low >rollx(sif.low)
+            ,sif.close > sif.open
+            ,sif.xtrend>0
+            )
+    return signal * zdiub.direction
+
+zdiub.direction = XBUY
+zdiub.priority = 1200
+zdiub.filter = iftrade.nsocfilter
+zdiub.stop_closer = mystop
+
 
 def macd1500b(sif,sopened=None):
     signal = cross(sif.dea1,sif.diff1)>0

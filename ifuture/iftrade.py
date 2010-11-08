@@ -61,9 +61,14 @@ def ocfilter(sif,tbegin=944,tend=1510):  #在开盘前30分钟和收盘前5分�
 ocfilter_c = fcustom(ocfilter,tbegin=930,tend=1455) #商品期货的交易时间为9:00-1500（中间有休息），故filter也修改
 ocfilter_null = fcustom(ocfilter,tbegin=0,tend=2401)
 
-def state_oc_filter(sif,tbegin=944,tend=1510):
-    soc = ocfilter(sif,tbegin,tend)
+def state_filter(sif,prefilter=ocfilter):
+    soc = prefilter(sif)
     soc = gand(soc,sif.xstate!=0)
+    return soc
+
+def nstate_filter(sif,prefilter=ocfilter):
+    soc = prefilter(sif)
+    soc = gand(soc,sif.xstate==0)
     return soc
 
 
@@ -74,23 +79,26 @@ def last_filter(sif,tbegin=930,tend=1510):
     soc[:275*3] = 0
     return soc
 
-def state_last_filter(sif,tbegin=930,tend=1510):
-    soc = last_filter(sif,tbegin,tend)
-    soc = gand(soc,sif.xstate!=0)
-    return soc
-
-
 last_filter_c = fcustom(last_filter,tbegin=930,tend=1455)
-slast_filter_c = fcustom(state_last_filter,tbegin=930,tend=1455)
-
-
-socfilter = state_oc_filter
-socfilter_orb = fcustom(state_oc_filter,tbegin=915,tend=1440) #orb 信号不受影响
-socfilter_k1s = fcustom(state_oc_filter,tbegin=929,tend=1500) #k1s 信号与隔日无关 
-
 ocfilter_orb = fcustom(ocfilter,tbegin=915,tend=1440) #orb 信号不受影响
 ocfilter_k1s = fcustom(ocfilter,tbegin=929,tend=1500) #k1s 信号与隔日无关 
 
+
+state_oc_filter = fcustom(state_filter,prefilter = ocfilter)
+state_last_filter = fcustom(state_filter,prefilter = last_filter)
+nstate_oc_filter = fcustom(nstate_filter,prefilter = ocfilter)
+nstate_last_filter = fcustom(nstate_filter,prefilter = last_filter)
+
+slast_filter_c = fcustom(state_filter,prefilter=last_filter_c)
+nslast_filter_c = fcustom(nstate_filter,prefilter=last_filter_c)
+
+socfilter = state_oc_filter
+socfilter_orb = fcustom(state_filter,prefilter=ocfilter_orb) #orb 信号不受影响
+socfilter_k1s = fcustom(state_filter,prefilter=ocfilter_k1s) #k1s 信号与隔日无关 
+
+nsocfilter = nstate_oc_filter
+nsocfilter_orb = fcustom(nstate_filter,prefilter=ocfilter_orb) #orb 信号不受影响
+nsocfilter_k1s = fcustom(nstate_filter,prefilter=ocfilter_k1s) #k1s 信号与隔日无关 
 
 ##平仓比较函数中，第一个参数的优先级低于第二个
 def early_strategy(action1,action2):#多选时的平仓策略，最早平仓
@@ -1269,6 +1277,7 @@ def atr_uxstop_f(sif,sopened
 
 
 FKEEP_30 = lambda bpoint: 120   #上升12点后就保证开仓价格
+FTARGET = lambda bpoint:10000   #相当于无穷大
 #设定保证
 def atr_uxstop_k(sif,sopened
         ,sbclose
@@ -1278,7 +1287,9 @@ def atr_uxstop_k(sif,sopened
         ,fmin_drawdown = F60_15#fdmin:买入点数 --> 最小回落
         ,fkeeper = FKEEP_30 #买入点数-->固定移动止损，移动到价格为止
         ,win_times=300        
-        ,natr=1):
+        ,ftarget = FTARGET #盈利目标,默认是无穷大
+        ,natr=1
+        ):
     '''
         利用函数来确定止损. 实际上为按开仓价格比例止损
         atr止损
@@ -1301,6 +1312,7 @@ def atr_uxstop_k(sif,sopened
     ilong_closed = 0    #多头平仓日
     ishort_closed = 0   #空头平仓日
     will_losts = []
+    #print target
     for i in isignal:
         price = sopened[i]
         aprice = abs(price)
@@ -1323,6 +1335,8 @@ def atr_uxstop_k(sif,sopened
             cur_high = max(buy_price,trans[ICLOSE][i])
             win_stop = cur_high - satr[i] * win_times / XBASE / XBASE
             cur_stop = lost_stop if lost_stop > win_stop else win_stop
+            wtarget = buy_price + ftarget(buy_price)
+            #print 'wtarget:%s',wtarget
             #print 'stop init:',cur_stop,lost_stop,willlost,min_lost,max_lost
             if ssclose[i] == XSELL:
                 #print 'sell signali:',trans[IDATE][i],trans[ITIME][i],trans[ICLOSE][i]
@@ -1341,6 +1355,11 @@ def atr_uxstop_k(sif,sopened
                         rev[j] = XSELL
                         #print 'sell:',i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
                         ilong_closed = j
+                        break
+                    if trans[IHIGH][j] > wtarget:
+                        rev[j] = XSELL
+                        # print 'sell at target:',i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
+                        ilong_closed = j                        
                         break
                     nhigh = trans[IHIGH][j]
                     if(nhigh > cur_high):
@@ -1370,6 +1389,7 @@ def atr_uxstop_k(sif,sopened
             cur_low = min(sell_price,trans[ICLOSE][i])
             win_stop = cur_low + satr[i] * win_times / XBASE / XBASE
             cur_stop = lost_stop if lost_stop < win_stop else win_stop
+            wtarget = sell_price - ftarget(sell_price)
             if sbclose[i] == XBUY:
                 #print 'buy signali:',trans[IDATE][i],trans[ITIME][i],trans[ICLOSE][i]
                 pass
@@ -1388,6 +1408,11 @@ def atr_uxstop_k(sif,sopened
                         rev[j] = XBUY
                         #print 'buy:',j
                         #print 'buy:',i,price,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j]                        
+                        break
+                    if trans[ILOW][j] < wtarget:#
+                        ishort_closed = j
+                        rev[j] = XBUY
+                        #print 'buy at target:',i,price,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j]                        
                         break
                     nlow = trans[ILOW][j]
                     if(nlow < cur_low):
@@ -1634,6 +1659,43 @@ atr5_uxstop_t_08_25_B26 = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_d
 atr5_uxstop_f_A = fcustom(atr_uxstop_f,win_times=250,natr=5)  
 
 atr5_uxstop_k_A = fcustom(atr_uxstop_k,win_times=250,natr=5)  
+
+F20 = lambda bpoint:20
+F25 = lambda bpoint:25
+F30 = lambda bpoint:30
+F35 = lambda bpoint:35
+F40 = lambda bpoint:40
+F45 = lambda bpoint:45
+F50 = lambda bpoint:50
+F60 = lambda bpoint:60
+F70 = lambda bpoint:70
+F80 = lambda bpoint:80
+F90 = lambda bpoint:90
+
+F100 = lambda bpoint:100
+F120 = lambda bpoint:120
+F150 = lambda bpoint:150
+F180 = lambda bpoint:180
+
+#震荡期止损
+atr5_uxstop_k_oscillating = fcustom(atr_uxstop_k
+        ,flost_base = F35
+        ,fmax_drawdown = F50
+        ,fmin_drawdown = F50
+        ,fkeeper = F35
+        ,win_times=250
+        ,natr=5
+        )  
+
+atr5_uxstop_kt = fcustom(atr_uxstop_k
+        ,flost_base = F35
+        ,fmax_drawdown = F50
+        ,fmin_drawdown = F50
+        ,fkeeper = F50
+        ,ftarget = F100
+        ,win_times=250
+        ,natr=5
+        )  
 
 
 atr5_uxstop_t_08_25_B3 = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=200,min_drawdown=200,min_lost_follow=90,min_lost_against=90,max_lost_follow=90,max_lost_against=90,natr=5)  

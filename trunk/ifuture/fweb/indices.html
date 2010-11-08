@@ -5,6 +5,7 @@ $def with(fname,lasttime,indices)
             td.xup  {background-color:red}
             td.xdown  {background-color:green}
             td.xhead {background-color:yellow}
+            td.xzero {background-color:yellow}
         </style>
     </head>
 <body>
@@ -41,6 +42,8 @@ $for index in indices
         <td class = "
             $if ii>0:
                 xup
+            $elif ii ==0:
+                xzero
             $else:
                 xdown
         "

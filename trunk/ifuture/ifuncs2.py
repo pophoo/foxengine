@@ -4892,22 +4892,25 @@ k1s_others = [
 
 k1s_all = k1s + k1s2 + k1s_others
 
-#xxx2 = xfollow + xagainst + xorb + xevs + k1s + k1s2
-xxx2 = xfollow + xbreak + xagainst + xorb + xevs + k1s + k1s2
-xxx3 = xfollow + xbreak + xagainst + xorb + xevs + k1s + k1s2
-xxx2a = xfollow + xbreak + xagainst + xorb + xevs + k1s + k1s2
+xxx_trend = xfollow + xbreak + xagainst + xorb + xevs + k1s + k1s2
 
-
-
-
-for x in xxx2: 
+for x in xxx_trend: 
     #x.stop_closer = atr5_uxstop_t_08_25_B2
     #x.stop_closer = atr5_uxstop_t_08_25_B26
     #x.priority = 1500
     #x.stop_closer = iftrade.atr5_uxstop_f_A
     x.stop_closer = iftrade.atr5_uxstop_k_A
-    #xf.filter = iftrade.ocfilter
-    
+    x.cstoper = iftrade.FBASE_30  #初始止损
+    #x.filter = iftrade.nsocfilter
+    #x.stop_closer = iftrade.atr5_uxstop_k_oscillating  #震荡期的止损方式
+
+
+#xxx2 = xfollow + xagainst + xorb + xevs + k1s + k1s2
+xxx2 = xxx_trend
+xxx3 = xxx_trend
+xxx2a = xxx_trend
+
+
 '''
 16402 17617 17826 18228 18173 18494 18655 18663
 '''

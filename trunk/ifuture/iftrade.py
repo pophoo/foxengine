@@ -722,7 +722,7 @@ def xposition(sif,saction,xtype,defer=1):
         position.price = make_price(direct,sopen[xindex],sclose[xindex],shigh[xindex],slow[xindex])
         positions.append(position)
         if xtype == XOPEN:
-            position.xfollow = True if (sif.xtrend[i] == TREND_UP and saction[i] == LONG) or (sif.xtrend[i] == TREND_DOWN and saction[i] == SHORT) else False
+            position.xfollow = True if (sif.sxtrend[i] == TREND_UP and saction[i] == LONG) or (sif.sxtrend[i] == TREND_DOWN and saction[i] == SHORT) else False
             #print position.xfollow
     return positions
 
@@ -1009,16 +1009,16 @@ def atr_uxstop_t(sif,sopened
     for i in isignal:
         price = sopened[i]
         willlost = satr[i] * lost_times / XBASE / XBASE
-        if (sif.xtrend[i] == TREND_UP and price <0) or (sif.xtrend[i] == TREND_DOWN and price >0):
+        if (sif.sxtrend[i] == TREND_UP and price <0) or (sif.sxtrend[i] == TREND_DOWN and price >0):
             #顺势就是最大止损
             if willlost < min_lost_follow:
                 willlost = min_lost_follow
             if willlost > max_lost_follow:
                 willlost = max_lost_follow
-            #print u'顺势:',sif.xtrend[i],price
+            #print u'顺势:',sif.sxtrend[i],price
         else:
             #逆势计算
-            #print u'逆势:',sif.xtrend[i],price
+            #print u'逆势:',sif.sxtrend[i],price
             if willlost < min_lost_against:
                 willlost = min_lost_against
             if willlost > max_lost_against:

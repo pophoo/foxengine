@@ -863,6 +863,7 @@ def prepare_index(sif):
     m5 = dnext(strend2(ma(sif.close5,80)),sif.close,sif.i_cof5)
     #sif.xtrend = np.select([m5>0],[1],-1)
     sif.xtrend = m5
+    sif.sxtrend = np.select([sif.xtrend>0,sif.xtrend<0],[1,-1],0)
     
     sif.macd3x = sif.diff3x-sif.dea3x   
     sif.macd5x = sif.diff5x-sif.dea5x

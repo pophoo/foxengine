@@ -153,6 +153,8 @@ sum([trade.profit for trade in tradesy if trade.actions[0].date>20100714 and tra
 
 from wolfox.fengine.ifuture.ibase import *
 from wolfox.fengine.ifuture.iftrade import delay_filter,atr5_uxstop_1_25,atr5_uxstop_08_25,atr5_uxstop_05_25
+import wolfox.fengine.ifuture.iftrade as iftrade
+
 
 #5分钟系列以strend(ma60)为判断
 #1分钟系列以strend(ma30)为判断
@@ -3407,4 +3409,5 @@ xpattern4 = [xup,xdown,up3]   #与其它组合有矛盾? 暂不使用。盈利�
 xxx4 = xxx + xpattern4
 #tradesy =  iftrade.itradex5_y(i05,xxx)
 #tradesy =  iftrade.itradex5_y(i05,xxx4,priority_level=3000)
-
+for x in xxx4:
+    x.cstoper = iftrade.FBASE_30  #初始止损

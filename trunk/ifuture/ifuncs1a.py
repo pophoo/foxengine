@@ -22,6 +22,7 @@
 
 from wolfox.fengine.ifuture.ibase import *
 from wolfox.fengine.ifuture.iftrade import delay_filter,atr5_uxstop_1_25,atr5_uxstop_08_25,atr5_uxstop_05_25
+import wolfox.fengine.ifuture.iftrade as iftrade
 
 def ipmacd_short_5(sif,sopened=None):
     '''
@@ -2653,6 +2654,9 @@ xbreak = [ godown
            ,xdma_short
         ]
 '''
+
+for x in xxx:
+    x.cstoper = iftrade.FBASE_30  #初始止损
 
 '''     
 i09/i12均>20100700

@@ -145,6 +145,18 @@ zddub.priority = 1200
 zddub.filter = iftrade.nsocfilter
 zddub.stop_closer = mystop
 
+def kdown0(sif,sopen=None):
+
+    signal = gand(cross(cached_zeros(len(sif.close)),sif.diff1)<0
+                ,sif.sdma < 0
+                ,strend2(sif.diff1)<-5
+            )
+    return signal * kdown0.direction
+
+kdown0.direction = XSELL
+kdown0.priority = 1200
+kdown0.filter = iftrade.nsocfilter
+kdown0.stop_closer = mystop
 
 
 def macd1500b(sif,sopened=None):

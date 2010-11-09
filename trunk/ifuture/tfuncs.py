@@ -89,7 +89,13 @@ dmas.direction = XSELL
 dmas.priority = 1200
 
 
-mystop = fcustom(iftrade.atr5_uxstop_kt,ftarget=iftrade.F100)
+mystop = fcustom(iftrade.atr5_uxstop_kt
+        ,ftarget=iftrade.F100
+        ,flost_base=iftrade.F40
+        ,fmax_drawdown=iftrade.F80
+        ,fmin_drawdown=iftrade.F80
+        ,fkeeper = iftrade.F60
+        )
 def dlows(sif,sopen=None):
     di = np.select([sif.time==915],[1],0)
     dlow = dmin(sif.close,di)
@@ -108,13 +114,13 @@ dlows.stop_closer = mystop
 
 def zdiub(sif,sopen=None):
     di = np.select([sif.time==915],[1],0)
-    dlow = dmin(sif.close,di)
+    dlow = dmin(sif.low,di)
 
-    signal = gand(sif.close - dlow < 20
-            ,sif.high < rollx(sif.high)
-            ,sif.low >rollx(sif.low)
-            ,sif.close > sif.open
-            ,sif.xtrend>0
+    signal = gand(rollx(sif.low,2) - dlow < 30   #2分钟接近新低
+            ,rollx(sif.close,2) < rollx(sif.open,2)
+            ,rollx(sif.high-sif.low,2) > 30
+            ,sif.close > rollx(sif.close)
+            ,sif.xatr > 2000
             )
     return signal * zdiub.direction
 
@@ -122,6 +128,23 @@ zdiub.direction = XBUY
 zdiub.priority = 1200
 zdiub.filter = iftrade.nsocfilter
 zdiub.stop_closer = mystop
+
+def zddub(sif,sopen=None):
+    di = np.select([sif.time==915],[1],0)
+    dlow = dmin(sif.close,di)
+
+    signal = gand(rollx(sif.low,1) == tmin(sif.low,30)  #dlow #tmin(sif.low,30)  #- dlow < 30   #2分钟接近新低
+            ,sif.close - rollx(gmax(sif.close,sif.open)) > 20#sif.high)
+            ,rollx(gmin(sif.close,sif.open) - sif.low)>20
+            #,sif.xatr > 1800#sif.mxatr
+            )
+    return signal * zddub.direction
+
+zddub.direction = XBUY
+zddub.priority = 1200
+zddub.filter = iftrade.nsocfilter
+zddub.stop_closer = mystop
+
 
 
 def macd1500b(sif,sopened=None):

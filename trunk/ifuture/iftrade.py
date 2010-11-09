@@ -1679,20 +1679,20 @@ F180 = lambda bpoint:180
 
 #震荡期止损
 atr5_uxstop_k_oscillating = fcustom(atr_uxstop_k
-        ,flost_base = F35
-        ,fmax_drawdown = F50
-        ,fmin_drawdown = F50
-        ,fkeeper = F35
+        ,flost_base = F40
+        ,fmax_drawdown = F60
+        ,fmin_drawdown = F60
+        ,fkeeper = F60
         ,win_times=250
         ,natr=5
         )  
 
 atr5_uxstop_kt = fcustom(atr_uxstop_k
-        ,flost_base = F35
-        ,fmax_drawdown = F50
-        ,fmin_drawdown = F50
-        ,fkeeper = F50
-        ,ftarget = F100
+        ,flost_base = F40
+        ,fmax_drawdown = F60
+        ,fmin_drawdown = F60
+        ,fkeeper = F60
+        ,ftarget = F120
         ,win_times=250
         ,natr=5
         )  

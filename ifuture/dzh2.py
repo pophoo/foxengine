@@ -770,7 +770,7 @@ if __name__ == '__main__':
                 sms_begin = int(v)
             if opt in ('-v','--verify'):
                 reader =SecReader('d:/dzh2/data/sf/reportl.dat')
-                reader.save_all('IF1012')
+                reader.save_all('IF1011')
                 exit()
     except getopt.GetoptError:
         print 'except ---'
@@ -786,6 +786,6 @@ if __name__ == '__main__':
     #scheduler = DynamicScheduler('d:/dzh2/data/sf/reportl.dat',{'IF0001':'IF1010'},sms_begin=sms_begin)  #使用当月连续
     
     
-    scheduler = DynamicScheduler('d:/dzh2/data/sf/reportl.dat',{'IF1012':'IF1012'},sms_begin=sms_begin)  #使用主力合约，节省计算时间
+    scheduler = DynamicScheduler('d:/dzh2/data/sf/reportl.dat',{'IF1011':'IF1011'},sms_begin=sms_begin)  #使用主力合约，节省计算时间
     scheduler.run()
     

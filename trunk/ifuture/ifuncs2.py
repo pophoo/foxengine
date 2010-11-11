@@ -4517,6 +4517,9 @@ def allup(sif,sopened=None):
             #,sif.xatr<sif.mxatr
             ,strend2(sif.mxatr30x)>0
             )
+
+    signal = np.select([sif.time>944],[signal],0)
+
     return signal * allup.direction
 allup.direction = XBUY
 allup.priority = 1500

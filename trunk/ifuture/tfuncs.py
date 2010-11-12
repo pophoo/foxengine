@@ -374,8 +374,8 @@ def range_a(sif,tbegin,tend,wave):
     high10 = np.select([gand(sif.time>=tbegin,sif.time<=tend)],[sif.high],default=0)
     low10 = np.select([gand(sif.time>=tbegin,sif.time<=tend)],[sif.low],default=0)    
 
-    xhigh10 = np.select([sif.time==924],[tmax(high10,11)],0)
-    xlow10 = np.select([sif.time==924],[tmin(low10,11)],0)    
+    xhigh10 = np.select([sif.time==tend],[tmax(high10,11)],0)
+    xlow10 = np.select([sif.time==tend],[tmin(low10,11)],0)    
 
     UA = np.select([sif.time==tend],[xhigh10+wave],0)        
     DA = np.select([sif.time==tend],[xlow10-wave],0)    
@@ -537,40 +537,31 @@ def acd_da(sif,sopened=None):
         +
     '''
     wave = np.zeros_like(sif.close)
-    wave[sif.i_cof10] = rollx(sif.atr10) *2/3/XBASE  #掠过914-919的atr10
+    wave[sif.i_cof10] = rollx(sif.atr10) /2/XBASE  #掠过914-919的atr10
     wave = extend2next(wave)
+    
+
+    di = np.select([sif.time==944],[1],0)
+    dlow = dmin(sif.low,di)
     
     UA,DA,xhigh10,xlow10 = range_a(sif,914,924,wave)
 
-    xcontinue = 5
-
-    signal_ua = gand(sif.close >= UA
-                    ,msum2(sif.close>=UA,xcontinue)>4
-                    ,rollx(sif.close,xcontinue)>=UA
-                    )
-
-    signal_ua = np.select([sif.time>944],[signal_ua],0) #924之前的数据因为xhigh10是extend2next来的，所以不准
-
     signal_da = gand(sif.close <= DA
-                    ,msum2(sif.close<=DA,xcontinue)>4
-                    ,rollx(sif.close,xcontinue)<=DA
                     )
 
     signal_da = np.select([sif.time>944],[signal_da],0)
 
-    ms_ua = sum2diff(extend2diff(signal_ua,sif.date),sif.date)
-    ms_da = sum2diff(extend2diff(signal_da,sif.date),sif.date)
 
-    signal = gand(ms_da==1         #第一个da
-                ,bnot(ms_ua)       #没出现过ua 
-                ,sif.s30<0
-                ,strend2(sif.ma13)<0
-                ,sif.xatr<1000
+    signal = gand(signal_da
+                  #,cross(sif.dea3,sif.diff3)<0
+                  #,dnext_cover(cross(sif.dea5x,sif.diff5x)<0,sif.close,sif.i_cof5,1)
+                  ,cross(sif.sdea5x,sif.sdiff5x)<0
+                  ,strend2(sif.sdiff30x-sif.sdea30x)<0
                 )
 
     return signal * acd_da.direction
 acd_da.direction = XSELL
-acd_da.priority = 2300
+acd_da.priority = 1200
 
 
 def acd_ua_sz(sif,sopened=None):

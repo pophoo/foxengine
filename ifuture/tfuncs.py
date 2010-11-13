@@ -556,7 +556,7 @@ def acd_da(sif,sopened=None):
                   #,cross(sif.dea3,sif.diff3)<0
                   #,dnext_cover(cross(sif.dea5x,sif.diff5x)<0,sif.close,sif.i_cof5,1)
                   ,cross(sif.sdea5x,sif.sdiff5x)<0
-                  ,strend2(sif.sdiff30x-sif.sdea30x)<0
+                  ,sif.s30<0
                 )
 
     return signal * acd_da.direction

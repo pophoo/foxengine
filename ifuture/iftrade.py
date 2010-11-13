@@ -195,6 +195,7 @@ def simple_trades(actions,calc_profit=normal_profit):  #简单的trades,每个tr
                 action.vol = 1
                 trade = BaseObject(actions = [action])
             else:   #未持仓时碰到平仓动作,忽略
+                #print u'忽略:',action.date,action.time,action.position,action.price
                 pass
         elif action.xtype == XCLOSE and action.position != state:    #平仓且方向相反
             #print 'close:',action.date,action.time,action.position,action.price
@@ -1655,10 +1656,17 @@ atr5_uxstop_t_08_25_B30 = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_d
 atr5_uxstop_t_08_25_B26 = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=260,min_drawdown=150,min_lost_follow=90,min_lost_against=90,max_lost_follow=90,max_lost_against=90,natr=5)  
 
 
+atr5_uxstop_t_08_25_B_10 = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=250,min_drawdown=150,min_lost_follow=100,min_lost_against=100,max_lost_follow=100,max_lost_against=100,natr=5)  
+
+
 ##比例止损
 atr5_uxstop_f_A = fcustom(atr_uxstop_f,win_times=250,natr=5)  
 
-atr5_uxstop_k_A = fcustom(atr_uxstop_k,win_times=250,natr=5)  
+atr5_uxstop_k_A = fcustom(atr_uxstop_k,win_times=250,natr=5)
+
+FKEEP_135 = lambda bpoint: 135   #上升13.5点后就保证开仓价格
+
+atr5_uxstop_k_B = fcustom(atr_uxstop_k,fkeeper=FKEEP_135,win_times=250,natr=5)  
 
 F20 = lambda bpoint:20
 F25 = lambda bpoint:25

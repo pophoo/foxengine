@@ -793,6 +793,7 @@ def uuxb(sif,sopened=None):
                 ,rollx(sif.close,2) > rollx(sif.open,2)
                 #,sif.date < 20101025
                 ,gand(sif.close - sif.open < 120,rollx(sif.close) - sif.open < 200)#: 快速拉升过滤                 
+                ,sif.sdma>0
             )
 
     return signal * uuxb.direction

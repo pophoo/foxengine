@@ -1703,10 +1703,15 @@ xxx_trend = [
 
 import wolfox.fengine.ifuture.ifuncs2a as ifuncs2a
 
+for x in ifuncs2a.k1s + ifuncs2a.k1s2 + ifuncs2a.xorb:
+    x.stop_closer = iftrade.atr5_uxstop_k_180
+    x.cstoper = iftrade.FBASE_30  #初始止损,目前只在动态显示时用
+    
+
 xxx = xxx_trend + xxx_break + xxx_against + xxx_follow
-xxx1 = xxx_trend + xxx_break + xxx_against
-xxx2 = xxx1  + ifuncs2a.xorb + ifuncs2a.k1s + ifuncs2a.k1s2
-xxx3 = xxx1
+xxx1 = xxx_trend + xxx_break + xxx_against + xxx_follow
+xxx2 = xxx1  + ifuncs2a.k1s + ifuncs2a.k1s2 + ifuncs2a.xorb
+xxx3 = xxx1+ ifuncs2a.k1s + ifuncs2a.k1s2 + ifuncs2a.xorb
 xxx2a = xxx1
 
 for x in xxx1:

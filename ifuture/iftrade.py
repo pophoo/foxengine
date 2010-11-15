@@ -1664,9 +1664,27 @@ atr5_uxstop_f_A = fcustom(atr_uxstop_f,win_times=250,natr=5)
 
 atr5_uxstop_k_A = fcustom(atr_uxstop_k,win_times=250,natr=5)
 
+FKEEP_250 = lambda bpoint: 250   #上升25点后就保证开仓价格
+
+FKEEP_200 = lambda bpoint: 200   #上升20点后就保证开仓价格
+
 FKEEP_180 = lambda bpoint: 180   #上升18点后就保证开仓价格
 
+FKEEP_150 = lambda bpoint: 150   #上升15点后就保证开仓价格
+
+FKEEP_135 = lambda bpoint: 135   #上升13.5点后就保证开仓价格
+
+FKEEP_120 = lambda bpoint: 120   #上升12点后就保证开仓价格
+
+
 atr5_uxstop_k_B = fcustom(atr_uxstop_k,fkeeper=FKEEP_180,win_times=250,natr=5)  
+
+atr5_uxstop_k_250 = fcustom(atr_uxstop_k,fkeeper=FKEEP_250,win_times=250,natr=5)  
+atr5_uxstop_k_200 = fcustom(atr_uxstop_k,fkeeper=FKEEP_200,win_times=250,natr=5)  
+atr5_uxstop_k_180 = fcustom(atr_uxstop_k,fkeeper=FKEEP_180,win_times=250,natr=5)  
+atr5_uxstop_k_150 = fcustom(atr_uxstop_k,fkeeper=FKEEP_150,win_times=250,natr=5)  
+atr5_uxstop_k_135 = fcustom(atr_uxstop_k,fkeeper=FKEEP_135,win_times=250,natr=5)  
+atr5_uxstop_k_120 = fcustom(atr_uxstop_k,fkeeper=FKEEP_120,win_times=250,natr=5)  
 
 F20 = lambda bpoint:20
 F25 = lambda bpoint:25

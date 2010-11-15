@@ -1070,7 +1070,128 @@ def k1_ru_a(sif,sopened = None):
 k1_ru_a.direction = XBUY
 k1_ru_a.priority = 1500 
 
-dbrb.filter = iftrade.ocfilter
+
+###指标系列
+def rsi_u_a(sif,sopened=None,rshort=7,rlong=19):
+    '''
+        计算创当日新高后，从暴力起涨点算起回撤不到40%，然后再上升
+        要求在上涨途中，即30分钟的120线向上
+    '''
+    rsia = rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = rsi2(sif.close,rlong)
+    #signal = cross(rsib,rsia)>0    
+    signal = gand(cross(rsib,rsia)>0,strend2(rsia)>0)
+
+    signal = gand(signal
+            ,sif.xatr < sif.mxatr
+            ,sif.xatr < 1800 #越小越好
+            ,sif.high > sif.dhigh - (sif.dhigh - sif.dlow2) *0.4    #回撤越小越好
+            ,sif.xatr30x < 12000    #这个条件几乎等于没有
+
+            ,sif.idhigh >= sif.idlow    #高点后于低点,必要性不大。
+            ,sif.r120 > 0 #去掉毛刺
+            
+            ,sif.sdma > 0
+            ,sif.ma3 > sif.ma13
+            )
+
+    return signal * rsi_u_a.direction
+rsi_u_a.direction = XBUY
+rsi_u_a.priority = 1500
+
+def rsi_u_b(sif,sopened=None,rshort=7,rlong=19):
+    '''
+        计算创当日新高后，从暴力起涨点算起回撤不到40%，然后再上升
+        要求在上涨途中，即30分钟的120线向上
+    '''
+    rsia = rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = rsi2(sif.close,rlong)
+    #signal = cross(rsib,rsia)>0    
+    signal = gand(cross(rsib,rsia)>0,strend2(rsia)>0)
+
+    signal = gand(signal
+            ,sif.xatr < 1800 #越大越好
+            ,sif.xatr > 1200 
+            ,sif.high > sif.dhigh - (sif.dhigh - sif.dlow2) *0.4    #回撤越小越好
+            ,strend2(sif.mxatr30x)>0
+
+            ,sif.r120 > 10 #去掉毛刺
+            ,sif.r60>10
+
+            )
+
+    return signal * rsi_u_b.direction
+rsi_u_b.direction = XBUY
+rsi_u_b.priority = 1500
+
+
+def rsi_d_a(sif,sopened=None,rshort=7,rlong=19):
+    '''
+        计算创当日新低后，从暴力起跌点算起回撤不到40%，然后再下降
+        要求在下降途中，即30分钟的120线向下
+        与上涨不同的是，下跌一半比较墨迹，所以容易缩量
+    '''
+    rsia = rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = rsi2(sif.close,rlong)
+    #signal = cross(rsib,rsia)>0    
+    signal = gand(cross(rsib,rsia)>0,strend2(rsia)>0)
+
+    signal = gand(signal
+            #,sif.xatr<2000  #越小越好
+            ,sif.xatr < sif.mxatr
+            ,sif.xatr30x < 12000
+            ,sif.low < sif.dlow + (sif.dhigh2 - sif.dlow) *0.3  #低点先冲破. 下跌的时候一般比较狠
+            ,sif.r120 < 10 
+            ,sif.sdma < 0
+            ,sif.r30 < 0
+            ,sif.xatr < 1500
+    )
+
+    return signal * rsi_d_a.direction
+rsi_d_a.direction = XSELL
+rsi_d_a.priority = 1500
+
+
+def allup(sif,sopened=None):
+    '''
+        多头排列
+    '''
+    signal = gand(sif.ma5>sif.ma13
+            ,sif.ma13>sif.ma30
+            ,sif.ma60>sif.ma120
+            ,strend2(sif.ma270)>0
+            ,sif.xatr>800
+            ,sif.xatr30x<6000
+            ,strend2(sif.mxatr30x)>0
+            ,strend2(sif.mxatr)>0
+            )
+
+    signal = np.select([sif.time>944],[signal],0)
+
+    return signal * allup.direction
+allup.direction = XBUY
+allup.priority = 1500
+
+def alldown(sif,sopened=None):
+    '''
+        空头排列
+    '''
+    signal = gand(sif.ma5<sif.ma13
+            ,sif.ma13<sif.ma30
+            ,sif.ma30 < sif.ma120
+            ,sif.ma60<sif.ma120
+            ,sif.ma120<sif.ma270
+            ,strend2(sif.ma270)<0
+            ,sif.xatr<1000
+            ,sif.xatr30x<6000
+            ,sif.xatr30x<sif.mxatr30x
+            ,sif.r60<0
+            ,sif.xatr > sif.mxatr
+            )
+    return signal * alldown.direction
+alldown.direction = XSELL
+alldown.priority = 1500
+
 k15_d_a.filter = iftrade.socfilter
 k15_d_b.filter = iftrade.ocfilter
 k15_d_c.filter = iftrade.ocfilter
@@ -1092,6 +1213,14 @@ k1_u_a.filter = iftrade.ocfilter
 k1_rd_a.filter = iftrade.ocfilter
 k1_ru_a.filter = iftrade.ocfilter
 
+rsi_u_a.filter = iftrade.ocfilter
+rsi_u_b.filter = iftrade.ocfilter
+rsi_d_a.filter = iftrade.ocfilter
+
+br30.filter = iftrade.ocfilter
+acd_ua.filter = iftrade.ocfilter
+dbrb.filter = iftrade.ocfilter
+
 
 #k5_d_c.stop_closer = iftrade.atr5_uxstop_t_08_25_B2
 
@@ -1106,6 +1235,13 @@ xxx_break =[
             acd_ua,
             dbrb,
         ]
+
+for x in xxx_break:
+    pass
+    x.stop_closer = iftrade.atr5_uxstop_k_180
+    #实际上只放宽了ua_s5
+    if 'filter' not in x.__dict__:
+        x.filter = iftrade.socfilter_k1s
 
 xxx_against = [
             k15_d_a,
@@ -1134,12 +1270,20 @@ xxx_against = [
             k1_ru_a,
         ]
 
+for x in xxx_against:
+    x.stop_closer = iftrade.atr5_uxstop_k_180
+
+xxx_follow = [
+            rsi_u_a,
+            rsi_u_b,
+            rsi_d_a,
+            allup,
+            #alldown,
+        ]
+for x in xxx_follow:
+    x.stop_closer = iftrade.atr5_uxstop_k_180
 
 
-
-#实际上只放宽了ua_s5
-for xb in xxx_break:
-    xb.filter = iftrade.socfilter_k1s
 
 xxx_trend = [
             cr3_30b,
@@ -1149,8 +1293,10 @@ xxx_trend = [
         ]
 
 
+
 import wolfox.fengine.ifuture.ifuncs2a as ifuncs2a
 
+xxx = xxx_trend + xxx_break + xxx_against + xxx_follow
 xxx1 = xxx_trend + xxx_break + xxx_against
 xxx2 = xxx1  + ifuncs2a.xorb + ifuncs2a.k1s + ifuncs2a.k1s2 + ifuncs2a.xfollow
 xxx3 = xxx1
@@ -1159,7 +1305,7 @@ xxx2a = xxx1
 for x in xxx1:
     pass
     #if 'stop_closer' not in x.__dict__: #不应该有例外，否则比较难以实际操作
-    x.stop_closer = iftrade.atr5_uxstop_k_B
+    #    x.stop_closer = iftrade.atr5_uxstop_k_B
 
 for x in xxx2:
     pass
@@ -1169,8 +1315,8 @@ for x in xxx2:
     #x.priority = 1500
     #x.stop_closer = iftrade.atr5_uxstop_f_A
     #x.stop_closer = iftrade.atr5_uxstop_k_A
-    x.stop_closer = iftrade.atr5_uxstop_k_B
-    #x.cstoper = iftrade.FBASE_30  #初始止损,目前只在动态显示时用
+    #x.stop_closer = iftrade.atr5_uxstop_k_135
+    x.cstoper = iftrade.FBASE_30  #初始止损,目前只在动态显示时用
     #x.cstoper = iftrade.F30  #初始止损
     #x.filter = iftrade.socfilter
     #x.filter = iftrade.nsocfilter

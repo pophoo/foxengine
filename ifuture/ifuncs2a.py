@@ -1450,7 +1450,6 @@ def down01x(sif,sopened=None): #++
 down01x.direction = XSELL
 down01x.priority = 1500
 
-
 def xdown60(sif,sopened=None):
     '''
         连续5分钟内出现60分钟最低点4个以上

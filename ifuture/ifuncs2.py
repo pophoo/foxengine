@@ -116,6 +116,8 @@ def da_cover(sif,sopened=None):
     #dmxatr = dsma(sif.xatr,np.select([sif.time==915],[1],0))
 
     signal = gand(signal_da
+                  #,sif.s30 < 0
+                  #,gor(strend2(sif.sdiff30x-sif.sdea30x)<0,sif.s30<0)
                   ,sif.s30 < 0
                   ,sif.t120 < -1    #排除波动
                   ,sif.r60 < -4     #排除波动
@@ -1414,6 +1416,23 @@ def up0(sif,sopened=None):
     return signal * up0.direction
 up0.direction = XBUY
 up0.priority = 2100  #
+
+def devi_u_a(sif,sopened=None):
+    '''
+        macd的背离
+    '''
+
+    msignal = ldevi(sif.low,sif.diff1,sif.dea1)
+
+    signal = gand(msignal
+            ,sif.xatr<sif.mxatr
+            ,sif.xatr > 1200
+            ,sif.xatr30x < 12000
+           )
+
+    return signal * devi_u_a.direction
+devi_u_a.direction = XBUY
+devi_u_a.priority = 2100
 
 
 def allup(sif,sopened=None):

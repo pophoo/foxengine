@@ -524,6 +524,8 @@ class DynamicScheduler:
         self.names = names
         self.dyn_datas = self.init_dyn(names)
         self.sms_begin = sms_begin
+        self.pre_time = 0
+        self.pre_fname = ''
 
     def init_dyn(self,names):
         dyn_datas = {}
@@ -603,8 +605,7 @@ class DynamicScheduler:
             sms_actions = self.check_signal1(name,his_data,dyn_data)
             self.inform(name,sms_actions,self.sms_begin)
 
-    @staticmethod
-    def check_signal1(name,his_data,dyn_data):
+    def check_signal1(self,name,his_data,dyn_data):
         #print "check_signal"
         sif = DataObject()
         sif.name = name
@@ -624,27 +625,26 @@ class DynamicScheduler:
         dyn_data.last_checked_time = xactions[0].time
         return sms_actions        
 
-    @staticmethod
-    def inform(name,sms_actions,sms_begin):
+    def inform(self,name,sms_actions,sms_begin):
         ''' 屏蔽掉20分钟内连续的同类算法信号, 但不屏蔽最后一个
             返回发送的条数
         '''
         if len(sms_actions) == 0:
             return 0
         mq = sms_actions[::-1]  #变回顺序
-        pre_time = 0
-        pre_fname = ''
         successed = 0
         mnum = 0
+        msged = False
         for action in mq:
             atime = cal.timegm((action.date/10000,(action.date%10000)/100,action.date%100
                 ,action.time/100,action.time%100,0,0,0,0))  #转化为纪元后秒数
-            if action.fname == pre_fname and atime - pre_time <= 1200:   #1800秒,20分钟
+            #print '\ntest:',action.fname,self.pre_fname,atime,self.pre_time
+            if action.fname == self.pre_fname and atime - self.pre_time <= 1200:   #1800秒,20分钟
                 print u'\n忽略20分钟之内的同类信号 : %s:%s' % (action.fname,action.time)
                 #win32api.MessageBox(0,u'请注意眼睛休息',u'提示',0x00001000L)
                 continue
-            pre_fname = action.fname
-            pre_time = atime
+            self.pre_fname = action.fname
+            self.pre_time = atime
             
             direction = u'买入' if action.position == LONG else u'卖出'
             #trend = u'顺势' if action.functor.strategy in (XFOLLOW,XBREAK,XORB) else u'逆势'
@@ -653,17 +653,22 @@ class DynamicScheduler:
             #msg = u'%s|%s:%s%s开仓%s,算法:%s,优先级:%s,止损:%s,条件单:%s' % (name,action.date,action.time,direction,action.price,action.fname,action.functor.priority,action.stop,action.mstop)
             #msg = u'%s|%s%s开仓%s,算法:%s,优先级:%s,止损:%s,条件单:%s,%s' % (name,action.time,direction,action.price,action.fname,action.functor.priority,action.stop,action.mstop,trend)
             msg = u'%s|%s:%s%s开仓%s,平仓%s:%s,条件单:%s%s,%s' % (name,action.date%10000,action.time,direction,action.price,action.close,action.stop,action.condition,action.mstop,trend) 
+            print action.fname,msg
             if action.time < sms_begin:
                 print u'\n忽略%s之前的信号:%s,%s,%s' % (sms_begin,action.time,msg,action.fname)
                 #print action.time,sms_begin,type(action.time),int(action.time)>int(sms_begin)
                 continue
+            if not msged :
+                win32api.MessageBox(0,u'请注意眼睛休息',u'提示',0x00001000L)
+                msged = True
             successed += DynamicScheduler.send_sms1(msg,action.fname)
             #successed += DynamicScheduler.sms_stub(msg,action.fname)
             mnum += 1
             #break  #测试短信用
         print u'\n计划发送 %s 条，成功发送 %s 条' % (mnum,successed)
         if msum>0:
-            win32api.MessageBox(0,u'请注意眼睛休息',u'提示',0x00001000L)
+            pass
+            #win32api.MessageBox(0,u'请注意眼睛休息',u'提示',0x00001000L)
         return successed
 
     @staticmethod
@@ -696,7 +701,8 @@ class DynamicScheduler:
         except:
             pass
         finally:
-            print u'发送: %s,%s,成功:%s 条' % (msg,fname,successed)
+            #print u'发送: %s,%s,成功:%s 条' % (msg,fname,successed)
+            print u'发送%s,成功:%s 条' % (fname,successed)
             if failed > 0:
                 return 0
         return 1

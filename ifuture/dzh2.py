@@ -564,7 +564,7 @@ class DynamicScheduler:
             today = dt.date.today()
             tt = today.year*10000 + today.month*100 + today.day
             ct = self.dyn_datas[self.names.keys()[0]].transaction
-            if ct[IDATE][-1] < tt:
+            if len(ct[IDATE])==0 or ct[IDATE][-1] < tt:
                 win32api.MessageBox(0,u'请检查时间是否正确......',u'提示',0x00001000L)
             if len(ct[IDATE])>0:
                 linelog(u'读取数据成功,%s-%s:%s-%s,%s-%s' % (ct[IDATE][-1],ct[ITIME][-1],ct[IOPEN][-1],ct[ICLOSE][-1],ct[IHIGH][-1],ct[ILOW][-1]))

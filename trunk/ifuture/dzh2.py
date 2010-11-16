@@ -571,7 +571,7 @@ class DynamicScheduler:
                 self.check_signal()
             else:
                 linelog(u'无当日动态数据')
-            time.sleep(5)    #计算需要10秒，因此总延迟15秒
+            time.sleep(15)    #计算需要10秒，因此总延迟15秒
 
     def prepare_data(self):
         '''

@@ -54,8 +54,8 @@ def ocfilter(sif,tbegin=944,tend=1510):  #在开盘前30分钟和收盘前5分�
     soc = np.ones_like(stime)
     soc = gand(greater(stime,tbegin),lesser(stime,tend))
     soc[:275*3] = 0
-    soc[-5:] = 0    #最后交易日收盘在1500，防止溢出(因为买入点通常在下一分钟，那么1500不被屏蔽的话，如果有信号就会溢出)
-    
+    #soc[-5:] = 0    #最后交易日收盘在1500，防止溢出(因为买入点通常在下一分钟，那么1500不被屏蔽的话，如果有信号就会溢出)
+    #这个应该不会出现了，最后一分钟在xposition中被屏蔽, 并且日平仓过滤器设定了最后三分钟平仓
     return soc
 
 ocfilter_c = fcustom(ocfilter,tbegin=930,tend=1455) #商品期货的交易时间为9:00-1500（中间有休息），故filter也修改
@@ -72,6 +72,7 @@ def nstate_filter(sif,prefilter=ocfilter):
     return soc
 
 
+#last系列已经不需要，同ocfilter即可
 def last_filter(sif,tbegin=930,tend=1510):  
     stime = sif.transaction[ITIME]
     soc = np.ones_like(stime)
@@ -717,6 +718,7 @@ def xposition(sif,saction,xtype,defer=1):
         xindex = i + defer  #defer后动作，一般为下一分钟
         if xindex >= len(sclose):   #如果是最后一分钟，则放弃. 这种情况只会出现在动态计算中，且该分钟未走完(走完的话应该出现下一分钟的报价)，所以放弃是正常操作
             continue
+        #print xindex,len(sclose)
         #print xindex,trans[ITIME][xindex]
         direct = saction[i]
         position = BaseObject(index=xindex,date=sdate[xindex],time=stime[xindex],position=direct,xtype=xtype)    #因为已经抑制了1514开仓,必然不会溢出

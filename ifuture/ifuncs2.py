@@ -998,6 +998,30 @@ def k5_u_b(sif,sopened=None):
 k5_u_b.direction = XBUY
 k5_u_b.priority = 2400  #优先级最低
 
+def k3_u_a(sif,sopened = None):
+    '''
+        3根3分钟模式
+        第二根3分钟创新低，第3根最高价高于第一根最高价
+    '''
+    signal3 = gand(rollx(sif.low3) == tmin(sif.low3,12),
+                   sif.high3 > rollx(sif.high3,2), 
+                   rollx(sif.high3)<rollx(sif.high3,2)  #不是马上扑回的. 令见k3_u_b
+                )
+
+    signal = dnext_cover(signal3,sif.close,sif.i_cof3,1)
+
+
+    signal = gand(signal
+                 ,sif.xatr < sif.mxatr
+                 ,sif.xatr > 1000
+                 #,sif.r60 < 0
+                 ,sif.close < sif.dma
+                )
+
+    return signal * k3_u_a.direction
+k3_u_a.direction = XBUY
+k3_u_a.priority = 2100 
+
 def k1_u_a(sif,sopened = None):
     '''
         一分钟探底上升的K线模式: 单针底

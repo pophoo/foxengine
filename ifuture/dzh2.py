@@ -98,7 +98,7 @@ import wolfox.fengine.ifuture.fcontrol as control
 import wolfox.fengine.ifuture.dynamic as dynamic
 from wolfox.foxit.base.tutils import linelog
 
-trade_strategy = ifuncs.xxx3
+trade_strategy = ifuncs.xxx2
 trade_functor = control.ltrade3x0825
 trade_priority = 2500
 
@@ -358,6 +358,7 @@ class SecReader:
             elif record.date < end_record.date:
                 break   #发现之前的数据
             end_record = record
+        #print 'len(mrecords)',len(mrecords)
         mrecords.append(SecReader.create_record(end_record.date,end_record.time/100,min_high,min_low,begin_record.price,end_record.price,end_record.svol,end_record.holding))
         return mrecords
 
@@ -568,6 +569,7 @@ class DynamicScheduler:
                 win32api.MessageBox(0,u'请检查时间是否正确......',u'提示',0x00001000L)
             if len(ct[IDATE])>0:
                 linelog(u'读取数据成功,%s-%s:%s-%s,%s-%s' % (ct[IDATE][-1],ct[ITIME][-1],ct[IOPEN][-1],ct[ICLOSE][-1],ct[IHIGH][-1],ct[ILOW][-1]))
+                #print u'读取数据成功,%s-%s:%s-%s,%s-%s' % (ct[IDATE][-1],ct[ITIME][-1],ct[IOPEN][-1],ct[ICLOSE][-1],ct[IHIGH][-1],ct[ILOW][-1])
                 self.check_signal()
             else:
                 linelog(u'无当日动态数据')
@@ -603,6 +605,7 @@ class DynamicScheduler:
             dyn_data = self.dyn_datas[name]
             his_data = self.his_datas[name] #必然要求有
             sms_actions = self.check_signal1(name,his_data,dyn_data)
+            #print 'len of sms:',len(sms_actions)
             self.inform(name,sms_actions,self.sms_begin)
 
     def check_signal1(self,name,his_data,dyn_data):
@@ -615,11 +618,20 @@ class DynamicScheduler:
         tradesy = trade_functor(sif,trade_strategy,priority_level=trade_priority)
         xactions = iftrade.last_wactions(sif,tradesy)   #最新的在最前面
         sms_actions = []
+        #if len(xactions)>2:
+        #    action = xactions[0]
+        #    action1 = xactions[1]
+        #    action2 = xactions[2]            
+        #    print 'actions[0]:',action.xtype,action.date,action.time,action.price
+        #    print 'actions[1]:',action1.xtype,action1.date,action1.time,action1.price
+        #    print 'actions[2]:',action2.xtype,action2.date,action2.time,action2.price
+        #    action.xtype = XOPEN
         for action in xactions:
             if action.xtype == XOPEN and (action.date > dyn_data.last_checked_date 
                         or (action.date == dyn_data.last_checked_date and action.time > dyn_data.last_checked_time)):
                 action.price = action.price / 10.0
                 dynamic.calc_stop(sif,action)
+                #print 'to sms:', action.date,action.time,action.price
                 sms_actions.append(action)
         dyn_data.last_checked_date = xactions[0].date
         dyn_data.last_checked_time = xactions[0].time
@@ -632,9 +644,10 @@ class DynamicScheduler:
         if len(sms_actions) == 0:
             return 0
         mq = sms_actions[::-1]  #变回顺序
+        print sms_actions[0].date,sms_actions[0].time,sms_actions[0].price,sms_actions[-1].date,sms_actions[-1].time,sms_actions[-1].price
         successed = 0
         mnum = 0
-        msged = False
+        #msged = False
         for action in mq:
             atime = cal.timegm((action.date/10000,(action.date%10000)/100,action.date%100
                 ,action.time/100,action.time%100,0,0,0,0))  #转化为纪元后秒数
@@ -653,14 +666,14 @@ class DynamicScheduler:
             #msg = u'%s|%s:%s%s开仓%s,算法:%s,优先级:%s,止损:%s,条件单:%s' % (name,action.date,action.time,direction,action.price,action.fname,action.functor.priority,action.stop,action.mstop)
             #msg = u'%s|%s%s开仓%s,算法:%s,优先级:%s,止损:%s,条件单:%s,%s' % (name,action.time,direction,action.price,action.fname,action.functor.priority,action.stop,action.mstop,trend)
             msg = u'%s|%s:%s%s开仓%s,平仓%s:%s,条件单:%s%s,%s' % (name,action.date%10000,action.time,direction,action.price,action.close,action.stop,action.condition,action.mstop,trend) 
-            print action.fname,msg
+            #print action.fname,msg
             if action.time < sms_begin:
                 print u'\n忽略%s之前的信号:%s,%s,%s' % (sms_begin,action.time,msg,action.fname)
                 #print action.time,sms_begin,type(action.time),int(action.time)>int(sms_begin)
                 continue
-            if not msged :
-                win32api.MessageBox(0,u'请注意眼睛休息',u'提示',0x00001000L)
-                msged = True
+            #if not msged :
+            #    win32api.MessageBox(0,u'请注意眼睛休息',u'提示',0x00001000L)
+            #    msged = True
             successed += DynamicScheduler.send_sms1(msg,action.fname)
             #successed += DynamicScheduler.sms_stub(msg,action.fname)
             mnum += 1
@@ -668,7 +681,7 @@ class DynamicScheduler:
         print u'\n计划发送 %s 条，成功发送 %s 条' % (mnum,successed)
         if msum>0:
             pass
-            #win32api.MessageBox(0,u'请注意眼睛休息',u'提示',0x00001000L)
+            win32api.MessageBox(0,u'请注意眼睛休息',u'提示',0x00001000L)
         return successed
 
     @staticmethod

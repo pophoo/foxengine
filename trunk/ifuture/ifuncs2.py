@@ -1004,7 +1004,7 @@ def k3_u_a(sif,sopened = None):
         第二根3分钟创新低，第3根最高价高于第一根最高价
     '''
     signal3 = gand(rollx(sif.low3) == tmin(sif.low3,12),
-                   sif.high3 > rollx(sif.high3,2), 
+                   sif.close3 >= rollx(sif.high3,2), 
                    rollx(sif.high3)<rollx(sif.high3,2)  #不是马上扑回的. 令见k3_u_b
                 )
 
@@ -1013,14 +1013,55 @@ def k3_u_a(sif,sopened = None):
 
     signal = gand(signal
                  ,sif.xatr < sif.mxatr
-                 ,sif.xatr > 1000
-                 #,sif.r60 < 0
+                 ,sif.xatr > 800
                  ,sif.close < sif.dma
                 )
 
     return signal * k3_u_a.direction
 k3_u_a.direction = XBUY
 k3_u_a.priority = 2100 
+
+def k3_u_b(sif,sopened = None):
+    '''
+        4根3分钟模式
+        第二根3分钟创新低，第4根最高价高于第一根最高价
+    '''
+    signal3 = gand(rollx(sif.low3,2) == tmin(sif.low3,12),
+                   sif.close3 >= rollx(sif.high3,3), 
+                   rollx(sif.high3)<rollx(sif.high3,3),  #不是马上扑回的. 令见k3_u_b
+                   rollx(sif.high3,2)<rollx(sif.high3,3),  #不是马上扑回的. 令见k3_u_b                   
+                )
+
+    signal = dnext_cover(signal3,sif.close,sif.i_cof3,1)
+
+
+    signal = gand(signal
+                 ,sif.xatr < sif.mxatr
+                )
+
+    return signal * k3_u_b.direction
+k3_u_b.direction = XBUY
+k3_u_b.priority = 2100 
+
+def k3_d_a(sif,sopened = None):
+    '''
+        下降, 该模式没用
+    '''
+
+    signal3 = gand(rollx(sif.high3) == tmax(sif.high3,12),
+                   sif.close3 <= rollx(sif.low3,2), 
+                   rollx(sif.low3)<rollx(sif.low3,2)  #不是马上扑回的. 令见k3_d_b
+                )
+
+    signal = dnext_cover(signal3,sif.close,sif.i_cof3,1)
+
+
+    signal = gand(signal
+                )
+
+    return signal * k3_d_a.direction
+k3_d_a.direction = XSELL
+k3_d_a.priority = 2100 
 
 def k1_u_a(sif,sopened = None):
     '''
@@ -1966,6 +2007,10 @@ k5_d_x.filter = iftrade.ocfilter
 k5_d_y.filter = iftrade.ocfilter
 k5_u_a.filter = iftrade.ocfilter
 k5_u_b.filter = iftrade.ocfilter
+
+k3_u_a.filter = iftrade.socfilter_k1s
+k3_u_b.filter = iftrade.socfilter_k1s
+
 k1_u_a.filter = iftrade.ocfilter
 
 k1_rd_a.filter = iftrade.ocfilter
@@ -2050,6 +2095,9 @@ xxx_against = [
 
             k5_u_a,
             k5_u_b,
+
+            k3_u_a,
+            k3_u_b,
 
             k1_u_a,
 

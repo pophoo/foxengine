@@ -725,7 +725,23 @@ def xposition(sif,saction,xtype,defer=1):
         position.price = make_price(direct,sopen[xindex],sclose[xindex],shigh[xindex],slow[xindex])
         positions.append(position)
         if xtype == XOPEN:
-            position.xfollow = True if (sif.sxtrend[i] == TREND_UP and saction[i] == LONG) or (sif.sxtrend[i] == TREND_DOWN and saction[i] == SHORT) else False
+            #position.xfollow = True if (sif.sxtrend[i] == TREND_UP and saction[i] == LONG) or (sif.sxtrend[i] == TREND_DOWN and saction[i] == SHORT) else False
+            #position.xfollow = True if (sif.xstate[i] >0 and saction[i] == LONG) or (sif.xstate[i] <0 and saction[i] == SHORT) else False
+            #顺势、逆势以及不明势
+            if saction[i] == LONG:
+                if sif.xstate[i] > 0:
+                    position.xfollow = 1
+                elif sif.xstate[i] < 0:
+                    position.xfollow = -1
+                else:
+                    position.xfollow = 0
+            else:
+                if sif.xstate[i] < 0:
+                    position.xfollow = 1
+                elif sif.xstate[i] > 0:
+                    position.xfollow = -1
+                else:
+                    position.xfollow = 0
             #print position.xfollow
     return positions
 

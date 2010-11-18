@@ -108,7 +108,8 @@ def whget(strategy,functor,priority=2500):
         action.state = sif.xstate[action.index-1]   #信号当时状态
         if action.xtype == XOPEN:
             calc_stop(sif,action)
-            action.sfollow = u'顺势' if action.xfollow else u'逆势'
+            #action.sfollow = u'顺势' if action.xfollow else u'逆势'
+            action.sfollow = u'顺势' if action.xfollow>0 else u'逆势' if action.xfollow < 0 else u'不明'
         else:
             action.sfollow = u''
     return fname,sif,xactions

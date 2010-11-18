@@ -661,7 +661,7 @@ class DynamicScheduler:
             
             direction = u'买入' if action.position == LONG else u'卖出'
             #trend = u'顺势' if action.functor.strategy in (XFOLLOW,XBREAK,XORB) else u'逆势'
-            trend = u'顺势' if action.xfollow else u'逆势'
+            trend = u'顺势' if action.xfollow>0 else u'逆势' if action.xfollow < 0 else u'不明'
             trend = u'%s:%s' % (trend,iftrade.fpriority(action.functor))
             #msg = u'%s|%s:%s%s开仓%s,算法:%s,优先级:%s,止损:%s,条件单:%s' % (name,action.date,action.time,direction,action.price,action.fname,action.functor.priority,action.stop,action.mstop)
             #msg = u'%s|%s%s开仓%s,算法:%s,优先级:%s,止损:%s,条件单:%s,%s' % (name,action.time,direction,action.price,action.fname,action.functor.priority,action.stop,action.mstop,trend)

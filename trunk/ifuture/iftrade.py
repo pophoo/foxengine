@@ -727,6 +727,8 @@ def xposition(sif,saction,xtype,defer=1):
         if xtype == XOPEN:
             #position.xfollow = True if (sif.sxtrend[i] == TREND_UP and saction[i] == LONG) or (sif.sxtrend[i] == TREND_DOWN and saction[i] == SHORT) else False
             #position.xfollow = True if (sif.xstate[i] >0 and saction[i] == LONG) or (sif.xstate[i] <0 and saction[i] == SHORT) else False
+            #除逆势外都是顺势
+            #position.xfollow = -1 if (sif.xstate[i] <0 and saction[i] == LONG) or (sif.xstate[i] >0 and saction[i] == SHORT) else 1
             #顺势、逆势以及不明势
             if saction[i] == LONG:
                 if sif.xstate[i] > 0:

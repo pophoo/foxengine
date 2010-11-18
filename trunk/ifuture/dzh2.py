@@ -644,7 +644,7 @@ class DynamicScheduler:
         if len(sms_actions) == 0:
             return 0
         mq = sms_actions[::-1]  #变回顺序
-        print sms_actions[0].date,sms_actions[0].time,sms_actions[0].price,sms_actions[-1].date,sms_actions[-1].time,sms_actions[-1].price
+        #print sms_actions[0].date,sms_actions[0].time,sms_actions[0].price,sms_actions[-1].date,sms_actions[-1].time,sms_actions[-1].price
         successed = 0
         mnum = 0
         #msged = False
@@ -666,11 +666,11 @@ class DynamicScheduler:
             #msg = u'%s|%s:%s%s开仓%s,算法:%s,优先级:%s,止损:%s,条件单:%s' % (name,action.date,action.time,direction,action.price,action.fname,action.functor.priority,action.stop,action.mstop)
             #msg = u'%s|%s%s开仓%s,算法:%s,优先级:%s,止损:%s,条件单:%s,%s' % (name,action.time,direction,action.price,action.fname,action.functor.priority,action.stop,action.mstop,trend)
             msg = u'%s|%s:%s%s开仓%s,平仓%s:%s,条件单:%s%s,%s' % (name,action.date%10000,action.time,direction,action.price,action.close,action.stop,action.condition,action.mstop,trend) 
-            #print action.fname,msg
             if action.time < sms_begin:
                 print u'\n忽略%s之前的信号:%s,%s,%s' % (sms_begin,action.time,msg,action.fname)
                 #print action.time,sms_begin,type(action.time),int(action.time)>int(sms_begin)
                 continue
+            print action.fname,msg
             #if not msged :
             #    win32api.MessageBox(0,u'请注意眼睛休息',u'提示',0x00001000L)
             #    msged = True

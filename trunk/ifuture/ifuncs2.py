@@ -1048,9 +1048,10 @@ def k3_d_a(sif,sopened = None):
         下降, 该模式没用
     '''
 
-    signal3 = gand(rollx(sif.high3) == tmax(sif.high3,12),
-                   sif.close3 <= rollx(sif.low3,2), 
-                   rollx(sif.low3)<rollx(sif.low3,2)  #不是马上扑回的. 令见k3_d_b
+    signal3 = gand(rollx(sif.high3,2) == tmax(sif.high3,12),
+                   sif.close3 <= rollx(sif.low3,3), 
+                   rollx(sif.low3)>rollx(sif.low3,3),
+                   rollx(sif.low3,2)>rollx(sif.low3,3),                   
                 )
 
     signal = dnext_cover(signal3,sif.close,sif.i_cof3,1)

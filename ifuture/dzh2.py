@@ -679,7 +679,7 @@ class DynamicScheduler:
             mnum += 1
             #break  #测试短信用
         print u'\n计划发送 %s 条，成功发送 %s 条' % (mnum,successed)
-        if msum>0:
+        if mnum>0:
             pass
             win32api.MessageBox(0,u'请注意眼睛休息',u'提示',0x00001000L)
         return successed

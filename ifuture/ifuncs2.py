@@ -1045,19 +1045,22 @@ k3_u_b.priority = 2100
 
 def k3_d_a(sif,sopened = None):
     '''
-        下降, 该模式没用
+        下降
     '''
 
-    signal3 = gand(rollx(sif.high3,2) == tmax(sif.high3,12),
-                   sif.close3 <= rollx(sif.low3,3), 
-                   rollx(sif.low3)>rollx(sif.low3,3),
-                   rollx(sif.low3,2)>rollx(sif.low3,3),                   
+    signal3 = gand(rollx(sif.high3,1) == tmax(sif.high3,12),
+                   sif.close3 <= rollx(gmin(sif.open3,sif.close3),1)-10,    #下一个点
+                   sif.close3 < sif.open3 
                 )
 
     signal = dnext_cover(signal3,sif.close,sif.i_cof3,1)
 
 
     signal = gand(signal
+                    ,sif.r120 < 0
+                    ,sif.xatr < 1500
+                    ,sif.xatr30x < 12000
+                    ,sif.ma5 > sif.ma13 #说明跌的不迅猛
                 )
 
     return signal * k3_d_a.direction

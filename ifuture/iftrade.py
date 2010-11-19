@@ -434,7 +434,7 @@ def sync_tradess_pt(sif,tradess,acstrategy=late_strategy):
            
         #print trade.functor,fpriority(trade.functor) ,cur_trade.functor,fpriority(cur_trade.functor)
         #if fpriority(trade.functor) <= fpriority(cur_trade.functor) and (trade.actions[0].xfollow >= cur_trade.actions[0].xfollow):    #优先级优先且势优或平. 就是说优先级高但逆势也不能搞顺势，以及顺势低优也不能搞逆势
-        if trade.actions[0].xfollow >= cur_trade.actions[0].xfollow:
+        if trade.actions[0].xfollow >= cur_trade.actions[0].xfollow: #直接根据是否顺势判定是否平开，不根据优先级
         #if trade.actions[0].xfollow > cur_trade.actions[0].xfollow or (trade.actions[0].xfollow == cur_trade.actions[0].xfollow and fpriority(trade.functor) <= fpriority(cur_trade.functor)): 
             #print u'顺势搞逆势，或高/平优先级'   #后发的同优先级信号优先
             #print u'xfollow1:%s,xfollow2:%s,time1:%s' % (trade.actions[0].xfollow,cur_trade.actions[0].xfollow,sif.time[trade.actions[0].index])

@@ -1060,7 +1060,6 @@ def k3_d_a(sif,sopened = None):
                     ,sif.r120 < 0
                     ,sif.xatr < 1500
                     ,sif.xatr30x < 12000
-                    ,sif.ma5 > sif.ma13 #说明跌的不迅猛
                 )
 
     return signal * k3_d_a.direction

@@ -17,8 +17,10 @@
             ???
 
 
+    目测，上涨时xatr30x较大(可以大于12000)，下跌过程中较小?
+
 收盘操作:
-    如果到收盘的时候还有持仓，就把平仓的下限条件单开在15:00价格的上下3点上
+    如果到收盘的时候还有持仓，就把平仓的下限条件单开在15:00价格的上下6点上
         上限条件单开在前15分钟最高/低点
         假定15:00的价格为A, 14:45-15:00的最高价为P，最低价为B
     如果是持买仓:
@@ -28,6 +30,11 @@
         则上限条件单为 价格高于等于A+3，则以A+4买入评仓
         下限条件单位为 价格低于等于B，则以B+1买入平仓
         
+
+这里没有解决的是:
+    当逆势信号发出，而存在顺势或不明持仓，但随后持仓破掉，同时还在逆势的可追期时，要如何用程序来识别
+        实际操作上是追
+    同样，不明信号对顺势也是如此
 
 
 '''
@@ -130,6 +137,7 @@ def da_cover(sif,sopened=None):
                   ,sif.mxadtr30x > sif.mxautr30x
                   ,sif.xatr<3600
                   ,sif.xatr30x<15000
+                  ,sif.diff1<0  #以强为主
                 )
     
     signal = np.select([sif.time>944],[signal],0)
@@ -250,13 +258,13 @@ def ua_cover(sif,sopened=None):
 
     signal_ua = gand(sif.close >= UA
                     )
-
     signal = gand(signal_ua
                   ,sif.sdma>0
                   ,sif.xstate>0
                   ,sif.s30>0
                   ,sif.xatr15x < 7500
                   ,sif.strend>0
+                  ,sif.diff1>0  #以强为主
                 )
 
     signal = np.select([sif.time>944],[signal],0)
@@ -1048,23 +1056,24 @@ def k3_d_a(sif,sopened = None):
         下降
     '''
 
-    signal3 = gand(rollx(sif.high3,1) == tmax(sif.high3,12),
-                   sif.close3 <= rollx(gmin(sif.open3,sif.close3),1)-10,    #下一个点
-                   sif.close3 < sif.open3 
+    signal3 = gand(rollx(sif.high3,1) == tmax(sif.high3,10),
+                   sif.close3 <= rollx(gmin(sif.open3,sif.close3),1),    #下一个点
                 )
 
     signal = dnext_cover(signal3,sif.close,sif.i_cof3,1)
 
 
     signal = gand(signal
-                    ,sif.r120 < 0
-                    ,sif.xatr < 1500
-                    ,sif.xatr30x < 12000
+                    ,sif.xatr < 2000
+                    ,sif.ltrend<0
+                    ,sif.ma13<sif.dma
                 )
 
     return signal * k3_d_a.direction
 k3_d_a.direction = XSELL
 k3_d_a.priority = 2100 
+
+
 
 def k1_u_a(sif,sopened = None):
     '''
@@ -1700,6 +1709,28 @@ def duub(sif,sopened=None):
 duub.direction = XBUY
 duub.priority = 1500
 
+def dduub(sif,sopened=None):
+    '''
+    '''
+    signal = gand(rollx(sif.close,3) < rollx(sif.close,4)
+                ,rollx(sif.close,2) < rollx(sif.close,3)
+                ,rollx(sif.close,1) > rollx(sif.close,2)
+                ,sif.close > rollx(sif.close)
+                ,rollx(sif.low,2) == tmin(sif.low,8)
+                )
+    signal = gand(signal
+                ,sif.xatr > 1000
+                ,sif.sdma>0
+                ,sif.close < sif.ma20
+                ,sif.s5>0
+            )
+
+    return signal * dduub.direction
+dduub.direction = XBUY
+dduub.priority = 1500
+dduub.filter = iftrade.ocfilter_k1s
+
+
 def dduuds(sif,sopened=None):
     '''
         两下两上下
@@ -2013,6 +2044,7 @@ k5_u_b.filter = iftrade.ocfilter
 
 k3_u_a.filter = iftrade.socfilter_k1s
 k3_u_b.filter = iftrade.socfilter_k1s
+k3_d_a.filter = iftrade.nsocfilter_k1s
 
 k1_u_a.filter = iftrade.ocfilter
 
@@ -2101,6 +2133,7 @@ xxx_against = [
 
             k3_u_a,
             k3_u_b,
+            k3_d_a,
 
             k1_u_a,
 
@@ -2166,6 +2199,8 @@ xxx_k1s =   [
             diiiids,
             ddxs,
             ddxs2,
+
+            dduub,
         ]
 
 for x in xxx_k1s:

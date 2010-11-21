@@ -29,7 +29,11 @@
     如果是持卖仓:
         则上限条件单为 价格高于等于A+3，则以A+4买入评仓
         下限条件单位为 价格低于等于B，则以B+1买入平仓
-        
+ 
+换月:
+    一周内换月，以持仓量或交易量之一超越之次日为切换日
+    一周外换月，以持仓量或交易量均超越之次日为切换日
+
 
 这里没有解决的是:
     当逆势信号发出，而存在顺势或不明持仓，但随后持仓破掉，同时还在逆势的可追期时，要如何用程序来识别
@@ -1816,7 +1820,7 @@ def uuds(sif,sopened=None):
                 ,sif.xatr30x < sif.mxatr30x
                 ,sif.xatr > sif.mxatr
                 ,strend2(sif.mxatr30x)<0
-                ,sif.xatr < 1100
+                ,sif.xatr < 1200
                 ,sif.r30 < 0
                 ,sif.r120<0
             )
@@ -1824,6 +1828,33 @@ def uuds(sif,sopened=None):
     return signal * uuds.direction
 uuds.direction = XSELL
 uuds.priority = 1500
+
+def uuds2(sif,sopened=None):
+    '''
+        两上下
+    '''
+    signal = gand(
+                rollx(sif.close,2) > rollx(sif.close,3)
+                ,rollx(sif.close,1) > rollx(sif.close,2)
+                ,sif.close < rollx(sif.close)
+                ,sif.close < rollx(sif.close,3)
+                )
+    signal = gand(signal
+                ,sif.r120 < 0
+                ,sif.r60<0
+                ,sif.r13<0
+                ,strend2(sif.ma60)<0
+                ,sif.sdiff30x < 0
+                ,sif.xatr30x < 12000
+                ,sif.xatr > 1200
+                ,strend2(sif.mxatr30x)<0
+            )
+
+    return signal * uuds2.direction
+uuds2.direction = XSELL
+uuds2.priority = 1500
+uuds2.filter = iftrade.ocfilter
+
 
 def diiiiub(sif,sopened=None):
     '''
@@ -2133,6 +2164,7 @@ xxx_against = [
 
             k3_u_a,
             k3_u_b,
+            
             k3_d_a,
 
             k1_u_a,
@@ -2191,6 +2223,7 @@ xxx_k1s =   [
             duuuds,
             ddduuds,
             uuds,
+            uuds2,
             #diiiiub,
             diiiub,
             diiub,

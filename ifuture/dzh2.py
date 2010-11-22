@@ -369,7 +369,7 @@ class SecReader:
         wf.write('\n')
         for record in mrecords:
             #wf.write('%s-%s:%s-%s,%s-%s\n'%(record.date,record.time,record.open,record.close,record.high,record.low))
-            wf.write('%s/%s/%s,%s:%s,%s,%s,%s,%s,%s,%s\n' % (record.date/10000,record.date/100%100,record.date%100,record.time/100,record.time%100,record.open,record.high,record.low,record.close,record.vol,record.holding))
+            wf.write('%s/%02d/%02d,%s:%02d,%s,%s,%s,%s,%s,%s\n' % (record.date/10000,record.date/100%100,record.date%100,record.time/100,record.time%100,record.open,record.high,record.low,record.close,record.vol,record.holding))
         wf.close()
 
     @staticmethod
@@ -573,7 +573,7 @@ class DynamicScheduler:
                 self.check_signal()
             else:
                 linelog(u'无当日动态数据')
-            time.sleep(15)    #计算需要10秒，因此总延迟15秒
+            time.sleep(9)    #计算需要10秒，因此总延迟19秒
 
     def prepare_data(self):
         '''
@@ -626,6 +626,10 @@ class DynamicScheduler:
         #    print 'actions[1]:',action1.xtype,action1.date,action1.time,action1.price
         #    print 'actions[2]:',action2.xtype,action2.date,action2.time,action2.price
         #    action.xtype = XOPEN
+        xlog = open('d:/temp/actions.txt','w+')
+        for xa in xactions[-10:]:
+            print >> xlog,xa.date,xa.time,xa.xtype
+        xlog.close()
         for action in xactions:
             if action.xtype == XOPEN and (action.date > dyn_data.last_checked_date 
                         or (action.date == dyn_data.last_checked_date and action.time > dyn_data.last_checked_time)):
@@ -635,6 +639,7 @@ class DynamicScheduler:
                 sms_actions.append(action)
         dyn_data.last_checked_date = xactions[0].date
         dyn_data.last_checked_time = xactions[0].time
+        #print 'check time:',dyn_data.last_checked_time
         return sms_actions        
 
     def inform(self,name,sms_actions,sms_begin):

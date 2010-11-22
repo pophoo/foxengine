@@ -1509,6 +1509,8 @@ def devi_u_a(sif,sopened=None):
             ,sif.xatr<sif.mxatr
             ,sif.xatr > 1200
             ,sif.xatr30x < 12000
+            ,sif.r120<0
+            ,sif.s3 < 0
            )
 
     return signal * devi_u_a.direction

@@ -626,9 +626,14 @@ class DynamicScheduler:
         #    print 'actions[1]:',action1.xtype,action1.date,action1.time,action1.price
         #    print 'actions[2]:',action2.xtype,action2.date,action2.time,action2.price
         #    action.xtype = XOPEN
-        xlog = open('d:/temp/actions.txt','w+')
-        for xa in xactions[-10:]:
-            print >> xlog,xa.date,xa.time,xa.xtype
+        cdate = sif.transaction[IDATE][-1]
+        ctime = sif.transaction[ITIME][-1]
+        xlog = open('d:/temp/actions.txt','a+')
+
+        print >>xlog,'\n',cdate,ctime,':'
+        for xa in xactions[:10]:
+            if xa.date == cdate:
+                print >> xlog,'\t',xa.date,xa.time,xa.xtype
         xlog.close()
         for action in xactions:
             if action.xtype == XOPEN and (action.date > dyn_data.last_checked_date 

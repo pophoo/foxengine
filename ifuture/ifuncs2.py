@@ -1878,7 +1878,7 @@ def ddds(sif,sopened=None):
                 rollx(sif.close,2) < rollx(sif.open,2)
                 ,rollx(sif.close,1) < rollx(sif.open,1)
                 ,sif.close < sif.open
-                ,sif.close < rollx(sif.open,2)
+                #,sif.close < rollx(sif.open,2)
                 )
     signal = gand(signal
                 ,sif.xatr30x < sif.mxatr30x
@@ -1895,6 +1895,31 @@ def ddds(sif,sopened=None):
 ddds.direction = XSELL
 ddds.priority = 1500
 
+def ddds1(sif,sopened=None):
+    '''
+        三连阴   
+    '''
+    signal = gand(
+                rollx(sif.close,2) < rollx(sif.open,2)
+                ,rollx(sif.close,1) < rollx(sif.open,1)
+                ,sif.close < sif.open
+                #,sif.close < rollx(sif.open,2)
+                )
+    signal = gand(signal
+                ,sif.xatr30x > sif.mxatr30x
+                ,sif.xatr > sif.mxatr
+                ,strend2(sif.mxatr30x)<0
+                ,sif.xatr < 1800
+                ,sif.r60 < 0
+                ,sif.r120<0
+                ,strend2(sif.ma60)<0
+                ,sif.r30<0
+            )
+
+    return signal * ddds1.direction
+ddds1.direction = XSELL
+ddds1.priority = 1500
+
 def ddds2(sif,sopened=None):
     '''
         三连阴   
@@ -1903,10 +1928,10 @@ def ddds2(sif,sopened=None):
                 rollx(sif.close,2) < rollx(sif.open,2)
                 ,rollx(sif.close,1) < rollx(sif.open,1)
                 ,sif.close < sif.open
-                ,sif.close < rollx(sif.open,2)
+                ,sif.close < rollx(sif.low,2)
                 )
     signal = gand(signal
-                #,sif.xatr30x < sif.mxatr30x
+                #,sif.xatr30x > sif.mxatr30x
                 ,sif.xatr > sif.mxatr
                 ,strend2(sif.mxatr30x)<0
                 ,sif.xatr < 1000
@@ -1919,6 +1944,37 @@ def ddds2(sif,sopened=None):
     return signal * ddds2.direction
 ddds2.direction = XSELL
 ddds2.priority = 1500
+
+
+
+def uxuub(sif,sopened=None):
+    '''
+        三连阴   
+    '''
+    signal = gand(
+                rollx(sif.close,3) > rollx(sif.open,3)
+                ,rollx(sif.close,1) > rollx(sif.open,1)
+                ,sif.close > sif.open
+                #,sif.low > rollx(sif.low)
+                #,rollx(sif.low) > rollx(sif.low,2)
+                )
+    signal = gand(signal
+                ,sif.r7<0
+                ,sif.r30 < 0
+                ,sif.r120<0
+                ,sif.xatr > 1200
+                ,sif.xatr < 2400
+                ,sif.xatr30x < 12000
+                ,strend2(sif.mxatr)>0
+                ,sif.xatr < sif.mxatr
+                ,sif.close < sif.dma
+                ,sif.sdma<0
+                ,sif.s1 > 0
+            )
+
+    return signal * uxuub.direction
+uxuub.direction = XBUY
+uxuub.priority = 1500
 
 def uuds2(sif,sopened=None):
     '''
@@ -2213,7 +2269,10 @@ ddxs.filter = iftrade.ocfilter_orb
 ddxs2.filter = iftrade.ocfilter_orb
 
 ddds.filter = iftrade.ocfilter
+ddds1.filter = iftrade.ocfilter
 ddds2.filter = iftrade.ocfilter
+uxuub.filter = iftrade.socfilter
+
 
 #k5_d_c.stop_closer = iftrade.atr5_uxstop_t_08_25_B2
 
@@ -2330,7 +2389,10 @@ xxx_k1s =   [
 
             dduub,
             ddds,
+            ddds1,
             ddds2,
+
+            uxuub,
         ]
 
 for x in xxx_k1s:

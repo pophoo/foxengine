@@ -1949,11 +1949,37 @@ ddds2.priority = 1500
 
 def uxuub(sif,sopened=None):
     '''
-        三连阴   
+        抄底策略
     '''
     signal = gand(
                 rollx(sif.close,3) > rollx(sif.open,3)
                 ,rollx(sif.close,1) > rollx(sif.open,1)
+                ,sif.close > sif.open
+                )
+    signal = gand(signal
+                ,sif.r7<0
+                ,sif.r30 < 0
+                ,sif.r120<0
+                ,sif.xatr > 1200
+                ,sif.xatr < 2400
+                ,sif.xatr30x < 12000
+                ,strend2(sif.mxatr)>0
+                ,sif.xatr < sif.mxatr
+                ,sif.close < sif.dma
+                ,sif.s1 > 0
+            )
+
+    return signal * uxuub.direction
+uxuub.direction = XBUY
+uxuub.priority = 1500
+
+def uuxub(sif,sopened=None):
+    '''
+        抄底策略,没用
+    '''
+    signal = gand(
+                rollx(sif.close,3) > rollx(sif.open,3)
+                ,rollx(sif.close,2) > rollx(sif.open,2)
                 ,sif.close > sif.open
                 #,sif.low > rollx(sif.low)
                 #,rollx(sif.low) > rollx(sif.low,2)
@@ -1972,9 +1998,10 @@ def uxuub(sif,sopened=None):
                 ,sif.s1 > 0
             )
 
-    return signal * uxuub.direction
-uxuub.direction = XBUY
-uxuub.priority = 1500
+    return signal * uuxub.direction
+uuxub.direction = XBUY
+uuxub.priority = 1500
+
 
 def uuds2(sif,sopened=None):
     '''
@@ -2271,8 +2298,7 @@ ddxs2.filter = iftrade.ocfilter_orb
 ddds.filter = iftrade.ocfilter
 ddds1.filter = iftrade.ocfilter
 ddds2.filter = iftrade.ocfilter
-uxuub.filter = iftrade.socfilter
-
+uxuub.filter = iftrade.socfilter_k1s
 
 #k5_d_c.stop_closer = iftrade.atr5_uxstop_t_08_25_B2
 

@@ -674,8 +674,8 @@ def k10_d_a(sif,sopened=None):
     '''
     
     signal10 = gand(
-                rollx(sif.high10,1) > rollx(sif.high10,2)
-                ,rollx(sif.high10,1) > sif.high10
+                rollx(sif.high10,1) >= rollx(sif.high10,2)
+                ,rollx(sif.high10,1) >= sif.high10
                 ,rollx(sif.high10,1) == tmax(sif.high10,4)
                 )
 
@@ -693,11 +693,50 @@ def k10_d_a(sif,sopened=None):
             ,sif.mtrend>0   #说明是顶，不是途中
             ,sif.r60<0
             )
+    signal = np.select([sif.time>944],[signal],0)    
     signal = derepeatc(signal)
 
     return signal * k10_d_a.direction
 k10_d_a.direction = XSELL
 k10_d_a.priority = 2100 
+
+def k10_d_a2(sif,sopened=None):
+    '''
+        10分钟调整模式
+        这里最强的筛选条件是 xatr30x>8000
+        说明震荡非常大. 通常是顶部震荡
+        适合振荡期 nsocfilter
+    '''
+    
+    signal10 = gand(
+                rollx(sif.high10,1) >= rollx(sif.high10,2)
+                ,rollx(sif.high10,1) >= sif.high10
+                ,rollx(sif.high10,1) == tmax(sif.high10,4)
+                )
+
+    print signal10[-30:]
+
+    delay = 30
+    
+    bline10 = rollx(gmin(sif.open10,sif.close10),1)
+    bline = dnext_cover(np.select([signal10>0],[bline10],[0]),sif.close,sif.i_cof10,delay)
+
+    signal = sif.close < bline
+
+    signal = gand(signal
+            ,sif.xatr<1666
+            ,sif.xatr30x > 8000
+            ,strend2(sif.mxatr)>0
+            ,sif.mtrend>0   #说明是顶，不是途中
+            ,sif.r60<0
+            )
+    signal = np.select([sif.time>944],[signal],0)
+    signal = derepeatc(signal)
+
+    return signal * k10_d_a2.direction
+k10_d_a2.direction = XSELL
+k10_d_a2.priority = 2100 
+
 
 def k10_u_a(sif,sopened=None):
     '''
@@ -2066,6 +2105,7 @@ k15_d_y.filter = iftrade.ocfilter
 k15_d_z.filter = iftrade.ocfilter
 k15_u_a.filter = iftrade.ocfilter
 k10_d_a.filter = iftrade.nsocfilter
+k10_d_a2.filter = iftrade.nsocfilter
 k10_u_a.filter = iftrade.socfilter
 k5_d_a.filter = iftrade.nsocfilter
 k5_d_b.filter = iftrade.ocfilter

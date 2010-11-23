@@ -1870,6 +1870,56 @@ def uuds(sif,sopened=None):
 uuds.direction = XSELL
 uuds.priority = 1500
 
+def ddds(sif,sopened=None):
+    '''
+        三连阴   
+    '''
+    signal = gand(
+                rollx(sif.close,2) < rollx(sif.open,2)
+                ,rollx(sif.close,1) < rollx(sif.open,1)
+                ,sif.close < sif.open
+                ,sif.close < rollx(sif.open,2)
+                )
+    signal = gand(signal
+                ,sif.xatr30x < sif.mxatr30x
+                ,sif.xatr < sif.mxatr
+                ,strend2(sif.mxatr30x)<0
+                ,sif.xatr > 1500
+                #,sif.r60 < 0
+                ,sif.r120<0
+                ,strend2(sif.ma60)<0
+                #,sif.sdma<0
+            )
+
+    return signal * ddds.direction
+ddds.direction = XSELL
+ddds.priority = 1500
+
+def ddds2(sif,sopened=None):
+    '''
+        三连阴   
+    '''
+    signal = gand(
+                rollx(sif.close,2) < rollx(sif.open,2)
+                ,rollx(sif.close,1) < rollx(sif.open,1)
+                ,sif.close < sif.open
+                ,sif.close < rollx(sif.open,2)
+                )
+    signal = gand(signal
+                #,sif.xatr30x < sif.mxatr30x
+                ,sif.xatr > sif.mxatr
+                ,strend2(sif.mxatr30x)<0
+                ,sif.xatr < 1000
+                ,sif.r60 < 0
+                ,sif.r120<0
+                ,strend2(sif.ma60)<0
+                ,sif.r30<0
+            )
+
+    return signal * ddds2.direction
+ddds2.direction = XSELL
+ddds2.priority = 1500
+
 def uuds2(sif,sopened=None):
     '''
         两上下
@@ -2162,6 +2212,9 @@ diiiids.filter = iftrade.ocfilter
 ddxs.filter = iftrade.ocfilter_orb
 ddxs2.filter = iftrade.ocfilter_orb
 
+ddds.filter = iftrade.ocfilter
+ddds2.filter = iftrade.ocfilter
+
 #k5_d_c.stop_closer = iftrade.atr5_uxstop_t_08_25_B2
 
 ###集合
@@ -2276,6 +2329,8 @@ xxx_k1s =   [
             ddxs2,
 
             dduub,
+            ddds,
+            ddds2,
         ]
 
 for x in xxx_k1s:

@@ -392,10 +392,10 @@ def sync_tradess(sif,tradess,acstrategy=late_strategy):
 def aprofit(action,xprice):#计算当前利润
     #print action.price
     if action.position == LONG:
-        #print 'bprofit:',xprice - action.price,xprice,action.price
+        print 'bprofit:',xprice - action.price,xprice,action.price
         return xprice - action.price
     else:
-        #print 'sprofit:',action.price - xprice,xprice,action.price
+        print 'sprofit:',action.price - xprice,xprice,action.price
         return action.price - xprice
 
 def sync_tradess_pt(sif,tradess,acstrategy=late_strategy):
@@ -442,17 +442,34 @@ def sync_tradess_pt(sif,tradess,acstrategy=late_strategy):
             trade.open_action = trade.actions[0]
             continue
            
+        #print trade.functor,fpriority(trade.functor) ,cur_trade.functor,fpriority(cur_trade.functor)
+        #if fpriority(trade.functor) <= fpriority(cur_trade.functor) and (trade.actions[0].xfollow >= cur_trade.actions[0].xfollow):    #优先级优先且势优或平. 就是说优先级高但逆势也不能搞顺势，以及顺势低优也不能搞逆势
+        
         #if trade.actions[0].xfollow >= cur_trade.actions[0].xfollow:#直接根据是否顺势判定是否平开，不根据优先级
-        if aprofit(cur_trade.open_action,sclose[trade.actions[0].index]) < 600:
+        
+        if trade.actions[0].xfollow >= cur_trade.actions[0].xfollow or aprofit(trade.actions[0],sclose[trade.actions[0].index]) < 600:#低利润者被取代及直接根据是否顺势判定是否平开，不根据优先级
+        #if trade.actions[0].xfollow >= 0:
+        #if trade.direction != cur_trade.direction:
+        #if aprofit(cur_trade.open_action,sclose[trade.actions[0].index)>20:
+        #    print '\n\txxxx:',aprofit(cur_trade.open_action,sclose[trade.actions[0].index]),sif.date[cur_trade.open_action.index],sif.time[cur_trade.open_action.index],cur_trade.orignal,'--',trade.functor
+        #if aprofit(cur_trade.open_action,sclose[trade.actions[0].index]) < 600:
+        #if trade.actions[0].xfollow > cur_trade.actions[0].xfollow or (trade.actions[0].xfollow == cur_trade.actions[0].xfollow and fpriority(trade.functor) <= fpriority(cur_trade.functor)): 
+            #print u'顺势搞逆势，或高/平优先级'   #后发的同优先级信号优先
+            #print u'xfollow1:%s,xfollow2:%s,time1:%s' % (trade.actions[0].xfollow,cur_trade.actions[0].xfollow,sif.time[trade.actions[0].index])
+            #print '\n\txxxx:',aprofit(cur_trade.open_action,sclose[trade.actions[0].index]),sif.date[cur_trade.open_action.index],sif.time[cur_trade.open_action.index],func_name(cur_trade.orignal),'--',func_name(trade.functor)
+            
             if trade.direction == cur_trade.direction:  #同向取代关系
                 #print u'同向增强,%s|%s:%s被%s增强'%(cur_trade.functor,cur_trade.actions[0].date,cur_trade.actions[0].time,trade.functor)
+                #print '\n\txxxx:',aprofit(cur_trade.open_action,sclose[trade.actions[0].index]),sif.date[cur_trade.open_action.index],sif.time[cur_trade.open_action.index],func_name(cur_trade.orignal),'--',func_name(trade.functor)
+                
                 close_action = acstrategy(close_action,trade.actions[-1])
                 extended.append(cur_trade)
                 trade.orignal = cur_trade.orignal
                 trade.open_action = cur_trade.open_action
                 cur_trade = trade
             else:   #逆向平仓
-                #print u'\n\t逆向平仓:',aprofit(cur_trade.open_action,sclose[trade.actions[0].index]),sif.date[cur_trade.open_action.index],sif.time[cur_trade.open_action.index],func_name(cur_trade.orignal),'--',func_name(trade.functor)
+                #print u'逆向平仓'
+                print u'\n\t逆向平仓:',aprofit(cur_trade.open_action,sclose[trade.actions[0].index]),sif.date[cur_trade.open_action.index],sif.time[cur_trade.open_action.index],func_name(cur_trade.orignal),'--',func_name(trade.functor)
                 reversed.append(trade)
                 xindex = reversed[0].actions[0].index
                 cposition = BaseObject(index=xindex,date=sdate[xindex],time=stime[xindex],position=reversed[0].direction,xtype=XCLOSE)    #因为已经抑制了1514开仓,必然不会溢出
@@ -638,9 +655,8 @@ def itradex(sif     #期指
 itradez = fcustom(itradex,longfilter = state_oc_filter,shortfilter = state_oc_filter)
 
 def close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed,calc_profit=normal_profit):
-    #open_action = extended[0].actions[0] if extended else cur_trade.actions[0]
-    #trade = BaseObject(actions=[open_action,close_action])
-    trade = BaseObject(actions=[cur_trade.open_action,close_action])
+    open_action = extended[0].actions[0] if extended else cur_trade.actions[0]
+    trade = BaseObject(actions=[open_action,close_action])
     trade.profit = calc_profit(trade.actions)
     trade.extended = extended
     trade.filtered = filtered

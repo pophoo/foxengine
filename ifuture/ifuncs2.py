@@ -1929,6 +1929,63 @@ xdds2.direction = XSELL
 xdds2.priority = 1500
 xdds2.filter = iftrade.ocfilter_orb
 
+def xds(sif,sopened=None):
+    '''
+       一根阴线下, 新高附近,但创新高
+    '''
+    signal = gand(
+                sif.close < rollx(sif.close),
+                sif.close < sif.open,
+            )
+    signal = gand(signal
+                ,sif.close < rollx(tmin(sif.low,30))
+                ,tmax(sif.high,10) > tmax(sif.high,30) - 30
+                ,sif.r120<0
+                ,sif.s3<0
+                ,sif.s1<0
+                ,sif.r60<0
+                ,sif.xatr > sif.mxatr
+                ,strend2(sif.mxatr30x)<0
+                ,sif.xatr30x < sif.mxatr30x
+            )
+
+
+    signal = derepeatc(signal)
+
+    return signal * xds.direction
+xds.direction = XSELL
+xds.priority = 1500
+xds.filter = iftrade.ocfilter_orb
+
+def xub(sif,sopened=None):
+    '''
+       一根阳线上, 新低附近
+    '''
+    signal = gand(
+                sif.close > rollx(sif.close),
+                sif.close > sif.open,
+            )
+    signal = gand(signal
+                ,sif.close > rollx(tmax(sif.high,30))
+                ,tmin(sif.low,10) < tmin(sif.low,30) + 20
+                ,sif.s30>0
+                ,sif.s3>0
+                ,sif.diff1>0
+                ,sif.xatr > sif.mxatr
+                ,sif.xatr > 1200
+                ,sif.r120>0
+                ,sif.r60>0
+            )
+
+
+    signal = derepeatc(signal)
+
+    return signal * xub.direction
+xub.direction = XBUY
+xub.priority = 1500
+xub.filter = iftrade.ocfilter_orb
+
+
 def dduub(sif,sopened=None):
     '''
     '''
@@ -2601,6 +2658,7 @@ xxx_k1s =   [
             xuub2,
             xdds,
             xdds2,
+            xds,
         ]
 
 for x in xxx_k1s:

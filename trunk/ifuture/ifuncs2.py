@@ -2654,6 +2654,13 @@ xxx_k1s =   [
             ddds2,
 
             uxuub,
+        ]
+for x in xxx_k1s:
+    pass
+    #x.stop_closer = iftrade.atr5_uxstop_k_180
+    #x.stop_closer = iftrade.atr5_uxstop_t_08_25_B2
+
+xxx_orb = [ #早期突破
             xuub,
             xuub2,
             xdds,
@@ -2661,7 +2668,7 @@ xxx_k1s =   [
             xds,
         ]
 
-for x in xxx_k1s:
+for x in xxx_orb:
     pass
     #x.stop_closer = iftrade.atr5_uxstop_k_180
     #x.stop_closer = iftrade.atr5_uxstop_t_08_25_B2
@@ -2675,7 +2682,7 @@ for x in ifuncs2a.k1s + ifuncs2a.k1s2 + ifuncs2a.xorb:
     x.cstoper = iftrade.FBASE_30  #初始止损,目前只在动态显示时用
     
 
-xxx = xxx_trend + xxx_break + xxx_against + xxx_follow + xxx_k1s
+xxx = xxx_trend + xxx_break + xxx_against + xxx_follow + xxx_k1s + xxx_orb
 xxx1 = xxx
 xxx2 = xxx1  #+ ifuncs2a.xevs#+ ifuncs2a.xorb
 xxx3 = xxx1+ ifuncs2a.k1s + ifuncs2a.k1s2 + ifuncs2a.xorb

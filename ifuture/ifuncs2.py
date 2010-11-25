@@ -285,7 +285,7 @@ def ua_cover(sif,sopened=None):
     UA,DA,xhigh10,xlow10 = range_a(sif,914,929,wave)
 
     signal_ua = gand(sif.close >= UA
-                    )
+                )
     signal = gand(signal_ua
                   ,sif.sdma>0
                   ,sif.xstate>0
@@ -295,7 +295,7 @@ def ua_cover(sif,sopened=None):
                   ,sif.diff1>0  #以强为主
                 )
 
-    signal = np.select([gand(sif.time>944,sif.time<1455)],[signal],0)
+    signal = np.select([gand(sif.time>944,sif.time<1430)],[signal],0)
 
     return signal * ua_cover.direction
 ua_cover.direction = XBUY
@@ -313,6 +313,7 @@ def ua_s5(sif,sopened=None):
     UA,DA,xhigh10,xlow10 = range_a(sif,914,944,wave)
 
     signal_ua = gand(sif.close >= UA
+                    ,sif.close - rollx(sif.close,5)<120
                     )
 
     signal = gand(signal_ua

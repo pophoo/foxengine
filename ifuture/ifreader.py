@@ -860,7 +860,9 @@ def prepare_index(sif):
     #m15 = dnext(strend2(ma(sif.close15,54)),sif.close,sif.i_cof15)
     #m10 = dnext(strend2(ma(sif.close10,81)),sif.close,sif.i_cof10)  #3日为趋势判断周期
     #m10 = dnext(strend2(ma(sif.close10,40)),sif.close,sif.i_cof10)  #3日为趋势判断周期
-    m5 = dnext(strend2(ma(sif.close5,80)),sif.close,sif.i_cof5)
+    #m5 = dnext(strend2(ma(sif.close5,80)),sif.close,sif.i_cof5)
+    #m5 = dnext(strend2(ma(sif.close5,30)),sif.close,sif.i_cof5)
+    m5 = dnext(strend2(ma(sif.close5,120)),sif.close,sif.i_cof5)    #两天+1小时作为长期趋势
     #sif.xtrend = np.select([m5>0],[1],-1)
     sif.xtrend = m5
     sif.sxtrend = np.select([sif.xtrend>0,sif.xtrend<0],[1,-1],0)
@@ -873,6 +875,9 @@ def prepare_index(sif):
     sif.macd60x = sif.diff60x-sif.dea60x    
     sif.macd45x = sif.diff45x-sif.dea45x
     sif.macd90x = sif.diff90x-sif.dea90x    
+
+    sif.rsi7 = rsi2(sif.close,7)
+    sif.rsi19 = rsi2(sif.close,19)
 
     #xup/xdown
     sup,sdown = xupdownc(sif.open,sif.close,sif.high,sif.low)
@@ -920,9 +925,12 @@ def prepare_index(sif):
     sif.dema = cexpma_s(sif.close,ddi,26)   #没啥用处，变化太快
     sif.sdema = strend2(sif.dema)
     
+
+
     #sif.xstate = np.select([gand(sif.xtrend>0,sif.sdma>3),gand(sif.xtrend<0,sif.sdma<-3)],[1,-1],default=0)
     #对下降更有容忍度
     sif.xstate = np.select([gand(sif.xtrend>5,sif.sdma>15),gand(sif.xtrend<10,sif.sdma<-7)],[1,-1],default=0)
+    #sif.xstate = np.select([gand(sif.xtrend>0,sif.sdma>0),gand(sif.xtrend<0,sif.sdma<0)],[1,-1],default=0)
     #在xstate=0的时期，效果比较差
 
 

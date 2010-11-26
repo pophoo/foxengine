@@ -9,6 +9,16 @@
 其中，趋势不明确时以保守做法，较为可取
 
 #######
+术语规定:
+u: 上升
+v: 吞没前一个实体的高点
+w: 上升新高
+
+d: 下跌
+e: 吞没前一个实体的低点
+f: 下跌新低
+
+#######
 小结：
     牛市中，mxatr30x是逐级放大的
             xatr也很大
@@ -18,6 +28,8 @@
 
 
     目测，上涨时xatr30x较大(可以大于12000)，下跌过程中较小?
+
+    震荡策略，xatr30x不能太大，否则容易被秒
 
 收盘操作:
     如果到收盘的时候还有持仓，就把平仓的下限条件单开在15:00价格的上下6点上
@@ -46,6 +58,29 @@
 
 from wolfox.fengine.ifuture.ibase import *
 import wolfox.fengine.ifuture.iftrade as iftrade
+
+
+def nhd(sif,sopened=None):
+    signal = gand(rollx(sif.close)<rollx(sif.close,2)
+                ,sif.close < rollx(sif.close)
+                ,rollx(sif.close) - sif.close >= 30
+                ,sif.close < sif.open
+                ,rollx(sif.close) < rollx(sif.open)
+            )
+    signal = gand(signal
+                ,strend2(sif.ma13)<0
+                ,strend2(sif.ma20)<0
+                ,sif.s30< 0
+                ,sif.s5<0
+                ,sif.s1<0
+                ,sif.xatr < 2000
+                ,sif.xatr30x < 10000
+                ,sif.r13<0
+                ,strend2(sif.ma13 - sif.ma30)<0 #差距扩大中
+            )
+    return signal * nhd.direction
+nhd.direction = XSELL
+nhd.priority = 1200
 
 
 def da_m30(sif,sopened=None):
@@ -1166,6 +1201,40 @@ k3_d_a.direction = XSELL
 k3_d_a.priority = 2100 
 
 
+def k3_d_b(sif,sopened=None):
+    '''
+        孕线后击穿下轨
+    '''
+    signal3 = gand(
+                sif.high3 < rollx(sif.high3)
+                ,sif.low3 > rollx(sif.low3)
+                ,rollx(sif.close3) > rollx(sif.open3)
+             )
+
+    delay = 6
+
+    bline3 = sif.low3#gmin(sif.open3,sif.close3)
+    bline = dnext_cover(np.select([signal3>0],[bline3],[0]),sif.close,sif.i_cof3,delay)
+
+    signal = sif.close < bline #-100
+
+    signal = gand(signal
+            ,tmax(sif.high,10) == sif.dhigh
+            ,sif.xatr30x < sif.mxatr30x
+            ,sif.xatr30x<12000
+            ,sif.r120>0
+            ,sif.t120<0
+           )
+
+    signal = np.select([sif.time>944],[signal],0)
+
+    signal = derepeatc(signal)
+
+    return signal * k3_d_b.direction
+k3_d_b.direction = XSELL
+k3_d_b.priority = 2100
+k3_d_b.filter = iftrade.socfilter_k1s
+
 
 def k1_u_a(sif,sopened = None):
     '''
@@ -1248,8 +1317,10 @@ def rsi_u_a(sif,sopened=None,rshort=7,rlong=19):
         计算创当日新高后，从暴力起涨点算起回撤不到40%，然后再上升
         要求在上涨途中，即30分钟的120线向上
     '''
-    rsia = rsi2(sif.close,rshort)   #7,19/13,41
-    rsib = rsi2(sif.close,rlong)
+    
+    rsia = sif.rsi7 if rshort == 7 else rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = sif.rsi19 if rlong==19 else rsi2(sif.close,rlong)
+
     #signal = cross(rsib,rsia)>0    
     signal = gand(cross(rsib,rsia)>0,strend2(rsia)>0)
 
@@ -1275,8 +1346,9 @@ def rsi_u_b(sif,sopened=None,rshort=7,rlong=19):
         计算创当日新高后，从暴力起涨点算起回撤不到40%，然后再上升
         要求在上涨途中，即30分钟的120线向上
     '''
-    rsia = rsi2(sif.close,rshort)   #7,19/13,41
-    rsib = rsi2(sif.close,rlong)
+    rsia = sif.rsi7 if rshort == 7 else rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = sif.rsi19 if rlong==19 else rsi2(sif.close,rlong)
+    
     #signal = cross(rsib,rsia)>0    
     signal = gand(cross(rsib,rsia)>0,strend2(rsia)>0)
 
@@ -1302,8 +1374,9 @@ def rsi_d_a(sif,sopened=None,rshort=7,rlong=19):
         要求在下降途中，即30分钟的120线向下
         与上涨不同的是，下跌一半比较墨迹，所以容易缩量
     '''
-    rsia = rsi2(sif.close,rshort)   #7,19/13,41
-    rsib = rsi2(sif.close,rlong)
+    rsia = sif.rsi7 if rshort == 7 else rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = sif.rsi19 if rlong==19 else rsi2(sif.close,rlong)
+    
     #signal = cross(rsib,rsia)>0    
     signal = gand(cross(rsib,rsia)>0,strend2(rsia)>0)
 
@@ -1327,8 +1400,8 @@ def rsi_u_c(sif,sopened=None,rshort=7,rlong=19):
     '''
 
     #signal = cross(sif.dea1,sif.diff1)>0
-    rsia = rsi2(sif.close,rshort)   #7,19/13,41
-    rsib = rsi2(sif.close,rlong)
+    rsia = sif.rsi7 if rshort == 7 else rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = sif.rsi19 if rlong==19 else rsi2(sif.close,rlong)
     #signal = cross(rsib,rsia)>0    
     signal = gand(cross(rsib,rsia)>0,strend2(rsia)>0)
 
@@ -1356,8 +1429,8 @@ def rsi_u_x(sif,sopened=None,rshort=7,rlong=19):
         这个一个主力算法，虽然R比较低
     '''
 
-    rsia = rsi2(sif.close,rshort)   #7,19/13,41
-    rsib = rsi2(sif.close,rlong)
+    rsia = sif.rsi7 if rshort == 7 else rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = sif.rsi19 if rlong==19 else rsi2(sif.close,rlong)
     signal = gand(cross(rsib,rsia)>0,strend2(rsia)>0)
 
     signal = gand(signal
@@ -1381,8 +1454,8 @@ def rsi_u_y(sif,sopened=None,rshort=7,rlong=19):
     '''
     '''
 
-    rsia = rsi2(sif.close,rshort)   #7,19/13,41
-    rsib = rsi2(sif.close,rlong)
+    rsia = sif.rsi7 if rshort == 7 else rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = sif.rsi19 if rlong==19 else rsi2(sif.close,rlong)
     signal = gand(cross(rsib,rsia)>0,strend2(rsia)>0)
 
 
@@ -1404,9 +1477,41 @@ rsi_u_y.direction = XBUY
 rsi_u_y.priority = 1500
 
 
+def rsi_u_z(sif,sopened=None,rshort=7,rlong=19):
+    '''
+    '''
+
+    rsia = sif.rsi7 if rshort == 7 else rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = sif.rsi19 if rlong==19 else rsi2(sif.close,rlong)
+    signal = gand(cross(rsib,rsia)>0,strend2(rsia)>0)
+
+    signal = gand(signal
+            ,sif.sdma>0
+            ,sif.r120>0
+            ,sif.r30>0
+            ,sif.r20>0
+            ,sif.r7>0
+            ,sif.xautr > sif.xadtr
+            ,strend2(sif.ma13)>0
+            ,sif.xatr < 2000
+            ,sif.sdiff3x>0
+            ,sif.high > rollx(sif.high,1)
+            ,strend2(sif.sdiff3x-sif.sdea3x)>0
+            ,gand(sif.close - rollx(sif.close) < 200,rollx(sif.close) - sif.open < 300)#: 快速拉升过滤
+            )
+    signal = np.select([sif.time>944],[signal],0)
+
+    #signal = sum2diff(extend2diff(signal,sif.date),sif.date)
+    #signal = gand(signal==1)
+
+    return signal * rsi_u_z.direction
+rsi_u_z.direction = XBUY
+rsi_u_z.priority = 1500
+rsi_u_z.filter = iftrade.socfilter
+
 def rsi_d_b(sif,sopened=None,rshort=7,rlong=19):
-    rsia = rsi2(sif.close,rshort)   
-    rsib = rsi2(sif.close,rlong)
+    rsia = sif.rsi7 if rshort == 7 else rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = sif.rsi19 if rlong==19 else rsi2(sif.close,rlong)
     #signal = cross(rsib,rsia)<0    
     signal = gand(cross(rsib,rsia)<0,strend2(rsia)<0)
 
@@ -1430,8 +1535,8 @@ def rsi_d_c(sif,sopened=None,rshort=7,rlong=19):
        表示跌势确立初步时，大幅震荡
     '''
 
-    rsia = rsi2(sif.close,rshort)   #7,19/13,41
-    rsib = rsi2(sif.close,rlong)
+    rsia = sif.rsi7 if rshort == 7 else rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = sif.rsi19 if rlong==19 else rsi2(sif.close,rlong)
     
     #signal = cross(rsib,rsia)<0    
     signal = gand(cross(rsib,rsia)<0,strend2(rsia)<0)
@@ -1459,8 +1564,8 @@ def rsi_d_x(sif,sopened=None,rshort=7,rlong=19):
         但是合并有副作用
     '''
 
-    rsia = rsi2(sif.close,rshort)   #7,19/13,41
-    rsib = rsi2(sif.close,rlong)
+    rsia = sif.rsi7 if rshort == 7 else rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = sif.rsi19 if rlong==19 else rsi2(sif.close,rlong)
     #signal = cross(rsib,rsia)<0    
     signal = gand(cross(rsib,rsia)<0,strend2(rsia)<0)
 
@@ -1783,7 +1888,7 @@ uuxb.priority = 1500
 
 def duub(sif,sopened=None):
     '''
-        下上上
+        下上
     '''
     signal = gand(rollx(sif.close,2) < rollx(sif.close,3)
                 ,rollx(sif.close,1) > rollx(sif.close,2)
@@ -1802,6 +1907,101 @@ def duub(sif,sopened=None):
     return signal * duub.direction
 duub.direction = XBUY
 duub.priority = 1500
+
+def dvb(sif,sopened=None):
+    '''
+        下上上
+    '''
+    signal = gand(
+                sif.close > rollx(sif.high)
+                ,sif.close - rollx(gmax(sif.open,sif.close)) < 60
+                )
+    signal = gand(signal
+                ,sif.s5 > 0
+                ,sif.s3 > 0
+                ,sif.xatr < sif.mxatr
+                ,strend2(sif.mxatr)>0
+                ,sif.xatr30x > 7500
+                ,sif.xatr < 2250
+            )
+
+    return signal * dvb.direction
+dvb.direction = XBUY
+dvb.priority = 1500
+dvb.filter = iftrade.socfilter
+
+def ues(sif,sopened=None):
+    '''
+        下吞没.
+        完全逆势
+    '''
+    signal = gand(
+                sif.close < rollx(sif.low)
+                ,rollx(gmin(sif.open,sif.close)) - sif.close < 60
+                )
+    signal = gand(signal
+                ,sif.sdma>0
+                ,sif.xatr < sif.mxatr
+                ,strend2(sif.mxatr)>0
+                ,sif.xatr30x < sif.mxatr30x
+                ,sif.xatr > 1200
+                ,sif.r120>0
+            )
+
+    return signal * ues.direction
+ues.direction = XBUY
+ues.priority = 1500
+ues.filter = iftrade.socfilter
+
+
+def dvb1(sif,sopened=None):
+    '''
+        下上
+    '''
+    signal = gand(
+                sif.close > rollx(sif.high)
+                ,sif.close - rollx(gmax(sif.open,sif.close)) < 150
+                )
+    signal = gand(signal
+                ,sif.s5 > 0
+                ,sif.s3 > 0
+                ,strend2(sif.mxatr)>0
+                ,sif.xatr30x > 7500
+                ,sif.xatr < 2500
+                ,sif.r120>0
+                ,sif.r60>0
+            )
+
+    return signal * dvb1.direction
+dvb1.direction = XBUY
+dvb1.priority = 1500
+dvb1.filter = iftrade.socfilter
+
+
+def dvb2(sif,sopened=None):
+    '''
+        下上
+    '''
+    signal = gand(
+                sif.close > rollx(sif.high)
+                ,sif.close - rollx(gmax(sif.open,sif.close)) < 150
+                )
+    signal = gand(signal
+                ,sif.s5 > 0
+                ,sif.s3 > 0
+                #,sif.xatr < sif.mxatr
+                #,strend2(sif.mxatr)>0
+                ,sif.xatr30x > 7500
+                ,sif.xatr < 2250
+                ,sif.r120>0
+                ,sif.r60>0
+            )
+
+    return signal * dvb2.direction
+dvb2.direction = XBUY
+dvb2.priority = 1500
+dvb2.filter = iftrade.socfilter
+
 
 def xuub(sif,sopened=None):
     '''
@@ -2537,10 +2737,10 @@ uxuub.filter = iftrade.socfilter_k1s
 
 ###集合
 xxx_break =[
-            da_m30,
-            da_m30_0,            
             da_cover,
             ua_cover,
+            da_m30,
+            da_m30_0,            
             ua_s5,
             br30,
             acd_ua,
@@ -2579,6 +2779,7 @@ xxx_against = [
             k3_u_b,
             
             k3_d_a,
+            k3_d_b,
 
             k1_u_a,
 
@@ -2598,10 +2799,26 @@ xxx_follow = [
             rsi_u_c,
             rsi_u_x,
             rsi_u_y,
+            
+            rsi_u_z,            
+            
             rsi_d_a,
             rsi_d_b,
             rsi_d_c,
             rsi_d_x,
+
+        ]
+for x in xxx_follow:
+    pass
+    #x.stop_closer = iftrade.atr5_uxstop_k_180
+
+
+
+xxx_others = [
+            cr3_30b,
+            cr3_30s,
+            #cr3_30rb,
+            #cr3_30rs,
 
             macd_d_a,
             macd_d_b,
@@ -2612,22 +2829,17 @@ xxx_follow = [
             xud30b,
             ma1x,
             ma60_short,
-            ama_short,
-        ]
-for x in xxx_follow:
-    pass
-    #x.stop_closer = iftrade.atr5_uxstop_k_180
+            ama_short, #计算速度太慢
 
-
-
-xxx_trend = [
-            cr3_30b,
-            cr3_30s,
-            #cr3_30rb,
-            #cr3_30rs,
+            da_m30,
+            da_m30_0,            
+            ua_s5,
+            br30,
+            acd_ua,
+            dbrb,
         ]
 
-for x in xxx_trend:
+for x in xxx_others:
     pass
     #x.stop_closer = iftrade.atr5_uxstop_k_180
     x.filter = iftrade.socfilter
@@ -2655,6 +2867,12 @@ xxx_k1s =   [
             ddds2,
 
             uxuub,
+
+            dvb,
+            dvb1,
+            #dvb2,
+
+            ues,
         ]
 for x in xxx_k1s:
     pass
@@ -2683,7 +2901,8 @@ for x in ifuncs2a.k1s + ifuncs2a.k1s2 + ifuncs2a.xorb:
     x.cstoper = iftrade.FBASE_30  #初始止损,目前只在动态显示时用
     
 
-xxx = xxx_trend + xxx_break + xxx_against + xxx_follow + xxx_k1s + xxx_orb
+#xxx = xxx_others + xxx_break + xxx_against + xxx_follow + xxx_k1s + xxx_orb
+xxx = xxx_against + xxx_k1s + xxx_orb + xxx_break
 xxx1 = xxx
 xxx2 = xxx1  #+ ifuncs2a.xevs#+ ifuncs2a.xorb
 xxx3 = xxx1+ ifuncs2a.k1s + ifuncs2a.k1s2 + ifuncs2a.xorb

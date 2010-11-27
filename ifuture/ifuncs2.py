@@ -59,28 +59,18 @@ f: 下跌新低
 from wolfox.fengine.ifuture.ibase import *
 import wolfox.fengine.ifuture.iftrade as iftrade
 
+def devi_b_a(sif,sopened=None):
 
-def nhd(sif,sopened=None):
-    signal = gand(rollx(sif.close)<rollx(sif.close,2)
-                ,sif.close < rollx(sif.close)
-                ,rollx(sif.close) - sif.close >= 30
-                ,sif.close < sif.open
-                ,rollx(sif.close) < rollx(sif.open)
+    msignal = ldevi(sif.low,sif.diff1,sif.dea1)
+
+    signal = gand(msignal
+            ,sif.r120>0
             )
-    signal = gand(signal
-                ,strend2(sif.ma13)<0
-                ,strend2(sif.ma20)<0
-                ,sif.s30< 0
-                ,sif.s5<0
-                ,sif.s1<0
-                ,sif.xatr < 2000
-                ,sif.xatr30x < 10000
-                ,sif.r13<0
-                ,strend2(sif.ma13 - sif.ma30)<0 #差距扩大中
-            )
-    return signal * nhd.direction
-nhd.direction = XSELL
-nhd.priority = 1200
+
+    return signal * devi_b_a.direction
+devi_b_a.direction = XBUY
+devi_b_a.priority = 2100
+devi_b_a.filter = iftrade.ocfilter
 
 
 def da_m30(sif,sopened=None):
@@ -1956,6 +1946,8 @@ def duub(sif,sopened=None):
     return signal * duub.direction
 duub.direction = XBUY
 duub.priority = 1500
+duub.filter = iftrade.ocfilter
+
 
 def dvb(sif,sopened=None):
     '''
@@ -2000,7 +1992,7 @@ def ues(sif,sopened=None):
     return signal * ues.direction
 ues.direction = XBUY
 ues.priority = 1500
-ues.filter = iftrade.socfilter
+ues.filter = iftrade.nsocfilter
 
 
 def dvb1(sif,sopened=None):
@@ -2115,7 +2107,6 @@ xuub2.priority = 1500
 xuub2.filter = iftrade.ocfilter_orb
 
 
-
 def xdds(sif,sopened=None):
     '''
        下下
@@ -2177,7 +2168,65 @@ def xdds2(sif,sopened=None):
     return signal * xdds2.direction
 xdds2.direction = XSELL
 xdds2.priority = 1500
-xdds2.filter = iftrade.ocfilter_orb
+xdds2.filter = iftrade.npsocfilter_orb
+
+def xdds3(sif,sopened=None):
+    '''
+        局部滞胀滑落. 两条阴线,且最后一根大于3点
+    '''
+    signal = gand(rollx(sif.close)<rollx(sif.close,2)
+                ,sif.close < rollx(sif.close)
+                ,rollx(sif.close) - sif.close >= 30
+                ,sif.close < sif.open
+                ,rollx(sif.close) < rollx(sif.open)
+            )
+    signal = gand(signal
+                ,strend2(sif.ma13)<0
+                ,strend2(sif.ma20)<0
+                ,sif.s30< 0
+                ,sif.s5<0
+                ,sif.s3<0
+                ,sif.s1<0
+                ,sif.xatr < 2000
+                ,sif.xatr30x < 10000
+                ,sif.r13<0
+                ,strend2(sif.ma13 - sif.ma30)<0 #差距扩大中
+                ,sif.r60 < 0
+            )
+    return signal * xdds3.direction
+xdds3.direction = XSELL
+xdds3.priority = 1200
+xdds3.filter = iftrade.npsocfilter  #顺势
+
+def xdds4(sif,sopened=None):
+    '''
+        新高后滑落
+    '''
+    #fsignal = gand(sif.high > rollx(sif.dhigh))
+
+    signal = gand(rollx(sif.close)<rollx(sif.close,2)
+                ,sif.close < rollx(sif.close)
+                ,sif.close < sif.open
+                ,rollx(sif.close) < rollx(sif.open)
+            )
+
+    #signal = sfollow(fsignal,signal,120)
+    signal = gand(signal
+                ,sif.s15< 0
+                ,sif.s5<0
+                ,sif.s1<0
+                ,sif.xatr < 2000
+                ,sif.xatr30x < 10000
+                ,strend2(sif.ma13 - sif.ma30)<0 #差距扩大中
+                ,sif.r60 < 0
+                #,sif.r13<0
+                ,sif.t120<0
+            )
+    return signal * xdds4.direction
+xdds4.direction = XSELL
+xdds4.priority = 1200
+xdds4.filter = iftrade.ocfilter_orb  #顺势
+
 
 def xds(sif,sopened=None):
     '''
@@ -2763,7 +2812,7 @@ ma60_short.filter = iftrade.socfilter
 ama_short.filter = iftrade.socfilter
 
 uuxb.filter = iftrade.ocfilter_orb
-duub.filter = iftrade.ocfilter
+#duub.filter = iftrade.ocfilter
 dduuds.filter = iftrade.ocfilter
 duuuds.filter = iftrade.ocfilter_orb
 ddduuds.filter = iftrade.ocfilter
@@ -2922,7 +2971,7 @@ xxx_k1s =   [
             dvb1,
             #dvb2,
 
-            ues,
+            #ues,
         ]
 for x in xxx_k1s:
     pass
@@ -2934,6 +2983,9 @@ xxx_orb = [ #早期突破
             xuub2,
             xdds,
             xdds2,
+            #xdds3,
+            xdds4,
+
             xds,
         ]
 
@@ -2977,6 +3029,9 @@ for x in xxx2:
     x.cstoper = iftrade.FBASE_30  #初始止损,目前只在动态显示时用
     #x.cstoper = iftrade.F30  #初始止损
     #x.filter = iftrade.socfilter
+    #x.is_followed = True
+    #x.longfilter = iftrade.psocfilter
+    #x.shortfilter = iftrade.npsocfilter    
     #x.filter = iftrade.nsocfilter
     #x.stop_closer = iftrade.atr5_uxstop_k_oscillating  #震荡期的止损方式
 

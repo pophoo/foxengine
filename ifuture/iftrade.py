@@ -66,6 +66,16 @@ def state_filter(sif,prefilter=ocfilter):
     soc = gand(soc,sif.xstate!=0)
     return soc
 
+def pstate_filter(sif,prefilter=ocfilter):
+    soc = prefilter(sif)
+    soc = gand(soc,sif.xstate>0)
+    return soc
+
+def npstate_filter(sif,prefilter=ocfilter):
+    soc = prefilter(sif)
+    soc = gand(soc,sif.xstate<0)
+    return soc
+
 def nstate_filter(sif,prefilter=ocfilter):
     soc = prefilter(sif)
     soc = gand(soc,sif.xstate==0)
@@ -90,12 +100,24 @@ state_last_filter = fcustom(state_filter,prefilter = last_filter)
 nstate_oc_filter = fcustom(nstate_filter,prefilter = ocfilter)
 nstate_last_filter = fcustom(nstate_filter,prefilter = last_filter)
 
+pstate_oc_filter = fcustom(pstate_filter,prefilter = ocfilter)
+npstate_oc_filter = fcustom(npstate_filter,prefilter = ocfilter)
+
 slast_filter_c = fcustom(state_filter,prefilter=last_filter_c)
 nslast_filter_c = fcustom(nstate_filter,prefilter=last_filter_c)
 
 socfilter = state_oc_filter
 socfilter_orb = fcustom(state_filter,prefilter=ocfilter_orb) #orb 信号不受影响
 socfilter_k1s = fcustom(state_filter,prefilter=ocfilter_k1s) #k1s 信号与隔日无关 
+
+psocfilter = pstate_oc_filter
+npsocfilter = npstate_oc_filter
+
+psocfilter_orb = fcustom(pstate_filter,prefilter = ocfilter_orb)
+psocfilter_k1s = fcustom(pstate_filter,prefilter = ocfilter_k1s)
+
+npsocfilter_orb = fcustom(npstate_filter,prefilter = ocfilter_orb)
+npsocfilter_k1s = fcustom(npstate_filter,prefilter = ocfilter_k1s)
 
 nsocfilter = nstate_oc_filter
 nsocfilter_orb = fcustom(nstate_filter,prefilter=ocfilter_orb) #orb 信号不受影响
@@ -597,10 +619,34 @@ def itradex(sif     #期指
 
     tradess = []
     for opener in openers:
-        if 'filter' not in opener.__dict__: #用于对信号进行过滤,如开盘30分钟内不发出信号等
-            myfilter = slongfilter if fdirection(opener) == XBUY else sshortfilter
-        else:
-            myfilter = opener.filter(sif)
+        #if 'filter' not in opener.__dict__: #用于对信号进行过滤,如开盘30分钟内不发出信号等
+        #    myfilter = slongfilter if fdirection(opener) == XBUY else sshortfilter
+        #else:
+        #    myfilter = opener.filter(sif)
+        if fdirection(opener) == XBUY:
+            if 'is_followed' in opener.__dict__ and opener.is_followed == True: #如果设定为follow，则使用默认
+                #print 'is_followed x:',longfilter,pstate_oc_filter
+                myfilter = slongfilter
+            elif 'longfilter' in opener.__dict__:
+                #print 'lfilter'
+                myfilter = opener.longfilter(sif)
+            elif 'filter' in opener.__dict__:
+                #print 'infilter:'
+                myfilter = opener.filter(sif)
+            else:
+                myfilter = slongfilter
+        else:#XSELL
+            if 'is_followed' in opener.__dict__ and opener.is_followed == True: #如果设定为follow，则使用默认
+                #print 'is_followed y:',shortfilter,npstate_oc_filter
+                myfilter = sshortfilter
+            elif 'shortfilter' in opener.__dict__:
+                #print 'sfilter'                
+                myfilter = opener.shortfilter(sif)
+            elif 'filter' in opener.__dict__:
+                #print 'infilter:'                
+                myfilter = opener.filter(sif)
+            else:
+                myfilter = sshortfilter
         if 'xfilter' not in opener.__dict__:    #xfilter用于自定义的信号变换,如根据5分钟内的波动决定延迟发送还是吞没
             xfilter = gothrough_filter
         else:
@@ -638,6 +684,8 @@ def itradex(sif     #期指
     return sync_trades(sif,tradess,acstrategy)
 
 itradez = fcustom(itradex,longfilter = state_oc_filter,shortfilter = state_oc_filter)
+itradezp = fcustom(itradex,longfilter = pstate_oc_filter,shortfilter = npstate_oc_filter)
+
 
 def close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed,calc_profit=normal_profit):
     #open_action = extended[0].actions[0] if extended else cur_trade.actions[0]
@@ -764,11 +812,11 @@ def make_price(position,open,close,high,low):
     #return open
     if position == LONG:
         return (open+high)/2
-        #return open + (high - open) / 2
+        #return open + (high - open) *2 / 3
         #return high
     else:
         return (open+low)/2
-        #return open - (open - low) / 2
+        #return open - (open - low) *2 / 3
         #return low
  
 

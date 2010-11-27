@@ -920,6 +920,7 @@ def prepare_index(sif):
     sif.mxadtr30x = dnext(sif.mxadtr30,sif.close,sif.i_cof30)
 
     ddi = np.select([sif.time==915],[1],0)
+    sif.iday = ddi
     sif.dma = dsma(sif.close,ddi)
     sif.sdma = strend2(sif.dma)
     sif.dema = cexpma_s(sif.close,ddi,26)   #没啥用处，变化太快

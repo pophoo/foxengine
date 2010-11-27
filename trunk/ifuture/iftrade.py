@@ -431,6 +431,8 @@ def sync_tradess_pt(sif,tradess,acstrategy=late_strategy):
             xtrades.append(close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed))
             break
         #print 'find:date=%s,time=%s,functor=%s,priority=%s' % (trade.actions[0].date,trade.actions[0].time,trade.functor,fpriority(trade.functor))  
+        #if trade.actions[0].xfollow <= 0:
+        #    continue
         if DTSORT2(trade.actions[0],close_action)>0:  #时间超过
             #print u'时间超过'
             xtrades.append(close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed))
@@ -443,7 +445,7 @@ def sync_tradess_pt(sif,tradess,acstrategy=late_strategy):
             continue
            
         #if trade.actions[0].xfollow >= cur_trade.actions[0].xfollow:#直接根据是否顺势判定是否平开，不根据优先级
-        if aprofit(cur_trade.open_action,sclose[trade.actions[0].index]) < 600:
+        if (trade.actions[0].index > cur_trade.actions[0].index and aprofit(cur_trade.open_action,sclose[trade.actions[0].index]) < 600) or (trade.actions[0].index == cur_trade.actions[0].index and trade.actions[0].xfollow >= cur_trade.actions[0].xfollow):
             if trade.direction == cur_trade.direction:  #同向取代关系
                 #print u'同向增强,%s|%s:%s被%s增强'%(cur_trade.functor,cur_trade.actions[0].date,cur_trade.actions[0].time,trade.functor)
                 close_action = acstrategy(close_action,trade.actions[-1])

@@ -157,7 +157,6 @@ def da_cover(sif,sopened=None):
     signal_da = gand(sif.close <= DA
                     )
 
-    mmxatr = ma(sif.xatr,15)    #以15分钟为平均
 
     #dmxatr = dsma(sif.xatr,np.select([sif.time==915],[1],0))
 
@@ -170,7 +169,7 @@ def da_cover(sif,sopened=None):
                   #,strend2(sif.ma270)<0
                   
                   #,sif.mxatr > rollx(sif.mxatr,270) #在放大中
-                  ,mmxatr > rollx(mmxatr,270)  #xatr在放大中,这个条件在单个很有用，合并时被处理掉
+                  ,sif.mxatr > rollx(sif.mxatr,270)  #xatr在放大中,这个条件在单个很有用，合并时被处理掉
                   #,dmxatr > rollx(dmxatr,270)
                   ,sif.mxadtr > sif.mxautr
                   ,sif.mxadtr30x > sif.mxautr30x
@@ -183,7 +182,7 @@ def da_cover(sif,sopened=None):
 
     return signal * da_cover.direction
 da_cover.direction = XSELL
-da_cover.priority = 1200
+da_cover.priority = 2499    #优先级最小
 
 def m1500b(sif,sopen=None):
 
@@ -309,6 +308,55 @@ cr3_30s.filter = iftrade.socfilter
 
 '''
 
+def ua_cover2(sif,sopened=None):
+    '''
+        一个标准的强势上升至少满足:
+        1. 至少diff1>0，较为强势
+        2. s3 > 0
+        3. macd5有翘头表现
+        4. close在本日均线上方
+
+    '''
+    wave = np.zeros_like(sif.close)
+    wave[sif.i_cof10] = rollx(sif.atr10) /4/XBASE  #向下放宽
+    wave = extend2next(wave)
+
+    UA,DA,xhigh10,xlow10 = range_a(sif,914,929,wave)
+
+    signal_ua = gand(sif.close >= UA 
+                )
+    signal = gand(signal_ua
+                  ,sif.sdma>0
+                  ,sif.diff1>0
+                  ,sif.s3>0  
+                  ,sif.smacd5x>0
+                  ,sif.smacd30x>0
+                  ,sif.close > sif.dma
+                  ,sif.ma3 > sif.ma13
+                  ,sif.ma13 > sif.ma30
+                  ,strend2(sif.ma60)>0
+                  ,strend2(sif.ma270)>0
+                  ,sif.xatr < 2000
+                  ,sif.close > sif.dma
+                  ,sif.r120>0   #不是反弹
+                 )
+
+    signal = np.select([gand(sif.time>944,sif.time<1500)],[signal],0)
+
+    #signal = derepeatc(signal)
+
+    #signal_s = dsum(signal,sif.ddi)
+
+    #print signal_s[-600:-300],signal[-600:-300]
+
+    #signal = gand(signal_s>0,signal_s < 3,signal>0)
+    
+
+    return signal * ua_cover2.direction
+ua_cover2.direction = XBUY
+ua_cover2.priority = 2499    #优先级最小
+ua_cover2.filter = iftrade.socfilter
+
 def ua_cover(sif,sopened=None):
     '''
         向上兜底
@@ -323,19 +371,20 @@ def ua_cover(sif,sopened=None):
                 )
     signal = gand(signal_ua
                   ,sif.sdma>0
-                  ,sif.xstate>0
+                  #,sif.xstate>0
                   ,sif.s30>0
-                  ,sif.xatr15x < 7500
                   ,sif.strend>0
                   ,sif.diff1>0  #以强为主
+                  ,sif.xatr > 800
+                  ,sif.xatr5x > 1500    #不能用30线，太慢了
+                  ,sif.xatr15x < 7500   #波动性不能太大
                 )
 
     signal = np.select([gand(sif.time>944,sif.time<1430)],[signal],0)
 
     return signal * ua_cover.direction
 ua_cover.direction = XBUY
-ua_cover.priority = 1200
-
+ua_cover.priority = 2499    #优先级最小
 
 def ua_s5(sif,sopened=None):
     '''
@@ -2739,9 +2788,10 @@ uxuub.filter = iftrade.socfilter_k1s
 xxx_break =[
             da_cover,
             ua_cover,
+            ua_cover2,
             da_m30,
             da_m30_0,            
-            ua_s5,
+            #ua_s5,
             br30,
             acd_ua,
             dbrb,
@@ -2907,6 +2957,8 @@ xxx1 = xxx
 xxx2 = xxx1  #+ ifuncs2a.xevs#+ ifuncs2a.xorb
 xxx3 = xxx1+ ifuncs2a.k1s + ifuncs2a.k1s2 + ifuncs2a.xorb
 xxx2a = xxx1
+xxx4 = xxx + xxx_others + xxx_follow
+
 
 for x in xxx1:
     pass

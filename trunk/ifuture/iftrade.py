@@ -1759,13 +1759,13 @@ atr5_uxstop_t_08_25_B26 = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_d
 
 atr5_uxstop_t_08_25_B_10 = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=250,min_drawdown=150,min_lost_follow=100,min_lost_against=100,max_lost_follow=100,max_lost_against=100,natr=5)  
 
-atr5_uxstop_t_08_25_B_OSC = fcustom(iftrade.atr_uxstop_t
+atr5_uxstop_t_08_25_B_OSC = fcustom(atr_uxstop_t
         ,lost_times=80,win_times=250,max_drawdown=190,min_drawdown=150
         ,min_lost_follow=100,min_lost_against=100,max_lost_follow=100,max_lost_against=100
         ,natr=5)  
 
 
-atr5_uxstop_K_OSC = fcustom(iftrade.atr_uxstop_k    #120/100/200/200
+atr5_uxstop_K_OSC = fcustom(atr_uxstop_k    #120/100/200/200
         ,fkeeper=lambda x:120
         ,flost_base = lambda x:100
         ,fmax_drawdown = lambda x:200

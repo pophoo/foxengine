@@ -52,6 +52,44 @@ f: 下跌新低
         实际操作上是追
     同样，不明信号对顺势也是如此
 
+一些网上的摘录:
+        、统计上低波动区域的“伏击”，寻求“突破”（高波动区域）交易，应该算趋势交易，是大R，需要“手快”（系统自动交易）。如果统计了交易时间的波动分布可能更有利，这个外汇交易上的机会更多。
+    2、统计上的高、中波动区域里的“反向操作”，属于“逆市操作”，R值一般，风险是止损位的把握难度。
+    amkr1015兄是哪种观察一下就知道了。
+
+
+    日内交易，强烈推荐轴心交易 + 分时趋势判断
+
+    分时趋势判断的核心是第一次出现的次高点和次低点，次高点和次低点都是反转前的严重预警，通常需要反手做，要解除次低和次高，唯有突破次高前最高和次低前最低，这也是符合波浪理论的第二浪，只有第2浪才可能出现明显的次高和次低，分时图上的次高次低严重关注
+
+
+    实盘做得越久 越感觉最重要的是最小回撤比率
+
+    关于参数问题，参数越少越少，所使用的参数最好是遍历后得到的最优参数丛集区域内的参数
+
+    事实上就恒指日内而言 波动率是逐级放大或者逐级缩小的
+
+    不会有突变的 
+
+    2006年以前 恒指日波动 绝对值平均数在150-200间
+
+    2007 这个数值则高达300 9月份以来甚至更高
+
+    我有一个图表
+
+    在一个大宗商品期货市场 应该也存在类似的规律
+
+    除非这个市场很小 很容易被操纵
+
+    作趋势的交易者 应该知道高波动以为着什么
+
+    趋势交易就是截断止损 让盈利奔跑
+
+    高波动就意味着盈利的区间会变大 
+
+    止损是固定的 盈利增大 那么利润也会增大 p/f值也会上升
+
+
 
 '''
 
@@ -1368,6 +1406,7 @@ def rsi_u_a(sif,sopened=None,rshort=7,rlong=19):
     '''
         计算创当日新高后，从暴力起涨点算起回撤不到40%，然后再上升
         要求在上涨途中，即30分钟的120线向上
+        持续模式
     '''
     
     rsia = sif.rsi7 if rshort == 7 else rsi2(sif.close,rshort)   #7,19/13,41
@@ -1378,15 +1417,16 @@ def rsi_u_a(sif,sopened=None,rshort=7,rlong=19):
 
     signal = gand(signal
             ,sif.xatr < sif.mxatr
-            ,sif.xatr < 1800 #越小越好
+            ,sif.xatr < 2000 #越小越好
+            ,sif.xatr30x < 8000
             ,sif.high > sif.dhigh - (sif.dhigh - sif.dlow2) *0.4    #回撤越小越好
-            ,sif.xatr30x < 12000    #这个条件几乎等于没有
 
             ,sif.idhigh >= sif.idlow    #高点后于低点,必要性不大。
             ,sif.r120 > 0 #去掉毛刺
             
             ,sif.sdma > 0
             ,sif.ma3 > sif.ma13
+            #,sif.s30>0
             )
 
     return signal * rsi_u_a.direction
@@ -1412,7 +1452,6 @@ def rsi_u_b(sif,sopened=None,rshort=7,rlong=19):
 
             ,sif.r120 > 10 #去掉毛刺
             ,sif.r60>10
-
             )
 
     return signal * rsi_u_b.direction
@@ -1425,6 +1464,7 @@ def rsi_d_a(sif,sopened=None,rshort=7,rlong=19):
         计算创当日新低后，从暴力起跌点算起回撤不到40%，然后再下降
         要求在下降途中，即30分钟的120线向下
         与上涨不同的是，下跌一半比较墨迹，所以容易缩量
+        持续模式
     '''
     rsia = sif.rsi7 if rshort == 7 else rsi2(sif.close,rshort)   #7,19/13,41
     rsib = sif.rsi19 if rlong==19 else rsi2(sif.close,rlong)
@@ -1543,12 +1583,13 @@ def rsi_u_z(sif,sopened=None,rshort=7,rlong=19):
             ,sif.r30>0
             ,sif.r20>0
             ,sif.r7>0
+            ,sif.s30>0
             ,sif.xautr > sif.xadtr
             ,strend2(sif.ma13)>0
             ,sif.xatr < 2000
             ,sif.sdiff3x>0
             ,sif.high > rollx(sif.high,1)
-            ,strend2(sif.sdiff3x-sif.sdea3x)>0
+            ,sif.smacd3x>0
             ,gand(sif.close - rollx(sif.close) < 200,rollx(sif.close) - sif.open < 300)#: 快速拉升过滤
             )
     signal = np.select([sif.time>944],[signal],0)
@@ -1575,6 +1616,7 @@ def rsi_d_b(sif,sopened=None,rshort=7,rlong=19):
             ,sif.xatr < 1000
             ,sif.xatr < sif.mxatr
             ,sif.r120<0
+            ,strend2(sif.mxatr30x)<0
             )
 
     return signal * rsi_d_b.direction
@@ -1629,6 +1671,7 @@ def rsi_d_x(sif,sopened=None,rshort=7,rlong=19):
             ,sif.xatr < 2000
             ,strend2(sif.mxatr)>0
             ,sif.xatr30x < sif.mxatr30x
+            ,sif.r120<0
             )
 
     signal = np.select([sif.time>944],[signal],0)
@@ -1650,13 +1693,11 @@ def macd_d_a(sif,sopened=None):
 
     signal = gand(signal
             ,sif.ltrend<0            
-            #,sif.mtrend < 0
             ,strend2(sif.ma30)<0
             ,sif.ma5 < sif.ma13
-            #,sif.xatr>800
             ,sif.sdiff30x<0
-            #,sif.xatr30x < sif.mxatr30x
             ,strend2(sif.mxatr30x)<0
+            ,sif.xatr < sif.mxatr
             )
 
     signal = np.select([sif.time>944],[signal],0)
@@ -1683,6 +1724,7 @@ def macd_d_b(sif,sopened=None):
             ,strend2(sif.ma30)<0
             ,sif.sdiff30x<0
             ,sif.xatr30x<10000#sif.mxatr30x
+            ,sif.xatr < sif.mxatr
             )
 
     signal = np.select([sif.time>944],[signal],0)
@@ -1791,15 +1833,39 @@ def down01x(sif,sopened=None): #++
     '''
 
     signal = gand(cross(cached_zeros(len(sif.diff1)),sif.diff1)<0
+            ,strend(sif.ma30)<0
             ,sif.ltrend<0
             ,sif.sdiff30x<0
-            ,sif.sdiff5x>0
-            ,sif.xatr60x<sif.mxatr60x
-            ,sif.xatr>sif.mxatr
+            #,sif.sdiff5x<0
+            ,strend2(sif.mxatr30x)<0
+            #,sif.xatr>sif.mxatr
+            ,strend2(sif.mxatr)>0
             )
     return signal * down01x.direction
 down01x.direction = XSELL
 down01x.priority = 1500
+
+
+def down01(sif,sopened=None): #++
+    ''' 
+        30分钟<0且下行
+        5分钟>0且下行
+    '''
+
+    signal = gand(cross(cached_zeros(len(sif.diff1)),sif.diff1)<0
+            ,sif.ltrend<0
+            ,sif.sdiff30x<0
+            ,strend(sif.diff1-sif.dea1)<-2            
+            ,strend(sif.ma5-sif.ma30)<0
+            ,strend(sif.ma135-sif.ma270)<0            
+            ,strend(sif.ma30)<0
+            ,sif.xatr < 2000
+            ,sif.xatr30x < 15000
+            )
+    return signal * down01.direction
+down01.direction = XSELL
+down01.priority = 1600
+
 
 def xdown60(sif,sopened=None):
     '''
@@ -2806,6 +2872,7 @@ rsi_u_b.filter = iftrade.ocfilter
 rsi_u_c.filter = iftrade.ocfilter
 rsi_u_x.filter = iftrade.ocfilter
 rsi_u_y.filter = iftrade.socfilter
+rsi_u_z.filter = iftrade.socfilter
 
 rsi_d_a.filter = iftrade.ocfilter
 rsi_d_b.filter = iftrade.ocfilter
@@ -2817,6 +2884,7 @@ macd_d_b.filter = iftrade.socfilter
 macd_d_c.filter = iftrade.socfilter
 
 down01x.filter = iftrade.nsocfilter
+down01.filter = iftrade.ocfilter
 up0.filter = iftrade.ocfilter
 xdown60.filter = iftrade.ocfilter
 xud30b.filter = iftrade.ocfilter
@@ -2899,11 +2967,22 @@ xxx_against = [
 
             k1_rd_a,
             k1_ru_a,
+            #up0,
             
-            up0,
         ]
 
 for x in xxx_against:
+    pass
+    #x.osc_stop_closer = iftrade.atr5_uxstop_t_08_25_B_OSC
+    #x.osc_stop_closer = iftrade.atr5_uxstop_k_120
+    x.osc_stop_closer = iftrade.atr5_uxstop_K_OSC
+
+xxx_trend = [
+            down01x,
+            down01,
+            up0,
+        ]
+for x in xxx_trend:
     pass
     #x.osc_stop_closer = iftrade.atr5_uxstop_t_08_25_B_OSC
     #x.osc_stop_closer = iftrade.atr5_uxstop_k_120
@@ -2923,11 +3002,16 @@ xxx_follow = [
             rsi_d_b,
             rsi_d_c,
             rsi_d_x,
+            
+            macd_d_a,
+            macd_d_b,
+            macd_d_c,
 
         ]
 for x in xxx_follow:
     pass
     #x.stop_closer = iftrade.atr5_uxstop_k_180
+    x.osc_stop_closer = iftrade.atr5_uxstop_K_OSC
 
 
 xxx_others = [
@@ -2936,23 +3020,23 @@ xxx_others = [
             #cr3_30rb,
             #cr3_30rs,
 
-            macd_d_a,
-            macd_d_b,
-            macd_d_c,
             allup,
             xdown60,
-            down01x,
+
+            #down01x,
+            #down01,
+            
             xud30b,
             ma1x,
             ma60_short,
             ama_short, #计算速度太慢
 
-            da_m30,
-            da_m30_0,            
-            ua_s5,
-            br30,
-            acd_ua,
-            dbrb,
+            #da_m30,
+            #da_m30_0,            
+            #ua_s5,
+            #br30,
+            #acd_ua,
+            #dbrb,
         ]
 
 for x in xxx_others:
@@ -3024,7 +3108,7 @@ for x in ifuncs2a.k1s + ifuncs2a.k1s2 + ifuncs2a.xorb:
     
 
 #xxx = xxx_others + xxx_break + xxx_against + xxx_follow + xxx_k1s + xxx_orb
-xxx = xxx_against + xxx_k1s + xxx_orb + xxx_break
+xxx = xxx_against + xxx_k1s + xxx_orb + xxx_break + xxx_trend+ xxx_follow
 xxx1 = xxx
 xxx2 = xxx1  #+ ifuncs2a.xevs#+ ifuncs2a.xorb
 xxx3 = xxx1+ ifuncs2a.k1s + ifuncs2a.k1s2 + ifuncs2a.xorb
@@ -3043,6 +3127,8 @@ for x in xxx2:
     pass
     #x.stop_closer = iftrade.atr5_uxstop_t_08_25_B2  #统一处理止损
     x.stop_closer = iftrade.atr5_uxstop_t_08_25_B_10  #统一处理止损
+    #x.stop_closer = iftrade.atr5_uxstop_k_A    
+    #x.stop_closer = iftrade.atr5_uxstop_K_OSC
     #x.osc_stop_closer = iftrade.atr5_uxstop_t_08_25_B_OSC
     #x.osc_stop_closer = iftrade.atr5_uxstop_t_08_25_B_OSC
     #x.osc_stop_closer = iftrade.atr5_uxstop_K_OSC
@@ -3064,3 +3150,5 @@ for x in xxx2:
 
 
 
+#down01.stop_closer = iftrade.atr5_uxstop_t_08_25_B_10  #统一处理止损 
+#down01.stop_closer = iftrade.atr5_uxstop_k_A

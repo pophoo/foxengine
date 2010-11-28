@@ -569,6 +569,7 @@ def itradex(sif     #期指
             ,sclosers   #默认的空平仓函数集合(多头平仓)
             ,stop_closer    #止损closer函数，只能有一个，通常是atr_uxstop,    
                             #有针对性是指与买入价相关的 stop_closer必须处理之前的closers系列发出的卖出信号
+            ,osc_stop_closer = None#震荡止损函数
             ,longfilter=ocfilter    #opener过滤器,多空仓必须满足各自过滤器条件才可以发出信号. 
                                     #比如抑制在0915-0919以及1510-1514开仓等
                                     #closer没有过滤器,设置过滤器会导致合约一直开口
@@ -668,9 +669,29 @@ def itradex(sif     #期指
             closers = sclosers if fdirection(opener) == XBUY else bclosers
         for closer in closers:
             sclose = gor(sclose,closer(sif,sopened)) * (-fdirection(opener))
+        if osc_stop_closer == None:
+            osc_stop_closer = stop_closer 
         ms_closer = stop_closer if 'stop_closer' not in opener.__dict__ else opener.stop_closer
+        
+        if 'osc_stop_closer' not in opener.__dict__:
+            osc_closer = opener.stop_closer if 'stop_closer' in opener.__dict__ else osc_stop_closer
+        else:
+            osc_closer = opener.osc_stop_closer
+
         #closes = close_position(sif,stop_closer(sif,sopened,sclose,sclose)) #因为是单向的，只有一个sclose起作用
-        closes = close_position(sif,ms_closer(sif,sopened,sclose,sclose)) #因为是单向的，只有一个sclose起作用        
+        
+        ms_sclose = ms_closer(sif,sopened,sclose,sclose)
+        osc_sclose = osc_closer(sif,sopened,sclose,sclose)
+        #sclose的优先级最高. ms_closer是atr类的止损,与osc是竞争关系
+        xsclose = np.select([sif.xstate!=0,sif.xstate==0],[ms_sclose,osc_sclose])
+        #xsclose = np.select([sclose!=0,sif.xstate!=0,sif.xstate==0],[sclose,ms_sclose,osc_sclose])
+        
+        xsclose = np.select([sclose!=0],[sclose],default=xsclose)   #不能用gor，gor后-1变1，就没有闭合交易了
+
+        closes = close_position(sif,xsclose)
+        #closes = close_position(sif,ms_closer(sif,sopened,sclose,sclose)) #因为是单向的，只有一个sclose起作用        
+
+
         actions = sorted(opens + closes,DTSORT)
         for action in actions:
             action.name = sif.name
@@ -1058,7 +1079,7 @@ def atr_uxstop_t(sif,sopened
         ,max_drawdown=200
         ,min_drawdown=120
         ,min_lost_follow=60
-        ,min_lost_against=30
+        ,min_lost_against=20
         ,max_lost_follow = 90   #顺势时的止损
         ,max_lost_against = 60   #顺势时的止损
         ,protected_trigger = 300    #保护性止损触发点,300相当于无保护性止损. 即只有最初止损和跟踪止损
@@ -1737,6 +1758,19 @@ atr5_uxstop_t_08_25_B26 = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_d
 
 
 atr5_uxstop_t_08_25_B_10 = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=250,min_drawdown=150,min_lost_follow=100,min_lost_against=100,max_lost_follow=100,max_lost_against=100,natr=5)  
+
+atr5_uxstop_t_08_25_B_OSC = fcustom(iftrade.atr_uxstop_t
+        ,lost_times=80,win_times=250,max_drawdown=190,min_drawdown=150
+        ,min_lost_follow=100,min_lost_against=100,max_lost_follow=100,max_lost_against=100
+        ,natr=5)  
+
+
+atr5_uxstop_K_OSC = fcustom(iftrade.atr_uxstop_k    #120/100/200/200
+        ,fkeeper=lambda x:120
+        ,flost_base = lambda x:100
+        ,fmax_drawdown = lambda x:200
+        ,fmin_drawdown = lambda x:200
+        ,win_times=250,natr=5)  
 
 
 ##比例止损

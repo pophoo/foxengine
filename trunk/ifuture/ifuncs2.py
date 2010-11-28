@@ -608,6 +608,36 @@ k15_d_a.priority = 2100
 
 k15_d_a.filter = iftrade.socfilter
 
+def k15_d_a2(sif,sopened=None):
+    '''
+        转折点
+        15分钟创120新高后,15分钟内1分钟跌破前最低价
+    '''
+    
+    signal15 = gand(sif.high15>rollx(sif.high15)
+                ,sif.low15>rollx(sif.low15)
+                ,sif.high15 == tmax(sif.high15,8)   #半日新高
+                )
+
+    delay = 15
+
+    bline = dnext_cover(np.select([signal15>0],[sif.low15],[0]),sif.close,sif.i_cof15,delay)
+    
+    signal = sif.close < bline
+    
+    signal = gand(signal
+            ,sif.xatr < 2000
+            ,sif.xatr30x < sif.mxatr30x
+            ,sif.sdma>0
+            )
+    signal = extend(signal,delay)  #去除delay时间段内的重复信号
+    signal = derepeatc(signal)
+
+    return signal * k15_d_a2.direction
+k15_d_a2.direction = XSELL
+k15_d_a2.priority = 2100 
+
+
 def k15_d_b(sif,sopened=None):
     '''
         15分钟新高后,15分钟内1分钟跌破前15分钟的开盘价(收盘价的低者)/最低价
@@ -639,6 +669,7 @@ def k15_d_b(sif,sopened=None):
             ,sif.strend<0
             ,sif.xatr < 1800
             ,sif.xatr30x < 12000
+            ,sif.r120>0
             )
     signal = derepeatc(signal)
 
@@ -672,6 +703,8 @@ def k15_d_c(sif,sopened=None):
             ,sif.r60<0       
             ,sif.r20>0
             ,sif.r7<0
+            ,sif.s10<0
+            ,sif.s5<0
            )
     
     signal = derepeatc(signal)
@@ -777,7 +810,9 @@ def k15_d_z(sif,sopened=None):
             ,sif.xatr > sif.mxatr
             ,sif.xatr > 800
             ,sif.ma5 < sif.ma13
-            )
+            ,sif.r120>0
+            ,sif.s3<0
+          )
 
     return signal * k15_d_z.direction
 k15_d_z.direction = XSELL
@@ -839,7 +874,7 @@ def k10_d_a(sif,sopened=None):
             ,sif.xatr30x > 8000
             ,strend2(sif.mxatr)>0
             ,sif.mtrend>0   #说明是顶，不是途中
-            ,sif.r60<0
+            ,sif.r120<0
             )
     signal = np.select([sif.time>944],[signal],0)    
     signal = derepeatc(signal)
@@ -862,7 +897,7 @@ def k10_d_a2(sif,sopened=None):
                 ,rollx(sif.high10,1) == tmax(sif.high10,4)
                 )
 
-    print signal10[-30:]
+    #print signal10[-30:]
 
     delay = 30
     
@@ -1018,6 +1053,7 @@ def k5_d_c(sif,sopened=None):
             ,sif.xatr>sif.mxatr
             ,sif.xatr30x > 8000
             ,sif.ma3 < sif.ma13
+            ,sif.xatr30x > sif.mxatr30x
             )
 
     signal = np.select([sif.time>944],[signal],0)
@@ -1284,6 +1320,8 @@ def k3_d_a(sif,sopened = None):
                     ,sif.xatr < 2000
                     ,sif.ltrend<0
                     ,sif.ma13<sif.dma
+                    ,sif.xatr < 1500
+                    ,sif.xatr30x < sif.mxatr30x
                 )
 
     return signal * k3_d_a.direction
@@ -1374,6 +1412,7 @@ def k1_rd_a(sif,sopened = None):
     signal = gand(signal
                 ,sif.xatr < 2000
                 ,sif.r120<0
+                ,sif.r13<0
                 )
 
     return signal * k1_rd_a.direction
@@ -2841,13 +2880,14 @@ dbrb.filter = iftrade.ocfilter
 
 
 k15_d_a.filter = iftrade.socfilter
+k15_d_a2.filter = iftrade.socfilter
 k15_d_b.filter = iftrade.ocfilter
 k15_d_c.filter = iftrade.ocfilter
 k15_d_x.filter = iftrade.ocfilter
 k15_d_y.filter = iftrade.ocfilter
 k15_d_z.filter = iftrade.ocfilter
 k15_u_a.filter = iftrade.ocfilter
-k10_d_a.filter = iftrade.nsocfilter
+k10_d_a.filter = iftrade.socfilter
 k10_d_a2.filter = iftrade.nsocfilter
 k10_u_a.filter = iftrade.socfilter
 k5_d_a.filter = iftrade.nsocfilter
@@ -2938,6 +2978,7 @@ for x in xxx_break:
 
 xxx_against = [
             k15_d_a,
+            #k15_d_a2,            
             k15_d_b,
             k15_d_c,
             k15_d_x,

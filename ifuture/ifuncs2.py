@@ -59,6 +59,17 @@ f: 下跌新低
 from wolfox.fengine.ifuture.ibase import *
 import wolfox.fengine.ifuture.iftrade as iftrade
 
+atr5_uxstop_kt2 = fcustom(iftrade.atr_uxstop_k
+        ,flost_base = iftrade.F100
+        ,fmax_drawdown = lambda x:200#iftrade.F120
+        ,fmin_drawdown = lambda x:200#iftrade.F120
+        ,fkeeper = lambda x:200
+        ,ftarget = lambda x:300#iftrade.F150
+        ,win_times=250
+        ,natr=5
+        )  
+
+
 def devi_b_a(sif,sopened=None):
 
     msignal = ldevi(sif.low,sif.diff1,sif.dea1)
@@ -894,6 +905,7 @@ def k5_d_a(sif,sopened=None):
             ,sif.xatr30x > 8000
             ,sif.xatr < 1800
             ,sif.ma3 < sif.ma13
+            #,sif.open - sif.close < 100
             )
 
     signal = np.select([sif.time>944],[signal],0)
@@ -906,6 +918,7 @@ def k5_d_a(sif,sopened=None):
     return signal * k5_d_a.direction
 k5_d_a.direction = XSELL
 k5_d_a.priority = 2100
+#k5_d_a.osc_stop_closer = atr5_uxstop_kt2
 
 def k5_d_b(sif,sopened=None):
     '''
@@ -2852,6 +2865,8 @@ for x in xxx_break:
     #实际上只放宽了ua_s5
     if 'filter' not in x.__dict__:
         x.filter = iftrade.socfilter_k1s
+    x.osc_stop_closer = iftrade.atr5_uxstop_K_OSC
+
 
 xxx_against = [
             k15_d_a,
@@ -2890,7 +2905,10 @@ xxx_against = [
 
 for x in xxx_against:
     pass
-    #x.stop_closer = iftrade.atr5_uxstop_k_180
+    #x.osc_stop_closer = iftrade.atr5_uxstop_t_08_25_B_OSC
+    #x.osc_stop_closer = iftrade.atr5_uxstop_k_120
+    x.osc_stop_closer = iftrade.atr5_uxstop_K_OSC
+
 
 xxx_follow = [
             rsi_u_a,
@@ -2910,7 +2928,6 @@ xxx_follow = [
 for x in xxx_follow:
     pass
     #x.stop_closer = iftrade.atr5_uxstop_k_180
-
 
 
 xxx_others = [
@@ -2941,7 +2958,9 @@ xxx_others = [
 for x in xxx_others:
     pass
     #x.stop_closer = iftrade.atr5_uxstop_k_180
-    x.filter = iftrade.socfilter
+    #x.filter = iftrade.socfilter
+    #x.osc_stop_closer = iftrade.atr5_uxstop_K_OSC
+
 
 xxx_k1s =   [
             uuxb,
@@ -2977,6 +2996,7 @@ for x in xxx_k1s:
     pass
     #x.stop_closer = iftrade.atr5_uxstop_k_180
     #x.stop_closer = iftrade.atr5_uxstop_t_08_25_B2
+    x.osc_stop_closer = iftrade.atr5_uxstop_K_OSC
 
 xxx_orb = [ #早期突破
             xuub,
@@ -2985,7 +3005,6 @@ xxx_orb = [ #早期突破
             xdds2,
             #xdds3,
             xdds4,
-
             xds,
         ]
 
@@ -2993,6 +3012,7 @@ for x in xxx_orb:
     pass
     #x.stop_closer = iftrade.atr5_uxstop_k_180
     #x.stop_closer = iftrade.atr5_uxstop_t_08_25_B2
+    #x.osc_stop_closer = iftrade.atr5_uxstop_K_OSC  #早期突破需要略为放宽
 
 
 
@@ -3017,9 +3037,16 @@ for x in xxx1:
     #if 'stop_closer' not in x.__dict__: #不应该有例外，否则比较难以实际操作
     #    x.stop_closer = iftrade.atr5_uxstop_k_B
 
+
+
 for x in xxx2:
     pass
-    x.stop_closer = iftrade.atr5_uxstop_t_08_25_B2  #统一处理止损
+    #x.stop_closer = iftrade.atr5_uxstop_t_08_25_B2  #统一处理止损
+    x.stop_closer = iftrade.atr5_uxstop_t_08_25_B_10  #统一处理止损
+    #x.osc_stop_closer = iftrade.atr5_uxstop_t_08_25_B_OSC
+    #x.osc_stop_closer = iftrade.atr5_uxstop_t_08_25_B_OSC
+    #x.osc_stop_closer = iftrade.atr5_uxstop_K_OSC
+    #x.osc_stop_closer = atr5_uxstop_kt2
     #x.stop_closer = iftrade.atr5_uxstop_t_08_25_B_10
     #x.stop_closer = atr5_uxstop_t_08_25_B26
     #x.priority = 1500

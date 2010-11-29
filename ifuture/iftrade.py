@@ -1411,6 +1411,8 @@ def atr_uxstop_k(sif,sopened
         ,fkeeper = FKEEP_30 #买入点数-->固定移动止损，移动到价格为止
         ,win_times=300        
         ,ftarget = FTARGET #盈利目标,默认是无穷大
+        ,tlimit = 10    #约定时间线. 目前没用
+        ,wtlimit =  -100   #约定时间线的价格有利变动目标，如果不符合则平仓
         ,natr=1
         ):
     '''
@@ -1470,11 +1472,12 @@ def atr_uxstop_k(sif,sopened
                 rev[i] = XSELL            
             else:
                 for j in range(i+1,len(rev)):
+                    tv = sif.close[j] - buy_price
                     if ssclose[j] == XSELL:
                         #print 'sell signalj:',trans[IDATE][j],trans[ITIME][j],cur_stop,trans[ICLOSE][j]
                         pass
                     #print trans[ITIME][j],buy_price,lost_stop,cur_high,win_stop,cur_stop,trans[ILOW][j],satr[j]
-                    if trans[ILOW][j] < cur_stop or ssclose[j] == XSELL:    #
+                    if trans[ILOW][j] < cur_stop or ssclose[j] == XSELL or (j==i+tlimit and tv<wtlimit):    #
                         rev[j] = XSELL
                         #print 'sell:',i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
                         ilong_closed = j
@@ -1522,11 +1525,12 @@ def atr_uxstop_k(sif,sopened
                 rev[i] = XBUY
             else:
                 for j in range(i+1,len(rev)):
+                    tv = sell_price - sif.close[j]
                     if sbclose[j] == XBUY:
                         #print 'buy signalj:',trans[IDATE][j],trans[ITIME][j],cur_stop,trans[ICLOSE][j]
                         pass
                     #print trans[ITIME][j],sell_price,lost_stop,cur_low,win_stop,cur_stop,trans[IHIGH][j],satr[j]                
-                    if trans[IHIGH][j] > cur_stop or sbclose[j] == XBUY:#
+                    if trans[IHIGH][j] > cur_stop or sbclose[j] == XBUY or (j==i+tlimit and tv < wtlimit):#
                         ishort_closed = j
                         rev[j] = XBUY
                         #print 'buy:',j

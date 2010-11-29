@@ -97,15 +97,45 @@ f: 下跌新低
 from wolfox.fengine.ifuture.ibase import *
 import wolfox.fengine.ifuture.iftrade as iftrade
 
-atr5_uxstop_kt2 = fcustom(iftrade.atr_uxstop_k
-        ,flost_base = iftrade.F100
-        ,fmax_drawdown = lambda x:200#iftrade.F120
-        ,fmin_drawdown = lambda x:200#iftrade.F120
-        ,fkeeper = lambda x:200
-        ,ftarget = lambda x:300#iftrade.F150
-        ,win_times=250
-        ,natr=5
-        )  
+
+def xma_stop_u(sif,sopened,sbclose,ssclose):
+    signal = cross(sif.ma13,sif.ma3)<0
+    return signal * xma_stop_u.direction
+xma_stop_u.direction = XSELL
+
+
+def xma_u_a(sif,sopened=None):
+
+    ma3_13 = ma(sif.close3,13)
+    ma3_3  = ma(sif.close3,3)
+    signal3 = gand(cross(ma3_13,ma3_3)>0
+                ,strend2(ma3_13)>0
+                ,strend2(ma3_3)>0
+                )
+
+    signal = dnext_cover(signal3,sif.close,sif.i_cof3,1)
+
+
+    signal = gand(signal
+            ,sif.r120>0
+            ,sif.s1>0
+            ,sif.smacd5x>0
+            ,sif.xatr < 1500
+            ,sif.xatr > 1000            
+            ,strend2(sif.mxatr)>0
+            ,sif.xatr30x < 10000
+            ,strend2(sif.ma30)>0
+            ,strend2(sif.ma13)>0
+          )
+
+    signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal_s==1)
+    
+    return signal * xma_u_a.direction
+xma_u_a.direction = XBUY
+xma_u_a.priority = 2100
+xma_u_a.filter = iftrade.ocfilter
+#xma_u_a.stop_closer = xma_stop_u
 
 
 def devi_b_a(sif,sopened=None):
@@ -3048,6 +3078,7 @@ xxx_follow = [
             macd_d_b,
             macd_d_c,
 
+            #xma_u_a,
         ]
 for x in xxx_follow:
     pass

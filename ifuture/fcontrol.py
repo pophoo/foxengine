@@ -337,7 +337,9 @@ ltrade3x0525 = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_05_25,bcl
 ltrade3x156 = fcustom(iftrade.itradex,stop_closer=iftrade.atr_uxstop_15_6,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=iftrade.last_trades,longfilter=iftrade.last_filter,shortfilter=iftrade.last_filter,sync_trades=iftrade.null_sync_tradess)
 ltrade3x0825 = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_08_25,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=iftrade.last_trades,longfilter=iftrade.last_filter,shortfilter=iftrade.last_filter,sync_trades=iftrade.null_sync_tradess)
 
-ltrade3x0825z = fcustom(iftrade.itradez,stop_closer=iftrade.atr5_uxstop_08_25,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=iftrade.last_trades,longfilter=iftrade.state_last_filter,shortfilter=iftrade.state_last_filter,sync_trades=iftrade.null_sync_tradess)
+#ltrade3x0825z = fcustom(iftrade.itradez,stop_closer=iftrade.atr5_uxstop_08_25,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=iftrade.last_trades,longfilter=iftrade.state_last_filter,shortfilter=iftrade.state_last_filter,sync_trades=iftrade.null_sync_tradess)
+
+ltrade3x0825z = fcustom(iftrade.itradez,stop_closer=iftrade.atr5_uxstop_08_25,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=iftrade.last_trades,longfilter=iftrade.state_last_filter,shortfilter=iftrade.state_last_filter,sync_trades=iftrade.pair_sync_tradess)
 
 
 citradex_y = fcustom(iftrade.itradex,stop_closer=iftrade.atr_uxstop_15_6,bclosers=[ifuncs.daystop_short_c],sclosers=[ifuncs.daystop_long_c],longfilter=iftrade.ocfilter_c,shortfilter=iftrade.ocfilter_c)

@@ -345,6 +345,26 @@ def null_sync_tradess(sif,tradess,acstrategy=late_strategy):
         xtrades.extend(trades)
     return xtrades
 
+#平仓必需有开仓动作
+def pair_sync_tradess(sif,tradess,acstrategy=late_strategy):
+    xtrades = []
+    for trades in tradess:
+        for trade in trades:
+            pactions = []
+            opened = False
+            for action in trade.actions:
+                if action.xtype  == XOPEN:
+                    pactions.append(action)
+                    opened  = True
+                elif opened == True:
+                    pactions.append(action)
+                    opened = False
+                else:#无仓空关
+                    continue
+            trade.actions = pactions
+            if len(trade.actions)>0:
+                xtrades.append(trade)
+    return xtrades
 
 DTSORT2 = lambda x,y: int(((x.date%1000000 * 10000)+x.time) - ((y.date%1000000 * 10000)+y.time))
 def sync_tradess(sif,tradess,acstrategy=late_strategy):
@@ -688,6 +708,7 @@ def itradex(sif     #期指
         
         xsclose = np.select([sclose!=0],[sclose],default=xsclose)   #不能用gor，gor后-1变1，就没有闭合交易了
 
+        #closes = close_position(sif,ms_sclose)
         closes = close_position(sif,xsclose)
         #closes = close_position(sif,ms_closer(sif,sopened,sclose,sclose)) #因为是单向的，只有一个sclose起作用        
 

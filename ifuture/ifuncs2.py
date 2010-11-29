@@ -1539,17 +1539,18 @@ def rsi_d_a(sif,sopened=None,rshort=7,rlong=19):
     rsib = sif.rsi19 if rlong==19 else rsi2(sif.close,rlong)
     
     #signal = cross(rsib,rsia)>0    
-    signal = gand(cross(rsib,rsia)>0,strend2(rsia)>0)
+    signal = gand(cross(rsib,rsia)<0,strend2(rsia)<0)
 
     signal = gand(signal
             #,sif.xatr<2000  #越小越好
             ,sif.xatr < sif.mxatr
             ,sif.xatr30x < 12000
             ,sif.low < sif.dlow + (sif.dhigh2 - sif.dlow) *0.3  #低点先冲破. 下跌的时候一般比较狠
-            ,sif.r120 < 10 
             ,sif.sdma < 0
+            ,sif.r120 < 10 
             ,sif.r30 < 0
             ,sif.xatr < 1500
+            ,sif.s3<0
     )
 
     return signal * rsi_d_a.direction

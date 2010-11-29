@@ -8,6 +8,12 @@
 
 其中，趋势不明确时以保守做法，较为可取
 
+方向的确定:
+    1.正确的仓位在前X分钟即已经有浮盈
+      如果不达到这一个要求,则立即砍掉
+    2.砍掉后的行情与该次持仓无关
+      关键在于后面的信号的持续发出  
+
 #######
 术语规定:
 u: 上升
@@ -3199,8 +3205,9 @@ for x in xxx1:
 for x in xxx2:
     pass
     #x.stop_closer = iftrade.atr5_uxstop_t_08_25_B2  #统一处理止损
-    x.stop_closer = iftrade.atr5_uxstop_t_08_25_B_10  #统一处理止损
+    #x.stop_closer = iftrade.atr5_uxstop_t_08_25_B_10  #统一处理止损
     #x.stop_closer = iftrade.atr5_uxstop_k_A    
+    x.stop_closer = iftrade.atr5_uxstop_k_250
     #x.stop_closer = iftrade.atr5_uxstop_K_OSC
     #x.osc_stop_closer = iftrade.atr5_uxstop_t_08_25_B_OSC
     #x.osc_stop_closer = iftrade.atr5_uxstop_t_08_25_B_OSC

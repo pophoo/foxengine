@@ -1759,18 +1759,6 @@ atr5_uxstop_t_08_25_B26 = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_d
 
 atr5_uxstop_t_08_25_B_10 = fcustom(atr_uxstop_t,lost_times=80,win_times=250,max_drawdown=250,min_drawdown=150,min_lost_follow=100,min_lost_against=100,max_lost_follow=100,max_lost_against=100,natr=5)  
 
-atr5_uxstop_t_08_25_B_OSC = fcustom(atr_uxstop_t
-        ,lost_times=80,win_times=250,max_drawdown=190,min_drawdown=150
-        ,min_lost_follow=100,min_lost_against=100,max_lost_follow=100,max_lost_against=100
-        ,natr=5)  
-
-
-atr5_uxstop_K_OSC = fcustom(atr_uxstop_k    #120/100/200/200
-        ,fkeeper=lambda x:120
-        ,flost_base = lambda x:100
-        ,fmax_drawdown = lambda x:200
-        ,fmin_drawdown = lambda x:200
-        ,win_times=250,natr=5)  
 
 
 ##比例止损
@@ -1833,6 +1821,29 @@ atr5_uxstop_kt = fcustom(atr_uxstop_k
         ,fmin_drawdown = F60
         ,fkeeper = F60
         ,ftarget = F120
+        ,win_times=250
+        ,natr=5
+        )  
+
+atr5_uxstop_t_08_25_B_OSC = fcustom(atr_uxstop_t
+        ,lost_times=80,win_times=250,max_drawdown=190,min_drawdown=150
+        ,min_lost_follow=100,min_lost_against=100,max_lost_follow=100,max_lost_against=100
+        ,natr=5)  
+
+
+atr5_uxstop_K_OSC = fcustom(atr_uxstop_k    #120/100/200/200
+        ,fkeeper=lambda x:120
+        ,flost_base = lambda x:100
+        ,fmax_drawdown = lambda x:200
+        ,fmin_drawdown = lambda x:200
+        ,win_times=250,natr=5)  
+
+atr5_uxstop_kt2 = fcustom(atr_uxstop_k
+        ,flost_base = F100
+        ,fmax_drawdown = lambda x:200#iftrade.F120
+        ,fmin_drawdown = lambda x:200#iftrade.F120
+        ,fkeeper = lambda x:200
+        ,ftarget = lambda x:300#iftrade.F150
         ,win_times=250
         ,natr=5
         )  

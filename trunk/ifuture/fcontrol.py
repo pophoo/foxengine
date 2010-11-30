@@ -13,7 +13,7 @@ import wolfox.fengine.ifuture.tfuncs as tfuncs
 import wolfox.fengine.ifuture.fcontrol as control
 import wolfox.fengine.ifuture.dynamic as dynamic
 import wolfox.fengine.ifuture.evaluate as ev
-
+import wolfox.fengine.ifuture.xfuncs as xfuncs
 
 from wolfox.fengine.ifuture.ifuncs import *
 
@@ -277,6 +277,8 @@ itradex8_yt = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_t_08_25_B2
 itradex8_zt = fcustom(iftrade.itradez,stop_closer=iftrade.atr5_uxstop_t_08_25_B2,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 itradex8_ztp = fcustom(iftrade.itradezp,stop_closer=iftrade.atr5_uxstop_t_08_25_B2,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 
+itradex8_yy = fcustom(iftrade.itradey,stop_closer=iftrade.atr5_uxstop_t_08_25_B2,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+
 
 itradex8_yt_a = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_t_08_25_A,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 itradex827_yt = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_t_08_25_B27,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
@@ -340,6 +342,8 @@ ltrade3x0825 = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_08_25,bcl
 #ltrade3x0825z = fcustom(iftrade.itradez,stop_closer=iftrade.atr5_uxstop_08_25,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=iftrade.last_trades,longfilter=iftrade.state_last_filter,shortfilter=iftrade.state_last_filter,sync_trades=iftrade.null_sync_tradess)
 
 ltrade3x0825z = fcustom(iftrade.itradez,stop_closer=iftrade.atr5_uxstop_08_25,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=iftrade.last_trades,longfilter=iftrade.state_last_filter,shortfilter=iftrade.state_last_filter,sync_trades=iftrade.pair_sync_tradess)
+
+ltrade3x0825y = fcustom(iftrade.itradey,stop_closer=iftrade.atr5_uxstop_08_25,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=iftrade.last_trades,sync_trades=iftrade.pair_sync_tradess)
 
 
 citradex_y = fcustom(iftrade.itradex,stop_closer=iftrade.atr_uxstop_15_6,bclosers=[ifuncs.daystop_short_c],sclosers=[ifuncs.daystop_long_c],longfilter=iftrade.ocfilter_c,shortfilter=iftrade.ocfilter_c)

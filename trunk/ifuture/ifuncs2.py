@@ -238,19 +238,19 @@ def da_cover(sif,sopened=None):
     signal = gand(signal_da
                   #,sif.s30 < 0
                   #,gor(strend2(sif.sdiff30x-sif.sdea30x)<0,sif.s30<0)
-                  ,sif.s30 < 0
-                  ,sif.t120 < -1    #排除波动
+                  ,sif.diff1<0  #以强为主
+                  ,sif.s30 < -1
+                  ,sif.t120 < 0    #排除波动
                   ,sif.r60 < -4     #排除波动
-                  #,strend2(sif.ma270)<0
+                  ,sif.r20<0
+                  ,strend2(sif.ma60)<0
                   
                   #,sif.mxatr > rollx(sif.mxatr,270) #在放大中
                   ,sif.mxatr > rollx(sif.mxatr,270)  #xatr在放大中,这个条件在单个很有用，合并时被处理掉
                   #,dmxatr > rollx(dmxatr,270)
                   ,sif.mxadtr > sif.mxautr
-                  ,sif.mxadtr30x > sif.mxautr30x
                   ,sif.xatr<3600
-                  ,sif.xatr30x<15000
-                  ,sif.diff1<0  #以强为主
+                  ,sif.xatr30x<12000
                 )
     
     signal = np.select([gand(sif.time>944,sif.time<1455)],[signal],0)
@@ -383,6 +383,41 @@ cr3_30s.filter = iftrade.socfilter
 
 '''
 
+def ua_cover3(sif,sopened=None):
+    '''
+        一个标准的强势上升至少满足:
+        1. 至少diff1>0，较为强势
+        2. s3 > 0
+        3. macd5有翘头表现
+        4. close在本日均线上方
+
+    '''
+    wave = np.zeros_like(sif.close)
+    wave[sif.i_cof10] = rollx(sif.atr10) /4/XBASE  #向下放宽
+    wave = extend2next(wave)
+
+    UA,DA,xhigh10,xlow10 = range_a(sif,914,929,wave)
+
+    signal_ua = gand(sif.close >= UA 
+                )
+    signal = gand(signal_ua
+              ,sif.diff1>0  
+              ,sif.s30>0
+              ,sif.ma13 > sif.ma30
+              ,strend2(sif.ma60)>0
+              ,sif.r20>0
+              ,sif.xatr<2000
+              ,strend2(sif.mxatr30x)>0
+              ,sif.xstate>0
+           )
+
+    signal = np.select([gand(sif.time>944,sif.time<1500)],[signal],0)
+
+    return signal * ua_cover3.direction
+ua_cover3.direction = XBUY
+ua_cover3.priority = 2499    #优先级最小
+ua_cover3.filter = iftrade.socfilter
+
 def ua_cover2(sif,sopened=None):
     '''
         一个标准的强势上升至少满足:
@@ -412,7 +447,6 @@ def ua_cover2(sif,sopened=None):
                   ,strend2(sif.ma60)>0
                   ,strend2(sif.ma270)>0
                   ,sif.xatr < 2000
-                  ,sif.close > sif.dma
                   ,sif.r120>0   #不是反弹
                  )
 
@@ -517,30 +551,20 @@ def br30(sif,sopened=None):
         属于突破回调的模式
     '''
     
-    high30 = np.select([sif.time[sif.i_cof30]==944],[sif.high30],default=0)
 
-    xhigh30,xlow30 = np.zeros_like(sif.diff1),np.zeros_like(sif.diff1)
-    xhigh30[sif.i_cof30] = high30   #因为屏蔽了前30分钟，所以i_cof30和i_oof30效果一样
-
-    xhigh30 = extend2next(xhigh30)
+    UA,DA,xhigh10,xlow10 = range_a(sif,914,944,0)
 
     signal = np.zeros_like(sif.diff1)
 
-    signal[sif.i_cof5] = cross(xhigh30[sif.i_cof5],sif.high5)>0
+    signal[sif.i_cof5] = cross(xhigh10[sif.i_cof5],sif.high5)>0
 
-    #signal = sfollow(signal,cross(sif.dea1,sif.diff1)>0,15)
-    rshort = 7
-    rlong = 19
-    rsia = rsi2(sif.close,rshort)   #7,19/13,41
-    rsib = rsi2(sif.close,rlong)
-    
-    signal = sfollow(signal,cross(sif.dea1,sif.diff1)>0,15)    
-    #signal = sfollow(signal,cross(rsib,rsia)>0,15)    
+    signal = sfollow(signal,cross(sif.dea1,sif.diff1)>0,15)        
 
     signal = gand(signal
             ,sif.s30>0
             ,sif.mtrend>0
             ,sif.time < 1400    #1400以后突破基本无效
+            ,sif.xatr < 2000
             )
 
     return signal * br30.direction
@@ -593,17 +617,17 @@ def dbrb(sif,sopened=None):
     '''
     #di = np.zeros_like(sif.close)
     #di[sif.i_oofd] = 1
-    di = np.select([sif.time==944],[1],0)
+    di = np.select([sif.time==915],[1],0)
     dhigh = dmax(sif.high,di)
 
     signal = cross(rollx(dhigh)+10,sif.close)>0
 
     signal = gand(signal
             ,sif.r60>20
+            ,strend2(sif.ma30)>10
             #,sif.r120>0
             ,strend2(sif.mxatr)>0
             ,sif.xatr30x < 10000
-            ,strend2(sif.ma30)>10
             )
 
     return signal * dbrb.direction
@@ -2994,8 +3018,9 @@ uxuub.filter = iftrade.socfilter_k1s
 ###集合
 xxx_break =[
             da_cover,
-            ua_cover,
-            ua_cover2,
+            #ua_cover,
+            #ua_cover2,
+            ua_cover3,
             da_m30,
             da_m30_0,            
             #ua_s5,

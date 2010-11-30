@@ -70,9 +70,30 @@ def get_func_attr(func,attr_name):
     return cfunc.__dict__[attr_name]
 
 def func_name(func):
+    if 'name' in func.__dict__:
+        return func.name
     cfunc = func
     while(isinstance(cfunc,functools.partial)):
         cfunc = cfunc.func
-    return str(cfunc)[10:-14]
+    return str(cfunc)[10:-15]
 
+def range_a(sif,tbegin,tend,wave,mlength=0):
+    if mlength == 0:
+        mlength = tend - tbegin + 1 
+    high10 = np.select([gand(sif.time>=tbegin,sif.time<=tend)],[sif.high],default=0)
+    low10 = np.select([gand(sif.time>=tbegin,sif.time<=tend)],[sif.low],default=99999999)    
+
+
+    xhigh10 = np.select([sif.time==tend],[tmax(high10,mlength)],0)
+    xlow10 = np.select([sif.time==tend],[tmin(low10,mlength)],0)    
+
+    UA = np.select([sif.time==tend],[xhigh10+wave],0)        
+    DA = np.select([sif.time==tend],[xlow10-wave],0)    
+
+    xhigh10 = extend2next(xhigh10)
+    xlow10  = extend2next(xlow10)
+    UA = extend2next(UA)
+    DA = extend2next(DA)
+
+    return UA,DA,xhigh10,xlow10
 

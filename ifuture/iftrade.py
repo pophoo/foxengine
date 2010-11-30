@@ -728,6 +728,87 @@ def itradex(sif     #期指
 itradez = fcustom(itradex,longfilter = state_oc_filter,shortfilter = state_oc_filter)
 itradezp = fcustom(itradex,longfilter = pstate_oc_filter,shortfilter = npstate_oc_filter)
 
+def itradey(sif     #期指
+            ,openers    #opener函数集合
+            ,bclosers   #默认的多平仓函数集合(空头平仓)
+            ,sclosers   #默认的空平仓函数集合(多头平仓)
+            ,stop_closer    #止损closer函数，只能有一个，通常是atr_uxstop,    
+                            #有针对性是指与买入价相关的 stop_closer必须处理之前的closers系列发出的卖出信号
+            ,make_trades=simple_trades  #根据开平仓动作撮合交易的函数。对于最后交易序列，用last_trades
+            ,sync_trades=sync_tradess_pt    #汇总各opener得到的交易，计算优先级和平仓。
+                                            #对于最后交易序列，用null_sync_tradess
+            ,acstrategy=late_strategy   #增强开仓时的平仓策略。late_strategy是平最晚的那个信号
+            ,priority_level=2500    #筛选opener的优先级, 忽略数字大于此的开仓
+        ):
+    '''
+        本函数针对每个opener计算出各自的闭合交易
+        然后集中处理这些闭合交易，根据优先级来确认交易的持续性
+            最终得到从开仓到平仓的单个交易的集合
+            其中单个交易的要素有：
+                开仓价格、时间、交易量
+                平仓价格、时间、交易量
+                当前主方法名(持有合约的方法)
+                filtered: 开仓后被过滤掉的同向低优先级方法名及其信号价格和时间
+                rfiltered:开仓后被过滤掉的反向低优先级方法名及其信号价格和时间
+                extended: 曾经起效，但因优先级低而被取代的同向方法名及其信号价格和时间. 第一个价格即是开仓价格
+                reversed: 逆转持仓的方法及其信号价格和时间
+                          如优先级高的中止本次持仓的方法。通常导致反向开仓。  
+            要求每个方法的属性有：
+                direction:  多/空方向 XBUY/XSELL
+                priority:   优先级, 数字越低越高
+                            如果不存在，默认为0
+                closer:     平仓方法
+                            签名为 closer(closers):closers
+                                根据传入的closers，返回处理后的，这样，可以取代默认的，也可以在默认之后附加
+                            如果不存在，就使用默认的
+                stop_closer 止损方法[单个], 如果存在，就取代默认的                                
+                filter:     符合filter签名的filter
+                name:       名字
+
+    '''
+    if not isinstance(openers,list):   #单个函数
+        openers = [openers]
+    if not isinstance(bclosers,list):   #单个函数
+        bclosers = [bclosers]
+    if not isinstance(sclosers,list):   #单个函数
+        sclosers = [sclosers]
+    
+    openers = [opener for opener in openers if fpriority(opener)<priority_level]
+
+    tradess = []
+    for opener in openers:
+        opens = open_position_y(sif,opener(sif))
+        sopened = np.zeros(len(sif.transaction[IDATE]),int)   #为开仓价格序列,负数为开多仓,正数为开空仓
+        for aopen in opens:
+            sopened[aopen.index] = aopen.price * aopen.position
+        sclose = np.zeros(len(sif.transaction[IDATE]),int)
+        if 'closer' in opener.__dict__: #是否有特定的closer,如要将macd下叉也作为多头持仓的平仓条件,则可设置函数,在返回值中添加该下叉信号算法
+            if fdirection(opener) == XBUY:
+                #print 'buy closer:',opener.closer
+                closers = opener.closer(sclosers)
+            elif fdirection(opener) == XSELL:
+                closers = opener.closer(bclosers)
+        else:
+            #print 'opener without close fdirection(opener) = %s' % ('XBUY' if fdirection(opener) == XBUY else 'XSELL',)
+            closers = sclosers if fdirection(opener) == XBUY else bclosers
+        for closer in closers:
+            sclose = gor(sclose,closer(sif,sopened)) * (-fdirection(opener))
+        ms_closer = stop_closer if 'stop_closer' not in opener.__dict__ else opener.stop_closer
+        
+        closes = close_position(sif,ms_closer(sif,sopened,sclose,sclose)) #因为是单向的，只有一个sclose起作用        
+
+        actions = sorted(opens + closes,DTSORT)
+        for action in actions:
+            action.name = sif.name
+            #print action.name,action.date,action.time,action.position,action.price
+        trades = make_trades(actions)   #trade: [open , close] 的序列, 其中前部分都是open,后部分都是close
+        for trade in trades:
+            trade.functor = opener
+            trade.direction = trade.actions[0].position   #LONG/SHORT
+            #print trade.actions[0].date,trade.actions[0].time,trade.direction
+        tradess.append(trades)
+    return sync_trades(sif,tradess,acstrategy)
+
 
 def close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed,calc_profit=normal_profit):
     #open_action = extended[0].actions[0] if extended else cur_trade.actions[0]
@@ -789,6 +870,17 @@ def open_position(sif,sopener,slongfilter,sshortfilter):
     #print slongfilter[-10:],sshortfilter[-10:]
     sshort = band(equals(sopener,XSELL),sshortfilter) * SHORT
     #ss = slong + sshort #多空抵消
+    positions = xposition(sif,slong,XOPEN)
+    positions.extend(xposition(sif,sshort,XOPEN))
+    return positions
+
+def open_position_y(sif,sopener):
+    '''
+        sopener中,XBUY表示开多仓,XSELL表示开空仓
+    '''
+    trans = sif.transaction
+    slong = equals(sopener,XBUY) * LONG 
+    sshort = equals(sopener,XSELL) * SHORT
     positions = xposition(sif,slong,XOPEN)
     positions.extend(xposition(sif,sshort,XOPEN))
     return positions

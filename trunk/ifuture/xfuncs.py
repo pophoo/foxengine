@@ -116,13 +116,18 @@ def followU2_2(sif):
             ,sif.mtrend>0
           )
         
+def followU2_3(sif):
+    return gand(sif.r60>20
+            ,strend2(sif.ma30)>10   #这个差异非常大
+            )
 
 
 def followD2(sif):
     return gand(sif.diff1<0  #以强为主
-                ,sif.s30 < -1
-                ,sif.t120 < 0    #排除波动
-                ,sif.r60 < -4     #排除波动
+                ,sif.s30 < 0
+                ,sif.smacd30x < 0   #不是偶然变小
+                ,sif.t120 < 0    
+                ,sif.r60 < 0    
                 ,sif.r20 < 0
                 ,strend2(sif.ma60)<0
             )
@@ -141,6 +146,8 @@ def followD32(sif):
             )
 
 
+
+
 ### 波动性过滤集合
 def downA(sif):
     return gand(
@@ -154,6 +161,12 @@ def upW1(sif):
 def upW2(sif):
     return gand(sif.xatr<2000
             ,strend2(sif.mxatr30x)>0
+        )
+
+def upW3(sif):
+    return gand(
+            strend2(sif.mxatr)>0
+            ,sif.xatr30x < 10000
             )
 
 def ZA(sif):
@@ -258,7 +271,8 @@ def ubreak_a(sif):
     
 
 def nhd(sif):   #日内新高+1点
-    return cross(rollx(sif.dhigh)+10,sif.close)>0
+    return gand(cross(rollx(sif.dhigh)+10,sif.close)>0
+            )
     
 
 dbreak_m5xd = XFilter(dbreak,macd5xd)
@@ -271,9 +285,10 @@ ua_fa_a = BXFunc(fstate=followU30,fsignal=ubreak_a,fwave=ZA,ffilter=n1400filter)
 da_fa = SXFunc(fstate=followD2,fsignal=dbreak,fwave=downW2,ffilter=nfilter)
 da_m30 = SXFunc(fstate=followD3,fsignal=dbreak_m5xd,ffilter=nfilter,fwave=downA)
 da_m30b = SXFunc(fstate=followD32,fsignal=dbreak_m5xd,ffilter=nfilter)
-dbrb = BXFunc(fstate=followU2_2,fsignal=nhd,fwave=upW1,ffilter=nfilter)
+dbrb = BXFunc(fstate=followU2_3,fsignal=nhd,fwave=upW3,ffilter=nfilter)
 
-xxx_break = [ua_fa,da_fa,da_m30,da_m30b,ua_fa_m,ua_fa_a]
+
+xxx_break = [ua_fa,da_fa,da_m30,da_m30b,ua_fa_m,ua_fa_a,dbrb]
 
 
 

@@ -617,10 +617,10 @@ def dbrb(sif,sopened=None):
     '''
     #di = np.zeros_like(sif.close)
     #di[sif.i_oofd] = 1
-    di = np.select([sif.time==915],[1],0)
-    dhigh = dmax(sif.high,di)
+    #di = np.select([sif.time==915],[1],0)
+    #dhigh = dmax(sif.high,di)
 
-    signal = cross(rollx(dhigh)+10,sif.close)>0
+    signal = cross(rollx(sif.dhigh)+10,sif.close)>0
 
     signal = gand(signal
             ,sif.r60>20

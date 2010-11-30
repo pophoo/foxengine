@@ -680,6 +680,7 @@ class DynamicScheduler:
                 print u'\n忽略%s之前的信号:%s,%s,%s' % (sms_begin,action.time,msg,action.fname)
                 #print action.time,sms_begin,type(action.time),int(action.time)>int(sms_begin)
                 continue
+            print '---------------------------------------------------------------------------'
             print action.fname,msg
             #if not msged :
             #    win32api.MessageBox(0,u'请注意眼睛休息',u'提示',0x00001000L)

@@ -2231,17 +2231,17 @@ def xuub(sif,sopened=None):
                 sif.close > rollx(sif.close),
                 rollx(sif.close)>rollx(sif.open),
                 sif.close > sif.open,
-                sif.close - sif.open < 120
+                sif.close - sif.open < 120,
+                sif.close > rollx(sif.dhigh)-15
             )
     signal = gand(signal
-                ,sif.close > rollx(sif.dhigh)-15
                 ,sif.s30>0
                 ,sif.s3>0
                 ,sif.s1>0
                 ,sif.xatr > sif.mxatr
-                ,sif.xatr < 2000
                 ,strend2(sif.mxatr)>0
                 ,sif.xatr > 666
+                ,sif.xatr < 2000
             )
 
     #在开盘前45分钟或下午开盘前半小时
@@ -2355,9 +2355,9 @@ def xdds3(sif,sopened=None):
     '''
     signal = gand(rollx(sif.close)<rollx(sif.close,2)
                 ,sif.close < rollx(sif.close)
-                ,rollx(sif.close) - sif.close >= 30
                 ,sif.close < sif.open
                 ,rollx(sif.close) < rollx(sif.open)
+                ,rollx(sif.close) - sif.close >= 30
             )
     signal = gand(signal
                 ,strend2(sif.ma13)<0
@@ -2414,10 +2414,10 @@ def xds(sif,sopened=None):
     signal = gand(
                 sif.close < rollx(sif.close),
                 sif.close < sif.open,
+                sif.close < rollx(tmin(sif.low,30)),
+                tmax(sif.high,10) > tmax(sif.high,30) - 30
             )
     signal = gand(signal
-                ,sif.close < rollx(tmin(sif.low,30))
-                ,tmax(sif.high,10) > tmax(sif.high,30) - 30
                 ,sif.r120<0
                 ,sif.s3<0
                 ,sif.s1<0

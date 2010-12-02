@@ -2387,6 +2387,7 @@ def xdds4(sif,sopened=None):
                 ,sif.close < rollx(sif.close)
                 ,sif.close < sif.open
                 ,rollx(sif.close) < rollx(sif.open)
+                ,sif.open - sif.close < 120
             )
 
     #signal = sfollow(fsignal,signal,120)

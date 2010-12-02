@@ -1895,6 +1895,7 @@ FKEEP_135 = lambda bpoint: 135   #上升13.5点后就保证开仓价格
 
 FKEEP_120 = lambda bpoint: 120   #上升12点后就保证开仓价格
 
+FKEEP_70 = lambda bpoint: 70   #上升12点后就保证开仓价格
 
 atr5_uxstop_k_B = fcustom(atr_uxstop_k,fkeeper=FKEEP_180,win_times=250,natr=5)  
 
@@ -1923,7 +1924,8 @@ F120 = lambda bpoint:120
 F150 = lambda bpoint:150
 F180 = lambda bpoint:180
 
-atr5_uxstop_kx = fcustom(atr_uxstop_k,fkeeper=FKEEP_250,win_times=250,natr=5,flost_base=F90)  
+atr5_uxstop_kx = fcustom(atr_uxstop_k,fkeeper=F70,win_times=250,natr=5,flost_base=F90)  
+atr5_uxstop_kx2 = fcustom(atr_uxstop_k,fkeeper=FKEEP_250,win_times=250,natr=5,flost_base=F90)  
 
 
 #震荡期止损

@@ -3259,7 +3259,9 @@ for x in xxx2:
     #x.stop_closer = iftrade.atr5_uxstop_t_08_25_B2  #统一处理止损
     #x.stop_closer = iftrade.atr5_uxstop_t_08_25_B_10  #统一处理止损
     #x.stop_closer = iftrade.atr5_uxstop_k_A    
-    x.stop_closer = iftrade.atr5_uxstop_k_250
+    #x.stop_closer = iftrade.atr5_uxstop_k_250
+    #x.stop_closer = iftrade.atr5_uxstop_kx
+    x.stop_closer = iftrade.atr5_uxstop_k80
     #x.stop_closer = iftrade.atr5_uxstop_K_OSC
     #x.osc_stop_closer = iftrade.atr5_uxstop_t_08_25_B_OSC
     #x.osc_stop_closer = iftrade.atr5_uxstop_t_08_25_B_OSC

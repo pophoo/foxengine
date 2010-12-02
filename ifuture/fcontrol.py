@@ -281,6 +281,13 @@ itradex8_ztp = fcustom(iftrade.itradezp,stop_closer=iftrade.atr5_uxstop_t_08_25_
 
 itradex8_yy = fcustom(iftrade.itradey,stop_closer=iftrade.atr5_uxstop_kx,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 
+itradex8_nx = fcustom(iftrade.itradey,stop_closer=iftrade.atr5_uxstop_nx,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+
+itradex8_n70 = fcustom(iftrade.itradey,stop_closer=iftrade.atr5_uxstop_n70,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex8_n100 = fcustom(iftrade.itradey,stop_closer=iftrade.atr5_uxstop_n100,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex8_n2 = fcustom(iftrade.itradey,stop_closer=iftrade.atr5_uxstop_n2,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+
+
 itradex8_yt_a = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_t_08_25_A,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 itradex827_yt = fcustom(iftrade.itradex,stop_closer=iftrade.atr5_uxstop_t_08_25_B27,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 

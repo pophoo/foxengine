@@ -1905,6 +1905,7 @@ atr5_uxstop_k_150 = fcustom(atr_uxstop_k,fkeeper=FKEEP_150,win_times=250,natr=5)
 atr5_uxstop_k_135 = fcustom(atr_uxstop_k,fkeeper=FKEEP_135,win_times=250,natr=5)  
 atr5_uxstop_k_120 = fcustom(atr_uxstop_k,fkeeper=FKEEP_120,win_times=250,natr=5)  
 
+
 F20 = lambda bpoint:20
 F25 = lambda bpoint:25
 F30 = lambda bpoint:30
@@ -1921,6 +1922,9 @@ F100 = lambda bpoint:100
 F120 = lambda bpoint:120
 F150 = lambda bpoint:150
 F180 = lambda bpoint:180
+
+atr5_uxstop_kx = fcustom(atr_uxstop_k,fkeeper=FKEEP_250,win_times=250,natr=5,flost_base=F90)  
+
 
 #震荡期止损
 atr5_uxstop_k_oscillating = fcustom(atr_uxstop_k

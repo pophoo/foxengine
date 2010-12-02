@@ -19,8 +19,14 @@ tradesy =  control.itradex8_yy(i00,xfuncs.xxx)
 from wolfox.fengine.ifuture.ibase import *
 import wolfox.fengine.ifuture.iftrade as iftrade
 
+#atr5_uxstop_t_08_25_B2
+#atr5_uxstop_t_08_25_B10
+#atr5_uxstop_kx
+
 def gothrough_filter(sif):  #直通函数
     return cached_ints(1,len(sif.close))
+
+gofilter = gothrough_filter
 
 class XFilter(object):  #为保持系统简单性,不建议用多个过滤器
     def __init__(self,*filters):
@@ -34,7 +40,7 @@ class XFilter(object):  #为保持系统简单性,不建议用多个过滤器
     def add(self,sfilter):
         self.filters.append(sfilter)
 
-class XFilterD1(XFilter): #每日第一次
+class XFilterD1(XFilter): #每日第一次, 已经废弃，合成到XFunc中
     def __call__(self,sif):
         sfs = [f(sif) for f in self.filters]
         signal =  gand(*sfs)
@@ -51,7 +57,7 @@ class XFunc(object):
         ,fwave = gothrough_filter      #波动性过滤函数
         ,fsignal = gothrough_filter   #信号发生函数
         ,ffilter = iftrade.ocfilter   #过滤函数
-        ,fstop = iftrade.atr5_uxstop_k_250     #止损函数
+        ,fstop = iftrade.atr5_uxstop_kx     #止损函数
         ,priority = 1500    #默认，兼容性默认
         ):
         self.name = u'%s:%s:%s:%s' % (func_name(fstate),func_name(fwave),func_name(fsignal),func_name(ffilter))
@@ -59,6 +65,7 @@ class XFunc(object):
         self.fwave = fwave
         self.fsignal = fsignal
         self.fstop = fstop
+        self.stop_closer = fstop
         self.direction = direction
         self.priority = priority
         self.ffilter = ffilter
@@ -69,9 +76,12 @@ class XFunc(object):
         ssignal = self.cached_func(self.fsignal,sif)    #self.fsignal(sif)
         sfilter = self.cached_func(self.ffilter,sif)     #self.ffilter(sif)
         signal = gand(sstate,swave,ssignal,sfilter)
-        #signal = derepeatc(signal)
+        signal = self.signal_filter(sif,signal)
         return signal * self.direction
  
+    def signal_filter(self,sif,signal):    #信号过滤,  如去重或每天第一次
+        return signal
+
     @staticmethod
     def reset():#清空缓存
         XFunc.cache = {}
@@ -91,7 +101,7 @@ class BXFuncA(XFunc):#包含全部信号
         ,fwave = gothrough_filter      #波动性过滤函数
         ,fsignal = gothrough_filter   #信号发生函数
         ,ffilter = iftrade.ocfilter   #过滤函数
-        ,fstop = iftrade.atr5_uxstop_k_250    #止损函数
+        ,fstop = iftrade.atr5_uxstop_kx    #止损函数
         ,priority = 1500
         ):
         XFunc.__init__(self,fstate=fstate,fwave=fwave,fsignal=fsignal,ffilter=ffilter,fstop=fstop,direction=XBUY,priority=priority)
@@ -102,42 +112,47 @@ class SXFuncA(XFunc):#包含全部信号
         ,fwave = gothrough_filter      #波动性过滤函数
         ,fsignal = gothrough_filter   #信号发生函数
         ,ffilter = iftrade.ocfilter   #过滤函数
-        ,fstop = iftrade.atr5_uxstop_k_250     #止损函数
+        ,fstop = iftrade.atr5_uxstop_kx     #止损函数
         ,priority = 1500        
         ):
         XFunc.__init__(self,fstate=fstate,fwave=fwave,fsignal=fsignal,ffilter=ffilter,fstop=fstop,direction=XSELL,priority=priority)
 
-class BXFunc(BXFuncA):#去除连续
-    def __call__(self,sif,sopened=None):
-        signal = XFunc.__call__(self,sif,sopened)
-        signal = derepeatc(signal)
+def dc_filter(sif,signal):
+    return derepeatc(signal)
+
+def d1_filter(sif,signal):
+        signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
+        signal = gand(signal_s == 1)
         return signal
+
+def d1c_filter(sif,signal):
+        signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
+        signal = gand(signal_s == 1)
+        return derepeatc(signal)
+
+class BXFunc(BXFuncA):#去除连续
+    def signal_filter(self,sif,signal):
+        return dc_filter(sif,signal)
 
 class SXFunc(SXFuncA):#去除连续
-    def __call__(self,sif,sopened=None):
-        signal = XFunc.__call__(self,sif,sopened)
-        signal = derepeatc(signal)
-        return signal
+    def signal_filter(self,sif,signal):
+        return dc_filter(sif,signal)
 
-class BXFuncD1(BXFunc):#每日第一次
-    def __call__(self,sif,sopened=None):
-        signal = BXFunc.__call__(self,sif,sopened)
-        signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
-        signal = gand(signal_s == 1)
-        return signal
+class BXFuncD1(BXFuncA):#每日第一次
+    def signal_filter(self,sif,signal):
+        return d1_filter(sif,signal)
 
-class SXFuncD1(SXFunc):#每日第一次
-    def __call__(self,sif,sopened=None):
-        signal = SXFunc.__call__(self,sif,sopened)
-        signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
-        signal = gand(signal_s == 1)
-        return signal
+class SXFuncD1(SXFuncA):#每日第一次
+    def signal_filter(self,sif,signal):
+        return d1_filter(sif,signal)
+
 
 
 ###状态判断集合
 def followU30(sif):
-    return gand(sif.s30>0
-            )
+    return gand(
+            sif.s30>0
+    )
 
 def followU2(sif):
     return gand(
@@ -163,6 +178,7 @@ def followU3(sif):
     return gand(sif.s30>0
                 ,sif.s3>0
                 ,sif.s1>0
+                ,sif.r7>0
         )
 
 def followU3_2(sif):
@@ -201,7 +217,7 @@ def followD4(sif):
     return gand(sif.sdiff30x<0
                 ,sif.sdiff5x<0
                 ,sif.sdiff3x<0
-                ,sif.s3<0
+                ,sif.s3<-2
                 ,sif.r120<0
                 ,sif.r60<0
             )
@@ -210,6 +226,9 @@ def followD4(sif):
 def followD41(sif):
     return gand(sif.sdiff30x<0
                 ,sif.sdiff5x<0
+                ,sif.diff1<0
+                ,sif.s30<0
+                ,sif.s10<0
                 ,sif.s3<0
                 ,sif.r120<0
                 ,sif.r13<0
@@ -222,10 +241,31 @@ def followD42(sif):
                 ,strend2(sif.ma13 - sif.ma30)<0 #差距扩大中
                 ,sif.r60 < 0
                 ,sif.t120<0
+                ,sif.r30<0
             )
 
+def followD43(sif):
+    return gand(sif.r120<0
+                ,sif.s3<0
+                ,sif.s1<0
+                ,sif.r60<0
+        )
 
+def followD1(sif):
 
+    return gand(sif.s1<0
+            ,strend2(sif.ma30)<0
+            ,sif.t120<-2
+            ,sif.r60<20
+           )
+
+def followU1(sif):
+
+    return gand(
+            sif.diff1>sif.dea1
+            ,sif.t120>0
+            ,sif.s30>0
+           )
 
 ### 波动性过滤集合
 def downA(sif):
@@ -237,6 +277,11 @@ def nx2000(sif):
     return gand(sif.xatr<2000
             )
 
+def nx1600B(sif):
+    return gand(sif.xatr<1600
+            ,sif.xatr30x<12000
+    )
+    
 def nx2000B(sif):
     return gand(sif.xatr < 2000
                 ,sif.xatr30x < 10000
@@ -257,6 +302,12 @@ def ZA(sif):
     return gand(
             sif.xatr30x < sif.mxatr30x
          )
+
+def ZB(sif):
+    return gand(sif.xatr > sif.mxatr
+                ,strend2(sif.mxatr30x)<0
+                ,sif.xatr30x < sif.mxatr30x
+        )
 
 
 def downW2(sif):
@@ -286,8 +337,18 @@ def nfilter(sif):
 def efilter(sif):
     return gand(sif.time>914,sif.time<1500)
 
+def efilter2(sif):
+    return gand(sif.time>929,sif.time<1500)
+
+def e1400filter(sif):
+    return gand(sif.time>929,sif.time<1400)
+
+
 def n1400filter(sif):
     return gand(sif.time>944,sif.time<1400)
+
+def n1430filter(sif):
+    return gand(sif.time>944,sif.time<1430)
 
 def exfilter(sif):
     return gor(sif.time<1000,gand(sif.time>=1300,sif.time<=1330))
@@ -327,7 +388,24 @@ def dbreak(sif):#向下突破
     return gand(sif.close <= DA)
     
 def macd5xd(sif):
-    return dnext_cover(cross(sif.dea5x,sif.diff5x)<0,sif.close,sif.i_cof5,1)
+    return dnext_cover(gand(cross(sif.dea5x,sif.diff5x)<0,strend2(sif.diff5x)<0),sif.close,sif.i_cof5,1)
+
+def macd3xd(sif):
+    sk3,sd3 = skdj(sif.high3,sif.low3,sif.close3)
+    sk3x = dnext_cover(sk3,sif.close,sif.i_cof3,3)
+    sd3x = dnext_cover(sd3,sif.close,sif.i_cof3,3)
+    
+    signal = dnext_cover(gand(cross(sif.dea3x,sif.diff3x)<0,strend2(sif.diff3x)<0),sif.close,sif.i_cof3,1)
+    return gand(signal,sk3x < sd3x)
+
+def macd3xu(sif):
+    sk3,sd3 = skdj(sif.high3,sif.low3,sif.close3)
+    sk3x = dnext_cover(sk3,sif.close,sif.i_cof3,3)
+    sd3x = dnext_cover(sd3,sif.close,sif.i_cof3,3)
+    
+    signal = dnext_cover(gand(cross(sif.dea3x,sif.diff3x)>0,strend2(sif.diff3x)>0),sif.close,sif.i_cof3,1)
+    return gand(signal)#,sk3x > sd3x)
+
 
 def ubreak_m(sif):  #冲高后macd上叉
     UA,DA,xhigh10,xlow10 = range_a(sif,914,944,0)
@@ -363,7 +441,7 @@ def ubreak_a(sif):
     ms_da = sum2diff(extend2diff(signal_da,sif.date),sif.date)
 
     return gand(ms_ua==1         #第一个ua
-              ,bnot(ms_da)       #没出现过da 
+              #,bnot(ms_da)       #没出现过da 
        )
     
 
@@ -386,6 +464,15 @@ def dd(sif):
                 rollx(sif.close)<rollx(sif.open),
                 sif.close < sif.open
             )
+
+def dlx(sif):
+    return gand(
+                sif.close < rollx(sif.close),
+                sif.close < sif.open,
+                sif.close < rollx(tmin(sif.low,30)),
+                tmax(sif.high,10) > tmax(sif.high,30) - 30
+            )
+        
 
 def ldhigh(sif):
     return    sif.close > rollx(sif.dhigh)-15
@@ -412,26 +499,30 @@ dds2 = XFilter(dd,down_filter,glow120)
 
 
 dbreak_m5xd = XFilter(dbreak,macd5xd)
+dbreak_m3xd = XFilter(dbreak,macd3xd)
 
     
 xxx = []
-ua_fa = BXFuncA(fstate=followU2,fsignal=ubreak,fwave=upW2,ffilter=nfilter)   #1400之前的更可靠
+ua_fa = BXFuncA(fstate=followU2,fsignal=ubreak,fwave=upW2,ffilter=n1430filter)   #1400之前的更可靠
 ua_fa_m = BXFuncA(fstate=followU2_2,fsignal=ubreak_m,fwave=nx2000,ffilter=n1400filter)   #1400之前的更可靠
-ua_fa_a = BXFuncA(fstate=followU30,fsignal=ubreak_a,fwave=ZA,ffilter=n1400filter)   #1400之前的更可靠,总体不甚可靠
-da_fa = SXFuncA(fstate=followD2,fsignal=dbreak,fwave=downW2,ffilter=nfilter)
-da_m30 = SXFuncA(fstate=followD3,fsignal=dbreak_m5xd,ffilter=nfilter,fwave=downA)
-da_m30b = SXFuncA(fstate=followD32,fsignal=dbreak_m5xd,ffilter=nfilter)
-dbrb = BXFuncA(fstate=followU2_3,fsignal=nhd,fwave=upW3,ffilter=nfilter)
+ua_fa_a = BXFuncA(fstate=followU30,fsignal=ubreak_a,fwave=ZA,ffilter=e1400filter)   #1400之前的更可靠,总体不甚可靠
+da_fa = SXFuncA(fstate=followD2,fsignal=dbreak,fwave=downW2,ffilter=n1430filter)
+da_m30 = SXFuncA(fstate=followD3,fsignal=dbreak_m5xd,fwave=downA,ffilter=n1430filter)
+da_m30b = SXFuncA(fstate=followD32,fsignal=dbreak_m5xd,ffilter=n1430filter)
+dbrb = BXFuncA(fstate=followU2_3,fsignal=nhd,fwave=upW3,ffilter=n1430filter)
 
-
-xxx_break = [ua_fa,da_fa,da_m30,da_m30b,ua_fa_m,ua_fa_a,dbrb]
-
+xxx_break = [ua_fa,da_fa,da_m30,da_m30b,ua_fa_m,dbrb,ua_fa_a]
 
 xuub = BXFuncA(fstate=followU3,fsignal=uub1,fwave=narrowW,ffilter=exfilter)
 xuub2 = BXFuncA(fstate=followU3_2,fsignal=uub2,fwave=narrowW,ffilter=ixfilter)
-xdds = SXFunc(fstate=followD4,fsignal=dds1,ffilter=exfilter,fwave=nx2000)
-xdds2 = SXFunc(fstate=XFilterD1(followD41),fsignal=dds2,ffilter=ixfilter,fwave=nx2000)
+xdds = SXFuncA(fstate=followD4,fsignal=dds1,fwave=nx2000,ffilter=exfilter)
+xdds2 = SXFuncD1(fstate=followD41,fsignal=dds2,fwave=nx2000,ffilter=ixfilter)
+xdds4 = SXFuncA(fstate=followD42,fsignal=dd,fwave=nx2000B,ffilter=efilter)
+xds = SXFunc(fstate=followD43,fsignal=dlx,fwave=ZB,ffilter=efilter)
 
-xxx_orb = [xuub,xuub2]
+xxx_orb = [xuub,xuub2,xdds,xdds2,xdds4,xds]
 
-####测试macd3的上下叉
+xmacd3s = SXFuncD1(fstate = followD1,fsignal=macd3xd,fwave=nx1600B,ffilter=n1400filter)
+
+xxx_index  = [xmacd3s]
+

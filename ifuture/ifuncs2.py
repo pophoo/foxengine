@@ -2934,6 +2934,31 @@ def ddxs2(sif,sopened=None):
 ddxs2.direction = XSELL
 ddxs2.priority = 1500
 
+def madx(sif,sopened=None):
+    '''
+        当日第一次失败后不再进入
+    '''
+    signal = gand(strend2(sif.ma13)<0
+                ,strend2(sif.ma30)<0
+                ,strend2(sif.ma13-sif.ma30)<-4
+                )
+    signal = gand(signal
+            ,sif.s30<0
+            ,sif.s5<0
+            ,sif.s1<0
+            )
+
+    signal = np.select([gand(sif.time>944,sif.time<1400)],[signal],0)    
+
+    signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal_s==1)
+    signal = derepeatc(signal)
+
+    return signal * madx.direction
+madx.direction = XSELL
+madx.priority = 1500
+
+
 #######filter设置
 br30.filter = iftrade.ocfilter
 acd_ua.filter = iftrade.ocfilter
@@ -3027,6 +3052,7 @@ xxx_break =[
             br30,
             acd_ua,
             dbrb,
+            madx,
         ]
 
 for x in xxx_break:
@@ -3212,7 +3238,7 @@ for x in ifuncs2a.k1s + ifuncs2a.k1s2 + ifuncs2a.xorb:
     
 
 #xxx = xxx_others + xxx_break + xxx_against + xxx_follow + xxx_k1s + xxx_orb
-xxx = xxx_against + xxx_k1s + xxx_orb + xxx_break + xxx_trend+ xxx_follow
+xxx = xxx_against + xxx_k1s + xxx_orb + xxx_break# + xxx_trend+ xxx_follow
 xxx1 = xxx
 xxx2 = xxx1  #+ ifuncs2a.xevs#+ ifuncs2a.xorb
 xxx3 = xxx1+ ifuncs2a.k1s + ifuncs2a.k1s2 + ifuncs2a.xorb

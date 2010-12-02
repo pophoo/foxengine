@@ -151,28 +151,28 @@ class SXFuncD1(SXFuncA):#每日第一次
 ###状态判断集合
 def followU30(sif):
     return gand(
-            sif.s30>0
+           sif.s30>0
     )
 
 def followU2(sif):
     return gand(
-              sif.diff1>0  
-              ,sif.s30>0
-              ,sif.ma13 > sif.ma30
+              sif.s30>0
               ,strend2(sif.ma60)>0
-              ,sif.r20>0
               ,sif.xstate>0              
+              ,sif.ma13 > sif.ma30
     )
 
 def followU2_2(sif):
     return gand(sif.s30>0
             ,sif.mtrend>0
+            ,sif.sdma>0
           )
         
 def followU2_3(sif):
     return gand(sif.r60>20
             ,strend2(sif.ma30)>10   #这个差异非常大
-            )
+            ,sif.s1>0
+         )
 
 def followU3(sif):
     return gand(sif.s30>0
@@ -190,12 +190,14 @@ def followU3_2(sif):
 
 
 def followD2(sif):
-    return gand(sif.diff1<0  #以强为主
+    #需要首盈继续，首亏歇手
+    return gand(
+                sif.diff1<0  #以强为主
                 ,sif.s30 < 0
-                ,sif.smacd30x < 0   #不是偶然变小
-                ,sif.t120 < 0    
+                ,sif.s5<0
+                ,sif.t120 < 0
+                ,sif.r120< 0
                 ,sif.r60 < 0    
-                ,sif.r20 < 0
                 ,strend2(sif.ma60)<0
             )
 
@@ -210,6 +212,7 @@ def followD32(sif):
     return  gand(gor(strend2(sif.sdiff30x-sif.sdea30x)<0,sif.s30<0)
                   ,strend2(sif.diff1-sif.dea1)<0
                   ,sif.xstate<0
+                  ,sif.s1<0
             )
 
 
@@ -252,8 +255,9 @@ def followD43(sif):
         )
 
 def followD1(sif):
-
-    return gand(sif.s1<0
+    return gand(
+            sif.s1<-5
+            ,sif.s3<-2
             ,strend2(sif.ma30)<0
             ,sif.t120<-2
             ,sif.r60<20
@@ -301,6 +305,7 @@ def upW3(sif):
 def ZA(sif):
     return gand(
             sif.xatr30x < sif.mxatr30x
+            ,sif.xatr < 2000
          )
 
 def ZB(sif):
@@ -396,6 +401,7 @@ def macd3xd(sif):
     sd3x = dnext_cover(sd3,sif.close,sif.i_cof3,3)
     
     signal = dnext_cover(gand(cross(sif.dea3x,sif.diff3x)<0,strend2(sif.diff3x)<0),sif.close,sif.i_cof3,1)
+ 
     return gand(signal,sk3x < sd3x)
 
 def macd3xu(sif):
@@ -481,7 +487,7 @@ def lhigh120(sif):
     return sif.close > rollx(tmax(sif.high,120))-30
 
 def down_filter(sif):
-    return  sif.open - sif.close < 100
+    return  sif.open - sif.close < 120
 
 def gdlow(sif):
     return  sif.close < rollx(sif.dlow)+10
@@ -496,7 +502,7 @@ uub2 = XFilter(uu,lhigh120)
 
 dds1 = XFilter(dd,down_filter,gdlow)
 dds2 = XFilter(dd,down_filter,glow120)
-
+dds4 = XFilter(dd,down_filter)
 
 dbreak_m5xd = XFilter(dbreak,macd5xd)
 dbreak_m3xd = XFilter(dbreak,macd3xd)
@@ -517,12 +523,19 @@ xuub = BXFuncA(fstate=followU3,fsignal=uub1,fwave=narrowW,ffilter=exfilter)
 xuub2 = BXFuncA(fstate=followU3_2,fsignal=uub2,fwave=narrowW,ffilter=ixfilter)
 xdds = SXFuncA(fstate=followD4,fsignal=dds1,fwave=nx2000,ffilter=exfilter)
 xdds2 = SXFuncD1(fstate=followD41,fsignal=dds2,fwave=nx2000,ffilter=ixfilter)
-xdds4 = SXFuncA(fstate=followD42,fsignal=dd,fwave=nx2000B,ffilter=efilter)
+xdds4 = SXFuncA(fstate=followD42,fsignal=dds4,fwave=nx2000B,ffilter=efilter)
 xds = SXFunc(fstate=followD43,fsignal=dlx,fwave=ZB,ffilter=efilter)
 
 xxx_orb = [xuub,xuub2,xdds,xdds2,xdds4,xds]
 
+#这个止损要够忍，就是说上去后还要忍下来才行
 xmacd3s = SXFuncD1(fstate = followD1,fsignal=macd3xd,fwave=nx1600B,ffilter=n1400filter)
+
+
 
 xxx_index  = [xmacd3s]
 
+xxx = xxx_break+xxx_orb
+
+for x in xxx:
+    x.stop_closer = iftrade.atr5_uxstop_kx

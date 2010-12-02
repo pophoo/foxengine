@@ -117,13 +117,30 @@ class SXFuncA(XFunc):#包含全部信号
         ):
         XFunc.__init__(self,fstate=fstate,fwave=fwave,fsignal=fsignal,ffilter=ffilter,fstop=fstop,direction=XSELL,priority=priority)
 
-def dc_filter(sif,signal):
+def dc_filter(sif,signal):  #去除连续信号
     return derepeatc(signal)
 
-def d1_filter(sif,signal):
-        signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
-        signal = gand(signal_s == 1)
-        return signal
+def d1_filter(sif,signal):  #当日第一次
+    signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
+    signal = gand(signal_s == 1)
+    return signal
+
+def df1_b_filter(sif,signal): #当时失败停止, 多头. 存在问题：成功后下去也导致不能开仓
+    signal1 = d1_filter(sif,signal)
+    sopen = np.select([signal!=0],[(sif.open+sif.high)/2],0)
+    sopens = extend2diff(sopen,sif.date)
+    sfailed = d1_filter(sif,sif.low < sopens-80)   #第一个失败
+    sfailed = extend2diff(sfailed,sif.date)
+    return gand(bnot(sfailed),signal)    #失败之前
+
+def df1_s_filter(sif,signal): #当时失败停止, 空头
+    signal1 = d1_filter(sif,signal)
+    sopen = np.select([signal!=0],[(sif.open+sif.low)/2],0)
+    sopens = extend2diff(sopen,sif.date)
+    sopens = np.select([sopens!=0],[sopens],99999999)   #在当日第一个信号之前的数据应当设置为最大值
+    sfailed = d1_filter(sif,sif.high > sopens+80)   #第一个失败
+    sfailed = extend2diff(sfailed,sif.date)
+    return gand(bnot(sfailed),signal)    #失败之前
 
 def d1c_filter(sif,signal):
         signal_s = sum2diff(extend2diff(signal,sif.date),sif.date)
@@ -145,6 +162,15 @@ class BXFuncD1(BXFuncA):#每日第一次
 class SXFuncD1(SXFuncA):#每日第一次
     def signal_filter(self,sif,signal):
         return d1_filter(sif,signal)
+
+class BXFuncF1(BXFuncA):#每日只失败一次
+    def signal_filter(self,sif,signal):
+        return df1_b_filter(sif,signal)
+
+class SXFuncF1(SXFuncA):#每日只失败一次
+    def signal_filter(self,sif,signal):
+        return df1_s_filter(sif,signal)
+
 
 
 
@@ -509,10 +535,13 @@ dbreak_m3xd = XFilter(dbreak,macd3xd)
 
     
 xxx = []
+#突破系列必须用ALL
 ua_fa = BXFuncA(fstate=followU2,fsignal=ubreak,fwave=upW2,ffilter=n1430filter)   #1400之前的更可靠
 ua_fa_m = BXFuncA(fstate=followU2_2,fsignal=ubreak_m,fwave=nx2000,ffilter=n1400filter)   #1400之前的更可靠
 ua_fa_a = BXFuncA(fstate=followU30,fsignal=ubreak_a,fwave=ZA,ffilter=e1400filter)   #1400之前的更可靠,总体不甚可靠
 da_fa = SXFuncA(fstate=followD2,fsignal=dbreak,fwave=downW2,ffilter=n1430filter)
+
+#这些可以用D1/F1
 da_m30 = SXFuncA(fstate=followD3,fsignal=dbreak_m5xd,fwave=downA,ffilter=n1430filter)
 da_m30b = SXFuncA(fstate=followD32,fsignal=dbreak_m5xd,ffilter=n1430filter)
 dbrb = BXFuncA(fstate=followU2_3,fsignal=nhd,fwave=upW3,ffilter=n1430filter)
@@ -532,10 +561,9 @@ xxx_orb = [xuub,xuub2,xdds,xdds2,xdds4,xds]
 xmacd3s = SXFuncD1(fstate = followD1,fsignal=macd3xd,fwave=nx1600B,ffilter=n1400filter)
 
 
-
 xxx_index  = [xmacd3s]
 
 xxx = xxx_break+xxx_orb
 
 for x in xxx:
-    x.stop_closer = iftrade.atr5_uxstop_kx
+    x.stop_closer = iftrade.atr5_uxstop_k60

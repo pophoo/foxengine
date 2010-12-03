@@ -2089,6 +2089,21 @@ F110 = lambda bpoint:110
 F120 = lambda bpoint:120
 F150 = lambda bpoint:150
 F180 = lambda bpoint:180
+F250 = lambda bpoint:250
+
+atr5_uxstop_k0 = fcustom(atr_uxstop_k,fkeeper=F40,win_times=250,natr=5,flost_base=F60)      #40-60
+atr5_uxstop_kA = fcustom(atr_uxstop_k,fkeeper=F60,win_times=250,natr=5,flost_base=F40)      #60-40
+atr5_uxstop_kB = fcustom(atr_uxstop_k,fkeeper=F60,win_times=250,natr=5,flost_base=F50)      #60-60
+atr5_uxstop_kC = fcustom(atr_uxstop_k,fkeeper=F60,win_times=250,natr=5,flost_base=F60)      #60-60
+atr5_uxstop_kD = fcustom(atr_uxstop_k,fkeeper=F60,win_times=250,natr=5,flost_base=F80)      #60-80
+atr5_uxstop_kE = fcustom(atr_uxstop_k,fkeeper=F60,win_times=250,natr=5,flost_base=F90)      #60-90
+
+#貌似最好? 60止损，120的保本
+atr5_uxstop_kF = fcustom(atr_uxstop_k,fkeeper=F120,win_times=250,natr=5,flost_base=F60)      #120-60
+
+atr5_uxstop_kG = fcustom(atr_uxstop_k,fkeeper=F180,win_times=250,natr=5,flost_base=F60)      #120-60
+atr5_uxstop_kH = fcustom(atr_uxstop_k,fkeeper=F250,win_times=250,natr=5,flost_base=F60)      #120-60
+
 
 atr5_uxstop_kx = fcustom(atr_uxstop_k,fkeeper=F80,win_times=250,natr=5,flost_base=F90)  
 atr5_uxstop_k30 = fcustom(atr_uxstop_k,fkeeper=F30,win_times=250,natr=5,flost_base=F90)  

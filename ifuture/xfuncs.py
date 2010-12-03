@@ -257,7 +257,6 @@ def followD41(sif):
                 ,sif.sdiff5x<0
                 ,sif.diff1<0
                 ,sif.s30<0
-                ,sif.s10<0
                 ,sif.s3<0
                 ,sif.r120<0
                 ,sif.r13<0
@@ -270,7 +269,7 @@ def followD42(sif):
                 ,strend2(sif.ma13 - sif.ma30)<0 #差距扩大中
                 ,sif.r60 < 0
                 ,sif.t120<0
-                ,sif.r30<0
+                #,sif.r30<0
             )
 
 def followD43(sif):
@@ -368,12 +367,21 @@ def nfilter(sif):
 def efilter(sif):
     return gand(sif.time>914,sif.time<1500)
 
+def e1400filter(sif):
+    return gand(sif.time>914,sif.time<1400)
+
+def e1430filter(sif):
+    return gand(sif.time>914,sif.time<1430)
+
+
 def efilter2(sif):
     return gand(sif.time>929,sif.time<1500)
 
-def e1400filter(sif):
+def e1400filter2(sif):
     return gand(sif.time>929,sif.time<1400)
 
+def e1430filter2(sif):
+    return gand(sif.time>929,sif.time<1430)
 
 def n1400filter(sif):
     return gand(sif.time>944,sif.time<1400)
@@ -490,12 +498,25 @@ def uu(sif):
                 sif.close - sif.open < 120,
             )    
 
+def uu2(sif):
+    return gand(rollx(sif.close,1) > rollx(sif.close,2),
+                sif.close > rollx(sif.close),
+            )    
+
+
 def dd(sif):
     return gand(rollx(sif.close,1) < rollx(sif.close,2),
                 sif.close < rollx(sif.close),
                 rollx(sif.close)<rollx(sif.open),
                 sif.close < sif.open
             )
+
+def dd2(sif):
+    return gand(rollx(sif.close,1) < rollx(sif.close,2),
+                sif.close < rollx(sif.close),
+                sif.close < sif.open,
+            )
+
 
 def dlx(sif):
     return gand(
@@ -522,6 +543,34 @@ def glow120(sif):
     return sif.close < rollx(tmin(sif.low,120))+60
 
 
+def k3d3(sif):
+    signal3 = gand(sif.close3 < sif.open3,
+                   rollx(sif.close3) < rollx(sif.open3),
+                   rollx(sif.close3,2) < rollx(sif.open3,2),
+                   sif.high3 < rollx(sif.high3,2),
+                   rollx(sif.high3)<rollx(sif.high3,2),
+                   sif.close3 < rollx(sif.close3,2),
+                   sif.diff3x < sif.dea3x,
+                   sif.low3 == tmin(sif.low3,3),
+                )
+    return dnext_cover(signal3,sif.close,sif.i_cof3,1)
+
+def k5d3(sif):
+    ma5_13 = ma(sif.close5,13)
+    ma5_30 = ma(sif.close5,30)    
+    ma5_60 = ma(sif.close5,60)        
+    signal5 = gand(sif.close5 < sif.open5,
+                   rollx(sif.close5) < rollx(sif.open5),
+                   rollx(sif.close5,2) < rollx(sif.open5,2),
+                   sif.high5 < rollx(sif.high5,2),
+                   rollx(sif.high5)<rollx(sif.high5,2),
+                   sif.close5 < rollx(sif.close5,2),
+                   sif.diff5x < sif.dea5x,
+                   sif.low5 == tmin(sif.low5,3),
+                   strend2(ma5_30)<0,
+                )
+    return dnext_cover(signal5,sif.close,sif.i_cof5,1)
+
 
 uub1 = XFilter(uu,ldhigh)
 uub2 = XFilter(uu,lhigh120)
@@ -536,10 +585,10 @@ dbreak_m3xd = XFilter(dbreak,macd3xd)
     
 xxx = []
 #突破系列必须用ALL
-ua_fa = BXFuncA(fstate=followU2,fsignal=ubreak,fwave=upW2,ffilter=n1430filter)   #1400之前的更可靠
+ua_fa = BXFuncA(fstate=followU2,fsignal=XFilter(ubreak),fwave=upW2,ffilter=n1430filter)   #1400之前的更可靠
 ua_fa_m = BXFuncA(fstate=followU2_2,fsignal=ubreak_m,fwave=nx2000,ffilter=n1400filter)   #1400之前的更可靠
-ua_fa_a = BXFuncA(fstate=followU30,fsignal=ubreak_a,fwave=ZA,ffilter=e1400filter)   #1400之前的更可靠,总体不甚可靠
-da_fa = SXFuncA(fstate=followD2,fsignal=dbreak,fwave=downW2,ffilter=n1430filter)
+ua_fa_a = BXFuncA(fstate=followU30,fsignal=XFilter(ubreak_a),fwave=ZA,ffilter=e1400filter2)   #1400之前的更可靠,总体不甚可靠
+da_fa = SXFuncF1(fstate=followD2,fsignal=XFilter(dbreak,dd2),fwave=downW2,ffilter=n1400filter)
 
 #这些可以用D1/F1
 da_m30 = SXFuncA(fstate=followD3,fsignal=dbreak_m5xd,fwave=downA,ffilter=n1430filter)
@@ -552,8 +601,8 @@ xuub = BXFuncA(fstate=followU3,fsignal=uub1,fwave=narrowW,ffilter=exfilter)
 xuub2 = BXFuncA(fstate=followU3_2,fsignal=uub2,fwave=narrowW,ffilter=ixfilter)
 xdds = SXFuncA(fstate=followD4,fsignal=dds1,fwave=nx2000,ffilter=exfilter)
 xdds2 = SXFuncD1(fstate=followD41,fsignal=dds2,fwave=nx2000,ffilter=ixfilter)
-xdds4 = SXFuncA(fstate=followD42,fsignal=dds4,fwave=nx2000B,ffilter=efilter)
-xds = SXFunc(fstate=followD43,fsignal=dlx,fwave=ZB,ffilter=efilter)
+xdds4 = SXFuncA(fstate=followD42,fsignal=dds4,fwave=nx2000B,ffilter=e1430filter)    #1430
+xds = SXFunc(fstate=followD43,fsignal=dlx,fwave=ZB,ffilter=e1430filter)     #1430
 
 xxx_orb = [xuub,xuub2,xdds,xdds2,xdds4,xds]
 
@@ -561,9 +610,42 @@ xxx_orb = [xuub,xuub2,xdds,xdds2,xdds4,xds]
 xmacd3s = SXFuncD1(fstate = followD1,fsignal=macd3xd,fwave=nx1600B,ffilter=n1400filter)
 
 
+
 xxx_index  = [xmacd3s]
 
-xxx = xxx_break+xxx_orb
+###K线
+###3分钟K线3连阴，且打到diff<dea
+
+def downK5(sif):
+    return gand(
+                sif.xatr30x <10000,
+                #sif.xatr30x > sif.mxatr30x,    #这个条件很加强
+                sif.s3<-1,
+                sif.t120<0,
+            )
+
+def downK3(sif):
+    return gand(strend2(sif.ma30)<0,
+                sif.ma13< sif.ma30,
+                sif.xatr30x <10000,
+                sif.sdiff3x<0,
+                sif.s5<-3,
+                sif.t120<0,
+            )
+
+
+k3_d3 = SXFuncA(fstate=downK3,fsignal=k3d3,fwave=gofilter,ffilter=nfilter)
+k5_d3 = SXFuncD1(fstate=downK5,fsignal=k5d3,fwave=gofilter,ffilter=n1430filter)
+
+xxx_k = [k5_d3]#,k3_d3]
+
+xxx = xxx_break+xxx_orb + xxx_k
 
 for x in xxx:
-    x.stop_closer = iftrade.atr5_uxstop_k60
+    #x.stop_closer = iftrade.atr5_uxstop_k0 #40/60
+    #x.stop_closer = iftrade.atr5_uxstop_kC #60/60   
+    #x.stop_closer = iftrade.atr5_uxstop_kD #60/80       
+    x.stop_closer = iftrade.atr5_uxstop_kF #60/120       
+    #x.stop_closer = iftrade.atr5_uxstop_k60 #60/90
+    #x.stop_closer = iftrade.atr5_uxstop_k90 #60/90
+    #x.stop_closer = iftrade.atr5_uxstop_k120 #60/20

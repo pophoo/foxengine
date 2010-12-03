@@ -1193,6 +1193,31 @@ def k5_d_y(sif,sopened=None):
 k5_d_y.direction = XSELL
 k5_d_y.priority = 2100
 
+def k5_d_z(sif):
+    signal5 = gand(sif.close5 < sif.open5,
+                   rollx(sif.close5) < rollx(sif.open5),
+                   rollx(sif.close5,2) < rollx(sif.open5,2),
+                   sif.high5 < rollx(sif.high5,2),
+                   rollx(sif.high5)<rollx(sif.high5,2),
+                   sif.close5 < rollx(sif.close5,2),
+                   sif.diff5x < sif.dea5x,
+                   sif.low5 == tmin(sif.low5,3),
+                )
+    signal = dnext_cover(signal5,sif.close,sif.i_cof5,1)
+    signal = gand(signal,
+                strend2(sif.ma30)<0,
+                sif.ma13< sif.ma30,
+                sif.xatr30x <10000,
+                sif.sdiff3x<0,
+                sif.s3<-3,
+                sif.t120<0,
+            )
+    return signal * k5_d_z.direction
+k5_d_z.direction = XSELL
+k5_d_z.priority = 2100
+
+
+
 def k5_u_a(sif,sopened=None):
     '''
         底部衰竭模式
@@ -2982,6 +3007,8 @@ k5_d_b.filter = iftrade.ocfilter
 k5_d_c.filter = iftrade.ocfilter
 k5_d_x.filter = iftrade.ocfilter
 k5_d_y.filter = iftrade.ocfilter
+k5_d_z.filter = iftrade.socfilter
+
 k5_u_a.filter = iftrade.ocfilter
 k5_u_b.filter = iftrade.ocfilter
 
@@ -3083,6 +3110,7 @@ xxx_against = [
             k5_d_c,
             k5_d_x,
             #k5_d_y,
+            #k5_d_z,
 
             k5_u_a,
             k5_u_b,

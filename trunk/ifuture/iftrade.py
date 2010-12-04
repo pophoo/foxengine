@@ -1361,6 +1361,8 @@ def atr_uxstop_t(sif,sopened
 FBASE_30 = lambda bpoint: 100 if bpoint < 30000 else 100
 F60_15 = lambda bpoint: 150 if bpoint < 30000 else 150
 F100_25 = lambda bpoint: 250 if bpoint < 30000 else 250
+F60_18 = lambda bpoint: 180 if bpoint < 30000 else 180
+
 
 def atr_uxstop_f(sif,sopened
         ,sbclose
@@ -2099,7 +2101,16 @@ atr5_uxstop_kD = fcustom(atr_uxstop_k,fkeeper=F60,win_times=250,natr=5,flost_bas
 atr5_uxstop_kE = fcustom(atr_uxstop_k,fkeeper=F60,win_times=250,natr=5,flost_base=F90)      #60-90
 
 #貌似最好? 60止损，120的保本
+atr5_uxstop_kT = fcustom(atr_uxstop_k,fkeeper=F100,win_times=250,natr=5,flost_base=F60)      #120-60
 atr5_uxstop_kF = fcustom(atr_uxstop_k,fkeeper=F120,win_times=250,natr=5,flost_base=F60)      #120-60
+atr5_uxstop_kS = fcustom(atr_uxstop_k,fkeeper=F150,win_times=250,natr=5,flost_base=F60)      #120-60
+atr5_uxstop_kJ = fcustom(atr_uxstop_k,fkeeper=F120,win_times=250,natr=5,flost_base=F70)      #120-70    #
+atr5_uxstop_kN = fcustom(atr_uxstop_k,fkeeper=F120,win_times=250,natr=5,flost_base=F80)      #120-80
+
+
+#镜像,缺乏意义。在风险处理上没有一致性
+atr5_uxstop_kFR = fcustom(atr_uxstop_k,fkeeper=F60,win_times=250,natr=5,flost_base=F120)      #120-60
+
 
 atr5_uxstop_kG = fcustom(atr_uxstop_k,fkeeper=F180,win_times=250,natr=5,flost_base=F60)      #120-60
 atr5_uxstop_kH = fcustom(atr_uxstop_k,fkeeper=F250,win_times=250,natr=5,flost_base=F60)      #120-60

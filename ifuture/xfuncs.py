@@ -678,7 +678,7 @@ xxx_index  = [xmacd3s]
 
 ###K线
 ###3分钟K线3连阴，且打到diff<dea
-#K系列
+#顺势K系列
 #信号
 def k3d3(sif):
     signal3 = gand(sif.close3 < sif.open3,
@@ -735,6 +735,41 @@ def T15_H1(sif,sopened=None):
     
     return signal
 
+def T15_M3(sif,sopened=None,delay=30):
+    signal15 = gand(
+                rollx(sif.high15) == tmax(sif.high15,3)
+                ,sif.low15 < rollx(sif.low15)
+                )
+
+    bline15 = gmin(sif.close15,sif.open15)  #sif.low15
+    bline = dnext_cover(np.select([signal15>0],[bline15],[0]),sif.close,sif.i_cof15,delay)
+
+
+    signal = sif.close < bline
+    return signal    
+
+T15_M3B = fcustom(T15_M3,delay=15)
+
+def T15_L3(sif,sopened=None):
+    '''
+        15分钟调整后上涨模式
+    '''
+    
+    signal15 = gand(
+                rollx(sif.low15,1) < rollx(sif.low15,2)
+                ,rollx(sif.low15,1) < sif.low15
+                )
+
+    delay = 30
+
+    bline15 = rollx(gmax(sif.open15,sif.close15),1)
+    bline = dnext_cover(np.select([signal15>0],[bline15],[0]),sif.close,sif.i_cof15,delay)
+
+    signal = sif.close > bline
+
+    return signal
+
+
 #状态
 def S5A(sif):
     return gand(sif.s3<0,
@@ -751,6 +786,25 @@ def S15A(sif):
             sif.s3<0,
         )
 
+def S15M3(sif):
+    return gand(
+        sif.t120<0,
+        sif.r13<0,
+        sif.ma3 < sif.ma13,
+        sif.sdiff30x<0,
+        sif.sdiff3x<0,
+    )
+
+def S15M3B(sif):
+    return gand(
+            sif.t120<0,
+            sif.r30< 0,
+            sif.s3<0,
+            sif.s5<0,
+            sif.ma3<sif.ma13,
+        )
+    
+
 #波动过滤
 
 def W5A(sif):
@@ -765,6 +819,23 @@ def W5A2(sif):
                 strend2(sif.mxatr)<0,
             )
 
+def W15M3(sif):
+    return gand(
+            sif.xatr < 2500,
+            sif.xatr30x < 10000,
+            strend2(sif.mxatr)>0,
+            sif.xatr<sif.mxatr,
+            #strend2(sif.mxatr30x)<0,   #添加这个条件之后，效果太好以至于不敢使用
+        )
+
+def W15M3B(sif):
+    return gand(
+            strend2(sif.mxatr)>0,
+            strend2(sif.mxatr30x)<0,
+            sif.xatr < 2500,
+            sif.xatr30x < 10000,
+        )
+
 
 k3_d3 = SXFuncD1(fstate=followD44,fsignal=k3d3,fwave=downW2,ffilter=n1430filter)  #无好设置
 
@@ -772,15 +843,19 @@ k5_d3 = SXFuncD1(fstate=S5A,fsignal=k5d3,fwave=W5A,ffilter=n1430filter) #回撤�
 
 k5_d3b = SXFuncD1(fstate=S5A,fsignal=k5d3,fwave=W5A2,ffilter=n1430filter)
 
-K15_60 = SXFunc(fstate=S15A,fsignal=T15_H1,fwave=ZC,ffilter=nfilter)   #顺势的交易
-
+K15_H1 = SXFunc(fstate=S15A,fsignal=T15_H1,fwave=ZC,ffilter=nfilter)   #顺势的交易
+K15_M3 = SXFuncA(fstate=S15M3,fsignal=T15_M3,fwave=W15M3,ffilter=nfilter) #
+K15_M3B = SXFuncA(fstate=S15M3B,fsignal=T15_M3B,fwave=W15M3B,ffilter=nfilter) #
 
 k_3_5_x = CFuncF1(u'k5_k15组合',k3_d3,k5_d3b)
 
-k_315_x = CFuncF1(u'k3+k15组合',k3_d3,k5_d3b,K15_60)  #D1,F1无增益
+k_315_x = CFuncF1(u'k3+k15组合',k3_d3,k5_d3b,K15_H1)  #D1,F1无增益
 
-xxx_k = [k3_d3,K15_60,k5_d3b]
-xxx_k_insides = [k3_d3,k5_d3,K15_60]
+k_15_x = CFuncF1(u'K15顺势组合',K15_H1,K15_M3,K15_M3B)
+k_15_c = [K15_H1,K15_M3,K15_M3B]
+
+xxx_k = [k3_d3,k5_d3b,k_15_x]
+xxx_k_insides = [k3_d3,k5_d3,K15_H1,K15_M3,K15_M3B]
 
 #逆势
 #信号
@@ -799,6 +874,7 @@ def T15_120h(sif):
     
     signal = sif.close < bline
     return signal    
+
 
 def T15_M(sif,sopened=None):
     '''
@@ -825,6 +901,30 @@ def T15_M(sif,sopened=None):
     signal = sif.close < bline
     return signal
 
+def T15_H5(sif,sopened=None):
+    '''
+        15分钟调整模式
+            创新高后7分钟内跌回，并且rsi下叉
+        其中主条件是下叉时，跌破该15分钟的最低线            
+    '''
+    
+    signal15 = gand(sif.high15 == tmax(sif.high15,5)
+                )
+
+    delay = 15
+
+    bline15 = sif.low15
+    bline = dnext_cover(np.select([signal15>0],[bline15],[0]),sif.close,sif.i_cof15,delay)
+
+    rsia = sif.rsi7 
+    rsib = sif.rsi19 
+
+    signal = gand(sif.low < bline
+                ,cross(rsib,rsia)<0
+                ,strend2(rsia)<0
+                )
+    return signal
+
 
 #状态
 def AS15A(sif):
@@ -847,7 +947,12 @@ def AS15M(sif):
             sif.r60>0,
           )
     
-
+def AS15H5(sif):
+    return gand(
+            sif.ma5 < sif.ma13,
+            sif.r120>0,
+        )
+    
 #波动过滤
 def W15A(sif):
     return gand(
@@ -870,14 +975,25 @@ def W15M(sif):
             sif.xatr30x < 12000,
           )
 
+def W15H5(sif):
+    return gand(
+            sif.xatr > sif.mxatr,
+            sif.xatr > 800,
+        )
+    
+        
+
 FA_15_120 = SXFunc(fstate=AS15A,fsignal=T15_120h,fwave=W15A,ffilter=n1430filter)
 FA_15_120B = SXFunc(fstate=AS15A2,fsignal=T15_120h,fwave=ZA,ffilter=nfilter)
 
+
+FA_15_M = SXFuncA(fstate=AS15M,fsignal=T15_M,fwave=gofilter,ffilter=nfilter) 
+FA_15_H5 = SXFuncA(fstate=AS15H5,fsignal=T15_H5,fwave=W15H5,ffilter=efilter)    #样本数太少
+
+
 FA_15_120_C = [FA_15_120,FA_15_120B]
 
-FA_15_M = SXFuncA(fstate=AS15M,fsignal=T15_M,fwave=gofilter,ffilter=nfilter) #样本太少,没有用
-
-#逆势同类项每天只做一次
+#逆势同周期同方向每天只做一次
 FA_15_120X = CFuncD1(u'FA15集合',FA_15_120,FA_15_120B,FA_15_M)
 
 

@@ -11,6 +11,10 @@ XBUY,XSELL = 1,-1   #买入，卖出信号
 #开平仓的标记
 XOPEN,XCLOSE = -1,1 #开仓,平仓
 
+#策略趋势 : 顺势、中性、逆势
+TFOLLOW,TNORMAL,TAGAINST = 1,0,-1
+
+
 XBASE = 100 #用于一般化的除数基数
 
 TAX = 10    #tax为0.8个点,设为1
@@ -68,6 +72,12 @@ def get_func_attr(func,attr_name):
     while(isinstance(cfunc,functools.partial)):
         cfunc = cfunc.func
     return cfunc.__dict__[attr_name]
+
+def get_func(func):
+    cfunc = func
+    while(isinstance(cfunc,functools.partial)):
+        cfunc = cfunc.func
+    return cfunc
 
 def func_name(func):
     if 'name' in func.__dict__:

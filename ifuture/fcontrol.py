@@ -279,7 +279,7 @@ itradex8_ztp = fcustom(iftrade.itradezp,stop_closer=iftrade.atr5_uxstop_t_08_25_
 
 #itradex8_yy = fcustom(iftrade.itradey,stop_closer=iftrade.atr5_uxstop_t_08_25_B2,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 
-itradex8_yy = fcustom(iftrade.itradey,stop_closer=iftrade.atr5_uxstop_kx,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+itradex8_yy = fcustom(iftrade.itradey,stop_closer=iftrade.atr5_uxstop_kN,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 
 itradex8_nx = fcustom(iftrade.itradey,stop_closer=iftrade.atr5_uxstop_nx,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 

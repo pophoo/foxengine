@@ -703,7 +703,6 @@ def k15_d_b(sif,sopened=None):
         15分钟新高后,15分钟内1分钟跌破前15分钟的开盘价(收盘价的低者)/最低价
     '''
     
-    trans = sif.transaction
 
     ma15_60 = ma(sif.close15,60) 
     ma15_30 = ma(sif.close15,30) 
@@ -740,7 +739,6 @@ k15_d_b.priority = 2100
 def k15_d_c(sif,sopened=None):
     '''
         15分钟调整模式
-        这里最强的筛选条件是 xatr30x>8000
         说明震荡非常大. 通常是顶部震荡
         效果不错，但是叠加不好
     '''
@@ -1020,7 +1018,6 @@ def k5_d_a(sif,sopened=None):
             就是说这个一个返回时的支撑点，3分钟内击穿就击穿了
         8分钟吞没是假突破
     '''
-    trans = sif.transaction
  
     signal5 = gand(
                 #rollx(sif.high5) == tmax(sif.high5,12) #上周期是顶点
@@ -1061,7 +1058,6 @@ def k5_d_b(sif,sopened=None):
         在下一个五分钟之后的5分钟内击穿
         
     '''
-    trans = sif.transaction
  
     signal5 = gand(
                 rollx(sif.high5) == tmax(sif.high5,36) #上周期是顶点

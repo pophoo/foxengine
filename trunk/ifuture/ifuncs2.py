@@ -855,9 +855,8 @@ def k15_d_z(sif,sopened=None):
     bline15 = sif.low15
     bline = dnext_cover(np.select([signal15>0],[bline15],[0]),sif.close,sif.i_cof15,delay)
 
-    rshort,rlong = 7,19
-    rsia = rsi2(sif.close,rshort)   #7,19/13,41
-    rsib = rsi2(sif.close,rlong)
+    rsia = sif.rsi7 
+    rsib = sif.rsi19 
 
     signal = gand(sif.low < bline
                 ,cross(rsib,rsia)<0

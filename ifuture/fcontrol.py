@@ -33,7 +33,8 @@ i12 = ifmap['IF1012']
 #i11 = ifmap['IF1011']
 
 #tradesy =  control.itradex8_yt(i00,ifuncs2.xxx2)
-tradesy =  control.itradex8_zt(i00,ifuncs2.xxx2)
+#tradesy =  control.itradex8_zt(i00,ifuncs2.xxx2)
+tradesy =  control.itradex8_yy(i00,xfuncs.xxx)
 
 iftrade.limit_profit(tradesy,-90)
 

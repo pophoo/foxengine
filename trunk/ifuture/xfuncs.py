@@ -416,6 +416,13 @@ def ZD(sif):
             sif.xatr30x <10000,
         )
 
+def ZD2(sif):
+    return gand(
+                sif.xatr30x <10000,
+                strend2(sif.mxatr)<0,
+            )
+
+
 def ZE(sif):
     return gand(
             sif.xatr < sif.mxatr,
@@ -469,6 +476,9 @@ def e1400filter2(sif):
 
 def e1430filter2(sif):
     return gand(sif.time>929,sif.time<1430)
+
+def n1330filter(sif):
+    return gand(sif.time>944,sif.time<1330)
 
 def n1400filter(sif):
     return gand(sif.time>944,sif.time<1400)
@@ -667,8 +677,8 @@ ua_fc = [ua_fa,ua_fa_m,ua_fa_a]
 
 
 #这些可以用D1/F1
-da_m30 = SXFuncA(fstate=followD3,fsignal=dbreak_m5xd,fwave=downA,ffilter=n1430filter)
-da_m30b = SXFuncA(fstate=followD32,fsignal=dbreak_m5xd,ffilter=n1430filter)
+da_m30 = SXFuncF1(fstate=followD3,fsignal=dbreak_m5xd,fwave=downA,ffilter=n1430filter)
+da_m30b = SXFuncF1(fstate=followD32,fsignal=dbreak_m5xd,ffilter=n1430filter)
 dbrb = BXFuncA(fstate=followU2_3,fsignal=nhd,fwave=upW3,ffilter=n1430filter)
 
 da_fc = [da_m30,da_m30b]
@@ -676,7 +686,7 @@ da_fc = [da_m30,da_m30b]
 ua_fx = CBFuncF1(u'ua集合',ua_fa,ua_fa_m,ua_fa_a)
 da_fx = CSFuncF1(u'da集合',da_m30,da_m30b)
 
-xxx_break = [ua_fx,da_fx,dbrb]
+xxx_break = [ua_fx,da_fx,dbrb]#,da_fa]
 
 xxx_break_candidate = [ua_fa,ua_fa_m,dbrb,ua_fa_a,da_m30,da_m30b,da_fa]
 
@@ -729,6 +739,12 @@ def SU0(sif):
             strend2(sif.ma30)>0,
         )
 
+def S5A(sif):
+    return gand(sif.s3<0,
+                sif.t120<0,
+        )
+
+
 
 #波动过滤
 def WD0(sif):
@@ -758,33 +774,6 @@ xxx_index_candidate =[xdown01,xup01,xmacd3s]
 ###3分钟K线3连阴，且打到diff<dea
 #顺势K系列
 #信号
-def k3d3(sif):
-    signal3 = gand(sif.close3 < sif.open3,
-                   rollx(sif.close3) < rollx(sif.open3),
-                   rollx(sif.close3,2) < rollx(sif.open3,2),
-                   sif.high3 < rollx(sif.high3,2),
-                   rollx(sif.high3)<rollx(sif.high3,2),
-                   sif.close3 < rollx(sif.close3,2),
-                   sif.diff3x < sif.dea3x,
-                   sif.low3 == tmin(sif.low3,3),
-                )
-    return dnext_cover(signal3,sif.close,sif.i_cof3,1)
-
-def k5d3(sif):
-    ma5_13 = ma(sif.close5,13)
-    ma5_30 = ma(sif.close5,30)    
-    ma5_60 = ma(sif.close5,60)        
-    signal5 = gand(sif.close5 < sif.open5,
-                   rollx(sif.close5) < rollx(sif.open5),
-                   rollx(sif.close5,2) < rollx(sif.open5,2),
-                   sif.high5 < rollx(sif.high5,2),
-                   rollx(sif.high5)<rollx(sif.high5,2),
-                   sif.close5 < rollx(sif.close5,2),
-                   sif.diff5x < sif.dea5x,
-                   sif.low5 == tmin(sif.low5,3),
-                   strend2(ma5_30)<0,
-                )
-    return dnext_cover(signal5,sif.close,sif.i_cof5,1)
 
 def T15_H1(sif,sopened=None):
     '''
@@ -871,9 +860,9 @@ def T10_L1(sif,sopened=None):
     signal = gand(sif.close > bline,bline>0)
     return signal
 
-def T5_P3(sif,sopened=None):
+def T5_R3(sif,sopened=None):
     '''
-        顶部衰竭模式c
+        顺势放空
     '''
     signal5 = gand(sif.close5 < sif.open5,
                    rollx(sif.close5) < rollx(sif.open5),
@@ -884,6 +873,21 @@ def T5_P3(sif,sopened=None):
                    sif.low5 == tmin(sif.low5,10),
                 )
     signal = dnext_cover(signal5,sif.close,sif.i_cof5,1)
+    return signal
+
+
+def T5_P3(sif,sopened=None):
+    '''
+        顶部衰竭模式
+    '''
+    signal5 = gand(
+                   rollx(sif.high5,2) == tmax(sif.high5,10),
+                   sif.close5 < rollx(sif.close5,2),
+                   sif.close5 < rollx(sif.close5)                    
+            )
+    
+    signal = dnext_cover(signal5,sif.close,sif.i_cof5,1)
+    
     return signal
 
 def T3_H10(sif,sopened = None):
@@ -1023,10 +1027,6 @@ def T1_D4ID(sif,sopened=None):
     return signal
 
 #状态
-def S5A(sif):
-    return gand(sif.s3<0,
-                sif.t120<0,
-        )
 
 
 def S15A(sif):
@@ -1071,7 +1071,7 @@ def S10L1(sif):
             sif.s1>0,
         )
 
-def S5P3(sif):
+def S5R3(sif):
     return gand(
             sif.sdiff3x<0,
             sif.s30<0,
@@ -1186,17 +1186,7 @@ def S1D4ID(sif):
 
 #波动过滤
 
-def W5A(sif):
-    return gand(
-                sif.xatr30x <10000,
-                #strend2(sif.mxatr)<0,
-            )
 
-def W5A2(sif):
-    return gand(
-                sif.xatr30x <10000,
-                strend2(sif.mxatr)<0,
-            )
 
 def W15M3(sif):
     return gand(
@@ -1302,11 +1292,7 @@ def W1DIIU(sif):
         )
         
 
-k3_d3 = SXFuncD1(fstate=followD44,fsignal=k3d3,fwave=downW2,ffilter=n1430filter)  #无好设置
 
-k5_d3 = SXFuncD1(fstate=S5A,fsignal=k5d3,fwave=W5A,ffilter=n1430filter) #回撤比较大
-
-k5_d3b = SXFuncD1(fstate=S5A,fsignal=k5d3,fwave=W5A2,ffilter=n1430filter)
 
 K15_H1 = SXFunc(fstate=S15A,fsignal=T15_H1,fwave=ZC,ffilter=nfilter)   #顺势的交易
 K15_M3 = SXFuncA(fstate=S15M3,fsignal=T15_M3,fwave=W15M3,ffilter=nfilter) #
@@ -1317,7 +1303,11 @@ K10_H1 = SXFuncF1(fstate=S10H1,fsignal=T10_H1,fwave=W10H1,ffilter=e1430filter) #
 
 K10_L1 = BXFuncF1(fstate=S10L1,fsignal=T10_L1,fwave=W10L1,ffilter=efilter)   #顺势的交易
 
-K5_P3 = SXFuncF1(fstate=S5P3,fsignal=T5_P3,fwave=ZD,ffilter=n1430filter)
+K5_R3 = SXFuncF1(fstate=S5R3,fsignal=T5_R3,fwave=ZD,ffilter=n1430filter)
+
+
+
+#K5_P3 = SXFuncF1(fstate=S5_PH,fsignal=T5_P3,fwave=XFilter(nx2000B,ZD),ffilter=n1430filter)
 
 K3_H10 = SXFuncF1(fstate=S3H10,fsignal=T3_H10,fwave=W3H10,ffilter=exfilter) #进入候选
 
@@ -1368,8 +1358,8 @@ K1_TX = SXFuncF1(fstate=gofilter,fsignal=TX,fwave=gofilter,ffilter=n1430filter)
 ks_15_x = CSFuncF1(u'K15顺势空头组合',K15_H1,K15_M3,K15_M3B)
 ks_15_c = [K15_H1,K15_M3,K15_M3B]
 
-ks_5_x = CSFuncF1(u'低阶K顺势空头组合',K5_P3,K1_RD)
-ks_5_c = [K5_P3,K1_RD]
+ks_5_x = CSFuncF1(u'低阶K顺势空头组合',K5_R3,K1_RD)
+ks_5_c = [K5_R3,K1_RD]
 
 k1b_x = CBFuncF1(u'K1顺势多头组合',K1_RU,K1_DVB,K1_UUX)
 k1b_c = [K1_RU,K1_DVB,K1_UUX,K1_DUU,K1_DIIU]#,K1_TX]
@@ -1383,10 +1373,12 @@ k1s_c = [K1_UUD,K1_DDD,K1_D4ID]
 k1s_x2 = CSFuncF1(u'K1顺势空头组合',K1_DDD,K1_DDD1,K1_DDX)#,K1_TX)  #合并有反作用
 k1s_c2 = [K1_DDD,K1_DDD1,K1_DDX]
 
+k1s_all = CFunc(u'K1所有空头组合',K1_RD,K1_DDUUD,K1_DDD,K1_D4ID,K1_DDD1,K1_DDX,K1_DDX2,K1_UUD)
+k1b_all = CFunc(u'K1所有多头组合',K1_RU,K1_DVB,K1_UUX,K1_DUU,K1_DIIU)
 
-xxx_k = [k3_d3,k5_d3b,ks_15_x,K10_L1,ks_5_x,k1s_x] + k1b_c
+xxx_k = [ks_15_x,K10_L1,ks_5_x,k1s_x] + k1b_c
 xxx_k_candidate = [k3_d3,k5_d3,K15_H1,K15_M3,
-        K15_M3B,K5_P3,K3_H10,K1_RD,K1_RU,K1_DUU,K1_DVB,K1_UUX,K1_DDUUD,K1_UUD,K1_DDD,K1_DDD1,K1_DIIU,K1_D4ID]
+        K15_M3B,K5_R3,K3_H10,K1_RD,K1_RU,K1_DUU,K1_DVB,K1_UUX,K1_DDUUD,K1_UUD,K1_DDD,K1_DDD1,K1_DIIU,K1_D4ID]
 
 #逆势
 #信号
@@ -1590,11 +1582,87 @@ xxx_against_candidate = [FA_15_120,FA_15_120B,FA_15_M,FA_5_H36,FA_S_X,FA_3_L12]
 for x in xxx_against:
     x.ftype = TAGAINST
 
+###二重滤网
+#信号
+def ZT5_P2(sif,sopened=None):
+    '''
+        顶部衰竭模式
+    '''
+    signal5 = gand(
+                   sif.high5 == tmax(sif.high5,8),
+                )
+    delay = 10
+
+    bline5 = gmin(sif.close5,sif.open5)#sif.low5
+    bline = dnext_cover(np.select([signal5>0],[bline5],[0]),sif.close,sif.i_cof5,delay)
+
+    signal = gand(sif.close < bline,bline>0)
+    
+    return signal
+
+def k3d3(sif):
+    signal3 = gand(sif.close3 < sif.open3,
+                   rollx(sif.close3) < rollx(sif.open3),
+                   rollx(sif.close3,2) < rollx(sif.open3,2),
+                   sif.high3 < rollx(sif.high3,2),
+                   rollx(sif.high3)<rollx(sif.high3,2),
+                   sif.close3 < rollx(sif.close3,2),
+                   sif.diff3x < sif.dea3x,
+                   sif.low3 == tmin(sif.low3,3),
+                )
+    return dnext_cover(signal3,sif.close,sif.i_cof3,1)
+
+def k5d3(sif):
+    ma5_13 = ma(sif.close5,13)
+    ma5_30 = ma(sif.close5,30)    
+    ma5_60 = ma(sif.close5,60)        
+    signal5 = gand(sif.close5 < sif.open5,
+                   rollx(sif.close5) < rollx(sif.open5),
+                   rollx(sif.close5,2) < rollx(sif.open5,2),
+                   sif.high5 < rollx(sif.high5,2),
+                   rollx(sif.high5)<rollx(sif.high5,2),
+                   sif.close5 < rollx(sif.close5,2),
+                   sif.diff5x < sif.dea5x,
+                   sif.low5 == tmin(sif.low5,3),
+                   strend2(ma5_30)<0,
+                )
+    return dnext_cover(signal5,sif.close,sif.i_cof5,1)
+
+
+#状态
+def ZS5_PH(sif):
+    return gand(
+            sif.t120<0,
+            sif.r20>0,
+            sif.s5>0,
+            sif.sdiff30x>sif.sdea30x,
+            #sif.close < (sif.dhigh+sif.low)/2,
+            #rollx(sif.close)-sif.close < 80,
+            sif.xatr < 1500,
+        )
+Z5_P2 = SXFuncD1(fstate=ZS5_PH,fsignal=ZT5_P2,fwave=XFilter(nx2000B),ffilter=n1400filter)
+Z5_P2.name = u'二重滤网-Z5_P2'  #这个连续回退太厉害, 以观后效
+
+k3_d3 = SXFuncD1(fstate=followD44,fsignal=k3d3,fwave=downW2,ffilter=n1430filter)  #无好设置
+k5_d3 = SXFuncD1(fstate=S5A,fsignal=k5d3,fwave=ZD,ffilter=n1430filter) #回撤比较大
+
+
+k5_d3b = SXFuncD1(fstate=S5A,fsignal=k5d3,fwave=ZD2,ffilter=n1430filter)
+
+
+zx = CSFuncF1(u'k35空头集合',k5_d3b,k3_d3,Z5_P2)
+
+#xxx_zero = [Z5_P2,k5_d3b,k3_d3]
+xxx_zero = [zx]
+xxx_zero_candidate = [Z5_P2,k3_d3,k5_d3,k5_d3b,zx]
+
+
 
 #需要选定专门找1430后的策略
 
-xxx = xxx_break+xxx_orb + xxx_k + xxx_index + xxx_against 
-xxx_candidate = xxx_break_candidate + xxx_orb_candidate + xxx_k_candidate + xxx_against_candidate + xxx_index_candidate
+xxx = xxx_break+xxx_orb + xxx_k + xxx_index + xxx_against + xxx_zero
+xxx_candidate = xxx_break_candidate + xxx_orb_candidate + xxx_k_candidate + xxx_against_candidate + xxx_index_candidate + xxx_zero_candidate
+
 
 xxx2 = xxx
 

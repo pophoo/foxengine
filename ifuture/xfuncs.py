@@ -1004,6 +1004,20 @@ def T1_DIIU(sif,sopened=None):
                 )
     return signal
 
+def T1_D4ID(sif,sopened=None):
+    signal = gand(
+                rollx(sif.high,4) < rollx(sif.high,5)
+                ,rollx(sif.low,4) > rollx(sif.low,5) 
+                ,rollx(sif.high,3) < rollx(sif.high,5)
+                ,rollx(sif.low,3) > rollx(sif.low,5) 
+                ,rollx(sif.high,2) < rollx(sif.high,5)
+                ,rollx(sif.low,2) > rollx(sif.low,5) 
+                ,rollx(sif.high,1) < rollx(sif.high,5)
+                ,rollx(sif.low,1) > rollx(sif.low,5) 
+                ,sif.close < rollx(sif.low,5)
+                )
+    return signal
+
 #状态
 def S5A(sif):
     return gand(sif.s3<0,
@@ -1159,7 +1173,13 @@ def S1DIIU(sif):
             sif.ma3 > sif.ma13,
             strend2(sif.ma30)>0,
         )
-    
+def S1D4ID(sif):
+    return gand(
+            sif.t120<0,
+            sif.s30<0,
+        )
+
+
 #波动过滤
 
 def W5A(sif):
@@ -1308,6 +1328,8 @@ K1_DIIU  = BXFuncF1(fstate=S1DIIU,fsignal=T1_DIIU,fwave=W1DIIU,ffilter=n1430filt
 
 K1_DDUUD  = SXFuncF1(fstate=S1DDUUD,fsignal=T1_DDUUD,fwave=W1DDUUD,ffilter=efilter)   #顺势的交易,样本数=10
 K1_DDD  = SXFuncF1(fstate=S1DDD,fsignal=T1_DDD,fwave=W1DDD,ffilter=efilter)   #顺势的交易,样本数=14
+K1_D4ID = SXFuncF1(fstate=S1D4ID,fsignal=T1_D4ID,fwave=nx2000,ffilter=e1430filter)   #顺势的交易,样本数=12,合并无作用
+
 
 K1_DDD1  = SXFuncD1(fstate=S1DDD1,fsignal=T1_DDD,fwave=W1DDD1,ffilter=e1430filter)   #顺势交易,样本数较多,但合并效果不好
 K1_DDX  = SXFuncF1(fstate=S1DDX,fsignal=T1_DDX,fwave=W1DDX,ffilter=e1430filter2)   #顺势的交易,样本数较多,合并有反作用
@@ -1329,9 +1351,9 @@ def TX(sif,sopened=None):
                 ,sif.close < rollx(sif.low,5)
                 )
     signal = gand(signal,
-                #,sif.xatr30x < sif.mxatr30x
-                #,sif.ma3 < sif.ma13
-                sif.t120<0
+                sif.t120<0,
+                sif.s30<0,
+                sif.xatr<2000,
             )
 
     return signal
@@ -1352,8 +1374,8 @@ k1b_c = [K1_RU,K1_DVB,K1_UUX,K1_DUU,K1_DIIU]#,K1_TX]
 #k1b_y = CBFuncF1(u'K1顺势多头组合',K1_UUX,K1_DUU)
 #k1b_d = [K1_UUX,K1_DUU]
 
-k1s_x = CSFuncF1(u'K1顺势空头组合',K1_UUD,K1_DDD)#,K1_TX)
-k1s_c = [K1_UUD,K1_DDD]
+k1s_x = CSFuncF1(u'K1顺势空头组合',K1_UUD,K1_DDD)#,K1_D4ID)#,K1_TX)
+k1s_c = [K1_UUD,K1_DDD,K1_D4ID]
 
 k1s_x2 = CSFuncF1(u'K1顺势空头组合',K1_DDD,K1_DDD1,K1_DDX)#,K1_TX)  #合并有反作用
 k1s_c2 = [K1_DDD,K1_DDD1,K1_DDX]
@@ -1361,7 +1383,7 @@ k1s_c2 = [K1_DDD,K1_DDD1,K1_DDX]
 
 xxx_k = [k3_d3,k5_d3b,ks_15_x,K10_L1,ks_5_x,k1s_x] + k1b_c
 xxx_k_candidate = [k3_d3,k5_d3,K15_H1,K15_M3,
-        K15_M3B,K5_P3,K3_H10,K1_RD,K1_RU,K1_DUU,K1_DVB,K1_UUX,K1_DDUUD,K1_UUD,K1_DDD,K1_DDD1,K1_DIIU]
+        K15_M3B,K5_P3,K3_H10,K1_RD,K1_RU,K1_DUU,K1_DVB,K1_UUX,K1_DDUUD,K1_UUD,K1_DDD,K1_DDD1,K1_DIIU,K1_D4ID]
 
 #逆势
 #信号

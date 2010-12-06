@@ -479,6 +479,10 @@ def n1430filter(sif):
 def exfilter(sif):
     return gor(sif.time<1000,gand(sif.time>=1300,sif.time<=1330))
 
+def exfilter1(sif):
+    return gor(gand(sif.time>929,sif.time<1000),gand(sif.time>=1300,sif.time<=1330))
+
+
 def exfilter2(sif):
     return gor(gand(sif.time>916,sif.time<1000),gand(sif.time>=1300,sif.time<=1330))
 
@@ -747,7 +751,7 @@ xup01 = BXFunc(fstate=SU0,fsignal=T_U0,fwave=WU0,ffilter=efilter2)
 xmacd3s = SXFuncD1(fstate = followD1,fsignal=macd3xd,fwave=nx1600B,ffilter=n1400filter)
 
 xxx_index  = [xdown01,xup01]
-xxx_index_candidate =[xmacd3s]
+xxx_index_candidate =[xdown01,xup01,xmacd3s]
 
 
 ###K线
@@ -1335,7 +1339,6 @@ K1_DDD1  = SXFuncD1(fstate=S1DDD1,fsignal=T1_DDD,fwave=W1DDD1,ffilter=e1430filte
 K1_DDX  = SXFuncF1(fstate=S1DDX,fsignal=T1_DDX,fwave=W1DDX,ffilter=e1430filter2)   #顺势的交易,样本数较多,合并有反作用
 K1_DDX2  = SXFuncF1(fstate=S1DDX2,fsignal=T1_DDX2,fwave=ZF,ffilter=e1430filter)   #顺势的交易,合并有反作用
 
-
 K1_UUD  = SXFuncF1(fstate=S1UUD,fsignal=T1_UUD,fwave=W1UUD,ffilter=efilter2)   #顺势的交易,样本数=10
 
 def TX(sif,sopened=None):
@@ -1576,10 +1579,10 @@ FA_15_120_C = [FA_15_120,FA_15_120B]
 
 
 #逆势同周期同方向每天只做一次
-FA_S_X = CFuncD1(u'FA15集合',FA_15_120,FA_15_120B,FA_15_M,FA_5_H36)
+FA_S_X = CFuncD1(u'FA_S集合',FA_15_120,FA_15_120B,FA_15_M,FA_5_H36)
+FA_B_X = CFuncD1(u'FA_B集合',FA_3_L12)
 
-
-xxx_against = [FA_S_X,FA_3_L12]
+xxx_against = [FA_S_X,FA_B_X]
 
 xxx_against_candidate = [FA_15_120,FA_15_120B,FA_15_M,FA_5_H36,FA_S_X,FA_3_L12]
 
@@ -1590,7 +1593,7 @@ for x in xxx_against:
 
 #需要选定专门找1430后的策略
 
-xxx = xxx_break+xxx_orb + xxx_k + xxx_against + xxx_index
+xxx = xxx_break+xxx_orb + xxx_k + xxx_index + xxx_against 
 xxx_candidate = xxx_break_candidate + xxx_orb_candidate + xxx_k_candidate + xxx_against_candidate + xxx_index_candidate
 
 xxx2 = xxx

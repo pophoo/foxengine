@@ -890,7 +890,7 @@ def k15_u_a(sif,sopened=None):
     bline15 = rollx(gmax(sif.open15,sif.close15),1)
     bline = dnext_cover(np.select([signal15>0],[bline15],[0]),sif.close,sif.i_cof15,delay)
 
-    signal = sif.close > bline
+    signal = gand(sif.close > bline,bline>0)
 
     signal = gand(signal
             ,sif.xatr>1000
@@ -995,7 +995,7 @@ def k10_u_a(sif,sopened=None):
     bline10 = gmax(sif.close10,sif.open10)#sif.high10
     bline = dnext_cover(np.select([signal10>0],[bline10],[0]),sif.close,sif.i_cof10,delay)
 
-    signal = sif.close > bline
+    signal = gand(sif.close > bline,bline>0)
 
     signal = gand(signal
             ,sif.xatr>1000
@@ -1107,8 +1107,8 @@ def k5_d_c(sif,sopened=None):
     signal = gand(signal
             ,sif.xatr>sif.mxatr
             ,sif.xatr30x > 8000
-            ,sif.ma3 < sif.ma13
             ,sif.xatr30x > sif.mxatr30x
+            ,sif.ma3 < sif.ma13
             )
 
     signal = np.select([sif.time>944],[signal],0)
@@ -1200,9 +1200,9 @@ def k5_d_z(sif):
                 )
     signal = dnext_cover(signal5,sif.close,sif.i_cof5,1)
     signal = gand(signal,
+                sif.xatr30x <10000,
                 strend2(sif.ma30)<0,
                 sif.ma13< sif.ma30,
-                sif.xatr30x <10000,
                 sif.sdiff3x<0,
                 sif.s3<-3,
                 sif.t120<0,
@@ -1237,19 +1237,19 @@ def k5_u_a(sif,sopened=None):
     bline = extend(bline,delay)
     
     #fsignal = cross(bline,sif.high)>0
-    fsignal = sif.high > bline
+    signal = gand(sif.high > bline,bline>0)
 
     #signal = np.zeros_like(sif.close)
     #signal[sif.i_cof5] = signal5
 
-    signal = sfollow(ss,fsignal,delay)
+    #signal = sfollow(ss,fsignal,delay)
     signal = gand(signal
             ,sif.xatr<2000
             ,sif.xatr>1200
             ,sif.xatr<sif.mxatr
             ,sif.xatr30x > 5000
-            ,sif.r120>0
             ,strend2(sif.mxatr)>0
+            ,sif.r120>0
             )
 
     signal = np.select([sif.time>944],[signal],0)
@@ -1292,12 +1292,12 @@ def k5_u_b(sif,sopened=None):
     bline = extend(bline,delay)
     
     #fsignal = cross(bline,sif.high)>0
-    fsignal = sif.high > bline
+    signal = gand(sif.high > bline,bline>0)
 
     #signal = np.zeros_like(sif.close)
     #signal[sif.i_cof5] = signal5
 
-    signal = sfollow(ss,fsignal,delay)
+    #signal = sfollow(ss,fsignal,delay)
     signal = gand(signal
             #,strend(sif.ma7)>0
             #,rollx(strend2(sif.sdiff5x-sif.sdea5x),5)<0
@@ -1397,7 +1397,6 @@ def k3_d_a(sif,sopened = None):
 
 
     signal = gand(signal
-                    ,sif.xatr < 2000
                     ,sif.ltrend<0
                     ,sif.ma13<sif.dma
                     ,sif.xatr < 1500
@@ -1427,9 +1426,9 @@ def k3_d_b(sif,sopened=None):
     signal = sif.close < bline #-100
 
     signal = gand(signal
-            ,tmax(sif.high,10) == sif.dhigh
             ,sif.xatr30x < sif.mxatr30x
             ,sif.xatr30x<12000
+            ,tmax(sif.high,10) == sif.dhigh
             ,sif.r120>0
             ,sif.t120<0
            )
@@ -2109,15 +2108,15 @@ def uuxb(sif,sopened=None):
     signal = gand(signal
                 ,sif.r60>20
                 ,sif.r120>0
-                ,sif.xatr30x < sif.mxatr30x
-                ,sif.xatr > sif.mxatr
-                ,sif.xatr > 1200
-                ,sif.xatr30x < 10000
                 ,(sif.close - rollx(sif.close,3))*XBASE*XBASE / sif.close < 10
                 ,rollx(sif.close,2) > rollx(sif.open,2)
                 #,sif.date < 20101025
                 ,gand(sif.close - sif.open < 120,rollx(sif.close) - sif.open < 200)#: 快速拉升过滤                 
                 ,sif.sdma>0
+                ,sif.xatr30x < sif.mxatr30x
+                ,sif.xatr > sif.mxatr
+                ,sif.xatr > 1200
+                ,sif.xatr30x < 10000
             )
 
     return signal * uuxb.direction
@@ -2136,10 +2135,10 @@ def duub(sif,sopened=None):
     signal = gand(signal
                 ,sif.r60>20
                 ,sif.r120>0
+                ,sif.sdma>0
                 ,sif.xatr30x < sif.mxatr30x
                 ,sif.xatr > sif.mxatr
                 ,sif.xatr > 1200
-                ,sif.sdma>0
             )
 
     return signal * duub.direction
@@ -2180,12 +2179,12 @@ def ues(sif,sopened=None):
                 ,rollx(gmin(sif.open,sif.close)) - sif.close < 60
                 )
     signal = gand(signal
+                ,sif.r120>0
                 ,sif.sdma>0
                 ,sif.xatr < sif.mxatr
                 ,strend2(sif.mxatr)>0
                 ,sif.xatr30x < sif.mxatr30x
                 ,sif.xatr > 1200
-                ,sif.r120>0
             )
 
     return signal * ues.direction
@@ -3102,13 +3101,13 @@ xxx_against = [
 
             k5_d_a,
             k5_d_b,            
-            k5_d_c,
-            k5_d_x,
+            #k5_d_c,
+            #k5_d_x,
             #k5_d_y,
             #k5_d_z,
 
-            k5_u_a,
-            k5_u_b,
+            #k5_u_a,
+            #k5_u_b,
 
             k3_u_a,
             k3_u_b,

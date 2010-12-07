@@ -1402,7 +1402,7 @@ k1s_all = CFunc(u'K1所有空头组合',K1_RD,K1_DDUUD,K1_DDD,K1_D4ID,K1_DDD1,K1
 k1b_all = CFunc(u'K1所有多头组合',K1_RU,K1_DVB,K1_UUX,K1_DUU,K1_DIIU)
 
 xxx_k = [ks_15_x,K10_L1,ks_5_x,k1s_x] + k1b_c
-xxx_k_candidate = [k3_d3,k5_d3,K15_H1,K15_M3,K1_UD,
+xxx_k_candidate = [K15_H1,K15_M3,K1_UD,
         K15_M3B,K5_R3,K3_H10,K1_RD,K1_RU,K1_DUU,K1_DVB,K1_UUX,K1_DDUUD,K1_UUD,K1_DDD,K1_DDD1,K1_DIIU,K1_D4ID]
 
 #逆势
@@ -1710,3 +1710,4 @@ def test(sif):
         print x.name,len(xtrades)
     return results
 
+xxx_xxx = [zx,]

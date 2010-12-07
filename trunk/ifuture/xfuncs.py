@@ -29,6 +29,7 @@ tradesy =  control.itradex8_yy(i00,xfuncs.xxx)
 
 from wolfox.fengine.ifuture.ibase import *
 import wolfox.fengine.ifuture.iftrade as iftrade
+import wolfox.fengine.ifuture.fcontrol as control
 
 #atr5_uxstop_t_08_25_B2
 #atr5_uxstop_t_08_25_B10
@@ -382,6 +383,13 @@ def nx2000B(sif):
     return gand(sif.xatr < 2000
                 ,sif.xatr30x < 10000
             )
+
+def nx2000C(sif):
+    return gand(
+            sif.xatr<2000,
+            strend2(sif.mxatr)>0, 
+        )
+
 
 def upW2(sif):
     return gand(sif.xatr<2000
@@ -985,6 +993,15 @@ def T1_DDD(sif,sopened=None):
                 )
     return signal
 
+def T1_UD(sif,sopened=None):
+    signal = gand(
+                rollx(sif.close,1) > rollx(sif.close,2),
+                sif.close < rollx(sif.low),#rollx(gmin(sif.close,sif.open))
+                sif.close < sif.open,
+                )
+    return signal
+
+
 def T1_DDX(sif,sopened=None):
     signal = gand(rollx(sif.close,2) < rollx(sif.close,3)
                 ,rollx(sif.close,1) < rollx(sif.close,2)
@@ -1028,6 +1045,14 @@ def T1_D4ID(sif,sopened=None):
 
 #状态
 
+def SDL(sif):
+    return gand(
+            sif.t120<0,
+            sif.r60<0,
+            sif.s30<0,
+            sif.s10<0,
+            tmin(sif.low,10) == sif.dlow,
+        )
 
 def S15A(sif):
     return gand(
@@ -1305,7 +1330,7 @@ K10_L1 = BXFuncF1(fstate=S10L1,fsignal=T10_L1,fwave=W10L1,ffilter=efilter)   #�
 
 K5_R3 = SXFuncF1(fstate=S5R3,fsignal=T5_R3,fwave=ZD,ffilter=n1430filter)
 
-
+K1_UD = SXFuncD1(fstate=SDL,fsignal=T1_UD,fwave=nx2000C,ffilter=e1400filter)    #效果极好,合并效果不好
 
 #K5_P3 = SXFuncF1(fstate=S5_PH,fsignal=T5_P3,fwave=XFilter(nx2000B,ZD),ffilter=n1430filter)
 
@@ -1367,8 +1392,8 @@ k1b_c = [K1_RU,K1_DVB,K1_UUX,K1_DUU,K1_DIIU]#,K1_TX]
 #k1b_y = CBFuncF1(u'K1顺势多头组合',K1_UUX,K1_DUU)
 #k1b_d = [K1_UUX,K1_DUU]
 
-k1s_x = CSFuncF1(u'K1顺势空头组合',K1_UUD,K1_DDD)#,K1_D4ID)#,K1_TX)
-k1s_c = [K1_UUD,K1_DDD,K1_D4ID]
+k1s_x = CSFuncF1(u'K1顺势空头组合',K1_UUD,K1_DDD,K1_UD)#,K1_D4ID)#,K1_TX)
+k1s_c = [K1_UUD,K1_DDD,K1_UD]#,K1_D4ID]
 
 k1s_x2 = CSFuncF1(u'K1顺势空头组合',K1_DDD,K1_DDD1,K1_DDX)#,K1_TX)  #合并有反作用
 k1s_c2 = [K1_DDD,K1_DDD1,K1_DDX]
@@ -1377,7 +1402,7 @@ k1s_all = CFunc(u'K1所有空头组合',K1_RD,K1_DDUUD,K1_DDD,K1_D4ID,K1_DDD1,K1
 k1b_all = CFunc(u'K1所有多头组合',K1_RU,K1_DVB,K1_UUX,K1_DUU,K1_DIIU)
 
 xxx_k = [ks_15_x,K10_L1,ks_5_x,k1s_x] + k1b_c
-xxx_k_candidate = [k3_d3,k5_d3,K15_H1,K15_M3,
+xxx_k_candidate = [k3_d3,k5_d3,K15_H1,K15_M3,K1_UD,
         K15_M3B,K5_R3,K3_H10,K1_RD,K1_RU,K1_DUU,K1_DVB,K1_UUX,K1_DDUUD,K1_UUD,K1_DDD,K1_DDD1,K1_DIIU,K1_D4ID]
 
 #逆势
@@ -1667,7 +1692,7 @@ xxx_candidate = xxx_break_candidate + xxx_orb_candidate + xxx_k_candidate + xxx_
 xxx2 = xxx
 
 
-for x in xxx+xxx_candidate:
+for x in set(xxx+xxx_candidate):
     #x.stop_closer = iftrade.atr5_uxstop_k0 #40/60
     #x.stop_closer = iftrade.atr5_uxstop_kC #60/60   
     #x.stop_closer = iftrade.atr5_uxstop_kD #60/80       
@@ -1676,3 +1701,12 @@ for x in xxx+xxx_candidate:
     #x.stop_closer = iftrade.atr5_uxstop_k90 #60/90
     #x.stop_closer = iftrade.atr5_uxstop_k120 #60/20
     x.cstoper = iftrade.F60  #初始止损,目前只在动态显示时用
+
+def test(sif):
+    results = []
+    for x in set(xxx+xxx_candidate):
+        xtrades = control.itradex8_yy(sif,x)
+        results.append((x,xtrades))
+        print x.name,len(xtrades)
+    return results
+

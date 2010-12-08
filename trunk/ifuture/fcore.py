@@ -237,6 +237,7 @@ def dpeak(sif):
     sif.idlow = il
     sif.dhighl = shl
     sif.dlowh = slh
+    sif.dmid = (sif.dhigh+sif.dlow)/2
  
 
 def dpeak2(sif):
@@ -279,6 +280,7 @@ def dpeak2(sif):
     sif.idlow2 = il
     sif.dhigh2 = sh
     sif.dlow2 = sl
+    sif.dmid2 = (sif.dhigh2+sif.dlow2)/2
 
 def dpeak2d(sif):
     '''

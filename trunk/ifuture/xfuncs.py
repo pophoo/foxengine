@@ -21,6 +21,8 @@
 tradesy =  control.itradex8_yy(i00,xfuncs.xxx)
 
 
+todo: udddu, 后面close>前四个, 且最高为最近20最高
+
 ##技巧
 空头要素
     xatr30x < mxatr30x
@@ -357,7 +359,6 @@ def followD1(sif):
            )
 
 def followU1(sif):
-
     return gand(
             sif.diff1>sif.dea1
             ,sif.t120>0
@@ -676,22 +677,22 @@ dbreak_m3xd = XFilter(dbreak,macd3xd)
     
 xxx = []
 #突破系列必须用ALL
-ua_fa = BXFuncD1(fstate=followU2,fsignal=XFilter(ubreak),fwave=upW2,ffilter=n1430filter)   #1400之前的更可靠
+ua_fa = BXFuncD1(fstate=followU2,fsignal=XFilter(ubreak),fwave=upW2,ffilter=e1430filter)   #1400之前的更可靠
 ua_fa_m = BXFuncA(fstate=followU2_2,fsignal=ubreak_m,fwave=nx2000,ffilter=n1400filter)   #1400之前的更可靠
 ua_fa_a = BXFuncA(fstate=followU30,fsignal=XFilter(ubreak_a),fwave=ZA,ffilter=e1400filter2)   #1400之前的更可靠,总体不甚可靠
-da_fa = SXFuncF1(fstate=followD2,fsignal=XFilter(dbreak,dd2),fwave=downW2,ffilter=n1400filter)  #这个被覆盖了
+da_fa = SXFuncF1(fstate=followD2,fsignal=XFilter(dbreak,dd2),fwave=downW2,ffilter=e1400filter)  #这个被覆盖了
 
 ua_fc = [ua_fa,ua_fa_m,ua_fa_a]
 
 
 #这些可以用D1/F1
-da_m30 = SXFuncF1(fstate=followD3,fsignal=dbreak_m5xd,fwave=downA,ffilter=n1430filter)
-da_m30b = SXFuncF1(fstate=followD32,fsignal=dbreak_m5xd,ffilter=n1430filter)
+da_m30 = SXFuncF1(fstate=followD3,fsignal=dbreak_m5xd,fwave=downA,ffilter=e1430filter)
+da_m30b = SXFuncF1(fstate=followD32,fsignal=dbreak_m5xd,ffilter=e1430filter)
 dbrb = BXFuncA(fstate=followU2_3,fsignal=nhd,fwave=upW3,ffilter=n1430filter)
 
 da_fc = [da_m30,da_m30b]
 
-ua_fx = CBFuncF1(u'ua集合',ua_fa,ua_fa_m,ua_fa_a)
+ua_fx = CBFuncF1(u'ua集合',ua_fa_m,ua_fa_a,ua_fa)
 da_fx = CSFuncF1(u'da集合',da_m30,da_m30b)
 
 xxx_break = [ua_fx,da_fx,dbrb]#,da_fa]
@@ -704,9 +705,11 @@ xuub = BXFuncA(fstate=followU3,fsignal=uub1,fwave=narrowW,ffilter=exfilter)
 xuub2 = BXFuncA(fstate=followU3_2,fsignal=uub2,fwave=narrowW,ffilter=ixfilter)
 xdds = SXFuncA(fstate=followD4,fsignal=dds1,fwave=nx2000,ffilter=exfilter)
 xdds2 = SXFuncD1(fstate=followD41,fsignal=dds2,fwave=nx2000,ffilter=ixfilter)
-xdds3 = SXFuncF1(fstate=followD44,fsignal=dd2,fwave=downW2,ffilter=n1430filter)
+xdds3 = SXFuncD1(fstate=followD44,fsignal=dd2,fwave=downW2,ffilter=n1430filter)
 xdds4 = SXFuncA(fstate=followD42,fsignal=dds4,fwave=nx2000B,ffilter=e1430filter)    #1430
 xds = SXFunc(fstate=followD43,fsignal=dlx,fwave=ZB,ffilter=e1430filter)     #1430
+
+#涨序列明显缺乏
 
 xuub_x = CFunc(u'XUUB集合',xuub,xuub2)   #这两个时间叉开
 xdds_x = CSFuncF1(u'xdds集合',xdds,xdds2,xdds3,xdds4,xds)
@@ -773,8 +776,9 @@ xdown01 = SXFunc(fstate=SD0,fsignal=T_D0,fwave=WD0,ffilter=efilter)
 xup01 = BXFunc(fstate=SU0,fsignal=T_U0,fwave=WU0,ffilter=efilter2)
 
 xmacd3s = SXFuncD1(fstate = followD1,fsignal=macd3xd,fwave=nx1600B,ffilter=n1400filter)
+#xmacd3b = BXFuncD1(fstate = followU1,fsignal=macd3xu,fwave=nx1600B,ffilter=n1400filter)
 
-xxx_index  = [xdown01,xup01]
+xxx_index  = [xdown01,xup01,xmacd3s]
 xxx_index_candidate =[xdown01,xup01,xmacd3s]
 
 
@@ -909,6 +913,7 @@ def T3_H10(sif,sopened = None):
     signal = dnext_cover(signal3,sif.close,sif.i_cof3,1)
     return signal
 
+
 def T1_RD(sif,sopened = None):
     '''
         #注意，这里的high是最近30分钟中的最低,而不是最高
@@ -1042,6 +1047,25 @@ def T1_D4ID(sif,sopened=None):
                 ,sif.close < rollx(sif.low,5)
                 )
     return signal
+
+def T1_UXUU(sif,sopened=None):
+    '''
+        抄底策略
+    '''
+    signal = gand(
+                rollx(sif.close,3) > rollx(sif.open,3),
+                rollx(sif.close,1) > rollx(sif.open,1),
+                sif.close > sif.open,
+          )
+    return signal
+
+def T1_DV(sif,sopened=None):
+    return gand(
+                sif.close > rollx(sif.high),
+                rollx(sif.low) == tmin(sif.low,30)
+            )
+    
+
 
 #状态
 
@@ -1208,6 +1232,17 @@ def S1D4ID(sif):
             sif.s30<0,
         )
 
+def S1DV(sif):
+    return gand(
+                strend2(sif.ma60)>0,
+                sif.s30>0,
+                sif.s1>0,
+                sif.r20>0,
+                #sif.t120>0,
+                sif.close > (sif.dhigh+sif.dlow)/2,
+             )
+
+
 
 #波动过滤
 
@@ -1332,9 +1367,11 @@ K5_R3 = SXFuncF1(fstate=S5R3,fsignal=T5_R3,fwave=ZD,ffilter=n1430filter)
 
 K1_UD = SXFuncD1(fstate=SDL,fsignal=T1_UD,fwave=nx2000C,ffilter=e1400filter)    #效果极好,合并效果不好
 
+
 #K5_P3 = SXFuncF1(fstate=S5_PH,fsignal=T5_P3,fwave=XFilter(nx2000B,ZD),ffilter=n1430filter)
 
 K3_H10 = SXFuncF1(fstate=S3H10,fsignal=T3_H10,fwave=W3H10,ffilter=exfilter) #进入候选
+
 
 K1_RD = SXFuncF1(fstate=S1RD,fsignal=T1_RD,fwave=nx2000,ffilter=efilter2)   #顺势的交易
 K1_RU = BXFuncF1(fstate=S1RU,fsignal=T1_RU,fwave=nx2000,ffilter=efilter2)   #顺势的交易
@@ -1343,6 +1380,7 @@ K1_DVB  = BXFuncF1(fstate=S1DVB,fsignal=T1_DVB,fwave=W1DVB,ffilter=efilter2)   #
 K1_UUX  = BXFuncF1(fstate=S1UUX,fsignal=T1_UUX,fwave=W1UUX,ffilter=efilter)   #顺势的交易
 K1_DUU  = BXFuncF1(fstate=S1DUU,fsignal=T1_DUU,fwave=W1DUU,ffilter=efilter)   #顺势的交易
 K1_DIIU  = BXFuncF1(fstate=S1DIIU,fsignal=T1_DIIU,fwave=W1DIIU,ffilter=n1430filter)   #顺势的交易
+K1_DV = BXFuncD1(fstate=S1DV,fsignal=T1_DV,fwave=gofilter,ffilter=efilter2)
 
 
 K1_DDUUD  = SXFuncF1(fstate=S1DDUUD,fsignal=T1_DDUUD,fwave=W1DDUUD,ffilter=efilter)   #顺势的交易,样本数=10
@@ -1357,26 +1395,30 @@ K1_DDX2  = SXFuncF1(fstate=S1DDX2,fsignal=T1_DDX2,fwave=ZF,ffilter=e1430filter) 
 K1_UUD  = SXFuncF1(fstate=S1UUD,fsignal=T1_UUD,fwave=W1UUD,ffilter=efilter2)   #顺势的交易,样本数=10
 
 def TX(sif,sopened=None):
-    signal = gand(
-                rollx(sif.high,4) < rollx(sif.high,5)
-                ,rollx(sif.low,4) > rollx(sif.low,5) 
-                ,rollx(sif.high,3) < rollx(sif.high,5)
-                ,rollx(sif.low,3) > rollx(sif.low,5) 
-                ,rollx(sif.high,2) < rollx(sif.high,5)
-                ,rollx(sif.low,2) > rollx(sif.low,5) 
-                ,rollx(sif.high,1) < rollx(sif.high,5)
-                ,rollx(sif.low,1) > rollx(sif.low,5) 
-                ,sif.close < rollx(sif.low,5)
-                )
+    ma3_5 = ma(sif.close3,5)
+    
+    signal3 = gand(
+            sif.close3 == tmax(sif.close3,3),
+            rollx(sif.high3) < rollx(sif.high3,2),
+            rollx(sif.low3) > rollx(sif.low3,2),
+            rollx(sif.close3,2)>rollx(sif.open3,2),
+            sif.close3 > sif.open3,
+            strend2(ma3_5)>0,
+        )
+
+    signal = dnext_cover(signal3,sif.close,sif.i_cof3,1)
+
     signal = gand(signal,
-                sif.t120<0,
-                sif.s30<0,
-                sif.xatr<2000,
-            )
+                strend2(sif.mxatr)>0,
+                sif.xatr30x < sif.mxatr30x,
+                sif.t120>0,
+                sif.s5>0,
+             )
 
     return signal
 
-K1_TX = SXFuncF1(fstate=gofilter,fsignal=TX,fwave=gofilter,ffilter=n1430filter)
+K1_TX = BXFuncF1(fstate=gofilter,fsignal=TX,fwave=gofilter,ffilter=n1430filter)
+
 
 
 
@@ -1387,12 +1429,12 @@ ks_5_x = CSFuncF1(u'低阶K顺势空头组合',K5_R3,K1_RD)
 ks_5_c = [K5_R3,K1_RD]
 
 k1b_x = CBFuncF1(u'K1顺势多头组合',K1_RU,K1_DVB,K1_UUX)
-k1b_c = [K1_RU,K1_DVB,K1_UUX,K1_DUU,K1_DIIU]#,K1_TX]
+k1b_c = [K1_RU,K1_DVB,K1_UUX,K1_DIIU,K1_DV]#,K1_DUU]#,K1_TX]
 
 #k1b_y = CBFuncF1(u'K1顺势多头组合',K1_UUX,K1_DUU)
 #k1b_d = [K1_UUX,K1_DUU]
 
-k1s_x = CSFuncF1(u'K1顺势空头组合',K1_UUD,K1_DDD,K1_UD)#,K1_D4ID)#,K1_TX)
+k1s_x = CFuncD1(u'K1顺势空头组合',K1_UUD,K1_DDD,K1_UD)#,K1_D4ID)#,K1_TX)
 k1s_c = [K1_UUD,K1_DDD,K1_UD]#,K1_D4ID]
 
 k1s_x2 = CSFuncF1(u'K1顺势空头组合',K1_DDD,K1_DDD1,K1_DDX)#,K1_TX)  #合并有反作用
@@ -1499,6 +1541,52 @@ def T3_L12(sif,sopened=None):
     signal = dnext_cover(signal3,sif.close,sif.i_cof3,1)
     return signal
 
+def T1_WE(sif,sopened=None):    #上新高下过底
+    signal = gand(
+                #rollx(sif.close,1) > rollx(sif.close,2),
+                sif.close < rollx(sif.low),#rollx(gmin(sif.close,sif.open))
+                #sif.close < sif.open,
+                rollx(sif.high) == tmax(sif.high,10),
+                )
+    return signal
+
+def T5_BK(sif,sopened = None):
+    signal5 = gand(#孕线
+                   rollx(sif.close5,1)>rollx(sif.open5,1),
+                   rollx(sif.close5,1)>rollx(sif.close5,2),
+                   rollx(sif.high5,1)>rollx(sif.high5,2),                   
+                   sif.high5 < rollx(sif.high5,1),
+                   sif.low5 > rollx(sif.low5,1),
+                   #sif.close5 > rollx((sif.high5+sif.low5)/2),
+                   #rollx(sif.high5,1) == tmax(sif.high5,5),
+             )
+    delay = 5
+    bline5 = rollx(sif.high5)
+    bline = dnext_cover(np.select([signal5>0],[bline5],[0]),sif.close,sif.i_cof5,delay)
+
+    signal = gand(sif.close > bline,bline>0)
+    
+    return signal
+
+def T3_BK(sif,sopened = None):
+    signal3 = gand(#孕线
+                   rollx(sif.close3,1)>rollx(sif.open3,1),
+                   rollx(sif.close3,1)>rollx(sif.close3,2),
+                   rollx(sif.high3,1)>rollx(sif.high3,2),                   
+                   sif.high3 < rollx(sif.high3,1),
+                   sif.low3 > rollx(sif.low3,1),
+                   #sif.close3 > rollx((sif.high3+sif.low3)/2),
+                   rollx(sif.high3,1) == tmax(sif.high3,5),
+             )
+
+    delay = 5
+    bline3 = rollx(sif.high3)
+    bline = dnext_cover(np.select([signal3>0],[bline3],[0]),sif.close,sif.i_cof3,delay)
+
+    signal = gand(sif.close > bline,bline>0)
+    
+    return signal
+
 
 #状态
 def AS15A(sif):
@@ -1542,7 +1630,21 @@ def AS5H36(sif):
             sif.r60 > 0,
         )
 
+def S1WE(sif):
+    return gand(
+            sif.dma < sif.dmid, #均价小于中间价, 过于偏离
+        )
             
+def S1DV2(sif):
+    return gand(
+            sif.dma > sif.dmid, #均价大于中间价, 过于偏离
+        )
+
+def S5BK(sif):
+    return gand(
+            sif.s3>0,
+        )
+
 
 #波动过滤
 def W15A(sif):
@@ -1580,6 +1682,49 @@ def W3L12(sif):
              #strend2(sif.mxatr30x)>0,
         )
  
+def W1WE(sif):
+    return gand(
+            sif.xatr < 1500,
+            sif.xatr30x > 8000,
+            sif.xatr30x < 12000,
+            strend2(sif.mxatr)>0,
+        )
+
+def W1DVS(sif):
+    return gand(
+            sif.xatr < 1200,
+            sif.xatr30x < 8000,
+            strend2(sif.mxatr)>0,
+            strend2(sif.mxatr30x)<0,            
+            sif.xatr30x < sif.mxatr30x,
+        )
+
+def W1DV2(sif):
+    return gand(
+            sif.xatr > 0,
+            #sif.xatr30x < 10000,
+            strend2(sif.ma13)>0
+        )
+
+def W5BK(sif):
+    return gand(
+            strend2(sif.mxatr30x)>0,
+            sif.xatr > sif.mxatr,
+            strend2(sif.mxatr)>0,
+            sif.xatr < 2000,
+            sif.xatr30x > 5000,
+        )
+
+def W3BK(sif):
+    return gand(
+            #strend2(sif.mxatr30x)<0,
+            sif.xatr > sif.mxatr,
+            strend2(sif.mxatr)>0,
+            sif.xatr < 1500,
+            sif.xatr30x < 10000,
+            sif.s3>0,
+        )
+
 
 FA_15_120 = SXFunc(fstate=AS15A,fsignal=T15_120h,fwave=W15A,ffilter=n1430filter)
 FA_15_120B = SXFunc(fstate=AS15A2,fsignal=T15_120h,fwave=ZA,ffilter=nfilter)
@@ -1592,12 +1737,21 @@ FA_5_H36 = SXFuncD1(fstate=AS5H36,fsignal=T5_H36,fwave=ZA,ffilter=nfilter)
 
 FA_3_L12 = BXFunc(fstate=AS3L12,fsignal=T3_L12,fwave=ZE,ffilter=nfilter)
 
+K1_WE = SXFuncD1(fstate=S1WE,fsignal=T1_WE,fwave=W1WE,ffilter=e1400filter)    #无趋势
+
+K1_DVS = SXFuncD1(fstate=S1DV2,fsignal=T1_DV,fwave=W1DVS,ffilter=n1400filter)    #手误,应该是BX
+
+K1_DV2 = BXFuncD1(fstate=S1DV2,fsignal=T1_DV,fwave=W1DV2,ffilter=n1400filter)    #无法找到可用策略
+
+K5_BK = BXFuncF1(fstate=S5BK,fsignal=T5_BK,fwave=W5BK,ffilter=nfilter) 
+K3_BK = BXFuncF1(fstate=gofilter,fsignal=T3_BK,fwave=W3BK,ffilter=nfilter) 
+
 FA_15_120_C = [FA_15_120,FA_15_120B]
 
 
 #逆势同周期同方向每天只做一次
-FA_S_X = CFuncD1(u'FA_S集合',FA_15_120,FA_15_120B,FA_15_M,FA_5_H36)
-FA_B_X = CFuncD1(u'FA_B集合',FA_3_L12)
+FA_S_X = CFuncD1(u'FA_S集合',FA_15_120,FA_15_120B,FA_15_M,FA_5_H36,K1_WE)#,K1_DVS)
+FA_B_X = CBFuncF1(u'FA_B集合',FA_3_L12,K5_BK)
 
 xxx_against = [FA_S_X,FA_B_X]
 
@@ -1697,6 +1851,7 @@ for x in set(xxx+xxx_candidate):
     #x.stop_closer = iftrade.atr5_uxstop_kC #60/60   
     #x.stop_closer = iftrade.atr5_uxstop_kD #60/80       
     x.stop_closer = iftrade.atr5_uxstop_kF #60/120       
+    #x.stop_closer = iftrade.atr5_uxstop_t_08_25_B2
     #x.stop_closer = iftrade.atr5_uxstop_k60 #60/90
     #x.stop_closer = iftrade.atr5_uxstop_k90 #60/90
     #x.stop_closer = iftrade.atr5_uxstop_k120 #60/20
@@ -1710,4 +1865,93 @@ def test(sif):
         print x.name,len(xtrades)
     return results
 
-xxx_xxx = [zx,]
+def test2(sif):
+    '''
+        rxs = xfuncs.test2(i00)
+        for rx in rxs:
+            print 'name=%s,\tR=%s\tLen=%s\tSum=%s\tMaxDD=%s' % (rx[0].name,rx[3],rx[5],rx[2],rx[4][0])
+        xf = open('d:/temp/xfuncs.txt','w+')
+        for rx in rxs:
+            print >>xf,'name=%s,\tR=%s\tLen=%s\tSum=%s\tMaxDD=%s' % (rx[0].name,rx[3],rx[5],rx[2],rx[4][0])
+        xf.close()
+        
+    '''
+    results = []
+    for (name,x) in globals().items():
+        #print x,isinstance(x,XFunc),isinstance(x,CFunc)
+        if isinstance(x,XFunc) and not isinstance(x,CFunc):
+            xtrades = control.itradex8_yy(sif,x)
+            iftrade.limit_profit(xtrades,-60)
+            xsum = sum([trade.profit for trade in xtrades])
+            xR = iftrade.R(xtrades)
+            xmd = iftrade.max_drawdown(xtrades)
+            xlen = len(xtrades)
+            results.append((x,xtrades,xsum,xR,xmd,xlen))
+            results.sort(lambda x,y:1 if x[3]>y[3] or x[5]>y[5] or x[2]>y[2] else -1)
+    return results
+
+
+def xxxx(sif):
+    xxx20 = []
+    rxs = test2(sif)
+    for rx in rxs:
+        if rx[5] >=20:
+            xxx20.append(rx[0])
+    return xxx20
+
+
+xxx_xxx = [
+        #xdds,       #15
+        K1_UD,      #18
+        #K15_M3B,    #14
+        xdds2,      #18
+        xdds3,      #23
+        #---R<5
+        K15_M3,     #25
+        K5_R3,      #25
+        #K1_UUD,     #10
+        k5_d3b,     #24
+        xds,        #27
+        #FA_15_H5,   #6，但条件非常简单
+        #k3_d3,      #16
+        K15_H1,     #19
+        #K1_RD,      #11
+        xuub,       #20
+        da_fa,      #29
+        #---R<4
+        #FA_3_L12,   #9
+        #K1_DDUUD,   #10
+        #K1_DDX2,    #15
+        xdds4,      #36
+        xdown01,    #19
+        ua_fa_a,    #18
+        K1_DDX,     #26
+        #K1_DDD,     #15
+        #FA_15_M,    #10
+        K1_DDD1,    #32
+        FA_15_120B, #17
+        k5_d3,      #45
+        #FA_5_H36,   #9
+        K1_UUX,     #17
+        #K1_DV,      #11
+        #K1_D4ID,    #14
+        da_m30,     #22
+        dbrb,       #21
+        #xmacd3s,    #18 MDD比较大
+        K1_DIIU,    #20
+        #---R<3
+        Z5_P2,      #25
+        xup01,      #20
+        #FA_15_120,  #13
+        #da_m30b,    #12
+        K1_RU,      #19
+        K1_DVB,     #25
+        #K3_H10,     #14
+        xuub2,      #19
+        #K10_L1,     #13
+        ua_fa,      #23
+        #---R<2,回撤比较大
+        #K1_DUU,     #26
+        #K10_H1,     #27
+        #ua_fa_m,    #11
+    ]

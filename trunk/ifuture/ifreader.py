@@ -144,7 +144,7 @@ def prepare_index(sif):
     sif.date = trans[IDATE]
 
     
-    fcore.dpeak(sif)    #设置当日的高低点及其坐标
+    fcore.dpeak(sif)    #设置当日的高低点及其坐标 dhigh/dlow
     fcore.dpeak2(sif)    #设置当日的暴力起涨/跌点
     fcore.dopen(sif)    #设置当日的开盘点位
 

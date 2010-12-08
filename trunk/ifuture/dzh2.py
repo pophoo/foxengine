@@ -93,7 +93,7 @@ import win32api
 from wolfox.fengine.ifuture.ibase import *
 import wolfox.fengine.ifuture.ifreader as ifreader
 import wolfox.fengine.ifuture.iftrade as iftrade
-import wolfox.fengine.ifuture.xfuncs as ifuncs
+import wolfox.fengine.ifuture.xfuncs2 as ifuncs
 import wolfox.fengine.ifuture.fcontrol as control
 import wolfox.fengine.ifuture.dynamic as dynamic
 from wolfox.foxit.base.tutils import linelog

@@ -14,6 +14,8 @@ import wolfox.fengine.ifuture.fcontrol as control
 import wolfox.fengine.ifuture.dynamic as dynamic
 import wolfox.fengine.ifuture.evaluate as ev
 import wolfox.fengine.ifuture.xfuncs as xfuncs
+import wolfox.fengine.ifuture.xfuncs2 as xfuncs2
+
 
 from wolfox.fengine.ifuture.ifuncs import *
 
@@ -50,7 +52,7 @@ lx5 = lambda ii,trade:ii.xatr5x[trade.actions[0].index]
 lm5 = lambda ii,trade:ii.mxatr5x[trade.actions[0].index]
 
 
-for trade in tradesy:print trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].time,trade.actions[1].price,trade.actions[1].index-trade.actions[0].index,func_name(trade.functor),func_name(trade.orignal)
+for trade in tradesy:print trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].time,trade.actions[1].price,trade.actions[1].index-trade.actions[0].index,trade.orignal.name
 
 #for trade in tradesy:print trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].time,trade.actions[1].price,trade.actions[1].index-trade.actions[0].index,str(trade.functor)[10:-14],str(trade.orignal)[10:-14],lx(i00,trade),lm(i00,trade),lx5(i00,trade),lm5(i00,trade),lx15(i00,trade),lm15(i00,trade),lx30(i00,trade),lm30(i00,trade)
 
@@ -79,7 +81,7 @@ sum([trade.profit for trade in tradesy if trade.actions[0].date>20100714 and tra
 
 #输出到文件
 fo = open('d:/temp/201000.txt','w+')
-for trade in tradesy:print >>fo,'%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s' % (trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].date,trade.actions[1].time,trade.actions[1].position,trade.actions[1].price,trade.actions[1].index-trade.actions[0].index,func_name(trade.functor),func_name(trade.orignal))
+for trade in tradesy:print >>fo,'%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s' % (trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].date,trade.actions[1].time,trade.actions[1].position,trade.actions[1].price,trade.actions[1].index-trade.actions[0].index,trade.orignal.name
 fo.close()
 
 '''

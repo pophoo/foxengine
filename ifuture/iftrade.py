@@ -944,6 +944,7 @@ def xposition(sif,saction,xtype,defer=1):
 
 def make_price(position,open,close,high,low):
     #return open
+    return open #滑点另行考虑，这里主要是因为止损位置的设定
     if position == LONG:
         return (open+high)/2
         #return open + (high - open) *2 / 3
@@ -2107,6 +2108,8 @@ atr5_uxstop_kS = fcustom(atr_uxstop_k,fkeeper=F150,win_times=250,natr=5,flost_ba
 atr5_uxstop_kJ = fcustom(atr_uxstop_k,fkeeper=F120,win_times=250,natr=5,flost_base=F70)      #120-70    #
 atr5_uxstop_kN = fcustom(atr_uxstop_k,fkeeper=F120,win_times=250,natr=5,flost_base=F80)      #120-80
 
+
+atr5_uxstop_kP = fcustom(atr_uxstop_k,fkeeper=F120,win_times=250,natr=5,flost_base=F80)      #120-80
 
 #镜像,缺乏意义。在风险处理上没有一致性
 atr5_uxstop_kFR = fcustom(atr_uxstop_k,fkeeper=F60,win_times=250,natr=5,flost_base=F120)      #120-60

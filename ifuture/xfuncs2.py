@@ -36,6 +36,13 @@ def nll(sif):
             sif.low < rollx(sif.dlow-30),
         )
 
+def nll2(sif):
+    #使用最低点
+    return gand(
+            #cross(rollx(sif.dlow-30),sif.low)<0
+            sif.low < rollx(sif.dlow+30,3),
+        )
+    
 def nlc(sif):
     #使用收盘价,而且是前面倒数第三次的dlow
     return gand(
@@ -57,7 +64,7 @@ def nlc_fake(sif):
     return gand(
             #cross(rollx(sif.dlow+30),sif.low)<0,
             sif.low   <  rollx(sif.dlow+30,3),            
-            sif.close >  rollx(sif.dlow+30,3)
+            sif.close >=  rollx(sif.dlow+30,3)
         )
 
 
@@ -109,11 +116,18 @@ def sdown(sif):
 
 sbreak_nll = SXFuncA(fstate=sdown,fsignal=nll,fwave=nx2000X,ffilter=nfilter)    #这个R高，但是次数少
 sbreak_nll.name = u'向下突破'
+
 sbreak_nlc = SXFuncA(fstate=sdown,fsignal=nlc,fwave=nx2000X,ffilter=nfilter)    #这个R小，次数多
 sbreak_nlc.name = u'即将向下突破'
 
 sbreak_nlc_fake = SXFuncA(fstate=sdown,fsignal=nlc_fake,fwave=nx2000X,ffilter=nfilter)    #F1效果明显
 sbreak_nlc_fake.name = u'向下假突破'    #假突破时需要马上平仓
+
+
+sbreak_nll2 = SXFuncA(fstate=sdown,fsignal=nll2,fwave=nx2000X,ffilter=nfilter)    #这个R高，但是次数少
+sbreak_nll2.name = u'向下突破2'
+#sbreak_nlc + sbreak_nlc_break = sbreak_nll2
+
 
 lbreak = [break_nhh,break_nll]
 lbreak2 = [break_nhc,break_nlc]
@@ -121,7 +135,7 @@ lbreak2 = [break_nhc,break_nlc]
 xbreak = [break_nhh,break_nlc]  #这个比较好，顶底不对称
 xbreak2 = [break_nhc,break_nll]
 
-zbreak = [break_nhh,sbreak_nlc,sbreak_nlc_fake,sbreak_nll] #这个最好,更加不对称,添加了假突破. 更加实盘化
+zbreak = [break_nhh,sbreak_nll2] #这个最好,更加不对称,添加了假突破. 更加实盘化
 zbreak2 = [break_nhh,sbreak_nll]    #这个效果好一些
 
 lcandidate = [sbreak_nll]

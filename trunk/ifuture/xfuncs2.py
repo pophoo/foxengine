@@ -68,6 +68,15 @@ def nlc_fake(sif):
         )
 
 
+def nx2500X(sif):
+    return gand(
+                sif.xatr < 2500,
+                sif.xatr30x < 10000,
+                sif.xatr5x< 4000,
+           )
+
+
+    
 def na2000(sif):
     return gand(
                 sif.atr < 8000,
@@ -76,6 +85,7 @@ def na2000(sif):
             )
 
   
+
 #用atr的绝对值效果不行
 nbreak_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=gofilter,ffilter=nfilter)
 nbreak_nll = SXFuncA(fstate=gofilter,fsignal=nll,fwave=gofilter,ffilter=nfilter)
@@ -84,15 +94,15 @@ nbreak_nlc = SXFuncA(fstate=gofilter,fsignal=nlc,fwave=gofilter,ffilter=nfilter)
 
 nbreak = [nbreak_nhh,nbreak_nll]
 
-break_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=nx2000X,ffilter=nfilter)
+break_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=nx2500X,ffilter=nfilter)
 break_nhh.name = u'向上突破新高'
-break_nll = SXFuncA(fstate=gofilter,fsignal=nll,fwave=nx2000X,ffilter=nfilter)
+break_nll = SXFuncA(fstate=gofilter,fsignal=nll,fwave=nx2500X,ffilter=nfilter)
 
-break_nhc = BXFuncA(fstate=gofilter,fsignal=nhc,fwave=nx2000X,ffilter=nfilter)  #F1好
-break_nlc = SXFuncA(fstate=gofilter,fsignal=nlc,fwave=nx2000X,ffilter=nfilter)  #F1效果明显，但总收益下降
+break_nhc = BXFuncA(fstate=gofilter,fsignal=nhc,fwave=nx2500X,ffilter=nfilter)  #F1好
+break_nlc = SXFuncA(fstate=gofilter,fsignal=nlc,fwave=nx2500X,ffilter=nfilter)  #F1效果明显，但总收益下降
 
-break_nhc_fake = BXFuncA(fstate=gofilter,fsignal=nhc_fake,fwave=nx2000X,ffilter=nfilter)  #F1好
-break_nlc_fake = SXFuncA(fstate=gofilter,fsignal=nlc_fake,fwave=nx2000X,ffilter=nfilter)  #F1效果明显，但总收益下降
+break_nhc_fake = BXFuncA(fstate=gofilter,fsignal=nhc_fake,fwave=nx2500X,ffilter=nfilter)  #F1好
+break_nlc_fake = SXFuncA(fstate=gofilter,fsignal=nlc_fake,fwave=nx2500X,ffilter=nfilter)  #F1效果明显，但总收益下降
 
 abreak_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=na2000,ffilter=nfilter)
 abreak_nll = SXFuncA(fstate=gofilter,fsignal=nll,fwave=na2000,ffilter=nfilter)
@@ -111,20 +121,20 @@ def sdown(sif):
 #            strend2(sif.ma30) > 0,
 #        )
 
-#sbreak_nhh = BXFuncA(fstate=sup,fsignal=nhh,fwave=nx2000X,ffilter=nfilter)
-#sbreak_nhc = BXFuncA(fstate=sup,fsignal=nhc,fwave=nx2000X,ffilter=nfilter)
+#sbreak_nhh = BXFuncA(fstate=sup,fsignal=nhh,fwave=nx2500X,ffilter=nfilter)
+#sbreak_nhc = BXFuncA(fstate=sup,fsignal=nhc,fwave=nx2500X,ffilter=nfilter)
 
-sbreak_nll = SXFuncA(fstate=sdown,fsignal=nll,fwave=nx2000X,ffilter=nfilter)    #这个R高，但是次数少
+sbreak_nll = SXFuncA(fstate=sdown,fsignal=nll,fwave=nx2500X,ffilter=nfilter)    #这个R高，但是次数少
 sbreak_nll.name = u'向下突破'
 
-sbreak_nlc = SXFuncA(fstate=sdown,fsignal=nlc,fwave=nx2000X,ffilter=nfilter)    #这个R小，次数多
+sbreak_nlc = SXFuncA(fstate=sdown,fsignal=nlc,fwave=nx2500X,ffilter=nfilter)    #这个R小，次数多
 sbreak_nlc.name = u'即将向下突破'
 
-sbreak_nlc_fake = SXFuncA(fstate=sdown,fsignal=nlc_fake,fwave=nx2000X,ffilter=nfilter)    #F1效果明显
+sbreak_nlc_fake = SXFuncA(fstate=sdown,fsignal=nlc_fake,fwave=nx2500X,ffilter=nfilter)    #F1效果明显
 sbreak_nlc_fake.name = u'向下假突破'    #假突破时需要马上平仓
 
 
-sbreak_nll2 = SXFuncA(fstate=sdown,fsignal=nll2,fwave=nx2000X,ffilter=nfilter)    #这个R高，但是次数少
+sbreak_nll2 = SXFuncA(fstate=sdown,fsignal=nll2,fwave=nx2500X,ffilter=nfilter)    #这个R高，但是次数少
 sbreak_nll2.name = u'向下突破2'
 #sbreak_nlc + sbreak_nlc_break = sbreak_nll2
 
@@ -208,14 +218,14 @@ def mlc(sif):
             cross(rollx(tmin(sif.low,mlen)+30),sif.close)<0
         )
 
-break_mhh = BXFuncA(fstate=gofilter,fsignal=mhh,fwave=nx2000X,ffilter=nfilter)  #差于nhh
-break_mll = SXFuncA(fstate=gofilter,fsignal=mll,fwave=nx2000X,ffilter=nfilter)  #差于nll
+break_mhh = BXFuncA(fstate=gofilter,fsignal=mhh,fwave=nx2500X,ffilter=nfilter)  #差于nhh
+break_mll = SXFuncA(fstate=gofilter,fsignal=mll,fwave=nx2500X,ffilter=nfilter)  #差于nll
 
-break_mhc = BXFuncA(fstate=gofilter,fsignal=mhc,fwave=nx2000X,ffilter=nfilter)  #差于nhc
-break_mlc = SXFuncA(fstate=gofilter,fsignal=mlc,fwave=nx2000X,ffilter=nfilter)  #差于nlc
+break_mhc = BXFuncA(fstate=gofilter,fsignal=mhc,fwave=nx2500X,ffilter=nfilter)  #差于nhc
+break_mlc = SXFuncA(fstate=gofilter,fsignal=mlc,fwave=nx2500X,ffilter=nfilter)  #差于nlc
 
-sbreak_mll = SXFuncA(fstate=sdown,fsignal=mll,fwave=nx2000X,ffilter=nfilter)    #差于nll
-sbreak_mlc = SXFuncA(fstate=sdown,fsignal=mlc,fwave=nx2000X,ffilter=nfilter)    #差于nlc
+sbreak_mll = SXFuncA(fstate=sdown,fsignal=mll,fwave=nx2500X,ffilter=nfilter)    #差于nll
+sbreak_mlc = SXFuncA(fstate=sdown,fsignal=mlc,fwave=nx2500X,ffilter=nfilter)    #差于nlc
 
 
 #mxxx = [break_mhh,break_mhc,break_mll,break_mlc]

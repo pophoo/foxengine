@@ -2,11 +2,8 @@
 
 
 '''
-    采用吕总类似的系统
-    考虑
-    1. 最低/最高点策略
-    2. 收盘价策略 
-    3. 下午考虑最近120分钟
+    新高/新低系统
+    当出现信号开仓后，如果未平仓前出现第二个信号，则止损要按照这几个信号最宽的一个来放
 
 '''
 
@@ -55,7 +52,7 @@ def nll2(sif):
     #使用最低点
     return gand(
             #cross(rollx(sif.dlow-30),sif.low)<0
-            sif.low < rollx(sif.dlow+30,3),
+            sif.low < rollx(sif.dlow+20,3), #比close要小点
         )
     
 def nlc(sif):
@@ -102,7 +99,15 @@ def na2000(sif):
 nbreak_nhh0 = BXFuncA(fstate=gofilter,fsignal=nhh0,fwave=gofilter,ffilter=nfilter)
 nbreak_nll0 = SXFuncA(fstate=gofilter,fsignal=nll0,fwave=gofilter,ffilter=nfilter)
 
+nbreak_nhh0.stop_closer = iftrade.atr5_uxstop_kF
+nbreak_nll0.stop_closer = iftrade.atr5_uxstop_kF
+
 nbreak0 = [nbreak_nhh0,nbreak_nll0]
+
+##反向使用，抄底摸顶
+rbreak_nhh0 = SXFuncA(fstate=gofilter,fsignal=nhh0,fwave=gofilter,ffilter=nfilter)
+rbreak_nll0 = BXFuncA(fstate=gofilter,fsignal=nll0,fwave=gofilter,ffilter=nfilter)
+
 
 
 nbreak_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=gofilter,ffilter=nfilter)
@@ -163,8 +168,8 @@ lbreak2 = [break_nhc,break_nlc]
 xbreak = [break_nhh,break_nlc]  #这个比较好，顶底不对称
 xbreak2 = [break_nhc,break_nll]
 
-zbreak = [break_nhh,sbreak_nll2] #这个最好,更加不对称,添加了假突破. 更加实盘化
-zbreak2 = [break_nhh,sbreak_nll]    #这个效果好一些
+zbreak = [break_nhh,sbreak_nll2] #这个最好
+zbreak2 = [break_nhh,sbreak_nll] #这个效果差一点
 
 lcandidate = [sbreak_nll]
 
@@ -276,5 +281,7 @@ wxfs = [wxss,wxbs]
 xxx2 = xxx +wxfs #+ wxxx
 
 for x in xxx2+mxxx:
-    x.stop_closer = iftrade.atr5_uxstop_kF #60/120       
+    #x.stop_closer = iftrade.atr5_uxstop_kF #60/120       
+    #x.stop_closer = iftrade.atr5_uxstop_kQ #10/120       
+    x.stop_closer = iftrade.atr5_uxstop_kV #60/120/333
     x.cstoper = iftrade.F60  #初始止损,目前只在动态显示时用

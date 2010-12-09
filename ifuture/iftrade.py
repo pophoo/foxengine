@@ -2093,6 +2093,7 @@ F120 = lambda bpoint:120
 F150 = lambda bpoint:150
 F180 = lambda bpoint:180
 F250 = lambda bpoint:250
+F333 = lambda bpoint:333
 
 atr5_uxstop_k0 = fcustom(atr_uxstop_k,fkeeper=F40,win_times=250,natr=5,flost_base=F60)      #40-60
 atr5_uxstop_kA = fcustom(atr_uxstop_k,fkeeper=F60,win_times=250,natr=5,flost_base=F40)      #60-40
@@ -2102,6 +2103,8 @@ atr5_uxstop_kD = fcustom(atr_uxstop_k,fkeeper=F60,win_times=250,natr=5,flost_bas
 atr5_uxstop_kE = fcustom(atr_uxstop_k,fkeeper=F60,win_times=250,natr=5,flost_base=F90)      #60-90
 
 #貌似最好? 60止损，120的保本
+atr5_uxstop_kV = fcustom(atr_uxstop_k,fkeeper=F120,win_times=250,natr=5,flost_base=F60,fmax_drawdown=F333)      #120-60
+
 atr5_uxstop_kT = fcustom(atr_uxstop_k,fkeeper=F100,win_times=250,natr=5,flost_base=F60)      #120-60
 atr5_uxstop_kF = fcustom(atr_uxstop_k,fkeeper=F120,win_times=250,natr=5,flost_base=F60)      #120-60
 atr5_uxstop_kS = fcustom(atr_uxstop_k,fkeeper=F150,win_times=250,natr=5,flost_base=F60)      #120-60
@@ -2110,6 +2113,8 @@ atr5_uxstop_kN = fcustom(atr_uxstop_k,fkeeper=F120,win_times=250,natr=5,flost_ba
 
 
 atr5_uxstop_kP = fcustom(atr_uxstop_k,fkeeper=F120,win_times=250,natr=5,flost_base=F80)      #120-80
+atr5_uxstop_kQ = fcustom(atr_uxstop_k,fkeeper=F120,win_times=250,natr=5,flost_base=F100)      #120-80
+
 
 #镜像,缺乏意义。在风险处理上没有一致性
 atr5_uxstop_kFR = fcustom(atr_uxstop_k,fkeeper=F60,win_times=250,natr=5,flost_base=F120)      #120-60

@@ -15,6 +15,21 @@ import wolfox.fengine.ifuture.iftrade as iftrade
 import wolfox.fengine.ifuture.fcontrol as control
 from wolfox.fengine.ifuture.xfuncs import *
 
+def nhh0(sif):
+    #使用最高点
+    return gand(
+            #cross(rollx(sif.dhigh+30),sif.high)>0
+            sif.high > rollx(sif.dhigh+10),
+        )
+
+def nll0(sif):
+    #使用最低点
+    return gand(
+            #cross(rollx(sif.dlow-30),sif.low)<0
+            sif.low < rollx(sif.dlow-10),
+        )
+
+
 def nhh(sif):
     #使用最高点
     return gand(
@@ -75,8 +90,7 @@ def nx2500X(sif):
                 sif.xatr5x< 4000,
            )
 
-
-    
+#用atr的绝对值效果不行    
 def na2000(sif):
     return gand(
                 sif.atr < 8000,
@@ -84,9 +98,13 @@ def na2000(sif):
                 sif.atr30x < 30000,
             )
 
-  
+#以1个点位过滤
+nbreak_nhh0 = BXFuncA(fstate=gofilter,fsignal=nhh0,fwave=gofilter,ffilter=nfilter)
+nbreak_nll0 = SXFuncA(fstate=gofilter,fsignal=nll0,fwave=gofilter,ffilter=nfilter)
 
-#用atr的绝对值效果不行
+nbreak0 = [nbreak_nhh0,nbreak_nll0]
+
+
 nbreak_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=gofilter,ffilter=nfilter)
 nbreak_nll = SXFuncA(fstate=gofilter,fsignal=nll,fwave=gofilter,ffilter=nfilter)
 nbreak_nhc = BXFuncA(fstate=gofilter,fsignal=nhc,fwave=gofilter,ffilter=nfilter)  
@@ -186,6 +204,18 @@ def pinfo(sif,trades):
         print trade.profit,a0.date,a0.time,direction,a0.price,a1.time,a1.price,ia1-ia0,'|',tskip,tprice#,thigh,sif.dhigh[ia0-1]
     print u'总次数=%s,滑点总数=%s,最大滑点=%s,最大有利滑点=%s' % (nn,ss,mas,mis)
     
+def save(sif,trades,fname):
+    ff = open(fname,'w+')
+    mm = 200000
+    for trade in trades:
+        ia0 = trade.actions[0].index
+        ia1 = trade.actions[1].index
+        a0 = trade.actions[0]
+        a1 = trade.actions[1]
+        mm = mm + trade.profit * 30
+        od = u'买开' if a0.position==LONG else u'卖开'
+        print >>ff,u'%s,%s,%s,%d,%s,%d,%d,%d' % (sif.date[ia0],sif.time[ia0],od,a0.price,sif.time[a1.index],a1.price,trade.profit,mm)
+    ff.close()
 
 
 ######考虑用tmax(60)

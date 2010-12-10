@@ -15,6 +15,7 @@ import wolfox.fengine.ifuture.dynamic as dynamic
 import wolfox.fengine.ifuture.evaluate as ev
 import wolfox.fengine.ifuture.xfuncs as xfuncs
 import wolfox.fengine.ifuture.xfuncs2 as xfuncs2
+import wolfox.fengine.ifuture.xtfuncs as xtfuncs
 
 
 from wolfox.fengine.ifuture.ifuncs import *

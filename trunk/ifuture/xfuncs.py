@@ -2048,7 +2048,7 @@ for x in set(xxx+xxx_candidate):
     #x.stop_closer = iftrade.atr5_uxstop_k0 #40/60
     #x.stop_closer = iftrade.atr5_uxstop_kC #60/60   
     #x.stop_closer = iftrade.atr5_uxstop_kD #60/80       
-    x.stop_closer = iftrade.atr5_uxstop_kF #60/120       
+    x.stop_closer = iftrade.atr5_uxstop_kV #60/120       
     #x.stop_closer = iftrade.atr5_uxstop_t_08_25_B2
     #x.stop_closer = iftrade.atr5_uxstop_k60 #60/90
     #x.stop_closer = iftrade.atr5_uxstop_k90 #60/90

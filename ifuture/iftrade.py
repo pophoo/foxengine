@@ -792,7 +792,7 @@ def itradey(sif     #期指
         else:
             #print 'opener without close fdirection(opener) = %s' % ('XBUY' if fdirection(opener) == XBUY else 'XSELL',)
             closers = sclosers if fdirection(opener) == XBUY else bclosers
-        for closer in closers:
+        for closer in closers:#这里默认认为closer返回的数据中只要非0就算是有信号, 而不是区分买平还是卖平
             sclose = gor(sclose,closer(sif,sopened)) * (-fdirection(opener))
         ms_closer = stop_closer if 'stop_closer' not in opener.__dict__ else opener.stop_closer
         

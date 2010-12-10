@@ -488,6 +488,7 @@ def sync_tradess_pt(sif,tradess,acstrategy=late_strategy):
            
         #if trade.actions[0].xfollow >= cur_trade.actions[0].xfollow:#直接根据是否顺势判定是否平开，不根据优先级
         if (trade.actions[0].index > cur_trade.actions[0].index and aprofit(cur_trade.open_action,sclose[trade.actions[0].index]) < 600) or (trade.actions[0].index == cur_trade.actions[0].index and trade.actions[0].xfollow >= cur_trade.actions[0].xfollow):
+        #if trade.actions[0].index > cur_trade.actions[0].index:
             if trade.direction == cur_trade.direction:  #同向取代关系
                 #print u'同向增强,%s|%s:%s被%s增强'%(cur_trade.functor,cur_trade.actions[0].date,cur_trade.actions[0].time,trade.functor)
                 close_action = acstrategy(close_action,trade.actions[-1])
@@ -967,6 +968,9 @@ def snet(trades,netfrom=0,datefrom=20100401,dateto=20200101):
     return ss
 
 def max_drawdown(trades,datefrom=20100401,dateto=20200101):
+    '''
+        在中间即便有盈利，但是如果累计起来仍然为负，则持续计算
+    '''
     smax = 0    #最大连续回撤
     max1 = 0    #最大单笔回撤
     curs = 0
@@ -974,18 +978,20 @@ def max_drawdown(trades,datefrom=20100401,dateto=20200101):
     for trade in trades:
         tdate = trade.actions[-1].date
         if tdate > datefrom and tdate < dateto: #忽略掉小于开始时间的
-            if trade.profit > 0:
+            curs += trade.profit   #本为负数
+            if curs > 0:
                 curs = 0
-            else:
-                curs += trade.profit   #本为负数
-                if curs < smax:
-                    smax = curs
-                    mdate = trade.actions[0].date
+            elif curs < smax:
+                smax = curs
+                mdate = trade.actions[0].date
             if trade.profit < max1:
                 max1 = trade.profit
     return smax,max1,mdate
 
 def max_win(trades,datefrom=20100401,dateto=20200101):
+    '''
+        一旦出现负利润即重新计算
+    '''
     smax = 0    #最大连续盈利
     max1 = 0    #最大单笔盈利 
     curs = 0

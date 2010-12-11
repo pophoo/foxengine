@@ -1000,6 +1000,13 @@ def T1_DVB(sif,sopened=None):
                 )
     return signal    
 
+def T1_DVBR(sif,sopened=None):
+    signal = gand(
+                sif.close > rollx(tmax(sif.high,3)),
+                sif.close - rollx(gmax(sif.open,sif.close)) < 150,
+                )
+    return signal    
+
 def T1_UUX(sif,sopened=None):
     '''
         2上一调整
@@ -1235,6 +1242,15 @@ def S1DVB(sif):
             sif.xstate>0,
         )
  
+def S1DVBR(sif):#逆势
+    return gand(
+            sif.s5 > 0,
+            sif.s3 > 0,
+            sif.s1 < 0,
+            sif.xtrend<0,
+        )
+
+
 def S1UUX(sif):
     return gand(
             sif.r60>0,
@@ -1376,6 +1392,14 @@ def W1DVB(sif):
             sif.xatr30x<12000,
         )            
 
+def W1DVBR(sif):
+    return gand(
+            sif.xatr < sif.mxatr,
+            strend2(sif.mxatr)>0,
+            sif.xatr30x > 7000,
+        )            
+
+
 def W1UUX(sif):
     return gand(
             strend2(sif.mxatr)>0,
@@ -1468,10 +1492,11 @@ K1_RD = SXFuncF1(fstate=S1RD,fsignal=T1_RD,fwave=nx2000,ffilter=efilter2)   #顺
 K1_RU = BXFuncF1(fstate=S1RU,fsignal=T1_RU,fwave=nx2000,ffilter=efilter2)   #顺势的交易
 
 K1_DVB  = BXFuncF1(fstate=S1DVB,fsignal=T1_DVB,fwave=W1DVB,ffilter=efilter2)   #顺势的交易
+
 K1_UUX  = BXFuncF1(fstate=S1UUX,fsignal=T1_UUX,fwave=W1UUX,ffilter=efilter)   #顺势的交易
 K1_DUU  = BXFuncF1(fstate=S1DUU,fsignal=T1_DUU,fwave=W1DUU,ffilter=efilter)   #顺势的交易
 K1_DIIU  = BXFuncF1(fstate=S1DIIU,fsignal=T1_DIIU,fwave=W1DIIU,ffilter=n1430filter)   #顺势的交易
-K1_DV = BXFuncD1(fstate=S1DV,fsignal=T1_DV,fwave=gofilter,ffilter=efilter2)
+K1_DV = BXFuncF1(fstate=S1DV,fsignal=T1_DV,fwave=gofilter,ffilter=efilter2)
 
 K1_UDDU  = BXFunc(fstate=S1UDDU,fsignal=T1_UDDU,fwave=W1UDDU,ffilter=efilter)   #找不到方法
 
@@ -1732,6 +1757,16 @@ def T5_WBK(sif,sopened = None): #新高附近出现孕线
     
     return signal
 
+def T1_DDUU(sif,sopened=None):
+    '''
+    '''
+    signal = gand(rollx(sif.close,3) < rollx(sif.close,4)
+                ,rollx(sif.close,2) < rollx(sif.close,3)
+                ,rollx(sif.close,1) > rollx(sif.close,2)
+                ,sif.close > rollx(sif.close)
+                ,rollx(sif.low,2) == tmin(sif.low,8)
+                )
+    return signal
 
 #状态
 def AS15A(sif):
@@ -1774,6 +1809,14 @@ def AS5H36(sif):
             sif.s1<0,
             sif.r60 > 0,
         )
+
+def AS1DDUU(sif):
+    return gand(
+            sif.sdma>0,
+            sif.close < sif.ma20,
+            sif.s5>0,
+        )
+
 
 def S1WE(sif):
     return gand(
@@ -1882,6 +1925,12 @@ def W3BK(sif):
             sif.s3>0,
         )
 
+def W1DDUU(sif):
+    return gand(
+            sif.xatr > 1000,
+        )
+
+
 
 FA_15_120 = SXFunc(fstate=AS15A,fsignal=T15_120h,fwave=W15A,ffilter=n1430filter)
 FA_15_120B = SXFunc(fstate=AS15A2,fsignal=T15_120h,fwave=ZA,ffilter=nfilter)
@@ -1902,6 +1951,8 @@ K1_DV2 = BXFuncD1(fstate=S1DV2,fsignal=T1_DV,fwave=W1DV2,ffilter=n1400filter)   
 
 K5_BK = BXFuncF1(fstate=S5BK,fsignal=T5_BK,fwave=W5BK,ffilter=nfilter) 
 K3_BK = BXFuncF1(fstate=gofilter,fsignal=T3_BK,fwave=W3BK,ffilter=nfilter) 
+
+K1_DDUU = BXFuncD1(fstate=AS1DDUU,fsignal=T1_DDUU,fwave=W1DDUU,ffilter=nfilter)    #
 
 def W3WBK(sif):
     return gand(
@@ -1944,16 +1995,19 @@ K3_WBK = SXFuncF1(fstate=S3WBK,fsignal=T3_WBK,fwave=W3WBK,ffilter=efilter2)
 
 K5_WBK = SXFuncF1(fstate=S5WBK,fsignal=T5_WBK,fwave=W5WBK,ffilter=efilter2) 
 
+K1_DVBR  = BXFunc(fstate=S1DVBR,fsignal=T1_DVBR,fwave=W1DVBR,ffilter=e1430filter)   #逆势的交易 
+
 FA_15_120_C = [FA_15_120,FA_15_120B]
+
 
 
 #逆势同周期同方向每天只做一次
 FA_S_X = CSFuncF1(u'FA_S集合',FA_15_120,FA_15_120B,FA_15_M,FA_5_H36,K1_WE,K5_WBK,K3_WBK)#,K1_DVS)
-FA_B_X = CBFuncF1(u'FA_B集合',FA_3_L12,K5_BK)
+FA_B_X = CBFuncF1(u'FA_B集合',FA_3_L12,K5_BK,K1_DVBR)
 
 xxx_against = [FA_S_X,FA_B_X]
 
-xxx_against_candidate = [FA_15_120,FA_15_120B,FA_15_M,FA_5_H36,FA_S_X,FA_3_L12]
+xxx_against_candidate = [FA_15_120,FA_15_120B,FA_15_M,FA_5_H36,FA_S_X,FA_3_L12,K1_DVBR]
 
 
 for x in xxx_against:

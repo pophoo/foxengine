@@ -99,16 +99,17 @@ wxxx = [xds,xdds3,k5_d3b,xuub,K1_DDD1,K1_UUX,K1_RU,Z5_P2,xmacd3s,xup01,ua_fa,FA_
 #wxxx_b2 = [K1_DVB,K1_DVBR]
 
 wxxx_s = [xds,k5_d3b,Z5_P2,xmacd3s,FA_15_120]
-wxxx_b = [xuub,K1_RU,xup01,ua_fa,K1_DDUU]
+wxxx_b = [xuub,xup01,K1_DDUU,K1_RU,ua_fa]
 wxxx_b2 = [K1_DVB,K1_DVBR]
 
 
-wxss = CSFuncF1(u'向下投机组合',*wxxx_s)
-wxbs = CBFuncF1(u'向上投机组合',*wxxx_b)
-wxb2s = CBFuncF1(u'向上投机组合2',*wxxx_b2)
+#wxss = CSFuncF1(u'向下投机组合',*wxxx_s)
+#wxbs = CBFuncF1(u'向上投机组合',*wxxx_b)
+#wxb2s = CBFuncF1(u'向上投机组合2',*wxxx_b2)
 
-#wxss = CFunc(u'向下投机组合',*wxxx_s)
-#wxbs = CFunc(u'向上投机组合',*wxxx_b)
+wxss = CFunc(u'向下投机组合',*wxxx_s)
+wxbs = CFunc(u'向上投机组合',*wxxx_b)
+wxb2s = CFunc(u'向上投机组合2',*wxxx_b2)
 
 wxfs = [wxss,wxbs,wxb2s]
 

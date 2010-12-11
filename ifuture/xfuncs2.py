@@ -91,17 +91,21 @@ shbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2500X,ffilter=mfilter) 
 hbreak = [shbreak_mll2,break_nhh]  #利润比较好
 hbreak2 = [shbreak_mll2,hbreak_nhh]  #这个最大回撤最小      #####################采用此个
 
-
 ####添加老系统
-wxxx = [xds,xdds3,k5_d3b,xuub,K1_DDD1,K1_UUX,K1_RU,Z5_P2,xmacd3s,xup01,ua_fa,FA_15_120]
+wxxx = [xds,xdds3,k5_d3b,xuub,K1_DDD1,K1_UUX,K1_RU,Z5_P2,xmacd3s,xup01,ua_fa,FA_15_120,K1_DVB,K1_DDUU,K1_DVBR]
 
 wxxx_s = [xds,xdds3,k5_d3b,K1_DDD1,Z5_P2,xmacd3s,FA_15_120]
-wxxx_b = [xuub,K1_UUX,K1_RU,xup01,ua_fa]
+wxxx_b = [xuub,K1_UUX,K1_RU,xup01,ua_fa,K1_DDUU]
+wxxx_b2 = [K1_DVB,K1_DVBR]
 
 wxss = CSFuncF1(u'向下投机组合',*wxxx_s)
 wxbs = CBFuncF1(u'向上投机组合',*wxxx_b)
+wxb2s = CBFuncF1(u'向上投机组合2',*wxxx_b2)
 
-wxfs = [wxss,wxbs]
+#wxss = CFunc(u'向下投机组合',*wxxx_s)
+#wxbs = CFunc(u'向上投机组合',*wxxx_b)
+
+wxfs = [wxss,wxbs,wxb2s]
 
 #xxx = zbreak
 

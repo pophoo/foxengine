@@ -2169,6 +2169,36 @@ dvb.direction = XBUY
 dvb.priority = 1500
 dvb.filter = iftrade.socfilter
 
+
+def dvbx(sif,sopened=None):
+    '''
+        下上上
+        #2010-12-11添加
+        在反弹过程中回调后强势上拉
+        用
+            control.itradex8_yy(i00,ifuncs2.dvbx)
+        效果最好
+        相当于efilter
+    '''
+    signal = gand(
+                sif.close > rollx(tmax(sif.high,3))
+                ,sif.close - rollx(gmax(sif.open,sif.close)) < 150
+                )
+    signal = gand(signal
+                ,sif.s5 > 0
+                ,sif.s3 > 0
+                ,sif.s1 < 0
+                ,sif.xatr < sif.mxatr
+                ,strend2(sif.mxatr)>0
+                ,sif.xatr30x > 7000
+                ,sif.xtrend<0,
+            )
+
+    return signal * dvbx.direction
+dvbx.direction = XBUY
+dvbx.priority = 1500
+dvbx.filter = iftrade.ocfilter
+
 def ues(sif,sopened=None):
     '''
         下吞没.

@@ -27,6 +27,12 @@ def nhh(sif):
             sif.high > rollx(sif.dhigh+30),
         )
     
+def nll2(sif):
+    #使用最低点
+    return gand(
+            #cross(rollx(sif.dlow-30),sif.low)<0
+            sif.low < rollx(sif.dlow+20,3), #比close要小点
+        )
     
 def nx2000X(sif):
     return gand(
@@ -83,7 +89,7 @@ shbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2500X,ffilter=mfilter) 
 
 ##下跌采用75分钟的底部+2, 上涨采用日顶部+3(均在10:30-14:30)
 hbreak = [shbreak_mll2,break_nhh]  #利润比较好
-hbreak2 = [shbreak_mll2,hbreak_nhh]  #这个最大回撤最小
+hbreak2 = [shbreak_mll2,hbreak_nhh]  #这个最大回撤最小      #####################采用此个
 
 
 ####添加老系统
@@ -103,7 +109,21 @@ xxx = hbreak2
 
 xxx2 = xxx +wxfs #+ wxxx
 
-xxx3 = zbreak + mbreak2
+'''
+各组合及其分子的累计收益，发现4/6/8加成收益不大，7/12负收益，5/9/10/11加成收益10%以上
+xxx2        hbreak2     wxfa
+12:156      100         416
+11:6370     3588        4010
+10:4364     2238        3954
+9:1481      502         1218
+8:1444      504         1316
+7:2070      1634        2414
+6:3184      2542        3050
+5:7174      4750        6552
+4:3936      2191        3932
+
+'''
+
 
 for x in xxx2+wxxx:
     #x.stop_closer = iftrade.atr5_uxstop_kF #60/120       

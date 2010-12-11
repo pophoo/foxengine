@@ -168,6 +168,7 @@ nbreak_nhc = BXFuncA(fstate=gofilter,fsignal=nhc,fwave=gofilter,ffilter=nfilter)
 nbreak_nlc = SXFuncA(fstate=gofilter,fsignal=nlc,fwave=gofilter,ffilter=nfilter)  
 
 nbreak = [nbreak_nhh,nbreak_nll]
+nbreak2 = [nbreak_nhh,nbreak_nll2]  #效果比nbreak差
 
 break_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=nx2500X,ffilter=nfilter)  ##选择
 break_nhh.name = u'向上突破新高'

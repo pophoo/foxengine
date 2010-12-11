@@ -2108,6 +2108,8 @@ for x in set(xxx+xxx_candidate):
     #x.stop_closer = iftrade.atr5_uxstop_k90 #60/90
     #x.stop_closer = iftrade.atr5_uxstop_k120 #60/20
     x.cstoper = iftrade.F60  #初始止损,目前只在动态显示时用
+    if 'lastupdate' not in x.__dict__:
+        x.lastupdate = 20101208
 
 def test(sif):
     results = []

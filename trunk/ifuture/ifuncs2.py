@@ -3333,6 +3333,8 @@ for x in xxx2:
     #x.shortfilter = iftrade.npsocfilter    
     #x.filter = iftrade.nsocfilter
     #x.stop_closer = iftrade.atr5_uxstop_k_oscillating  #震荡期的止损方式
+    if 'lastupdate' not in x.__dict__:
+        x.lastupdate = 20101206
 
 
 

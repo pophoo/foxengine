@@ -94,9 +94,14 @@ hbreak2 = [shbreak_mll2,hbreak_nhh]  #这个最大回撤最小      ############
 ####添加老系统
 wxxx = [xds,xdds3,k5_d3b,xuub,K1_DDD1,K1_UUX,K1_RU,Z5_P2,xmacd3s,xup01,ua_fa,FA_15_120,K1_DVB,K1_DDUU,K1_DVBR]
 
-wxxx_s = [xds,xdds3,k5_d3b,K1_DDD1,Z5_P2,xmacd3s,FA_15_120]
-wxxx_b = [xuub,K1_UUX,K1_RU,xup01,ua_fa,K1_DDUU]
+#wxxx_s = [xds,xdds3,k5_d3b,K1_DDD1,Z5_P2,xmacd3s,FA_15_120]
+#wxxx_b = [xuub,K1_UUX,K1_RU,xup01,ua_fa,K1_DDUU]
+#wxxx_b2 = [K1_DVB,K1_DVBR]
+
+wxxx_s = [xds,k5_d3b,Z5_P2,xmacd3s,FA_15_120]
+wxxx_b = [xuub,K1_RU,xup01,ua_fa,K1_DDUU]
 wxxx_b2 = [K1_DVB,K1_DVBR]
+
 
 wxss = CSFuncF1(u'向下投机组合',*wxxx_s)
 wxbs = CBFuncF1(u'向上投机组合',*wxxx_b)
@@ -110,6 +115,11 @@ wxfs = [wxss,wxbs,wxb2s]
 #xxx = zbreak
 
 xxx = hbreak2    
+
+#txfs = [xds,k5_d3b,xuub,K1_DDD1,K1_UUX,K1_RU,Z5_P2,xmacd3s,xup01,ua_fa,FA_15_120,K1_DVB,K1_DDUU,K1_DVBR]
+txfs = [xds,xuub,K1_RU,xup01,FA_15_120,K1_DDUU,K1_DVBR,Z5_P2,k5_d3b,xmacd3s,ua_fa,K1_DVB]   #剔除xdds3,K1_UUX,K1_DDD1
+
+txxx = hbreak2 + txfs
 
 xxx2 = xxx +wxfs #+ wxxx
 
@@ -134,3 +144,6 @@ for x in xxx2+wxxx:
     #x.stop_closer = iftrade.atr5_uxstop_kQ #10/120       
     x.stop_closer = iftrade.atr5_uxstop_kV #60/120/333
     x.cstoper = iftrade.F60  #初始止损,目前只在动态显示时用
+    if 'lastupdate' not in x.__dict__:
+        x.lastupdate = 20101209
+    

@@ -4909,6 +4909,8 @@ for x in xxx_trend:
     x.cstoper = iftrade.FBASE_30  #初始止损
     #x.filter = iftrade.nsocfilter
     #x.stop_closer = iftrade.atr5_uxstop_k_oscillating  #震荡期的止损方式
+    if 'lastupdate' not in x.__dict__:
+        x.lastupdate = 20101112
 
 
 #xxx2 = xfollow + xagainst + xorb + xevs + k1s + k1s2

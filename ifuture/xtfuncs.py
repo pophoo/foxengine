@@ -418,3 +418,6 @@ for x in xxx2+mxxx+mbreak+mbreak2:
     #x.stop_closer = iftrade.atr5_uxstop_kQ #10/120       
     x.stop_closer = iftrade.atr5_uxstop_kV #60/120/333
     x.cstoper = iftrade.F60  #初始止损,目前只在动态显示时用
+    if 'lastupdate' not in x.__dict__:
+        x.lastupdate = 20101209
+    

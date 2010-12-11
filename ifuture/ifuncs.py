@@ -3411,3 +3411,5 @@ xxx4 = xxx + xpattern4
 #tradesy =  iftrade.itradex5_y(i05,xxx4,priority_level=3000)
 for x in xxx4:
     x.cstoper = iftrade.FBASE_30  #初始止损
+    if 'lastupdate' not in x.__dict__:
+        x.lastupdate = 20100817

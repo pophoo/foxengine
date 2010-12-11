@@ -2657,6 +2657,8 @@ xbreak = [ godown
 
 for x in xxx:
     x.cstoper = iftrade.FBASE_30  #初始止损
+    if 'lastupdate' not in x.__dict__:
+        x.lastupdate = 20100905
 
 '''     
 i09/i12均>20100700

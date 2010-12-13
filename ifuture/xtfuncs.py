@@ -147,6 +147,8 @@ def na2000(sif):
                 sif.atr30x < 30000,
             )
 
+
+
 #原始突破系统，以1个点位过滤
 nbreak_nhh0 = BXFuncA(fstate=gofilter,fsignal=nhh0,fwave=gofilter,ffilter=nfilter)
 nbreak_nll0 = SXFuncA(fstate=gofilter,fsignal=nll0,fwave=gofilter,ffilter=nfilter)
@@ -161,6 +163,34 @@ nhbreak0 = [nhbreak_nhh0,nhbreak_nll0]
 rbreak_nhh0 = SXFuncA(fstate=gofilter,fsignal=nhh0,fwave=gofilter,ffilter=nfilter)
 rbreak_nll0 = BXFuncA(fstate=gofilter,fsignal=nll0,fwave=gofilter,ffilter=nfilter)
 
+
+def bru(sif):
+    #突破前一日高点
+    ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
+    return gand(
+            sif.high > ldhigh,
+            rollx(sif.dhigh) < ldhigh +50,
+            sif.sk > sif.sd,
+            sif.time < 1300,
+            #sif.r120>0,
+        )
+
+def brd(sif):
+    #突破前一日低点
+    ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
+    return gand(
+            sif.low < ldlow +20,
+            rollx(sif.dlow) < ldlow -50,
+            sif.sk < sif.sd,
+            sif.time < 1300,
+            sif.r120<0,
+        )
+#前日突破
+dbreakb = BXFuncD1(fstate=gofilter,fsignal=bru,fwave=nx2000X,ffilter=efilter)
+dbreakb.name = u'突破前日高点'
+dbreaks = SXFuncD1(fstate=gofilter,fsignal=brd,fwave=nx2000X,ffilter=efilter)
+dbreaks.name = u'突破前日低点'
+dbreak = [dbreakb,dbreaks]
 
 
 nbreak_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=gofilter,ffilter=nfilter)
@@ -446,9 +476,13 @@ wxfs = [wxss,wxbs]
 
 #xxx = zbreak
 
-xxx = hbreak2    
+xxx = hbreak2 + dbreak
+
+xxx0 = hbreak2 + dbreak
 
 xxx2 = xxx +wxfs #+ wxxx
+
+
 
 xxx3 = zbreak + mbreak2
 

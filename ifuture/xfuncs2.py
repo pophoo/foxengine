@@ -101,6 +101,7 @@ def nx2500X(sif):
 break_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=nx2500X,ffilter=nfilter)  ##选择
 break_nhh.name = u'向上突破新高'
 hbreak_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=nx2500X,ffilter=mfilter)  ##主要时段
+hbreak_nhh.name = u'日内向上突破新高'
 
 def sdown(sif):
     return gand(
@@ -142,6 +143,7 @@ sbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2500X,ffilter=nfilter)  
 
 #主要时段
 shbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2500X,ffilter=mfilter)    #优于nll
+shbreak_mll2.name = u'日内75分钟向下突破'
 
 ##下跌采用75分钟的底部+2, 上涨采用日顶部+3(均在10:30-14:30)
 hbreak = [shbreak_mll2,break_nhh]  #利润比较好

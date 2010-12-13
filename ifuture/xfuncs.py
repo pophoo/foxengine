@@ -254,11 +254,15 @@ def followU30(sif):
     )
 
 def followU2(sif):
+    ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
+    
     return gand(
               sif.s30>0
               ,strend2(sif.ma60)>0
               ,sif.xstate>0              
               ,sif.ma13 > sif.ma30
+              ,sif.close > ldlow
+              ,sif.r120>0,
     )
 
 def followU2_2(sif):
@@ -275,10 +279,13 @@ def followU2_3(sif):
 
 def followU3(sif):
     #last_day_close = dnext(sif.closed,sif.close,sif.i_cofd)
+    ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
+    
     return gand(sif.s30>0
                 ,sif.s3>0
                 ,sif.s1>0
                 ,sif.r7>0
+                ,sif.close > ldlow
                 #,gor(sif.time>929,sif.close > last_day_close),#930之前的必须有保护
         )
 
@@ -1227,18 +1234,23 @@ def S1RD(sif):
         )
     
 def S1RU(sif):
+    ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
+    
     return gand(
             sif.r120>0,
             sif.xtrend>0,
             #sif.close > sif.dma
+            sif.close > ldlow,
         )
 
 def S1DVB(sif):
+    ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
     return gand(
             sif.r60>0,
             sif.r20>0,
             sif.s3>1,
             sif.xstate>0,
+            sif.close > ldlow,
         )
  
 def S1DVBR(sif):#逆势

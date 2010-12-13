@@ -163,12 +163,17 @@ nbreak_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=gofilter,ffilter=nfilter)
 nbreak_nll = SXFuncA(fstate=gofilter,fsignal=nll,fwave=gofilter,ffilter=nfilter)
 nbreak_nll2 = SXFuncA(fstate=gofilter,fsignal=nll2,fwave=gofilter,ffilter=nfilter)
 
+nhbreak_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=gofilter,ffilter=mfilter)
+nhbreak_nll = SXFuncA(fstate=gofilter,fsignal=nll,fwave=gofilter,ffilter=mfilter)
+nhbreak_nll2 = SXFuncA(fstate=gofilter,fsignal=nll2,fwave=gofilter,ffilter=mfilter)
 
 nbreak_nhc = BXFuncA(fstate=gofilter,fsignal=nhc,fwave=gofilter,ffilter=nfilter)  
 nbreak_nlc = SXFuncA(fstate=gofilter,fsignal=nlc,fwave=gofilter,ffilter=nfilter)  
 
 nbreak = [nbreak_nhh,nbreak_nll]
 nbreak2 = [nbreak_nhh,nbreak_nll2]  #效果比nbreak差
+nhbreak = [nhbreak_nhh,nhbreak_nll]
+nhbreak2 = [nhbreak_nhh,nhbreak_nll2]  #效果比nbreak差
 
 break_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=nx2500X,ffilter=nfilter)  ##选择
 break_nhh.name = u'向上突破新高'
@@ -292,45 +297,67 @@ def max_drawdown(trades):
 
 ######考虑用tmax(60)
 mlen = 75
-def mhh(sif):
+def mhh(sif,length=mlen):
     #使用最高点
     return gand(
             #sif.time>1115,
-            cross(rollx(tmax(sif.high,mlen)+30),sif.high)>0
+            cross(rollx(tmax(sif.high,length)+30),sif.high)>0
         )
  
-def mhc(sif):
+mhh30 = fcustom(mhh,length=30)
+mhh20 = fcustom(mhh,length=20)
+mhh10 = fcustom(mhh,length=10)
+mhh45 = fcustom(mhh,length=45)
+mhh60 = fcustom(mhh,length=60)
+mhh90 = fcustom(mhh,length=90)
+
+
+def mhc(sif,length=mlen):
     #使用收盘价
     return gand(
             sif.time>1115,
-            cross(rollx(tmax(sif.high,mlen)-30),sif.close)>0
+            cross(rollx(tmax(sif.high,length)-30),sif.close)>0
         )
 
-def mll(sif):
+def mll(sif,length=mlen):
     #使用最低点
     return gand(
             sif.time>1115,
-            cross(rollx(tmin(sif.low,mlen)-30),sif.low)<0
+            cross(rollx(tmin(sif.low,length)-30),sif.low)<0
         )
+mll30 = fcustom(mll,length=30)
+mll20 = fcustom(mll,length=20)
+mll10 = fcustom(mll,length=10)
+mll45 = fcustom(mll,length=45)
+mll60 = fcustom(mll,length=60)
+mll90 = fcustom(mll,length=90)
 
-def mll2(sif):
+def mll2(sif,length=mlen):
     #使用最低点
     return gand(
             #sif.time>1029,
-            cross(rollx(tmin(sif.low,mlen)+20),sif.low)<0
+            cross(rollx(tmin(sif.low,length)+20),sif.low)<0
         )
 
+mll2_30 = fcustom(mll2,length=30)
+mll2_20 = fcustom(mll2,length=20)
+mll2_10 = fcustom(mll2,length=10)
+mll2_45 = fcustom(mll2,length=45)
+mll2_60 = fcustom(mll2,length=60)
+mll2_90 = fcustom(mll2,length=90)
 
-def mlc(sif):
+def mlc(sif,length=mlen):
     #使用收盘价
     return gand(
             sif.time>1115,
-            cross(rollx(tmin(sif.low,mlen)+30),sif.close)<0
+            cross(rollx(tmin(sif.low,length)+30),sif.close)<0
         )
 
 break_mhh = BXFuncA(fstate=gofilter,fsignal=mhh,fwave=nx2500X,ffilter=nfilter)  #差于nhh
 break_mll = SXFuncA(fstate=gofilter,fsignal=mll,fwave=nx2500X,ffilter=nfilter)  #差于nll
 break_mll2 = SXFuncA(fstate=gofilter,fsignal=mll,fwave=nx2500X,ffilter=nfilter)  #差于nll
+
+break_mll2_90 = SXFuncA(fstate=gofilter,fsignal=mll2_90,fwave=nx2500X,ffilter=nfilter)  #差于nhh
 
 mbreak = [break_mhh,break_mll]
 
@@ -343,6 +370,9 @@ break_mlc = SXFuncA(fstate=gofilter,fsignal=mlc,fwave=nx2500X,ffilter=nfilter)  
 sbreak_mll = SXFuncA(fstate=sdown,fsignal=mll,fwave=nx2500X,ffilter=nfilter)    #差于nll
 sbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2500X,ffilter=n1430filter)    #优于nll
 sbreak_mlc = SXFuncA(fstate=sdown,fsignal=mlc,fwave=nx2500X,ffilter=nfilter)    #差于nlc
+
+sbreak_mll2_90 = SXFuncA(fstate=sdown,fsignal=mll2_90,fwave=nx2500X,ffilter=mfilter)    
+
 
 mbreak2 = [break_mhh,sbreak_mll2]   #这个很不错
 

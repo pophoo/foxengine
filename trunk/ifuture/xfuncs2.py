@@ -6,6 +6,10 @@
     当出现信号开仓后，如果未平仓前出现第二个信号，则止损要按照这几个信号最宽的一个来放
     L: 0.018手续费
 
+1. 当日突破
+2. 突破前一日高点
+3. 突破当日的前一个高点
+
 文华财经的主图指标HHLL： 实际输出是DH和MLL, 即向上以日最高为基准，向下以75分钟最低为基准
 参数:
 HL:75
@@ -143,6 +147,36 @@ shbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2500X,ffilter=mfilter) 
 hbreak = [shbreak_mll2,break_nhh]  #利润比较好
 hbreak2 = [shbreak_mll2,hbreak_nhh]  #这个最大回撤最小      #####################采用此个
 
+##突破前一日高/低点
+def bru(sif):
+    #突破前一日高点
+    ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
+    return gand(
+            sif.high > ldhigh,
+            rollx(sif.dhigh) < ldhigh +50,
+            sif.sk > sif.sd,
+            sif.time < 1300,
+            #sif.r120>0,
+        )
+
+def brd(sif):
+    #突破前一日低点
+    ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
+    return gand(
+            sif.low < ldlow +20,
+            rollx(sif.dlow) < ldlow -50,
+            sif.sk < sif.sd,
+            sif.time < 1300,
+            sif.r120<0,
+        )
+#前日突破
+dbreakb = BXFuncD1(fstate=gofilter,fsignal=bru,fwave=nx2000X,ffilter=efilter)
+dbreakb.name = u'突破前日高点'
+dbreakb.lastupdate = 20101213
+dbreaks = SXFuncD1(fstate=gofilter,fsignal=brd,fwave=nx2000X,ffilter=efilter)
+dbreaks.name = u'突破前日低点'
+dbreakb.lastupdate = 20101213
+dbreak = [dbreakb,dbreaks]
 
 
 ####添加老系统
@@ -169,7 +203,7 @@ wxfs = [wxss,wxbs,wxb2s]
 
 #xxx = zbreak
 
-xxx = hbreak2    
+xxx = hbreak2 + dbreak
 
 #txfs = [xds,k5_d3b,xuub,K1_DDD1,K1_UUX,K1_RU,Z5_P2,xmacd3s,xup01,ua_fa,FA_15_120,K1_DVB,K1_DDUU,K1_DVBR]
 txfs = [xds,xuub,K1_RU,xup01,FA_15_120,K1_DVBR,Z5_P2,k5_d3b,xmacd3s,ua_fa,K1_DVB]   #剔除xdds3,K1_UUX,K1_DDD1

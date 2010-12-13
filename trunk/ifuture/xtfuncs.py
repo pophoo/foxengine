@@ -234,6 +234,10 @@ zbreak = [break_nhh,sbreak_nll2] #这个最好,理念最清晰
 zbreak2 = [break_nhh,sbreak_nll] #这个效果差一点
 zbreak0 = [sbreak_nhh,sbreak_nll2] #比较投机
 
+shbreak_nll2 = SXFuncA(fstate=sdown,fsignal=nll2,fwave=nx2500X,ffilter=mfilter)    #
+zhbreak = [hbreak_nhh,shbreak_nll2]
+
+
 lcandidate = [sbreak_nll]
 
 #

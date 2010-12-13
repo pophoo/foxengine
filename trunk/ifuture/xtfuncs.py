@@ -85,16 +85,20 @@ def nhc(sif):
 
 def nll(sif):
     #使用最低点
+    ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)    
     return gand(
             #cross(rollx(sif.dlow-30),sif.low)<0
             sif.low < rollx(sif.dlow-30),
+            sif.low < ldhigh
         )
 
 def nll2(sif):
     #使用最低点
+    ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)    
     return gand(
             #cross(rollx(sif.dlow-30),sif.low)<0
             sif.low < rollx(sif.dlow+20,3), #比close要小点
+            sif.low < ldhigh,
         )
     
 def nlc(sif):
@@ -336,11 +340,15 @@ mll45 = fcustom(mll,length=45)
 mll60 = fcustom(mll,length=60)
 mll90 = fcustom(mll,length=90)
 
-def mll2(sif,length=mlen):
+def mll2(sif,length=75):
     #使用最低点
+    tlow = rollx(tmin(sif.low,length)+20)
+    ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     return gand(
             #sif.time>1029,
-            cross(rollx(tmin(sif.low,length)+20),sif.low)<0
+            cross(tlow,sif.low)<0,
+            #tlow < rollx(sif.dhigh + sif.dlow)/2, #+ sif.dlow
+            tlow < ldhigh,  #比昨日最高价低才允许做空
         )
 
 mll2_30 = fcustom(mll2,length=30)

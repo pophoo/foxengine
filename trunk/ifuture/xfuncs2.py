@@ -42,11 +42,20 @@ def mfilter(sif):
             sif.time < 1430,
         )
 
+def mfilter2(sif):   
+    return gand(
+            sif.time > 1014,
+            sif.time < 1445,
+        )
+
+
 def nhh(sif):
     #使用最高点+30, 也就是说必须一下拉开3点
+    ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
     return gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
             sif.high > rollx(sif.dhigh+30),
+            sif.high > ldlow    #大于昨日低点
         )
     
 def nll2(sif):
@@ -102,10 +111,12 @@ zhbreak = [hbreak_nhh,shbreak_nll2]
 def mll2(sif,length=75):
     #使用最低点
     tlow = rollx(tmin(sif.low,length)+20)
+    ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     return gand(
             #sif.time>1029,
             cross(tlow,sif.low)<0,
-            tlow < rollx(sif.dhigh + sif.dlow)/2 #+ sif.dlow
+            #tlow < rollx(sif.dhigh + sif.dlow)/2, #+ sif.dlow
+            tlow < ldhigh,  #比昨日最高价低才允许做空
         )
 
 

@@ -60,9 +60,11 @@ def nhh(sif):
     
 def nll2(sif):
     #使用最低点
+    ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)    
     return gand(
             #cross(rollx(sif.dlow-30),sif.low)<0
             sif.low < rollx(sif.dlow+20,3), #比close要小点
+            sif.low < ldhigh,
         )
     
 def nx2000X(sif):

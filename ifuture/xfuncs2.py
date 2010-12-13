@@ -89,18 +89,23 @@ def sup(sif):
 
 sbreak_nll2 = SXFuncA(fstate=sdown,fsignal=nll2,fwave=nx2500X,ffilter=nfilter)    #这个R高，但是次数少
 sbreak_nll2.name = u'向下突破2'
+shbreak_nll2 = SXFuncA(fstate=sdown,fsignal=nll2,fwave=nx2500X,ffilter=mfilter)    #
+
 #sbreak_nlc + sbreak_nlc_break = sbreak_nll2
+
 
 zbreak = [break_nhh,sbreak_nll2] #这个最好,理念最清晰
 
-###时间低点突破
-mlen = 75
+zhbreak = [hbreak_nhh,shbreak_nll2]
 
-def mll2(sif):
+###时间低点突破
+def mll2(sif,length=75):
     #使用最低点
+    tlow = rollx(tmin(sif.low,length)+20)
     return gand(
             #sif.time>1029,
-            cross(rollx(tmin(sif.low,mlen)+20),sif.low)<0
+            cross(tlow,sif.low)<0,
+            tlow < rollx(sif.dhigh + sif.dlow)/2 #+ sif.dlow
         )
 
 
@@ -112,6 +117,8 @@ shbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2500X,ffilter=mfilter) 
 ##下跌采用75分钟的底部+2, 上涨采用日顶部+3(均在10:30-14:30)
 hbreak = [shbreak_mll2,break_nhh]  #利润比较好
 hbreak2 = [shbreak_mll2,hbreak_nhh]  #这个最大回撤最小      #####################采用此个
+
+
 
 ####添加老系统
 wxxx = [xds,xdds3,k5_d3b,xuub,K1_DDD1,K1_UUX,K1_RU,Z5_P2,xmacd3s,xup01,ua_fa,FA_15_120,K1_DVB,K1_DDUU,K1_DVBR]

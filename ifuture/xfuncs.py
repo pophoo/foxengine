@@ -1237,14 +1237,12 @@ def S1DVB(sif):
     return gand(
             sif.r60>0,
             sif.r20>0,
-            sif.s5>0,
-            sif.s3>0,
+            sif.s3>1,
             sif.xstate>0,
         )
  
 def S1DVBR(sif):#逆势
     return gand(
-            sif.s5 > 0,
             sif.s3 > 0,
             sif.s1 < 0,
             sif.xtrend<0,
@@ -1255,9 +1253,8 @@ def S1UUX(sif):
     return gand(
             sif.r60>0,
             sif.sdma>0,
-            sif.s3>0,
+            sif.s3>1,
         )
-    
 
 def S1DUU(sif):
     return gand(
@@ -1814,7 +1811,7 @@ def AS1DDUU(sif):
     return gand(
             sif.sdma>0,
             sif.close < sif.ma20,
-            sif.s5>0,
+            sif.s5>1,
         )
 
 

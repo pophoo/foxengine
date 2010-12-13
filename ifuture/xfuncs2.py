@@ -36,11 +36,23 @@ import wolfox.fengine.ifuture.fcontrol as control
 from wolfox.fengine.ifuture.xfuncs import *
 
 #主要时间过滤
+def mfilter0(sif):
+    return gand(
+            sif.time > 1029,
+            sif.time < 1500,
+        )
+
 def mfilter(sif):   
     return gand(
             sif.time > 1029,
             sif.time < 1430,
         )
+
+def rfilter(sif):   
+    return gand(
+            sif.time > 1430,
+        )
+
 
 def mfilter2(sif):   
     return gand(
@@ -55,7 +67,7 @@ def nhh(sif):
     return gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
             sif.high > rollx(sif.dhigh+30),
-            sif.high > ldlow    #大于昨日低点
+            rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
         )
     
 def nll2(sif):
@@ -118,11 +130,11 @@ def mll2(sif,length=75):
             #sif.time>1029,
             cross(tlow,sif.low)<0,
             #tlow < rollx(sif.dhigh + sif.dlow)/2, #+ sif.dlow
-            tlow < ldhigh,  #比昨日最高价低才允许做空
+            tlow < ldhigh-10,  #比昨日最高价低才允许做空
         )
 
 
-sbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2500X,ffilter=n1430filter)    #优于nll
+sbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2500X,ffilter=nfilter)    #优于nll
 
 #主要时段
 shbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2500X,ffilter=mfilter)    #优于nll
@@ -160,7 +172,8 @@ wxfs = [wxss,wxbs,wxb2s]
 xxx = hbreak2    
 
 #txfs = [xds,k5_d3b,xuub,K1_DDD1,K1_UUX,K1_RU,Z5_P2,xmacd3s,xup01,ua_fa,FA_15_120,K1_DVB,K1_DDUU,K1_DVBR]
-txfs = [xds,xuub,K1_RU,xup01,FA_15_120,K1_DDUU,K1_DVBR,Z5_P2,k5_d3b,xmacd3s,ua_fa,K1_DVB]   #剔除xdds3,K1_UUX,K1_DDD1
+txfs = [xds,xuub,K1_RU,xup01,FA_15_120,K1_DVBR,Z5_P2,k5_d3b,xmacd3s,ua_fa,K1_DVB]   #剔除xdds3,K1_UUX,K1_DDD1
+#K1_DDUU样本数太少，要观察
 
 txxx = hbreak2 + txfs
 

@@ -123,18 +123,14 @@ class Indices:
         lasttime = "%s-%s" % (sif.transaction[IDATE][-1],sif.transaction[ITIME][-1])
         indices = zip(sif.date  #这里的次序必须与模板中的次序一致
                     ,sif.time
-                    ,sif.ltrend                    
-                    ,sif.rl_trend
-                    ,sif.mtrend
-                    ,sif.rm_trend                        
                     ,sif.s30
-                    ,sif.ml
                     ,sif.xatr
                     ,sif.mxatr
                     ,sif.xatr30x
                     ,sif.mxatr30x
                     ,sif.xtrend
                     ,sif.dma
+                    ,sif.sdma
                     ,sif.xstate
         )
         #print priority

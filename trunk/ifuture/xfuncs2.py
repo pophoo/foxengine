@@ -68,6 +68,7 @@ def mfilter2(sif):
 def nhh(sif):
     #使用最高点+30, 也就是说必须一下拉开3点
     ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
+    ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     return gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
             sif.high > rollx(sif.dhigh+30),
@@ -97,11 +98,40 @@ def nx2500X(sif):
                 sif.xatr5x< 4000,
            )
 
+def nlhh(sif):
+    #使用最高点+30, 也就是说必须一下拉开3点
+    ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
+    return gand(
+            #cross(rollx(sif.dhigh+30),sif.high)>0
+            cross(sif.ldhigh+50,sif.high)>0,
+        )
+
+def cgap(sif):
+    #补缺口
+    #ldhigh = dnext(sif.closed,sif.close,sif.i_cofd)
+    ldhigh = np.select([sif.time==1514],[tmax(sif.high,3)],0)
+    ldhigh =extend2next(ldhigh)
+            
+    lopen = dnext(sif.opend,sif.close,sif.i_oofd)
+    return gand(
+            #cross(rollx(sif.dhigh+30),sif.high)>0
+            lopen > ldhigh,
+            cross(sif.ldhigh+20,sif.close)>0,
+            sif.time > 919,
+        )
+
+
 
 break_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=nx2500X,ffilter=nfilter)  ##选择
 break_nhh.name = u'向上突破新高'
 hbreak_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=nx2500X,ffilter=mfilter)  ##主要时段
 hbreak_nhh.name = u'日内向上突破新高'
+
+break_nlhh = BXFuncA(fstate=gofilter,fsignal=nlhh,fwave=nx2500X,ffilter=nfilter)  ##选择
+hbreak_nlhh = BXFuncA(fstate=gofilter,fsignal=nlhh,fwave=nx2500X,ffilter=efilter2)  ##主要时段
+
+break_cgap = BXFuncF1(fstate=gofilter,fsignal=cgap,fwave=nx2500X,ffilter=e1400filter)  ##选择
+hbreak_cgap = BXFuncF1(fstate=gofilter,fsignal=cgap,fwave=nx2500X,ffilter=efilter2)  ##主要时段
 
 def sdown(sif):
     return gand(
@@ -161,6 +191,18 @@ def bru(sif):
             #sif.r120>0,
         )
 
+def brux(sif):
+    #突破前一日高点
+    ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
+    return gand(
+            cross(ldhigh,sif.high+30)>0,
+            #sif.sk > sif.sd,
+            sif.s1>0,
+            sif.time < 1300,
+            #sif.r120>0,
+        )
+
+
 def brd(sif):
     #突破前一日低点
     ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
@@ -175,10 +217,20 @@ def brd(sif):
 dbreakb = BXFuncD1(fstate=gofilter,fsignal=bru,fwave=nx2000X,ffilter=efilter)
 dbreakb.name = u'突破前日高点'
 dbreakb.lastupdate = 20101213
+
+dbreakbx = BXFuncD1(fstate=gofilter,fsignal=brux,fwave=nx2000X,ffilter=efilter)
+
 dbreaks = SXFuncD1(fstate=gofilter,fsignal=brd,fwave=nx2000X,ffilter=efilter)
 dbreaks.name = u'突破前日低点'
 dbreakb.lastupdate = 20101213
 dbreak = [dbreakb,dbreaks]
+
+def dhigh_last(sif):
+    drep = crepeat(sif.dhigh)
+    dindex = np.nonzero(gand(drep>5,drep>rollx(drep,-1)))  #
+    ldhigh = np.zeros_like(sif.dhigh)
+    ldhigh[dindex] = sif.dhigh[dindex]
+    sif.ldhigh=extend2next(ldhigh)
 
 
 ####添加老系统

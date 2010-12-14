@@ -319,6 +319,11 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([0,1,0,1,0,0,0,1,0,1,0,0],derepeatc(np.array([0,3,0,-5,6,0,0,1,0,23,3,0])).tolist())
         self.assertEquals([0,1,0,0,0,0,1,0,1,0,0],derepeatc(np.array([0,3,4,-5,6,0,1,0,23,3,0])).tolist())
 
+    def test_crepeat(self):
+        self.assertEquals([],crepeat(np.array([])).tolist())
+        self.assertEquals([1,1,2,3,1,1,1,1,2,1,2,3,4,1,2],crepeat(np.array([0,1,1,1,2,3,0,4,4,5,5,5,5,6,6])).tolist())
+        self.assertEquals([1,2,3,4,1,1,1,1,2,1,2,3,4,1,2],crepeat(np.array([1,1,1,1,2,3,0,4,4,5,5,5,5,6,6])).tolist())
+    
     def test_sfollow(self):
         source1 = np.array([10,20,0,0,0,0,0,10,0,40,0,0,0,0,0,-40,0])
         source2 = np.array([0,20,0,1,-5,0,0,10,0,0,60,0,0,0,0,0,40])

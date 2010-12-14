@@ -719,6 +719,24 @@ def derepeatc(source):
     t = subd(nequals(source,0))
     return equals(t,1)
 
+def crepeat(source):#计算source中数据的连续重复次数
+    rev = np.zeros_like(source)
+    if len(source) ==0:
+        return rev
+    vpre = source[0]
+    srep = 0
+    for i in range(len(source)):
+        vcur = source[i]
+        if vcur == vpre:
+            srep += 1
+        else:
+            vpre = vcur
+            srep = 1
+        rev[i] = srep
+    return rev
+
+
+
 def sfollow(source1,source2,covered=1):
     ''' 简单追踪共振
         在source1发出信号covered范围内source2是否发出共振信号

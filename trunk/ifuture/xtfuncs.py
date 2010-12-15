@@ -71,9 +71,13 @@ def nll0(sif):
 
 def nhh(sif):
     #使用最高点
+    thigh =  rollx(sif.dhigh+30)
+    #ldmid = dnext(gmin(sif.lowd,rollx(sif.lowd)),sif.close,sif.i_cofd)
     return gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
-            sif.high > rollx(sif.dhigh+30),
+            sif.high > thigh,
+            #thigh > ldmid #+ sif.xatr*2/XBASE,
+            strend2(sif.ma13)>0,
         )
  
 def nhc(sif):
@@ -373,12 +377,15 @@ mll90 = fcustom(mll,length=90)
 def mll2(sif,length=75):
     #使用最低点
     tlow = rollx(tmin(sif.low,length)+20)
-    ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
+    #ldmid = dnext((sif.highd+gmin(sif.closed,sif.opend))/2,sif.close,sif.i_cofd)
+    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)
+    #ldhigh = np.select([sif.time==1514],[tmin(sif.high,75)],0)
+    #ldhigh = extend2next(ldhigh)
     return gand(
             #sif.time>1029,
             cross(tlow,sif.low)<0,
             #tlow < rollx(sif.dhigh + sif.dlow)/2, #+ sif.dlow
-            tlow < ldhigh,  #比昨日最高价低才允许做空
+            tlow < ldmid-sif.xatr*2/XBASE,  #比昨日最高价低才允许做空
         )
 
 mll2_30 = fcustom(mll2,length=30)
@@ -410,7 +417,7 @@ break_mhc = BXFuncA(fstate=gofilter,fsignal=mhc,fwave=nx2500X,ffilter=nfilter)  
 break_mlc = SXFuncA(fstate=gofilter,fsignal=mlc,fwave=nx2500X,ffilter=nfilter)  #差于nlc
 
 sbreak_mll = SXFuncA(fstate=sdown,fsignal=mll,fwave=nx2500X,ffilter=nfilter)    #差于nll
-sbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2500X,ffilter=n1430filter)    #优于nll
+sbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2500X,ffilter=nfilter)    #优于nll
 sbreak_mlc = SXFuncA(fstate=sdown,fsignal=mlc,fwave=nx2500X,ffilter=nfilter)    #差于nlc
 
 sbreak_mll2_90 = SXFuncA(fstate=sdown,fsignal=mll2_90,fwave=nx2500X,ffilter=mfilter)    

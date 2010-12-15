@@ -160,12 +160,15 @@ zhbreak = [hbreak_nhh,shbreak_nll2]
 def mll2(sif,length=75):
     #使用最低点
     tlow = rollx(tmin(sif.low,length)+20)
-    ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
+    #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
+    #ldmid = dnext((sif.highd+gmin(sif.closed,sif.opend))/2,sif.close,sif.i_cofd)
+    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
     return gand(
             #sif.time>1029,
             cross(tlow,sif.low)<0,
             #tlow < rollx(sif.dhigh + sif.dlow)/2, #+ sif.dlow
-            tlow < ldhigh-10,  #比昨日最高价低才允许做空
+            #tlow < ldhigh-10,  #比昨日最高价低才允许做空
+            tlow < ldmid-sif.xatr*2/XBASE,  #比前2天高点中点低才允许做空            
         )
 
 

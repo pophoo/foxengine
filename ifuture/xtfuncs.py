@@ -78,6 +78,7 @@ def nhh(sif):
             sif.high > thigh,
             #thigh > ldmid #+ sif.xatr*2/XBASE,
             strend2(sif.ma13)>0,
+            thigh - rollx(sif.low) < 120,
         )
  
 def nhc(sif):
@@ -152,6 +153,15 @@ def na2000(sif):
             )
 
 
+def fhh(sif):
+    #假突破
+    thigh =  rollx(sif.dhigh+30)
+    xb = gand(  #突破信号
+            sif.high > thigh,
+            strend2(sif.ma13)>0,
+        )
+    nb = sif.high > rollx(thigh,5)
+    return nb
 
 #原始突破系统，以1个点位过滤
 nbreak_nhh0 = BXFuncA(fstate=gofilter,fsignal=nhh0,fwave=gofilter,ffilter=nfilter)
@@ -386,6 +396,7 @@ def mll2(sif,length=75):
             cross(tlow,sif.low)<0,
             #tlow < rollx(sif.dhigh + sif.dlow)/2, #+ sif.dlow
             tlow < ldmid-sif.xatr*2/XBASE,  #比昨日最高价低才允许做空
+            tlow < sif.dmid,    #tlow不能大于中间价
         )
 
 mll2_30 = fcustom(mll2,length=30)

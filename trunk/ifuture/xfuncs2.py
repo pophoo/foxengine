@@ -67,8 +67,9 @@ def mfilter2(sif):
 
 def nhh(sif):
     #使用最高点+30, 也就是说必须一下拉开3点
+    #ldlow = dnext(sif.lowd/2+sif.closed/2,sif.close,sif.i_cofd)
     ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
-    ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
+    #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     return gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
             sif.high > rollx(sif.dhigh+30),
@@ -135,7 +136,7 @@ hbreak_cgap = BXFuncF1(fstate=gofilter,fsignal=cgap,fwave=nx2500X,ffilter=efilte
 
 def sdown(sif):
     return gand(
-            sif.t120 < 30,
+            sif.t120 < 50,
             #sif.t120 < -200,    #周期为1个月，末期会不明,有点太投机
         )
 
@@ -163,9 +164,11 @@ def mll2(sif,length=75):
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     #ldmid = dnext((sif.highd+gmin(sif.closed,sif.opend))/2,sif.close,sif.i_cofd)
     ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
+    #ldmid = dnext((sif.highd+sif.closed)/2,sif.close,sif.i_cofd)    
     return gand(
             #sif.time>1029,
             cross(tlow,sif.low)<0,
+            #sif.low < tlow,
             #tlow < rollx(sif.dhigh + sif.dlow)/2, #+ sif.dlow
             #tlow < ldhigh-10,  #比昨日最高价低才允许做空
             tlow < ldmid-sif.xatr*2/XBASE,  #比前2天高点中点低才允许做空            

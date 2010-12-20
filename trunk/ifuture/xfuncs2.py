@@ -187,7 +187,7 @@ hbreak_cgap = BXFuncF1(fstate=gofilter,fsignal=cgap,fwave=nx2500X,ffilter=efilte
 
 def sdown(sif):
     return gand(
-            sif.t120 < 50,
+            sif.t120 < 80,
             #sif.t120 < -200,    #周期为1个月，末期会不明,有点太投机
         )
 

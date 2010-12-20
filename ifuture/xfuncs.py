@@ -113,7 +113,8 @@ class XFunc(object):
         sfilter = self.cached_func(self.ffilter,sif)     #self.ffilter(sif)
         signal = gand(sstate,swave,ssignal,sfilter)
         signal = self.signal_filter(sif,signal)
-        return signal * self.direction
+        psignal = np.select([signal],[ssignal],0)   #与价格相关，如果过滤得到信号，则以原信号值输出
+        return psignal * self.direction
  
     def signal_filter(self,sif,signal):    #信号过滤,  如去重或每天第一次
         return signal
@@ -123,7 +124,7 @@ class XFunc(object):
         XFunc.cache = {}
 
     @staticmethod
-    def cached_func(func,sif):
+    def cached_func(func,sif):#暂时不做
         #if str(func) not in XFunc.cache:
         #   XFunc.cache[str(func)] = func(sif)
         XFunc.cache[str(func)] = func(sif)
@@ -153,6 +154,8 @@ class SXFuncA(XFunc):#包含全部信号
         ):
         XFunc.__init__(self,fstate=fstate,fwave=fwave,fsignal=fsignal,ffilter=ffilter,fstop=fstop,direction=XSELL,priority=priority)
 
+
+PS_MAX = 99999999
 class CFunc(XFunc):
     '''同类函数的组合
        用于相关性比较强的函数的组合，避免同类信号次第发生 
@@ -168,9 +171,20 @@ class CFunc(XFunc):
         #print self.stop_closer
 
     def __call__(self,sif,sopened=None):
-        signal = gor(*[func(sif,sopened) for func in self.funcs])
-        signal = self.signal_filter(sif,signal)
-        return signal * self.direction
+        #signal = gor(*[func(sif,sopened) for func in self.funcs])
+        #理想情况是买入时找到最低不等于0，卖出时找到最高不等于0, 即向上突破找最早的，向下照突破最早的
+        if self.direction == XBUY:
+            psignal = gmin(*[self.bsignal(func,sif,sopened) for func in self.funcs])  #突破最低价. 如果有确认信号和突破信号同时出现，则取确认信号. 这是一个问题
+            psignal = np.select([psignal!=PS_MAX],[psignal],0) #将PS_MAX变回0
+        else:
+            psignal = gmax(*[func(sif,sopened) for func in self.funcs]) #如果确认信号和向下突破信号一起出现，取突破信号
+        signal = self.signal_filter(sif,psignal)
+        psignal = np.select([signal],[psignal],0)   #
+        return psignal * self.direction
+
+    def bsignal(self,func,sif,sopened):#对买入突破,将无信号变为PS_MAX，以便求最小值
+        ps = func(sif,sopened)
+        return np.select([ps!=0],[ps],PS_MAX)
 
 
 def dc_filter(sif,signal):  #去除连续信号

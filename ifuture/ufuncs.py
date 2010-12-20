@@ -121,11 +121,12 @@ def nhh(sif):
     #ldlow = dnext(sif.lowd/2+sif.closed/2,sif.close,sif.i_cofd)
     ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
-    return gand(
+    signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
             sif.high > rollx(sif.dhigh+30),
             rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
         )
+    return np.select([signal],[],0)
     
 def nll2(sif):
     #使用最低点
@@ -187,7 +188,7 @@ hbreak_cgap = BXFuncF1(fstate=gofilter,fsignal=cgap,fwave=nx2500X,ffilter=efilte
 
 def sdown(sif):
     return gand(
-            sif.t120 < 80,
+            sif.t120 < 50,
             #sif.t120 < -200,    #周期为1个月，末期会不明,有点太投机
         )
 

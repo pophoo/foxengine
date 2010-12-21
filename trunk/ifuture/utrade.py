@@ -9,6 +9,9 @@ from wolfox.fengine.ifuture.ibase import *
 import wolfox.fengine.ifuture.iftrade as iftrade
 import wolfox.fengine.ifuture.ifuncs as ifuncs
 
+#同一分钟先开后平, 由make_trades确保已有开仓时不重复. 但已有仓位时同时出现开平信号，则以平仓计
+DTSORT2 = lambda x,y: int(((x.date%1000000 * 10000)+x.time) - ((y.date%1000000 * 10000)+y.time)) or x.xtype-y.xtype 
+
 #设定保证
 def atr_stop_u(
         sif
@@ -40,7 +43,7 @@ def atr_stop_u(
         只能持有一张合约。即当前合约在未平前会屏蔽掉所有其它开仓
     '''
     #print sbclose[-10:],ssclose[-10:]
-    satr = afm[natr](sif)
+    satr = iftrade.afm[natr](sif)
     trans = sif.transaction
     rev = np.zeros_like(sopened)
     isignal = np.nonzero(sopened)[0]
@@ -48,7 +51,9 @@ def atr_stop_u(
     ishort_closed = 0   #空头平仓日
     will_losts = []
     myssclose = ssclose * XSELL #取符号, 如果是买入平仓，则<0
-    mysbclose = sbclose * XBUY #取符号, 如果是卖出平仓，则<0    
+    mysbclose = sbclose * XBUY #取符号, 如果是卖出平仓，则<0
+    #print mysbclose[-300:]
+    #print myssclose[np.nonzero(myssclose)]
     #print target
     for i in isignal:
         price = sopened[i]
@@ -60,6 +65,7 @@ def atr_stop_u(
         #print price,willlost,max_drawdown,min_drawdown
         will_losts.append(willlost)
         if price<0: #多头止损
+            #print u'多头止损'
             if i <= ilong_closed:
                 #print 'long skipped'
                 continue
@@ -92,22 +98,22 @@ def atr_stop_u(
                     if trans[ILOW][j] < cur_stop:
                         ilong_closed = j
                         rev[j] = cur_stop * XSELL 
-                        #print 'sell:',i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
+                        #print 'sell in atrstop:'#,i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
                         break
                     elif  myssclose[j] >0:
                         ilong_closed = j
                         rev[j] = myssclose[j] * XSELL 
-                        #print 'sell:',i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
+                        #print 'sell in sclose:'#,i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
                         break
                     elif j==i+tlimit and tv<wtlimit:    #时间到
                         ilong_closed = j
                         rev[j] = trans[ICLOSE][j] * XSELL 
-                        #print 'sell:',i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
+                        #print 'sell in time limit:'#,i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
                         break
                     elif trans[IHIGH][j] > wtarget: #超过目标价
                         ilong_closed = j                        
                         rev[j] = wtarget * XSELL
-                        # print 'sell at target:',i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
+                        #print 'sell at target:'#,i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
                         break
                     nhigh = trans[IHIGH][j]
                     if(nhigh > cur_high):
@@ -190,9 +196,10 @@ def atr_stop_u(
                         #    cur_stop = keep_stop if keep_stop > sell_price else sell_price
                         
     #print will_losts
+    #print rev[np.nonzero(rev)]
     return rev
 
-def utrade(sif     #期指
+def utrade_x(sif     #期指
             ,openers    #opener函数集合
             ,bclosers   #默认的多平仓函数集合(空头平仓)
             ,sclosers   #默认的空平仓函数集合(多头平仓)
@@ -261,7 +268,7 @@ def utrade(sif     #期指
                 #print 'lfilter'
                 myfilter = opener.longfilter(sif)
             elif 'filter' in opener.__dict__:
-                #print 'infilter:'
+                print 'buy infilter:'
                 myfilter = opener.filter(sif)
             else:
                 myfilter = slongfilter
@@ -273,7 +280,7 @@ def utrade(sif     #期指
                 #print 'sfilter'                
                 myfilter = opener.shortfilter(sif)
             elif 'filter' in opener.__dict__:
-                #print 'infilter:'                
+                print 'sell,infilter:'                
                 myfilter = opener.filter(sif)
             else:
                 myfilter = sshortfilter
@@ -322,7 +329,7 @@ def utrade(sif     #期指
         #closes = uclose_position(sif,ms_closer(sif,sopened,sclose,sclose)) #因为是单向的，只有一个sclose起作用        
 
 
-        actions = sorted(opens + closes,iftrade.DTSORT)
+        actions = sorted(opens + closes,iftrade.DTSORT2)
         for action in actions:
             action.name = sif.name
             #print action.name,action.date,action.time,action.position,action.price
@@ -335,28 +342,123 @@ def utrade(sif     #期指
     return sync_trades(sif,tradess,acstrategy)
 
 
-def uopen_position(sif,sopener,slongfilter,sshortfilter):
+
+def utrade(sif     #期指
+            ,openers    #opener函数集合
+            ,bclosers   #默认的多平仓函数集合(空头平仓)
+            ,sclosers   #默认的空平仓函数集合(多头平仓)
+            ,stop_closer    #止损closer函数，只能有一个，通常是atr_uxstop,    
+                            #有针对性是指与买入价相关的 stop_closer必须处理之前的closers系列发出的卖出信号
+            ,make_trades=iftrade.simple_trades  #根据开平仓动作撮合交易的函数。对于最后交易序列，用last_trades
+            ,sync_trades=iftrade.sync_tradess_pt    #汇总各opener得到的交易，计算优先级和平仓。
+                                            #对于最后交易序列，用null_sync_tradess
+            ,acstrategy=iftrade.late_strategy   #增强开仓时的平仓策略。late_strategy是平最晚的那个信号
+            ,priority_level=2500    #筛选opener的优先级, 忽略数字大于此的开仓
+        ):
+    '''
+        本函数针对每个opener计算出各自的闭合交易
+        然后集中处理这些闭合交易，根据优先级来确认交易的持续性
+            最终得到从开仓到平仓的单个交易的集合
+            其中单个交易的要素有：
+                开仓价格、时间、交易量
+                平仓价格、时间、交易量
+                当前主方法名(持有合约的方法)
+                filtered: 开仓后被过滤掉的同向低优先级方法名及其信号价格和时间
+                rfiltered:开仓后被过滤掉的反向低优先级方法名及其信号价格和时间
+                extended: 曾经起效，但因优先级低而被取代的同向方法名及其信号价格和时间. 第一个价格即是开仓价格
+                reversed: 逆转持仓的方法及其信号价格和时间
+                          如优先级高的中止本次持仓的方法。通常导致反向开仓。  
+            要求每个方法的属性有：
+                direction:  多/空方向 XBUY/XSELL
+                priority:   优先级, 数字越低越高
+                            如果不存在，默认为0
+                closer:     平仓方法
+                            签名为 closer(closers):closers
+                                根据传入的closers，返回处理后的，这样，可以取代默认的，也可以在默认之后附加
+                            如果不存在，就使用默认的
+                stop_closer 止损方法[单个], 如果存在，就取代默认的                                
+                name:       名字
+
+    '''
+    if not isinstance(openers,list):   #单个函数
+        openers = [openers]
+    if not isinstance(bclosers,list):   #单个函数
+        bclosers = [bclosers]
+    if not isinstance(sclosers,list):   #单个函数
+        sclosers = [sclosers]
+    
+    openers = [opener for opener in openers if iftrade.fpriority(opener)<priority_level]
+
+    tradess = []
+    for opener in openers:
+        opens = uopen_position(sif,opener(sif))
+        odir = iftrade.fdirection(opener)
+        sopened = np.zeros(len(sif.date),int)   #为开仓价格序列,负数为开多仓,正数为开空仓
+        for aopen in opens:
+            sopened[aopen.index] = aopen.price * aopen.position
+        sclose = np.zeros(len(sif.date),int)
+        if 'closer' in opener.__dict__: #是否有特定的closer,如要将macd下叉也作为多头持仓的平仓条件,则可设置函数,在返回值中添加该下叉信号算法
+            if odir == XBUY:
+                #print 'buy closer:',opener.closer
+                closers = opener.closer(sclosers)
+            elif odir == XSELL:
+                closers = opener.closer(bclosers)
+        else:
+            #print 'opener without close iftrade.fdirection(opener) = %s' % ('XBUY' if iftrade.fdirection(opener) == XBUY else 'XSELL',)
+            closers = sclosers if odir == XBUY else bclosers
+
+
+        #这里需要u处理
+        if odir == XBUY:#卖平
+            psclose = np.select([sclose],[np.abs(sclose)],PS_MAX)    #把0转换为最大值
+            for closer in closers:#这里默认认为closer返回的数据中只要非0就算是有信号, 而不是区分买平还是卖平
+                cur_s = closer(sif,sopened)
+                #print closer,cur_s[-300:],XSELL,odir
+                cur_ps = np.select([cur_s!=0],[np.abs(cur_s)],PS_MAX)   #把0转换为最大值
+                psclose = gmin(psclose,cur_ps)       #卖出选最小
+            sclose = np.select([psclose!=PS_MAX],[psclose* (-odir)],0) #将PS_MAX变回0
+            #print sclose[np.nonzero(sclose)]
+        else:#买平
+            psclose = np.abs(sclose)
+            for closer in closers:#这里默认认为closer返回的数据中只要非0就算是有信号, 而不是区分买平还是卖平
+                psclose = gmax(psclose,np.abs(closer(sif,sopened)))
+            sclose = psclose * (-odir)
+
+        ms_closer = stop_closer if 'stop_closer' not in opener.__dict__ else opener.stop_closer
+        
+        closes = uclose_position(sif,ms_closer(sif,sopened,sclose,sclose)) #因为是单向的，只有一个sclose起作用        
+
+        actions = sorted(opens + closes,iftrade.DTSORT2) #必须确保先开后平, 但如果已经开了，则只有平仓
+        
+        for action in actions:
+            action.name = sif.name
+            #print action.name,action.date,action.time,action.position,action.price
+        trades = make_trades(actions)   #trade: [open , close] 的序列, 其中前部分都是open,后部分都是close
+        for trade in trades:
+            trade.functor = opener
+            trade.direction = trade.actions[0].position   #LONG/SHORT
+            #print trade.actions[0].date,trade.actions[0].time,trade.direction
+        tradess.append(trades)
+    return sync_trades(sif,tradess,acstrategy)
+
+def uopen_position(sif,sopener):
     '''
         sopener中,XBUY表示开多仓,XSELL表示开空仓
     '''
- 
-    print 'in uopen position'
     pbuy = sopener * XBUY  #取数字, 如果是卖出平仓，则<0    
     psell = sopener * XSELL #取数字, 如果是买入平仓，则<0
 
-    slong = band(pbuy>0,slongfilter) * LONG 
-    sshort = band(psell>0,sshortfilter) * SHORT
-
-    pslong = np.select([slong!=0],[pbuy*LONG],0)
-    psshort = np.select([sshort!=0],[psell*SHORT],0)    
+    pslong = np.select([pbuy>0],[pbuy*LONG],0)
+    psshort = np.select([psell>0],[psell*SHORT],0)    
     positions = uposition(sif,pslong,XOPEN)
     positions.extend(uposition(sif,psshort,XOPEN))
     return positions
 
+
 def uclose_position(sif,scloser):
     ''' scloser中, XBUY表示平空(买入),XSELL表示平多(卖出)
     '''
-    print 'in uclose position'
+    #print 'in uclose position'
 
     pbuy = scloser * XBUY  #取数字
     psell = scloser * XSELL #取数字
@@ -384,10 +486,26 @@ def uposition(sif,saction,xtype,defer=1):
         xindex = i+defer if is_only_position_signal(uprice) else i  #如果是信号则按defer计算，是价格则即时发生
         if xindex >= len(sif.close):   #如果是最后一分钟，则放弃. 这种情况只会出现在动态计算中，且该分钟未走完(走完的话应该出现下一分钟的报价)，所以放弃是正常操作
             continue
-        xprice = iftrade.make_price(direct,sif.open[xindex],sif.close[xindex],sif.high[xindex],sif.low[xindex]) if is_only_position_signal(uprice) else uprice
+        xprice = iftrade.make_price(direct,sif.open[xindex],sif.close[xindex],sif.high[xindex],sif.low[xindex]) if is_only_position_signal(uprice) else np.abs(uprice)
         #print xindex,len(sif.close)
         position = BaseObject(index=xindex,date=sif.date[xindex],time=sif.time[xindex],price=xprice,position=direct,xtype=xtype)    #因为已经抑制了1514开仓,必然不会溢出
         positions.append(position)
+        if xtype == XOPEN:
+            #顺势、逆势以及不明势
+            if saction[i] == LONG:
+                if sif.xstate[i] > 0:
+                    position.xfollow = 1
+                elif sif.xstate[i] < 0:
+                    position.xfollow = -1
+                else:
+                    position.xfollow = 0
+            else:
+                if sif.xstate[i] < 0:
+                    position.xfollow = 1
+                elif sif.xstate[i] > 0:
+                    position.xfollow = -1
+                else:
+                    position.xfollow = 0
     return positions
 
 

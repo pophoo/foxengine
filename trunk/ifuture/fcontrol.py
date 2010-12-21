@@ -16,6 +16,8 @@ import wolfox.fengine.ifuture.evaluate as ev
 import wolfox.fengine.ifuture.xfuncs as xfuncs
 import wolfox.fengine.ifuture.xfuncs2 as xfuncs2
 import wolfox.fengine.ifuture.xtfuncs as xtfuncs
+import wolfox.fengine.ifuture.utrade as utrade
+import wolfox.fengine.ifuture.ufuncs as ufuncs
 
 
 from wolfox.fengine.ifuture.ifuncs import *

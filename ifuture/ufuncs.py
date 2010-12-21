@@ -87,8 +87,10 @@ array([1343, 1400, 1411, 1427, 1454, 1507,  931,  945, 1003, 1012, 1013,
 
 from wolfox.fengine.ifuture.ibase import *
 import wolfox.fengine.ifuture.iftrade as iftrade
+import wolfox.fengine.ifuture.utrade as utrade
 import wolfox.fengine.ifuture.fcontrol as control
 from wolfox.fengine.ifuture.xfuncs import *
+
 
 #主要时间过滤
 def mfilter0(sif):
@@ -126,7 +128,7 @@ def nhh(sif):
             sif.high > rollx(sif.dhigh+30),
             rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
         )
-    return np.select([signal],[],0)
+    return np.select([signal],[rollx(sif.dhigh)+30],0)
     
 def nll2(sif):
     #使用最低点
@@ -188,7 +190,7 @@ hbreak_cgap = BXFuncF1(fstate=gofilter,fsignal=cgap,fwave=nx2500X,ffilter=efilte
 
 def sdown(sif):
     return gand(
-            sif.t120 < 50,
+            sif.t120 < 80,
             #sif.t120 < -200,    #周期为1个月，末期会不明,有点太投机
         )
 
@@ -307,6 +309,8 @@ wxxx_b2 = [K1_DVB,K1_DVBR]
 #wxbs = CBFuncF1(u'向上投机组合',*wxxx_b)
 #wxb2s = CBFuncF1(u'向上投机组合2',*wxxx_b2)
 
+ctest = CFunc(u'CTEST',xuub)
+
 wxss = CFunc(u'向下投机组合',*wxxx_s)
 wxbs = CFunc(u'向上投机组合',*wxxx_b)
 wxb2s = CFunc(u'向上投机组合2',*wxxx_b2)
@@ -344,7 +348,8 @@ xxx2        hbreak2     wxfa
 for x in xxx2+wxxx:
     #x.stop_closer = iftrade.atr5_uxstop_kF #60/120       
     #x.stop_closer = iftrade.atr5_uxstop_kQ #10/120       
-    x.stop_closer = iftrade.atr5_uxstop_kV #60/120/333
+    #x.stop_closer = iftrade.atr5_uxstop_kV #60/120/333
+    x.stop_closer = utrade.atr5_ustop_V
     x.cstoper = iftrade.F60  #初始止损,目前只在动态显示时用
     if 'lastupdate' not in x.__dict__:
         x.lastupdate = 20101209

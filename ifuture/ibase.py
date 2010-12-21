@@ -7,6 +7,9 @@ LONG,SHORT,EMPTY = -1,1,0   #多仓出钱,淡仓收钱
 #是否仅是头寸操作信号. 即不带价格
 is_only_position_signal = lambda uprice : np.abs(uprice) == 1
 
+#掩码
+PS_MAX = 88888888
+
 
 #买入卖出信号的标记
 XBUY,XSELL = 1,-1   #买入，卖出信号

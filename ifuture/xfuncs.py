@@ -155,7 +155,7 @@ class SXFuncA(XFunc):#包含全部信号
         XFunc.__init__(self,fstate=fstate,fwave=fwave,fsignal=fsignal,ffilter=ffilter,fstop=fstop,direction=XSELL,priority=priority)
 
 
-PS_MAX = 99999999
+
 class CFunc(XFunc):
     '''同类函数的组合
        用于相关性比较强的函数的组合，避免同类信号次第发生 
@@ -172,19 +172,22 @@ class CFunc(XFunc):
 
     def __call__(self,sif,sopened=None):
         #signal = gor(*[func(sif,sopened) for func in self.funcs])
+        #print 'xxxxxxxxxxxxxxxx',self.direction,XBUY
         #理想情况是买入时找到最低不等于0，卖出时找到最高不等于0, 即向上突破找最早的，向下照突破最早的
         if self.direction == XBUY:
             psignal = gmin(*[self.bsignal(func,sif,sopened) for func in self.funcs])  #突破最低价. 如果有确认信号和突破信号同时出现，则取确认信号. 这是一个问题
+            #print psignal[np.nonzero(psignal)]
             psignal = np.select([psignal!=PS_MAX],[psignal],0) #将PS_MAX变回0
         else:
-            psignal = gmax(*[func(sif,sopened) for func in self.funcs]) #如果确认信号和向下突破信号一起出现，取突破信号
-        signal = self.signal_filter(sif,psignal)
-        psignal = np.select([signal],[psignal],0)   #
+            psignal = gmax(*[np.abs(func(sif,sopened)) for func in self.funcs]) #如果确认信号和向下突破信号一起出现，取突破信号
+        #signal = self.signal_filter(sif,psignal)    #这个实际上不需要
+        #psignal = np.select([psignal!=0],[psignal],0)   #
         return psignal * self.direction
 
     def bsignal(self,func,sif,sopened):#对买入突破,将无信号变为PS_MAX，以便求最小值
-        ps = func(sif,sopened)
-        return np.select([ps!=0],[ps],PS_MAX)
+        ps = np.cast['int32'](np.abs(func(sif,sopened)))
+        rev = np.select([ps>0],[ps],default=PS_MAX)
+        return rev
 
 
 def dc_filter(sif,signal):  #去除连续信号

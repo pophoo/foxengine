@@ -10,6 +10,7 @@ import wolfox.fengine.ifuture.ifuncs1a as ifuncs1a
 import wolfox.fengine.ifuture.ifuncs2a as ifuncs2a
 import wolfox.fengine.ifuture.xfuncs as xfuncs
 import wolfox.fengine.ifuture.xfuncs2 as xfuncs2
+import wolfox.fengine.ifuture.ufuncs as ufuncs
 
 
 #必须写绝对路径名，否则在apache中相对路径的起始是site-packages/web
@@ -21,6 +22,8 @@ render = web.template.render(path_name)
 urls = (
   '/last', 'LastUpdateX',
   '/last/(.*)','LastUpdateX',
+  '/lastx2', 'LastUpdateX2',
+  '/lastx2/(.*)','LastUpdateX2',
   '/lastx1', 'LastUpdateX1',
   '/lastx1/(.*)','LastUpdateX1',
   '/lastn', 'LastUpdateN',
@@ -38,6 +41,18 @@ urls = (
 application = web.application(urls, globals()).wsgifunc()
 
 class LastUpdateX:
+    def GET(self,priority=2500):
+        try:
+            priority = int(priority)    #除默认外，传入的是字符串
+        except:
+            return u'优先级请输入合法的数字，您输入的是:%s' % priority
+        fname,sif,xactions = dynamic.uget(ufuncs.xxx2,priority=priority)
+        #return "name=%s,lastupdate=%s:%s" % (fname,sif.transaction[IDATE][-1],sif.transaction[ITIME][-1])
+        lasttime = "%s-%s" % (sif.transaction[IDATE][-1],sif.transaction[ITIME][-1])
+        #print priority
+        return render.last(fname,lasttime,xactions)
+
+class LastUpdateX2:
     def GET(self,priority=2500):
         try:
             priority = int(priority)    #除默认外，传入的是字符串

@@ -6,6 +6,7 @@ import wolfox.fengine.ifuture.ifreader as ifreader
 from wolfox.fengine.ifuture.ibase import *
 from wolfox.fengine.ifuture.ifreader import *
 import wolfox.fengine.ifuture.iftrade as iftrade
+import wolfox.fengine.ifuture.utrade as utrade
 import wolfox.fengine.ifuture.ifuncs as ifuncs
 import wolfox.fengine.ifuture.tfuncs as tfuncs
 import wolfox.fengine.ifuture.fcontrol as control
@@ -185,3 +186,5 @@ def calc_stop(sif,action):
 #whget = fcustom(whget,functor=control.ltrade3x0525)
 #whget = fcustom(whget,functor=control.ltrade3x156)
 whget = fcustom(whget,functor=control.ltrade3x0825z)
+
+uget = fcustom(whget,functor=utrade.utrade_d)

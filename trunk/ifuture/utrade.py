@@ -428,8 +428,15 @@ def utrade(sif     #期指
         
         closes = uclose_position(sif,ms_closer(sif,sopened,sclose,sclose)) #因为是单向的，只有一个sclose起作用        
 
-        actions = sorted(opens + closes,iftrade.DTSORT2) #必须确保先开后平, 但如果已经开了，则只有平仓
+        #print ms_closer(sif,sopened,sclose,sclose)[-300:]
+        #print closes[-1].time,closes[-1].date,closes[-2].date,closes[-2].time
+        #print opens[-1].time,opens[-1].date,opens[-2].date,opens[-2].time
+        #print 'iclose:'
+        #for iclose in closes:
+        #    print iclose.date,iclose.time
         
+        actions = sorted(opens + closes,iftrade.DTSORT2) #必须确保先开后平, 但如果已经开了，则只有平仓
+        #print len(opens+closes),len(actions)
         for action in actions:
             action.name = sif.name
             #print action.name,action.date,action.time,action.position,action.price
@@ -463,11 +470,11 @@ def uclose_position(sif,scloser):
     pbuy = scloser * XBUY  #取数字
     psell = scloser * XSELL #取数字
 
-    slong = pbuy * LONG  #避免直接将scloser中的信号表示与LONG/SHORT隐蔽耦合
-    sshort = psell * SHORT
-
-    positions = uposition(sif,slong,XCLOSE)
-    positions.extend(uposition(sif,sshort,XCLOSE))
+    pslong = np.select([pbuy>0],[pbuy*LONG],0)
+    psshort = np.select([psell>0],[psell*SHORT],0)    
+    
+    positions = uposition(sif,pslong,XCLOSE)
+    positions.extend(uposition(sif,psshort,XCLOSE))
     return positions
 
 
@@ -512,4 +519,5 @@ def uposition(sif,saction,xtype,defer=1):
 atr5_ustop_V = fcustom(atr_stop_u,fkeeper=iftrade.F120,win_times=250,natr=5,flost_base=iftrade.F60,fmax_drawdown=iftrade.F333)      #120-60
 
 utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+utrade_d = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=iftrade.last_trades,sync_trades=iftrade.null_sync_tradess)
 

@@ -93,7 +93,9 @@ import win32api
 from wolfox.fengine.ifuture.ibase import *
 import wolfox.fengine.ifuture.ifreader as ifreader
 import wolfox.fengine.ifuture.iftrade as iftrade
-import wolfox.fengine.ifuture.xfuncs2 as ifuncs
+#import wolfox.fengine.ifuture.xfuncs2 as ifuncs
+import wolfox.fengine.ifuture.ufuncs as ufuncs
+import wolfox.fengine.ifuture.utrade as utrade
 import wolfox.fengine.ifuture.fcontrol as control
 import wolfox.fengine.ifuture.dynamic as dynamic
 from wolfox.foxit.base.tutils import linelog
@@ -102,8 +104,10 @@ from wolfox.foxit.base.tutils import linelog
 #trade_functor = control.ltrade3x0825
 #trade_priority = 2500
 
-trade_strategy = ifuncs.xxx2
-trade_functor = control.ltradey
+#trade_strategy = ifuncs.xxx2
+#trade_functor = control.ltradey
+trade_strategy = ufuncs.xxx2
+trade_functor = utrade.utrade_d
 trade_priority = 2500
 
 

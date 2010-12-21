@@ -128,7 +128,7 @@ def nhh(sif):
             sif.high > rollx(sif.dhigh+30),
             rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
         )
-    return np.select([signal],[rollx(sif.dhigh)+30],0)
+    return np.select([signal],[gmax(sif.low,rollx(sif.dhigh)+30)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
     
 def nll2(sif):
     #使用最低点
@@ -219,7 +219,7 @@ def mll2(sif,length=75):
     #ldmid = dnext((sif.highd+gmin(sif.closed,sif.opend))/2,sif.close,sif.i_cofd)
     ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
     #ldmid = dnext((sif.highd+sif.closed)/2,sif.close,sif.i_cofd)    
-    return gand(
+    signal = gand(
             #sif.time>1029,
             cross(tlow,sif.low)<0,
             #sif.low < tlow,
@@ -227,7 +227,8 @@ def mll2(sif,length=75):
             #tlow < ldhigh-10,  #比昨日最高价低才允许做空
             tlow < ldmid-sif.xatr*2/XBASE,  #比前2天高点中点低才允许做空            
         )
-
+    return np.select([signal],[gmin(sif.high,tlow)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
+    
 
 sbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2500X,ffilter=nfilter)    #优于nll
 
@@ -243,13 +244,15 @@ hbreak2 = [shbreak_mll2,hbreak_nhh]  #这个最大回撤最小      ############
 def bru(sif):
     #突破前一日高点
     ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
-    return gand(
+    signal = gand(
             sif.high > ldhigh,
             rollx(sif.dhigh) < ldhigh +50,
             sif.sk > sif.sd,
             sif.time < 1300,
             #sif.r120>0,
         )
+    return np.select([signal],[gmax(sif.low,ldhigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
+
 
 def brux(sif):
     #突破前一日高点
@@ -266,13 +269,16 @@ def brux(sif):
 def brd(sif):
     #突破前一日低点
     ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
-    return gand(
+    signal = gand(
             sif.low < ldlow +20,
             rollx(sif.dlow) < ldlow -50,
             sif.sk < sif.sd,
             sif.time < 1300,
-            sif.r120<0,
+            #sif.r120<20,
         )
+    return np.select([signal],[gmin(sif.high,ldlow+20)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
+
+    
 #前日突破
 dbreakb = BXFuncD1(fstate=gofilter,fsignal=bru,fwave=nx2000X,ffilter=efilter)
 dbreakb.name = u'突破前日高点'

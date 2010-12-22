@@ -109,7 +109,7 @@ class LastUpdate2:
             priority = int(priority)    #除默认外，传入的是字符串
         except:
             return u'优先级请输入合法的数字，您输入的是:%s' % priority
-        fname,sif,xactions = dynamic.whget(ifuncs1a.xxx,priority=priority)
+        fname,sif,xactions = dynamic.whget(ifuncs1a.xxx2,priority=priority)
         #return "name=%s,lastupdate=%s:%s" % (fname,sif.transaction[IDATE][-1],sif.transaction[ITIME][-1])
         lasttime = "%s-%s" % (sif.transaction[IDATE][-1],sif.transaction[ITIME][-1])
         #print priority

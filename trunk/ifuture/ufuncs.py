@@ -6,9 +6,21 @@
     当出现信号开仓后，如果未平仓前出现第二个信号，则止损要按照这几个信号最宽的一个来放
     L: 0.018手续费
 
-1. 当日突破
-2. 突破前一日高点
-3. 突破当日的前一个高点
+实盘中的几点注意
+1. 止损
+   a.止损的ATR是根据上一完整周期的5分钟ATR设置的，不是本5分钟的，这一点需要非常注意
+   b.当连续创新高或新低时，止损点未必上移或下移，这个取决于ATR5的变化，很可能新高点因为ATR5变大导致
+        新计算的止损点不如上一止损点, 从而不移动. 这个必须仔细。
+
+突破法列举:
+    1. 当日突破
+    2. 突破前一日高点
+    3. 突破当日的前一个高点
+
+突破确认类操作
+    如果突破当时没用条件单开仓，而突破后价格回落，但未触及止损
+    则此时可于突破位-1开条件单，下次突破后再开仓，或者到止损位后撤销条件单
+    因为胜率<50%，以条件单续开放式为佳，不建议逆向运转后优势追开
 
 10:30前的操作规则:
     顺t120? 还是r120/60/30?
@@ -110,11 +122,27 @@ def rfilter(sif):
             sif.time > 1430,
         )
 
+def afilter(sif):   
+    return gand(
+            sif.time > 1300,
+        )
 
 def mfilter2(sif):   
     return gand(
             sif.time > 1014,
             sif.time < 1445,
+        )
+
+def n1300filter(sif):   
+    return gand(
+            sif.time > 944,
+            sif.time < 1300,
+        )
+
+def n1330filter(sif):   
+    return gand(
+            sif.time > 944,
+            sif.time < 1330,
         )
 
 
@@ -123,12 +151,13 @@ def nhh(sif):
     #ldlow = dnext(sif.lowd/2+sif.closed/2,sif.close,sif.i_cofd)
     ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
+    thigh = rollx(sif.dhigh+20)
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
-            sif.high > rollx(sif.dhigh+30),
+            sif.high > thigh,
             rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
         )
-    return np.select([signal],[gmax(sif.low,rollx(sif.dhigh)+30)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
+    return np.select([signal],[gmax(sif.low,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
     
 def nll2(sif):
     #使用最低点
@@ -227,7 +256,7 @@ def mll2(sif,length=75):
             #tlow < ldhigh-10,  #比昨日最高价低才允许做空
             tlow < ldmid-sif.xatr*2/XBASE,  #比前2天高点中点低才允许做空            
         )
-    return np.select([signal],[gmin(sif.high,tlow)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
+    return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
     
 
 sbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2500X,ffilter=nfilter)    #优于nll
@@ -246,12 +275,12 @@ def bru(sif):
     ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     signal = gand(
             sif.high > ldhigh,
-            rollx(sif.dhigh) < ldhigh +50,
+            rollx(sif.dhigh) < ldhigh +60,  #还没拉开过
             sif.sk > sif.sd,
-            sif.time < 1300,
+            sif.time < 1330,
             #sif.r120>0,
         )
-    return np.select([signal],[gmax(sif.low,ldhigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
+    return np.select([signal],[gmax(sif.open,ldhigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
 
 
 def brux(sif):
@@ -267,29 +296,43 @@ def brux(sif):
 
 
 def brd(sif):
-    #突破前一日低点
     ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
     signal = gand(
-            sif.low < ldlow +20,
-            rollx(sif.dlow) < ldlow -50,
+            sif.low < ldlow +20,  
+            rollx(sif.dlow) < ldlow -100,    #已经下去过了之后，再穿越. 这个被部分吸收了
             sif.sk < sif.sd,
-            sif.time < 1300,
+            sif.time < 1430,
+            #sif.r120<20,
+            sif.t120<60,
+        )
+    return np.select([signal],[gmin(sif.open,ldlow+20)],0)    #避免跳空情况，如果跳空且大于突破点，就以分钟开盘价进入
+
+def brdh(sif):
+    #最高价低于前日最低价+20，则以收盘价买入
+    ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
+    signal = gand(
+            sif.high < ldlow +20,   #这个有点无耻,走的不是突破了
+            rollx(sif.dlow) < ldlow -100,    #已经下去过了之后，再穿越. 这个被部分吸收了
+            sif.sk < sif.sd,
+            sif.time < 1430,
             #sif.r120<20,
         )
-    return np.select([signal],[gmin(sif.high,ldlow+20)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
-
+    return np.select([signal],[sif.close],0)    #避免跳空情况，如果跳空且大于突破点，就以分钟开盘价进入
     
 #前日突破
-dbreakb = BXFuncD1(fstate=gofilter,fsignal=bru,fwave=nx2000X,ffilter=efilter)
+dbreakb = BXFuncD1(fstate=gofilter,fsignal=bru,fwave=nx2500X,ffilter=efilter)
 dbreakb.name = u'突破前日高点'
 dbreakb.lastupdate = 20101213
 
 dbreakbx = BXFuncD1(fstate=gofilter,fsignal=brux,fwave=nx2000X,ffilter=efilter)
 
-dbreaks = SXFuncD1(fstate=gofilter,fsignal=brd,fwave=nx2000X,ffilter=efilter)
+dbreaks = SXFuncD1(fstate=gofilter,fsignal=brd,fwave=nx2500X,ffilter=efilter)
+dbreaksh = SXFuncD1(fstate=gofilter,fsignal=brdh,fwave=nx2500X,ffilter=efilter)
 dbreaks.name = u'突破前日低点'
 dbreakb.lastupdate = 20101213
 dbreak = [dbreakb,dbreaks]
+
+dbreaksh.stop_closer = utrade.atr5_ustop_V
 
 def dhigh_last(sif):
     drep = crepeat(sif.dhigh)
@@ -297,6 +340,154 @@ def dhigh_last(sif):
     ldhigh = np.zeros_like(sif.dhigh)
     ldhigh[dindex] = sif.dhigh[dindex]
     sif.ldhigh=extend2next(ldhigh)
+
+
+def u123(sif):
+    #向上123
+
+    plen = 4
+    alen = 2*plen+1
+
+    chh = gand(rollx(sif.high,plen) == tmax(sif.high,alen))
+    cll = gand(rollx(sif.low,plen) == tmin(sif.low,alen))
+    
+    phh = np.select([chh],[rollx(sif.high,plen)],0)
+    pll = np.select([cll],[rollx(sif.low,plen)],0)
+
+
+    #pchh = np.select([chh],[sif.close],0)
+    #pcll = np.select([cll],[sif.close],0)
+
+    shh = extend2next(ssub(phh))
+    sll = extend2next(ssub(pll))
+
+    lhh = extend2next(phh)
+    lll = extend2next(pll)
+
+    #lpchh = extend2next(pchh)
+    #lpcll = extend2next(pcll)
+
+    rlhh = rollx(lhh+50)    #连续上去，没出现新的极点
+
+    signal = gand(shh>0,
+                sll>0,
+                tmin(sif.low,4)>lll,
+                cross(rlhh,sif.high)>0,
+                strend2(sif.ma120)>0,
+                sif.sdma>0,
+            )
+    return np.select([signal],[rlhh],0)
+
+def d123(sif):
+    #向下123
+
+    plen = 4
+    alen = 2*plen+1
+
+
+    chh = gand(rollx(sif.high,plen) == tmax(sif.high,alen))
+    cll = gand(rollx(sif.low,plen) == tmin(sif.low,alen))
+    
+    phh = np.select([chh],[rollx(sif.high,plen)],0)
+    pll = np.select([cll],[rollx(sif.low,plen)],0)
+
+
+    #pchh = np.select([chh],[sif.close],0)
+    #pcll = np.select([cll],[sif.close],0)
+
+    shh = extend2next(ssub(phh))
+    sll = extend2next(ssub(pll))
+
+    lhh = extend2next(phh)
+    lll = extend2next(pll)
+
+    #lpchh = extend2next(pchh)
+    #lpcll = extend2next(pcll)
+
+    rlll = rollx(lll-80)
+
+    signal = gand(shh<0,
+                sll<0,
+                tmax(sif.high,4)<lhh,
+                cross(rlll,sif.close)<0,
+            )
+    return np.select([signal],[sif.close],0)
+
+def d123a(sif):
+    #向下123
+
+    plen = 4
+    alen = 2*plen+1
+
+    chh = gand(sif.high == tmax(sif.high,alen))
+    cll = gand(rollx(sif.low,plen) == tmin(sif.low,alen))
+    
+    phh = np.select([chh],[sif.high],0)
+    pll = np.select([cll],[rollx(sif.low,plen)],0)
+
+    shh = extend2next(ssub(phh))
+    sll = extend2next(ssub(pll)) #如果最低点连续，则因为相减为0，相当于只有一个最低点
+
+    lhh = extend2next(phh)
+    lll = extend2next(pll)
+
+    rlll = rollx(lll)
+
+    signal = gand(shh<0,
+                #sll<0,
+                #tmax(sif.high,4)<lhh,
+                cross(rlll,sif.low)<0,
+            )
+    return np.select([signal],[rlll],0)
+
+def u123a(sif):
+    #向上123
+
+    plen = 4
+    alen = 2*plen+1
+
+    chh = gand(rollx(sif.high,plen) == tmax(sif.high,alen))
+    cll = gand(rollx(sif.low,plen) == tmin(sif.low,alen))
+    
+    phh = np.select([chh],[rollx(sif.high,plen)],0)
+    pll = np.select([cll],[rollx(sif.low,plen)],0)
+
+    shh = extend2next(ssub(phh))
+    sll = extend2next(ssub(pll))
+
+    lhh = extend2next(phh)
+    lll = extend2next(pll)
+
+    signal = gand(#shh>0,
+                sll>0,
+                tmin(sif.low,4)>lll,
+                #cross(rollx(lll),sif.low)>0,
+                sif.low > rollx(lll),
+            )
+    return np.select([signal],[sif.close],0)
+
+
+b123 = BXFunc(fstate=gofilter,fsignal=u123,fwave=nx2500X,ffilter=n1430filter)
+b123.name = u'向上123'
+b123.lastupdate = 20101222
+b123.stop_closer = utrade.atr5_ustop_V
+
+s123 = SXFunc(fstate=gofilter,fsignal=d123,fwave=nx2500X,ffilter=nfilter)
+s123.name = u'向下123'
+s123.lastupdate = 20101222
+s123.stop_closer = utrade.atr5_ustop_V
+
+s123a = SXFunc(fstate=gofilter,fsignal=d123a,fwave=nx2500X,ffilter=nfilter)
+s123a.name = u'向下123'
+s123a.lastupdate = 20101222
+s123a.stop_closer = utrade.atr5_ustop_V
+
+b123a = BXFuncD1(fstate=gofilter,fsignal=u123a,fwave=nx2500X,ffilter=nfilter)
+b123a.name = u'向上123a'
+b123a.lastupdate = 20101222
+b123a.stop_closer = utrade.atr5_ustop_V
+
+break123 = [b123,s123]  #整体上缺乏合成性
 
 
 ####添加老系统
@@ -325,7 +516,7 @@ wxfs = [wxss,wxbs,wxb2s]
 
 #xxx = zbreak
 
-xxx = hbreak2 + dbreak
+xxx = hbreak2 + dbreak + break123
 
 #txfs = [xds,k5_d3b,xuub,K1_DDD1,K1_UUX,K1_RU,Z5_P2,xmacd3s,xup01,ua_fa,FA_15_120,K1_DVB,K1_DDUU,K1_DVBR]
 txfs = [xds,xuub,K1_RU,xup01,FA_15_120,K1_DVBR,Z5_P2,k5_d3b,xmacd3s,ua_fa,K1_DVB]   #剔除xdds3,K1_UUX,K1_DDD1
@@ -356,6 +547,7 @@ for x in xxx2+wxxx:
     #x.stop_closer = iftrade.atr5_uxstop_kQ #10/120       
     #x.stop_closer = iftrade.atr5_uxstop_kV #60/120/333
     x.stop_closer = utrade.atr5_ustop_V
+    #x.stop_closer = utrade.atr5_ustop_W1
     x.cstoper = iftrade.F60  #初始止损,目前只在动态显示时用
     if 'lastupdate' not in x.__dict__:
         x.lastupdate = 20101209

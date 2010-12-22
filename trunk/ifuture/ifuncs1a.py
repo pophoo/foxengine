@@ -2655,7 +2655,7 @@ xbreak = [ godown
         ]
 '''
 
-for x in xxx:
+for x in xxx+xxx2:
     x.cstoper = iftrade.FBASE_30  #初始止损
     if 'lastupdate' not in x.__dict__:
         x.lastupdate = 20100905

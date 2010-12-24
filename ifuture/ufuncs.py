@@ -12,6 +12,12 @@
    b.当连续创新高或新低时，止损点未必上移或下移，这个取决于ATR5的变化，很可能新高点因为ATR5变大导致
         新计算的止损点不如上一止损点, 从而不移动. 这个必须仔细。
 
+系统测试时的注意点
+1. 为什么两个好的策略，叠加起来的效果比较差，有时比单个还差 
+   因为好策略的盈利交易，因为其持仓时间通常较长，所以覆盖的可能性比较高，而亏损交易因为持仓较短，所以通常不互相覆盖
+   从而导致叠加时盈利互相覆盖亏损各自独立，引起集成效果差
+
+
 突破法列举:
     1. 当日突破
     2. 突破前一日高点
@@ -704,7 +710,7 @@ def u2b(sif):
                 #rollx(strend2(sif.ma120))<0,
                 sif.r7<0,
             )
-    return np.select([signal],[tp],0)
+    return np.select([signal],[gmax(tp,sif.open)],0)
 
 def d2b(sif):
     #向下2b
@@ -751,7 +757,7 @@ def d2b(sif):
                 cross(tp,sif.low)<0,
                 strend2(sif.mxatr30x)<0,
             )
-    return np.select([signal],[tp],0)
+    return np.select([signal],[gmin(tp,sif.open)],0)
 
 b123 = BXFunc(fstate=gofilter,fsignal=u123,fwave=nx2500X,ffilter=n1430filter)
 b123.name = u'向上123'
@@ -798,40 +804,38 @@ break123 = [b123,s123]  #整体上缺乏合成性
 break123b = [b123b,s123b]  #集成性可能比较好,s123b不好
 
 break123c = [b123b,b2b,s2b]  #集成性可能比较好
-break123c = [b123b,s2b,b2b]  #集成性可能比较好, b2b样本太少
+break123c = [b123b]#,s2b,b2b]  #集成性可能比较好, b2b样本太少
 
 ###不同周期突破系统
-def u3b3(sif):
-    bline = dnext(tmax(sif.high3,40),sif.close,sif.i_cof3)
-    
+def k15d(sif):
+    bline = dnext_cover(sif.low15-60,sif.close,sif.i_cof15,5)
     signal = gand(
-            #cross(bline,sif.high)>0,
-            sif.high > bline,
+            cross(bline,sif.low)<0,
+            (sif.time%100) % 15 !=0,#不是卡在15分钟末，因为这个是low的切换点，不能作为cross依据
            )
     
     return np.select([signal],[bline],0)
 
-b3b3 = BXFuncD1(fstate=gofilter,fsignal=u3b3,fwave=nx2500X,ffilter=ekfilter3)
-b3b3.name = u'向上3分钟早盘突破'
-b3b3.lastupdate = 20101222
-b3b3.stop_closer = utrade.atr5_ustop_V
+sk15a = SXFunc(fstate=sdown,fsignal=k15d,fwave=nx2500X,ffilter=mfilter)
+sk15a.name = u'k15向下突破'
+sk15a.lastupdate = 20101224
+sk15a.stop_closer = utrade.atr5_ustop_V
 
-def d5b3(sif):
-    bline = dnext(tmin(sif.low5+20,30),sif.close,sif.i_cof5)
-    
+def k15u(sif):
+    bline = dnext_cover(sif.high10,sif.close,sif.i_cof10,5)
     signal = gand(
-            #cross(bline,sif.low)<0,
-            sif.low < bline,
+            cross(bline,sif.high)>0,
+            (sif.time%100) % 15 !=0,#不是卡在15分钟末，因为这个是low的切换点，不能作为cross依据
            )
     
     return np.select([signal],[bline],0)
 
-s5b3 = SXFuncD1(fstate=gofilter,fsignal=d3b3,fwave=nx2500X,ffilter=ekfilter3)
-s5b3.name = u'向下5分钟早盘突破'
-s5b3.lastupdate = 20101222
-s5b3.stop_closer = utrade.atr5_ustop_V
+bk15a = BXFunc(fstate=sdown,fsignal=k15u,fwave=nx2500X,ffilter=mfilter)
+bk15a.name = u'k15向上突破'
+bk15a.lastupdate = 20101224
+bk15a.stop_closer = utrade.atr5_ustop_V
 
-ebreak = [b3b3,s5b3]
+ebreak = [sk15a]
 
 
 ####添加老系统
@@ -860,7 +864,7 @@ wxfs = [wxss,wxbs,wxb2s]
 
 #xxx = zbreak
 
-xxx = hbreak2 + dbreak + ebreak + break123c
+xxx = ebreak  + hbreak2 + dbreak + break123c 
 
 #txfs = [xds,k5_d3b,xuub,K1_DDD1,K1_UUX,K1_RU,Z5_P2,xmacd3s,xup01,ua_fa,FA_15_120,K1_DVB,K1_DDUU,K1_DVBR]
 txfs = [xds,xuub,K1_RU,xup01,FA_15_120,K1_DVBR,Z5_P2,k5_d3b,xmacd3s,ua_fa,K1_DVB]   #剔除xdds3,K1_UUX,K1_DDD1

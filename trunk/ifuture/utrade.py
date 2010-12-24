@@ -518,6 +518,8 @@ def uposition(sif,saction,xtype,defer=1):
 
 atr5_ustop_V = fcustom(atr_stop_u,fkeeper=iftrade.F90,win_times=250,natr=5,flost_base=iftrade.F60,fmax_drawdown=iftrade.F333)      #120-60
 atr5_ustop_W1 = fcustom(atr_stop_u,fkeeper=iftrade.F120,win_times=250,natr=5,flost_base=iftrade.F60,fmax_drawdown=iftrade.F333)      #120-60
+atr5_ustop_V2 = fcustom(atr_stop_u,fkeeper=iftrade.F90,win_times=250,natr=5,flost_base=iftrade.F80,fmax_drawdown=iftrade.F333)      #120-60
+
 
 utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 utrade_d = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=iftrade.last_trades,sync_trades=iftrade.null_sync_tradess)

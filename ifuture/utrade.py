@@ -516,9 +516,48 @@ def uposition(sif,saction,xtype,defer=1):
     return positions
 
 
-atr5_ustop_V = fcustom(atr_stop_u,fkeeper=iftrade.F90,win_times=250,natr=5,flost_base=iftrade.F60,fmax_drawdown=iftrade.F333)      #120-60
+atr5_ustop_V = fcustom(atr_stop_u,fkeeper=iftrade.F80,win_times=250,natr=5,flost_base=iftrade.F60,fmax_drawdown=iftrade.F333)      #120-60
+
+#V1的回报类似(减少10%)，单次止损小,回撤收窄.R大
+atr5_ustop_V1 = fcustom(atr_stop_u
+        ,fkeeper=iftrade.F80
+        ,win_times=250
+        ,natr=5
+        ,flost_base=iftrade.F30 #止损太窄不好操作，很可能还没设止损单就已经破了
+        ,fmax_drawdown=iftrade.F333)      #120-60
+
 atr5_ustop_W1 = fcustom(atr_stop_u,fkeeper=iftrade.F120,win_times=250,natr=5,flost_base=iftrade.F60,fmax_drawdown=iftrade.F333)      #120-60
 atr5_ustop_V2 = fcustom(atr_stop_u,fkeeper=iftrade.F90,win_times=250,natr=5,flost_base=iftrade.F80,fmax_drawdown=iftrade.F333)      #120-60
+
+atr5_ustop_5 = fcustom(atr_stop_u
+                ,fkeeper=iftrade.F50
+                ,win_times=250
+                ,natr=5
+                ,flost_base=iftrade.F30
+                ,fmax_drawdown=iftrade.F180
+                ,fmin_drawdown=iftrade.F100                
+                #,ftarget = iftrade.F180
+            )      #120-60
+
+atr5_ustop_6 = fcustom(atr_stop_u
+                ,fkeeper=iftrade.F60
+                ,win_times=250
+                ,natr=5
+                ,flost_base=iftrade.F60
+                ,fmax_drawdown=iftrade.F120
+                ,fmin_drawdown=iftrade.F80                
+                #,ftarget = iftrade.F180
+            )      #120-60
+
+atr5_ustop_j = fcustom(atr_stop_u
+                ,fkeeper=iftrade.F50
+                ,win_times=250
+                ,natr=5
+                ,flost_base=iftrade.F30
+                ,fmax_drawdown=iftrade.F80
+                ,fmin_drawdown=iftrade.F80                
+                #,ftarget = iftrade.F180
+            )      #120-60
 
 
 utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])

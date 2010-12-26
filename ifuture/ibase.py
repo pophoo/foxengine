@@ -49,19 +49,25 @@ def dnext(xsource,xbase,xindex):
     result = extend2next(result)
     return result
 
-def dnext2diff(xsource,xbase,xindex,diffbase):
+def dnext2diff(xsource,xbase,xindex,diffbase,default=0):
     '''
         将长周期的抽样点xsource分派到基础周期xbase，其中这些点的坐标是xindex
         抽样点进行信号覆盖到diffbase差异日
             xindex最好不是i_cofd，否则马上换日
+        default是无信号数据的默认值
     '''
     result = np.zeros_like(xbase)
     result[xindex] = xsource
     result = extend2diff(result,diffbase)
+    if default!=0:
+        result = np.select([result!=0],[result],default=default)
     return result
 
+ldnext2diff = dnext2diff
+hdnext2diff = fcustom(dnext2diff,default=99999999)
 
-def dnext_cover(xsource,xbase,xindex,length):
+
+def dnext_cover(xsource,xbase,xindex,length,default=0):
     '''
         将长周期的抽样点xsource分派到基础周期xbase，其中这些点的坐标是xindex
         抽样点进行信号覆盖length点
@@ -69,7 +75,29 @@ def dnext_cover(xsource,xbase,xindex,length):
     result = np.zeros_like(xbase)
     result[xindex] = xsource
     result = extend(result,length)
+    if default!=0:
+        result = np.select([result!=0],[result],default=default)
     return result
+
+ldnext_cover = dnext_cover
+hdnext_cover = fcustom(dnext_cover,default=99999999)
+
+
+###高点/低点的持续时间
+def high_last(shigh,vlen=20):
+    drep = crepeat(shigh)
+    dindex = np.nonzero(gand(drep>vlen))#,drep>rollx(drep,-1)))  #
+    ldhigh = np.zeros_like(shigh)
+    ldhigh[dindex] = shigh[dindex]
+    return extend2next(ldhigh)
+
+def low_last(slow,vlen=20):
+    drep = crepeat(slow)
+    dindex = np.nonzero(gand(drep>vlen))#,drep<rollx(drep,-1)))  #
+    ldlow = np.zeros_like(slow)
+    ldlow[dindex] = slow[dindex]
+    return extend2next(ldlow)
+
 
 import functools
 

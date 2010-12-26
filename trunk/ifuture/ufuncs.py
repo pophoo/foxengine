@@ -28,6 +28,16 @@
     则此时可于突破位-1开条件单，下次突破后再开仓，或者到止损位后撤销条件单
     因为胜率<50%，以条件单续开放式为佳，不建议逆向运转后优势追开
 
+发现一个诡异现象
+    10/15/30整的时间，多数有暴涨暴跌动作发生
+    可以根据之前2分钟的动量来判断. 如果方向一致且第-1分钟的收盘方向与运动方向一致(即便阴阳线不一致，
+            比如下跌后拉回也算是上升方向). 则同方向开仓
+        如果是孕线，判断第-1分钟方向和与-1收盘价与-3分钟的方向
+
+        -1分钟方向判断: 收盘价与最高价和最低价的关系，如果最高-收盘>收盘-最低, 则为向下，反之为向上
+    开仓在-1分钟收盘,止损价-3
+    如果进入突破区间，则跟随突破规则止损
+
 10:30前的操作规则:
     顺t120? 还是r120/60/30?
 
@@ -122,6 +132,12 @@ def mfilter(sif):
             sif.time > 1029,
             sif.time < 1430,
         )
+
+def rmfilter(sif):   
+    return gor(
+            sif.time < 1029,
+        )
+
 
 def kfilter(sif):
     return gand(
@@ -250,7 +266,7 @@ hbreak_cgap = BXFuncF1(fstate=gofilter,fsignal=cgap,fwave=nx2500X,ffilter=efilte
 
 def sdown(sif):
     return gand(
-            sif.t120 < 90,
+            sif.t120 < 180,
             #sif.t120 < -200,    #周期为1个月，末期会不明,有点太投机
         )
 
@@ -386,7 +402,7 @@ def brd(sif):
     ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
     signal = gand(
             sif.low < ldlow +20,  
-            rollx(sif.dlow) < ldlow -100,    #已经下去过了之后，再穿越. 这个被部分吸收了
+            rollx(sif.dlow) < ldlow-100,    #已经下去过了之后，再穿越. 这个被部分吸收了
             sif.sk < sif.sd,
             sif.time < 1430,
             #sif.r120<20,
@@ -404,7 +420,7 @@ def brdh(sif):
             sif.time < 1430,
             #sif.r120<20,
         )
-    return np.select([signal],[sif.close],0)    #避免跳空情况，如果跳空且大于突破点，就以分钟开盘价进入
+    return np.select([signal],[sif.close],0)    
     
 #前日突破
 dbreakb = BXFuncD1(fstate=gofilter,fsignal=bru,fwave=nx2500X,ffilter=efilter)
@@ -417,16 +433,10 @@ dbreaks = SXFuncD1(fstate=gofilter,fsignal=brd,fwave=nx2500X,ffilter=efilter)
 dbreaksh = SXFuncD1(fstate=gofilter,fsignal=brdh,fwave=nx2500X,ffilter=efilter)
 dbreaks.name = u'突破前日低点'
 dbreakb.lastupdate = 20101213
-dbreak = [dbreakb,dbreaks]
+dbreak = [dbreakb,dbreaks]#
 
 dbreaksh.stop_closer = utrade.atr5_ustop_V
 
-def dhigh_last(sif):
-    drep = crepeat(sif.dhigh)
-    dindex = np.nonzero(gand(drep>5,drep>rollx(drep,-1)))  #
-    ldhigh = np.zeros_like(sif.dhigh)
-    ldhigh[dindex] = sif.dhigh[dindex]
-    sif.ldhigh=extend2next(ldhigh)
 
 
 def u123(sif):
@@ -653,14 +663,12 @@ def d123b(sif):
     rpll = extend2next(rpll) + 20
 
 
-    tp = gmin(rpll,lll+20,rollx(tmin(sif.low,30))+20)
+    tp = gmin(rpll,lll+20)#,rollx(tmin(sif.low,60))+20)
 
-    signal = gand(#shh<=0,
+    signal = gand(#shh<20,
                 cross(tp,sif.low)<0,
-                strend2(sif.low)<0,
-                #rollx(sif.sdma)<0,
-                strend2(sif.mxatr30x)<0,
-                sif.t120 < 120,
+                #strend2(sif.mxatr30x)<0,
+                #sif.low > sif.dlow + 150,
             )
     return np.select([signal],[tp])
 
@@ -759,6 +767,7 @@ def d2b(sif):
             )
     return np.select([signal],[gmin(tp,sif.open)],0)
 
+
 b123 = BXFunc(fstate=gofilter,fsignal=u123,fwave=nx2500X,ffilter=n1430filter)
 b123.name = u'向上123'
 b123.lastupdate = 20101222
@@ -784,7 +793,7 @@ b123b.name = u'向上123b'
 b123b.lastupdate = 20101222
 b123b.stop_closer = utrade.atr5_ustop_V
 
-s123b = SXFunc(fstate=gofilter,fsignal=d123b,fwave=nx2500X,ffilter=mfilter)
+s123b = SXFunc(fstate=sdown,fsignal=d123b,fwave=nx2500X,ffilter=mfilter)
 s123b.name = u'向下123b'
 s123b.lastupdate = 20101222
 s123b.stop_closer = utrade.atr5_ustop_V
@@ -801,14 +810,126 @@ s2b.stop_closer = utrade.atr5_ustop_V
 
 break123 = [b123,s123]  #整体上缺乏合成性
 
-break123b = [b123b,s123b]  #集成性可能比较好,s123b不好
+break123b = [b123b,s123b]  #b123b集成性比较好,s123b不好
 
 break123c = [b123b,b2b,s2b]  #集成性可能比较好
 break123c = [b123b]#,s2b,b2b]  #集成性可能比较好, b2b样本太少
 
+####反弹类
+def urebound(sif):
+    '''
+         创新低后,以冲破支撑为界
+         可演变为未创新低的情况
+    '''
+
+    plen = 5
+    alen = 2*plen+1
+
+    chh = gand(rollx(sif.high,plen) == tmax(sif.high,alen))
+    cll = gand(rollx(sif.low,plen) == tmin(sif.low,alen))
+    
+    phh = np.select([chh],[rollx(sif.high,plen)],0)
+    pll = np.select([cll],[rollx(sif.low,plen)],0)
+
+    lhh = extend2next(phh)
+    lll = extend2next(pll)
+
+    #lpchh = extend2next(pchh)
+    #lpcll = extend2next(pcll)
+
+    #ipll = np.nonzero(pll)
+    #rpll = np.zeros_like(pll)
+    #rpll[ipll] = rollx(pll[ipll])
+    #rpll = extend2next(rpll)
+
+    #rpll2 = np.zeros_like(pll)
+    #rpll2[ipll] = rollx(pll[ipll],2)
+    #rpll2 = extend2next(rpll2)
+
+
+    #tp = (lll + rollx(sif.dlow)) / 2#(rpll + lll)/2
+    #tp = np.select([lll>sif.dlow,rpll>sif.dlow,rpll==sif.dlow],[(lll+sif.dlow)/2,(rpll+sif.dlow)/2,mlow_last(sif,vlen=10)])
+    
+    xp1 = low_last(tmin(sif.low,75),vlen=10)+20
+    #xp2 = low_last(sif.dlow,vlen=10)+20
+    #xp = np.select([sif.time<1030,sif.time>=1030],[xp2,xp1])
+    xp = xp1    #因为low_last的特性，不会随1030时low75可能的的反转而反上去)
+    tp = np.select([lll>sif.dlow,lll==sif.dlow],[gmin(lll+20,xp),xp]) #只有在10:30之前才可能!=low75
+
+    #slx = np.select([lll>sif.dlow,rpll>sif.dlow,rpll2>sif.dlow],[sif.dlow-lll,sif.dlow-rpll,sif.dlow-rpll2],99999999)
+
+    signal = gand(#shh<90,    #不震荡
+                #slx < 100,  #发现无必要
+                tmin(sif.low,15) == rollx(sif.dlow),#tmin(sif.low,90),
+                cross(tp,sif.high)>0,
+                sif.time>915,   #915会有跳空
+                sif.xatr > 1500,
+                sif.high - sif.dlow > 100,
+            )
+    return np.select([signal],[gmax(sif.open,tp)],0)
+
+def drebound(sif):
+    '''
+         创新高后以跌破支撑为界
+         可扩展至未创新高?
+    '''
+
+    plen = 5
+    alen = 2*plen+1
+
+    chh = gand(rollx(sif.high,plen) == tmax(sif.high,alen))
+    cll = gand(rollx(sif.low,plen) == tmin(sif.low,alen))
+    
+    phh = np.select([chh],[rollx(sif.high,plen)],0)
+    pll = np.select([cll],[rollx(sif.low,plen)],0)
+
+
+    shh = extend2next(ssub(phh))
+    sll = extend2next(ssub(pll))
+
+    lhh = extend2next(phh)
+    lll = extend2next(pll)
+
+    #lpchh = extend2next(pchh)
+    #lpcll = extend2next(pcll)
+
+    #iphh = np.nonzero(phh)
+    #rphh = np.zeros_like(phh)
+    #rphh[iphh] = rollx(phh[iphh])
+    #rphh = extend2next(rphh) +10
+
+    #tp = (lll + rollx(sif.dlow)) / 2#(rpll + lll)/2
+    #tp = np.select([lll>sif.dlow,rpll>sif.dlow,rpll==sif.dlow],[(lll+sif.dlow)/2,(rpll+sif.dlow)/2,mlow_last(sif,vlen=10)])
+    
+    xp = high_last(sif.dhigh,vlen=30) - 20
+    tp = np.select([lhh<sif.dhigh,lhh==sif.dhigh],[gmin(lhh-20,xp),xp])
+    #tp = lll
+
+    signal = gand(#shh>0,    #不震荡
+                tmax(sif.high,15) == rollx(sif.dhigh),
+                cross(tp,sif.low)<0,
+                sif.time>915,   #915会有跳空
+                #strend2(sif.mxatr30x) < 0,
+                sif.xatr<1500,
+                #sif.dhigh - sif.low > 100,
+            )
+    return np.select([signal],[gmin(sif.open,tp)],0)
+
+brebound = BXFunc(fstate=gofilter,fsignal=urebound,fwave=gofilter,ffilter=e1430filter)##e1430filter2)
+brebound.name = u'向上反弹'
+brebound.lastupdate = 20101225
+brebound.stop_closer = utrade.atr5_ustop_6
+
+srebound = SXFunc(fstate=gofilter,fsignal=drebound,fwave=gofilter,ffilter=mfilter2)##e1430filter2)
+srebound.name = u'向下反弹'
+srebound.lastupdate = 20101225
+srebound.stop_closer = utrade.atr5_ustop_6
+
+rebound = [brebound,srebound]
+
 ###不同周期突破系统
 def k15d(sif):
-    bline = dnext_cover(sif.low15-60,sif.close,sif.i_cof15,5)
+    bline = dnext_cover(sif.low15-60,sif.close,sif.i_cof15,6)
     signal = gand(
             cross(bline,sif.low)<0,
             (sif.time%100) % 15 !=0,#不是卡在15分钟末，因为这个是low的切换点，不能作为cross依据
@@ -821,21 +942,153 @@ sk15a.name = u'k15向下突破'
 sk15a.lastupdate = 20101224
 sk15a.stop_closer = utrade.atr5_ustop_V
 
-def k15u(sif):
-    bline = dnext_cover(sif.high10,sif.close,sif.i_cof10,5)
+ebreak = [sk15a]
+
+def k5d(sif):   #集成效果不佳,但可以作为主单元
+    bline = dnext_cover(sif.low5-10,sif.close,sif.i_cof5,4)
     signal = gand(
-            cross(bline,sif.high)>0,
-            (sif.time%100) % 15 !=0,#不是卡在15分钟末，因为这个是low的切换点，不能作为cross依据
+            cross(bline,sif.low)<0,
+            tmax(sif.high,15) < tmax(sif.high,90)-100,            
+            (sif.time%100) % 5 !=0,#不是卡在5分钟头，因为这个是low的切换点，不能作为cross依据
            )
     
-    return np.select([signal],[bline],0)
+    return np.select([signal],[gmin(sif.open,bline)],0)
 
-bk15a = BXFunc(fstate=sdown,fsignal=k15u,fwave=nx2500X,ffilter=mfilter)
-bk15a.name = u'k15向上突破'
+sk5a = SXFunc(fstate=sdown,fsignal=k5d,fwave=nx2500X,ffilter=mfilter)
+sk5a.name = u'k5向下突破'
+sk5a.lastupdate = 20101224
+sk5a.stop_closer = utrade.atr5_ustop_V
+
+def k5u(sif):   #
+    bline = hdnext_cover(sif.high5+20,sif.close,sif.i_cof5,4)
+    signal = gand(
+            cross(bline,sif.high)>0,
+            tmin(sif.low,30) > tmin(sif.low,75)+60,
+            (sif.time%100) % 5 !=0,#不是卡在5分钟头，因为这个是high的切换点，不能作为cross依据
+           )
+    
+    return np.select([signal],[gmax(sif.open,bline)],0)
+
+bk5a = BXFunc(fstate=gofilter,fsignal=k5u,fwave=gofilter,ffilter=mfilter)
+bk5a.name = u'k5向上突破'
+bk5a.lastupdate = 20101224
+bk5a.stop_closer = utrade.atr5_ustop_V
+
+zk5 = [sk5a,bk5a]   #单独效果尚可，合并不好
+
+def k5ru(sif):
+    
+    signal5 = gand(
+                rollx(sif.low5) == tmin(sif.low5,10),
+                #sif.low5 < rollx(sif.low5)
+                sif.close5 > rollx(sif.high5)+50,
+              )
+
+    delay = 1
+
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof5] = signal5
+    #signal = dnext_cover(signal5,sif.close,sif.i_cof5,delay)
+ 
+    signal = gand(signal,
+                sif.xatr30x < 12000,
+            )
+
+
+    return signal
+
+bk15a = BXFunc(fstate=gofilter,fsignal=k5ru,fwave=gofilter,ffilter=mfilter)
+bk15a.name = u'k5向上突破'
 bk15a.lastupdate = 20101224
 bk15a.stop_closer = utrade.atr5_ustop_V
 
-ebreak = [sk15a]
+
+def k5rd(sif):
+    
+    signal5 = gand(
+                rollx(sif.high5) == tmax(sif.high5,6),
+                #sif.low5 < rollx(sif.low5)
+                sif.close5 < rollx(sif.low5),
+              )
+
+
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof5] = signal5
+    #signal = dnext_cover(signal5,sif.close,sif.i_cof5,delay)
+ 
+
+    return signal
+
+sk15d = SXFunc(fstate=gofilter,fsignal=k5rd,fwave=gofilter,ffilter=nfilter)
+sk15d.name = u'k5向上突破'
+sk15d.lastupdate = 20101224
+sk15d.stop_closer = utrade.atr5_ustop_V
+
+def k5rd2(sif):
+    
+    signal5 = gand(sif.high5 == tmax(sif.high5,3),sif.high5 < tmax(sif.high5,30),)
+
+    bline = sif.low5-10#tmin(sif.low5,2)
+
+    bline = dnext_cover(np.select([signal5>0],[bline],0),sif.close,sif.i_cof5,5)    
+
+    signal = gand(cross(bline,sif.low)<0,
+            )
+
+    return np.select([signal>0],[bline],0)
+sk15d2 = SXFunc(fstate=gofilter,fsignal=k5rd2,fwave=gofilter,ffilter=ekfilter)
+sk15d2.name = u'k5向上突破'
+sk15d2.lastupdate = 20101224
+sk15d2.stop_closer = utrade.atr5_ustop_V
+
+
+
+###5/10/15/30/60分钟投机系统, 按分钟分解,难以找到好策略. 
+
+
+def jxd5(sif):   #
+    xmod =  sif.time % 100 % 10
+    signal = gand(
+            gor(xmod == 9),#9,gand(xmod>=0,xmod<=2)),
+            #strend2(sif.mxatr30x)<0,
+            #strend2(sif.mxatr)>0,            
+            #sif.low < rollx(sif.low,30),
+            #tmax(sif.high,5)<tmax(sif.high,30),
+            sif.low < rollx(sif.low)-10,
+            sif.low > rollx(tmin(sif.low,75))+20,
+            sif.close < sif.open,
+            rollx(sif.close) < rollx(sif.open),
+            sif.xatr<2500,
+          )
+    
+    return np.select([signal],[sif.close],0)
+
+sjxd5 = SXFunc(fstate=sdown,fsignal=jxd5,fwave=gofilter,ffilter=mfilter)
+sjxd5.name = u'5分钟向下投机'
+sjxd5.lastupdate = 20101224
+#sjxd5.stop_closer = utrade.atr5_ustop_V #可用于主方法
+sjxd5.stop_closer = utrade.atr5_ustop_j #可用于主方法
+
+def jxu5(sif):   #
+    xmod =  sif.time % 100 % 10
+    signal = gand(
+            gor(xmod == 4),#9,gand(xmod>=0,xmod<=2)),
+            strend2(sif.mxatr)<0,            
+            sif.xatr > sif.mxatr,
+            sif.open > rollx(sif.close,30),
+            sif.close > rollx(sif.close),
+            sif.low > rollx(sif.low),            
+            sif.xatr>800,
+          )
+    
+    return np.select([signal],[sif.close],0)
+
+bjxu5 = BXFunc(fstate=gofilter,fsignal=jxu5,fwave=gofilter,ffilter=mfilter)
+bjxu5.name = u'5分钟向上投机'
+bjxu5.lastupdate = 20101224
+#bjxu5.stop_closer = utrade.atr5_ustop_V #可用于主方法
+bjxu5.stop_closer = utrade.atr5_ustop_j #可用于主方法
+
 
 
 ####添加老系统
@@ -864,7 +1117,7 @@ wxfs = [wxss,wxbs,wxb2s]
 
 #xxx = zbreak
 
-xxx = ebreak  + hbreak2 + dbreak + break123c 
+xxx = hbreak2 + rebound +  dbreak + ebreak + break123c 
 
 #txfs = [xds,k5_d3b,xuub,K1_DDD1,K1_UUX,K1_RU,Z5_P2,xmacd3s,xup01,ua_fa,FA_15_120,K1_DVB,K1_DDUU,K1_DVBR]
 txfs = [xds,xuub,K1_RU,xup01,FA_15_120,K1_DVBR,Z5_P2,k5_d3b,xmacd3s,ua_fa,K1_DVB]   #剔除xdds3,K1_UUX,K1_DDD1
@@ -895,8 +1148,11 @@ for x in xxx2+wxxx:
     #x.stop_closer = iftrade.atr5_uxstop_kQ #10/120       
     #x.stop_closer = iftrade.atr5_uxstop_kV #60/120/333
     x.stop_closer = utrade.atr5_ustop_V
+    #x.stop_closer = utrade.atr5_ustop_5       #非常平稳
     #x.stop_closer = utrade.atr5_ustop_W1
     x.cstoper = iftrade.F60  #初始止损,目前只在动态显示时用
     if 'lastupdate' not in x.__dict__:
         x.lastupdate = 20101209
-    
+
+for x in rebound:#反弹止损收窄
+    x.stop_closer = utrade.atr5_ustop_6

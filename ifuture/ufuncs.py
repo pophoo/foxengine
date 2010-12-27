@@ -11,6 +11,9 @@
    a.止损的ATR是根据上一完整周期的5分钟ATR设置的，不是本5分钟的，这一点需要非常注意
    b.当连续创新高或新低时，止损点未必上移或下移，这个取决于ATR5的变化，很可能新高点因为ATR5变大导致
         新计算的止损点不如上一止损点, 从而不移动. 这个必须仔细。
+   c.止损价位必须根据文华软件中的柱线的高低价来设定，而不是汇总中的日最高/最低价，目的是与系统保持一致
+   d.如果还来不及移动止损，就被打穿新止损位，而老止损位未被打穿，那就按现价出掉。也可于新止损处收窄1-2个点重新设定
+
 
 系统测试时的注意点
 1. 为什么两个好的策略，叠加起来的效果比较差，有时比单个还差 
@@ -853,7 +856,7 @@ def urebound(sif):
     xp1 = low_last(tmin(sif.low,75),vlen=10)+20
     #xp2 = low_last(sif.dlow,vlen=10)+20
     #xp = np.select([sif.time<1030,sif.time>=1030],[xp2,xp1])
-    xp = xp1    #因为low_last的特性，不会随1030时low75可能的的反转而反上去)
+    xp = xp1    #
     tp = np.select([lll>sif.dlow,lll==sif.dlow],[gmin(lll+20,xp),xp]) #只有在10:30之前才可能!=low75
 
     #slx = np.select([lll>sif.dlow,rpll>sif.dlow,rpll2>sif.dlow],[sif.dlow-lll,sif.dlow-rpll,sif.dlow-rpll2],99999999)
@@ -915,15 +918,133 @@ def drebound(sif):
             )
     return np.select([signal],[gmin(sif.open,tp)],0)
 
+def urebound2(sif):
+    '''
+         创新低后,以冲破支撑为界
+         可演变为未创新低的情况
+    '''
+
+    plen = 5
+    alen = 2*plen+1
+
+    chh = gand(rollx(sif.high,plen) == tmax(sif.high,alen))
+    cll = gand(rollx(sif.low,plen) == tmin(sif.low,alen))
+    
+    phh = np.select([chh],[rollx(sif.high,plen)],0)
+    pll = np.select([cll],[rollx(sif.low,plen)],0)
+
+    lhh = extend2next(phh)
+    lll = extend2next(pll)
+
+    #lpchh = extend2next(pchh)
+    #lpcll = extend2next(pcll)
+
+    ipll = np.nonzero(pll)
+    rpll = np.zeros_like(pll)
+    rpll[ipll] = rollx(pll[ipll])
+    rpll = extend2next(rpll)
+
+    #rpll2 = np.zeros_like(pll)
+    #rpll2[ipll] = rollx(pll[ipll],2)
+    #rpll2 = extend2next(rpll2)
+
+
+    #tp = (lll + rollx(sif.dlow)) / 2#(rpll + lll)/2
+    #tp = np.select([lll>sif.dlow,rpll>sif.dlow,rpll==sif.dlow],[(lll+sif.dlow)/2,(rpll+sif.dlow)/2,mlow_last(sif,vlen=10)])
+    
+    dl = tmin(sif.low,60)
+
+    xp1 = low_last(tmin(sif.low,30),vlen=10)+20
+    #xp2 = low_last(sif.dlow,vlen=10)+20
+    #xp = np.select([sif.time<1030,sif.time>=1030],[xp2,xp1])
+    xp = xp1    #
+    tp = np.select([lll>dl,lll==dl],[gmin(lll+20,xp),xp],99999999) #只有在10:30之前才可能!=low75
+
+    #slx = np.select([lll>sif.dlow,rpll>sif.dlow,rpll2>sif.dlow],[sif.dlow-lll,sif.dlow-rpll,sif.dlow-rpll2],99999999)
+
+    signal = gand(#shh<90,    #不震荡
+                #slx < 100,  #发现无必要
+                tmin(sif.low,15) == dl,
+                tmin(sif.low,15) > sif.dlow + 60,
+                cross(tp,sif.high)>0,
+                sif.time>915,   #915会有跳空
+                sif.xatr > 1500,
+                #sif.high - sif.dlow > 100,
+            )
+    return np.select([signal],[gmax(sif.open,tp)],0)
+
+def drebound2(sif):
+    '''
+         创新高后以跌破支撑为界
+         可扩展至未创新高?
+    '''
+
+    plen = 5
+    alen = 2*plen+1
+
+    chh = gand(rollx(sif.high,plen) == tmax(sif.high,alen))
+    cll = gand(rollx(sif.low,plen) == tmin(sif.low,alen))
+    
+    phh = np.select([chh],[rollx(sif.high,plen)],0)
+    pll = np.select([cll],[rollx(sif.low,plen)],0)
+
+
+    shh = extend2next(ssub(phh))
+    sll = extend2next(ssub(pll))
+
+    lhh = extend2next(phh)
+    lll = extend2next(pll)
+
+    #lpchh = extend2next(pchh)
+    #lpcll = extend2next(pcll)
+
+    #iphh = np.nonzero(phh)
+    #rphh = np.zeros_like(phh)
+    #rphh[iphh] = rollx(phh[iphh])
+    #rphh = extend2next(rphh) +10
+
+    #tp = (lll + rollx(sif.dlow)) / 2#(rpll + lll)/2
+    #tp = np.select([lll>sif.dlow,rpll>sif.dlow,rpll==sif.dlow],[(lll+sif.dlow)/2,(rpll+sif.dlow)/2,mlow_last(sif,vlen=10)])
+    
+    dh = tmax(sif.high,30)
+
+    xp = high_last(dh,vlen=30) - 20
+    tp = np.select([lhh<dh,lhh>=dh],[gmin(lhh-20,xp),xp],0)
+    #tp = lll
+
+    signal = gand(#shh>0,    #不震荡
+                tmax(sif.high,15) == dh,#rollx(sif.dhigh),
+                tmax(sif.high,15) < rollx(sif.dhigh),
+                cross(tp,sif.low)<0,
+                sif.time>915,   #915会有跳空
+                strend2(sif.mxatr30x) < 0,
+                sif.xatr>1000,
+                #sif.dhigh - sif.low > 100,
+            )
+    return np.select([signal],[gmin(sif.open,tp)],0)
+
+
 brebound = BXFunc(fstate=gofilter,fsignal=urebound,fwave=gofilter,ffilter=e1430filter)##e1430filter2)
 brebound.name = u'向上反弹'
 brebound.lastupdate = 20101225
 brebound.stop_closer = utrade.atr5_ustop_6
 
+brebound2 = BXFunc(fstate=gofilter,fsignal=urebound2,fwave=gofilter,ffilter=e1430filter)##e1430filter2)
+brebound2.name = u'向上反弹'
+brebound2.lastupdate = 20101225
+brebound2.stop_closer = utrade.atr5_ustop_6
+
+
 srebound = SXFunc(fstate=gofilter,fsignal=drebound,fwave=gofilter,ffilter=mfilter2)##e1430filter2)
 srebound.name = u'向下反弹'
 srebound.lastupdate = 20101225
 srebound.stop_closer = utrade.atr5_ustop_6
+
+srebound2 = SXFunc(fstate=gofilter,fsignal=drebound2,fwave=gofilter,ffilter=mfilter2)##e1430filter2)
+srebound2.name = u'向下反弹'
+srebound2.lastupdate = 20101225
+srebound2.stop_closer = utrade.atr5_ustop_6
+
 
 rebound = [brebound,srebound]
 
@@ -938,7 +1059,7 @@ def k15d(sif):
     return np.select([signal],[bline],0)
 
 sk15a = SXFunc(fstate=sdown,fsignal=k15d,fwave=nx2500X,ffilter=mfilter)
-sk15a.name = u'k15向下突破'
+sk15a.name = u'15分钟周期向下突破'
 sk15a.lastupdate = 20101224
 sk15a.stop_closer = utrade.atr5_ustop_V
 

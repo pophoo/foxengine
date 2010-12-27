@@ -1019,7 +1019,7 @@ def drebound2(sif):
                 sif.time>915,   #915会有跳空
                 strend2(sif.mxatr30x) < 0,
                 sif.xatr>1000,
-                #sif.dhigh - sif.low > 100,
+                sif.dhigh - sif.low > 150,
             )
     return np.select([signal],[gmin(sif.open,tp)],0)
 
@@ -1081,16 +1081,17 @@ sk5a.lastupdate = 20101224
 sk5a.stop_closer = utrade.atr5_ustop_V
 
 def k5u(sif):   #
-    bline = hdnext_cover(sif.high5+20,sif.close,sif.i_cof5,4)
+    bline = hdnext_cover(sif.high5+30,sif.close,sif.i_cof5,4)
     signal = gand(
             cross(bline,sif.high)>0,
-            tmin(sif.low,30) > tmin(sif.low,75)+60,
+            tmin(sif.low,30) > tmin(sif.low,75)+90,
             (sif.time%100) % 5 !=0,#不是卡在5分钟头，因为这个是high的切换点，不能作为cross依据
+            #sif.xatr > sif.mxatr,
            )
     
     return np.select([signal],[gmax(sif.open,bline)],0)
 
-bk5a = BXFunc(fstate=gofilter,fsignal=k5u,fwave=gofilter,ffilter=mfilter)
+bk5a = BXFunc(fstate=gofilter,fsignal=k5u,fwave=gofilter,ffilter=e1400filter2)
 bk5a.name = u'k5向上突破'
 bk5a.lastupdate = 20101224
 bk5a.stop_closer = utrade.atr5_ustop_V
@@ -1149,19 +1150,21 @@ def k5rd2(sif):
     
     signal5 = gand(sif.high5 == tmax(sif.high5,3),sif.high5 < tmax(sif.high5,30),)
 
-    bline = sif.low5-10#tmin(sif.low5,2)
+    bline = sif.low5#tmin(sif.low5,2)
 
     bline = dnext_cover(np.select([signal5>0],[bline],0),sif.close,sif.i_cof5,5)    
 
     signal = gand(cross(bline,sif.low)<0,
+            strend2(sif.mxatr30x)<0,
             )
 
     return np.select([signal>0],[bline],0)
-sk15d2 = SXFunc(fstate=gofilter,fsignal=k5rd2,fwave=gofilter,ffilter=ekfilter)
-sk15d2.name = u'k5向上突破'
-sk15d2.lastupdate = 20101224
-sk15d2.stop_closer = utrade.atr5_ustop_V
+sk5d2 = SXFunc(fstate=gofilter,fsignal=k5rd2,fwave=gofilter,ffilter=ekfilter)
+sk5d2.name = u'5分钟周期向上突破'
+sk5d2.lastupdate = 20101227
+sk5d2.stop_closer = utrade.atr5_ustop_V
 
+ebreak = [sk15a,sk5d2]
 
 
 ###5/10/15/30/60分钟投机系统, 按分钟分解,难以找到好策略. 

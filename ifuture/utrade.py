@@ -543,7 +543,7 @@ atr5_ustop_5 = fcustom(atr_stop_u
                 ,fmax_drawdown=iftrade.F180
                 ,fmin_drawdown=iftrade.F100                
                 #,ftarget = iftrade.F180
-            )      #120-60
+            )
 
 atr5_ustop_6 = fcustom(atr_stop_u
                 ,fkeeper=iftrade.F80
@@ -553,7 +553,7 @@ atr5_ustop_6 = fcustom(atr_stop_u
                 ,fmax_drawdown=iftrade.F120
                 ,fmin_drawdown=iftrade.F80
                 #,ftarget = iftrade.F180
-            )      #120-60
+            )
 
 atr5_ustop_j = fcustom(atr_stop_u
                 ,fkeeper=iftrade.F50

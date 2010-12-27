@@ -516,7 +516,13 @@ def uposition(sif,saction,xtype,defer=1):
     return positions
 
 
-atr5_ustop_V = fcustom(atr_stop_u,fkeeper=iftrade.F80,win_times=250,natr=5,flost_base=iftrade.F60,fmax_drawdown=iftrade.F333)      #120-60
+atr5_ustop_V = fcustom(atr_stop_u,
+                fkeeper=iftrade.F80,
+                win_times=250,
+                natr=5,
+                flost_base=iftrade.F60,
+                fmax_drawdown=iftrade.F333
+            )      #
 
 #V1的回报类似(减少10%)，单次止损小,回撤收窄.R大
 atr5_ustop_V1 = fcustom(atr_stop_u
@@ -540,12 +546,12 @@ atr5_ustop_5 = fcustom(atr_stop_u
             )      #120-60
 
 atr5_ustop_6 = fcustom(atr_stop_u
-                ,fkeeper=iftrade.F60
+                ,fkeeper=iftrade.F80
                 ,win_times=250
                 ,natr=5
                 ,flost_base=iftrade.F60
                 ,fmax_drawdown=iftrade.F120
-                ,fmin_drawdown=iftrade.F80                
+                ,fmin_drawdown=iftrade.F80
                 #,ftarget = iftrade.F180
             )      #120-60
 

@@ -853,8 +853,8 @@ def urebound(sif):
     #tp = (lll + rollx(sif.dlow)) / 2#(rpll + lll)/2
     #tp = np.select([lll>sif.dlow,rpll>sif.dlow,rpll==sif.dlow],[(lll+sif.dlow)/2,(rpll+sif.dlow)/2,mlow_last(sif,vlen=10)])
     
-    xp1 = low_last(tmin(sif.low,75),vlen=10)+20
-    #xp2 = low_last(sif.dlow,vlen=10)+20
+    xp1 = signal_last(tmin(sif.low,75),vlen=10)+20
+    #xp2 = signal_last(sif.dlow,vlen=10)+20
     #xp = np.select([sif.time<1030,sif.time>=1030],[xp2,xp1])
     xp = xp1    #
     tp = np.select([lll>sif.dlow,lll==sif.dlow],[gmin(lll+20,xp),xp]) #只有在10:30之前才可能!=low75
@@ -904,7 +904,7 @@ def drebound(sif):
     #tp = (lll + rollx(sif.dlow)) / 2#(rpll + lll)/2
     #tp = np.select([lll>sif.dlow,rpll>sif.dlow,rpll==sif.dlow],[(lll+sif.dlow)/2,(rpll+sif.dlow)/2,mlow_last(sif,vlen=10)])
     
-    xp = high_last(sif.dhigh,vlen=30) - 20
+    xp = signal_last(sif.dhigh,vlen=30) - 20
     tp = np.select([lhh<sif.dhigh,lhh==sif.dhigh],[gmin(lhh-20,xp),xp])
     #tp = lll
 
@@ -1008,7 +1008,7 @@ def drebound2(sif):
     
     dh = tmax(sif.high,30)
 
-    xp = high_last(dh,vlen=30) - 20
+    xp = signal_last(dh,vlen=30) - 20
     tp = np.select([lhh<dh,lhh>=dh],[gmin(lhh-20,xp),xp],0)
     #tp = lll
 

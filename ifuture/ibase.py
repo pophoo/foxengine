@@ -84,19 +84,12 @@ hdnext_cover = fcustom(dnext_cover,default=99999999)
 
 
 ###高点/低点的持续时间
-def high_last(shigh,vlen=20):
-    drep = crepeat(shigh)
+def signal_last(source,vlen=20):
+    drep = crepeat(source)
     dindex = np.nonzero(gand(drep>vlen))#,drep>rollx(drep,-1)))  #
-    ldhigh = np.zeros_like(shigh)
-    ldhigh[dindex] = shigh[dindex]
+    ldhigh = np.zeros_like(source)
+    ldhigh[dindex] = source[dindex]
     return extend2next(ldhigh)
-
-def low_last(slow,vlen=20):
-    drep = crepeat(slow)
-    dindex = np.nonzero(gand(drep>vlen))#,drep<rollx(drep,-1)))  #
-    ldlow = np.zeros_like(slow)
-    ldlow[dindex] = slow[dindex]
-    return extend2next(ldlow)
 
 
 import functools

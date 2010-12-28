@@ -381,9 +381,10 @@ def bru(sif):
     ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     signal = gand(
             sif.high > ldhigh,
-            rollx(sif.dhigh) < ldhigh +60,  #还没拉开过
+            rollx(sif.dhigh) < ldhigh +60,  #还没拉开过, 如果是915则必然满足
             sif.sk > sif.sd,
             sif.time < 1330,
+            #sif.time>915,
             #sif.r120>0,
         )
     return np.select([signal],[gmax(sif.open,ldhigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
@@ -408,8 +409,8 @@ def brd(sif):
             rollx(sif.dlow) < ldlow-100,    #已经下去过了之后，再穿越. 这个被部分吸收了
             sif.sk < sif.sd,
             sif.time < 1430,
-            #sif.r120<20,
-            sif.t120<60,
+            #sif.time>915,
+            #sif.t120<60,
         )
     return np.select([signal],[gmin(sif.open,ldlow+20)],0)    #避免跳空/skdj后延情况，如果跳空且大于突破点，就以分钟开盘价进入
 
@@ -417,7 +418,7 @@ def brdh(sif):
     #最高价低于前日最低价+20，则以收盘价买入
     ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
     signal = gand(
-            sif.high < ldlow +20,   #这个有点无耻,走的不是突破了
+            sif.high < ldlow +20,   #这个有点无耻,走的不是突破了, 就是说等最高价低于昨日最低+20才在收盘进入
             rollx(sif.dlow) < ldlow -100,    #已经下去过了之后，再穿越. 这个被部分吸收了
             sif.sk < sif.sd,
             sif.time < 1430,
@@ -432,7 +433,7 @@ dbreakb.lastupdate = 20101213
 
 dbreakbx = BXFuncD1(fstate=gofilter,fsignal=brux,fwave=nx2000X,ffilter=efilter)
 
-dbreaks = SXFuncD1(fstate=gofilter,fsignal=brd,fwave=nx2500X,ffilter=efilter)
+dbreaks = SXFuncD1(fstate=sdown,fsignal=brd,fwave=nx2500X,ffilter=efilter)
 dbreaksh = SXFuncD1(fstate=gofilter,fsignal=brdh,fwave=nx2500X,ffilter=efilter)
 dbreaks.name = u'突破前日低点'
 dbreakb.lastupdate = 20101213
@@ -863,7 +864,7 @@ def urebound(sif):
 
     signal = gand(#shh<90,    #不震荡
                 #slx < 100,  #发现无必要
-                tmin(sif.low,15) == rollx(sif.dlow),#tmin(sif.low,90),
+                tmin(sif.low,15) == rollx(sif.dlow),#tmin(sif.low,90),当分钟没创新低
                 cross(tp,sif.high)>0,
                 sif.time>915,   #915会有跳空
                 sif.xatr > 1500,
@@ -1280,3 +1281,5 @@ for x in xxx2+wxxx:
 
 for x in rebound:#反弹止损收窄
     x.stop_closer = utrade.atr5_ustop_6
+
+

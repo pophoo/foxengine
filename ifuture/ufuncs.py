@@ -44,6 +44,12 @@
 10:30前的操作规则:
     顺t120? 还是r120/60/30?
 
+AMM的操作方法
+    1. 围绕开盘价1-10个点，以2个点左右为多
+    2. 10.00后开仓
+    3. 第一次开仓观察当前价与前一日实体的关系，在中部以下则开空，以上则开多
+
+
 文华财经的主图指标HHLL： 实际输出是DH和MLL, 即向上以日最高为基准，向下以75分钟最低为基准
 参数:
 HL:75
@@ -364,7 +370,7 @@ shbreak_mll3.name = u'日内75分钟向下突破3'
 shbreak_mll3.stop_closer = utrade.atr5_ustop_V
 
 ##moontage
-mhbreak_mll2 = SXFuncA(fstate=gofilter,fsignal=fcustom(mll2,length=60,vbreak=0),fwave=nx2500X,ffilter=mfilter)    #优于nll
+mhbreak_mll2 = SXFuncA(fstate=gofilter,fsignal=fcustom(mll2,length=75,vbreak=0),fwave=nx2500X,ffilter=mfilter)    #优于nll
 mhbreak_nhh = BXFuncA(fstate=gofilter,fsignal=fcustom(nhh,vbreak=30),fwave=nx2500X,ffilter=mfilter)    #优于nll
 mhbreak_mll2.stop_closer = utrade.atr5_ustop_V
 mhbreak_nhh.stop_closer = utrade.atr5_ustop_V
@@ -914,7 +920,7 @@ def drebound(sif):
                 cross(tp,sif.low)<0,
                 sif.time>915,   #915会有跳空
                 #strend2(sif.mxatr30x) < 0,
-                sif.xatr<1500,
+                sif.xatr<1800,
                 #sif.dhigh - sif.low > 100,
             )
     return np.select([signal],[gmin(sif.open,tp)],0)
@@ -925,7 +931,7 @@ def urebound2(sif):
          可演变为未创新低的情况
     '''
 
-    plen = 5
+    plen = 4
     alen = 2*plen+1
 
     chh = gand(rollx(sif.high,plen) == tmax(sif.high,alen))
@@ -936,6 +942,8 @@ def urebound2(sif):
 
     lhh = extend2next(phh)
     lll = extend2next(pll)
+    shh = extend2next(ssub(phh))
+    sll = extend2next(ssub(pll))
 
     #lpchh = extend2next(pchh)
     #lpcll = extend2next(pcll)
@@ -953,34 +961,38 @@ def urebound2(sif):
     #tp = (lll + rollx(sif.dlow)) / 2#(rpll + lll)/2
     #tp = np.select([lll>sif.dlow,rpll>sif.dlow,rpll==sif.dlow],[(lll+sif.dlow)/2,(rpll+sif.dlow)/2,mlow_last(sif,vlen=10)])
     
-    dl = tmin(sif.low,60)
+    dl = tmin(sif.low,75)
 
-    xp1 = low_last(tmin(sif.low,30),vlen=10)+20
+    #xp1 = low_last(tmin(sif.low,30),vlen=10)+20
     #xp2 = low_last(sif.dlow,vlen=10)+20
     #xp = np.select([sif.time<1030,sif.time>=1030],[xp2,xp1])
-    xp = xp1    #
-    tp = np.select([lll>dl,lll==dl],[gmin(lll+20,xp),xp],99999999) #只有在10:30之前才可能!=low75
+    #xp = xp1    #
+    #tp = np.select([lll>dl,lll==dl],[gmin(lll+20,xp),xp],99999999) #只有在10:30之前才可能!=low75
 
     #slx = np.select([lll>sif.dlow,rpll>sif.dlow,rpll2>sif.dlow],[sif.dlow-lll,sif.dlow-rpll,sif.dlow-rpll2],99999999)
+    tp = lhh 
 
-    signal = gand(#shh<90,    #不震荡
+    signal = gand(#shh>0,
+                #shh<90,    #不震荡
                 #slx < 100,  #发现无必要
-                tmin(sif.low,15) == dl,
-                tmin(sif.low,15) > sif.dlow + 60,
+                tmin(sif.low,15) > dl,
+                #tmin(sif.low,15) > sif.dlow + 120,
                 cross(tp,sif.high)>0,
                 sif.time>915,   #915会有跳空
                 sif.xatr > 1500,
+                sif.xatr > sif.mxatr,
                 #sif.high - sif.dlow > 100,
             )
     return np.select([signal],[gmax(sif.open,tp)],0)
 
 def drebound2(sif):
     '''
-         创新高后以跌破支撑为界
-         可扩展至未创新高?
+         上升途中跌破支撑
+         单个效果不错
+         加成效果不好
     '''
 
-    plen = 5
+    plen = 4
     alen = 2*plen+1
 
     chh = gand(rollx(sif.high,plen) == tmax(sif.high,alen))
@@ -1007,20 +1019,21 @@ def drebound2(sif):
     #tp = (lll + rollx(sif.dlow)) / 2#(rpll + lll)/2
     #tp = np.select([lll>sif.dlow,rpll>sif.dlow,rpll==sif.dlow],[(lll+sif.dlow)/2,(rpll+sif.dlow)/2,mlow_last(sif,vlen=10)])
     
-    dh = tmax(sif.high,30)
+    dh = tmax(sif.high,60)
 
-    xp = signal_last(dh,vlen=30) - 20
-    tp = np.select([lhh<dh,lhh>=dh],[gmin(lhh-20,xp),xp],0)
+    #xp = signal_last(dh,vlen=30) - 20
+    #tp = np.select([lhh<dh,lhh>=dh],[gmin(lhh-20,xp),xp],0)
+    tp = lll-10
     #tp = lll
 
-    signal = gand(#shh>0,    #不震荡
-                tmax(sif.high,15) == dh,#rollx(sif.dhigh),
-                tmax(sif.high,15) < rollx(sif.dhigh),
+
+    signal = gand(sll<0,    #不震荡
+                #rollx(sif.sdma)>0,
                 cross(tp,sif.low)<0,
                 sif.time>915,   #915会有跳空
                 strend2(sif.mxatr30x) < 0,
-                sif.xatr>1000,
-                sif.dhigh - sif.low > 150,
+                sif.xatr<1500,
+                sif.t120<100,
             )
     return np.select([signal],[gmin(sif.open,tp)],0)
 
@@ -1049,22 +1062,23 @@ srebound2.stop_closer = utrade.atr5_ustop_6
 
 rebound = [brebound,srebound]
 
+rebound_all = rebound + [srebound2] #这个可以单独作为策略模型
+
 ###不同周期突破系统
 def k15d(sif):
     bline = dnext_cover(sif.low15-60,sif.close,sif.i_cof15,6)
     signal = gand(
             cross(bline,sif.low)<0,
-            (sif.time%100) % 15 !=0,#不是卡在15分钟末，因为这个是low的切换点，不能作为cross依据
+            #(sif.time%100) % 15 !=0,#不是卡在15分钟末，因为这个是low的切换点，不能作为cross依据
            )
     
-    return np.select([signal],[bline],0)
+    return np.select([signal],[gmin(sif.open,bline)],0)
 
 sk15a = SXFunc(fstate=sdown,fsignal=k15d,fwave=nx2500X,ffilter=mfilter)
 sk15a.name = u'15分钟周期向下突破'
 sk15a.lastupdate = 20101224
 sk15a.stop_closer = utrade.atr5_ustop_V
 
-ebreak = [sk15a]
 
 def k5d(sif):   #集成效果不佳,但可以作为主单元
     bline = dnext_cover(sif.low5-10,sif.close,sif.i_cof5,4)
@@ -1153,19 +1167,22 @@ def k5rd2(sif):
 
     bline = sif.low5#tmin(sif.low5,2)
 
-    bline = dnext_cover(np.select([signal5>0],[bline],0),sif.close,sif.i_cof5,5)    
+    bline = dnext_cover(np.select([signal5>0],[bline],0),sif.close,sif.i_cof5,4)    
 
     signal = gand(cross(bline,sif.low)<0,
-            strend2(sif.mxatr30x)<0,
+              #sif.xatr30x < sif.mxatr30x,
+              strend2(sif.mxatr30x)<0,
+              sif.xatr<1500,
+              #sif.time != 915,
             )
 
-    return np.select([signal>0],[bline],0)
-sk5d2 = SXFunc(fstate=gofilter,fsignal=k5rd2,fwave=gofilter,ffilter=ekfilter)
-sk5d2.name = u'5分钟周期向上突破'
+    return np.select([signal>0],[gmin(sif.open,bline)],0)
+sk5d2 = SXFuncD1(fstate=gofilter,fsignal=k5rd2,fwave=gofilter,ffilter=ekfilter)
+sk5d2.name = u'5分钟周期向下突破2'
 sk5d2.lastupdate = 20101227
 sk5d2.stop_closer = utrade.atr5_ustop_V
 
-ebreak = [sk15a,sk5d2]
+ebreak = [sk15a]#,sk5d2] #sk5d2样本太少<40
 
 
 ###5/10/15/30/60分钟投机系统, 按分钟分解,难以找到好策略. 
@@ -1215,6 +1232,14 @@ bjxu5.lastupdate = 20101224
 bjxu5.stop_closer = utrade.atr5_ustop_j #可用于主方法
 
 
+def uamm(sif):
+    return
+
+bamm = BXFunc(fstate=gofilter,fsignal=jxu5,fwave=gofilter,ffilter=mfilter)
+bjxu5.name = u'A开多'
+bjxu5.lastupdate = 20101228
+bjxu5.stop_closer = utrade.atr5_ustop_V #可用于主方法
+
 
 ####添加老系统
 wxxx = [xds,xdds3,k5_d3b,xuub,K1_DDD1,K1_UUX,K1_RU,Z5_P2,xmacd3s,xup01,ua_fa,FA_15_120,K1_DVB,K1_DDUU,K1_DVBR]
@@ -1250,22 +1275,8 @@ txfs = [xds,xuub,K1_RU,xup01,FA_15_120,K1_DVBR,Z5_P2,k5_d3b,xmacd3s,ua_fa,K1_DVB
 
 txxx = hbreak2 + txfs
 
-xxx2 = xxx +wxfs #+ wxxx
-
-'''
-各组合及其分子的累计收益，发现4/6/8加成收益不大，7/12负收益，5/9/10/11加成收益10%以上
-xxx2        hbreak2     wxfa
-12:156      100         416
-11:6370     3588        4010
-10:4364     2238        3954
-9:1481      502         1218
-8:1444      504         1316
-7:2070      1634        2414
-6:3184      2542        3050
-5:7174      4750        6552
-4:3936      2191        3932
-
-'''
+#xxx2 = xxx +wxfs #+ wxxx
+xxx2 = xxx
 
 
 for x in xxx2+wxxx:
@@ -1281,5 +1292,4 @@ for x in xxx2+wxxx:
 
 for x in rebound:#反弹止损收窄
     x.stop_closer = utrade.atr5_ustop_6
-
 

@@ -1517,8 +1517,8 @@ K3_H10 = SXFuncF1(fstate=S3H10,fsignal=T3_H10,fwave=W3H10,ffilter=exfilter) #进
 K1_RD = SXFuncF1(fstate=S1RD,fsignal=T1_RD,fwave=nx2000,ffilter=efilter2)   #顺势的交易
 K1_RU = BXFuncF1(fstate=S1RU,fsignal=T1_RU,fwave=nx2000,ffilter=efilter2)   #顺势的交易
 
-K1_DVB  = BXFuncF1(fstate=S1DVB,fsignal=T1_DVB,fwave=W1DVB,ffilter=efilter2)   #顺势的交易
-K1_DVB.lastupdate = 20101213
+K1_DVB  = BXFuncF1(fstate=S1DVB,fsignal=T1_DVB,fwave=W1DVB,ffilter=nfilter)   #顺势的交易
+K1_DVB.lastupdate = 20101229
 
 K1_UUX  = BXFuncF1(fstate=S1UUX,fsignal=T1_UUX,fwave=W1UUX,ffilter=efilter)   #顺势的交易
 K1_UUX.lastupdate = 20101213

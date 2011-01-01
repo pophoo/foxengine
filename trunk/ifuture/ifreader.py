@@ -140,6 +140,7 @@ def prepare_index(sif):
     sif.holding = trans[IHOLDING]
     sif.mid = trans[IMID]
     sif.i_cof = sif.i_oof = np.arange(len(sif.close))
+    sif.index = sif.i_cof
     sif.time = trans[ITIME]
     sif.date = trans[IDATE]
 

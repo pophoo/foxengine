@@ -199,6 +199,81 @@ def atr_stop_u(
     #print rev[np.nonzero(rev)]
     return rev
 
+def sync_tradess_u(sif,tradess,acstrategy=iftrade.late_strategy):
+    '''
+        结合优先级和顺势逆势关系
+        顺势信号可以逆反优先级小于等于它的逆势信号
+        逆势信号不能逆反顺势信号
+        低优先级顺势信号不能逆反高优先级顺势信号
+
+    '''
+    trans = sif.transaction
+    sdate = trans[IDATE]
+    stime = trans[ITIME]
+    sopen = trans[IOPEN]
+    sclose = trans[ICLOSE]
+    shigh = trans[IHIGH]
+    slow = trans[ILOW]    
+    
+    xtrades = []
+    finished =False
+    cur_trade = iftrade.find_first(tradess)
+    if cur_trade == None:
+        return []
+    cur_trade.orignal = cur_trade.functor   
+    cur_trade.open_action = cur_trade.actions[0]
+    extended,filtered,rfiltered,reversed = [],[],[],[]
+    close_action = cur_trade.actions[-1]
+    #print '#####################first:',close_action.time
+    while True:
+        #print cur_trade.orignal
+        trade = iftrade.find_first(tradess)
+        if trade == None:
+            xtrades.append(iftrade.close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed))
+            break
+        #print 'find:date=%s,time=%s,functor=%s,priority=%s' % (trade.actions[0].date,trade.actions[0].time,trade.functor,fpriority(trade.functor))  
+        #if trade.actions[0].xfollow <= 0:
+        #    continue
+        if DTSORT2(trade.actions[0],close_action)>0:  #时间超过
+            #print u'时间超过'
+            xtrades.append(iftrade.close_trade(sif,cur_trade,close_action,extended,filtered,rfiltered,reversed))
+            trade.orignal = trade.functor
+            cur_trade = trade
+            close_action = cur_trade.actions[-1]
+            extended,filtered,rfiltered,reversed = [],[],[],[]
+            #print cur_trade.orignal
+            trade.open_action = trade.actions[0]
+            continue
+           
+        if trade.actions[0].index > cur_trade.actions[0].index and iftrade.aprofit(cur_trade.open_action,sclose[trade.actions[0].index]) < 251:   #25点浮动收益后不取代
+            if trade.direction == cur_trade.direction:  #同向取代关系
+                #print u'同向增强,%s|%s:%s被%s增强'%(cur_trade.functor,cur_trade.actions[0].date,cur_trade.actions[0].time,trade.functor)
+                close_action = acstrategy(close_action,trade.actions[-1])
+                extended.append(cur_trade)
+                trade.orignal = cur_trade.orignal
+                trade.open_action = cur_trade.open_action
+                cur_trade = trade
+            else:   #逆向平仓
+                #print u'\n\t逆向平仓:',iftrade.aprofit(cur_trade.open_action,sclose[trade.actions[0].index]),sif.date[cur_trade.open_action.index],sif.time[cur_trade.open_action.index],func_name(cur_trade.orignal),'--',func_name(trade.functor)
+                reversed.append(trade)
+                xindex = reversed[0].actions[0].index
+                cposition = BaseObject(index=xindex,date=sdate[xindex],time=stime[xindex],position=reversed[0].direction,xtype=XCLOSE)    #因为已经抑制了1514开仓,必然不会溢出
+                cposition.price = iftrade.make_price(cposition.position,sopen[xindex],sclose[xindex],shigh[xindex],slow[xindex])
+                xtrades.append(iftrade.close_trade(sif,cur_trade,cposition,extended,filtered,rfiltered,reversed))
+                trade.orignal = trade.functor
+                trade.open_action = trade.actions[0]
+                cur_trade = trade
+                extended,filtered,rfiltered,reversed = [],[],[],[]
+                close_action = cur_trade.actions[-1]                
+        else:   #低优先级或逆势对顺势
+            #print u'低优先级'
+            if trade.direction == cur_trade.direction:  #同向屏蔽
+                filtered.append(trade)
+            else:   #逆向屏蔽
+                rfiltered.append(trade)
+    return xtrades
+
+
 def utrade_x(sif     #期指
             ,openers    #opener函数集合
             ,bclosers   #默认的多平仓函数集合(空头平仓)
@@ -211,7 +286,7 @@ def utrade_x(sif     #期指
                                     #closer没有过滤器,设置过滤器会导致合约一直开口
             ,shortfilter=iftrade.ocfilter   #opener过滤器,多空仓必须满足各自过滤器条件才可以发出信号. 
             ,make_trades=iftrade.simple_trades  #根据开平仓动作撮合交易的函数。对于最后交易序列，用last_trades
-            ,sync_trades=iftrade.sync_tradess_pt    #汇总各opener得到的交易，计算优先级和平仓。
+            ,sync_trades=sync_tradess_u    #汇总各opener得到的交易，计算优先级和平仓。
                                             #对于最后交易序列，用null_sync_tradess
             ,acstrategy=iftrade.late_strategy   #增强开仓时的平仓策略。late_strategy是平最晚的那个信号
             ,priority_level=2500    #筛选opener的优先级, 忽略数字大于此的开仓
@@ -342,7 +417,6 @@ def utrade_x(sif     #期指
     return sync_trades(sif,tradess,acstrategy)
 
 
-
 def utrade(sif     #期指
             ,openers    #opener函数集合
             ,bclosers   #默认的多平仓函数集合(空头平仓)
@@ -350,7 +424,7 @@ def utrade(sif     #期指
             ,stop_closer    #止损closer函数，只能有一个，通常是atr_uxstop,    
                             #有针对性是指与买入价相关的 stop_closer必须处理之前的closers系列发出的卖出信号
             ,make_trades=iftrade.simple_trades  #根据开平仓动作撮合交易的函数。对于最后交易序列，用last_trades
-            ,sync_trades=iftrade.sync_tradess_pt    #汇总各opener得到的交易，计算优先级和平仓。
+            ,sync_trades=sync_tradess_u    #汇总各opener得到的交易，计算优先级和平仓。
                                             #对于最后交易序列，用null_sync_tradess
             ,acstrategy=iftrade.late_strategy   #增强开仓时的平仓策略。late_strategy是平最晚的那个信号
             ,priority_level=2500    #筛选opener的优先级, 忽略数字大于此的开仓
@@ -532,8 +606,45 @@ atr5_ustop_V1 = fcustom(atr_stop_u
         ,flost_base=iftrade.F40 #止损太窄不好操作，很可能还没设止损单就已经破了
         ,fmax_drawdown=iftrade.F333)      #120-60
 
+atr5_ustop_V2 = fcustom(atr_stop_u
+        ,fkeeper=iftrade.F80
+        ,win_times=250
+        ,natr=5
+        ,flost_base=iftrade.F30 #止损太窄不好操作，很可能还没设止损单就已经破了
+        ,fmax_drawdown=iftrade.F333)      #120-60
+
+atr5_ustop_X = fcustom(atr_stop_u
+        ,fkeeper=iftrade.F150
+        ,win_times=250
+        ,natr=5
+        ,flost_base=iftrade.F60 #止损太窄不好操作，很可能还没设止损单就已经破了
+        ,fmax_drawdown=iftrade.F333)      #120-60
+
+atr5_ustop_X1 = fcustom(atr_stop_u
+        ,fkeeper=iftrade.F150
+        ,win_times=250
+        ,natr=5
+        ,flost_base=iftrade.F90 #止损太窄不好操作，很可能还没设止损单就已经破了
+        ,fmax_drawdown=iftrade.F333
+        )      #120-60
+
+atr5_ustop_X2 = fcustom(atr_stop_u
+        ,fkeeper=lambda x: 60#
+        ,win_times=250
+        ,natr=5
+        ,flost_base=iftrade.F30 #止损太窄不好操作，很可能还没设止损单就已经破了
+        ,fmax_drawdown=iftrade.F333)      #120-60
+
+atr5_ustop_X3 = fcustom(atr_stop_u
+        ,fkeeper=lambda x: 100#效果和X2差不多,哲学上选择这个。倡导较长持仓
+        ,win_times=250
+        ,natr=5
+        ,flost_base=iftrade.F30 #止损太窄不好操作，很可能还没设止损单就已经破了
+        ,fmax_drawdown=iftrade.F333)      #120-60
+
+
 atr5_ustop_W1 = fcustom(atr_stop_u,fkeeper=iftrade.F120,win_times=250,natr=5,flost_base=iftrade.F60,fmax_drawdown=iftrade.F333)      #120-60
-atr5_ustop_V2 = fcustom(atr_stop_u,fkeeper=iftrade.F90,win_times=250,natr=5,flost_base=iftrade.F80,fmax_drawdown=iftrade.F333)      #120-60
+atr5_ustop_V3 = fcustom(atr_stop_u,fkeeper=iftrade.F90,win_times=250,natr=5,flost_base=iftrade.F80,fmax_drawdown=iftrade.F333)      #120-60
 
 atr5_ustop_5 = fcustom(atr_stop_u
                 ,fkeeper=iftrade.F50
@@ -550,6 +661,26 @@ atr5_ustop_6 = fcustom(atr_stop_u
                 ,win_times=250
                 ,natr=5
                 ,flost_base=iftrade.F60
+                ,fmax_drawdown=iftrade.F120
+                ,fmin_drawdown=iftrade.F80
+                #,ftarget = iftrade.F180
+            )
+
+atr5_ustop_61 = fcustom(atr_stop_u
+                ,fkeeper=iftrade.F80
+                ,win_times=250
+                ,natr=5
+                ,flost_base=iftrade.F40
+                ,fmax_drawdown=iftrade.F120
+                ,fmin_drawdown=iftrade.F80
+                #,ftarget = iftrade.F180
+            )
+
+atr5_ustop_62 = fcustom(atr_stop_u
+                ,fkeeper=iftrade.F80
+                ,win_times=250
+                ,natr=5
+                ,flost_base=iftrade.F30
                 ,fmax_drawdown=iftrade.F120
                 ,fmin_drawdown=iftrade.F80
                 #,ftarget = iftrade.F180

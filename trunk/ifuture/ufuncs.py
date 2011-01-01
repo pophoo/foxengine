@@ -217,6 +217,13 @@ def mfilter2a(sif):
             sif.time < 1445,
         )
 
+def mfilter1a(sif):   
+    return gand(
+            sif.time > 1001,
+            sif.time < 1331,
+        )
+
+
 
 def n1300filter(sif):   
     return gand(
@@ -1187,6 +1194,7 @@ def dxbreak(sif):
                 #gor(lhh2 < lhh,shh<0),
                 cross(tp,sif.low)<0,
                 sif.time>915,   #915会有跳空
+                #sif.xatr>sif.mxatr,
                 #sif.xatr<2500,
                 #sif.xatr30x < 10000,
                 #sif.xatr5x < 4000,
@@ -1353,10 +1361,67 @@ def uamm(sif):
                 )
 
     return np.select([signal],[gmax(sif.open,tp)],0)
-bamm = BXFunc(fstate=gofilter,fsignal=uamm,fwave=gofilter,ffilter=mfilter3)##e1430filter2)
-bamm.name = u'向上突破'
+
+def damm(sif):
+    '''
+        向下突破
+    '''
+
+    phh,pll = calc_lh(sif,plen=5)
+    phh2,pll2 = calc_lh(sif,plen=2)
+
+    sll = extend2next(ssub(pll))
+    shh = extend2next(ssub(phh))
+
+    lhh = extend2next(phh)
+    lll = extend2next(pll)
+    lll2 = extend2next(pll2)
+    lhh2 = extend2next(phh2)
+
+    ihh = np.nonzero(phh)
+    ill = np.nonzero(pll)
+
+    iihh = np.zeros_like(phh)
+    iill = np.zeros_like(pll)
+    iihh[ihh] = ihh
+    iill[ill] = ill
+    iihh = extend2next(iihh)
+    iill = extend2next(iill)
+
+    
+    tp = lll+60
+    #tp = lll
+
+    tlow = gmin(rollx(tmin(sif.low,75)+20))
+    tp = np.select([tp>tlow+60],[tp],0) #接近低点的给突破
+
+    signal = gand(#sll<0,    #不震荡
+                #rollx(sif.sdma)>0,
+                #gor(lhh2 < lhh,shh<0),
+                cross(tp,sif.low)<0,
+                sif.time>915,   #915会有跳空
+                #sif.xatr<2500,
+                sif.xatr > sif.mxatr, 
+                tmax(sif.high,4) < lhh - 30,
+                sif.dhigh - sif.high > 100,
+                #sif.xatr30x < 10000,
+                #sif.xatr5x < 4000,
+                #sif.dhigh - sif.low>60,
+            )
+    
+    return np.select([signal],[gmin(sif.open,tp)],0)
+
+bamm = BXFunc(fstate=gofilter,fsignal=uamm,fwave=gofilter,ffilter=mfilter1a)##e1430filter2)
+bamm.name = u'AMM向上突破'
 bamm.lastupdate = 20101231
 bamm.stop_closer = utrade.atr5_ustop_X2
+
+samm = SXFunc(fstate=gofilter,fsignal=damm,fwave=nx2500X,ffilter=mfilter1a)##e1430filter2)
+samm.name = u'AMM向下突破'
+samm.lastupdate = 20101231
+samm.stop_closer = utrade.atr5_ustop_X2
+
+amm = [bamm,samm]   #单独也可以作为主策略
 
 
 ###顶底突破
@@ -1668,7 +1733,7 @@ txfs = [xds,xuub,K1_RU,xup01,FA_15_120,K1_DVBR,Z5_P2,k5_d3b,xmacd3s,ua_fa,K1_DVB
 
 txxx = hbreak2 + txfs
 
-xxx1 = xbreak + hbreak2 + break123c + dbreak
+xxx1 = xbreak + hbreak2 + break123c + dbreak + amm
 
 #xxx2 = xxx +wxfs #+ wxxx
 xxx2 = xxx1
@@ -1692,6 +1757,8 @@ for x in rebound:#反弹止损收窄
 
 bxbreak.stop_closer = utrade.atr5_ustop_X2
 sxbreak.stop_closer = utrade.atr5_ustop_X2
+bamm.stop_closer = utrade.atr5_ustop_V
+samm.stop_closer = utrade.atr5_ustop_V
 dbreaks.stop_closer = utrade.atr5_ustop_V
 dbreakb.stop_closer = utrade.atr5_ustop_V
 #b123b.stop_closer = utrade.atr5_ustop_X2

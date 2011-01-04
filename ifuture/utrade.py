@@ -3,6 +3,7 @@
 '''
     核心交易模块扩展
         针对突破交易和即时止损
+
 '''
 
 from wolfox.fengine.ifuture.ibase import *
@@ -588,6 +589,73 @@ def uposition(sif,saction,xtype,defer=1):
                 else:
                     position.xfollow = 0
     return positions
+
+def day_trades(trades,limit=-200):
+    '''
+        每日损失到limit之后不再开仓
+        在中间即便有盈利，但是如果累计起来仍然为负，则持续计算
+    '''
+    if len(trades) == 0:
+        return []
+    cur_trade = trades[0]
+    results = [BaseObject(day=cur_trade.actions[-1].date,
+                            profit=cur_trade.profit,
+                            sprofit = cur_trade.profit,
+                            max_drawdown=cur_trade.profit if cur_trade.profit < 0 else 0,
+                            ntrade = 1,
+                            ontrade = 1,
+                        )
+                ]
+    for trade in trades[1:]:
+        tdate = trade.actions[-1].date
+        if trade.actions[-1].date ==results[-1].day:
+            results[-1].profit += trade.profit
+            results[-1].ontrade += 1
+            last_drawdown = results[-1].max_drawdown
+            if results[-1].sprofit > limit:
+            #if last_drawdown > limit:
+                results[-1].sprofit += trade.profit
+                results[-1].ntrade += 1
+            results[-1].max_drawdown += trade.profit
+            if results[-1].max_drawdown > 0:
+                results[-1].max_drawdown = 0
+            elif results[-1].max_drawdown > last_drawdown:
+                results[-1].max_drawdown = last_drawdown
+        else:
+            results.append(BaseObject(day=trade.actions[-1].date,
+                        profit=trade.profit,
+                        sprofit = trade.profit,                            
+                        max_drawdown=trade.profit if trade.profit < 0 else 0,
+                        ntrade = 1,
+                        ontrade = 1,
+                    )
+            )
+            
+
+    return results
+
+
+def dmax_drawdown(dtrades,datefrom=20100401,dateto=20200101):
+    '''
+        按日计算
+        dtrades为每日的交易汇总
+    '''
+    smax = 0    #最大连续回撤
+    max1 = 0    #最大单日回撤
+    curs = 0
+    mdate = 20100401
+    for trade in dtrades:
+        tdate = trade.day
+        if tdate > datefrom and tdate < dateto: #忽略掉小于开始时间的
+            curs += trade.sprofit   #本为负数
+            if curs > 0:
+                curs = 0
+            elif curs < smax:
+                smax = curs
+                mdate = tdate
+            if trade.sprofit < max1:
+                max1 = trade.sprofit
+    return smax,max1,mdate
 
 
 atr5_ustop_V = fcustom(atr_stop_u,

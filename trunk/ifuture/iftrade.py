@@ -1008,6 +1008,31 @@ def max_win(trades,datefrom=20100401,dateto=20200101):
                 max1 = trade.profit
     return smax,max1;
 
+def day_profit(trades,datefrom=20100401,dateto=20200101):
+    '''
+        在中间即便有盈利，但是如果累计起来仍然为负，则持续计算
+    '''
+    if len(trades) == 0:
+        return []
+    cur_trade = trades[0]
+    results = [BaseObject(day=cur_trade.actions[-1].date,profit=cur_trade.profit,max_drawdown=cur_trade.profit if cur_trade.profit < 0 else 0)]
+    for trade in trades[1:]:
+        tdate = trade.actions[-1].date
+        if tdate > datefrom and tdate < dateto: #忽略掉小于开始时间的
+            if trade.actions[-1].date ==results[-1].day:
+                results[-1].profit += trade.profit
+                last_drawdown = results[-1].max_drawdown
+                results[-1].max_drawdown += trade.profit
+                if results[-1].max_drawdown > 0:
+                    results[-1].max_drawdown = 0
+                elif results[-1].max_drawdown > last_drawdown:
+                    results[-1].max_drawdown = last_drawdown
+            else:
+                results.append(BaseObject(day=trade.actions[-1].date,profit=trade.profit,max_drawdown=trade.profit if trade.profit < 0 else 0))
+
+    return results
+
+
 def avg_wl(trades,datefrom=20100401,dateto=20200101):
     wsum,wtime = 0,0
     lsum,ltime = 0,0

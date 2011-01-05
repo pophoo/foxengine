@@ -7,6 +7,12 @@
 信号切换规则:
     持仓时出现反向信号，当浮动收益大于25或小于3时，平仓并开新仓，否则不变
 
+开仓和平仓价格的设置:
+    1. 如开多目标突破价是3000，则开仓条件单应该是>=3000.2才可以，否则是不对的. 系统中都是叉或超越
+    2. 平仓也如是，如果卖出平仓的目标平仓价是3000，则必须是<=2999.8才行
+    3. 保本平仓的基准价格是开仓目标价,而不是执行价格.
+    4. 这样才能和系统一致
+
 xbreak系列，连续两次突破后，放宽突破的界限，即延缓突破
     顶/底均以6分钟计，即13分钟高/低点
     开仓:
@@ -56,7 +62,7 @@ dbreak系列，只取第一次
         买多:[915,1329]
         做空:[915,1429]
 
-    
+另：观察和模拟
 
 ###############################
 突破系统
@@ -972,7 +978,7 @@ def urebound(sif):
          可演变为未创新低的情况
     '''
 
-    plen = 5
+    plen = 4
     alen = 2*plen+1
 
     chh = gand(rollx(sif.high,plen) == tmax(sif.high,alen))
@@ -1005,17 +1011,17 @@ def urebound(sif):
     #xp = np.select([sif.time<1030,sif.time>=1030],[xp2,xp1])
     #xp = xp1    #
     xp = signal_last(tmin(sif.low,75),vlen=10)+20
-    tp = np.select([lll>sif.dlow,lll==sif.dlow],[gmin(lll+20,xp),xp]) #只有在10:30之前才可能!=low75
+    tp = np.select([lll>rollx(sif.dlow),lll==rollx(sif.dlow)],[gmin(lll+20,xp),xp]) #只有在10:30之前才可能!=low75
 
     #slx = np.select([lll>sif.dlow,rpll>sif.dlow,rpll2>sif.dlow],[sif.dlow-lll,sif.dlow-rpll,sif.dlow-rpll2],99999999)
 
     signal = gand(#shh<90,    #不震荡
                 #slx < 100,  #发现无必要
-                tmin(sif.low,15) == rollx(sif.dlow),#tmin(sif.low,90),当分钟没创新低
+                rollx(tmin(sif.low,15)) == rollx(sif.dlow),#15分钟创了新低
                 cross(tp,sif.high)>0,
                 sif.time>915,   #915会有跳空
                 sif.xatr > 1500,
-                sif.high - sif.dlow > 100,#这个可能用到未来数据
+                rollx(sif.high - sif.dlow) > 120,#这个可能用到未来数据
             )
     return np.select([signal],[gmax(sif.open,tp)],0)
 
@@ -1025,7 +1031,7 @@ def drebound(sif):
          可扩展至未创新高?
     '''
 
-    plen = 5
+    plen = 4
     alen = 2*plen+1
 
     chh = gand(rollx(sif.high,plen) == tmax(sif.high,alen))
@@ -1053,15 +1059,15 @@ def drebound(sif):
     #tp = np.select([lll>sif.dlow,rpll>sif.dlow,rpll==sif.dlow],[(lll+sif.dlow)/2,(rpll+sif.dlow)/2,mlow_last(sif,vlen=10)])
     
     xp = signal_last(sif.dhigh,vlen=30) - 20
-    tp = np.select([lhh<sif.dhigh,lhh==sif.dhigh],[gmin(lhh-20,xp),xp])
+    tp = np.select([lhh<rollx(sif.dhigh),lhh==rollx(sif.dhigh)],[gmin(lhh-20,xp),xp])
     #tp = lll
 
     signal = gand(#shh>0,    #不震荡
-                tmax(sif.high,15) == rollx(sif.dhigh),
+                rollx(tmax(sif.high,15)) == rollx(sif.dhigh),
                 cross(tp,sif.low)<0,
                 sif.time>915,   #915会有跳空
                 #strend2(sif.mxatr30x) < 0,
-                sif.xatr<1800,
+                sif.xatr<1500,
                 #sif.dhigh - sif.low > 100,
             )
     return np.select([signal],[gmin(sif.open,tp)],0)
@@ -1100,7 +1106,7 @@ dsrebound.name = u'向下反弹'
 dsrebound.lastupdate = 20101225
 dsrebound.stop_closer = utrade.atr5_ustop_6
 
-rebound = [brebound,srebound]
+rebound = [brebound,srebound]       #可以作为单独的策略
 
 d1_rebound = [dbrebound,dsrebound]
 
@@ -2147,13 +2153,15 @@ dxxx = d1_xbreak + d1_hbreak + dbreak #+ d1_rebound#+break123c# #+ rebound  #此
 #xxx2 = xxx +wxfs #+ wxxx
 xxx2 = xxx1
 
-xamm = amm + hbreak2    #这是一个非常好的独立策略, 作为候选, 每日亏损15点之后趴下装死
+xamm = amm + hbreak2 + rebound    #这是一个非常好的独立策略, 作为候选, 每日亏损15点之后趴下装死
+
+#####
+# 主策略采用xxx1, 被选策略为dxxx和xamm
+#####
 
 '''
 计算每日亏损以及截断的统计办法
 >>> tradesy =  utrade.utrade_n(i00,ufuncs.dxxx)
->>> sum([p.ntrade for p in pdays])
-709
 >>> sum([trade.profit for trade in tradesy])
 35655
 >>> len(tradesy)

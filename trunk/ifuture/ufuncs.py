@@ -23,11 +23,22 @@ xbreak系列，连续两次突破后，放宽突破的界限，即延缓突破
                 4. 如果开仓点LPEAK5接近日内低点10个点内，则不动作
                 5. xatr<2500,xatr5x<4000,xatr30x<10000
 
-
     平仓:
         止损为4, 保本为8
     工作时段:
         [916,934]+[1032,1429]
+
+hbreak2系列
+    开仓:
+        做多: 1. 高点在一分钟内拉高到日内高点+3处
+              2. 日内高点>昨日低点+1
+              3. xatr<2500,xatr5x<4000,xatr30x<10000
+        做空: 1. 低点小于75分钟低点+2处
+              2. 比前两天的高点中点高2个xatr(或3点)
+              3. xatr<2500,xatr5x<4000,xatr30x<10000
+    平仓:
+        止损为6，保本为8
+    工作时段: [1032,1429]
 
 dbreak系列，只取第一次
     开仓:
@@ -45,17 +56,6 @@ dbreak系列，只取第一次
         买多:[915,1329]
         做空:[915,1429]
 
-hbreak2系列
-    开仓:
-        做多: 1. 高点在一分钟内拉高到日内高点+3处
-              2. 日内高点>昨日低点+1
-              3. xatr<2500,xatr5x<4000,xatr30x<10000
-        做空: 1. 低点小于75分钟低点+2处
-              2. 比前两天的高点中点高2个xatr(或3点)
-              3. xatr<2500,xatr5x<4000,xatr30x<10000
-    平仓:
-        止损为6，保本为8
-    工作时段: [1032,1429]
     
 
 ###############################
@@ -1311,7 +1311,7 @@ def dxbreak(sif):
     #tp = np.select([gand(tp>tlow+60,rollx(sif.low)>tlow+30)],[tp],0) #接近低点的给突破
 
     tp2 = lll - 50  #假动作之后降低
-    tp2 = np.select([tp2>tlow+60],[tp2],0) #接近低点的给突破
+    tp2 = np.select([tp2>tlow+80],[tp2],0) #接近低点的给突破
 
     #ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
     #ldmid = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)    

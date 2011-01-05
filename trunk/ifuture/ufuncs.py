@@ -20,13 +20,13 @@ xbreak系列，连续两次突破后，放宽突破的界限，即延缓突破
                 2. 距底部>15点
                 3. xatr>800
                 4. 底部抬高，或者2分钟底部比5分钟底部高
-                5. 30分钟连续第三次突破时，从0.6点抬高到8个点
-                6. 9.45之后，如果开仓点HPEAK5接近日内高点8个点内，则不动作
+                5. 30分钟连续第三次突破时，从0.6点抬高到9个点
+                6. 9.45之后，如果开仓点HPEAK5接近日内高点9个点内，则不动作
                    注意，连续突破时，HPEAK5并不直接跟上，此时是否突破，看的是上一个顶点
         做空:   1. 突破(穿越)上一低点+0.2点处. 存在被穿越现象，即因为tlow的抬高导致价格不变的情况下被穿越，此时胜率更高
                 2. 30分钟连续第三次突破时，从+0.2点放低到-5个点        
                 3. 突破基准线低于前日高点或今天开盘
-                4. 如果开仓点LPEAK5接近日内低点10个点内，则不动作
+                4. 如果开仓点LPEAK5接近日内低点12个点内，则不动作
                 5. xatr<2500,xatr5x<4000,xatr30x<10000
 
     平仓:
@@ -310,7 +310,7 @@ def n1330filter(sif):
 
 
 def nhh(sif,vbreak=30):
-    #使用最高点+20, 也就是说必须一下拉开3点
+    #使用最高点+30, 也就是说必须一下拉开3点
     #ldlow = dnext(sif.lowd/2+sif.closed/2,sif.close,sif.i_cofd)
     ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
@@ -976,6 +976,8 @@ def urebound(sif):
     '''
          创新低后,以冲破支撑为界
          可演变为未创新低的情况
+         这个算法需要进一步的仔细研究，是不是存在未来数据
+         并增强可操作性
     '''
 
     plen = 4
@@ -1029,6 +1031,8 @@ def drebound(sif):
     '''
          创新高后以跌破支撑为界
          可扩展至未创新高?
+         这个算法需要进一步的仔细研究，是不是存在未来数据
+         并增强可操作性
     '''
 
     plen = 4
@@ -1164,13 +1168,13 @@ def uxbreak(sif):
     #slx = np.select([lll>sif.dlow,rpll>sif.dlow,rpll2>sif.dlow],[sif.dlow-lll,sif.dlow-rpll,sif.dlow-rpll2],99999999)
 
     #tp = np.select([gor(tp<sif.dhigh-80,sif.time<945)],[tp],99999999)   #距离突破线比较近的，交给突破
-    tp = np.select([gor(tp<rollx(sif.dhigh)-80,sif.time<945)],[tp],99999999)   #距离突破线比较近的，交给突破    
+    tp = np.select([gor(tp<rollx(sif.dhigh)-90,sif.time<945)],[tp],99999999)   #距离突破线比较近的，交给突破    
     #tp = np.select([gor(gand(tp<sif.dhigh-80,rollx(sif.high)<sif.dhigh-30),sif.time<945)],[tp],99999999)   #距离突破线比较近的，交给突破
 
     #print tp[-140:],sif.high[-140:],lhh[-140:]
 
     tp2 = lhh + 80  #假动作之后抬升
-    tp2 = np.select([gor(tp2<rollx(sif.dhigh)-80,sif.time<945)],[tp2],99999999)   #距离突破线比较近的，交给突破
+    tp2 = np.select([gor(tp2<rollx(sif.dhigh)-90,sif.time<945)],[tp2],99999999)   #距离突破线比较近的，交给突破
     #tp2 = np.select([gor(gand(tp2<sif.dhigh-80,rollx(sif.high)<sif.dhigh-30),sif.time<945)],[tp2],99999999)   #距离突破线比较近的，交给突破
 
     #ldlow = dnext(gmin(sif.lowd,rollx(sif.lowd)),sif.close,sif.i_cofd)
@@ -1314,13 +1318,13 @@ def dxbreak(sif):
     tp = lll+2
     #tp = lll
 
-    tlow = gmin(rollx(tmin(sif.low,75)+20))
+    tlow = rollx(tmin(sif.low,75))
     #tp = np.select([gor(tp>tlow+60,sif.time<=1031,sif.time>=1430)],[tp],0) #接近低点的给突破
-    tp = np.select([gor(tp>tlow+80)],[tp],0) #接近低点的给突破
+    tp = np.select([gor(tp>tlow+120)],[tp],0) #接近低点的给突破
     #tp = np.select([gand(tp>tlow+60,rollx(sif.low)>tlow+30)],[tp],0) #接近低点的给突破
 
     tp2 = lll - 50  #假动作之后降低
-    tp2 = np.select([tp2>tlow+80],[tp2],0) #接近低点的给突破
+    tp2 = np.select([tp2>tlow+120],[tp2],0) #接近低点的给突破
 
     #ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
     #ldmid = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)    
@@ -1352,7 +1356,7 @@ def dxbreak(sif):
                 #sif.xatr30x < 10000,
                 #sif.xatr5x < 4000,
                 #sif.dhigh - sif.low>60,
-                gor(tp < ldmid,tp<opend),#-sif.xatr*2/XBASE,  #比前2天高点中点低才允许做空                
+                gor(tp2 < ldmid,tp2<opend),#-sif.xatr*2/XBASE,  #比前2天高点中点低才允许做空                
             )
     signal = np.select([msignal<3,msignal>=3],[signal,signal2],0)
     ptp = np.select([msignal<3,msignal>=3],[tp,tp2],0)
@@ -2153,7 +2157,7 @@ dxxx = d1_xbreak + d1_hbreak + dbreak #+ d1_rebound#+break123c# #+ rebound  #此
 #xxx2 = xxx +wxfs #+ wxxx
 xxx2 = xxx1
 
-xamm = amm + hbreak2 + rebound    #这是一个非常好的独立策略, 作为候选, 每日亏损15点之后趴下装死
+xamm = amm + hbreak2 + rebound    #这是一个非常好的独立策略, 作为候选, 每日亏损15点之后趴下装死.
 
 #####
 # 主策略采用xxx1, 被选策略为dxxx和xamm

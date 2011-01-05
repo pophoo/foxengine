@@ -10,14 +10,14 @@
 xbreak系列，连续两次突破后，放宽突破的界限，即延缓突破
     顶/底均以6分钟计，即13分钟高/低点
     开仓:
-        做多:   1. 突破上一高点+0.6点处.
+        做多:   1. 大于(不需要穿越)上一高点+0.6点处.
                 2. 距底部>15点
                 3. xatr>800
                 4. 底部抬高，或者2分钟底部比5分钟底部高
                 5. 30分钟连续第三次突破时，从0.6点抬高到8个点
                 6. 9.45之后，如果开仓点HPEAK5接近日内高点8个点内，则不动作
                    注意，连续突破时，HPEAK5并不直接跟上，此时是否突破，看的是上一个顶点
-        做空:   1. 突破上一低点+0.2点处
+        做空:   1. 突破(穿越)上一低点+0.2点处. 存在被穿越现象，即因为tlow的抬高导致价格不变的情况下被穿越，此时胜率更高
                 2. 30分钟连续第三次突破时，从+0.2点放低到-5个点        
                 3. 突破基准线低于前日高点或今天开盘
                 4. 如果开仓点LPEAK5接近日内低点10个点内，则不动作
@@ -30,7 +30,7 @@ xbreak系列，连续两次突破后，放宽突破的界限，即延缓突破
 
 hbreak2系列
     开仓:
-        做多: 1. 高点在一分钟内拉高到日内高点+3处
+        做多: 1. 高点在一分钟内拉高到2分钟前日内高点+3处. 即如果上一分钟新高了，则该新高不计入内
               2. 日内高点>昨日低点+1
               3. xatr<2500,xatr5x<4000,xatr30x<10000
         做空: 1. 低点小于75分钟低点+2处
@@ -308,7 +308,7 @@ def nhh(sif,vbreak=30):
     #ldlow = dnext(sif.lowd/2+sif.closed/2,sif.close,sif.i_cofd)
     ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
-    thigh = rollx(sif.dhigh+vbreak)
+    thigh = rollx(sif.dhigh+vbreak,2)
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
             sif.high > thigh,
@@ -428,7 +428,7 @@ def mhh2(sif,length=20):
 ###时间低点突破
 def mll2(sif,length=75,vbreak=20):
     #使用最低点
-    tlow = gmin(rollx(tmin(sif.low,length)+vbreak))
+    tlow = gmin(rollx(tmin(sif.low,length)+vbreak,1))
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     #ldmid = dnext((sif.highd+gmin(sif.closed,sif.opend))/2,sif.close,sif.i_cofd)
     ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
@@ -439,6 +439,7 @@ def mll2(sif,length=75,vbreak=20):
     signal = gand(
             #sif.time>1029,
             cross(tlow,sif.low)<0,
+            #strend2(sif.low) <= 0,
             #sif.low < tlow,
             #tlow < rollx(sif.dhigh + sif.dlow)/2, #+ sif.dlow
             #tlow < ldhigh-10,  #比昨日最高价低才允许做空

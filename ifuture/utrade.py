@@ -246,7 +246,7 @@ def sync_tradess_u(sif,tradess,acstrategy=iftrade.late_strategy):
             trade.open_action = trade.actions[0]
             continue
            
-        if trade.actions[0].index > cur_trade.actions[0].index and iftrade.aprofit(cur_trade.open_action,sclose[trade.actions[0].index]) < 251:   #25点浮动收益后不取代
+        if trade.actions[0].index > cur_trade.actions[0].index and (iftrade.aprofit(cur_trade.open_action,sclose[trade.actions[0].index]) > 251 or iftrade.aprofit(cur_trade.open_action,sclose[trade.actions[0].index]) < 31):   #取决于浮动收益
             if trade.direction == cur_trade.direction:  #同向取代关系
                 #print u'同向增强,%s|%s:%s被%s增强'%(cur_trade.functor,cur_trade.actions[0].date,cur_trade.actions[0].time,trade.functor)
                 close_action = acstrategy(close_action,trade.actions[-1])
@@ -259,7 +259,7 @@ def sync_tradess_u(sif,tradess,acstrategy=iftrade.late_strategy):
                 reversed.append(trade)
                 xindex = reversed[0].actions[0].index
                 cposition = BaseObject(index=xindex,date=sdate[xindex],time=stime[xindex],position=reversed[0].direction,xtype=XCLOSE)    #因为已经抑制了1514开仓,必然不会溢出
-                cposition.price = iftrade.make_price(cposition.position,sopen[xindex],sclose[xindex],shigh[xindex],slow[xindex])
+                cposition.price = make_close_price(cposition.position,sopen[xindex],sclose[xindex],shigh[xindex],slow[xindex])
                 xtrades.append(iftrade.close_trade(sif,cur_trade,cposition,extended,filtered,rfiltered,reversed))
                 trade.orignal = trade.functor
                 trade.open_action = trade.actions[0]
@@ -273,6 +273,12 @@ def sync_tradess_u(sif,tradess,acstrategy=iftrade.late_strategy):
             else:   #逆向屏蔽
                 rfiltered.append(trade)
     return xtrades
+
+def make_close_price(position,open,close,high,low):
+    if position == LONG:
+        return (open+high)/2
+    else:
+        return (open+low)/2
 
 
 def utrade_x(sif     #期指
@@ -666,6 +672,16 @@ atr5_ustop_V = fcustom(atr_stop_u,
                 fmax_drawdown=iftrade.F333
             )      #
 
+atr5_ustop_VX = fcustom(atr_stop_u,#有浮盈持有到收盘
+                fkeeper=iftrade.F80,
+                win_times=250,
+                natr=5,
+                flost_base=iftrade.F60,
+                fmax_drawdown=lambda x:100000,
+                fmin_drawdown=lambda x:100000,                
+            )      
+
+
 #V1的回报类似(减少10%)，单次止损小,回撤收窄.R大
 atr5_ustop_V1 = fcustom(atr_stop_u
         ,fkeeper=iftrade.F80
@@ -717,6 +733,14 @@ atr5_ustop_X4 = fcustom(atr_stop_u
         ,flost_base=iftrade.F40 #止损太窄不好操作，很可能还没设止损单就已经破了
         ,fmax_drawdown=iftrade.F333)      #120-60
 
+atr5_ustop_XX = fcustom(atr_stop_u, #有浮盈持有到收盘
+                fkeeper=iftrade.F60,
+                win_times=250,
+                natr=5,
+                flost_base=iftrade.F40,
+                fmax_drawdown=lambda x:100000,
+                fmin_drawdown=lambda x:100000,                
+            )      
 
 atr5_ustop_W1 = fcustom(atr_stop_u,fkeeper=iftrade.F120,win_times=250,natr=5,flost_base=iftrade.F60,fmax_drawdown=iftrade.F333)      #120-60
 atr5_ustop_V3 = fcustom(atr_stop_u,fkeeper=iftrade.F90,win_times=250,natr=5,flost_base=iftrade.F80,fmax_drawdown=iftrade.F333)      #120-60

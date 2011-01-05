@@ -34,7 +34,7 @@ hbreak2系列
               2. 日内高点>昨日低点+1
               3. xatr<2500,xatr5x<4000,xatr30x<10000
         做空: 1. 低点小于75分钟低点+2处
-              2. 比前两天的高点中点高2个xatr(或3点)
+              2. 比前两天的高点中点高2个xatr(或3点). 请注意这个条件，每天早上计算该日的放空点
               3. xatr<2500,xatr5x<4000,xatr30x<10000
     平仓:
         止损为6，保本为8
@@ -432,7 +432,8 @@ def mll2(sif,length=75,vbreak=20):
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     #ldmid = dnext((sif.highd+gmin(sif.closed,sif.opend))/2,sif.close,sif.i_cofd)
     ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
-    opend = dnext(sif.opend,sif.open,sif.i_oofd)            
+    #opend = dnext(sif.opend,sif.open,sif.i_oofd)            
+    #highd = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)            
     #ldmid = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)        
     #ldmid = dnext(sif.highd,sif.close,sif.i_cofd)        
     #ldmid = dnext((sif.highd+sif.closed)/2,sif.close,sif.i_cofd)    
@@ -444,6 +445,7 @@ def mll2(sif,length=75,vbreak=20):
             #tlow < rollx(sif.dhigh + sif.dlow)/2, #+ sif.dlow
             #tlow < ldhigh-10,  #比昨日最高价低才允许做空
             tlow < ldmid-30,#rollx(sif.xatr)*2/XBASE,  #比前2天高点中点低才允许做空
+            #tlow < highd,
         )
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
     

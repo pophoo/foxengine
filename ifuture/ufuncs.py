@@ -220,6 +220,13 @@ def mfilter(sif):
             sif.time < 1430,
         )
 
+def mfilter1400(sif):   
+    return gand(
+            sif.time > 1031,
+            sif.time < 1400,
+        )
+
+
 def mfilter2(sif):   
     return gand(
             sif.time > 1014,
@@ -458,6 +465,7 @@ def mll2(sif,length=75,vbreak=20):
             #tlow < rollx(sif.dhigh + sif.dlow)/2, #+ sif.dlow
             #tlow < ldhigh-10,  #比昨日最高价低才允许做空
             tlow < ldmid-30,#rollx(sif.xatr)*2/XBASE,  #比前2天高点中点低才允许做空
+            #tlow < sif.dmid,
             #tlow < highd,
             rollx(sif.dhigh - sif.dlow) > 150, 
         )
@@ -1465,7 +1473,41 @@ xbreak = [bxbreak,sxbreak]
 xbreak2 = [bxbreak2,sxbreak2]
 d1_xbreak = [bxbreakd,sxbreakd]
 
-##幅度突破
+##幅度突破rbreak
+def rbreakb(sif,distance=250):
+    '''
+        幅度从最低跨越distance点时开仓
+    '''
+    bline = sif.dlow + distance
+    signal = gand(
+                cross(bline,sif.high)>0,
+                bline > sif.dmid,
+            )
+    return np.select([signal>0],[gmax(sif.open,bline)],0)
+
+def rbreaks(sif,distance=400):
+    '''
+        幅度从最高跨越distance点时开仓
+    '''
+    bline = sif.dhigh - distance
+    signal = gand(
+                cross(bline,sif.low)<0,
+                sif.t120 < 180,
+            )
+    return np.select([signal>0],[gmin(sif.open,bline)],0)
+
+
+brbreak = BXFunc(fstate=gofilter,fsignal=rbreakb,fwave=gofilter,ffilter=mfilter1400)
+brbreak.name = u'幅度向上突破25'
+brbreak.lastupdate = 20110106
+brbreak.stop_closer = utrade.atr5_ustop_V
+
+srbreak = SXFunc(fstate=gofilter,fsignal=rbreaks,fwave=nx2000X,ffilter=mfilter1400)
+srbreak.name = u'幅度向下突破40'
+srbreak.lastupdate = 20110106
+srbreak.stop_closer = utrade.atr5_ustop_V
+
+rbreak = [brbreak,srbreak]  #这是一个很好的备选主方案
 
 ##仿AMM算法
 def uamm(sif):
@@ -2177,6 +2219,8 @@ dxxx = d1_xbreak + d1_hbreak + dbreak #+ d1_rebound#+break123c# #+ rebound  #此
 xxx2 = xxx1
 
 xamm = amm + hbreak2 + rebound    #这是一个非常好的独立策略, 作为候选, 每日亏损15点之后趴下装死.
+
+rxxx = rbreak + dbreak + rebound #一个很牛的独立策略
 
 #####
 # 主策略采用xxx1, 被选策略为dxxx和xamm

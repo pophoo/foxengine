@@ -17,7 +17,7 @@ xbreak系列，连续两次突破后，放宽突破的界限，即延缓突破
     顶/底均以6分钟计，即13分钟高/低点
     开仓:
         做多:   1. 大于(不需要穿越)上一高点+0.6点处.
-                2. 距底部>15点
+                2. 距底部>15点, 75分钟振幅>25
                 3. xatr>800
                 4. 底部抬高，或者2分钟底部比5分钟底部高
                 5. 30分钟连续第三次突破时，从0.6点抬高到9个点
@@ -28,6 +28,7 @@ xbreak系列，连续两次突破后，放宽突破的界限，即延缓突破
                 3. 突破基准线低于前日高点或今天开盘
                 4. 如果开仓点LPEAK5接近日内低点12个点内，则不动作
                 5. xatr<2500,xatr5x<4000,xatr30x<10000
+                6. 日振幅>10    #基本只影响到9:30前开仓的
 
     平仓:
         止损为4, 保本为8
@@ -39,23 +40,24 @@ hbreak2系列
         做多: 1. 高点在一分钟内拉高到2分钟前日内高点+3处. 即如果上一分钟新高了，则该新高不计入内
               2. 日内高点>昨日低点+1
               3. xatr<2500,xatr5x<4000,xatr30x<10000
+              4. 日内振幅>15
         做空: 1. 低点小于75分钟低点+2处
               2. 比前两天的高点中点高2个xatr(或3点). 请注意这个条件，每天早上计算该日的放空点
               3. xatr<2500,xatr5x<4000,xatr30x<10000
+              4. 日内振幅>15
     平仓:
         止损为6，保本为8
     工作时段: [1032,1429]
 
 dbreak系列，只取第一次
     开仓:
-        做多: 1.当前最高<昨日高点+6
+        做多: 1.当前最高<昨日高点+6(即还未大幅突破过)
               2.sk>sd
-              3.开仓点为 high > 昨日最高处
+              3.开仓点为 high > 昨日最高处+0.6
               4. xatr<2500,xatr5x<4000,xatr30x<10000
-        做空: 1.最低<昨日低点 -10
-              2.sk<sd
-              3.开仓点为 low > 昨日最低+2处
-              4. xatr<2500,xatr5x<4000,xatr30x<10000
+        做空: 1.sk<sd
+              2.开仓点为 low > 昨日最低-3处
+              3. xatr<2500,xatr5x<4000,xatr30x<10000
     平仓:
         止损为6，保本为8
     工作时段:
@@ -315,10 +317,14 @@ def nhh(sif,vbreak=30):
     ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     thigh = rollx(sif.dhigh+vbreak,2)
+    mhh = rollx(tmax(sif.high,75))
+    mll = rollx(tmin(sif.low,75))
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
             sif.high > thigh,
             rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
+            rollx(sif.dhigh-sif.dlow)>150,
+            #mhh-mll>150,
         )
     return np.select([signal],[gmax(sif.low,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
     
@@ -434,7 +440,7 @@ def mhh2(sif,length=20):
 ###时间低点突破
 def mll2(sif,length=75,vbreak=20):
     #使用最低点
-    tlow = gmin(rollx(tmin(sif.low,length)+vbreak,1))
+    tlow = rollx(tmin(sif.low,length)+vbreak,1)
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     #ldmid = dnext((sif.highd+gmin(sif.closed,sif.opend))/2,sif.close,sif.i_cofd)
     ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
@@ -443,6 +449,7 @@ def mll2(sif,length=75,vbreak=20):
     #ldmid = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)        
     #ldmid = dnext(sif.highd,sif.close,sif.i_cofd)        
     #ldmid = dnext((sif.highd+sif.closed)/2,sif.close,sif.i_cofd)    
+    
     signal = gand(
             #sif.time>1029,
             cross(tlow,sif.low)<0,
@@ -452,6 +459,7 @@ def mll2(sif,length=75,vbreak=20):
             #tlow < ldhigh-10,  #比昨日最高价低才允许做空
             tlow < ldmid-30,#rollx(sif.xatr)*2/XBASE,  #比前2天高点中点低才允许做空
             #tlow < highd,
+            rollx(sif.dhigh - sif.dlow) > 150, 
         )
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
     
@@ -512,7 +520,7 @@ def bru(sif):
     #突破前一日高点
     ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     signal = gand(
-            sif.high > ldhigh,
+            sif.high > ldhigh + 6,
             rollx(sif.dhigh) < ldhigh +60,  #还没拉开过, 如果是915则必然满足
             sif.sk > sif.sd,
             sif.time < 1330,
@@ -554,8 +562,7 @@ def brux(sif):
 def brd(sif):
     ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
     signal = gand(
-            sif.low < ldlow +20,  
-            rollx(sif.dlow) < ldlow-100,    #已经下去过了之后，再穿越. 这个被部分吸收了
+            sif.low < ldlow - 30,  
             sif.sk < sif.sd,
             sif.time < 1430,
             #sif.time>915,
@@ -1178,6 +1185,8 @@ def uxbreak(sif):
     #tp2 = np.select([gor(gand(tp2<sif.dhigh-80,rollx(sif.high)<sif.dhigh-30),sif.time<945)],[tp2],99999999)   #距离突破线比较近的，交给突破
 
     #ldlow = dnext(gmin(sif.lowd,rollx(sif.lowd)),sif.close,sif.i_cofd)
+    mhh = rollx(tmax(sif.high,75))
+    mll = rollx(tmin(sif.low,75))
 
     signal = gand(#shh<90,    #不震荡
                 gor(lll2 > lll,sll>0),
@@ -1192,7 +1201,9 @@ def uxbreak(sif):
                 #strend2(sif.mxatr)>0,
                 sif.xatr > 800,
                 #lhh>lll+40,
-              )
+                #rollx(sif.dhigh - sif.dlow) > 100,  
+                mhh-mll>250,
+            )
 
     msignal = msum(signal,30)
     signal2 = gand(
@@ -1207,6 +1218,7 @@ def uxbreak(sif):
                 #strend2(sif.mxatr)>0,
                 sif.xatr > 800,
                 #lhh>lll+40,
+                mhh-mll>250,
             )
     signal = np.select([msignal<3,msignal>=3],[signal,signal2],0)
     ptp = np.select([msignal<3,msignal>=3],[tp,tp2],0)
@@ -1331,6 +1343,9 @@ def dxbreak(sif):
     ldmid = dnext(sif.highd,sif.close,sif.i_cofd)    
     opend = dnext(sif.opend,sif.open,sif.i_oofd)        
 
+    mhh = rollx(tmax(sif.high,75))
+    mll = rollx(tmin(sif.low,75))
+
     signal = gand(#sll<0,    #不震荡
                 #rollx(sif.sdma)>0,
                 #gor(lhh2 < lhh,shh<0),
@@ -1343,6 +1358,7 @@ def dxbreak(sif):
                 #sif.xatr5x < 4000,
                 #sif.dhigh - sif.low>60,
                 gor(tp < ldmid,tp<opend),#-sif.xatr*2/XBASE,  #比前2天高点中点低才允许做空                
+                rollx(sif.dhigh - sif.dlow) > 100, 
             )
     
     msignal = msum(signal,15)
@@ -1357,6 +1373,7 @@ def dxbreak(sif):
                 #sif.xatr5x < 4000,
                 #sif.dhigh - sif.low>60,
                 gor(tp2 < ldmid,tp2<opend),#-sif.xatr*2/XBASE,  #比前2天高点中点低才允许做空                
+                rollx(sif.dhigh - sif.dlow) > 100,  
             )
     signal = np.select([msignal<3,msignal>=3],[signal,signal2],0)
     ptp = np.select([msignal<3,msignal>=3],[tp,tp2],0)
@@ -1447,6 +1464,8 @@ sxbreakd.stop_closer = utrade.atr5_ustop_V
 xbreak = [bxbreak,sxbreak]
 xbreak2 = [bxbreak2,sxbreak2]
 d1_xbreak = [bxbreakd,sxbreakd]
+
+##幅度突破
 
 ##仿AMM算法
 def uamm(sif):

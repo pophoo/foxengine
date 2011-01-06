@@ -1541,8 +1541,8 @@ smrbreak.name = u'幅度向下突破40'
 smrbreak.lastupdate = 20110106
 smrbreak.stop_closer = utrade.atr5_ustop_V
 
-rbreak = [brbreak,srbreak]  #这是一个很好的备选主方案
-mrbreak = [bmrbreak,smrbreak]  #也是一个很好的备选主方案. 回撤较小. 感觉有点抓到本质了
+rbreak = [brbreak,srbreak]  #这是一个很好的备选主方案, 无遗漏系统
+mrbreak = [bmrbreak,smrbreak]  #也是一个很好的备选主方案. 回撤较小. 感觉有点抓到本质了. 有遗漏
 
 ##仿AMM算法
 def uamm(sif):

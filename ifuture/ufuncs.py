@@ -226,6 +226,11 @@ def mfilter1400(sif):
             sif.time < 1400,
         )
 
+def lmfilter(sif):
+    return gand(
+            sif.time > 1444,
+            sif.time < 1510,
+        )
 
 def mfilter2(sif):   
     return gand(
@@ -251,6 +256,11 @@ def mfilter3(sif):
                 sif.time > 1031,
                 sif.time < 1430,
             ),
+            sif.time < 935,
+        )
+
+def emfilter(sif):
+    return gor(
             sif.time < 935,
         )
 
@@ -532,6 +542,7 @@ def bru(sif):
             rollx(sif.dhigh) < ldhigh +60,  #还没拉开过, 如果是915则必然满足
             sif.sk > sif.sd,
             sif.time < 1330,
+            #sif.time>914, 
             #sif.time>915,
             #sif.r120>0,
         )
@@ -573,7 +584,7 @@ def brd(sif):
             sif.low < ldlow - 30,  
             sif.sk < sif.sd,
             sif.time < 1430,
-            #sif.time>915,
+            sif.time>914,
             #sif.t120<60,
         )
     return np.select([signal],[gmin(sif.open,ldlow+20)],0)    #避免跳空/skdj后延情况，如果跳空且大于突破点，就以分钟开盘价进入
@@ -595,13 +606,29 @@ dbreakb = BXFuncD1(fstate=gofilter,fsignal=bru,fwave=nx2500X,ffilter=efilter)
 dbreakb.name = u'突破前日高点'
 dbreakb.lastupdate = 20101213
 
+
 dbreakbx = BXFuncD1(fstate=gofilter,fsignal=brux,fwave=nx2000X,ffilter=efilter)
 
 dbreaks = SXFuncD1(fstate=sdown,fsignal=brd,fwave=nx2500X,ffilter=efilter)
 dbreaksh = SXFuncD1(fstate=gofilter,fsignal=brdh,fwave=nx2500X,ffilter=efilter)
 dbreaks.name = u'突破前日低点'
-dbreakb.lastupdate = 20101213
+dbreaks.lastupdate = 20101213
+
+edbreakb = BXFuncD1(fstate=gofilter,fsignal=bru,fwave=nx2500X,ffilter=emfilter)
+edbreakb.name = u'早盘突破前日高点'
+edbreakb.lastupdate = 20101213
+edbreakb.stop_closer = utrade.atr5_ustop_X4
+
+edbreaks = SXFuncD1(fstate=sdown,fsignal=brd,fwave=nx2500X,ffilter=emfilter)
+edbreaks.name = u'早盘突破前日低点'
+edbreaks.lastupdate = 20101213
+edbreaks.stop_closer = utrade.atr5_ustop_X4
+
+
 dbreak = [dbreakb,dbreaks]#
+
+edbreak = [edbreakb,edbreaks]#
+
 dbreaksh.stop_closer = utrade.atr5_ustop_V
 
 dbreakb2 = BXFuncD1(fstate=gofilter,fsignal=brux,fwave=nx2500X,ffilter=efilter)
@@ -1469,10 +1496,21 @@ sxbreakd.name = u'向下突破'
 sxbreakd.lastupdate = 20101231
 sxbreakd.stop_closer = utrade.atr5_ustop_V
 
+ebxbreak = BXFunc(fstate=gofilter,fsignal=uxbreak,fwave=gofilter,ffilter=emfilter)
+ebxbreak.name = u'早盘向上突破'
+ebxbreak.lastupdate = 20101231
+ebxbreak.stop_closer = utrade.atr5_ustop_X4
+
+esxbreak = SXFunc(fstate=gofilter,fsignal=dxbreak,fwave=nx2500X,ffilter=emfilter)##e1430filter2)
+esxbreak.name = u'早盘向下突破'
+esxbreak.lastupdate = 20101231
+esxbreak.stop_closer = utrade.atr5_ustop_X4
+
+
 xbreak = [bxbreak,sxbreak]
 xbreak2 = [bxbreak2,sxbreak2]
 d1_xbreak = [bxbreakd,sxbreakd]
-
+exbreak = [ebxbreak,esxbreak]
 ##幅度突破rbreak
 def rbreakb(sif,distance=250):
     '''
@@ -1480,21 +1518,23 @@ def rbreakb(sif,distance=250):
     '''
     bline = sif.dlow + distance
     signal = gand(
-                #cross(bline,sif.high)>0,
                 sif.high > bline,
                 bline > sif.dmid,
+                sif.high > rollx(tmax(sif.high,20)),
+                #sif.high > rollx(sif.dhigh),
             )
     return np.select([signal>0],[gmax(sif.open,bline)],0)
 
-def rbreaks(sif,distance=400):
+def rbreaks(sif,distance=360):
     '''
         幅度从最高跨越distance点时开仓
     '''
     bline = sif.dhigh - distance
     signal = gand(
-                #cross(bline,sif.low)<0,
                 sif.low < bline,
                 sif.t120 < 180,
+                sif.low < rollx(tmin(sif.low,20)),
+                #sif.low < rollx(sif.dlow),
             )
     return np.select([signal>0],[gmin(sif.open,bline)],0)
 
@@ -1504,19 +1544,22 @@ def rmbreakb(sif,distance=250):
     '''
     bline = rollx(tmin(sif.low,75)) + distance
     signal = gand(
-                cross(bline,sif.high)>0,
+                sif.high > bline,
                 bline > sif.dmid,
+                #bline > rollx(tmin(sif.low,75) + tmax(sif.high,75))/2,
+                sif.high > rollx(tmax(sif.high,20)), 
             )
     return np.select([signal>0],[gmax(sif.open,bline)],0)
 
-def rmbreaks(sif,distance=400):
+def rmbreaks(sif,distance=360):
     '''
         幅度从最高跨越distance点时开仓
     '''
     bline = rollx(tmax(sif.high,75)) - distance
     signal = gand(
-                cross(bline,sif.low)<0,
+                sif.low < bline,
                 sif.t120 < 180,
+                sif.low < rollx(tmin(sif.low,20)),                
             )
     return np.select([signal>0],[gmin(sif.open,bline)],0)
 
@@ -1524,25 +1567,50 @@ def rmbreaks(sif,distance=400):
 brbreak = BXFunc(fstate=gofilter,fsignal=rbreakb,fwave=gofilter,ffilter=mfilter1400)
 brbreak.name = u'幅度向上突破25'
 brbreak.lastupdate = 20110106
-brbreak.stop_closer = utrade.atr5_ustop_V
+brbreak.stop_closer = utrade.atr5_ustop_X4
 
 srbreak = SXFunc(fstate=gofilter,fsignal=rbreaks,fwave=nx2500X,ffilter=mfilter1400)
 srbreak.name = u'幅度向下突破40'
 srbreak.lastupdate = 20110106
-srbreak.stop_closer = utrade.atr5_ustop_V
+srbreak.stop_closer = utrade.atr5_ustop_X4
+
+lbrbreak = BXFunc(fstate=gofilter,fsignal=rbreakb,fwave=gofilter,ffilter=lmfilter)
+lbrbreak.name = u'尾盘幅度向上突破25'
+lbrbreak.lastupdate = 20110106
+lbrbreak.stop_closer = utrade.atr5_ustop_X4
+
+lsrbreak = SXFunc(fstate=gofilter,fsignal=rbreaks,fwave=nx2500X,ffilter=lmfilter)
+lsrbreak.name = u'尾盘幅度向下突破40'
+lsrbreak.lastupdate = 20110106
+lsrbreak.stop_closer = utrade.atr5_ustop_X4
 
 bmrbreak = BXFunc(fstate=gofilter,fsignal=rmbreakb,fwave=gofilter,ffilter=mfilter1400)
 bmrbreak.name = u'幅度向上突破25'
 bmrbreak.lastupdate = 20110106
-bmrbreak.stop_closer = utrade.atr5_ustop_V
+bmrbreak.stop_closer = utrade.atr5_ustop_X4
 
 smrbreak = SXFunc(fstate=gofilter,fsignal=rmbreaks,fwave=nx2500X,ffilter=mfilter1400)
 smrbreak.name = u'幅度向下突破40'
 smrbreak.lastupdate = 20110106
-smrbreak.stop_closer = utrade.atr5_ustop_V
+smrbreak.stop_closer = utrade.atr5_ustop_X4
+
+lbmrbreak = BXFunc(fstate=gofilter,fsignal=rmbreakb,fwave=gofilter,ffilter=lmfilter)
+lbmrbreak.name = u'幅度向上突破25'
+lbmrbreak.lastupdate = 20110106
+lbmrbreak.stop_closer = utrade.atr5_ustop_X4
+
+lsmrbreak = SXFunc(fstate=gofilter,fsignal=rmbreaks,fwave=nx2500X,ffilter=lmfilter)
+lsmrbreak.name = u'幅度向下突破40'
+lsmrbreak.lastupdate = 20110106
+lsmrbreak.stop_closer = utrade.atr5_ustop_X4
+
 
 rbreak = [brbreak,srbreak]  #这是一个很好的备选主方案, 无遗漏系统
+lrbreak = [lbrbreak,lsrbreak]  #这是一个很好的备选主方案, 无遗漏系统
+
 mrbreak = [bmrbreak,smrbreak]  #也是一个很好的备选主方案. 回撤较小. 感觉有点抓到本质了. 有遗漏
+lmrbreak = [lbmrbreak,lsmrbreak]  #也是一个很好的备选主方案. 回撤较小. 感觉有点抓到本质了. 有遗漏
+
 
 ##仿AMM算法
 def uamm(sif):
@@ -2255,8 +2323,8 @@ xxx2 = xxx1
 
 xamm = amm + hbreak2 + rebound    #这是一个非常好的独立策略, 作为候选, 每日亏损15点之后趴下装死.
 
-rxxx = rbreak + dbreak + rebound #一个很牛的独立策略
-mrxxx = mrbreak + dbreak + rebound #一个很牛的独立策略，类似于上
+rxxx = rbreak + lrbreak + edbreak + exbreak #+ rebound #一个很牛的独立策略, 亏损12点后趴下
+mrxxx = mrbreak + edbreak +exbreak #+ rebound #一个很牛的独立策略，类似于上
 
 #####
 # 主策略采用xxx1, 被选策略为dxxx和xamm

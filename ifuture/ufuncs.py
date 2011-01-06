@@ -1480,7 +1480,8 @@ def rbreakb(sif,distance=250):
     '''
     bline = sif.dlow + distance
     signal = gand(
-                cross(bline,sif.high)>0,
+                #cross(bline,sif.high)>0,
+                sif.high > bline,
                 bline > sif.dmid,
             )
     return np.select([signal>0],[gmax(sif.open,bline)],0)
@@ -1490,6 +1491,29 @@ def rbreaks(sif,distance=400):
         幅度从最高跨越distance点时开仓
     '''
     bline = sif.dhigh - distance
+    signal = gand(
+                #cross(bline,sif.low)<0,
+                sif.low < bline,
+                sif.t120 < 180,
+            )
+    return np.select([signal>0],[gmin(sif.open,bline)],0)
+
+def rmbreakb(sif,distance=250):
+    '''
+        幅度从最低跨越distance点时开仓
+    '''
+    bline = rollx(tmin(sif.low,75)) + distance
+    signal = gand(
+                cross(bline,sif.high)>0,
+                bline > sif.dmid,
+            )
+    return np.select([signal>0],[gmax(sif.open,bline)],0)
+
+def rmbreaks(sif,distance=400):
+    '''
+        幅度从最高跨越distance点时开仓
+    '''
+    bline = rollx(tmax(sif.high,75)) - distance
     signal = gand(
                 cross(bline,sif.low)<0,
                 sif.t120 < 180,
@@ -1502,12 +1526,23 @@ brbreak.name = u'幅度向上突破25'
 brbreak.lastupdate = 20110106
 brbreak.stop_closer = utrade.atr5_ustop_V
 
-srbreak = SXFunc(fstate=gofilter,fsignal=rbreaks,fwave=nx2000X,ffilter=mfilter1400)
+srbreak = SXFunc(fstate=gofilter,fsignal=rbreaks,fwave=nx2500X,ffilter=mfilter1400)
 srbreak.name = u'幅度向下突破40'
 srbreak.lastupdate = 20110106
 srbreak.stop_closer = utrade.atr5_ustop_V
 
+bmrbreak = BXFunc(fstate=gofilter,fsignal=rmbreakb,fwave=gofilter,ffilter=mfilter1400)
+bmrbreak.name = u'幅度向上突破25'
+bmrbreak.lastupdate = 20110106
+bmrbreak.stop_closer = utrade.atr5_ustop_V
+
+smrbreak = SXFunc(fstate=gofilter,fsignal=rmbreaks,fwave=nx2500X,ffilter=mfilter1400)
+smrbreak.name = u'幅度向下突破40'
+smrbreak.lastupdate = 20110106
+smrbreak.stop_closer = utrade.atr5_ustop_V
+
 rbreak = [brbreak,srbreak]  #这是一个很好的备选主方案
+mrbreak = [bmrbreak,smrbreak]  #也是一个很好的备选主方案. 回撤较小. 感觉有点抓到本质了
 
 ##仿AMM算法
 def uamm(sif):
@@ -2221,6 +2256,7 @@ xxx2 = xxx1
 xamm = amm + hbreak2 + rebound    #这是一个非常好的独立策略, 作为候选, 每日亏损15点之后趴下装死.
 
 rxxx = rbreak + dbreak + rebound #一个很牛的独立策略
+mrxxx = mrbreak + dbreak + rebound #一个很牛的独立策略，类似于上
 
 #####
 # 主策略采用xxx1, 被选策略为dxxx和xamm

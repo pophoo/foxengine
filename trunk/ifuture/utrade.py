@@ -246,7 +246,7 @@ def sync_tradess_u(sif,tradess,acstrategy=iftrade.late_strategy):
             trade.open_action = trade.actions[0]
             continue
            
-        if trade.actions[0].index > cur_trade.actions[0].index and (iftrade.aprofit(cur_trade.open_action,sclose[trade.actions[0].index]) > 251 or iftrade.aprofit(cur_trade.open_action,sclose[trade.actions[0].index]) < 31):   #取决于浮动收益
+        if trade.actions[0].index > cur_trade.actions[0].index and (iftrade.aprofit(cur_trade.open_action,sclose[trade.actions[0].index]) > 251 or iftrade.aprofit(cur_trade.open_action,sclose[trade.actions[0].index]) < 31):   #取决于浮动收益,大于25就平调(宁可后面再开)，小于3也平掉
             if trade.direction == cur_trade.direction:  #同向取代关系
                 #print u'同向增强,%s|%s:%s被%s增强'%(cur_trade.functor,cur_trade.actions[0].date,cur_trade.actions[0].time,trade.functor)
                 close_action = acstrategy(close_action,trade.actions[-1])
@@ -614,12 +614,11 @@ def day_trades(trades,limit=-200):
                 ]
     for trade in trades[1:]:
         tdate = trade.actions[-1].date
-        if trade.actions[-1].date ==results[-1].day:
+        if tdate ==results[-1].day:
             results[-1].profit += trade.profit
             results[-1].ontrade += 1
             last_drawdown = results[-1].max_drawdown
             if results[-1].sprofit > limit:
-            #if last_drawdown > limit:
                 results[-1].sprofit += trade.profit
                 results[-1].ntrade += 1
             results[-1].max_drawdown += trade.profit
@@ -628,7 +627,7 @@ def day_trades(trades,limit=-200):
             elif results[-1].max_drawdown > last_drawdown:
                 results[-1].max_drawdown = last_drawdown
         else:
-            results.append(BaseObject(day=trade.actions[-1].date,
+            results.append(BaseObject(day=tdate,
                         profit=trade.profit,
                         sprofit = trade.profit,                            
                         max_drawdown=trade.profit if trade.profit < 0 else 0,
@@ -799,3 +798,36 @@ atr5_ustop_j = fcustom(atr_stop_u
 utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 utrade_d = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=iftrade.last_trades,sync_trades=iftrade.null_sync_tradess)
 
+
+def range_distribution(sif,rlimit = [300,500,800,1200,1500,10000]):#求振幅分布
+    srange = sif.highd - sif.lowd
+    results = [0]*len(rlimit)
+    prelimit = 0
+    i = 0
+    for il in rlimit:
+        results[i] = BaseObject(begin=prelimit,end=il,times=sum(gand(srange>prelimit,srange<il)))
+        prelimit = il
+        i += 1
+    results.append(BaseObject(begin=0,end=il,times=len(srange)))
+    return results
+
+rd = range_distribution
+
+def profit_distribution(sif,dtrades,limit = [300,500,1000,1500,10000]):#求盈利分布
+    mylimit = [l for l in limit]
+    mylimit.append(999999)  #哨兵
+    results = [BaseObject(end=il,wins=0,losts=0,pwins=0,plosts=0) for il in mylimit]
+    for dtrade in dtrades:
+        drange = sif.day2range[dtrade.day]
+        id = 0
+        while(drange > mylimit[id]): #必然会触及条件
+            id+=1
+        if dtrade.sprofit>0:
+            results[id].wins += 1
+            results[id].pwins += dtrade.sprofit
+        elif dtrade.sprofit<=0:
+            results[id].losts += 1
+            results[id].plosts += dtrade.sprofit
+    return results[:-1]
+
+pd = profit_distribution

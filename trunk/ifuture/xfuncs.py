@@ -222,17 +222,23 @@ def d1c_filter(sif,signal):
         signal = gand(signal_s == 1)
         return derepeatc(signal)
 
-class BXFunc(BXFuncA):#去除连续
+class BXFunc(BXFuncA):#去除连续. 
     def signal_filter(self,sif,signal):
-        return dc_filter(sif,signal)
+        #2011-01-07 不能去除连续，应当由算法自行保证。否则一些等待重入的算法就悲剧了
+        #return dc_filter(sif,signal)
+        return signal
 
 class SXFunc(SXFuncA):#去除连续
     def signal_filter(self,sif,signal):
-        return dc_filter(sif,signal)
+        #2011-01-07 不能去除连续，应当由算法自行保证。否则一些等待重入的算法就悲剧了
+        #return dc_filter(sif,signal)
+        return signal
 
 class CXFunc(CFunc):#去除连续
     def signal_filter(self,sif,signal):
-        return dc_filter(sif,signal)
+        #2011-01-07 不能去除连续，应当由算法自行保证。否则一些等待重入的算法就悲剧了
+        #return dc_filter(sif,signal)
+        return signal
 
 class BXFuncD1(BXFuncA):#每日第一次
     def signal_filter(self,sif,signal):

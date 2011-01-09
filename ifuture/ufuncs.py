@@ -5,35 +5,13 @@
 2011-01操作指南
 #################################
 信号切换规则:
-    持仓时出现反向信号，当浮动收益大于25或小于3时，平仓并开新仓，否则不变
+    持仓时出现反向信号，当浮动收益大于25或小于3时或持仓时间大于20分钟时，平仓并开新仓，否则不变
 
 开仓和平仓价格的设置:
     1. 如开多目标突破价是3000，则开仓条件单应该是>=3000.2才可以，否则是不对的. 系统中都是叉或超越
     2. 平仓也如是，如果卖出平仓的目标平仓价是3000，则必须是<=2999.8才行
     3. 保本平仓的基准价格是开仓目标价,而不是执行价格.
     4. 这样才能和系统一致
-
-xbreak系列，连续两次突破后，放宽突破的界限，即延缓突破
-    顶/底均以6分钟计，即13分钟高/低点
-    开仓:
-        做多:   1. 大于(不需要穿越)上一高点+0.6点处.
-                2. 距底部>15点, 75分钟振幅>25
-                3. xatr>800
-                4. 底部抬高，或者2分钟底部比5分钟底部高
-                5. 30分钟连续第三次突破时，从0.6点抬高到9个点
-                6. 9.45之后，如果开仓点HPEAK5接近日内高点9个点内，则不动作
-                   注意，连续突破时，HPEAK5并不直接跟上，此时是否突破，看的是上一个顶点
-        做空:   1. 突破(穿越)上一低点+0.2点处. 存在被穿越现象，即因为tlow的抬高导致价格不变的情况下被穿越，此时胜率更高
-                2. 30分钟连续第三次突破时，从+0.2点放低到-5个点        
-                3. 突破基准线低于前日高点或今天开盘
-                4. 如果开仓点LPEAK5接近日内低点12个点内，则不动作
-                5. xatr<2500,xatr5x<4000,xatr30x<10000
-                6. 日振幅>10    #基本只影响到9:30前开仓的
-
-    平仓:
-        止损为4, 保本为8
-    工作时段:
-        [916,934]+[1032,1429]
 
 hbreak2系列
     开仓:
@@ -49,22 +27,51 @@ hbreak2系列
         止损为6，保本为8
     工作时段: [1032,1429]
 
+
+xbreak系列，连续两次突破后，放宽突破的界限，即延缓突破
+    顶/底均以6分钟计，即13分钟高/低点
+    开仓:
+        做多:   1. 穿越上一显著高点. 
+                2. 该显著高点必须比之前的当日最高小3点，且大于当日最低20点, 大于显著低点8点
+                3. 底部抬高，或者2分钟底部比5分钟底部高
+                4. 突破前一分钟高点 > 前2分钟高点
+        做空:   1. 穿越上一显著低点-1点处. 
+                2. 该显著低点大于当日低点15个点,
+                3. xatr<2500,xatr5x<4000,xatr30x<10000
+
+    平仓:
+        止损为4, 保本为8
+    工作时段:
+        [1032,1429]
+
+xbreak早盘动作:
+    顶/底均以6分钟计，即13分钟高/低点
+    开仓:
+        做多:   1. 穿越上一显著高点. 
+                2. 该显著高点大于当日最低15点
+        做空:   无
+    平仓:
+        止损为4, 保本为8
+    工作时段:
+        [916,934]
+
 dbreak系列，只取第一次
     开仓:
         做多: 1.当前最高<昨日高点+6(即还未大幅突破过)
-              2.sk>sd
-              3.开仓点为 high > 昨日最高处+0.6
+              2.开仓点为 high > 昨日最高点
+              3.今日高点-今日低点和昨日收盘的低者 > 20点
               4. xatr<2500,xatr5x<4000,xatr30x<10000
-        做空: 1.sk<sd
-              2.开仓点为 low > 昨日最低-3处
+        做空: 1.开仓点为 low < 昨日最低-2处
+              2.今日高点-今日低点和昨日收盘的低者 > 20点              
               3. xatr<2500,xatr5x<4000,xatr30x<10000
+
     平仓:
         止损为6，保本为8
     工作时段:
-        买多:[915,1329]
-        做空:[915,1429]
+        买多:[915,1330]
+        做空:[915,1400]
 
-另：观察和模拟
+
 
 ###############################
 突破系统
@@ -661,6 +668,7 @@ def bru(sif):
             #rollx(sif.dhigh - sif.dlow) > 200,
             sif.time<1331,
             sif.time>914,
+            #rollx(sif.xatr>600),
         )
     return np.select([signal],[gmax(sif.open,ldhigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
 
@@ -712,7 +720,7 @@ def brd(sif):
             sif.low < ldlow ,  
             rollx(gmax(sif.dhigh,ldclose) - sif.dlow) > 200,
             #rollx(sif.dhigh - sif.dlow) > 200,
-            sif.time < 1331,
+            sif.time < 1401,
             sif.time> 914,
             #sif.t120<60,
         )
@@ -724,7 +732,7 @@ def brdh(sif):
     signal = gand(
             sif.high < ldlow +20,   #这个有点无耻,走的不是突破了, 就是说等最高价低于昨日最低+20才在收盘进入
             rollx(sif.dlow) < ldlow -100,    #已经下去过了之后，再穿越. 这个被部分吸收了
-            sif.sk < sif.sd,
+            rollx(sif.sk < sif.sd),
             sif.time < 1430,
             #sif.r120<20,
         )
@@ -1286,6 +1294,7 @@ rebound = [brebound,srebound]       #可以作为单独的策略
 d1_rebound = [dbrebound,dsrebound]
 
 ###普通形态突破
+
 def uxbreak(sif,tbegin=1030):
     '''
         向上突破
@@ -1357,7 +1366,8 @@ def uxbreak(sif,tbegin=1030):
                 #lll2>lll,
                 #sll>0,
                 cross(tp,sif.high)>0,
-                tp <= rollx(tp),#不是从99999999下来的被上叉
+                #tp <= rollx(tp),#不是从99999999下来的被上叉
+                #rollx(tp)<=tp,
                 strend2(sif.high)>0,
                 sif.time>915,   #915会有跳空
                 tp - sif.dlow > 150,
@@ -1390,6 +1400,81 @@ def uxbreak(sif,tbegin=1030):
     return np.select([signal],[gmax(sif.open,ptp)],0)
     #return np.select([signal],[gmax(sif.open,tp)],0)
 
+def euxbreak(sif,tbegin=1030):
+    '''
+        向上突破
+    '''
+
+    phh,pll = calc_lh(sif,plen=6)
+    phh2,pll2 = calc_lh(sif,plen=2)
+
+    sll = extend2next(ssub(pll))
+    shh = extend2next(ssub(phh))
+
+    lhh = extend2next(phh)
+    lll = extend2next(pll)
+    lll2 = extend2next(pll2)
+    lhh2 = extend2next(phh2)
+
+    ihh = np.nonzero(phh)
+    ill = np.nonzero(pll)
+
+    iihh = np.zeros_like(phh)
+    iill = np.zeros_like(pll)
+    iihh[ihh] = ihh
+    iill[ill] = ill
+    iihh = extend2next(iihh)
+    iill = extend2next(iill)
+
+
+    tp = lhh 
+
+    signal = gand(
+                #gor(lll2 > lll,sll>0),
+                cross(tp,sif.high)>0,
+                sif.time>915,   #915会有跳空
+                tp - sif.dlow > 150,
+            )
+    return np.select([signal],[gmax(sif.open,tp)],0)
+
+def edxbreak(sif):
+    '''
+        向上突破
+    '''
+
+    phh,pll = calc_lh(sif,plen=6)
+    phh2,pll2 = calc_lh(sif,plen=2)
+
+    sll = extend2next(ssub(pll))
+    shh = extend2next(ssub(phh))
+
+    lhh = extend2next(phh)
+    lll = extend2next(pll)
+    lll2 = extend2next(pll2)
+    lhh2 = extend2next(phh2)
+
+    ihh = np.nonzero(phh)
+    ill = np.nonzero(pll)
+
+    iihh = np.zeros_like(phh)
+    iill = np.zeros_like(pll)
+    iihh[ihh] = ihh
+    iill[ill] = ill
+    iihh = extend2next(iihh)
+    iill = extend2next(iill)
+
+
+    tp = lll 
+
+    signal = gand(
+                #gor(lll2 > lll,sll>0),
+                cross(tp,sif.low)<0,
+                sif.time>915,   #915会有跳空
+                sif.dhigh - tp > 150,
+            )
+    return np.select([signal],[gmin(sif.open,tp)],0)
+
+
 def uxbreak1(sif,tbegin=1030):
     '''
         向上突破
@@ -1420,6 +1505,7 @@ def uxbreak1(sif,tbegin=1030):
     tp = lhh 
 
     tp = np.select([tp<rollx(sif.dhigh-30)],[tp],99999999)   #距离突破线比较近的，交给突破    
+    #print tp[-170:]
 
     tp2 = lhh + 60  #假动作之后抬升
     tp2 = np.select([tp2<rollx(sif.dhigh-30)],[tp2],99999999)   #距离突破线比较近的，交给突破
@@ -1429,11 +1515,76 @@ def uxbreak1(sif,tbegin=1030):
 
     signal = gand(#shh<90,    #不震荡
                 gor(lll2 > lll,sll>0),
-                #lll2>lll,
-                #sll>0,
                 cross(tp,sif.high)>0,
-                tp <= rollx(tp),#不是从99999999下来的被上叉
-                strend2(sif.high)>0,
+                #rollx(tp) > tp,#不是从99999999下来的被上叉
+                rollx(tp) != 99999999,#剔除, 因为这肯定是突破超过3点后造成的
+                rollx(strend2(sif.high))>0,
+                #strend2(sif.high)>0,
+                sif.time>915,   #915会有跳空
+                tp - sif.dlow > 200,
+                lhh>lll+80,
+                sif.time > tbegin,  #避免之前信号被重复计算
+            )
+
+    #msignal = msum(signal,30)
+    #signal2 = gand(
+    #            gor(lll2 > lll,sll>0),
+    #            cross(tp2,sif.high)>0,
+    #            tp <= rollx(tp),#不是从99999999下来的被上叉                
+    #            sif.time>915,   #915会有跳空
+    #            tp2 - sif.dlow > 200,
+    #            lhh>lll+80,                
+    #        )
+    #signal = np.select([msignal<3,msignal>=3],[signal,signal2],0)
+    #ptp = np.select([msignal<3,msignal>=3],[tp,tp2],0)
+    #return np.select([signal],[gmax(sif.open,ptp)],0)
+    return np.select([signal],[gmax(sif.open,tp)],0)
+
+def uxbreak1b(sif,tbegin=1030):
+    '''
+        向上突破、回调，再突破
+    '''
+
+    phh,pll = calc_lh(sif,plen=6)
+    phh2,pll2 = calc_lh(sif,plen=2)
+
+    sll = extend2next(ssub(pll))
+    shh = extend2next(ssub(phh))
+
+    lhh = extend2next(phh)
+    lll = extend2next(pll)
+    lll2 = extend2next(pll2)
+    lhh2 = extend2next(phh2)
+
+    ihh = np.nonzero(phh)
+    ill = np.nonzero(pll)
+
+    iihh = np.zeros_like(phh)
+    iill = np.zeros_like(pll)
+    iihh[ihh] = ihh
+    iill[ill] = ill
+    iihh = extend2next(iihh)
+    iill = extend2next(iill)
+
+
+    tp = lhh 
+
+    tp = np.select([tp<rollx(sif.dhigh-30)],[tp],99999999)   #距离突破线比较近的，交给突破    
+    #print tp[-170:]
+
+    tp2 = lhh + 60  #假动作之后抬升
+    tp2 = np.select([tp2<rollx(sif.dhigh-30)],[tp2],99999999)   #距离突破线比较近的，交给突破
+    #tp2 = np.select([gor(gand(tp2<sif.dhigh-80,rollx(sif.high)<sif.dhigh-30),sif.time<945)],[tp2],99999999)   #距离突破线比较近的，交给突破
+    mhh = rollx(tmax(sif.high,75))
+    mll = rollx(tmin(sif.low,75))
+
+    signal = gand(#shh<90,    #不震荡
+                gor(lll2 > lll,sll>0),
+                cross(tp,sif.high)>0,
+                #rollx(tp) >= tp,#不是从99999999下来的被上叉
+                rollx(tp) == 99999999,#剔除, 因为这肯定是突破超过3点后造成的
+                rollx(strend2(sif.high))>0,
+                #strend2(sif.high)>0,
                 sif.time>915,   #915会有跳空
                 tp - sif.dlow > 200,
                 lhh>lll+80,
@@ -1580,7 +1731,7 @@ def dxbreak(sif,tbegin=1030):
                 #gor(lhh2 < lhh,shh<0),
                 cross(tp,sif.low)<0,
                 sif.time>915,   #915会有跳空
-                tp >= rollx(tp),    #不是从0起来的被交叉
+                #tp >= rollx(tp),    #不是从0起来的被交叉
                 #sif.xatr>sif.mxatr,
                 #sif.xatr<2500,
                 #sif.xatr30x < 10000,
@@ -1642,7 +1793,7 @@ def dxbreak1(sif,tbegin=1030):
 
     tlow = sif.dlow
     #tp = np.select([gor(tp>tlow+60,sif.time<=1031,sif.time>=1430)],[tp],0) #接近低点的给突破
-    tp = np.select([gor(tp>tlow+120)],[tp],0) #接近低点的给突破
+    tp = np.select([gor(tp>tlow+140)],[tp],0) #接近低点的给突破
     #tp = np.select([gand(tp>tlow+60,rollx(sif.low)>tlow+30)],[tp],0) #接近低点的给突破
 
 
@@ -1655,23 +1806,88 @@ def dxbreak1(sif,tbegin=1030):
     signal = gand(#sll<0,    #不震荡
                 #rollx(sif.sdma)>0,
                 #gor(lhh2 < lhh,shh<0),
+                shh<0,
                 cross(tp,sif.low)<0,
                 #sif.low < tp,
                 sif.time>915,   #915会有跳空
-                tp >= rollx(tp),    #不是从0起来的被交叉
+                #tp >= rollx(tp),    #不是从0起来的被交叉
+                rollx(tp)>0,   #这个肯定是新低造成的
                 #sif.xatr>sif.mxatr,
                 #sif.xatr<2500,
                 #sif.xatr30x < 10000,
                 #sif.xatr5x < 4000,
                 #sif.dhigh - sif.low>60,
-                gor(tp < ldmid,tp<opend),#-sif.xatr*2/XBASE,  #比前2天高点中点低才允许做空                
+                #gor(tp < ldmid,tp<opend),#-sif.xatr*2/XBASE,  #比前2天高点中点低才允许做空                
                 #rollx(sif.dhigh - sif.dlow) > 100, 
-                rollx(sif.dhigh - sif.dlow) > 100, 
+                #rollx(sif.dhigh - sif.dlow) > 200, 
                 #rollx(sif.dhigh)- tp >100,
             )
     
     return np.select([signal],[gmin(sif.open,tp)],0)
 
+def dxbreak1b(sif,tbegin=1030):
+    '''
+        向下突破、回调，再突破
+    '''
+
+    phh,pll = calc_lh(sif,plen=6)
+    phh2,pll2 = calc_lh(sif,plen=2)
+
+    sll = extend2next(ssub(pll))
+    shh = extend2next(ssub(phh))
+
+    lhh = extend2next(phh)
+    lll = extend2next(pll)
+    lll2 = extend2next(pll2)
+    lhh2 = extend2next(phh2)
+
+    ihh = np.nonzero(phh)
+    ill = np.nonzero(pll)
+
+    iihh = np.zeros_like(phh)
+    iill = np.zeros_like(pll)
+    iihh[ihh] = ihh
+    iill[ill] = ill
+    iihh = extend2next(iihh)
+    iill = extend2next(iill)
+
+    
+    tp = lll-10
+    #tp = lll
+
+    tlow = sif.dlow
+    #tp = np.select([gor(tp>tlow+60,sif.time<=1031,sif.time>=1430)],[tp],0) #接近低点的给突破
+    tp = np.select([gor(tp>tlow+140)],[tp],0) #接近低点的给突破
+    #tp = np.select([gand(tp>tlow+60,rollx(sif.low)>tlow+30)],[tp],0) #接近低点的给突破
+
+
+    #ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
+    #ldmid = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)    
+    ldmid = dnext(sif.highd,sif.close,sif.i_cofd)    
+    opend = dnext(sif.opend,sif.open,sif.i_oofd)        
+
+
+    signal = gand(#sll<0,    #不震荡
+                #rollx(sif.sdma)>0,
+                #gor(lhh2 < lhh,shh<0),
+                shh<0,
+                cross(tp,sif.low)<0,
+                #sif.low < tp,
+                sif.time>915,   #915会有跳空
+                #tp >= rollx(tp),    #不是从0起来的被交叉
+                rollx(tp)==0,   #这个肯定是新低造成的
+                #sif.xatr>sif.mxatr,
+                #sif.xatr<2500,
+                #sif.xatr30x < 10000,
+                #sif.xatr5x < 4000,
+                #sif.dhigh - sif.low>60,
+                #gor(tp < ldmid,tp<opend),#-sif.xatr*2/XBASE,  #比前2天高点中点低才允许做空                
+                #rollx(sif.dhigh - sif.dlow) > 100, 
+                #rollx(sif.dhigh - sif.dlow) > 200, 
+                #rollx(sif.dhigh)- tp >100,
+            )
+    
+    return np.select([signal],[gmin(sif.open,tp)],0)
 
 def dxbreak2(sif):
     '''
@@ -1728,10 +1944,16 @@ bxbreak.name = u'向上突破'
 bxbreak.lastupdate = 20101231
 bxbreak.stop_closer = utrade.atr5_ustop_V1
 
-bxbreak1 = BXFunc(fstate=gofilter,fsignal=uxbreak1,fwave=gofilter,ffilter=mfilter3)##e1430filter2)
+bxbreak1 = BXFunc(fstate=gofilter,fsignal=uxbreak1,fwave=gofilter,ffilter=mfilter)##e1430filter2)
 bxbreak1.name = u'向上突破'
 bxbreak1.lastupdate = 20101231
 bxbreak1.stop_closer = utrade.atr5_ustop_V1
+
+bxbreak1b = BXFunc(fstate=gofilter,fsignal=uxbreak1b,fwave=gofilter,ffilter=mfilter3)##e1430filter2)
+bxbreak1b.name = u'向上突破'
+bxbreak1b.lastupdate = 20101231
+bxbreak1b.stop_closer = utrade.atr5_ustop_V1
+
 
 bxbreak1x = BXFunc(fstate=gofilter,fsignal=uxbreak1,fwave=gofilter,ffilter=mfilter3)
 bxbreak1x.name = u'向上突破'
@@ -1760,10 +1982,16 @@ sxbreak.name = u'向下突破'
 sxbreak.lastupdate = 20101231
 sxbreak.stop_closer = utrade.atr5_ustop_V1
 
-sxbreak1 = SXFunc(fstate=gofilter,fsignal=dxbreak1,fwave=nx2500X,ffilter=mfilter3)##e1430filter2)
+sxbreak1 = SXFunc(fstate=gofilter,fsignal=dxbreak1,fwave=nx2500X,ffilter=mfilter)##e1430filter2)
 sxbreak1.name = u'向下突破1'
 sxbreak1.lastupdate = 20101231
 sxbreak1.stop_closer = utrade.atr5_ustop_V1
+
+sxbreak1b = SXFunc(fstate=gofilter,fsignal=dxbreak1b,fwave=nx2500X,ffilter=mfilter3)##e1430filter2)
+sxbreak1b.name = u'向下突破1'
+sxbreak1b.lastupdate = 20101231
+sxbreak1b.stop_closer = utrade.atr5_ustop_V1
+
 
 sxbreak1x = SXFunc(fstate=gofilter,fsignal=dxbreak1,fwave=nx2500X,ffilter=efilter)
 sxbreak1x.name = u'向下突破1'
@@ -1790,12 +2018,28 @@ esxbreak.name = u'早盘向下突破'
 esxbreak.lastupdate = 20101231
 esxbreak.stop_closer = utrade.atr5_ustop_X4
 
+ebxbreak2 = BXFunc(fstate=gofilter,fsignal=euxbreak,fwave=gofilter,ffilter=emfilter)
+ebxbreak2.name = u'早盘向上突破2'
+ebxbreak2.lastupdate = 20101231
+ebxbreak2.stop_closer = utrade.atr5_ustop_X4
+
+esxbreak2 = SXFunc(fstate=gofilter,fsignal=edxbreak,fwave=nx2500X,ffilter=emfilter)##e1430filter2)
+esxbreak2.name = u'早盘向下突破2'
+esxbreak2.lastupdate = 20101231
+esxbreak2.stop_closer = utrade.atr5_ustop_X4
 
 xbreak = [bxbreak,sxbreak] #sxbreak1取代sxbreak
 xbreak1 = [bxbreak1,sxbreak1] #sxbreak1取代sxbreak
+xbreak1b = [bxbreak1b,sxbreak1b] #突破回调系统
+
+xbreakx = xbreak1 + xbreak1b    #一个不错的独立方法
+
 xbreak2 = [bxbreak2,sxbreak2]
 d1_xbreak = [bxbreakd,sxbreakd]
 exbreak = [ebxbreak,esxbreak]
+
+exbreak2 = [ebxbreak2]
+
 ##幅度突破rbreak
 def rbreakb(sif,distance=250):
     '''
@@ -2601,7 +2845,7 @@ txfs = [xds,xuub,K1_RU,xup01,FA_15_120,K1_DVBR,Z5_P2,k5_d3b,xmacd3s,ua_fa,K1_DVB
 
 txxx = hbreak2 + txfs
 
-xxx1 = xbreak1 + hbreak2 + dbreak #+ d1_rebound #+ amm #+ break123c  #此方法每日亏损20点之后趴下装死比较妥当
+xxx1 = xbreak1 + hbreak2 + dbreak + exbreak2#+ d1_rebound #+ amm #+ break123c  #此方法每日亏损20点之后趴下装死比较妥当
 
 dxxx = d1_xbreak + d1_hbreak + dbreak #+ d1_rebound#+break123c# #+ rebound  #此方法每日亏损12点之后趴下装死比较妥当
 
@@ -2613,7 +2857,7 @@ xamm = amm + hbreak2 + rebound    #这是一个非常好的独立策略, 作为�
 rxxx = rbreak_all + edbreak + exbreak #+ rebound #一个很牛的独立策略, 亏损12点后趴下
 mrxxx = mrbreak + edbreak +exbreak #+ rebound #一个很牛的独立策略，类似于上
 
-rxxx2 = rbreak + break_xr
+rxxx2 = rbreak + break_xr + xbreak1b #xbreak1b:突破回调系统
 
 #xxx2 = rxxx
 
@@ -2700,11 +2944,13 @@ sxbreak.stop_closer = utrade.atr5_ustop_V1
 bxbreak1.stop_closer = utrade.atr5_ustop_V1
 sxbreak1.stop_closer = utrade.atr5_ustop_V1
 
+ebxbreak2.stop_closer = utrade.atr5_ustop_V1
+
 shbreak_mll2.stop_closer = utrade.atr5_ustop_V
 hbreak_nhh.stop_closer = utrade.atr5_ustop_V
 
-dbreaks.stop_closer = utrade.atr5_ustop_V
 dbreakb.stop_closer = utrade.atr5_ustop_V
+dbreaks.stop_closer = utrade.atr5_ustop_V
 
 #########候补序列
 bxbreakd.stop_closer = utrade.atr5_ustop_V

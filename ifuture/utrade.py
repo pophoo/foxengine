@@ -683,6 +683,13 @@ atr5_ustop_VX = fcustom(atr_stop_u,#有浮盈持有到收盘
                 fmin_drawdown=lambda x:100000,                
             )      
 
+atr5_ustop_V5 = fcustom(atr_stop_u,
+                fkeeper=iftrade.F150,
+                win_times=250,
+                natr=5,
+                flost_base=iftrade.F60,
+                fmax_drawdown=iftrade.F333
+            )      #
 
 #V1的回报类似(减少10%)，单次止损小,回撤收窄.R大
 atr5_ustop_V1 = fcustom(atr_stop_u
@@ -707,10 +714,10 @@ atr5_ustop_X = fcustom(atr_stop_u
         ,fmax_drawdown=iftrade.F333)      #120-60
 
 atr5_ustop_X1 = fcustom(atr_stop_u
-        ,fkeeper=iftrade.F150
+        ,fkeeper=iftrade.F80
         ,win_times=250
         ,natr=5
-        ,flost_base=iftrade.F90 #止损太窄不好操作，很可能还没设止损单就已经破了
+        ,flost_base=iftrade.F80 #
         ,fmax_drawdown=iftrade.F333
         )      #120-60
 

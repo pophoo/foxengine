@@ -4,6 +4,25 @@
 '''
 2011-01操作指南
 #################################
+todo: 短线交易秘诀
+1. 哎呀交易
+   价格跳空高开，当往下杀到昨日最高价时卖出
+   价格跳空低开，当往上反弹到昨日最低价时买入
+2. 最大振荡幅度. 在上涨的日子中寻找下跌振荡，在下跌日子中寻找上涨振荡
+   卖出振荡幅度: 过去3天开盘价-最低价的均值, 应用时必须确认前一天的收盘价>开盘价. 即是自由下跌，而非惯性
+   买入振荡幅度: 过去3天最高价-开盘价的均值, 应用时必须确认前一天的收盘价<开盘价
+   这些振荡幅度实际上是最大失败振荡幅度，因为最终该日的走势是相反的
+   这样，在上涨日计算下跌振荡突破时，最好要求当日收盘价大于5天前收盘价
+         在下跌日计算上涨振荡突破时，最好要求当日收盘价小于5天前收盘价
+   向上突破系数: 1.8倍，向下2.5倍。自行优化
+3. 区间扩张
+   以开盘价为基准，前一日振幅为区间RANGE大小.
+   买入: 突破上0.4个RANGE (0.8)
+   卖出: 突破下2个RANGE   (1.2)
+   也可以3天前最高-昨天最低, 以及昨日最高-3天前最低的大者为区间.
+
+
+#################################
 信号切换规则:
     持仓时出现反向信号，当浮动收益大于25或小于3时或持仓时间大于20分钟时，平仓并开新仓，否则不变
 
@@ -37,7 +56,9 @@ xbreak系列，连续两次突破后，放宽突破的界限，即延缓突破
                 4. 突破前一分钟高点 > 前2分钟高点
         做空:   1. 穿越上一显著低点-1点处. 
                 2. 该显著低点大于当日低点15个点,
-                3. xatr<2500,xatr5x<4000,xatr30x<10000
+                #3. 该显著低点低于前两日最高价的平均或者当日开盘价. ##本条仅限于1c
+                4. xatr<2500,xatr5x<4000,xatr30x<10000
+                
 
     平仓:
         止损为4, 保本为8
@@ -54,6 +75,19 @@ xbreak早盘动作:
         止损为4, 保本为8
     工作时段:
         [916,934]
+
+rebound2的早盘动作:
+    开仓:
+        做多:   无
+        做空:   1. 基准线: 5分钟之前的高点-6处
+                2. 新高突破原高1点
+                3. 最低价跌破基准线
+                4. 新高在触发的最近15分钟内创出
+    平仓:
+        止损为8, 保本为8
+    工作时段:
+        [959,1055]
+
 
 dbreak系列，只取第一次
     开仓:
@@ -280,6 +314,13 @@ def emfilter(sif):
     return gor(
             sif.time < 935,
         )
+
+def emfilter2(sif):
+    return gand(
+            sif.time >958,
+            sif.time < 1056,
+        )
+
 
 def mfilter4(sif):   
     return gand(
@@ -612,7 +653,7 @@ shbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2500X,ffilter=mfilter) 
 shbreak_mll2.name = u'日内75分钟向下突破'
 
 shbreak_mll2_k = SXFuncA(fstate=gofilter,fsignal=mll2,fwave=nx2500X,ffilter=mfilterk)  ##主要时段
-shbreak_mll2_k.name = u'日内向上突破新高'
+shbreak_mll2_k.name = u'日内向下突破新低'
 shbreak_mll2_k.stop_closer = utrade.atr5_ustop_X4
 
 
@@ -775,7 +816,202 @@ dbreakb2.name = u'突破前日高点'
 dbreakb2.lastupdate = 20101213
 dbreakb2.stop_closer = utrade.atr5_ustop_V1
 
+###Larry Williams###
+##AY交易
+def ayu(sif):
+    #价格跳空低开，当往上反弹到昨日最低价时开多
+    ldclose = dnext(sif.closed,sif.close,sif.i_cofd)
+    ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)    
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)    
+    bline = ldlow - 30  #感觉缺口有牵引力
+    signal = gand(
+            ldopen < ldlow,
+            cross(bline,sif.high)>0,
+            #rollx(sif.dhigh - gmin(sif.dlow,ldclose)) > 200,
+            #rollx(sif.dhigh - sif.dlow) > 200,
+            sif.time>915,
+            #sif.time < 1430,
+            #rollx(sif.xatr>600),
+        )
+    return np.select([signal],[gmax(sif.open,bline)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
 
+def ayd(sif):
+    #价格跳空低开，当往上反弹到昨日最低价时开多
+    ldclose = dnext(sif.closed,sif.close,sif.i_cofd)
+    ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)    
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)
+    bline = ldhigh + 20
+    signal = gand(
+            ldopen > ldhigh,
+            cross(bline,sif.low)<0,
+            #rollx(sif.dhigh - gmin(sif.dlow,ldclose)) > 200,
+            #rollx(sif.dhigh - sif.dlow) > 200,
+            sif.time>915,
+            sif.time < 1045,
+            #rollx(sif.xatr>600),
+        )
+    return np.select([signal],[gmin(sif.open,bline)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
+
+
+bayu = BXFuncF1(fstate=gofilter,fsignal=ayu,fwave=gofilter,ffilter=gofilter)
+bayu.name = u'跳空低开后突破前日低点'
+bayu.lastupdate = 20110110
+bayu.stop_closer = utrade.atr5_ustop_X1     #样本数太少
+
+sayd = SXFuncF1(fstate=gofilter,fsignal=ayd,fwave=gofilter,ffilter=gofilter)
+sayd.name = u'跳空高开后跌破前日高点'
+sayd.lastupdate = 20110110
+sayd.stop_closer = utrade.atr5_ustop_X1     #样本数太少
+
+ay = [bayu,sayd]
+
+##价格扩张
+def erangeu(sif):
+    erange = dnext(sif.highd-sif.lowd,sif.close,sif.i_cofd)
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)    
+    bline = ldopen + erange / 3
+    signal = gand(
+            cross(bline,sif.high)>0,
+            #rollx(sif.dhigh - gmin(sif.dlow,ldclose)) > 200,
+            #rollx(sif.dhigh - sif.dlow) > 200,
+            sif.time > 945,
+            sif.time < 1400,
+            #sif.time < 1430,
+            #rollx(sif.xatr>600),
+        )
+    return np.select([signal],[gmax(sif.open,bline)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
+
+def erangeu2(sif):
+    erange = dnext(gmax(sif.highd-rollx(sif.lowd,3),rollx(sif.highd,3)-rollx(sif.lowd)),sif.close,sif.i_cofd)
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)    
+    bline = ldopen + erange / 2
+    signal = gand(
+            cross(bline,sif.high)>0,
+            #rollx(sif.dhigh - gmin(sif.dlow,ldclose)) > 200,
+            #rollx(sif.dhigh - sif.dlow) > 200,
+            sif.time > 945,
+            sif.time < 1400,
+            #sif.time < 1430,
+            #rollx(sif.xatr>600),
+        )
+    return np.select([signal],[gmax(sif.open,bline)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
+
+
+berangeu = BXFuncD1(fstate=gofilter,fsignal=erangeu,fwave=nx2500X,ffilter=gofilter)
+berangeu.name = u'扩张向上'
+berangeu.lastupdate = 20110110
+berangeu.stop_closer = utrade.atr5_ustop_V1
+
+berangeu2 = BXFuncD1(fstate=gofilter,fsignal=erangeu2,fwave=nx2500X,ffilter=gofilter)
+berangeu2.name = u'扩张向上'
+berangeu2.lastupdate = 20110110
+berangeu2.stop_closer = utrade.atr5_ustop_V1
+
+berange = [berangeu,berangeu2]
+
+def eranged(sif):
+    erange = dnext(sif.highd-sif.lowd,sif.close,sif.i_cofd)
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)    
+    bline = ldopen - erange
+    signal = gand(
+            cross(bline,sif.low)<0,
+            #rollx(sif.dhigh - gmin(sif.dlow,ldclose)) > 200,
+            #rollx(sif.dhigh - sif.dlow) > 200,
+            sif.time > 945,
+            sif.time < 1400,
+            #sif.time < 1430,
+            #rollx(sif.xatr>600),
+        )
+    return np.select([signal],[gmin(sif.open,bline)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
+
+def eranged2(sif):
+    erange = dnext(gmax(sif.highd-rollx(sif.lowd,3),rollx(sif.highd,3)-rollx(sif.lowd)),sif.close,sif.i_cofd)
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)    
+    bline = ldopen - erange / 3
+    signal = gand(
+            cross(bline,sif.low)<0,
+            #rollx(sif.dhigh - gmin(sif.dlow,ldclose)) > 200,
+            #rollx(sif.dhigh - sif.dlow) > 200,
+            sif.time > 945,
+            sif.time < 1400,
+            #sif.time < 1430,
+            #rollx(sif.xatr>600),
+        )
+    return np.select([signal],[gmin(sif.open,bline)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
+
+
+seranged = SXFuncD1(fstate=gofilter,fsignal=eranged,fwave=gofilter,ffilter=gofilter)
+seranged.name = u'扩张向下'
+seranged.lastupdate = 20110110
+seranged.stop_closer = utrade.atr5_ustop_V1
+
+seranged2 = SXFuncD1(fstate=gofilter,fsignal=eranged2,fwave=gofilter,ffilter=gofilter)
+seranged2.name = u'扩张向下2'
+seranged2.lastupdate = 20110110
+seranged2.stop_closer = utrade.atr5_ustop_V1
+
+serange = [seranged,seranged2]
+
+erange = berange + serange      #一组非常好的独立策略
+
+###失败振荡
+def ufwave(sif):
+    fwave = dnext(ma(sif.highd-sif.opend,3),sif.close,sif.i_cofd)
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)    
+
+    #ldc1 = dnext(sif.closed,sif.close,sif.i_cofd)
+    #ldc2 = dnext(rollx(sif.closed,3),sif.close,sif.i_cofd)
+    bline = ldopen + fwave * 4/3
+    signal = gand(
+            cross(bline,sif.high)>0,
+            #rollx(sif.dhigh - gmin(sif.dlow,ldclose)) > 200,
+            #rollx(sif.dhigh - sif.dlow) > 200,
+            sif.time > 944,
+            sif.time < 1331,
+            #ldc1 < ldc2,
+            #sif.time < 1430,
+            #rollx(sif.xatr>600),
+        )
+    return np.select([signal],[gmax(sif.open,bline)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
+
+def dfwave(sif):
+    fwave = dnext(ma(sif.highd-sif.opend,3),sif.close,sif.i_cofd)
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)    
+
+    ldc1 = dnext(sif.closed,sif.close,sif.i_cofd)
+    ldc2 = dnext(rollx(sif.closed,3),sif.close,sif.i_cofd)
+    bline = ldopen - fwave * 5/3
+    signal = gand(
+            cross(bline,sif.low)<0,
+            #rollx(sif.dhigh - gmin(sif.dlow,ldclose)) > 200,
+            #rollx(sif.dhigh - sif.dlow) > 200,
+            sif.time > 930,
+            sif.time < 1331,
+            #ldc1 < ldc2,
+            #sif.time < 1430,
+            #rollx(sif.xatr>600),
+        )
+    return np.select([signal],[gmin(sif.open,bline)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
+
+
+bfwave = BXFuncD1(fstate=gofilter,fsignal=ufwave,fwave=gofilter,ffilter=gofilter)
+bfwave.name = u'振荡突破向上'
+bfwave.lastupdate = 20110110
+bfwave.stop_closer = utrade.atr5_ustop_V1
+
+sfwave = SXFuncD1(fstate=gofilter,fsignal=dfwave,fwave=gofilter,ffilter=gofilter)
+sfwave.name = u'振荡突破向下'
+sfwave.lastupdate = 20110110
+sfwave.stop_closer = utrade.atr5_ustop_V1
+
+fwave = [bfwave,sfwave]
+
+lwilliams = erange + fwave  #叠加无效果， 单独的以erange为好
+
+for x in lwilliams:
+    x.stop_closer = utrade.atr5_ustop_V1    
+
+###123/2B
 def u123(sif):
     #向上123
 
@@ -1243,7 +1479,7 @@ def drebound(sif):
     #tp = (lll + rollx(sif.dlow)) / 2#(rpll + lll)/2
     #tp = np.select([lll>sif.dlow,rpll>sif.dlow,rpll==sif.dlow],[(lll+sif.dlow)/2,(rpll+sif.dlow)/2,mlow_last(sif,vlen=10)])
     
-    xp = signal_last(sif.dhigh,vlen=30) - 20
+    xp = signal_last(sif.dhigh,vlen=30) - 60
     tp = np.select([lhh<rollx(sif.dhigh),lhh==rollx(sif.dhigh)],[gmin(lhh-20,xp),xp])
     #tp = lll
 
@@ -1256,6 +1492,54 @@ def drebound(sif):
                 #sif.dhigh - sif.low > 100,
             )
     return np.select([signal],[gmin(sif.open,tp)],0)
+
+def urebound2(sif):
+    '''
+         创新高后以跌破支撑为界
+         可扩展至未创新高?
+         这个算法需要进一步的仔细研究，是不是存在未来数据
+         并增强可操作性
+    '''
+
+    #tp = signal_last(sif.dlow,vlen=3) + 80
+    tp = rollx(sif.dlow,15)+90
+
+    signal = gand(#shh>0,    #不震荡
+                rollx(tmin(sif.low,10)) == rollx(sif.dlow),
+                sif.dlow < tp - 100,
+                sif.dlow > tp - 200, 
+                cross(tp,sif.high)>0,
+                sif.xatr < 1500,
+            )
+    return np.select([signal],[gmax(sif.open,tp)],0)
+
+
+def drebound2(sif):
+    '''
+         创新高后以跌破支撑为界
+    '''
+
+    #tp = signal_last(sif.dhigh,30) - 60
+    #bline = np.select([rollx(sif.atr)*6/5/XBASE > 60],[rollx(sif.atr)*6/5/XBASE],60)
+    #tp = rollx(sif.dhigh,5)-60
+    #tp = rollx(sif.dhigh,5)-rollx(sif.atr) *6/5/XBASE
+
+    bline = 60 #最简单，免去计算, 但不入ATR方式稳定
+    tp = rollx(sif.dhigh,5)-bline
+
+    signal = gand(#shh>0,    #不震荡
+                rollx(tmax(sif.high,15)) == rollx(sif.dhigh),
+                sif.dhigh > tp + bline +10, #突破加1点
+                #sif.dhigh > tp + 10 + rollx(sif.atr)*6/5/XBASE,
+                cross(tp,sif.low)<0,
+                #sif.time>1000,   #915会有跳空
+                #sif.time < 1046,
+                #strend2(sif.mxatr30x) < 0,
+                #sif.xatr<1500,
+                #sif.dhigh - sif.low > 100,
+            )
+    return np.select([signal],[gmin(sif.open,tp)],0)
+
 
 def calc_lh(sif,plen=5):
     alen = 2*plen+1
@@ -1280,20 +1564,34 @@ srebound.name = u'向下反弹'
 srebound.lastupdate = 20101225
 srebound.stop_closer = utrade.atr5_ustop_6
 
+brebound2 = BXFuncD1(fstate=gofilter,fsignal=urebound2,fwave=gofilter,ffilter=emfilter2)    #样本数太少
+brebound2.name = u'向上反弹'
+brebound2.lastupdate = 20101225
+brebound2.stop_closer = utrade.atr5_ustop_X1
+
+
+srebound2 = SXFuncD1(fstate=gofilter,fsignal=drebound2,fwave=gofilter,ffilter=emfilter2)
+srebound2.name = u'向下反弹'
+srebound2.lastupdate = 20101225
+srebound2.stop_closer = utrade.atr5_ustop_X1
 
 dbrebound = BXFuncD1(fstate=gofilter,fsignal=urebound,fwave=gofilter,ffilter=e1430filter)##e1430filter2)
 dbrebound.name = u'向上反弹'
 dbrebound.lastupdate = 20101225
 dbrebound.stop_closer = utrade.atr5_ustop_6
 
+
+
 dsrebound = SXFuncD1(fstate=gofilter,fsignal=drebound,fwave=gofilter,ffilter=mfilter2)##e1430filter2)
 dsrebound.name = u'向下反弹'
 dsrebound.lastupdate = 20101225
 dsrebound.stop_closer = utrade.atr5_ustop_6
 
-rebound = [brebound,srebound]       #可以作为单独的策略
+rebound = [brebound,srebound]   
 
 d1_rebound = [dbrebound,dsrebound]
+
+rebound2 = [srebound2]#,brebound] #brebound2样本数太少，暂时忽略
 
 ###普通形态突破
 
@@ -1801,7 +2099,9 @@ def dxbreak1(sif,tbegin=1030):
 
     #ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
     #ldmid = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)    
-    ldmid = dnext(sif.highd,sif.close,sif.i_cofd)    
+    #ldmid = dnext(sif.highd,sif.close,sif.i_cofd)    
+    ldmid = dnext(sif.highd/2+rollx(sif.highd)/2,sif.close,sif.i_cofd)    
+    
     opend = dnext(sif.opend,sif.open,sif.i_oofd)        
 
 
@@ -2044,7 +2344,7 @@ def dxbreak1c(sif,tbegin=1030):
 
     #ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
     #ldmid = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)    
-    ldmid = dnext(sif.highd,sif.close,sif.i_cofd)    
+    ldmid = dnext(sif.highd/2+rollx(sif.highd)/2,sif.close,sif.i_cofd)    
     opend = dnext(sif.opend,sif.open,sif.i_oofd)        
 
 
@@ -2179,6 +2479,8 @@ d1_xbreak = [bxbreakd,sxbreakd]
 exbreak = [ebxbreak,esxbreak]
 
 exbreak2 = [ebxbreak2]
+
+
 
 ##幅度突破rbreak
 def rbreakb(sif,distance=250):
@@ -2985,7 +3287,7 @@ txfs = [xds,xuub,K1_RU,xup01,FA_15_120,K1_DVBR,Z5_P2,k5_d3b,xmacd3s,ua_fa,K1_DVB
 
 txxx = hbreak2 + txfs
 
-xxx1 = xbreak1 + hbreak2 + dbreak + exbreak2#+ d1_rebound #+ amm #+ break123c  #此方法每日亏损20点之后趴下装死比较妥当
+xxx1 = xbreak1 + hbreak2 + dbreak + exbreak2 + rebound2#+ d1_rebound #+ amm #+ break123c  #此方法每日亏损20点之后趴下装死比较妥当
 
 dxxx = d1_xbreak + d1_hbreak + dbreak #+ d1_rebound#+break123c# #+ rebound  #此方法每日亏损12点之后趴下装死比较妥当
 
@@ -2998,6 +3300,8 @@ rxxx = rbreak_all + edbreak + exbreak #+ rebound #一个很牛的独立策略, �
 mrxxx = mrbreak + edbreak +exbreak #+ rebound #一个很牛的独立策略，类似于上
 
 rxxx2 = rbreak + break_xr + xbreak1b #xbreak1b:突破回调系统
+
+xxx3 = dbreak+ xbreak1c + exbreak2 + xbreak1 + rebound2 #也还可以
 
 #xxx2 = rxxx
 
@@ -3083,6 +3387,8 @@ bxbreak.stop_closer = utrade.atr5_ustop_V1
 sxbreak.stop_closer = utrade.atr5_ustop_V1
 bxbreak1.stop_closer = utrade.atr5_ustop_V1
 sxbreak1.stop_closer = utrade.atr5_ustop_V1
+bxbreak1c.stop_closer = utrade.atr5_ustop_V1
+sxbreak1c.stop_closer = utrade.atr5_ustop_V1
 
 ebxbreak2.stop_closer = utrade.atr5_ustop_V1
 
@@ -3098,6 +3404,8 @@ sxbreakd.stop_closer = utrade.atr5_ustop_V
 
 dhbreak_nhh.stop_closer = utrade.atr5_ustop_V
 dshbreak_mll2.stop_closer = utrade.atr5_ustop_V
+
+srebound2.stop_closer = utrade.atr5_ustop_X1
 
 ####AMM系列
 bamm.stop_closer = utrade.atr5_ustop_V1

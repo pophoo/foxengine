@@ -1544,7 +1544,7 @@ def uxbreak1(sif,tbegin=1030):
 
 def uxbreak1b(sif,tbegin=1030):
     '''
-        向上突破、回调，再突破
+        向上突破、超过3点后进入
     '''
 
     phh,pll = calc_lh(sif,plen=6)
@@ -1986,6 +1986,7 @@ def uxbreak1c(sif,tbegin=1030):
                 rollx(strend2(sif.high))>0,
                 sif.time>915,   #915会有跳空
                 tp - sif.dlow > 200,
+                #rollx(sif.dhigh - sif.dlow) > 300,
                 lhh>lll+80,
                 sif.time > tbegin,  #避免之前信号被重复计算
             )

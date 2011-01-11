@@ -3249,21 +3249,23 @@ bjxu5.lastupdate = 20101224
 bjxu5.stop_closer = utrade.atr5_ustop_j #可用于主方法
 
 ###7操作系统
+
+##做多在9/11/12/13/46/53/57, 正向运动, 11综合最好
 def ux7(sif):   #
     signal = gand(
-            gor(sif.time%100 == 7),#,sif.time%100 == 37,sif.time%100 == 57),
-            #sif.low < rollx(sif.low,1),
-            #sif.high < rollx(sif.high,1),            
-            #sif.close < rollx(sif.close,1),                        
+            gor(sif.time%100 == 11),#,sif.time%100 == 37,sif.time%100 == 57),
+            sif.low > rollx(sif.low,1),
+            sif.high > rollx(sif.high,1),            
+            sif.close > rollx(sif.close,1),                        
           )
     
     return signal
 bx7 = BXFunc(fstate=gofilter,fsignal=ux7,fwave=gofilter,ffilter=nfilter)
 bx7.name = u'7系统向上'
 bx7.lastupdate = 20110111
-bx7.stop_closer = utrade.atr5_ustop_V1
+bx7.stop_closer = utrade.atr5_ustop_V
 
-#31肯定卡到某些周期交易者的气门了，他们动作之后被趋势反动
+#31肯定卡到某些周期交易者的气门了，空头占优时他们动作之后被趋势反动
 #逢31就放空,1393点,439次，143点. 这个止损是8点
 #无条件放空: 止损到4点，8点报本，768点, 275次, 最大回撤74点. 每天亏到3点就收工
 ######反向放空(止损4保本8)，即该分钟收盘/最高/最低都大于上分钟，则423点，129次，最大回撤44点. 打酱油系统
@@ -3280,10 +3282,10 @@ def dx7(sif):   #
 sx7 = SXFunc(fstate=gofilter,fsignal=dx7,fwave=gofilter,ffilter=nfilter)
 sx7.name = u'7系统向下'
 sx7.lastupdate = 20110111
-sx7.stop_closer = utrade.atr5_ustop_V1
+sx7.stop_closer = utrade.atr5_ustop_V
 
-
-x7 = [bx7,sx7]
+x7 = [bx7,sx7]  #合成之后，879点,290次,80点回撤. 止损4保本8
+                #如果改成止损6保本8,并且每天亏上12点后收工，则变成993/267,回撤68
 
 ####添加老系统
 wxxx = [xds,xdds3,k5_d3b,xuub,K1_DDD1,K1_UUX,K1_RU,Z5_P2,xmacd3s,xup01,ua_fa,FA_15_120,K1_DVB,K1_DDUU,K1_DVBR]

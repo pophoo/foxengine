@@ -3263,19 +3263,24 @@ bx7.name = u'7系统向上'
 bx7.lastupdate = 20110111
 bx7.stop_closer = utrade.atr5_ustop_V1
 
+#31肯定卡到某些周期交易者的气门了，他们动作之后被趋势反动
+#逢31就放空,1393点,439次，143点. 这个止损是8点
+#无条件放空: 止损到4点，8点报本，768点, 275次, 最大回撤74点. 每天亏到3点就收工
+######反向放空(止损4保本8)，即该分钟收盘/最高/最低都大于上分钟，则423点，129次，最大回撤44点. 打酱油系统
+############如果设定每天最多亏6点，就是438点,126次,44点回撤
 def dx7(sif):   #
     signal = gand(
-            gor(sif.time%100 == 7),#,sif.time%100 == 37,sif.time%100 == 57),
-            #sif.low > rollx(sif.low,1),
-            #sif.high > rollx(sif.high,1),            
-            #sif.close > rollx(sif.close,1),                        
+            gor(sif.time%100 == 31),#,sif.time%100 == 37,sif.time%100 == 57),
+            sif.low > rollx(sif.low,1),
+            sif.high > rollx(sif.high,1),            
+            sif.close > rollx(sif.close,1),                        
           )
     
     return signal
-sx7 = SXFunc(fstate=gofilter,fsignal=ux7,fwave=gofilter,ffilter=nfilter)
+sx7 = SXFunc(fstate=gofilter,fsignal=dx7,fwave=gofilter,ffilter=nfilter)
 sx7.name = u'7系统向下'
 sx7.lastupdate = 20110111
-sx7.stop_closer = utrade.atr5_ustop_X1
+sx7.stop_closer = utrade.atr5_ustop_V1
 
 
 x7 = [bx7,sx7]

@@ -2406,6 +2406,10 @@ bxbreakd.name = u'向上突破'
 bxbreakd.lastupdate = 20101231
 bxbreakd.stop_closer = utrade.atr5_ustop_X2
 
+bxbreak1cd = BXFuncF1(fstate=gofilter,fsignal=uxbreak1c,fwave=gofilter,ffilter=mfilter3)##e1430filter2)
+bxbreak1cd.name = u'向上突破'
+bxbreak1cd.lastupdate = 20101231
+bxbreak1cd.stop_closer = utrade.atr5_ustop_X2
 
 sxbreak = SXFunc(fstate=gofilter,fsignal=dxbreak,fwave=nx2500X,ffilter=mfilter3)##e1430filter2)
 sxbreak.name = u'向下突破'
@@ -2442,6 +2446,11 @@ sxbreakd.name = u'向下突破'
 sxbreakd.lastupdate = 20101231
 sxbreakd.stop_closer = utrade.atr5_ustop_V
 
+sxbreak1cd = SXFuncF1(fstate=gofilter,fsignal=dxbreak1c,fwave=nx2500X,ffilter=mfilter2)##e1430filter2)
+sxbreak1cd.name = u'向下突破'
+sxbreak1cd.lastupdate = 20101231
+sxbreak1cd.stop_closer = utrade.atr5_ustop_V
+
 ebxbreak = BXFunc(fstate=gofilter,fsignal=fcustom(uxbreak,tbegin=0),fwave=gofilter,ffilter=emfilter)
 ebxbreak.name = u'早盘向上突破'
 ebxbreak.lastupdate = 20101231
@@ -2473,6 +2482,7 @@ xbreakx = xbreak1 + xbreak1b    #一个不错的独立方法
 
 xbreak2 = [bxbreak2,sxbreak2]
 d1_xbreak = [bxbreakd,sxbreakd]
+d1_xbreak1c = [bxbreak1cd,sxbreak1cd]
 exbreak = [ebxbreak,esxbreak]
 
 exbreak2 = [ebxbreak2]
@@ -3334,7 +3344,7 @@ txxx = hbreak2 + txfs
 #xxx1 = xbreak1c + hbreak2 + dbreak + exbreak2 + rebound2#+ d1_rebound #+ amm #+ break123c  #此方法每日亏损20点之后趴下装死比较妥当
 xxx1 = xbreak1c + hbreak2 + dbreak + exbreak2 + rebound2#此方法每日亏损20点之后趴下装死比较妥当
 
-dxxx = d1_xbreak + d1_hbreak + dbreak #+ d1_rebound#+break123c# #+ rebound  #此方法每日亏损12点之后趴下装死比较妥当
+dxxx = d1_xbreak1c + d1_hbreak + dbreak #+ d1_rebound#+break123c# #+ rebound  #此方法每日亏损12点之后趴下装死比较妥当
 
 #xxx2 = xxx +wxfs #+ wxxx
 xxx2 = xxx1

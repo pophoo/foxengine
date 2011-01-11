@@ -3248,7 +3248,37 @@ bjxu5.lastupdate = 20101224
 #bjxu5.stop_closer = utrade.atr5_ustop_V #可用于主方法
 bjxu5.stop_closer = utrade.atr5_ustop_j #可用于主方法
 
+###7操作系统
+def ux7(sif):   #
+    signal = gand(
+            gor(sif.time%100 == 7),#,sif.time%100 == 37,sif.time%100 == 57),
+            #sif.low < rollx(sif.low,1),
+            #sif.high < rollx(sif.high,1),            
+            #sif.close < rollx(sif.close,1),                        
+          )
+    
+    return signal
+bx7 = BXFunc(fstate=gofilter,fsignal=ux7,fwave=gofilter,ffilter=nfilter)
+bx7.name = u'7系统向上'
+bx7.lastupdate = 20110111
+bx7.stop_closer = utrade.atr5_ustop_V1
 
+def dx7(sif):   #
+    signal = gand(
+            gor(sif.time%100 == 7),#,sif.time%100 == 37,sif.time%100 == 57),
+            #sif.low > rollx(sif.low,1),
+            #sif.high > rollx(sif.high,1),            
+            #sif.close > rollx(sif.close,1),                        
+          )
+    
+    return signal
+sx7 = SXFunc(fstate=gofilter,fsignal=ux7,fwave=gofilter,ffilter=nfilter)
+sx7.name = u'7系统向下'
+sx7.lastupdate = 20110111
+sx7.stop_closer = utrade.atr5_ustop_X1
+
+
+x7 = [bx7,sx7]
 
 ####添加老系统
 wxxx = [xds,xdds3,k5_d3b,xuub,K1_DDD1,K1_UUX,K1_RU,Z5_P2,xmacd3s,xup01,ua_fa,FA_15_120,K1_DVB,K1_DDUU,K1_DVBR]

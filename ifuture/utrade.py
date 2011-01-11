@@ -775,7 +775,7 @@ atr5_ustop_6 = fcustom(atr_stop_u
             )
 
 atr5_ustop_61 = fcustom(atr_stop_u
-                ,fkeeper=iftrade.F80
+                ,fkeeper=iftrade.F60
                 ,win_times=250
                 ,natr=5
                 ,flost_base=iftrade.F40

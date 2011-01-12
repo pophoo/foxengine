@@ -37,7 +37,7 @@ xbreak1c系列，连续两次突破后，放宽突破的界限，即延缓突破
                 4. 突破前一分钟高点 > 前2分钟高点
                 5. 连续两次突破后，放宽突破的界限到显著高点+6点
         做空:   1. 穿越上一显著低点-1点处. 
-                2. 该显著低点大于当日低点13个点,
+                2. 该显著低点大于当日低点13个点,小于显著高点6个点
                 3. 该显著低点低于前两日最高价的平均或者当日开盘价.
                 4. xatr<2500,xatr5x<4000,xatr30x<10000
     平仓:
@@ -74,12 +74,14 @@ xbreak早盘动作:
         [916,934]
 
 rebound2的早盘动作:
+    每天只做第一次
     开仓:
         做多:   无
-        做空:   1. 基准线: 5分钟之前的高点-6处
+        做空:   创新高后5分钟内跌回到前高-6处
+                1. 基准线: 5分钟之前的高点-6处
                 2. 新高突破原高1点
                 3. 最低价跌破基准线
-                4. 新高在触发的最近15分钟内创出
+                4. 新高在触发的最近5分钟内创出
     平仓:
         止损为8, 保本为8
     工作时段:
@@ -833,7 +835,7 @@ def ayu(sif):
     return np.select([signal],[gmax(sif.open,bline)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
 
 def ayd(sif):
-    #价格跳空低开，当往上反弹到昨日最低价时开多
+    #价格跳空低开，当往下到昨日最高价时开空
     ldclose = dnext(sif.closed,sif.close,sif.i_cofd)
     ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)    
     ldopen = dnext(sif.opend,sif.close,sif.i_oofd)
@@ -860,7 +862,7 @@ sayd.name = u'跳空高开后跌破前日高点'
 sayd.lastupdate = 20110110
 sayd.stop_closer = utrade.atr5_ustop_X1     #样本数太少
 
-ay = [bayu,sayd]
+ay = [bayu,sayd]    #需要观察到样本数>50
 
 ##价格扩张
 def erangeu(sif):
@@ -1522,13 +1524,15 @@ def drebound2(sif):
     #tp = rollx(sif.dhigh,5)-rollx(sif.atr) *6/5/XBASE
 
     bline = 60 #最简单，免去计算, 但不入ATR方式稳定
-    tp = rollx(sif.dhigh,5)-bline
+    tline = 5  #创新高后tline分钟内跌回
+    tp = rollx(sif.dhigh,tline)-bline
 
     signal = gand(#shh>0,    #不震荡
-                rollx(tmax(sif.high,15)) == rollx(sif.dhigh),
+                rollx(tmax(sif.high,tline)) == rollx(sif.dhigh),
                 sif.dhigh > tp + bline +10, #突破加1点
                 #sif.dhigh > tp + 10 + rollx(sif.atr)*6/5/XBASE,
                 cross(tp,sif.low)<0,
+                #sif.dhigh - sif.dlow>250,
                 #sif.time>1000,   #915会有跳空
                 #sif.time < 1046,
                 #strend2(sif.mxatr30x) < 0,
@@ -1955,11 +1959,11 @@ def uxbreak2(sif):
 
     #slx = np.select([lll>sif.dlow,rpll>sif.dlow,rpll2>sif.dlow],[sif.dlow-lll,sif.dlow-rpll,sif.dlow-rpll2],99999999)
 
-    tp = np.select([gor(tp<sif.dhigh-80,sif.time<945)],[tp],99999999)   #距离突破线比较近的，交给突破
+    tp = np.select([gor(tp<rollx(sif.dhigh-80),sif.time<945)],[tp],99999999)   #距离突破线比较近的，交给突破
     #tp = gmax(tp,sif.dlow+151)
 
     tp2 = lhh + 80  #假动作之后抬升
-    tp2 = np.select([gor(tp2<sif.dhigh-80,sif.time<945)],[tp2],99999999)   #距离突破线比较近的，交给突破
+    tp2 = np.select([gor(tp2<rollx(sif.dhigh-80),sif.time<945)],[tp2],99999999)   #距离突破线比较近的，交给突破
 
     signal = gand(#shh<90,    #不震荡
                 #gor(lll2 > lll,sll>0),
@@ -2088,7 +2092,7 @@ def dxbreak1(sif,tbegin=1030):
     tp = lll-10
     #tp = lll
 
-    tlow = sif.dlow
+    tlow = rollx(sif.dlow)
     #tp = np.select([gor(tp>tlow+60,sif.time<=1031,sif.time>=1430)],[tp],0) #接近低点的给突破
     tp = np.select([gor(tp>tlow+140)],[tp],0) #接近低点的给突破
     #tp = np.select([gand(tp>tlow+60,rollx(sif.low)>tlow+30)],[tp],0) #接近低点的给突破
@@ -2154,7 +2158,7 @@ def dxbreak1b(sif,tbegin=1030):
     tp = lll-10
     #tp = lll
 
-    tlow = sif.dlow
+    tlow = rollx(sif.dlow)
     #tp = np.select([gor(tp>tlow+60,sif.time<=1031,sif.time>=1430)],[tp],0) #接近低点的给突破
     tp = np.select([gor(tp>tlow+140)],[tp],0) #接近低点的给突破
     #tp = np.select([gand(tp>tlow+60,rollx(sif.low)>tlow+30)],[tp],0) #接近低点的给突破
@@ -2333,7 +2337,7 @@ def dxbreak1c(sif,tbegin=1030):
     tp = lll-10
     #tp = lll
 
-    tlow = sif.dlow
+    tlow = rollx(sif.dlow)  #不能计算突破当分钟的
     #tp = np.select([gor(tp>tlow+60,sif.time<=1031,sif.time>=1430)],[tp],0) #接近低点的给突破
     tp = np.select([gor(tp>tlow+120)],[tp],0) #接近低点的给突破
     #tp = np.select([gand(tp>tlow+60,rollx(sif.low)>tlow+30)],[tp],0) #接近低点的给突破
@@ -2358,6 +2362,7 @@ def dxbreak1c(sif,tbegin=1030):
                 #sif.xatr5x < 4000,
                 #sif.dhigh - sif.low>60,
                 gor(tp < ldmid,tp<opend),#-sif.xatr*2/XBASE,  #比前2天高点中点低才允许做空                
+                lll < lhh - 60,
                 #rollx(sif.dhigh - sif.dlow) > 100, 
                 #rollx(sif.dhigh - sif.dlow) > 100, 
                 #rollx(sif.dhigh)- tp >100,
@@ -3305,6 +3310,7 @@ x7 = [bx7,sx7]  #合成之后，879点,290次,80点回撤. 止损4保本8
 #50-100   34     884.1        45     -363.2
 #100-150  13     586.2        10     -60.4
 #>150     4      341.6        3      -4.0
+##按月的盈利分布也不错
 
 
 ####添加老系统

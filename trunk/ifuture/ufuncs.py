@@ -36,10 +36,14 @@ xbreak1c系列，连续两次突破后，放宽突破的界限，即延缓突破
                 3. 底部抬高，或者2分钟底部比5分钟底部高
                 4. 突破前一分钟高点 > 前2分钟高点
                 5. 连续两次突破后，放宽突破的界限到显著高点+6点
+                ##存在创新高后下一分钟开仓的情况，因为之前不满足<新高3点的条件，创新高后满足了就开仓
+                ##这个是由线型决定的, 从99999999穿越到lhh-3, 而新高自然穿越它
         做空:   1. 穿越上一显著低点-1点处. 
                 2. 该显著低点大于当日低点13个点,小于显著高点6个点
                 3. 该显著低点低于前两日最高价的平均或者当日开盘价.
                 4. xatr<2500,xatr5x<4000,xatr30x<10000
+                ##存在创新低后下一分钟开仓的情况，因为之前不满足>新低-13点的条件，创新低后满足了就开仓
+                ##这个是由线型决定的, 从0穿越到lll-1, 而新低自然穿越它
     平仓:
         止损为4, 保本为8
     工作时段:
@@ -2284,6 +2288,7 @@ def uxbreak1c(sif,tbegin=1030):
                 #sll>0,
                 cross(tp,sif.high)>0,
                 #tp <= rollx(tp),#不是从99999999下来的被上叉
+                #rollx(tp)!=99999999,###去掉因为99999999下叉到lll-10引起的穿越. 没必要
                 rollx(strend2(sif.high))>0,
                 sif.time>915,   #915会有跳空
                 tp - sif.dlow > 200,
@@ -2356,6 +2361,7 @@ def dxbreak1c(sif,tbegin=1030):
                 #sif.low < tp,
                 sif.time>915,   #915会有跳空
                 #tp >= rollx(tp),    #不是从0起来的被交叉
+                #rollx(tp)!=0,  #去掉因为0上叉到lll-10引起的穿越. 没必要
                 #sif.xatr>sif.mxatr,
                 #sif.xatr<2500,
                 #sif.xatr30x < 10000,
@@ -2366,6 +2372,26 @@ def dxbreak1c(sif,tbegin=1030):
                 #rollx(sif.dhigh - sif.dlow) > 100, 
                 #rollx(sif.dhigh - sif.dlow) > 100, 
                 #rollx(sif.dhigh)- tp >100,
+            )
+    
+    return np.select([signal],[gmin(sif.open,tp)],0)
+
+def dxbreak1d(sif,tbegin=1030):
+    '''
+        冲高失败后向下突破
+    '''
+
+    tp = rollx(sif.dhigh)-120
+
+    ldmid = dnext(sif.highd/2+rollx(sif.highd)/2,sif.close,sif.i_cofd)    
+    opend = dnext(sif.opend,sif.open,sif.i_oofd)        
+
+    signal = gand(
+                #gor(lhh2 < lhh,shh<0),
+                cross(tp,sif.low)<0,
+                #sif.low < tp,
+                sif.time>915,   #915会有跳空
+                rollx(tmax(sif.high,3)) == rollx(sif.dhigh),
             )
     
     return np.select([signal],[gmin(sif.open,tp)],0)
@@ -2389,6 +2415,12 @@ bxbreak1c = BXFunc(fstate=gofilter,fsignal=uxbreak1c,fwave=gofilter,ffilter=mfil
 bxbreak1c.name = u'向上突破c'
 bxbreak1c.lastupdate = 20101231
 bxbreak1c.stop_closer = utrade.atr5_ustop_V1
+
+sxbreak1d = SXFunc(fstate=gofilter,fsignal=dxbreak1d,fwave=gofilter,ffilter=mfilter)##e1430filter2)
+sxbreak1d.name = u'向下突破d'
+sxbreak1d.lastupdate = 20101231
+sxbreak1d.stop_closer = utrade.atr5_ustop_V1
+
 
 bxbreak1x = BXFunc(fstate=gofilter,fsignal=uxbreak1,fwave=gofilter,ffilter=mfilter3)
 bxbreak1x.name = u'向上突破'

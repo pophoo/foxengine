@@ -24,32 +24,27 @@ hbreak2系列
               3. xatr<2500,xatr5x<4000,xatr30x<10000
               4. 日内振幅>15
     平仓:
-        止损为6，保本为8
+        止损为6，保本为8. 30分钟后如果盈利大于10点，则把止损拉到盈利8点或更多处
     工作时段: [1036,1435]
 
 
-xbreak1c系列，连续两次突破后，放宽突破的界限，即延缓突破
+xbreak1v系列，连续两次突破后，放宽突破的界限，即延缓突破
     顶/底均以6分钟计，即13分钟高/低点
     开仓:
         做多:   1. 穿越上一显著高点. 
-                2. 该显著高点必须比之前的当日最高小3点，且大于当日最低20点, 大于显著低点8点
+                2. 该显著高点大于当日最低20点, 大于最低点20点, 大于显著低点12点
                 3. 底部抬高，或者2分钟底部比5分钟底部高. 
                    ###注意，一定要在出现一个5分钟底或2分钟底之后才下条件单. 如果没有出现底部抬高，失败率比较高
                 4. 突破前一分钟高点 > 前2分钟高点
-                5. 30分钟内连续两次突破后，放宽突破的界限到显著高点+6点
-                ##存在创新高后下一分钟开仓的情况，因为之前不满足<新高3点的条件，创新高后满足了就开仓
-                ##这个是由线型决定的, 从99999999穿越到lhh-3, 而新高自然穿越它
+                5. 30分钟内连续两次突破后，放宽突破的界限到显著高点+3点
         做空:   1. 穿越上一显著低点-1点处. 
-                2. 该显著低点大于当日低点13个点,小于显著高点6个点
+                2. 该显著低点大于之前的中间价-0.6
                 3. 该显著低点低于前两日最高价的平均或者当日开盘价.
                 4. xatr<2500,xatr5x<4000,xatr30x<10000
-                ##存在创新低后下一分钟开仓的情况，因为之前不满足>新低-13点的条件，创新低后满足了就开仓
-                ##这个是由线型决定的, 从0穿越到lll-1, 而新低自然穿越它
     平仓:
-        止损为4, 保本为8
+        止损为4, 保本为8. 
     工作时段:
         [1036,1435]
-
 
 dbreak系列，每天多空都只取第一次
     开仓:
@@ -62,7 +57,7 @@ dbreak系列，每天多空都只取第一次
               3. xatr<2500,xatr5x<4000,xatr30x<10000
 
     平仓:
-        止损为6，保本为8
+        止损为6，保本为8. 30分钟后如果盈利大于10点，则把止损拉到盈利8点或更多处
     工作时段:
         买多:[915,1330]
         做空:[915,1400]
@@ -88,7 +83,7 @@ rebound2的早盘动作:
                 3. 最低价跌破基准线
                 4. 新高在触发的最近5分钟内创出
     平仓:
-        止损为8, 保本为8
+        止损为8, 保本为8. 15分钟后如果盈利大于10点，则把止损拉到盈利8点或更多处
     工作时段:
         [959,1055]
 
@@ -2415,7 +2410,7 @@ def uxbreak1v(sif,tbegin=1030):
 
     #tp = np.select([tp<rollx(sif.dhigh-30)],[tp],99999999)   #距离突破线比较近的，交给突破    
 
-    tp2 = lhh + 60  #假动作之后抬升
+    tp2 = lhh + 30  #假动作之后抬升
     #tp2 = np.select([tp2<rollx(sif.dhigh-30)],[tp2],99999999)   #距离突破线比较近的，交给突破
     #tp2 = np.select([gor(gand(tp2<sif.dhigh-80,rollx(sif.high)<sif.dhigh-30),sif.time<945)],[tp2],99999999)   #距离突破线比较近的，交给突破
     mhh = rollx(tmax(sif.high,75))
@@ -2432,7 +2427,7 @@ def uxbreak1v(sif,tbegin=1030):
                 sif.time>915,   #915会有跳空
                 tp >= rollx(sif.dlow) + 200,
                 tp <= rollx(sif.dhigh) - 200,
-                lhh>lll+80,
+                lhh>lll+120,
                 sif.time > tbegin,  #避免之前信号被重复计算
                 #rollx(sif.dhigh - sif.dlow) > 400,
                 #rollx(mhh - mll) > 200,
@@ -2509,7 +2504,8 @@ def dxbreak1v(sif,tbegin=1030):
                 #sif.dhigh - sif.low>60,
                 gor(tp < ldmid,tp<opend),#-sif.xatr*2/XBASE,  #比前2天高点中点低才允许做空                
                 #lll < lhh - 60,
-                tp >= rollx(sif.dmid) - 5,
+                tp > rollx(sif.dmid) - 6,
+                #rollx(sif.dhigh-sif.dlow)>400,
                 #tp >= rollx(sif.dlow) + 200,
                 #rollx(sif.dhigh - sif.dlow) > 100, 
                 #rollx(sif.dhigh - sif.dlow) > 100, 
@@ -2591,10 +2587,10 @@ bxbreakd.name = u'向上突破'
 bxbreakd.lastupdate = 20101231
 bxbreakd.stop_closer = utrade.atr5_ustop_X2
 
-bxbreak1cd = BXFuncF1(fstate=gofilter,fsignal=uxbreak1c,fwave=gofilter,ffilter=mfilter3)##e1430filter2)
-bxbreak1cd.name = u'向上突破'
-bxbreak1cd.lastupdate = 20101231
-bxbreak1cd.stop_closer = utrade.atr5_ustop_X2
+bxbreak1vd = BXFuncF1(fstate=gofilter,fsignal=uxbreak1v,fwave=gofilter,ffilter=mfilter3)##e1430filter2)
+bxbreak1vd.name = u'向上突破'
+bxbreak1vd.lastupdate = 20101231
+bxbreak1vd.stop_closer = utrade.atr5_ustop_X2
 
 sxbreak = SXFunc(fstate=gofilter,fsignal=dxbreak,fwave=nx2500X,ffilter=mfilter3)##e1430filter2)
 sxbreak.name = u'向下突破'
@@ -2637,10 +2633,10 @@ sxbreakd.name = u'向下突破'
 sxbreakd.lastupdate = 20101231
 sxbreakd.stop_closer = utrade.atr5_ustop_V
 
-sxbreak1cd = SXFuncF1(fstate=gofilter,fsignal=dxbreak1c,fwave=nx2500X,ffilter=mfilter2)##e1430filter2)
-sxbreak1cd.name = u'向下突破'
-sxbreak1cd.lastupdate = 20101231
-sxbreak1cd.stop_closer = utrade.atr5_ustop_V
+sxbreak1vd = SXFuncF1(fstate=gofilter,fsignal=dxbreak1v,fwave=nx2500X,ffilter=mfilter2)##e1430filter2)
+sxbreak1vd.name = u'向下突破'
+sxbreak1vd.lastupdate = 20101231
+sxbreak1vd.stop_closer = utrade.atr5_ustop_V
 
 ebxbreak = BXFunc(fstate=gofilter,fsignal=fcustom(uxbreak,tbegin=0),fwave=gofilter,ffilter=emfilter)
 ebxbreak.name = u'早盘向上突破'
@@ -2674,7 +2670,7 @@ xbreakx = xbreak1 + xbreak1b    #一个不错的独立方法
 
 xbreak2 = [bxbreak2,sxbreak2]
 d1_xbreak = [bxbreakd,sxbreakd]
-d1_xbreak1c = [bxbreak1cd,sxbreak1cd]
+d1_xbreak1v = [bxbreak1vd,sxbreak1vd]
 exbreak = [ebxbreak,esxbreak]
 
 exbreak2 = [ebxbreak2]
@@ -3537,9 +3533,9 @@ txxx = hbreak2 + txfs
 
 #xxx1 = xbreak1c + hbreak2 + dbreak + exbreak2 + rebound2#+ d1_rebound #+ amm #+ break123c  #此方法每日亏损20点之后趴下装死比较妥当
 #xxx1 = xbreak1c + hbreak2 + dbreak + exbreak2 + rebound2#此方法每日亏损20点之后趴下装死比较妥当
-xxx1 = hbreak2 + xbreak1v + dbreak + exbreak2 + rebound2#此方法每日亏损20点之后趴下装死比较妥当
+xxx1 = hbreak2 + xbreak1v + dbreak + exbreak2 + rebound2#此方法每日亏损18点(775)之后趴下装死比较妥当
 
-dxxx = d1_xbreak1c + d1_hbreak + dbreak #+ d1_rebound#+break123c# #+ rebound  #此方法每日亏损12点之后趴下装死比较妥当
+dxxx = d1_xbreak1v + d1_hbreak + dbreak #+ d1_rebound#+break123c# #+ rebound  #此方法每日亏损12点之后趴下装死比较妥当
 
 #xxx2 = xxx +wxfs #+ wxxx
 xxx2 = xxx1
@@ -3646,11 +3642,11 @@ sxbreak1v.stop_closer = utrade.atr5_ustop_V1
 
 ebxbreak2.stop_closer = utrade.atr5_ustop_V1
 
-shbreak_mll2.stop_closer = utrade.atr5_ustop_V
-hbreak_nhh.stop_closer = utrade.atr5_ustop_V
+shbreak_mll2.stop_closer = utrade.atr5_ustop_T
+hbreak_nhh.stop_closer = utrade.atr5_ustop_T
 
-dbreakb.stop_closer = utrade.atr5_ustop_V
-dbreaks.stop_closer = utrade.atr5_ustop_V
+dbreakb.stop_closer = utrade.atr5_ustop_T
+dbreaks.stop_closer = utrade.atr5_ustop_T
 
 #########候补序列
 bxbreakd.stop_closer = utrade.atr5_ustop_V
@@ -3659,7 +3655,8 @@ sxbreakd.stop_closer = utrade.atr5_ustop_V
 dhbreak_nhh.stop_closer = utrade.atr5_ustop_V
 dshbreak_mll2.stop_closer = utrade.atr5_ustop_V
 
-srebound2.stop_closer = utrade.atr5_ustop_X1
+brebound2.stop_closer = utrade.atr5_ustop_T1
+srebound2.stop_closer = utrade.atr5_ustop_T1
 
 ####AMM系列
 bamm.stop_closer = utrade.atr5_ustop_V1

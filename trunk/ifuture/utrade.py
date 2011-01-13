@@ -25,8 +25,8 @@ def atr_stop_u(
         ,fkeeper = iftrade.FKEEP_30 #买入点数-->固定移动止损，移动到价格为止
         ,win_times=300        
         ,ftarget = iftrade.FTARGET #盈利目标,默认是无穷大
-        ,tlimit = 10    #约定时间线. 目前没用
-        ,wtlimit =  -100   #约定时间线的价格有利变动目标，如果不符合则平仓
+        ,tlimit = 300    #约定时间线. 目前没用
+        ,wtlimit = -1000   #约定时间线的价格有利变动目标，如果不符合则平仓
         ,natr=1
         ):
     '''
@@ -116,6 +116,8 @@ def atr_stop_u(
                         rev[j] = wtarget * XSELL
                         #print 'sell at target:'#,i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
                         break
+                    if j == i+tlimit and cur_stop < buy_price+100 and trans[ICLOSE][j] > buy_price+100:
+                        cur_stop = buy_price+80
                     nhigh = trans[IHIGH][j]
                     if(nhigh > cur_high):
                         cur_high = nhigh
@@ -170,13 +172,15 @@ def atr_stop_u(
                         break
                     elif (j==i+tlimit and tv < wtlimit):#时间到
                         ishort_closed = j
-                        rev[j] = trans[ICLOSE] * XBUY   
+                        rev[j] = trans[ICLOSE][j] * XBUY   
                         break
                     elif trans[ILOW][j] < wtarget:#
                         ishort_closed = j
                         rev[j] = wtarget * XBUY
                         #print 'buy at target:',i,price,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j]                        
                         break
+                    if j == i+tlimit and cur_stop > sell_price-100 and trans[ICLOSE][j] < sell_price-100:
+                        cur_stop = sell_price-80
                     nlow = trans[ILOW][j]
                     if(nlow < cur_low):
                         cur_low = nlow
@@ -617,18 +621,19 @@ def day_trades(trades,limit=-200):
                 ]
     for trade in trades[1:]:
         tdate = trade.actions[-1].date
-        if tdate ==results[-1].day:
-            results[-1].profit += trade.profit
-            results[-1].ontrade += 1
-            last_drawdown = results[-1].max_drawdown
-            if results[-1].sprofit > limit:
-                results[-1].sprofit += trade.profit
-                results[-1].ntrade += 1
-            results[-1].max_drawdown += trade.profit
-            if results[-1].max_drawdown > 0:
-                results[-1].max_drawdown = 0
-            elif results[-1].max_drawdown > last_drawdown:
-                results[-1].max_drawdown = last_drawdown
+        rlast = results[-1]
+        if tdate ==rlast.day:
+            rlast.profit += trade.profit
+            rlast.ontrade += 1
+            last_drawdown = rlast.max_drawdown
+            if rlast.sprofit > limit:
+                rlast.sprofit += trade.profit
+                rlast.ntrade += 1
+                rlast.max_drawdown += trade.profit
+                if rlast.max_drawdown > 0:
+                    rlast.max_drawdown = 0
+                elif rlast.max_drawdown > last_drawdown:
+                    rlast.max_drawdown = last_drawdown
         else:
             results.append(BaseObject(day=tdate,
                         profit=trade.profit,
@@ -675,6 +680,32 @@ atr5_ustop_V = fcustom(atr_stop_u,
                 flost_base=iftrade.F60,
                 fmax_drawdown=iftrade.F333
             )      #
+
+atr5_ustop_T = fcustom(atr_stop_u,
+                fkeeper=iftrade.F80,
+                win_times=250,
+                natr=5,
+                flost_base=iftrade.F60,
+                fmax_drawdown=iftrade.F333,
+                tlimit = 30,
+            )      #
+atr5_ustop_T1 = fcustom(atr_stop_u
+        ,fkeeper=iftrade.F80
+        ,win_times=250
+        ,natr=5
+        ,flost_base=iftrade.F80 #
+        ,fmax_drawdown=iftrade.F333
+        ,tlimit = 15,
+        )      #120-60
+atr5_ustop_TV1 = fcustom(atr_stop_u
+        ,fkeeper=iftrade.F80
+        ,win_times=250
+        ,natr=5
+        ,flost_base=iftrade.F40 #止损太窄不好操作，很可能还没设止损单就已经破了
+        ,fmax_drawdown=iftrade.F333
+        ,tlimit = 30,
+      )      #120-60
+
 
 atr5_ustop_VX = fcustom(atr_stop_u,#有浮盈持有到收盘
                 fkeeper=iftrade.F80,

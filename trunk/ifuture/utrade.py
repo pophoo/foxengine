@@ -708,6 +708,15 @@ atr5_ustop_V2 = fcustom(atr_stop_u
         ,flost_base=iftrade.F30 #止损太窄不好操作，很可能还没设止损单就已经破了
         ,fmax_drawdown=iftrade.F333)      #120-60
 
+atr5_ustop_V1_LK = fcustom(atr_stop_u
+        ,fkeeper=iftrade.F80
+        ,win_times=250
+        ,natr=5
+        ,flost_base=iftrade.F40 #止损太窄不好操作，很可能还没设止损单就已经破了
+        ,fmin_drawdown=iftrade.F100        
+        ,fmax_drawdown=iftrade.F100)      #120-60
+
+
 atr5_ustop_X = fcustom(atr_stop_u
         ,fkeeper=iftrade.F150
         ,win_times=250

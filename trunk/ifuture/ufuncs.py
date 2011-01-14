@@ -2442,10 +2442,13 @@ def uxbreak1v(sif,tbegin=1030):
     signal2 = gand(
                 gor(lll2 > lll,sll>0),
                 cross(tp2,sif.high)>0,
-                tp <= rollx(tp),#不是从99999999下来的被上叉                
+                #tp2 <= rollx(tp2),#不是从99999999下来的被上叉                
+                rollx(strend2(sif.high))>0,
                 sif.time>915,   #915会有跳空
-                tp2 - sif.dlow > 200,
-                lhh>lll+80,                
+                tp2 >= rollx(sif.dlow) + 200,
+                tp2 <= rollx(sif.dhigh) - 200,
+                lhh>lll+120,
+                sif.time > tbegin,  #避免之前信号被重复计算
             )
     signal = np.select([msignal<3,msignal>=3],[signal,signal2],0)
     ptp = np.select([msignal<3,msignal>=3],[tp,tp2],0)
@@ -2680,6 +2683,58 @@ exbreak = [ebxbreak,esxbreak]
 
 exbreak2 = [ebxbreak2]
 
+#####阻力反向
+def dxpeak(sif,tbegin=1030):
+    '''
+        向上到前顶后放空
+    '''
+
+    phh,pll = calc_lh(sif,plen=6)
+    phh2,pll2 = calc_lh(sif,plen=2)
+
+    sll = extend2next(ssub(pll))
+    shh = extend2next(ssub(phh))
+
+    lhh = extend2next(phh)
+    lll = extend2next(pll)
+    lll2 = extend2next(pll2)
+    lhh2 = extend2next(phh2)
+
+    ihh = np.nonzero(phh)
+    ill = np.nonzero(pll)
+
+    iihh = np.zeros_like(phh)
+    iill = np.zeros_like(pll)
+    iihh[ihh] = ihh
+    iill[ill] = ill
+    iihh = extend2next(iihh)
+    iill = extend2next(iill)
+
+
+    tp = lhh + 10
+    tp2 = tp + 60
+
+    ldmid = dnext(sif.highd/2+rollx(sif.highd)/2,sif.close,sif.i_cofd)    
+    opend = dnext(sif.opend,sif.open,sif.i_oofd)        
+    ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)        
+
+    signal = gand(
+                #cross(tp,sif.high)>0,
+                sif.high > tp,
+                sif.high < tp2,
+                sif.time>915,   #915会有跳空
+                tp < opend,
+                tp < ldlow,
+                tp < sif.dhigh - 200,
+                rollx(sif.dhigh-sif.dlow)>250,
+            )
+
+    return signal#np.select([signal],[tp],0)
+
+sxpeak = SXFunc(fstate=gofilter,fsignal=dxpeak,fwave=nx2500X,ffilter=mfilter)
+sxpeak.name = u'阻力放空'
+sxpeak.lastupdate = 20110114
+sxpeak.stop_closer = utrade.atr5_ustop_V1
 
 
 ##幅度突破rbreak

@@ -32,7 +32,7 @@ xbreak1v系列，连续两次突破后，放宽突破的界限，即延缓突破
     顶/底均以6分钟计，即13分钟高/低点
     开仓:
         做多:   1. 穿越上一显著高点. 
-                2. 该显著高点大于当日最低20点, 大于最低点20点, 大于显著低点12点
+                2. 该显著高点小于当日最高20点, 大于最低点20点, 大于显著低点12点
                 3. 底部抬高，或者2分钟底部比5分钟底部高. 
                    ###注意，一定要在出现一个5分钟底或2分钟底之后才下条件单. 如果没有出现底部抬高，失败率比较高
                 4. 突破前一分钟高点 > 前2分钟高点
@@ -53,7 +53,7 @@ dbreak系列，每天多空都只取第一次
               3.今日高点-今日低点和昨日收盘的低者 > 20点
               4. xatr<2500,xatr5x<4000,xatr30x<10000
         做空: 1.开仓点为 low < 昨日最低-2处
-              2.今日高点-今日低点和昨日收盘的低者 > 20点              
+              2.今日高点和昨日收盘的高者-今日低点的低者 > 20点              
               3. xatr<2500,xatr5x<4000,xatr30x<10000
 
     平仓:
@@ -2415,6 +2415,8 @@ def uxbreak1v(sif,tbegin=1030):
     #tp2 = np.select([gor(gand(tp2<sif.dhigh-80,rollx(sif.high)<sif.dhigh-30),sif.time<945)],[tp2],99999999)   #距离突破线比较近的，交给突破
     mhh = rollx(tmax(sif.high,75))
     mll = rollx(tmin(sif.low,75))
+    ldmid = dnext(sif.highd/2+rollx(sif.highd)/2,sif.close,sif.i_cofd)    
+    opend = dnext(sif.opend,sif.open,sif.i_oofd)        
 
     signal = gand(#shh<90,    #不震荡
                 gor(lll2 > lll,sll>0), #虽然能有效果滤，但为保持简单性，删除
@@ -2431,6 +2433,9 @@ def uxbreak1v(sif,tbegin=1030):
                 sif.time > tbegin,  #避免之前信号被重复计算
                 #rollx(sif.dhigh - sif.dlow) > 400,
                 #rollx(mhh - mll) > 200,
+                #tp > sif.dmid,
+                #gor(tp > opend,tp>ldmid),
+                #tp>opend,
             )
 
     msignal = msum(signal,30)
@@ -2502,14 +2507,14 @@ def dxbreak1v(sif,tbegin=1030):
                 #sif.xatr30x < 10000,
                 #sif.xatr5x < 4000,
                 #sif.dhigh - sif.low>60,
-                gor(tp < ldmid,tp<opend),#-sif.xatr*2/XBASE,  #比前2天高点中点低才允许做空                
+                gor(tp < ldmid,tp<opend),#-sif.xatr*2/XBASE,  #比前2天高点中点低才允许做空
                 #lll < lhh - 60,
                 tp > rollx(sif.dmid) - 6,
-                #rollx(sif.dhigh-sif.dlow)>400,
+                #rollx(sif.dhigh-sif.dlow)>200,
+                #tp - rollx(sif.dlow) > 200,
                 #tp >= rollx(sif.dlow) + 200,
                 #rollx(sif.dhigh - sif.dlow) > 100, 
-                #rollx(sif.dhigh - sif.dlow) > 100, 
-                #rollx(sif.dhigh)- tp >100,
+                #rollx(sif.dhigh)- tp >200,
             )
     
     return np.select([signal],[gmin(sif.open,tp)],0)

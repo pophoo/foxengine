@@ -23,6 +23,7 @@ hbreak2系列
               2. 比前两天的高点中点高2个xatr(或3点). 请注意这个条件，每天早上计算该日的放空点
               3. xatr<2500,xatr5x<4000,xatr30x<10000
               4. 日内振幅>15
+              5. t120<180
     平仓:
         止损为6，保本为8. 30分钟后如果盈利大于10点，则把止损拉到盈利8点或更多处
     工作时段: [1036,1435]
@@ -46,6 +47,24 @@ xbreak1v系列，连续两次突破后，放宽突破的界限，即延缓突破
     工作时段:
         [1036,1435]
 
+rebound3:
+    每天只做第一次
+    开仓:
+        做多:   跌破前一个低点(非新低)后3分钟内涨回前低+8
+                1. 跌破前一个低点(非新低)，但没有穿破该低点-3
+                2. 3分钟内高点涨回前低点+8(基准线)
+                3. 该基准线大于开盘价或昨日最低价
+                4. 振幅大于32点
+        做空:   突破前一个高点(非新高)后3分钟内跌回前高-5
+                1. 突破前一个高点(非新高)+0.4, 但没有创新高
+                2. 3分钟内低点跌回前高-5(基准线)
+                3. 该基准线小于开盘价或昨日最高价
+                4. 振幅大于32点
+    平仓:
+        止损为4, 保本为8. 30分钟后如果盈利大于10点，则把止损拉到盈利8点或更多处
+    工作时段:
+        [1036,1435]
+
 dbreak系列，每天多空都只取第一次
     开仓:
         做多: 1.当前最高<昨日高点+6(即还未大幅突破过)
@@ -55,7 +74,7 @@ dbreak系列，每天多空都只取第一次
         做空: 1.开仓点为 low < 昨日最低-2处
               2.今日高点和昨日收盘的高者-今日低点的低者 > 20点              
               3. xatr<2500,xatr5x<4000,xatr30x<10000
-
+              4. t120<180
     平仓:
         止损为6，保本为8. 30分钟后如果盈利大于10点，则把止损拉到盈利8点或更多处
     工作时段:
@@ -235,7 +254,7 @@ from wolfox.fengine.ifuture.xfuncs import *
 def mfilter0(sif):
     return gand(
             sif.time > 1031,
-            sif.time < 1510,
+            sif.time < 1455,
         )
 
 def mfilter(sif):   
@@ -431,10 +450,10 @@ break_nllxr = SXFuncA(fstate=gofilter,fsignal=nllx,fwave=nx2000X,ffilter=rmfilte
 break_nllxr.name = u'向下突破新低--原始X系统-前后时段'
 
 
-break_nhhx.stop_closer = utrade.atr5_ustop_V1
-break_nllx.stop_closer = utrade.atr5_ustop_V1
-break_mhhx.stop_closer = utrade.atr5_ustop_V1
-break_mllx.stop_closer = utrade.atr5_ustop_V1
+break_nhhx.stop_closer = utrade.atr5_ustop_V0
+break_nllx.stop_closer = utrade.atr5_ustop_V0
+break_mhhx.stop_closer = utrade.atr5_ustop_V0
+break_mllx.stop_closer = utrade.atr5_ustop_V0
 
 break_nhhxr.stop_closer = utrade.atr5_ustop_V1
 break_nllxr.stop_closer = utrade.atr5_ustop_V1
@@ -1536,6 +1555,7 @@ def drebound2(sif):
     signal = gand(#shh>0,    #不震荡
                 rollx(tmax(sif.high,tline)) == rollx(sif.dhigh),
                 sif.dhigh > tp + bline +10, #突破加1点
+                #sif.dhigh < tp + bline +60, #突破加1点
                 #sif.dhigh > tp + 10 + rollx(sif.atr)*6/5/XBASE,
                 cross(tp,sif.low)<0,
                 #sif.dhigh - sif.dlow>250,
@@ -1547,6 +1567,66 @@ def drebound2(sif):
             )
     return np.select([signal],[gmin(sif.open,tp)],0)
 
+def urebound3(sif):
+    '''
+         跌破前一个低点(非新低)后3分钟内涨回前低+8
+    '''
+
+    phh,pll = calc_lh(sif,plen=6)
+
+    sll = extend2next(ssub(pll))
+    shh = extend2next(ssub(phh))
+
+    lhh = extend2next(phh)
+    lll = extend2next(pll)
+
+    bline = 80 #最简单，免去计算, 但不入ATR方式稳定
+    tline = 3  #突破后tline分钟内跌回
+    tp = lll + bline#rollx(sif.dhigh,tline)-bline
+
+    ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)    
+    opend = dnext(sif.opend,sif.open,sif.i_oofd)        
+
+    signal = gand(
+                rollx(tmin(sif.low,tline)) < lll ,
+                rollx(tmin(sif.low,tline)) > lll - 30, 
+                rollx(tmin(sif.low,tline)) > rollx(sif.dlow),
+                cross(tp,sif.high)>0,
+                rollx(sif.dhigh-sif.dlow)>320,
+                #gor(tp > opend)#,tp>ldmid),
+                gor(tp > opend,tp>ldlow),
+            )
+    return np.select([signal],[gmax(sif.open,tp)],0)
+
+
+def drebound3(sif):
+    '''
+         突破前一个高点(非新高)后3分钟内跌回前高-5
+    '''
+
+    phh,pll = calc_lh(sif,plen=6)
+
+    sll = extend2next(ssub(pll))
+    shh = extend2next(ssub(phh))
+
+    lhh = extend2next(phh)
+    lll = extend2next(pll)
+
+    bline = 50 #最简单，免去计算 
+    tline = 3  #突破后tline分钟内跌回
+    tp = lhh - bline#rollx(sif.dhigh,tline)-bline
+
+    ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)    
+    opend = dnext(sif.opend,sif.open,sif.i_oofd)        
+
+    signal = gand(
+                rollx(tmax(sif.high,tline)) > lhh + 4,
+                rollx(tmax(sif.high,tline)) < rollx(sif.dhigh),    #没创新高
+                cross(tp,sif.low)<0,
+                rollx(sif.dhigh-sif.dlow)>320,
+                gor(tp < opend,tp<ldhigh),  #加了这个以后叠加效果好
+            )
+    return np.select([signal],[gmin(sif.open,tp)],0)
 
 def calc_lh(sif,plen=5):
     alen = 2*plen+1
@@ -1576,11 +1656,21 @@ brebound2.name = u'向上反弹'
 brebound2.lastupdate = 20101225
 brebound2.stop_closer = utrade.atr5_ustop_X1
 
+brebound3 = BXFuncD1(fstate=sdown,fsignal=urebound3,fwave=gofilter,ffilter=mfilter)    #样本数太少
+brebound3.name = u'向上反弹3'
+brebound3.lastupdate = 20110115
+brebound3.stop_closer = utrade.atr5_ustop_TV1
 
 srebound2 = SXFuncD1(fstate=gofilter,fsignal=drebound2,fwave=gofilter,ffilter=emfilter2)
 srebound2.name = u'向下反弹'
 srebound2.lastupdate = 20101225
 srebound2.stop_closer = utrade.atr5_ustop_X1
+
+srebound3 = SXFuncD1(fstate=sdown,fsignal=drebound3,fwave=nx2500X,ffilter=mfilter)
+srebound3.name = u'向下反弹3'
+srebound3.lastupdate = 20110115
+srebound3.stop_closer = utrade.atr5_ustop_TV1
+
 
 dbrebound = BXFuncD1(fstate=gofilter,fsignal=urebound,fwave=gofilter,ffilter=e1430filter)##e1430filter2)
 dbrebound.name = u'向上反弹'
@@ -1599,6 +1689,7 @@ rebound = [brebound,srebound]
 d1_rebound = [dbrebound,dsrebound]
 
 rebound2 = [srebound2]#,brebound] #brebound2样本数太少，暂时忽略
+rebound3 = [srebound3,brebound3] 
 
 ###普通形态突破
 
@@ -2903,7 +2994,7 @@ def uamm(sif):
                 tp >= rollx(tp),
                 sif.time>915,   #915会有跳空
                 tp - sif.dlow > 150,
-                tmin(sif.low,4) > lll-20,
+                rollx(tmin(sif.low,4)) > lll-20,
                 #sif.xatr > sif.mxatr,
                 #strend2(sif.mxatr)>0,
                 #sif.xatr > 800,
@@ -2959,7 +3050,7 @@ def damm(sif):
                 #sif.xatr<2500,
                 
                 rollx(sif.xatr > sif.mxatr - 60), 
-                tmax(sif.high,4) < lhh - 20,
+                rollx(tmax(sif.high,4)) < lhh - 20,
                 #sif.dhigh - tp > 100,
                 #sif.dhigh-rollx(sif.high)>100,
                 #rollx(sif.low) != tlow-20,
@@ -3593,14 +3684,14 @@ txxx = hbreak2 + txfs
 
 #xxx1 = xbreak1c + hbreak2 + dbreak + exbreak2 + rebound2#+ d1_rebound #+ amm #+ break123c  #此方法每日亏损20点之后趴下装死比较妥当
 #xxx1 = xbreak1c + hbreak2 + dbreak + exbreak2 + rebound2#此方法每日亏损20点之后趴下装死比较妥当
-xxx1 = hbreak2 + xbreak1v + dbreak + exbreak2 + rebound2#此方法每日亏损18点(775)之后趴下装死比较妥当
+xxx1 = hbreak2 + xbreak1v + rebound3 +dbreak + exbreak2 + rebound2    #此方法每日亏损18点(775)或12点(75)之后趴下装死比较妥当. 关键是保持一致性
 
 dxxx = d1_xbreak1v + d1_hbreak + dbreak #+ d1_rebound#+break123c# #+ rebound  #此方法每日亏损12点之后趴下装死比较妥当
 
 #xxx2 = xxx +wxfs #+ wxxx
 xxx2 = xxx1
 
-xamm = amm + hbreak2 + rebound    #这是一个非常好的独立策略, 作为候选, 每日亏损15点之后趴下装死.
+xamm = amm + hbreak2 + rebound    #这是一个非常好的独立策略, 作为候选, 每日亏损9(7+1+1)点之后趴下装死.
 
 rxxx = rbreak_all + edbreak + exbreak #+ rebound #一个很牛的独立策略, 亏损12点后趴下
 mrxxx = mrbreak + edbreak +exbreak #+ rebound #一个很牛的独立策略，类似于上
@@ -3699,7 +3790,6 @@ sxbreak1c.stop_closer = utrade.atr5_ustop_V1
 bxbreak1v.stop_closer = utrade.atr5_ustop_V1
 sxbreak1v.stop_closer = utrade.atr5_ustop_V1
 
-
 ebxbreak2.stop_closer = utrade.atr5_ustop_V1
 
 shbreak_mll2.stop_closer = utrade.atr5_ustop_T
@@ -3707,6 +3797,10 @@ hbreak_nhh.stop_closer = utrade.atr5_ustop_T
 
 dbreakb.stop_closer = utrade.atr5_ustop_T
 dbreaks.stop_closer = utrade.atr5_ustop_T
+
+brebound3.stop_closer = utrade.atr5_ustop_TV1
+srebound3.stop_closer = utrade.atr5_ustop_TV1
+
 
 #########候补序列
 bxbreakd.stop_closer = utrade.atr5_ustop_V

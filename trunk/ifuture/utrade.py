@@ -706,6 +706,14 @@ atr5_ustop_TV1 = fcustom(atr_stop_u
         ,tlimit = 30,
       )      #120-60
 
+atr5_ustop_TX4 = fcustom(atr_stop_u
+        ,fkeeper=iftrade.F60
+        ,win_times=250
+        ,natr=5
+        ,flost_base=iftrade.F40 #止损太窄不好操作，很可能还没设止损单就已经破了
+        ,fmax_drawdown=iftrade.F333
+        ,tlimit = 30,
+      )      #120-60
 
 atr5_ustop_VX = fcustom(atr_stop_u,#有浮盈持有到收盘
                 fkeeper=iftrade.F80,
@@ -725,6 +733,13 @@ atr5_ustop_V5 = fcustom(atr_stop_u,
             )      #
 
 #V1的回报类似(减少10%)，单次止损小,回撤收窄.R大
+atr5_ustop_V0 = fcustom(atr_stop_u
+        ,fkeeper=iftrade.F80
+        ,win_times=250
+        ,natr=5
+        ,flost_base=iftrade.F20 #止损太窄不好操作，很可能还没设止损单就已经破了
+        ,fmax_drawdown=iftrade.F333)      #120-60
+
 atr5_ustop_V1 = fcustom(atr_stop_u
         ,fkeeper=iftrade.F80
         ,win_times=250

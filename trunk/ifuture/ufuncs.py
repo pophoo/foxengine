@@ -6,6 +6,7 @@
 #################################
 信号切换规则:
     持仓时出现反向信号，当浮动收益大于25或小于3时或持仓时间大于20分钟时，平仓并开新仓，否则不变
+    每日止损大于等于18点不再开仓
 
 开仓和平仓价格的设置:
     1. 如开多目标突破价是3000，则开仓条件单应该是>=3000.2才可以，否则是不对的. 系统中都是叉或超越
@@ -60,6 +61,7 @@ rebound3:
                 2. 3分钟内低点跌回前高-5(基准线)
                 3. 该基准线小于开盘价或昨日最高价
                 4. 振幅大于32点
+                5. xatr<2500,xatr5x<4000,xatr30x<10000
     平仓:
         止损为4, 保本为8. 30分钟后如果盈利大于10点，则把止损拉到盈利8点或更多处
     工作时段:
@@ -1555,15 +1557,15 @@ def drebound2(sif):
     signal = gand(#shh>0,    #不震荡
                 rollx(tmax(sif.high,tline)) == rollx(sif.dhigh),
                 sif.dhigh > tp + bline +10, #突破加1点
+                #sif.dhigh < tp + bline +70, #突破加1点
                 #sif.dhigh < tp + bline +60, #突破加1点
                 #sif.dhigh > tp + 10 + rollx(sif.atr)*6/5/XBASE,
                 cross(tp,sif.low)<0,
-                #sif.dhigh - sif.dlow>250,
+                rollx(sif.dhigh - sif.dlow)>100,
                 #sif.time>1000,   #915会有跳空
                 #sif.time < 1046,
                 #strend2(sif.mxatr30x) < 0,
                 #sif.xatr<1500,
-                #sif.dhigh - sif.low > 100,
             )
     return np.select([signal],[gmin(sif.open,tp)],0)
 

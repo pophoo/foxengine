@@ -3746,8 +3746,41 @@ sxudd = SXFunc(fstate=sdown,fsignal=xudd,fwave=nx2500X,ffilter=mfilter)
 sxudd.name = u'xud放空'
 sxudd.lastupdate = 20110116
 sxudd.stop_closer = utrade.atr5_ustop_V1
-    
+ 
+###ma
+def uma(sif):
+    ldclose = dnext(sif.closed,sif.close,sif.i_cofd)
+    signal = gand(cross(sif.ma5,sif.low)>0,
+            strend2(sif.low)>0,
+            strend2(sif.ma5)>0,
+            sif.s30 > 0,
+            sif.close > sif.dlow + 500,
+            sif.ma5 > sif.ma13,
+            sif.ma30 > sif.ma270,
+           )
+    return signal
+buma = BXFunc(fstate=sdown,fsignal=uma,fwave=nx2500X,ffilter=mfilter)
+buma.name = u'最低价穿越ma5'
+buma.lastupdate = 20110116
+buma.stop_closer = utrade.atr5_ustop_V1
 
+def dma(sif):
+    ldclose = dnext(sif.closed,sif.close,sif.i_cofd)
+    signal = gand(cross(sif.ma5,sif.high)<0,
+            strend2(sif.ma5)<0,
+            #sif.s30 < 0,
+            sif.close < gmax(sif.dhigh,ldclose) - 400,
+            #sif.close < sif.dhigh - 400,
+            sif.ma5 < sif.ma13,
+            sif.ma13 < sif.ma30,
+           )
+    return signal
+sdma = SXFunc(fstate=sdown,fsignal=dma,fwave=nx2500X,ffilter=mfilter)
+sdma.name = u'最高价穿越ma5'
+sdma.lastupdate = 20110116
+sdma.stop_closer = utrade.atr5_ustop_V1
+
+tma = [buma,sdma]   #这个系统更加强,是个不错的主策略, 简单
 
 ####添加老系统
 wxxx = [xds,xdds3,k5_d3b,xuub,K1_DDD1,K1_UUX,K1_RU,Z5_P2,xmacd3s,xup01,ua_fa,FA_15_120,K1_DVB,K1_DDUU,K1_DVBR]
@@ -3790,7 +3823,7 @@ xxx1 = hbreak2 + xbreak1v + rebound3 +dbreak + exbreak2 + rebound2    #此方法
 dxxx = d1_xbreak1v + d1_hbreak + dbreak #+ d1_rebound#+break123c# #+ rebound  #此方法每日亏损12点之后趴下装死比较妥当
 
 #xxx2 = xxx +wxfs #+ wxxx
-xxx2 = xxx1
+xxx2 = xxx1 + tma
 
 xamm = amm + hbreak2 + rebound    #这是一个非常好的独立策略, 作为候选, 每日亏损9(7+1+1)点之后趴下装死.
 

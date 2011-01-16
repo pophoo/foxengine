@@ -452,10 +452,10 @@ break_nllxr = SXFuncA(fstate=gofilter,fsignal=nllx,fwave=nx2000X,ffilter=rmfilte
 break_nllxr.name = u'向下突破新低--原始X系统-前后时段'
 
 
-break_nhhx.stop_closer = utrade.atr5_ustop_V0
-break_nllx.stop_closer = utrade.atr5_ustop_V0
-break_mhhx.stop_closer = utrade.atr5_ustop_V0
-break_mllx.stop_closer = utrade.atr5_ustop_V0
+break_nhhx.stop_closer = utrade.atr5_ustop_V1
+break_nllx.stop_closer = utrade.atr5_ustop_V1
+break_mhhx.stop_closer = utrade.atr5_ustop_V1
+break_mllx.stop_closer = utrade.atr5_ustop_V1
 
 break_nhhxr.stop_closer = utrade.atr5_ustop_V1
 break_nllxr.stop_closer = utrade.atr5_ustop_V1
@@ -3648,6 +3648,105 @@ x7 = [bx7,sx7]  #合成之后，879点,290次,80点回撤. 止损4保本8
 #100-150  13     586.2        10     -60.4
 #>150     4      341.6        3      -4.0
 ##按月的盈利分布也不错
+
+##指标系统
+###macd
+def muc(sif):
+    signal = gand(
+            cross(sif.dea1,sif.diff1)>0,
+            sif.s30 < 0,
+            sif.close < sif.dlow + 150,
+          )
+    return signal
+smuc = SXFuncD1(fstate=sdown,fsignal=muc,fwave=nx2500X,ffilter=mfilter)
+smuc.name = u'macd上叉放空'
+smuc.lastupdate = 20110116
+smuc.stop_closer = utrade.atr5_ustop_V1
+
+def mdc(sif):
+    signal = gand(
+            cross(sif.dea1,sif.diff1)<0,
+            sif.s30 > 0,
+            sif.close >sif.dlow + 200,
+            sif.high < sif.dhigh,
+          )
+    return signal
+bmdc = BXFuncD1(fstate=sdown,fsignal=mdc,fwave=nx2500X,ffilter=mfilter)
+bmdc.name = u'macd下叉做多'
+bmdc.lastupdate = 20110116
+bmdc.stop_closer = utrade.atr5_ustop_V1
+
+def muc0(sif):
+    signal = gand(
+            cross(cached_zeros(len(sif.close)),sif.diff1)>0,
+            sif.s30 < 0,
+            sif.close < sif.dlow + 150,
+          )
+    return signal
+smuc0 = SXFuncD1(fstate=sdown,fsignal=muc0,fwave=nx2500X,ffilter=mfilter)
+smuc0.name = u'macd上叉0放空'
+smuc0.lastupdate = 20110116
+smuc0.stop_closer = utrade.atr5_ustop_V1
+
+def mdc0(sif):
+    signal = gand(
+            cross(cached_zeros(len(sif.close)),sif.diff1)>0,
+            sif.s30 > 0,
+            sif.close >sif.dlow + 200,
+            sif.high < sif.dhigh,
+          )
+    return signal
+bmdc0 = BXFuncD1(fstate=sdown,fsignal=mdc0,fwave=nx2500X,ffilter=mfilter)
+bmdc0.name = u'macd上叉做多'
+bmdc0.lastupdate = 20110116
+bmdc0.stop_closer = utrade.atr5_ustop_V1
+
+mc = [bmdc,smuc,smuc0,bmdc0]    #一种简单的基于macd的系统
+
+###rsi
+def ruc(sif):
+    signal = gand(
+            cross(sif.rsi19,sif.rsi7)<0,
+            sif.s30 < 0,
+            sif.close < sif.dlow + 150,
+          )
+    return signal
+sruc = SXFuncD1(fstate=sdown,fsignal=ruc,fwave=nx2500X,ffilter=mfilter)
+sruc.name = u'rsi上叉放空'
+sruc.lastupdate = 20110116
+sruc.stop_closer = utrade.atr5_ustop_V1
+
+def rdc(sif):
+    signal = gand(
+            cross(sif.rsi19,sif.rsi7)<0,
+            sif.s30 > 0,
+            sif.close >sif.dlow + 200,
+            sif.high < sif.dhigh,
+          )
+    return signal
+brdc = BXFuncD1(fstate=sdown,fsignal=rdc,fwave=nx2500X,ffilter=mfilter)
+brdc.name = u'rsi下叉做多'
+brdc.lastupdate = 20110116
+brdc.stop_closer = utrade.atr5_ustop_V1
+
+rc = [sruc,brdc]    #不如macd系统
+
+###xud
+def xudd(sif):
+    mxc = xc0c(sif.open10,sif.close10,sif.high10,sif.low10,13) < 0
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof10] = mxc
+    
+    signal = gand(signal,
+            sif.s30 > 0,
+            sif.close < sif.dhigh - 150,
+           )
+    return signal
+sxudd = SXFunc(fstate=sdown,fsignal=xudd,fwave=nx2500X,ffilter=mfilter)
+sxudd.name = u'xud放空'
+sxudd.lastupdate = 20110116
+sxudd.stop_closer = utrade.atr5_ustop_V1
+    
 
 
 ####添加老系统

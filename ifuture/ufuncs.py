@@ -3820,6 +3820,10 @@ txxx = hbreak2 + txfs
 #xxx1 = xbreak1c + hbreak2 + dbreak + exbreak2 + rebound2#此方法每日亏损20点之后趴下装死比较妥当
 xxx1 = hbreak2 + xbreak1v + rebound3 +dbreak + exbreak2 + rebound2    #此方法每日亏损18点(775)或12点(75)之后趴下装死比较妥当. 关键是保持一致性
 
+xxx1a = hbreak2 + xbreak1v  #一个独立的策略
+xxx1b = tma + dbreak + rebound3 + rebound2 + exbreak2#一个不错的候补策略. 和hbreak2+xbreak1v不协调
+
+
 dxxx = d1_xbreak1v + d1_hbreak + dbreak #+ d1_rebound#+break123c# #+ rebound  #此方法每日亏损12点之后趴下装死比较妥当
 
 #xxx2 = xxx +wxfs #+ wxxx
@@ -3949,6 +3953,11 @@ srebound2.stop_closer = utrade.atr5_ustop_T1
 ####AMM系列
 bamm.stop_closer = utrade.atr5_ustop_V1
 samm.stop_closer = utrade.atr5_ustop_V1
+
+####ma系列
+sdma.stop_closer = utrade.atr5_ustop_V1
+buma.stop_closer = utrade.atr5_ustop_V1
+
 
 
 #b123b.stop_closer = utrade.atr5_ustop_X2

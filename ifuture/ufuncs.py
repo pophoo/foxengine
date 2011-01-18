@@ -4,6 +4,10 @@
 '''
 2011-01操作指南
 #################################
+两张合约指南:
+    1张主做xxx1a
+    另一张做xxx1b, 其中tma属于信号跟随操作
+#################################
 信号切换规则:
     持仓时出现反向信号，当浮动收益大于25或小于3时或持仓时间大于20分钟时，平仓并开新仓，否则不变
     每日止损大于等于18点不再开仓
@@ -660,6 +664,7 @@ def mll2(sif,length=75,vbreak=20):
             #tlow < highd,
             #rollx(sif.dhigh - sif.dlow) > 150, 
             gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>350),
+            sif.time > 915,
         )
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
     
@@ -3850,8 +3855,8 @@ txxx = hbreak2 + txfs
 #xxx1 = xbreak1c + hbreak2 + dbreak + exbreak2 + rebound2#此方法每日亏损20点之后趴下装死比较妥当
 xxx1 = hbreak2 + xbreak1v + rebound3 +dbreak + exbreak2 + rebound2    #此方法每日亏损18点(775)或12点(75)之后趴下装死比较妥当. 关键是保持一致性
 
-xxx1a = hbreak2 + xbreak1v  #一个独立的策略
-xxx1b = tma + dbreak + rebound3 + rebound2 + exbreak2#一个不错的候补策略. 和hbreak2+xbreak1v不协调
+xxx1a = hbreak2 + xbreak1v + dbreak #一个独立的策略
+xxx1b = tma + rebound3 + rebound2 + exbreak2#一个不错的候补策略. 和hbreak2+xbreak1v不协调
 
 
 dxxx = d1_xbreak1v + d1_hbreak + dbreak #+ d1_rebound#+break123c# #+ rebound  #此方法每日亏损12点之后趴下装死比较妥当

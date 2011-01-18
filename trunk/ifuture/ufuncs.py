@@ -21,8 +21,8 @@
 
     T2/T1 > 20 才能挣钱
     T3/T2 > 5. 最小稳定盈利周期定理
-    对股指期货来说, 平均下来T2/T1>20是成立的, 最小稳定盈利周期是周
-    对日间交易来说，有些稳定盈利周期在5-10年.
+    对股指期货来说, 平均下来T2/T1>20是成立的, 最小稳定盈利周期是周. 商品中Cu,Ru可能也适合日内
+    对日间交易来说，有些品种T2为年，则稳定盈利周期在5-10年.
 
 hbreak2系列
     开仓:
@@ -33,7 +33,7 @@ hbreak2系列
         做空: 1. 低点小于75分钟低点+2处
               2. 比前两天的高点中点高2个xatr(或3点). 请注意这个条件，每天早上计算该日的放空点
               3. xatr<2500,xatr5x<4000,xatr30x<10000
-              4. 日内振幅>15
+              4. 1330前开仓附加条件是:日内振幅>35
               5. t120<180
     平仓:
         止损为6，保本为8. 30分钟后如果盈利大于10点，则把止损拉到盈利8点或更多处
@@ -113,6 +113,7 @@ rebound2的早盘动作:
                 2. 新高突破原高1点
                 3. 最低价跌破基准线
                 4. 新高在触发的最近5分钟内创出
+                5. 振幅大于10点
     平仓:
         止损为8, 保本为8. 15分钟后如果盈利大于10点，则把止损拉到盈利8点或更多处
     工作时段:
@@ -507,6 +508,7 @@ def nhh(sif,vbreak=30):
             sif.high > thigh,
             rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
             rollx(sif.dhigh-sif.dlow)>150,
+            #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>200),
         )
     return np.select([signal],[gmax(sif.low,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
     
@@ -656,7 +658,8 @@ def mll2(sif,length=75,vbreak=20):
             tlow < ldmid-30,#rollx(sif.xatr)*2/XBASE,  #比前2天高点中点低才允许做空
             #tlow < sif.dmid,
             #tlow < highd,
-            rollx(sif.dhigh - sif.dlow) > 150, 
+            #rollx(sif.dhigh - sif.dlow) > 150, 
+            gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>350),
         )
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
     

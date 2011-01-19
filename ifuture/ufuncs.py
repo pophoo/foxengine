@@ -31,9 +31,9 @@
 hbreak2系列
     开仓:
         做多: 1. 高点在一分钟内拉高到2分钟前日内高点+3处. 即如果上一分钟新高了，则该新高不计入内
-              2. 日内高点>昨日低点+1
-              3. xatr<2500,xatr5x<4000,xatr30x<10000
-              4. 日内振幅>15
+              2. xatr<2500,xatr5x<4000,xatr30x<10000
+              3. 日内振幅>15
+              #4. 日内高点>昨日低点+1
         做空: 1. 低点小于75分钟低点+2处
               2. 比前两天的高点中点高2个xatr(或3点). 请注意这个条件，每天早上计算该日的放空点
               3. xatr<2500,xatr5x<4000,xatr30x<10000
@@ -504,13 +504,13 @@ break_xr = [break_nhhxr,break_nllxr]  #150趴下 w=6.3
 def nhh(sif,vbreak=30):
     #使用最高点+30, 也就是说必须一下拉开3点
     #ldlow = dnext(sif.lowd/2+sif.closed/2,sif.close,sif.i_cofd)
-    ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
+    #ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     thigh = rollx(sif.dhigh+vbreak,2)
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
             sif.high > thigh,
-            rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
+            #rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
             rollx(sif.dhigh-sif.dlow)>150,
             #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>200),
         )

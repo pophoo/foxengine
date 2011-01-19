@@ -514,7 +514,7 @@ def nhh(sif,vbreak=30):
             rollx(sif.dhigh-sif.dlow)>150,
             #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>200),
         )
-    return np.select([signal],[gmax(sif.low,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
+    return np.select([signal],[gmax(sif.low,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以跳空价进入
     
 def nll2(sif,vbreak=20):
     #使用最低点
@@ -666,7 +666,7 @@ def mll2(sif,length=75,vbreak=20):
             gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>350),
             sif.time > 915,
         )
-    return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
+    return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入
     
 def mll3(sif,length=75):
     #使用最低点

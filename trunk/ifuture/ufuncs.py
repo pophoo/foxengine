@@ -64,6 +64,7 @@ xbreak1v系列，连续两次突破后，放宽突破的界限，即延缓突破
 
 rebound3:
     每天只做第一次
+    顶/底均以6分钟计，即13分钟高/低点
     开仓:
         做多:   跌破前一个低点(非新低)后3分钟内涨回前低+8
                 1. 跌破前一个低点(非新低)，但没有穿破该低点-3
@@ -96,6 +97,10 @@ dbreak系列，每天多空都只取第一次
     工作时段:
         买多:[915,1330]
         做空:[915,1400]
+
+tma系列. ma与5分钟均线的关系
+    开仓:
+        做多: 
 
 xbreak早盘动作:
     顶/底均以6分钟计，即13分钟高/低点
@@ -292,6 +297,12 @@ def mfilter0(sif):
 def mfilter(sif):   
     return gand(
             sif.time > 1035,
+            sif.time < 1436,
+        )
+
+def mfilter00(sif):   
+    return gand(
+            sif.time > 1000,
             sif.time < 1436,
         )
 
@@ -3793,7 +3804,7 @@ def uma(sif):
             sif.ma30 > sif.ma270,
            )
     return signal
-buma = BXFunc(fstate=sdown,fsignal=uma,fwave=nx2500X,ffilter=mfilter)
+buma = BXFunc(fstate=sdown,fsignal=uma,fwave=nx2500X,ffilter=mfilter00)
 buma.name = u'最低价穿越ma5'
 buma.lastupdate = 20110116
 buma.stop_closer = utrade.atr5_ustop_V1
@@ -3810,7 +3821,7 @@ def dma(sif):
             sif.ma13 < sif.ma30,
            )
     return signal
-sdma = SXFunc(fstate=sdown,fsignal=dma,fwave=nx2500X,ffilter=mfilter)
+sdma = SXFunc(fstate=sdown,fsignal=dma,fwave=nx2500X,ffilter=mfilter00)
 sdma.name = u'最高价穿越ma5'
 sdma.lastupdate = 20110116
 sdma.stop_closer = utrade.atr5_ustop_V1

@@ -6,10 +6,20 @@
 #################################
 两张合约指南:
     原则是减少回撤
-    #1张主做xxx1a,另一张做xxx1b, 其中tma属于信号跟随操作
+    1张主做xxx1a,另一张做xxx1b, 其中tma属于信号跟随操作
     1. 一张合约保本后根据后续信号开第二张。即同时只有1个止损的风险
     2. 一张合约到达盈利位时，出现反向信号，则不平仓而直接开反向单。
        平仓开反向单的方式会增大回撤。而锁仓方式会减少利润. 
+
+操作注意事项:
+1. 如果条件开仓单未就绪时发生突破，并且突破后价格回调。此时，不要追求优于系统的开仓价，而应该在原突破处下
+   条件开仓单。
+    有两个好处，一个是不会出现行情剧烈变化，来不及下止损单的情况
+    另一个是突破的成功率其实比较低，出现这种突破后回调情况的，就更低了，值得观望
+   但是，有一点必须注意，不要故意不去下条件开仓单!!!
+2. 不允许手工平仓单。如果因为特别原因(如收盘作业)，需要开列手工平仓单，则必须用等于条件平仓单的价格来下单，
+    以确保成交
+3. 开仓前密切关注XATR是否大于2500
 
 #################################
 信号切换规则:
@@ -99,8 +109,8 @@ dbreak系列，每天多空都只取第一次
     平仓:
         止损为6，保本为8. 30分钟后如果盈利大于10点，则把止损拉到盈利8点或更多处
     工作时段:
-        买多:[915,1330]
-        做空:[915,1400]
+        买多:[D2,1330] #第二分钟开始
+        做空:[D2,1400] #第二分钟开始
 
 
 tma系列. ma与5分钟均线的关系    #####
@@ -110,13 +120,13 @@ tma系列. ma与5分钟均线的关系    #####
               3.s30>0. 即30分钟macd的3周期线的趋势向上
               4. 该分钟收盘价 > 最低价 + 50点
               5. 1分钟的5周期均线>13周期均线，30周期均线>270周期均线
-              6. xatr<2500,xatr30x<10000
+              6. xatr<2000,xatr30x<10000
               7. t120<180
         做空: 1.开仓点为最高价小于1分钟线的5周期均线，次分钟开盘开仓
               2.要求均线比上一分钟低
               3. 该分钟收盘价 < 当日最高和昨日收盘中高者 - 40点
               5. 1分钟的5周期均线<13周期均线，13周期均线<30周期均线
-              6. xatr<2500,xatr30x<10000
+              6. xatr<2000,xatr30x<10000
               7. t120<180
     平仓:
         止损为4，保本为8. 
@@ -785,7 +795,7 @@ def bru(sif):
             rollx(sif.dhigh - gmin(sif.dlow,ldclose)) > 200,
             #rollx(sif.dhigh - sif.dlow) > 200,
             sif.time<1331,
-            sif.time>914,
+            sif.time>915,
             #rollx(sif.xatr>600),
         )
     return np.select([signal],[gmax(sif.open,ldhigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
@@ -839,7 +849,7 @@ def brd(sif):
             rollx(gmax(sif.dhigh,ldclose) - sif.dlow) > 200,
             #rollx(sif.dhigh - sif.dlow) > 200,
             sif.time < 1401,
-            sif.time> 914,
+            sif.time> 915,
             #sif.t120<60,
         )
     return np.select([signal],[gmin(sif.open,ldlow)],0)    #避免跳空/skdj后延情况，如果跳空且大于突破点，就以分钟开盘价进入
@@ -3827,7 +3837,7 @@ def uma(sif):
             sif.ma30 > sif.ma270,
            )
     return signal
-buma = BXFunc(fstate=sdown,fsignal=uma,fwave=nx2500X,ffilter=mfilter00)
+buma = BXFunc(fstate=sdown,fsignal=uma,fwave=nx2000X,ffilter=mfilter00)
 buma.name = u'最低价穿越ma5'
 buma.lastupdate = 20110116
 buma.stop_closer = utrade.atr5_ustop_V1
@@ -3844,7 +3854,7 @@ def dma(sif):
             sif.ma13 < sif.ma30,
            )
     return signal
-sdma = SXFunc(fstate=sdown,fsignal=dma,fwave=nx2500X,ffilter=mfilter00)
+sdma = SXFunc(fstate=sdown,fsignal=dma,fwave=nx2000X,ffilter=mfilter00)
 sdma.name = u'最高价穿越ma5'
 sdma.lastupdate = 20110116
 sdma.stop_closer = utrade.atr5_ustop_V1
@@ -3887,13 +3897,15 @@ txxx = hbreak2 + txfs
 
 #xxx1 = xbreak1c + hbreak2 + dbreak + exbreak2 + rebound2#+ d1_rebound #+ amm #+ break123c  #此方法每日亏损20点之后趴下装死比较妥当
 #xxx1 = xbreak1c + hbreak2 + dbreak + exbreak2 + rebound2#此方法每日亏损20点之后趴下装死比较妥当
-xxx1 = hbreak2 + xbreak1v + rebound3 +dbreak + exbreak2 + rebound2    #此方法每日亏损18点(775)或12点(75)之后趴下装死比较妥当. 关键是保持一致性
+#xxx1 = hbreak2 + xbreak1v + rebound3 +dbreak + exbreak2 + rebound2    #此方法每日亏损18点(775)或12点(75)之后趴下装死比较妥当. 关键是保持一致性
 
-xxx1a = hbreak2 + xbreak1v + dbreak #一个独立的策略
-xxx1b = tma + rebound3 + rebound2 + exbreak2#一个不错的候补策略. 和hbreak2+xbreak1v不协调
+xxx1a = hbreak2 +  dbreak #一个独立的策略
+xxx1b = tma + rebound3 + rebound2 # 一个不错的候补策略. 和hbreak2+xbreak1v不协调
+xxx1c = rebound3 + rebound2 #+ exbreak2 + xbreak1v
 
+xxx1 = xxx1a + xxx1b
 
-dxxx = d1_xbreak1v + d1_hbreak + dbreak #+ d1_rebound#+break123c# #+ rebound  #此方法每日亏损12点之后趴下装死比较妥当
+xxx = d1_xbreak1v + d1_hbreak + dbreak #+ d1_rebound#+break123c# #+ rebound  #此方法每日亏损12点之后趴下装死比较妥当
 
 #xxx2 = xxx +wxfs #+ wxxx
 xxx2 = xxx1 + tma

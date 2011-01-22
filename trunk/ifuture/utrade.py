@@ -5,6 +5,7 @@
         针对突破交易和即时止损
 
 '''
+from datetime import date
 
 from wolfox.fengine.ifuture.ibase import *
 import wolfox.fengine.ifuture.iftrade as iftrade
@@ -12,6 +13,10 @@ import wolfox.fengine.ifuture.ifuncs as ifuncs
 
 #同一分钟先开后平, 由make_trades确保已有开仓时不重复. 但已有仓位时同时出现开平信号，则以平仓计
 DTSORT2 = lambda x,y: int(((x.date%1000000 * 10000)+x.time) - ((y.date%1000000 * 10000)+y.time)) or x.xtype-y.xtype 
+
+day2weekday = lambda x:date(x/10000,x%10000/100,x%100).weekday() + 1
+d2wd = day2weekday
+
 
 #设定保证
 def atr_stop_u(
@@ -864,6 +869,107 @@ atr5_ustop_j = fcustom(atr_stop_u
 
 utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 utrade_d = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=iftrade.last_trades,sync_trades=iftrade.null_sync_tradess)
+
+
+def utrade_nc(sif,*fss):    #返回策略集合的独立运算的合并结果
+    tradess = [utrade_n(sif,fs) for fs in fss]
+    trades = reduce(lambda x,y:x+y,tradess)
+    trades.sort(iftrade.DTSORT3)
+    return trades
+
+def utrade_ncp(sif,hmax,*fss):   
+    '''
+        返回策略集合的独立运算的仓位管理结果. 单个策略可在参数中出现多次以体现权重
+        hmax是最大持仓数
+    '''
+    strades = utrade_nc(sif,*fss)
+    cur_day = 0
+    hcur = []
+    rtrades = []
+    for trade in strades:
+        dopen,topen = trade.actions[0].date,trade.actions[0].time
+        dclose,tclose = trade.actions[-1].date,trade.actions[-1].time
+        if dopen > cur_day:
+            cur_day = dopen
+            hcur = [tclose] #清理掉前一日的
+            rtrades.append(trade)
+        elif len(hcur) < hmax:
+            hcur.append(tclose)
+            rtrades.append(trade)
+        elif topen >= min(hcur):#等于其实不确定，暂定算
+            pos = 0
+            while(hcur[pos] > topen): #必然找到小于等于的.并且一般先开仓的先平，所以先找到概率大
+                pos+=1
+            del hcur[pos]   #减一个就够了
+            hcur.append(tclose)
+            rtrades.append(trade)
+        else:#舍弃
+            #print 'skip:',dopen,topen
+            pass
+    return rtrades
+
+def utrade_ncp_n(hmax):
+    def my_ncp(sif,*fss):
+        return utrade_ncp(sif,hmax,*fss)
+    return my_ncp
+
+utrade_ncpx = utrade_ncp_n(2)   #等同于2张
+utrade_ncp2 = utrade_ncp_n(2)
+utrade_ncp3 = utrade_ncp_n(3)
+
+def utrade_nct(sif,hmax,hmin,wds,*fss):   
+    '''
+        返回策略集合的独立运算的仓位管理结果. 单个策略可在参数中出现多次以体现权重
+        hmax是有利日持仓数, hmin是不利日持仓数
+        wds是有利日集合. 目前默认是1/2/5
+
+        这个处理有个问题。即对当分钟开仓后平仓的，因为在topen与min(hcur)比较的时候没有处理到这种情况，
+            所以如果下一笔交易也是该分钟的，就会突破仓位限制开出来
+            但是如果采用topen>min(hcur)，又会漏掉当分钟反手的开仓那一笔.
+        目前的处理只会加多止损，不会有利于回测。所以采用目前这种方式.
+    '''
+    strades = utrade_nc(sif,*fss)
+    cur_day = 0
+    hcur = []
+    rtrades = []
+    cur_max = 0
+    for trade in strades:
+        dopen,topen = trade.actions[0].date,trade.actions[0].time
+        dclose,tclose = trade.actions[-1].date,trade.actions[-1].time
+        if dopen > cur_day:
+            cur_day = dopen
+            cur_max = hmax if d2wd(cur_day) in wds else hmin
+            if cur_max > 0:
+                hcur = [tclose] #清理掉前一日的
+                rtrades.append(trade)
+            else:
+                hcur = []
+        elif len(hcur) < cur_max:
+            hcur.append(tclose)
+            rtrades.append(trade)
+        elif hcur != [] and topen >= min(hcur):#在这里hcur==[]只有不利日持仓上限为0导致的. 
+            #topen与min(hcur)的等于关系其实不确定，暂定算
+            pos = 0
+            while(hcur[pos] > topen): #必然找到小于等于的.并且一般先开仓的先平，所以先找到概率大
+                pos+=1
+            del hcur[pos]   #减一个就够了
+            hcur.append(tclose)
+            rtrades.append(trade)
+        else:#舍弃
+            #print 'skip:',dopen,topen
+            pass
+    return rtrades
+
+def utrade_nct_n(hmax,hmin,wds):
+    def my_nct(sif,*fss):
+        return utrade_nct(sif,hmax,hmin,wds,*fss)
+    return my_nct
+
+utrade_nctx = utrade_nct_n(2,1,(1,2,3,4,5)) #等同于不分日
+utrade_nct12 = utrade_nct_n(2,1,(1,2))
+utrade_nct125 = utrade_nct_n(2,1,(1,2,5))
+utrade_nct1235 = utrade_nct_n(2,1,(1,2,3,5))
+utrade_nct1245 = utrade_nct_n(2,1,(1,2,4,5))
 
 
 def range_distribution(sif,rlimit = [300,500,800,1200,1500,10000]):#求振幅分布

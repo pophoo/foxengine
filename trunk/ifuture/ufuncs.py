@@ -5,11 +5,16 @@
 2011-01操作指南
 #################################
 两张合约指南:
-    原则是减少回撤
-    1张主做xxx1a,另一张做xxx1b, 其中tma属于信号跟随操作
-    1. 一张合约保本后根据后续信号开第二张。即同时只有1个止损的风险
-    2. 一张合约到达盈利位时，出现反向信号，则不平仓而直接开反向单。
-       平仓开反向单的方式会增大回撤。而锁仓方式会减少利润. 
+    #原则是减少回撤
+    #1张主做xxx1a,另一张做xxx1b, 其中tma属于信号跟随操作
+    #1. 一张合约保本后根据后续信号开第二张。即同时只有1个止损的风险
+    #2. 一张合约到达盈利位时，出现反向信号，则不平仓而直接开反向单。
+    #   平仓开反向单的方式会增大回撤。而锁仓方式会减少利润. 
+    简化操作
+        所有操作都是2张一起开仓，一起平仓
+        按照xxx1a操作
+        每日>18点后不再开仓. 如果不到18点，则必然开两张
+        周四建议开一张, 周三随机
 
 操作注意事项:
 1. 如果条件开仓单未就绪时发生突破，并且突破后价格回调。此时，不要追求优于系统的开仓价，而应该在原突破处下
@@ -17,8 +22,7 @@
     有两个好处，一个是不会出现行情剧烈变化，来不及下止损单的情况
     另一个是突破的成功率其实比较低，出现这种突破后回调情况的，就更低了，值得观望
    但是，有一点必须注意，不要故意不去下条件开仓单!!!
-2. 不允许手工平仓单。如果因为特别原因(如收盘作业)，需要开列手工平仓单，则必须用等于条件平仓单的价格来下单，
-    以确保成交
+2. 不允许手工平仓单。如果因为特别原因需要先行平仓，则必须以修改条件平仓单触发条件的办法来做,以确保成交
 3. 开仓前密切关注XATR是否大于2500
 
 #################################
@@ -56,25 +60,6 @@ hbreak2系列
     平仓:
         止损为6，保本为8. 30分钟后如果盈利大于10点，则把止损拉到盈利8点或更多处
     工作时段: [1036,1435]
-
-
-xbreak1v系列，连续两次突破后，放宽突破的界限，即延缓突破
-    顶/底均以6分钟计，即13分钟高/低点
-    开仓:
-        做多:   1. 穿越上一显著高点. 
-                2. 该显著高点小于当日最高20点, 大于最低点20点, 大于显著低点12点
-                3. 底部抬高，或者2分钟底部比5分钟底部高. 
-                   ###注意，一定要在出现一个5分钟底或2分钟底之后才下条件单. 如果没有出现底部抬高，失败率比较高
-                4. 突破前一分钟高点 > 前2分钟高点
-                5. 30分钟内连续两次突破后，放宽突破的界限到显著高点+3点
-        做空:   1. 穿越上一显著低点-1点处. 
-                2. 该显著低点大于之前的中间价-0.6
-                3. 该显著低点低于前两日最高价的平均或者当日开盘价.
-                4. xatr<2500,xatr30x<10000
-    平仓:
-        止损为4, 保本为8. 
-    工作时段:
-        [1036,1435]
 
 rebound3:
     每天只做第一次
@@ -133,18 +118,6 @@ tma系列. ma与5分钟均线的关系    #####
     工作时段:
         买多:[1001,1435]
         做空:[1001,1435]
-
-
-xbreak早盘动作:
-    顶/底均以6分钟计，即13分钟高/低点
-    开仓:
-        做多:   1. 穿越上一显著高点. 
-                2. 该显著高点大于当日最低15点
-        做空:   无
-    平仓:
-        止损为4, 保本为8
-    工作时段:
-        [916,934]
 
 rebound2的早盘动作:
     每天只做第一次
@@ -2853,6 +2826,40 @@ exbreak = [ebxbreak,esxbreak]
 
 exbreak2 = [ebxbreak2]
 
+'''
+这个方法正在衰退中，在2011-1中没有捕捉到任何大波动，而且回撤还很大. 需要进一步观察
+xbreak1v系列，连续两次突破后，放宽突破的界限，即延缓突破
+    顶/底均以6分钟计，即13分钟高/低点
+    开仓:
+        做多:   1. 穿越上一显著高点. 
+                2. 该显著高点小于当日最高20点, 大于最低点20点, 大于显著低点12点
+                3. 底部抬高，或者2分钟底部比5分钟底部高. 
+                   ###注意，一定要在出现一个5分钟底或2分钟底之后才下条件单. 如果没有出现底部抬高，失败率比较高
+                4. 突破前一分钟高点 > 前2分钟高点
+                5. 30分钟内连续两次突破后，放宽突破的界限到显著高点+3点
+        做空:   1. 穿越上一显著低点-1点处. 
+                2. 该显著低点大于之前的中间价-0.6
+                3. 该显著低点低于前两日最高价的平均或者当日开盘价.
+                4. xatr<2500,xatr30x<10000
+    平仓:
+        止损为4, 保本为8. 
+    工作时段:
+        [1036,1435]
+
+
+xbreak早盘动作:
+    顶/底均以6分钟计，即13分钟高/低点
+    开仓:
+        做多:   1. 穿越上一显著高点. 
+                2. 该显著高点大于当日最低15点
+        做空:   无
+    平仓:
+        止损为4, 保本为8
+    工作时段:
+        [916,934]
+
+'''
+
 #####阻力反向
 def dxpeak(sif,tbegin=1030):
     '''
@@ -2911,26 +2918,53 @@ sxpeak.stop_closer = utrade.atr5_ustop_V1
 def rbreakb(sif,distance=250):
     '''
         幅度从最低跨越distance点时开仓
+        如果30分钟内已经有失败尝试，则拉高step点
     '''
-    bline = sif.dlow + distance
-    signal = gand(
+    bline1 = sif.dlow + distance
+    t1 = gand(sif.time > 1031,
+              cross(bline1,sif.high)>0,
+        )
+    ms1 = msum(t1,30)
+
+    bline2 = sif.dhigh + distance + 60
+    bline = bline1
+    bline = np.select([ms1<3,ms1>=3],[bline1,bline2])
+
+    signal1 = gand(
                 sif.high > bline,
                 bline > sif.dmid,
+                #rollx(sif.close) > rollx(sif.close,11),
                 rollx(sif.high) > rollx(sif.high,11),
+                sif.time>1031,
+                rollx(sif.low) > rollx(sif.ma5),
             )
-    return np.select([signal>0],[gmax(sif.open,bline)],0)
+    return np.select([signal1>0],[gmax(sif.open,bline)],0)
 
 def rbreaks(sif,distance=400):
     '''
         幅度从最高跨越distance点时开仓
     '''
-    bline = sif.dhigh - distance
-    signal = gand(
+    bline1 = sif.dhigh - distance
+
+    t1 = gand(sif.time > 1031,
+              cross(bline1,sif.low)<0,
+        )
+
+    ms1 = msum(t1,30)
+
+    bline2 = sif.dhigh - distance - 90
+
+    bline = bline1
+    bline = np.select([ms1<3,ms1>=3],[bline1,bline2])
+
+    signal1 = gand(
                 sif.low < bline,
                 sif.t120 < 180,
                 rollx(sif.low) < rollx(sif.low,31),  
+                rollx(sif.high) < rollx(sif.ma13),
+                sif.time > 1031,
             )
-    return np.select([signal>0],[gmin(sif.open,bline)],0)
+    return np.select([signal1>0],[gmin(sif.open,bline)],0)
 
 def rmbreakb(sif,distance=250):
     '''
@@ -2960,12 +2994,12 @@ def rmbreaks(sif,distance=400):
     return np.select([signal>0],[gmin(sif.open,bline)],0)
 
 
-brbreak = BXFunc(fstate=gofilter,fsignal=rbreakb,fwave=gofilter,ffilter=mfilter1400)
+brbreak = BXFunc(fstate=gofilter,fsignal=rbreakb,fwave=nx2000X,ffilter=mfilter1400)
 brbreak.name = u'幅度向上突破25'
 brbreak.lastupdate = 20110106
 brbreak.stop_closer = utrade.atr5_ustop_X4
 
-srbreak = SXFunc(fstate=gofilter,fsignal=rbreaks,fwave=nx2500X,ffilter=mfilter1400)
+srbreak = SXFunc(fstate=gofilter,fsignal=rbreaks,fwave=nx2000X,ffilter=mfilter1400)
 srbreak.name = u'幅度向下突破40'
 srbreak.lastupdate = 20110106
 srbreak.stop_closer = utrade.atr5_ustop_X4
@@ -3391,13 +3425,13 @@ samm2.name = u'AMM向上突破'
 samm2.lastupdate = 20101231
 samm2.stop_closer = utrade.atr5_ustop_X2
 
-amm = [bamm,samm]   #单独可以作为主策略
+amm = [bamm,samm]   #单独可以作为主策略. 201101开始退化
 
 amm1 = [bamm1,samm1]    #每天10:31之后根据开盘价，当前价和中点关系开仓. 并用到缩量. 单独非常有效，叠加无效
 
 amm2 = [bamm2,samm2]    #每天11:01定时开仓，方向根据最近30分钟运行方向. 其中samm2很强
 
-amm3 = [bamm3,samm3]    #单个也可作为备用主策略
+amm3 = [bamm3,samm3]    #单个也可作为备用主策略. 201001开始退化
 
 ammx = amm + amm1   #这个方法可以，模拟AMM. 累计收益不错. 工作稳定. 可以作为主模型
 
@@ -3899,9 +3933,9 @@ txxx = hbreak2 + txfs
 #xxx1 = xbreak1c + hbreak2 + dbreak + exbreak2 + rebound2#此方法每日亏损20点之后趴下装死比较妥当
 #xxx1 = hbreak2 + xbreak1v + rebound3 +dbreak + exbreak2 + rebound2    #此方法每日亏损18点(775)或12点(75)之后趴下装死比较妥当. 关键是保持一致性
 
-xxx1a = hbreak2 +  dbreak #一个独立的策略
-xxx1b = tma + rebound3 + rebound2 # 一个不错的候补策略. 和hbreak2+xbreak1v不协调
-xxx1c = rebound3 + rebound2 #+ exbreak2 + xbreak1v
+xxx1a = hbreak2 +  dbreak + rebound3 + rebound2#一个独立的策略
+xxx1b = tma  # 一个不错的候补策略. 和hbreak2+xbreak1v不协调
+xxx1c = exbreak2 + xbreak1v #2011-1正在衰退
 
 xxx1 = xxx1a + xxx1b
 

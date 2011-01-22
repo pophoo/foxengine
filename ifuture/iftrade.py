@@ -367,6 +367,9 @@ def pair_sync_tradess(sif,tradess,acstrategy=late_strategy):
     return xtrades
 
 DTSORT2 = lambda x,y: int(((x.date%1000000 * 10000)+x.time) - ((y.date%1000000 * 10000)+y.time))
+
+DTSORT3 = lambda x,y: int(((x.actions[0].date%1000000 * 10000)+x.actions[0].time) - ((y.actions[0].date%1000000 * 10000)+y.actions[0].time))
+
 def sync_tradess(sif,tradess,acstrategy=late_strategy):
     trans = sif.transaction
     sdate = trans[IDATE]

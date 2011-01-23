@@ -12,9 +12,10 @@
     #   平仓开反向单的方式会增大回撤。而锁仓方式会减少利润. 
     简化操作
         所有操作都是2张一起开仓，一起平仓
-        按照xxx1a操作
-        每日>18点后不再开仓. 如果不到18点，则必然开两张
+        按照xxx1操作
+        每日最大回撤>18点后不再开仓. 如果不到18点，则必然开两张 
         周四建议开一张, 周三随机
+
 
 操作注意事项:
 1. 如果条件开仓单未就绪时发生突破，并且突破后价格回调。此时，不要追求优于系统的开仓价，而应该在原突破处下
@@ -36,6 +37,7 @@
     3. 保本平仓的基准价格是开仓目标价,而不是执行价格.
     4. 这样才能和系统一致
 
+################################
 理论依据:
     T1: 日的平均1分钟ATR
     T2: 日波动幅度
@@ -45,6 +47,14 @@
     T3/T2 > 5. 最小稳定盈利周期定理
     对股指期货来说, 平均下来T2/T1>20是成立的, 最小稳定盈利周期是周. 商品中Cu,Ru可能也适合日内
     对日间交易来说，有些品种T2为年，则稳定盈利周期在5-10年.
+
+##################################
+商品思考:
+    多最强，空最弱
+    止损，以组合对为单位，设定止损
+              
+
+
 
 hbreak2系列
     开仓:
@@ -97,27 +107,20 @@ dbreak系列，每天多空都只取第一次
         买多:[D2,1330] #第二分钟开始
         做空:[D2,1400] #第二分钟开始
 
-
-tma系列. ma与5分钟均线的关系    #####
+xbreak1v系列，连续两次突破后，放宽突破的界限，即延缓突破
+    顶/底均以6分钟计，即13分钟高/低点
     开仓:
-        做多: 1.开仓点为最低价大于1分钟线的5周期均线，次分钟开盘开仓
-              2.要求均线和最低价都比上一分钟高
-              3.s30>0. 即30分钟macd的3周期线的趋势向上
-              4. 该分钟收盘价 > 最低价 + 50点
-              5. 1分钟的5周期均线>13周期均线，30周期均线>270周期均线
-              6. xatr<2000,xatr30x<10000
-              7. t120<180
-        做空: 1.开仓点为最高价小于1分钟线的5周期均线，次分钟开盘开仓
-              2.要求均线比上一分钟低
-              3. 该分钟收盘价 < 当日最高和昨日收盘中高者 - 40点
-              5. 1分钟的5周期均线<13周期均线，13周期均线<30周期均线
-              6. xatr<2000,xatr30x<10000
-              7. t120<180
+        做多:   1. 穿越上一显著高点. 
+                2. 该显著高点小于当日最高20点, 大于最低点20点, 大于显著低点12点
+                3. 底部抬高，或者2分钟底部比5分钟底部高. 
+                   ###注意，一定要在出现一个5分钟底或2分钟底之后才下条件单. 如果没有出现底部抬高，失败率比较高
+                4. 突破前一分钟高点 > 前2分钟高点
+                5. 30分钟内连续两次突破后，放宽突破的界限到显著高点+3点
+        做空:   暂时观望
     平仓:
-        止损为4，保本为8. 
+        止损为4, 保本为8. 
     工作时段:
-        买多:[1001,1435]
-        做空:[1001,1435]
+        [1036,1435]
 
 rebound2的早盘动作:
     每天只做第一次
@@ -742,6 +745,36 @@ hbreak2 = [shbreak_mll2,hbreak_nhh]  #这个最大回撤最小      ############
 
 d1_hbreak = [dhbreak_nhh,dshbreak_mll2]
 
+###中间价突破
+def lmx(sif,length=45,vbreak=100):#最低价突破中间价, 且中间价向上
+    tmid =  tmin(sif.low,length)/2 + tmax(sif.high,length)/2 +sif.atr/XBASE*5/2
+    signal = gand(
+            cross(tmid,sif.low)>0,
+            sif.time > 915,
+            sif.low > sif.dlow + 200,
+            sif.close > sif.dmid,
+        )
+    return signal    #下一分钟介入
+bmx = BXFuncA(fstate=sdown,fsignal=lmx,fwave=nx2500X,ffilter=mfilter)
+bmx.name = u'中间价向上突破'
+bmx.stop_closer = utrade.atr5_ustop_V1
+
+def hmx(sif,length=45,vbreak=50):#最高价突破中间价, 且中高价向下
+    tmid =  tmin(sif.low,length)/2 + tmax(sif.high,length)/2 - sif.atr/XBASE*2#vbreak
+    signal = gand(
+            cross(tmid,sif.high)<0,
+            sif.time > 915,
+            sif.dhigh-sif.dlow>360,
+            sif.dhigh > sif.high + 150,
+        )
+    return signal    #下一分钟介入
+smx = SXFuncA(fstate=sdown,fsignal=hmx,fwave=nx2000X,ffilter=mfilter)
+smx.name = u'中间价向下突破'
+smx.stop_closer = utrade.atr5_ustop_V1
+
+mxx = [bmx,smx] #又一个独立策略, 每日最大回撤10点后趴下
+
+
 ##突破前一日高/低点
 def bru_old(sif):
     #突破前一日高点
@@ -1082,7 +1115,7 @@ sfwave.stop_closer = utrade.atr5_ustop_V1
 
 fwave = [bfwave,sfwave]
 
-lwilliams = erange + fwave  #叠加无效果， 单独的以erange为好
+lwilliams = erange + fwave  #叠加反效果， 单独的以erange为好
 
 for x in lwilliams:
     x.stop_closer = utrade.atr5_ustop_V1    
@@ -3894,6 +3927,30 @@ sdma.lastupdate = 20110116
 sdma.stop_closer = utrade.atr5_ustop_V1
 
 tma = [buma,sdma]   #这个系统更加强,是个不错的主策略, 简单
+'''
+tma系列. ma与5分钟均线的关系    #####
+    开仓:
+        做多: 1.开仓点为最低价大于1分钟线的5周期均线，次分钟开盘开仓
+              2.要求均线和最低价都比上一分钟高
+              3.s30>0. 即30分钟macd的3周期线的趋势向上
+              4. 该分钟收盘价 > 最低价 + 50点
+              5. 1分钟的5周期均线>13周期均线，30周期均线>270周期均线
+              6. xatr<2000,xatr30x<10000
+              7. t120<180
+        做空: 1.开仓点为最高价小于1分钟线的5周期均线，次分钟开盘开仓
+              2.要求均线比上一分钟低
+              3. 该分钟收盘价 < 当日最高和昨日收盘中高者 - 40点
+              5. 1分钟的5周期均线<13周期均线，13周期均线<30周期均线
+              6. xatr<2000,xatr30x<10000
+              7. t120<180
+    平仓:
+        止损为4，保本为8. 
+    工作时段:
+        买多:[1001,1435]
+        做空:[1001,1435]
+
+'''
+
 
 ####添加老系统
 wxxx = [xds,xdds3,k5_d3b,xuub,K1_DDD1,K1_UUX,K1_RU,Z5_P2,xmacd3s,xup01,ua_fa,FA_15_120,K1_DVB,K1_DDUU,K1_DVBR]
@@ -3936,8 +3993,9 @@ txxx = hbreak2 + txfs
 xxx1a = hbreak2 +  dbreak + rebound3 + rebound2#一个独立的策略
 xxx1b = tma  # 一个不错的候补策略. 和hbreak2+xbreak1v不协调
 xxx1c = exbreak2 + xbreak1v #2011-1正在衰退
+xxx1d = [bxbreak1v]
 
-xxx1 = xxx1a + xxx1b
+xxx1 = xxx1a + xxx1d    #做空已经足够，补足做多
 
 xxx = d1_xbreak1v + d1_hbreak + dbreak #+ d1_rebound#+break123c# #+ rebound  #此方法每日亏损12点之后趴下装死比较妥当
 
@@ -4033,6 +4091,20 @@ for x in rxxx:
 
 
 ###第一序列
+shbreak_mll2.stop_closer = utrade.atr5_ustop_T
+hbreak_nhh.stop_closer = utrade.atr5_ustop_T
+
+bmx.stop_closer = utrade.atr5_ustop_V1
+smx.stop_closer = utrade.atr5_ustop_V1
+
+dbreakb.stop_closer = utrade.atr5_ustop_T
+dbreaks.stop_closer = utrade.atr5_ustop_T
+
+brebound3.stop_closer = utrade.atr5_ustop_TV1
+srebound3.stop_closer = utrade.atr5_ustop_TV1
+
+
+#########候补序列
 bxbreak.stop_closer = utrade.atr5_ustop_V1
 sxbreak.stop_closer = utrade.atr5_ustop_V1
 bxbreak1.stop_closer = utrade.atr5_ustop_V1
@@ -4045,17 +4117,6 @@ sxbreak1v.stop_closer = utrade.atr5_ustop_V1
 
 ebxbreak2.stop_closer = utrade.atr5_ustop_V1
 
-shbreak_mll2.stop_closer = utrade.atr5_ustop_T
-hbreak_nhh.stop_closer = utrade.atr5_ustop_T
-
-dbreakb.stop_closer = utrade.atr5_ustop_T
-dbreaks.stop_closer = utrade.atr5_ustop_T
-
-brebound3.stop_closer = utrade.atr5_ustop_TV1
-srebound3.stop_closer = utrade.atr5_ustop_TV1
-
-
-#########候补序列
 bxbreakd.stop_closer = utrade.atr5_ustop_V
 sxbreakd.stop_closer = utrade.atr5_ustop_V
 

@@ -856,6 +856,16 @@ atr5_ustop_62 = fcustom(atr_stop_u
                 #,ftarget = iftrade.F180
             )
 
+atr5_ustop_63 = fcustom(atr_stop_u
+                ,fkeeper=iftrade.F90
+                ,win_times=250
+                ,natr=5
+                ,flost_base=iftrade.F30
+                ,fmax_drawdown=iftrade.F120
+                ,fmin_drawdown=iftrade.F120
+                #,ftarget = iftrade.F180
+            )
+
 atr5_ustop_j = fcustom(atr_stop_u
                 ,fkeeper=iftrade.F50
                 ,win_times=250

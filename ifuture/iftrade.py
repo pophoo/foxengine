@@ -13,7 +13,7 @@ simple_profit = lambda actions: actions[0].price * actions[0].position + actions
 fdirection = fcustom(get_func_attr,attr_name='direction')
 fpriority = fcustom(get_func_attr,attr_name='priority')
 
-def normal_profit(actions,max_lost=-120): #最多12点损失
+def normal_profit(actions,max_lost=-320): #最多32点损失
     profit = actions[0].price * actions[0].position + actions[1].price * actions[1].position
     if profit < max_lost:
         profit = max_lost

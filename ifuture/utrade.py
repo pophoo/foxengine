@@ -694,6 +694,17 @@ atr5_ustop_T = fcustom(atr_stop_u,
                 fmax_drawdown=iftrade.F333,
                 tlimit = 30,
             )      #
+
+atr5_ustop_T5 = fcustom(atr_stop_u,
+                fkeeper=iftrade.F80,
+                win_times=250,
+                natr=5,
+                flost_base=iftrade.F50,
+                fmax_drawdown=iftrade.F333,
+                tlimit = 30,
+            )      #
+
+
 atr5_ustop_T1 = fcustom(atr_stop_u
         ,fkeeper=iftrade.F80
         ,win_times=250
@@ -728,6 +739,16 @@ atr5_ustop_VX = fcustom(atr_stop_u,#有浮盈持有到收盘
                 fmax_drawdown=lambda x:100000,
                 fmin_drawdown=lambda x:100000,                
             )      
+
+atr5_ustop_VZ = fcustom(atr_stop_u,#有浮盈持有到收盘
+                fkeeper=iftrade.F150,
+                win_times=250,
+                natr=5,
+                flost_base=iftrade.F250,
+                fmax_drawdown=lambda x:100000,
+                fmin_drawdown=lambda x:100000,                
+            )      
+
 
 atr5_ustop_V5 = fcustom(atr_stop_u,
                 fkeeper=iftrade.F150,
@@ -805,12 +826,11 @@ atr5_ustop_X4 = fcustom(atr_stop_u
         ,fmax_drawdown=iftrade.F333)      #120-60
 
 atr5_ustop_XX = fcustom(atr_stop_u, #有浮盈持有到收盘
-                fkeeper=iftrade.F60,
+                fkeeper=iftrade.F80,
                 win_times=250,
                 natr=5,
-                flost_base=iftrade.F40,
-                fmax_drawdown=lambda x:100000,
-                fmin_drawdown=lambda x:100000,                
+                flost_base=iftrade.F80,
+                fmax_drawdown=iftrade.F333,
             )      
 
 atr5_ustop_W1 = fcustom(atr_stop_u,fkeeper=iftrade.F120,win_times=250,natr=5,flost_base=iftrade.F60,fmax_drawdown=iftrade.F333)      #120-60
@@ -857,7 +877,7 @@ atr5_ustop_62 = fcustom(atr_stop_u
             )
 
 atr5_ustop_63 = fcustom(atr_stop_u
-                ,fkeeper=iftrade.F90
+                ,fkeeper=iftrade.F80
                 ,win_times=250
                 ,natr=5
                 ,flost_base=iftrade.F30

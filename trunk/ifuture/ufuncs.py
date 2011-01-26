@@ -66,7 +66,9 @@ hbreak2系列
               5. t120<180
     平仓:
         止损为6，保本为8. 30分钟后如果盈利大于10点，则把止损拉到盈利8点或更多处
-    工作时段: [1036,1435]
+    工作时段: 
+        做多:[1036,1435]
+        做空:[1015,1444]
 
 rebound3:
     每天只做第一次
@@ -306,6 +308,18 @@ def mfilter(sif):
             sif.time < 1436,
         )
 
+def mfilter_m(sif):   
+    return gand(
+            sif.time > 1035,
+            sif.time < 1331,
+        )
+
+def mfilter_a(sif):   
+    return gand(
+            sif.time > 1200,
+            sif.time < 1436,
+        )
+
 def mfilter00(sif):   
     return gand(
             sif.time > 1000,
@@ -316,6 +330,12 @@ def mfilter1400(sif):
     return gand(
             sif.time > 1031,
             sif.time < 1400,
+        )
+
+def mfilter1430(sif):   
+    return gand(
+            sif.time > 1030,
+            sif.time < 1430,
         )
 
 def lmfilter(sif):
@@ -448,8 +468,9 @@ def nhhx(sif,vbreak=0):
     blow = gmin(sif.dlow,ldclose)
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
-            sif.high > thigh,
-            rollx(sif.dhigh-sif.dlow) > 200,   #150可
+            #sif.high > thigh,
+            cross(thigh,sif.high)>0,
+            #rollx(sif.dhigh-sif.dlow) > 200,   #150可
             #rollx(sif.dhigh-blow)>200,
         )
     return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以开盘价进入
@@ -457,8 +478,9 @@ def nhhx(sif,vbreak=0):
 def nllx(sif,vbreak=0):
     tlow = rollx(sif.dlow - vbreak,1)
     signal = gand(
-            sif.low < tlow,
-            rollx(sif.dhigh-sif.dlow)>360,
+            #sif.low < tlow,
+            cross(tlow,sif.low)<0,
+            #rollx(sif.dhigh-sif.dlow)>360,
         )
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且大于突破点，就以开盘价进入
 
@@ -482,9 +504,9 @@ def mllx(sif,length=75,vbreak=0):
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
     
 
-break_nhhx = BXFuncA(fstate=gofilter,fsignal=nhhx,fwave=gofilter,ffilter=filter0)  ##选择
+break_nhhx = BXFuncA(fstate=gofilter,fsignal=nhhx,fwave=gofilter,ffilter=mfilter0)  ##选择
 break_nhhx.name = u'向上突破新高--原始X系统'
-break_nllx = SXFuncA(fstate=gofilter,fsignal=nllx,fwave=nx2000X,ffilter=filter0)  ##选择
+break_nllx = SXFuncA(fstate=gofilter,fsignal=nllx,fwave=nx2000X,ffilter=mfilter0)  ##选择
 break_nllx.name = u'向下突破新低--原始X系统'
 
 break_mhhx = BXFuncA(fstate=gofilter,fsignal=mhhx,fwave=gofilter,ffilter=filter0)  ##选择
@@ -499,10 +521,18 @@ break_nllxr = SXFuncA(fstate=gofilter,fsignal=nllx,fwave=nx2000X,ffilter=rmfilte
 break_nllxr.name = u'向下突破新低--原始X系统-前后时段'
 
 
-break_nhhx.stop_closer = utrade.atr5_ustop_V1
-break_nllx.stop_closer = utrade.atr5_ustop_V1
+break_nhhxm = BXFuncA(fstate=gofilter,fsignal=fcustom(nhhx,vbreak=20),fwave=gofilter,ffilter=mfilter)  ##选择
+break_nhhxm.name = u'向上突破新高--原始X系统-主要时段'
+break_nllxm = SXFuncA(fstate=gofilter,fsignal=fcustom(nllx,vbreak=0),fwave=nx2000X,ffilter=mfilter)  ##选择
+break_nllxm.name = u'向下突破新低--原始X系统-主要时段'
+
+
+break_nhhx.stop_closer = utrade.atr5_ustop_X1
+break_nllx.stop_closer = utrade.atr5_ustop_X1
 break_mhhx.stop_closer = utrade.atr5_ustop_V1
 break_mllx.stop_closer = utrade.atr5_ustop_V1
+break_nhhxm.stop_closer = utrade.atr5_ustop_V1
+break_nllxm.stop_closer = utrade.atr5_ustop_V1
 
 break_nhhxr.stop_closer = utrade.atr5_ustop_V1
 break_nllxr.stop_closer = utrade.atr5_ustop_V1
@@ -516,6 +546,9 @@ break_nx = [break_nhhx,break_nllx]  #120趴下 w=6.4  #6趴下,w=7.1
 break_mx = [break_mhhx,break_mllx]  #60趴下,效果很好 w=6.7  #这个参加LK
 break_xx = [break_nhhx,break_mllx]  #150趴下 w=6.3
 break_xr = [break_nhhxr,break_nllxr]  #150趴下 w=6.3
+
+#主要时段
+break_nxm = [break_nhhxm,break_nllxm]  #120趴下 w=6.4  #6趴下,w=7.1
 
 
 def nhh(sif,vbreak=30):
@@ -706,9 +739,15 @@ def mll3(sif,length=75):
 sbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2500X,ffilter=nfilter)    #优于nll
 bbreak_mhh2 = BXFuncA(fstate=gofilter,fsignal=mhh2,fwave=nx2500X,ffilter=nfilter)    #优于nll
 
+def mfilterx(sif):
+    return gand(sif.time > 1015,sif.time<1326)
+
 #主要时段
-shbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2500X,ffilter=mfilter)    #优于nll
+shbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2000X,ffilter=mfilter2)    #优于nll
 shbreak_mll2.name = u'日内75分钟向下突破'
+
+shbreak_mll2m = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2000X,ffilter=mfilterx)    #优于nll
+shbreak_mll2m.stop_closer = utrade.atr5_ustop_T
 
 shbreak_mll2_k = SXFuncA(fstate=gofilter,fsignal=mll2,fwave=nx2500X,ffilter=mfilterk)  ##主要时段
 shbreak_mll2_k.name = u'日内向下突破新低'
@@ -778,7 +817,7 @@ smx = SXFuncA(fstate=sdown,fsignal=hmx,fwave=nx2000X,ffilter=mfilter)
 smx.name = u'中间价向下突破'
 smx.stop_closer = utrade.atr5_ustop_V1
 
-mxx = [bmx,smx] #又一个独立策略
+mxx = [bmx,smx] #又一个独立策略 ############
 
 ####改成n分钟高于/低于
 
@@ -819,7 +858,7 @@ smx1 = SXFuncA(fstate=sdown,fsignal=hmx1,fwave=nx2000X,ffilter=mfilter)
 smx1.name = u'中间价向下突破1'
 smx1.stop_closer = utrade.atr5_ustop_V1
 
-mxx1 = [bmx1,smx1]  #一个有点意思的独立策略
+mxx1 = [bmx1,smx1]  #一个有点意思的独立策略,########
 
 
 def lmx2(sif,length=30):#最高价突破中间价(5周期前),突破模型
@@ -834,10 +873,10 @@ def lmx2(sif,length=30):#最高价突破中间价(5周期前),突破模型
             cross(bline,sif.high)>0,
             #sif.low > tmid,
             sif.time > 915,
-            sif.low > sif.dlow + 300,
-            sif.close > sif.dmid,
+            rollx(sif.low) > sif.dlow + 300,
+            rollx(sif.close) > sif.dmid,
         )
-    return np.select([signal>0],[gmax(sif.open,bline)],0)    #下一分钟介入
+    return np.select([signal>0],[gmax(sif.open,bline)],0)
 bmx2 = BXFuncA(fstate=gofilter,fsignal=lmx2,fwave=nx2500X,ffilter=mfilter)
 bmx2.name = u'中间价向上突破2'
 bmx2.stop_closer = utrade.atr5_ustop_V1
@@ -848,21 +887,65 @@ def hmx2(sif,length=30):#最低价突破中间价(3周期前),突破模型
     
     tmid =  tmin(sif.low,length)/2 + tmax(sif.high,length)/2 - twave
 
-    bline = rollx(tmid,3)
+    bline = rollx(tmid,5)
 
     signal = gand(
-            cross(tmid,sif.low)<0,
+            cross(bline,sif.low)<0,
             #sif.high < tmid,
             sif.time > 915,
             sif.dhigh-sif.dlow>360,
-            sif.dhigh > sif.high + 300,
+            sif.dhigh > rollx(sif.high) + 300,
         )
-    return np.select([signal>0],[gmin(sif.open,bline)],0)    #下一分钟介入
+    return np.select([signal>0],[gmin(sif.open,bline)],0)
 smx2 = SXFuncA(fstate=sdown,fsignal=hmx2,fwave=nx2000X,ffilter=mfilter)
 smx2.name = u'中间价向下突破2'
 smx2.stop_closer = utrade.atr5_ustop_V1
 
 mxx2 = [bmx2,smx2]  #突破模型，也还可以，不如收盘模型，但能确保成交
+
+####ema通道突破
+def uema(sif,length=20):#
+    twave = sif.atr/XBASE * 3/2
+    #twave = np.select([twave>150],[150],twave)
+
+    tmid = cexpma(sif.high,length)
+
+    tbreak = tmid + twave
+
+    bline = rollx(tbreak,3)
+
+    cmid = cross(rollx(tmid),sif.low)>0
+    mcmid = msum(cmid,2)
+
+    signal = gand(
+            cross(bline,sif.high)>0,
+            mcmid > 0,
+            sif.time > 915,
+            rollx(sif.low) > sif.dlow + 150,
+        )
+    return np.select([signal>0],[gmax(sif.open,bline)],0)
+bema = BXFuncA(fstate=gofilter,fsignal=uema,fwave=nx2500X,ffilter=mfilter2a)
+bema.name = u'ema通道向上突破'
+bema.stop_closer = utrade.atr5_ustop_V1
+
+def dema(sif,length=30):#
+    twave = sif.atr/XBASE*2
+    #twave = np.select([twave<50],[50],twave)
+    
+    tmid =  tmin(sif.low,length)/2 + tmax(sif.high,length)/2 - twave
+    signal = gand(
+            cross(tmid,sif.high)<0,
+            #sif.high < tmid,
+            sif.time > 915,
+            sif.dhigh-sif.dlow>360,
+            sif.dhigh > rollx(sif.high) + 300,
+        )
+    return signal    #下一分钟介入
+sema = SXFuncA(fstate=sdown,fsignal=dema,fwave=nx2000X,ffilter=mfilter)
+sema.name = u'ema通道向下突破'
+sema.stop_closer = utrade.atr5_ustop_V1
+
+
 
 
 ##突破前一日高/低点
@@ -1845,6 +1928,14 @@ srebound3 = SXFuncD1(fstate=sdown,fsignal=drebound3,fwave=nx2500X,ffilter=mfilte
 srebound3.name = u'向下反弹3'
 srebound3.lastupdate = 20110115
 srebound3.stop_closer = utrade.atr5_ustop_TV1
+
+def mfilterx(sif):
+    return gand(sif.time > 1015,sif.time<1435)
+
+srebound3m = SXFuncD1(fstate=sdown,fsignal=drebound3,fwave=nx2500X,ffilter=mfilterx)
+srebound3m.name = u'向下反弹3m'
+srebound3m.lastupdate = 20110115
+srebound3m.stop_closer = utrade.atr5_ustop_TV1
 
 
 dbrebound = BXFuncD1(fstate=gofilter,fsignal=urebound,fwave=gofilter,ffilter=e1430filter)##e1430filter2)
@@ -3019,7 +3110,7 @@ exbreak = [ebxbreak,esxbreak]
 
 exbreak2 = [ebxbreak2]
 
-xbreak1u = [bxbreak1u,sxbreak1u]    #目前唯一的震荡模型.
+xbreak1u = [bxbreak1u,sxbreak1u]    #目前唯一的震荡模型.    ###########################
 
 
 '''
@@ -3116,6 +3207,7 @@ def rbreakb(sif,distance=250):
         幅度从最低跨越distance点时开仓
         如果30分钟内已经有失败尝试，则拉高step点
     '''
+
     bline1 = sif.dlow + distance
     t1 = gand(sif.time > 1031,
               cross(bline1,sif.high)>0,
@@ -3131,7 +3223,6 @@ def rbreakb(sif,distance=250):
                 bline > sif.dmid,
                 #rollx(sif.close) > rollx(sif.close,11),
                 rollx(sif.high) > rollx(sif.high,11),
-                sif.time>1031,
                 rollx(sif.low) > rollx(sif.ma5),
             )
     return np.select([signal1>0],[gmax(sif.open,bline)],0)
@@ -3142,7 +3233,7 @@ def rbreaks(sif,distance=400):
     '''
     bline1 = sif.dhigh - distance
 
-    t1 = gand(sif.time > 1031,
+    t1 = gand(
               cross(bline1,sif.low)<0,
         )
 
@@ -3158,7 +3249,6 @@ def rbreaks(sif,distance=400):
                 sif.t120 < 180,
                 rollx(sif.low) < rollx(sif.low,31),  
                 rollx(sif.high) < rollx(sif.ma13),
-                sif.time > 1031,
             )
     return np.select([signal1>0],[gmin(sif.open,bline)],0)
 
@@ -3195,7 +3285,7 @@ brbreak.name = u'幅度向上突破25'
 brbreak.lastupdate = 20110106
 brbreak.stop_closer = utrade.atr5_ustop_X4
 
-srbreak = SXFunc(fstate=gofilter,fsignal=rbreaks,fwave=nx2000X,ffilter=mfilter1400)
+srbreak = SXFunc(fstate=gofilter,fsignal=rbreaks,fwave=nx2000X,ffilter=mfilter1430)
 srbreak.name = u'幅度向下突破40'
 srbreak.lastupdate = 20110106
 srbreak.stop_closer = utrade.atr5_ustop_X4
@@ -4156,9 +4246,9 @@ txxx = hbreak2 + txfs
 xxx1a = hbreak2 +  dbreak + rebound3 + rebound2#一个独立的策略
 xxx1b = tma  # 一个不错的候补策略. 和hbreak2+xbreak1v不协调
 xxx1c = exbreak2 + xbreak1v #2011-1正在衰退
-xxx1d = [bxbreak1v]
+xxx1d = [bxbreak1v] #+ rbreak
 
-xxx1 = xxx1a    #做空已经足够，补足做多
+xxx1 = xxx1a + xxx1d    #做空已经足够，补足做多
 
 xxx = d1_xbreak1v + d1_hbreak + dbreak #+ d1_rebound#+break123c# #+ rebound  #此方法每日亏损12点之后趴下装死比较妥当
 
@@ -4257,6 +4347,14 @@ for x in rxxx:
 shbreak_mll2.stop_closer = utrade.atr5_ustop_T
 hbreak_nhh.stop_closer = utrade.atr5_ustop_T
 
+shbreak_mll2.stop_closer = utrade.atr5_ustop_VZ
+hbreak_nhh.stop_closer = utrade.atr5_ustop_VZ
+
+
+break_nhhxm.stop_closer = utrade.atr5_ustop_V1
+break_nllxm.stop_closer = utrade.atr5_ustop_V1  #注意，这个是V1,即5个点的止损
+
+
 bmx.stop_closer = utrade.atr5_ustop_V1
 smx.stop_closer = utrade.atr5_ustop_V1
 
@@ -4289,6 +4387,8 @@ dshbreak_mll2.stop_closer = utrade.atr5_ustop_V
 
 brebound2.stop_closer = utrade.atr5_ustop_T1
 srebound2.stop_closer = utrade.atr5_ustop_T1
+
+
 
 ####AMM系列
 bamm.stop_closer = utrade.atr5_ustop_V1

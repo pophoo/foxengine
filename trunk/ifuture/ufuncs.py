@@ -328,7 +328,7 @@ def mfilter00(sif):
 
 def mfilter1400(sif):   
     return gand(
-            sif.time > 1031,
+            sif.time > 1030,
             sif.time < 1400,
         )
 
@@ -3209,8 +3209,12 @@ def rbreakb(sif,distance=250):
     '''
 
     bline1 = sif.dlow + distance
-    t1 = gand(sif.time > 1031,
+
+    rbline = rollx(tmin(sif.low,75),1)
+    
+    t1 = gand(sif.time > 1030,
               cross(bline1,sif.high)>0,
+              #bline1 > rbline,
         )
     ms1 = msum(t1,30)
 
@@ -3220,7 +3224,8 @@ def rbreakb(sif,distance=250):
 
     signal1 = gand(
                 sif.high > bline,
-                bline > sif.dmid,
+                bline > sif.dmid,   #这一条保证了很多. 至少拉开之后，不会被触发
+                #bline > rbline,
                 #rollx(sif.close) > rollx(sif.close,11),
                 rollx(sif.high) > rollx(sif.high,11),
                 rollx(sif.low) > rollx(sif.ma5),
@@ -3235,6 +3240,7 @@ def rbreaks(sif,distance=400):
 
     t1 = gand(
               cross(bline1,sif.low)<0,
+              #bline1 < rbline,
         )
 
     ms1 = msum(t1,30)
@@ -3246,6 +3252,7 @@ def rbreaks(sif,distance=400):
 
     signal1 = gand(
                 sif.low < bline,
+                #bline < rbline,
                 sif.t120 < 180,
                 rollx(sif.low) < rollx(sif.low,31),  
                 rollx(sif.high) < rollx(sif.ma13),
@@ -3283,12 +3290,12 @@ def rmbreaks(sif,distance=400):
 brbreak = BXFunc(fstate=gofilter,fsignal=rbreakb,fwave=nx2000X,ffilter=mfilter1400)
 brbreak.name = u'幅度向上突破25'
 brbreak.lastupdate = 20110106
-brbreak.stop_closer = utrade.atr5_ustop_X4
+brbreak.stop_closer = utrade.atr5_ustop_V1
 
 srbreak = SXFunc(fstate=gofilter,fsignal=rbreaks,fwave=nx2000X,ffilter=mfilter1430)
 srbreak.name = u'幅度向下突破40'
 srbreak.lastupdate = 20110106
-srbreak.stop_closer = utrade.atr5_ustop_X4
+srbreak.stop_closer = utrade.atr5_ustop_V1
 
 lbrbreak = BXFuncD1(fstate=gofilter,fsignal=rbreakb,fwave=gofilter,ffilter=lmfilter)
 lbrbreak.name = u'尾盘幅度向上突破25'
@@ -4246,7 +4253,7 @@ txxx = hbreak2 + txfs
 xxx1a = hbreak2 +  dbreak + rebound3 + rebound2#一个独立的策略
 xxx1b = tma  # 一个不错的候补策略. 和hbreak2+xbreak1v不协调
 xxx1c = exbreak2 + xbreak1v #2011-1正在衰退
-xxx1d = [bxbreak1v] #+ rbreak
+xxx1d = [bxbreak1v] + rbreak
 
 xxx1 = xxx1a + xxx1d    #做空已经足够，补足做多
 
@@ -4347,8 +4354,8 @@ for x in rxxx:
 shbreak_mll2.stop_closer = utrade.atr5_ustop_T
 hbreak_nhh.stop_closer = utrade.atr5_ustop_T
 
-shbreak_mll2.stop_closer = utrade.atr5_ustop_VZ
-hbreak_nhh.stop_closer = utrade.atr5_ustop_VZ
+shbreak_mll2.stop_closer = utrade.atr5_ustop_T
+hbreak_nhh.stop_closer = utrade.atr5_ustop_T
 
 
 break_nhhxm.stop_closer = utrade.atr5_ustop_V1
@@ -4389,6 +4396,8 @@ brebound2.stop_closer = utrade.atr5_ustop_T1
 srebound2.stop_closer = utrade.atr5_ustop_T1
 
 
+brbreak.stop_closer = utrade.atr5_ustop_VZ
+srbreak.stop_closer = utrade.atr5_ustop_VZ
 
 ####AMM系列
 bamm.stop_closer = utrade.atr5_ustop_V1

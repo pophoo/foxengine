@@ -17,6 +17,32 @@ DTSORT2 = lambda x,y: int(((x.date%1000000 * 10000)+x.time) - ((y.date%1000000 *
 day2weekday = lambda x:date(x/10000,x%10000/100,x%100).weekday() + 1
 d2wd = day2weekday
 
+def repeat_trades(actions,calc_profit=iftrade.normal_profit):  #简单的trades,每个trade只有一次开仓和平仓
+    ''' 不支持同时双向开仓
+        但支持同向多次开仓
+    '''
+    state = EMPTY   #LONG,SHORT
+    trades = []
+    cur_trades = []
+    for action in actions:
+        #print 'action:',action.date,action.time,action.position,action.price
+        if action.xtype == XOPEN and state == action.position:
+            #print 'open:',action.date,action.time,action.position,action.price
+            action.vol = 1
+            cur_trades.append(BaseObject(actions = [action]))
+        elif action.xtype == XCLOSE and len(cur_trades)>0 and action.position != state:    #平仓且方向相反
+            #print 'close:',action.date,action.time,action.position,action.price
+            action.vol = 1
+            for trade in cur_trades:
+                trade.actions.append(action)
+                trade.profit = calc_profit(trade.actions)
+                trades.append(trade)
+            state = EMPTY
+        else:   #持仓时碰到同向平仓或逆向开仓/未持仓时碰到平仓指令
+            pass
+    return trades
+
+
 
 #设定保证
 def atr_stop_u(
@@ -740,13 +766,23 @@ atr5_ustop_VX = fcustom(atr_stop_u,#有浮盈持有到收盘
                 fmin_drawdown=lambda x:100000,                
             )      
 
-atr5_ustop_VZ = fcustom(atr_stop_u,#有浮盈持有到收盘
-                fkeeper=iftrade.F150,
+atr5_ustop_VY = fcustom(atr_stop_u,#有浮盈持有到收盘
+                fkeeper=iftrade.F100,
                 win_times=250,
                 natr=5,
-                flost_base=iftrade.F250,
-                fmax_drawdown=lambda x:100000,
-                fmin_drawdown=lambda x:100000,                
+                flost_base=lambda x:120,
+                fmax_drawdown=iftrade.F333,
+                fmin_drawdown=iftrade.F250,
+            )      
+
+
+atr5_ustop_VZ = fcustom(atr_stop_u,#有浮盈持有到收盘
+                fkeeper=iftrade.F100,
+                win_times=250,
+                natr=5,
+                flost_base=iftrade.F100,
+                fmax_drawdown=iftrade.F333,
+                fmin_drawdown=iftrade.F250,
             )      
 
 

@@ -26,10 +26,11 @@ def repeat_trades(actions,calc_profit=iftrade.normal_profit):  #简单的trades,
     cur_trades = []
     for action in actions:
         #print 'action:',action.date,action.time,action.position,action.price
-        if action.xtype == XOPEN and state == action.position:
+        if action.xtype == XOPEN and (state == action.position or state == EMPTY):
             #print 'open:',action.date,action.time,action.position,action.price
             action.vol = 1
             cur_trades.append(BaseObject(actions = [action]))
+            state == action.position
         elif action.xtype == XCLOSE and len(cur_trades)>0 and action.position != state:    #平仓且方向相反
             #print 'close:',action.date,action.time,action.position,action.price
             action.vol = 1
@@ -38,10 +39,10 @@ def repeat_trades(actions,calc_profit=iftrade.normal_profit):  #简单的trades,
                 trade.profit = calc_profit(trade.actions)
                 trades.append(trade)
             state = EMPTY
+            cur_trades = []
         else:   #持仓时碰到同向平仓或逆向开仓/未持仓时碰到平仓指令
             pass
     return trades
-
 
 
 #设定保证
@@ -936,6 +937,7 @@ atr5_ustop_j = fcustom(atr_stop_u
 utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 utrade_d = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=iftrade.last_trades,sync_trades=iftrade.null_sync_tradess)
 
+utrade_nr = fcustom(utrade,make_trades=repeat_trades,sync_trades=iftrade.null_sync_tradess,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 
 def utrade_nc(sif,*fss):    #返回策略集合的独立运算的合并结果
     tradess = [utrade_n(sif,fs) for fs in fss]

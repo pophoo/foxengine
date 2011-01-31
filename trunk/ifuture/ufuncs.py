@@ -586,7 +586,7 @@ def nx2000X(sif):
 def nx2500X(sif):
     xx = gand(
                 sif.xatr < 2500,
-                sif.xatr30x < 10000,
+                #sif.xatr30x < 10000,
                 #sif.xatr5x< 4000,
            )
     return rollx(xx)

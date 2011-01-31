@@ -1288,7 +1288,7 @@ sfwave.stop_closer = utrade.atr5_ustop_V1
 
 fwave = [bfwave,sfwave]
 
-lwilliams = erange + fwave  #叠加反效果， 单独的以erange为好
+lwilliams = erange + fwave  #叠加反效果， 单独的以erange为好. 稳定性达到0.37
 
 for x in lwilliams:
     x.stop_closer = utrade.atr5_ustop_V1    
@@ -3222,12 +3222,14 @@ def rbreakb(sif,distance=250):
     bline = bline1
     bline = np.select([ms1<3,ms1>=3],[bline1,bline2])
 
+
     signal1 = gand(
                 sif.high > bline,
-                bline > sif.dmid,   #这一条保证了很多. 至少拉开之后，不会被触发
+                bline > rollx(sif.dmid),   #这一条保证了很多. 至少拉开之后，不会被触发
                 #bline > rbline,
                 #rollx(sif.close) > rollx(sif.close,11),
-                rollx(sif.high) > rollx(sif.high,11),
+                rollx(sif.high) > rollx(ma(sif.high,10)),
+                #rollx(sif.high) > rollx(sif.high,11),
                 rollx(sif.low) > rollx(sif.ma5),
             )
     return np.select([signal1>0],[gmax(sif.open,bline)],0)
@@ -3255,6 +3257,7 @@ def rbreaks(sif,distance=400):
                 #bline < rbline,
                 sif.t120 < 180,
                 rollx(sif.low) < rollx(sif.low,31),  
+                #rollx(sif.low) < rollx(ma(sif.low,31)),
                 rollx(sif.high) < rollx(sif.ma13),
             )
     return np.select([signal1>0],[gmin(sif.open,bline)],0)
@@ -4186,7 +4189,7 @@ sdma.name = u'最高价穿越ma5'
 sdma.lastupdate = 20110116
 sdma.stop_closer = utrade.atr5_ustop_V1
 
-tma = [buma,sdma]   #这个系统更加强,是个不错的主策略, 简单
+tma = [buma,sdma]   #这个系统更加强,是个不错的主策略, 简单. 稳定性=0.36
 '''
 tma系列. ma与5分钟均线的关系    #####
     开仓:

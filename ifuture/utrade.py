@@ -707,18 +707,24 @@ def dmax_drawdown(dtrades,datefrom=20100401,dateto=20200101):
 
 atr5_ustop_V = fcustom(atr_stop_u,
                 fkeeper=iftrade.F80,
-                win_times=250,
-                natr=5,
+                #win_times=250,
+                #natr=5,
+                win_times=40,
+                natr = 270,
                 flost_base=iftrade.F60,
                 fmax_drawdown=iftrade.F333
             )      #
 
 atr5_ustop_T = fcustom(atr_stop_u,
                 fkeeper=iftrade.F80,
-                win_times=250,
-                natr=5,
+                #win_times=250,                
+                #win_times=280,
+                #natr=5,
+                win_times=40,
+                natr = 270,
                 flost_base=iftrade.F60,
                 fmax_drawdown=iftrade.F333,
+                fmin_drawdown=iftrade.F150,
                 tlimit = 30,
             )      #
 
@@ -734,16 +740,20 @@ atr5_ustop_T5 = fcustom(atr_stop_u,
 
 atr5_ustop_T1 = fcustom(atr_stop_u
         ,fkeeper=iftrade.F80
-        ,win_times=250
-        ,natr=5
+        #,win_times=280
+        #,natr=5
+        ,win_times = 40
+        ,natr=270
         ,flost_base=iftrade.F80 #
         ,fmax_drawdown=iftrade.F333
         ,tlimit = 15,
         )      #120-60
 atr5_ustop_TV1 = fcustom(atr_stop_u
         ,fkeeper=iftrade.F80
-        ,win_times=250
-        ,natr=5
+        #,win_times=250
+        #,natr=5
+        ,win_times = 40
+        ,natr=270
         ,flost_base=iftrade.F40 #止损太窄不好操作，很可能还没设止损单就已经破了
         ,fmax_drawdown=iftrade.F333
         ,tlimit = 30,
@@ -779,11 +789,13 @@ atr5_ustop_VY = fcustom(atr_stop_u,#有浮盈持有到收盘
 
 atr5_ustop_VZ = fcustom(atr_stop_u,#有浮盈持有到收盘
                 fkeeper=iftrade.F100,
-                win_times=250,
-                natr=5,
+                #win_times=250,
+                #natr=5,
+                win_times = 40,
+                natr = 270,
                 flost_base=iftrade.F100,
                 fmax_drawdown=iftrade.F333,
-                fmin_drawdown=iftrade.F250,
+                fmin_drawdown=iftrade.F150,
             )      
 
 
@@ -805,10 +817,15 @@ atr5_ustop_V0 = fcustom(atr_stop_u
 
 atr5_ustop_V1 = fcustom(atr_stop_u
         ,fkeeper=iftrade.F80
-        ,win_times=250
-        ,natr=5
+        #,win_times=250
+        #,natr=5
+        ,win_times = 40
+        ,natr=270
         ,flost_base=iftrade.F40 #止损太窄不好操作，很可能还没设止损单就已经破了
-        ,fmax_drawdown=iftrade.F333)      #120-60
+        ,fmax_drawdown=iftrade.F333
+        ,fmin_drawdown=iftrade.F250
+        #,fmin_drawdown=iftrade.F150
+        )      #120-60
 
 atr5_ustop_V2 = fcustom(atr_stop_u
         ,fkeeper=iftrade.F80

@@ -1082,6 +1082,21 @@ def psum(trades,datefrom=0,dateto=99999999):
     '''
     return sum([trade.profit for trade in trades if trade.actions[0].date>=datefrom and trade.actions[0].date<dateto])
 
+import math
+def se(trades):#计算标准差
+    ps = [trade.profit for trade in trades]
+    aps = sum(ps)*1.0 / len(ps)
+    result = math.sqrt(sum([ (p-aps)*(p-aps)*1.0 for p in ps])/(len(ps)-1))
+    return result
+
+def tavg(trades):
+    return sum([trade.profit for trade in trades])*1.0 / len(trades)
+
+def fitness(trades):#适应度，就是稳定度
+    if se(trades) == 0:
+        return 0
+    return tavg(trades)/se(trades)
+
 afm = {1:lambda sif:sif.atr
         ,5:lambda sif:sif.atr5x
         ,15:lambda sif:sif.atr15x
@@ -2126,7 +2141,9 @@ F110 = lambda bpoint:110
 F120 = lambda bpoint:120
 F150 = lambda bpoint:150
 F180 = lambda bpoint:180
+F200 = lambda bpoint:200
 F250 = lambda bpoint:250
+F300 = lambda bpoint:300
 F333 = lambda bpoint:333
 
 atr5_uxstop_k0 = fcustom(atr_uxstop_k,fkeeper=F40,win_times=250,natr=5,flost_base=F60)      #40-60

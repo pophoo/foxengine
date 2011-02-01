@@ -702,6 +702,8 @@ def mll2(sif,length=75,vbreak=20):
     #ldmid = dnext((sif.highd+sif.closed)/2,sif.close,sif.i_cofd)    
     ldclose = dnext(sif.closed,sif.close,sif.i_cofd) 
 
+    #tlow = gmin(tlow,ldmid-32)
+
     signal = gand(
             #sif.time>1029,
             cross(tlow,sif.low)<0,

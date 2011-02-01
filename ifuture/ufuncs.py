@@ -3210,6 +3210,7 @@ def rbreakb(sif,distance=250):
         如果30分钟内已经有失败尝试，则拉高step点
     '''
 
+    #distance = sif.xatr30x * 600/100/ XBASE
     bline1 = sif.dlow + distance
 
     rbline = rollx(tmin(sif.low,75),1)
@@ -3224,7 +3225,7 @@ def rbreakb(sif,distance=250):
     bline = bline1
     bline = np.select([ms1<3,ms1>=3],[bline1,bline2])
 
-
+    ldlow = dnext(sif.lowd/2+rollx(sif.lowd)/2,sif.close,sif.i_cofd)
     signal1 = gand(
                 sif.high > bline,
                 bline > rollx(sif.dmid),   #这一条保证了很多. 至少拉开之后，不会被触发
@@ -3233,6 +3234,7 @@ def rbreakb(sif,distance=250):
                 rollx(sif.high) > rollx(ma(sif.high,10)),
                 #rollx(sif.high) > rollx(sif.high,11),
                 rollx(sif.low) > rollx(sif.ma5),
+                #sif.dlow > ldlow , 
             )
     return np.select([signal1>0],[gmax(sif.open,bline)],0)
 
@@ -4401,8 +4403,8 @@ brebound2.stop_closer = utrade.atr5_ustop_T1
 srebound2.stop_closer = utrade.atr5_ustop_T1
 
 
-brbreak.stop_closer = utrade.atr5_ustop_VZ
-srbreak.stop_closer = utrade.atr5_ustop_VZ
+brbreak.stop_closer = utrade.atr5_ustop_V1
+srbreak.stop_closer = utrade.atr5_ustop_VY
 
 ####AMM系列
 bamm.stop_closer = utrade.atr5_ustop_V1

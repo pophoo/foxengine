@@ -769,19 +769,21 @@ atr5_ustop_TX4 = fcustom(atr_stop_u
       )      #120-60
 
 atr5_ustop_VX = fcustom(atr_stop_u,#有浮盈持有到收盘
-                fkeeper=iftrade.F80,
+                fkeeper=iftrade.F90,
                 win_times=250,
                 natr=5,
-                flost_base=iftrade.F60,
+                flost_base=iftrade.F90,
                 fmax_drawdown=lambda x:100000,
                 fmin_drawdown=lambda x:100000,                
             )      
 
-atr5_ustop_VY = fcustom(atr_stop_u,#有浮盈持有到收盘
+atr5_ustop_VY = fcustom(atr_stop_u,#
                 fkeeper=iftrade.F100,
-                win_times=250,
-                natr=5,
-                flost_base=lambda x:120,
+                #win_times=250,
+                #natr=5,
+                win_times = 40,
+                natr = 270,
+                flost_base=lambda x:90,
                 fmax_drawdown=iftrade.F333,
                 fmin_drawdown=iftrade.F250,
             )      

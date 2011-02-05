@@ -637,7 +637,7 @@ def uposition(sif,saction,xtype,defer=1):
 
 def day_trades(trades,limit=-200):
     '''
-        每日损失到limit之后不再开仓
+        每日连续回撤到limit(含limit)之后不再开仓. 即如果已经损失20点，limit=-20，则不能再开仓
         在中间即便有盈利，但是如果累计起来仍然为负，则持续计算
     '''
     if len(trades) == 0:

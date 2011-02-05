@@ -585,7 +585,7 @@ break_flx.name = u'向下突破日初新低'
 break_fhx.stop_closer = utrade.atr5_ustop_V1
 break_flx.stop_closer = utrade.atr5_ustop_V1
 
-break_fx = [break_fhx,break_flx]    #一个还可以的独立策略. 日亏6点之后不动
+break_fx = [break_fhx,break_flx]    ##########一个还可以的独立策略. 日亏6点之后不动
 
 
 def nhh(sif,vbreak=30):
@@ -4294,7 +4294,7 @@ sdma2.name = u'向下穿越ma且站住3分钟'
 sdma2.lastupdate = 20110203
 sdma2.stop_closer = utrade.atr5_ustop_V1
 
-tma2 = [buma2,sdma2]    #另一个还可以的ma策略
+tma2 = [buma2,sdma2]    #另一个还可以的ma策略,12点后趴下
 
 
 ####添加老系统

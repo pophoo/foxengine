@@ -1021,7 +1021,7 @@ def utrade_nct(sif,hmax,hmin,wds,*fss):
     '''
         返回策略集合的独立运算的仓位管理结果. 单个策略可在参数中出现多次以体现权重
         hmax是有利日持仓数, hmin是不利日持仓数
-        wds是有利日集合. 目前默认是1/2/5
+        wds是有利日集合. 
 
         这个处理有个问题。即对当分钟开仓后平仓的，因为在topen与min(hcur)比较的时候没有处理到这种情况，
             所以如果下一笔交易也是该分钟的，就会突破仓位限制开出来
@@ -1120,6 +1120,54 @@ utrade_ncd1345 = utrade_ncd_n(2,1,1345)
 utrade_ncd1400 = utrade_ncd_n(2,1,1400)
 utrade_ncd1415 = utrade_ncd_n(2,1,1415)
 utrade_ncd1430 = utrade_ncd_n(2,1,1430)
+
+####nct和ncd的组合
+def utrade_ncdt(sif,hmax,hmin,wds,btime,*fss):   
+    '''
+        返回策略集合的独立运算的仓位管理结果. 单个策略可在参数中出现多次以体现权重
+        hmax是有利日前向持仓数，hmin为不利日或后向持仓数
+        wds是有利日集合.
+        btime为区分前后向的时间界限，<=btime为前向，>btime为后向
+
+        这个处理有个问题。即对当分钟开仓后平仓的，因为在topen与min(hcur)比较的时候没有处理到这种情况，
+            所以如果下一笔交易也是该分钟的，就会突破仓位限制开出来
+            但是如果采用topen>min(hcur)，又会漏掉当分钟反手的开仓那一笔.
+        目前的处理只会加多止损，不会有利于回测。所以采用目前这种方式.
+    '''
+    strades = utrade_nc(sif,*fss)
+    cur_day = 0
+    hcur = []
+    rtrades = []
+    for trade in strades:
+        dopen,topen = trade.actions[0].date,trade.actions[0].time
+        dclose,tclose = trade.actions[-1].date,trade.actions[-1].time
+        cur_max = hmax if d2wd(dopen) in wds and topen <= btime else hmin
+        if dopen > cur_day: #换日
+            cur_day = dopen
+            if cur_max > 0:
+                hcur = [tclose] #清理掉前一日的
+                rtrades.append(trade)
+            else:
+                hcur = []
+        else:#当日延续
+            hcur = [c for c in hcur if c > topen]   #剔除所有开仓前平仓的
+            if len(hcur) < cur_max:
+                hcur.append(tclose)
+                rtrades.append(trade)
+            else:#舍弃
+                pass
+    return rtrades
+
+def utrade_ncdt_n(hmax,hmin,wds,btime):
+    def my_ncdt(sif,*fss):
+        return utrade_ncdt(sif,hmax,hmin,wds,btime,*fss)
+    return my_ncdt
+
+utrade_ncdtx = utrade_ncdt_n(2,1,(1,2,3,4,5),1500) #等同于不分日
+utrade_ncdt_1235_1330 = utrade_ncdt_n(2,1,(1,2,3,5),1330) # 貌似意义不大
+utrade_ncdt_15_1330 = utrade_ncdt_n(2,1,(1,5),1330) # 貌似意义不大
+utrade_ncdt_125_1330 = utrade_ncdt_n(2,1,(1,2,5),1330) # 貌似意义不大
+
 
 def range_distribution(sif,rlimit = [300,500,800,1200,1500,10000]):#求振幅分布
     srange = sif.highd - sif.lowd

@@ -1049,10 +1049,7 @@ def utrade_nct(sif,hmax,hmin,wds,*fss):
             rtrades.append(trade)
         elif hcur != [] and topen >= min(hcur):#在这里hcur==[]只有不利日持仓上限为0导致的. 
             #topen与min(hcur)的等于关系其实不确定，暂定算
-            pos = 0
-            while(hcur[pos] > topen): #必然找到小于等于的.并且一般先开仓的先平，所以先找到概率大
-                pos+=1
-            del hcur[pos]   #减一个就够了
+            hcur = [c for c in hcur if c > topen]   #剔除所有前面平仓的
             hcur.append(tclose)
             rtrades.append(trade)
         else:#舍弃
@@ -1071,6 +1068,58 @@ utrade_nct125 = utrade_nct_n(2,1,(1,2,5))
 utrade_nct1235 = utrade_nct_n(2,1,(1,2,3,5))
 utrade_nct1245 = utrade_nct_n(2,1,(1,2,4,5))
 
+
+###根据日内时间来确定仓位的办法
+def utrade_ncd(sif,hmax,hmin,btime,*fss):   
+    '''
+        返回策略集合的独立运算的仓位管理结果. 单个策略可在参数中出现多次以体现权重
+        hmax是前向持仓数，hmin为后向持仓数
+        btime为区分前后向的时间界限，<=btime为前向，>btime为后向
+
+        这个处理有个问题。即对当分钟开仓后平仓的，因为在topen与min(hcur)比较的时候没有处理到这种情况，
+            所以如果下一笔交易也是该分钟的，就会突破仓位限制开出来
+            但是如果采用topen>min(hcur)，又会漏掉当分钟反手的开仓那一笔.
+        目前的处理只会加多止损，不会有利于回测。所以采用目前这种方式.
+    '''
+    strades = utrade_nc(sif,*fss)
+    cur_day = 0
+    hcur = []
+    rtrades = []
+    for trade in strades:
+        dopen,topen = trade.actions[0].date,trade.actions[0].time
+        dclose,tclose = trade.actions[-1].date,trade.actions[-1].time
+        cur_max = hmax if topen <= btime else hmin
+        if dopen > cur_day: #换日
+            cur_day = dopen
+            if cur_max > 0:
+                hcur = [tclose] #清理掉前一日的
+                rtrades.append(trade)
+            else:
+                hcur = []
+        else:#当日延续
+            hcur = [c for c in hcur if c > topen]   #剔除所有开仓前平仓的
+            if len(hcur) < cur_max:
+                hcur.append(tclose)
+                rtrades.append(trade)
+            else:#舍弃
+                pass
+    return rtrades
+
+def utrade_ncd_n(hmax,hmin,btime):
+    def my_ncd(sif,*fss):
+        return utrade_ncd(sif,hmax,hmin,btime,*fss)
+    return my_ncd
+
+utrade_ncdx = utrade_ncd_n(2,1,1500) #等同于不分日
+utrade_ncd1300 = utrade_ncd_n(2,1,1300)
+utrade_ncd1315 = utrade_ncd_n(2,1,1315)
+utrade_ncd1320 = utrade_ncd_n(2,1,1320)
+utrade_ncd1325 = utrade_ncd_n(2,1,1325)
+utrade_ncd1330 = utrade_ncd_n(2,1,1330)
+utrade_ncd1345 = utrade_ncd_n(2,1,1345)
+utrade_ncd1400 = utrade_ncd_n(2,1,1400)
+utrade_ncd1415 = utrade_ncd_n(2,1,1415)
+utrade_ncd1430 = utrade_ncd_n(2,1,1430)
 
 def range_distribution(sif,rlimit = [300,500,800,1200,1500,10000]):#求振幅分布
     srange = sif.highd - sif.lowd

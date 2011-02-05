@@ -65,7 +65,7 @@ hbreak2系列
               4. 1330前开仓附加条件是:日内振幅>35
               5. t120<180
     平仓:
-        止损为6，保本为8. 30分钟后如果盈利大于10点，则把止损拉到盈利8点或更多处
+        止损为7，保本为8. 30分钟后如果盈利大于10点，则把止损拉到盈利8点或更多处
     工作时段: 
         做多:[1036,1435]
         做空:[1015,1444]
@@ -549,6 +549,43 @@ break_xr = [break_nhhxr,break_nllxr]  #150趴下 w=6.3
 
 #主要时段
 break_nxm = [break_nhhxm,break_nllxm]  #120趴下 w=6.4  #6趴下,w=7.1
+
+####以每天前n分钟的高低点为准
+def fhx(sif,vbreak=0):
+    thigh = np.select([sif.time==1015],[sif.dhigh],0)
+    thigh = extend2next(thigh) + vbreak
+    signal = gand(
+            cross(thigh,sif.high)>0,
+            sif.time > 1015,
+        )
+    msignal = ssum(signal,sif.time==1015)
+    signal = gand(signal,
+                  msignal < 3,#每天前2次
+                  sif.time < 1331,
+                )
+    return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以开盘价进入
+
+def flx(sif,vbreak=0):
+    tlow = np.select([sif.time==1015],[sif.dlow],0)
+    tlow = extend2next(tlow) + vbreak
+    signal = gand(cross(tlow,sif.low)<0,
+                  sif.time > 1015,
+                )
+    msignal = ssum(signal,sif.time==1015)
+    signal = gand(signal,
+                  msignal < 3,#每天前2次
+                  sif.time < 1331,
+                )
+    return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且大于突破点，就以开盘价进入
+
+break_fhx = BXFuncA(fstate=gofilter,fsignal=fhx,fwave=gofilter,ffilter=nfilter)  ##选择
+break_fhx.name = u'向上突破日初新高'
+break_flx = SXFuncA(fstate=gofilter,fsignal=flx,fwave=gofilter,ffilter=nfilter)  ##选择
+break_flx.name = u'向下突破日初新低'
+break_fhx.stop_closer = utrade.atr5_ustop_V1
+break_flx.stop_closer = utrade.atr5_ustop_V1
+
+break_fx = [break_fhx,break_flx]    #一个还可以的独立策略. 日亏6点之后不动
 
 
 def nhh(sif,vbreak=30):
@@ -4217,6 +4254,47 @@ tma系列. ma与5分钟均线的关系    #####
         做空:[1001,1435]
 
 '''
+
+###ma2
+def uma2(sif):
+    ldclose = dnext(sif.closed,sif.close,sif.i_cofd)
+    bline = sif.ma30
+    signal = gand(
+            rollx(sif.close,4) <= rollx(bline,4),
+            rollx(sif.close,3) > rollx(bline,3),
+            rollx(sif.close,2) > rollx(bline,2),
+            rollx(sif.close) > rollx(bline),
+            sif.close > bline,
+            strend2(bline)>0,
+            sif.ma30 > sif.ma135,
+            strend2(sif.ma270)>0,
+           )
+    return signal
+buma2 = BXFuncD2(fstate=sdown,fsignal=uma2,fwave=nx2000X,ffilter=mfilter)
+buma2.name = u'向上穿越ma且站住3分钟'
+buma2.lastupdate = 20110203
+buma2.stop_closer = utrade.atr5_ustop_V1
+
+def dma2(sif):
+    ldclose = dnext(sif.closed,sif.close,sif.i_cofd)
+    bline = sif.ma30
+    signal = gand(
+            rollx(sif.close,3) >= rollx(bline,3),
+            rollx(sif.close,2) < rollx(bline,2),
+            rollx(sif.close) < rollx(bline),
+            sif.close < bline,
+            strend2(bline)<0,
+            sif.ma30 < sif.ma135,
+            sif.ma7 < sif.ma30,
+            sif.s15<0,
+           )
+    return signal
+sdma2 = SXFuncD2(fstate=sdown,fsignal=dma2,fwave=nx2000X,ffilter=mfilter)
+sdma2.name = u'向下穿越ma且站住3分钟'
+sdma2.lastupdate = 20110203
+sdma2.stop_closer = utrade.atr5_ustop_V1
+
+tma2 = [buma2,sdma2]    #另一个还可以的ma策略
 
 
 ####添加老系统

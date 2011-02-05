@@ -198,6 +198,18 @@ def d1_filter(sif,signal):  #当日第一次
     signal = gand(signal_s == 1)
     return signal
 
+def dn_filter(sif,signal,n=2):  #当日前n次
+    msignal = ssum(signal,sif.time==915)
+    xsignal = gand(signal,
+                  msignal < n + 1,#每天前2次
+                )
+    return xsignal
+
+d2_filter = dn_filter
+d3_filter = fcustom(dn_filter,n=3)
+d4_filter = fcustom(dn_filter,n=4)
+d5_filter = fcustom(dn_filter,n=5)
+
 def df1_b_filter(sif,signal): #当时失败停止, 多头. 存在问题：成功后下去也导致不能开仓
     signal1 = d1_filter(sif,signal)
     sopen = np.select([signal!=0],[(sif.open+sif.high)/2],0)
@@ -252,6 +264,7 @@ class CFuncD1(CFunc):#每日第一次
     def signal_filter(self,sif,signal):
         return d1_filter(sif,signal)
 
+
 class BXFuncF1(BXFuncA):#每日只失败一次
     def signal_filter(self,sif,signal):
         return df1_b_filter(sif,signal)
@@ -268,6 +281,31 @@ class CSFuncF1(CFunc):#每日只失败一次
     def signal_filter(self,sif,signal):
         return df1_s_filter(sif,signal)
 
+
+class BXFuncD2(BXFuncA):#每日前2次
+    def signal_filter(self,sif,signal):
+        return d2_filter(sif,signal)
+
+class SXFuncD2(SXFuncA):#每日前2次
+    def signal_filter(self,sif,signal):
+        return d2_filter(sif,signal)
+
+class CFuncD2(CFunc):#每日前2次
+    def signal_filter(self,sif,signal):
+        return d2_filter(sif,signal)
+
+
+class BXFuncD3(BXFuncA):#每日前2次
+    def signal_filter(self,sif,signal):
+        return d3_filter(sif,signal)
+
+class SXFuncD3(SXFuncA):#每日前2次
+    def signal_filter(self,sif,signal):
+        return d3_filter(sif,signal)
+
+class CFuncD3(CFunc):#每日前2次
+    def signal_filter(self,sif,signal):
+        return d3_filter(sif,signal)
 
 
 ###状态判断集合

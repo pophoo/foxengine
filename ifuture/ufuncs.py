@@ -6,7 +6,7 @@
 #################################
 两张合约指南:
 简单方式：
-    只操作hbreak2 + rebound2/3, 在13:30(含1330)之前采用2张开仓法(只针对hbreak2)，13:30之后采用一张开仓法
+    只操作hbreak2 + rebound2/3, 在13:30(含1330)之前采用2张开仓法，13:30之后采用一张开仓法
     20点(含20点)损失后不再操作
 复杂方式:
     同时操作hbreak2 + rbreak
@@ -540,8 +540,8 @@ break_nllxm = SXFuncA(fstate=gofilter,fsignal=fcustom(nllx,vbreak=0),fwave=nx200
 break_nllxm.name = u'向下突破新低--原始X系统-主要时段'
 
 
-break_nhhx.stop_closer = utrade.atr5_ustop_X1
-break_nllx.stop_closer = utrade.atr5_ustop_X1
+break_nhhx.stop_closer = utrade.atr5_ustop_T
+break_nllx.stop_closer = utrade.atr5_ustop_T
 break_mhhx.stop_closer = utrade.atr5_ustop_V1
 break_mllx.stop_closer = utrade.atr5_ustop_V1
 break_nhhxm.stop_closer = utrade.atr5_ustop_V1

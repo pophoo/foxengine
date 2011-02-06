@@ -729,7 +729,7 @@ atr5_ustop_T = fcustom(atr_stop_u,
             )      #
 
 atr5_ustop_TT = fcustom(atr_stop_u,
-                fkeeper=iftrade.F150,
+                fkeeper=iftrade.F200,
                 #win_times=250,                
                 #win_times=280,
                 #natr=5,

@@ -6,7 +6,8 @@
 #################################
 两张合约指南:
 简单方式：
-    只操作hbreak2 + rebound2/3, 在13:30(含1330)之前采用2张开仓法，13:30之后采用一张开仓法
+    以hbreak2 + rebound3为一组(即可互相平仓)，rebound2为一组
+    在13:30(含1330)之前采用2张开仓法，13:30之后采用一张开仓法
     20点(含20点)损失后不再操作
 复杂方式:
     同时操作hbreak2 + rbreak
@@ -1343,7 +1344,7 @@ fwave = [bfwave,sfwave]
 lwilliams = erange + fwave  #叠加反效果， 单独的以erange为好. 稳定性达到0.37
 
 for x in lwilliams:
-    x.stop_closer = utrade.atr5_ustop_V1    
+    x.stop_closer = utrade.atr5_ustop_V    
 
 ###123/2B
 def u123(sif):
@@ -4349,7 +4350,7 @@ txxx = hbreak2 + txfs
 #xxx1 = hbreak2 + xbreak1v + rebound3 +dbreak + exbreak2 + rebound2    #此方法每日亏损18点(775)或12点(75)之后趴下装死比较妥当. 关键是保持一致性
 
 #xxx1a = hbreak2 +  dbreak + rebound3 + rebound2#一个独立的策略
-xxx1a = hbreak2 + rebound3 + rebound2#一个独立的策略
+xxx1a = hbreak2 + rebound3 + rebound2#一个独立的策略, 暂时删除dbreak, 增加的收益不够
 xxx1b = tma  # 一个不错的候补策略. 和hbreak2+xbreak1v不协调
 xxx1c = exbreak2 + xbreak1v #2011-1正在衰退
 xxx1d = [bxbreak1v] + rbreak

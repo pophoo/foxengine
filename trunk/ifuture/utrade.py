@@ -649,16 +649,22 @@ def day_trades(trades,limit=-200):
                             max_drawdown=cur_trade.profit if cur_trade.profit < 0 else 0,
                             ntrade = 1,
                             ontrade = 1,
+                            tclose = 0,
                         )
                 ]
     for trade in trades[1:]:
         tdate = trade.actions[-1].date
+        tclose = trade.actions[-1].time
+        topen = trade.actions[0].time
         rlast = results[-1]
         if tdate ==rlast.day:
             rlast.profit += trade.profit
             rlast.ontrade += 1
             last_drawdown = rlast.max_drawdown
-            if rlast.sprofit > limit:
+            if rlast.sprofit > limit or topen < rlast.tclose:
+                if rlast.sprofit > limit and trade.profit < 0 and tclose > rlast.tclose:   
+                    #对未超界的亏损交易,设定最后平仓时间,用来在之后判断是否应当开新仓
+                    rlast.tclose = tclose
                 rlast.sprofit += trade.profit
                 rlast.ntrade += 1
                 rlast.max_drawdown += trade.profit
@@ -673,6 +679,7 @@ def day_trades(trades,limit=-200):
                         max_drawdown=trade.profit if trade.profit < 0 else 0,
                         ntrade = 1,
                         ontrade = 1,
+                        tclose = 0,
                     )
             )
             
@@ -702,6 +709,7 @@ def dmax_drawdown(dtrades,datefrom=20100401,dateto=20200101):
                 mdate = tdate
             if trade.sprofit < max1:
                 max1 = trade.sprofit
+                #print tdate,max1
     return smax,max1,mdate
 
 
@@ -735,7 +743,7 @@ atr5_ustop_TT = fcustom(atr_stop_u,
                 #natr=5,
                 win_times=40,
                 natr = 270,
-                flost_base=lambda x:100,
+                flost_base=lambda x:150,
                 fmax_drawdown=iftrade.F333,
                 fmin_drawdown=iftrade.F150,
                 tlimit = 30,

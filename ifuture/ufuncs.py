@@ -65,8 +65,6 @@
     止损，以组合对为单位，设定止损
               
 
-
-
 hbreak2系列
     开仓:
         做多: 1. 高点在一分钟内拉高到2分钟前日内高点+3处. 即如果上一分钟新高了，则该新高不计入内
@@ -120,20 +118,6 @@ dbreak系列，每天多空都只取第一次
         买多:[D2,1330] #第二分钟开始
         做空:[D2,1400] #第二分钟开始
 
-xbreak1v系列，连续两次突破后，放宽突破的界限，即延缓突破
-    顶/底均以6分钟计，即13分钟高/低点
-    开仓:
-        做多:   1. 穿越上一显著高点. 
-                2. 该显著高点小于当日最高20点, 大于最低点20点, 大于显著低点12点
-                3. 底部抬高，或者2分钟底部比5分钟底部高. 
-                   ###注意，一定要在出现一个5分钟底或2分钟底之后才下条件单. 如果没有出现底部抬高，失败率比较高
-                4. 突破前一分钟高点 > 前2分钟高点
-                5. 30分钟内连续两次突破后，放宽突破的界限到显著高点+3点
-        做空:   暂时观望
-    平仓:
-        止损为4, 保本为8. 
-    工作时段:
-        [1036,1435]
 
 rebound2的早盘动作:
     每天只做第一次
@@ -339,6 +323,13 @@ def mfilter00(sif):
             sif.time > 1000,
             sif.time < 1436,
         )
+
+def mfilter01(sif):   
+    return gand(
+            sif.time > 1014,
+            sif.time < 1416,
+        )
+
 
 def mfilter1400(sif):   
     return gand(
@@ -619,11 +610,16 @@ def nhh(sif,vbreak=30):
     
 def nll2(sif,vbreak=20):
     #使用最低点
-    ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)    
+    tlow = rollx(sif.dlow+vbreak,2)
+    #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)    
+    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)        
     return gand(
             #cross(rollx(sif.dlow-30),sif.low)<0
-            sif.low < rollx(sif.dlow+vbreak,3), #比close要小点
-            sif.low < ldhigh,
+            #sif.low < rollx(sif.dlow+vbreak,3), #比close要小点
+            #sif.low < ldhigh,
+            cross(tlow,sif.low)<0,
+            tlow < ldmid-30,#rollx(sif.xatr)*2/XBASE,  #比前2天高点中点低才允许做空
+            gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>350),
         )
     
 def nx2000X(sif):
@@ -707,7 +703,8 @@ sbreak_nll20.name = u'向下突破--原始系统'
 
 sbreak_nll2 = SXFuncA(fstate=sdown,fsignal=nll2,fwave=nx2500X,ffilter=nfilter)    #这个R高，但是次数少
 sbreak_nll2.name = u'向下突破2'
-shbreak_nll2 = SXFuncA(fstate=sdown,fsignal=nll2,fwave=nx2500X,ffilter=mfilter)    #
+
+shbreak_nll2 = SXFuncA(fstate=sdown,fsignal=nll2,fwave=nx2000X,ffilter=mfilter01)    #
 
 skbreak_nll2 = SXFuncD1(fstate=sdown,fsignal=nll2,fwave=nx2500X,ffilter=kfilter)    #
 #skbreak_nll2.stop_closer = utrade.atr5_ustop_V
@@ -718,7 +715,7 @@ zbreak0 = [break_nhh0,sbreak_nll20] #这个最好,理念最清晰
 
 zbreak = [break_nhh,sbreak_nll2] #这个最好,理念最清晰
 
-zhbreak = [hbreak_nhh,shbreak_nll2]
+zhbreak = [hbreak_nhh,shbreak_nll2]     #也是一个不错的主方法   ##############
 
 ###
 def mhh2(sif,length=20):
@@ -3187,6 +3184,22 @@ xbreak1v系列，连续两次突破后，放宽突破的界限，即延缓突破
         [1036,1435]
 
 
+xbreak1v系列，连续两次突破后，放宽突破的界限，即延缓突破
+    顶/底均以6分钟计，即13分钟高/低点
+    开仓:
+        做多:   1. 穿越上一显著高点. 
+                2. 该显著高点小于当日最高20点, 大于最低点20点, 大于显著低点12点
+                3. 底部抬高，或者2分钟底部比5分钟底部高. 
+                   ###注意，一定要在出现一个5分钟底或2分钟底之后才下条件单. 如果没有出现底部抬高，失败率比较高
+                4. 突破前一分钟高点 > 前2分钟高点
+                5. 30分钟内连续两次突破后，放宽突破的界限到显著高点+3点
+        做空:   暂时观望
+    平仓:
+        止损为4, 保本为8. 
+    工作时段:
+        [1036,1435]
+
+
 xbreak早盘动作:
     顶/底均以6分钟计，即13分钟高/低点
     开仓:
@@ -4355,7 +4368,7 @@ xxx1b = tma  # 一个不错的候补策略. 和hbreak2+xbreak1v不协调
 xxx1c = exbreak2 + xbreak1v #2011-1正在衰退
 xxx1d = [bxbreak1v] + rbreak
 
-xxx1 = xxx1a + xxx1d    #做空已经足够，补足做多
+xxx1 = xxx1a #+ xxx1d    #做空已经足够，补足做多
 
 xxx = d1_xbreak1v + d1_hbreak + dbreak #+ d1_rebound#+break123c# #+ rebound  #此方法每日亏损12点之后趴下装死比较妥当
 
@@ -4457,7 +4470,9 @@ hbreak_nhh.stop_closer = utrade.atr5_ustop_T
 shbreak_mll2.stop_closer = utrade.atr5_ustop_T
 hbreak_nhh.stop_closer = utrade.atr5_ustop_T
 
+
 break_nhh.stop_closer = utrade.atr5_ustop_T
+shbreak_nll2.stop_closer = utrade.atr5_ustop_T
 
 break_nhhxm.stop_closer = utrade.atr5_ustop_V1
 break_nllxm.stop_closer = utrade.atr5_ustop_V1  #注意，这个是V1,即5个点的止损

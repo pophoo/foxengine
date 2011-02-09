@@ -610,7 +610,7 @@ def nhh(sif,vbreak=30):
     
 def nll2(sif,vbreak=20):
     #使用最低点
-    tlow = rollx(sif.dlow+vbreak,2)
+    tlow = rollx(sif.dlow+vbreak,1)
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)    
     ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)        
     return gand(
@@ -621,7 +621,22 @@ def nll2(sif,vbreak=20):
             tlow < ldmid-30,#rollx(sif.xatr)*2/XBASE,  #比前2天高点中点低才允许做空
             gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>350),
         )
-    
+ 
+def nll3(sif,vbreak=20):
+    #使用最低点
+    tlow = rollx(tmin(sif.low,75)/2 + sif.dlow/2 +vbreak,2)
+    #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)    
+    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)        
+    return gand(
+            #cross(rollx(sif.dlow-30),sif.low)<0
+            #sif.low < rollx(sif.dlow+vbreak,3), #比close要小点
+            #sif.low < ldhigh,
+            cross(tlow,sif.low)<0,
+            tlow < ldmid-30,#rollx(sif.xatr)*2/XBASE,  #比前2天高点中点低才允许做空
+            gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>350),
+        )
+
+
 def nx2000X(sif):
     xx = gand(
                 sif.xatr < 2000,

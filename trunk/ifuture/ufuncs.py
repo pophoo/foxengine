@@ -102,23 +102,6 @@ rebound3:
     工作时段:
         [1036,1435]
 
-dbreak系列，每天多空都只取第一次
-    开仓:
-        做多: 1.当前最高<昨日高点+6(即还未大幅突破过)
-              2.开仓点为 high > 昨日最高点
-              3.今日高点-今日低点和昨日收盘的低者 > 20点
-              4. xatr<2500,xatr30x<10000
-        做空: 1.开仓点为 low < 昨日最低-2处
-              2.今日高点和昨日收盘的高者-今日低点的低者 > 20点              
-              3. xatr<2500,xatr30x<10000
-              4. t120<180
-    平仓:
-        止损为6，保本为8. 30分钟后如果盈利大于10点，则把止损拉到盈利8点或更多处
-    工作时段:
-        买多:[D2,1330] #第二分钟开始
-        做空:[D2,1400] #第二分钟开始
-
-
 rebound2的早盘动作:
     每天只做第一次
     开仓:
@@ -682,6 +665,7 @@ break_nhh0.name = u'向上突破新高--原始系统'
 
 break_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=nx2500X,ffilter=nfilter)  ##选择
 break_nhh.name = u'向上突破新高'
+
 hbreak_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=nx2500X,ffilter=mfilter)  ##主要时段
 hbreak_nhh.name = u'日内向上突破新高'
 
@@ -1144,6 +1128,26 @@ dbreakb2 = BXFuncD1(fstate=gofilter,fsignal=brux,fwave=nx2500X,ffilter=efilter)
 dbreakb2.name = u'突破前日高点'
 dbreakb2.lastupdate = 20101213
 dbreakb2.stop_closer = utrade.atr5_ustop_V1
+
+'''
+dbreak暂时停用
+dbreak系列，每天多空都只取第一次
+    开仓:
+        做多: 1.当前最高<昨日高点+6(即还未大幅突破过)
+              2.开仓点为 high > 昨日最高点
+              3.今日高点-今日低点和昨日收盘的低者 > 20点
+              4. xatr<2500,xatr30x<10000
+        做空: 1.开仓点为 low < 昨日最低-2处
+              2.今日高点和昨日收盘的高者-今日低点的低者 > 20点              
+              3. xatr<2500,xatr30x<10000
+              4. t120<180
+    平仓:
+        止损为6，保本为8. 30分钟后如果盈利大于10点，则把止损拉到盈利8点或更多处
+    工作时段:
+        买多:[D2,1330] #第二分钟开始
+        做空:[D2,1400] #第二分钟开始
+
+'''
 
 ###Larry Williams###
 '''

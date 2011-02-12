@@ -4493,6 +4493,8 @@ hbreak_nhh.stop_closer = utrade.atr5_ustop_T
 break_nhh.stop_closer = utrade.atr5_ustop_T
 shbreak_nll2.stop_closer = utrade.atr5_ustop_T
 
+break_nhhx.stop_closer = utrade.atr5_ustop_T
+
 break_nhhxm.stop_closer = utrade.atr5_ustop_V1
 break_nllxm.stop_closer = utrade.atr5_ustop_V1  #注意，这个是V1,即5个点的止损
 

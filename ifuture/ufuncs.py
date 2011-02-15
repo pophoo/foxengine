@@ -579,14 +579,17 @@ break_fx = [break_fhx,break_flx]    ##########一个还可以的独立策略. �
 def nhh(sif,vbreak=30):
     #使用最高点+30, 也就是说必须一下拉开3点
     #ldlow = dnext(sif.lowd/2+sif.closed/2,sif.close,sif.i_cofd)
-    #ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
-    thigh = rollx(sif.dhigh+vbreak,2)
+    thigh = rollx(sif.dhigh+vbreak,3)
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
             sif.high > thigh,
             #rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
-            rollx(sif.dhigh-sif.dlow)>150,
+            rollx(sif.dhigh-sif.dlow)>200,
+            #thigh - rollx(sif.close,2) < 150,
+            #gmax(rollx(sif.dhigh,1),thigh) > ldopen + 80,
+            thigh > ldopen + 60,
             #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>200),
         )
     return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以跳空价进入
@@ -742,7 +745,7 @@ def mll2(sif,length=75,vbreak=20):
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     #ldmid = dnext((sif.highd+gmin(sif.closed,sif.opend))/2,sif.close,sif.i_cofd)
     ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
-    #opend = dnext(sif.opend,sif.open,sif.i_oofd)            
+    opend = dnext(sif.opend,sif.open,sif.i_oofd)            
     #highd = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)            
     #ldmid = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)        
     #ldmid = dnext(sif.highd,sif.close,sif.i_cofd)        
@@ -758,11 +761,13 @@ def mll2(sif,length=75,vbreak=20):
             #sif.low < tlow,
             #tlow < rollx(sif.dhigh + sif.dlow)/2, #+ sif.dlow
             #tlow < ldhigh-10,  #比昨日最高价低才允许做空
-            tlow < ldmid-30,#rollx(sif.xatr)*2/XBASE,  #比前2天高点中点低才允许做空
+            #tlow < ldmid-30,#rollx(sif.xatr)*2/XBASE,  #比前2天高点中点低才允许做空
+            #gor(tlow < ldmid-30,gand(sif.time>1330,tlow<opend)),#加上1330条件后，有助于减少回撤
+            gor(tlow < ldmid-30,gand(sif.time>1330,tlow==rollx(sif.dlow)+vbreak)),  #1330之后tlow同时创新低时可绕过ldmid-30条件
             #tlow < sif.dmid,
-            #tlow < highd,
-            #rollx(sif.dhigh - sif.dlow) > 150, 
+            #rollx(sif.dhigh - sif.dlow) > 350, 
             gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>350),
+            rollx(sif.close,2) - tlow < 150,
             sif.time > 915,
         )
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入

@@ -9,6 +9,10 @@ import UserApiStruct
 from MdApi import MdApi, MdSpi
 from TraderApi import TraderApi, TraderSpi  
 
+import logging
+logger = logging.getLogger('ifuture.agent')    
+
+
 #数据定义中唯一一个enum
 THOST_TERT_RESTART  = 0
 THOST_TERT_RESUME   = 1

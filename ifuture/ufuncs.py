@@ -7,7 +7,7 @@
 两张合约指南:
 简单方式：
     以hbreak2 + rebound3为一组(即可互相平仓)，rebound2为一组
-    在13:30(含1330)之前采用2张开仓法，13:30之后采用一张开仓法
+    在14:30(含1430)之前采用2张开仓法，13:30之后采用一张开仓法
     20点(含20点)损失后不再操作
 复杂方式:
     同时操作hbreak2 + rbreak
@@ -586,7 +586,7 @@ def nhh(sif,vbreak=30):
             #cross(rollx(sif.dhigh+30),sif.high)>0
             sif.high > thigh,
             #rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
-            rollx(sif.dhigh-sif.dlow)>200,
+            rollx(sif.dhigh-sif.dlow,3)>200,
             #thigh - rollx(sif.close,2) < 150,
             #gmax(rollx(sif.dhigh,1),thigh) > ldopen + 80,
             thigh > ldopen + 60,
@@ -1365,7 +1365,7 @@ fwave = [bfwave,sfwave]
 lwilliams = erange + fwave  #叠加反效果， 单独的以erange为好. 稳定性达到0.37
 
 for x in lwilliams:
-    x.stop_closer = utrade.atr5_ustop_V    
+    x.stop_closer = utrade.atr5_ustop_V1
 
 ###123/2B
 def u123(sif):

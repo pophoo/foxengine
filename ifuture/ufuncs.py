@@ -278,6 +278,12 @@ from wolfox.fengine.ifuture.xfuncs import *
 
 
 #主要时间过滤
+def nfilter2(sif):
+    return gand(
+            sif.time > 1000,
+            sif.time < 1445,
+        )
+
 def mfilter0(sif):
     return gand(
             sif.time > 1031,
@@ -960,28 +966,28 @@ mxx2 = [bmx2,smx2]  #突破模型，也还可以，不如收盘模型，但能�
 
 ####ema通道突破
 def uema(sif,length=20):#
-    twave = sif.atr/XBASE * 3/2
+    twave = sif.atr/XBASE * 6/2
     #twave = np.select([twave>150],[150],twave)
 
     tmid = cexpma(sif.high,length)
 
     tbreak = tmid + twave
 
-    bline = rollx(tbreak,3)
+    bline = rollx(tbreak,1)
 
     cmid = cross(rollx(tmid),sif.low)>0
     mcmid = msum(cmid,2)
 
     signal = gand(
             cross(bline,sif.high)>0,
-            mcmid > 0,
+            #mcmid > 0,
             sif.time > 915,
-            rollx(sif.low) > sif.dlow + 150,
+            #rollx(sif.low) > sif.dlow + 150,
         )
     return np.select([signal>0],[gmax(sif.open,bline)],0)
-bema = BXFuncA(fstate=gofilter,fsignal=uema,fwave=nx2500X,ffilter=mfilter2a)
+bema = BXFuncA(fstate=gofilter,fsignal=uema,fwave=nx2500X,ffilter=nfilter)
 bema.name = u'ema通道向上突破'
-bema.stop_closer = utrade.atr5_ustop_V1
+bema.stop_closer = utrade.atr5_ustop_V
 
 def dema(sif,length=30):#
     twave = sif.atr/XBASE*2
@@ -1000,7 +1006,56 @@ sema = SXFuncA(fstate=sdown,fsignal=dema,fwave=nx2000X,ffilter=mfilter)
 sema.name = u'ema通道向下突破'
 sema.stop_closer = utrade.atr5_ustop_V1
 
+ema = [bema,sema]
 
+###中间通道突破
+def uxchannel(sif,length=20):#
+    twave = sif.atr/XBASE * 6/2
+    #twave = np.select([twave>150],[150],twave)
+
+    tmid = (tmax(sif.high,length) + tmin(sif.low,length))/2
+
+    tbreak = tmid + twave
+
+    bline = rollx(tbreak,1)
+
+    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)    
+
+    signal = gand(
+            cross(bline,sif.high)>0,
+            bline > gmax(ldopen,sif.dmid) ,
+            sif.time > 915,
+            sif.dhigh > sif.dlow + 360,
+        )
+    return np.select([signal>0],[gmax(sif.open,bline)],0)
+bxchannel = BXFuncA(fstate=sdown,fsignal=uxchannel,fwave=nx2000X,ffilter=nfilter2)
+bxchannel.name = u'中间通道向上突破'
+bxchannel.stop_closer = utrade.atr5_ustop_V7
+
+def dxchannel(sif,length=20):#
+    twave = sif.atr/XBASE * 7/2
+
+    tmid = (tmax(sif.high,length) + tmin(sif.low,length))/2
+
+    tbreak = tmid - twave
+
+    bline = rollx(tbreak,1)
+    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
+
+    signal = gand(
+            cross(bline,sif.low)<0,
+            #mcmid > 0,
+            sif.time > 915,
+            sif.dhigh > sif.dlow + 360,
+            bline < ldmid - 30,
+        )
+    return np.select([signal>0],[gmin(sif.open,bline)],0)
+sxchannel = SXFuncA(fstate=sdown,fsignal=dxchannel,fwave=nx2000X,ffilter=nfilter2)
+sxchannel.name = u'中间通道向下突破'
+sxchannel.stop_closer = utrade.atr5_ustop_V7
+
+xchannel = [bxchannel,sxchannel]    #####一对非常好的备用策略
 
 
 ##突破前一日高/低点

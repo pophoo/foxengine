@@ -21,6 +21,9 @@ THOST_TERT_RESUME   = 1
 THOST_TERT_QUICK    = 2
 
 
+inst = [u'IF1102',u'IF1103',u'IF1106']
+
+
 def make_filename(apart,suffix='txt'):
     return '%s_%s.%s' % (apart,time.strftime('%Y%m%d'),suffix)
 
@@ -329,8 +332,11 @@ class TraderSpiDelegate(TraderSpi):
 class Agent(object):
     logger = logging.getLogger('ctp.agent')
 
-    def __init__(self):
+    def __init__(self,strategys):
         self.requestid = 1
+        self.strategy_map = {}
+        self.register(strategys)
+        self.prepare()
 
     def inc_requestid(self):
         self.requestid += 1
@@ -338,10 +344,27 @@ class Agent(object):
     def get_requestid(self):
         return self.requestid
 
-    def RtnMarketData(self,market_data):
+    def prepare(self):
+        '''
+            准备数据, 如需要的30分钟数据
+        '''
         pass
 
-inst = [u'IF1102']
+    def register(self,strategys):
+        '''
+            策略注册
+            strategys是[(合约1,策略1),(合约2,策略2)]的对
+                其中一个合约可以对应多个策略，一个策略也可以对应多个合约
+        '''
+        for ins_id,s in strategys:
+            if ins_id not in self.strategy_map:
+                self.strategy_map[ins_id] = []
+            if s not in self.strategy_map[ins_id]:
+                self.strategy_map[ins_id].append(s)
+
+    def RtnMarketData(self,market_data):#行情处理主循环
+        pass
+
 def md_main():
     user = MdApi.CreateMdApi("data")
     my_agent = Agent()

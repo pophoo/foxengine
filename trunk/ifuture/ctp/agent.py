@@ -5,12 +5,14 @@ Agent的目的是合并行情和交易API到一个类中进行处理
     正常都是根据行情决策
 '''
 
+import time
+
 import UserApiStruct
 from MdApi import MdApi, MdSpi
 from TraderApi import TraderApi, TraderSpi  
 
 import logging
-logger = logging.getLogger('ifuture.agent')    
+logging.basicConfig(filename="ctp_trade.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 
 
 #数据定义中唯一一个enum
@@ -18,11 +20,16 @@ THOST_TERT_RESTART  = 0
 THOST_TERT_RESUME   = 1
 THOST_TERT_QUICK    = 2
 
+
+def make_filename(apart,suffix='txt'):
+    return '%s_%s.%s' % (apart,time.strftime('%Y%m%d'),suffix)
+
 class MdSpiDelegate(MdSpi):
     '''
         将行情信息转发到Agent
         并自行处理杂务
     '''
+    logger = logging.getLogger('ctp.MdSpiDelegate')    
     def __init__(self,
             instruments, #合约列表
             broker_id,   #期货公司ID
@@ -35,53 +42,65 @@ class MdSpiDelegate(MdSpi):
         self.investor_id = investor_id
         self.passwd = passwd
         self.agent = agent
+        self.last_map = dict([(id,0) for id in instruments])
+
+    def checkErrorRspInfo(self, info):
+        if info.ErrorID !=0:
+            logger.error("ErrorID:%s,ErrorMsg:%s" %(info.ErrorID,info.ErrorMsg))
+        return info.ErrorID !=0
 
     def OnRspError(self, info, RequestId, IsLast):
-        #todo:logging
-        pass
+        self.logger.error('requestID:%s,IsLast:%s,info:%s' % (RequestId,IsLast,str(info)))
 
     def OnFrontDisConnected(self, reason):
-        #todo:logging
-        pass
+        self.logger.info('front disconnected,reason:%s' % (reason,))
 
     def OnHeartBeatWarning(self, time):
-        #todo:logging
         pass
 
     def OnFrontConnected(self):
-        #todo:logging
+        self.logger.info('front connected')
         self.user_login(self.broker_id, self.investor_id, self.passwd)
 
     def user_login(self, broker_id, investor_id, passwd):
         req = UserApiStruct.ReqUserLogin(BrokerID=broker_id, UserID=investor_id, Password=passwd)
-        self.agent.requestid+=1
-        r=self.api.ReqUserLogin(req, self.requestid)
-
-    def OnFrontDisconnected(self, nReason):
-        #todo:logging
-        pass
-
+        self.agent.inc_requestid()
+        r=self.api.ReqUserLogin(req, self.agent.get_requestid())
 
     def OnRspUserLogin(self, userlogin, info, rid, is_last):
-        #todo:logging
-        if is_last and not self.isErrorRspInfo(info):
-            print "get today's trading day:", repr(self.api.GetTradingDay())
+        self.logger.info('user login,info:%s,rid:%s,is_last:%s' % (info,rid,is_last))
+        if is_last and not self.checkErrorRspInfo(info):
+            self.logger.info("get today's trading day:%s" % repr(self.api.GetTradingDay()))
             self.subscribe_market_data(self.instruments)
 
     def subscribe_market_data(self, instruments):
         self.api.SubscribeMarketData(instruments)
 
     def OnRtnDepthMarketData(self, depth_market_data):
-        #todo:logging
         #print depth_market_data.BidPrice1,depth_market_data.BidVolume1,depth_market_data.AskPrice1,depth_market_data.AskVolume1,depth_market_data.LastPrice,depth_market_data.Volume,depth_market_data.UpdateTime,depth_market_data.UpdateMillisec,depth_market_data.InstrumentID
+        #print 'on data......\n',
+        if depth_market_data.InstrumentID not in self.instruments:
+            logger.warning(u'收到未订阅的行情:%s' %(depth_market_data.InstrumentID,))
+        dp = depth_market_data
+        if dp.Volume <= self.last_map[dp.InstrumentID]:
+            self.logger.debug(u'行情无变化，inst=%s,time=%s，volume=%s,last_volume=%s' % (dp.InstrumentID,dp.UpdateTime,dp.Volume,self.last_map[dp.InstrumentID]))
+            return  #行情未变化
+        self.last_map[dp.InstrumentID] = dp.Volume
+        self.logger.debug('before loop')
         self.agent.RtnMarketData(depth_market_data)
+        self.logger.debug('before write md:')
+        ff = open(make_filename(depth_market_data.InstrumentID),'a+')
+        ff.write('%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (dp.TradingDay,dp.UpdateTime,dp.UpdateMillisec,dp.OpenInterest,dp.Volume,dp.LastPrice,dp.HighestPrice,dp.LowestPrice,dp.BidPrice1,dp.BidVolume1,dp.AskPrice1,dp.AskVolume1))
+        ff.close()
+        self.logger.debug('after write md:')
 
 
-class TraderSpiDelegate(TradeSpi):
+class TraderSpiDelegate(TraderSpi):
     '''
         将服务器回应转发到Agent
         并自行处理杂务
     '''
+    logger = logging.getLogger('ctp.TraderSpiDelegate')    
     def __init__(self,
             instruments, #合约列表
             broker_id,   #期货公司ID
@@ -306,3 +325,36 @@ class TraderSpiDelegate(TradeSpi):
 请求查询成交响应'''
         pass
 
+
+class Agent(object):
+    logger = logging.getLogger('ctp.agent')
+
+    def __init__(self):
+        self.requestid = 1
+
+    def inc_requestid(self):
+        self.requestid += 1
+
+    def get_requestid(self):
+        return self.requestid
+
+    def RtnMarketData(self,market_data):
+        pass
+
+inst = [u'IF1102']
+def md_main():
+    user = MdApi.CreateMdApi("data")
+    my_agent = Agent()
+    user.RegisterSpi(MdSpiDelegate(instruments=inst, 
+                             broker_id="2030",
+                             investor_id="0",
+                             passwd="8",
+                             agent = my_agent,
+                             ))
+    user.RegisterFront("tcp://asp-sim2-md1.financial-trading-platform.com:26213")
+    user.Init()
+
+    while True:
+        time.sleep(1)
+
+if __name__=="__main__": main()

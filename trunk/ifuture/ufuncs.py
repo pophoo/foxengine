@@ -589,11 +589,13 @@ def nhh(sif,vbreak=30):
     ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     thigh = rollx(sif.dhigh+vbreak,3)
+
+    thigh = gmax(thigh,rollx(sif.dlow) + 200)
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
             sif.high > thigh,
             #rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
-            rollx(sif.dhigh-sif.dlow,3)>200,
+            #rollx(sif.dhigh-sif.dlow,1)>200,
             #thigh - rollx(sif.close,2) < 150,
             #gmax(rollx(sif.dhigh,1),thigh) > ldopen + 80,
             thigh > ldopen + 60,
@@ -759,7 +761,11 @@ def mll2(sif,length=75,vbreak=20):
     #ldmid = dnext((sif.highd+sif.closed)/2,sif.close,sif.i_cofd)    
     ldclose = dnext(sif.closed,sif.close,sif.i_cofd) 
 
+
     #tlow = gmin(tlow,ldmid-32)
+    
+    tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(sif.dhigh-350,tlow),tlow])
+    #tlow = gmin(sif.dhigh-400,tlow)
 
     signal = gand(
             #sif.time>1029,
@@ -773,7 +779,7 @@ def mll2(sif,length=75,vbreak=20):
             gor(tlow < ldmid-30,gand(sif.time>1330,tlow==rollx(sif.dlow)+vbreak)),  #1330之后tlow同时创新低时可绕过ldmid-30条件
             #tlow < sif.dmid,
             #rollx(sif.dhigh - sif.dlow) > 350, 
-            gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>350),
+            #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>320),
             rollx(sif.close,2) - tlow < 150,
             sif.time > 915,
         )
@@ -1010,7 +1016,7 @@ ema = [bema,sema]
 
 ###中间通道突破
 def uxchannel(sif,length=20):#
-    twave = sif.atr/XBASE * 6/2
+    twave = sif.atr/XBASE * 3
     #twave = np.select([twave>150],[150],twave)
 
     tmid = (tmax(sif.high,length) + tmin(sif.low,length))/2

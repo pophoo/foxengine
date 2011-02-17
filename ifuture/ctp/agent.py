@@ -22,6 +22,7 @@ THOST_TERT_QUICK    = 2
 
 
 inst = [u'IF1102',u'IF1103',u'IF1106']
+#inst = [u'IF1102']
 
 
 def make_filename(apart,suffix='txt'):
@@ -84,6 +85,7 @@ class MdSpiDelegate(MdSpi):
         #print 'on data......\n',
         if depth_market_data.InstrumentID not in self.instruments:
             logger.warning(u'收到未订阅的行情:%s' %(depth_market_data.InstrumentID,))
+        self.logger.debug(u'收到行情:%s,time=%s:%s' %(depth_market_data.InstrumentID,depth_market_data.UpdateTime,depth_market_data.UpdateMillisec))
         dp = depth_market_data
         if dp.Volume <= self.last_map[dp.InstrumentID]:
             self.logger.debug(u'行情无变化，inst=%s,time=%s，volume=%s,last_volume=%s' % (dp.InstrumentID,dp.UpdateTime,dp.Volume,self.last_map[dp.InstrumentID]))

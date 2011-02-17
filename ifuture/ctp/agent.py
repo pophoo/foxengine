@@ -332,11 +332,10 @@ class TraderSpiDelegate(TraderSpi):
 class Agent(object):
     logger = logging.getLogger('ctp.agent')
 
-    def __init__(self,strategys):
+    def __init__(self):
         self.requestid = 1
         self.strategy_map = {}
-        self.register(strategys)
-        self.prepare()
+        #self.prepare()
 
     def inc_requestid(self):
         self.requestid += 1

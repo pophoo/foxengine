@@ -69,13 +69,12 @@ hbreak2系列
     开仓:
         做多: 1. 高点在一分钟内拉高到3分钟前日内高点+3(基准)处. 即如果上一分钟新高了，则该新高不计入内
               2. xatr<2500,xatr30x<10000
-              3. 3分钟前日内振幅>20
+              3. 3分钟前日内振幅>25, 即如果振幅小于25,则将突破点移动到25+3处
               4. 基准>开盘+6
         做空: 1. 低点小于75分钟低点+2处
-              2. 13:30前比前两天的高点中点低或3点(条件A). 请注意这个条件，每天早上计算该日的放空点
-                 13:30后，符合条件A或者同时为日内新低
+              2. 比前两天的高点中点低或3点或者同时为日内新低
               3. xatr<2000,xatr30x<10000
-              4. 1330前开仓附加条件是:日内振幅>35
+              4. 1330前开仓附加条件是:日内振幅>35. 即如果振幅<35,则将突破点移动到35处
               5. t120<180
     平仓:
         止损为7，保本为8. 30分钟后如果盈利大于10点，则把止损拉到盈利8点或更多处
@@ -103,7 +102,7 @@ rebound3:
     工作时段:
         [1036,1435]
 
-rebound2的早盘动作:
+rebound2的早盘动作:#暂时停止
     每天只做第一次
     开仓:
         做多:   无
@@ -590,12 +589,13 @@ def nhh(sif,vbreak=30):
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     thigh = rollx(sif.dhigh+vbreak,3)
 
-    thigh = gmax(thigh,rollx(sif.dlow) + 200)
+    #thigh = np.select([sif.time<1030,sif.time>=1030],[gmax(thigh,rollx(sif.dlow) + 200),thigh])
+    thigh = gmax(thigh,rollx(sif.dlow,1) + 250 + vbreak)
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
             sif.high > thigh,
             #rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
-            #rollx(sif.dhigh-sif.dlow,1)>200,
+            #rollx(sif.dhigh-sif.dlow,3)>200,
             #thigh - rollx(sif.close,2) < 150,
             #gmax(rollx(sif.dhigh,1),thigh) > ldopen + 80,
             thigh > ldopen + 60,
@@ -776,7 +776,8 @@ def mll2(sif,length=75,vbreak=20):
             #tlow < ldhigh-10,  #比昨日最高价低才允许做空
             #tlow < ldmid-30,#rollx(sif.xatr)*2/XBASE,  #比前2天高点中点低才允许做空
             #gor(tlow < ldmid-30,gand(sif.time>1330,tlow<opend)),#加上1330条件后，有助于减少回撤
-            gor(tlow < ldmid-30,gand(sif.time>1330,tlow==rollx(sif.dlow)+vbreak)),  #1330之后tlow同时创新低时可绕过ldmid-30条件
+            #gor(tlow < ldmid-30,gand(sif.time>1330,tlow==rollx(sif.dlow)+vbreak)),  #1330之后tlow同时创新低时可绕过ldmid-30条件
+            gor(tlow<ldmid-30,tlow==rollx(sif.dlow)+vbreak),
             #tlow < sif.dmid,
             #rollx(sif.dhigh - sif.dlow) > 350, 
             #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>320),

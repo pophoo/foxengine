@@ -804,7 +804,7 @@ atr5_ustop_VX = fcustom(atr_stop_u,#有浮盈持有到收盘
                 fkeeper=iftrade.F90,
                 win_times=250,
                 natr=5,
-                flost_base=iftrade.F90,
+                flost_base=iftrade.F250,
                 fmax_drawdown=lambda x:100000,
                 fmin_drawdown=lambda x:100000,                
             )      

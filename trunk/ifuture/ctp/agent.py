@@ -3,6 +3,7 @@
 Agent的目的是合并行情和交易API到一个类中进行处理
     把行情和交易分开，从技术角度上来看挺好，但从使用者角度看就有些蛋疼了.
     正常都是根据行情决策
+
 '''
 
 import time
@@ -19,7 +20,6 @@ logging.basicConfig(filename="ctp_trade.log",level=logging.DEBUG,format='%(name)
 THOST_TERT_RESTART  = 0
 THOST_TERT_RESUME   = 1
 THOST_TERT_QUICK    = 2
-
 
 inst = [u'IF1102',u'IF1103',u'IF1106']
 #inst = [u'IF1102']
@@ -354,14 +354,30 @@ class Agent(object):
     def register(self,strategys):
         '''
             策略注册
-            strategys是[(合约1,策略1),(合约2,策略2)]的对
+            strategys是[(合约1,策略集1),(合约2,策略集2)]的对
                 其中一个合约可以对应多个策略，一个策略也可以对应多个合约
         '''
         for ins_id,s in strategys:
             if ins_id not in self.strategy_map:
                 self.strategy_map[ins_id] = []
             if s not in self.strategy_map[ins_id]:
-                self.strategy_map[ins_id].append(s)
+                self.strategy_map[ins_id].append((s,100)) 
+
+    def cregister(self,strategys):
+        '''
+            策略注册，复杂版本
+            strategys是[(合约1,策略集合1,手数占比),(合约2,策略集合2,手数占比)]的集合
+                其中一个合约可以对应多个策略集合
+            策略集合:
+                (策略,策略,策略)    其中这些策略可以相互平仓
+            手数占比:
+                0-100, 表示在该合约允许持仓数中的占比, 百分之一，并取整
+        '''
+        for ins_id,s,proportion in strategys:
+            if ins_id not in self.strategy_map:
+                self.strategy_map[ins_id] = []
+            self.strategy_map[ins_id].append((s,proportion))    #重复的话就会引发多次下单
+
 
     def RtnMarketData(self,market_data):#行情处理主循环
         pass

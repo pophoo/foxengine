@@ -6,13 +6,7 @@
 #################################
 两张合约指南:
 简单方式：
-    以hbreak2 + rebound3为一组(即可互相平仓)，rebound2为一组
-    #在14:30(含1430)之前采用2张开仓法，14:30之后采用一张开仓法, 这个忽略
-    20点(含20点)损失后不再操作
-复杂方式:
-    同时操作hbreak2 + rbreak
-    在14:30(含1330)之前可持仓2张，1430之后新开仓位时，必须保证持仓为空 (界限可改到1320)
-    收益较多，但次数也较多
+    以hbreak2,rebound3分别操作两张,即不能互相平仓
     20点(含20点)损失后不再操作
 
 ###############
@@ -82,6 +76,10 @@ hbreak2系列
         做多:[1036,1435]
         做空:[1015,1444]
 
+    早盘做多:[930,959]
+              1. 高点在一分钟内拉高到3分钟前日内高点+3(基准)处. 即如果上一分钟新高了，则该新高不计入内
+              2. 3分钟前日内振幅>35, 即如果振幅小于35,则将突破点移动到35+3处
+
 rebound3:
     每天只做第一次
     顶/底均以6分钟计，即13分钟高/低点
@@ -101,24 +99,6 @@ rebound3:
         止损为4, 保本为8. 30分钟后如果盈利大于10点，则把止损拉到盈利8点或更多处
     工作时段:
         [1036,1435]
-
-rebound2的早盘动作:#暂时停止
-    每天只做第一次
-    开仓:
-        做多:   无
-        做空:   创新高后5分钟内跌回到前高-6处
-                1. 基准线: 5分钟之前的高点-6处
-                2. 新高突破原高1点
-                3. 最低价跌破基准线
-                4. 新高在触发的最近5分钟内创出
-                5. 振幅大于10点
-    平仓:
-        止损为8, 保本为8. 15分钟后如果盈利大于10点，则把止损拉到盈利8点或更多处
-    工作时段:
-        [959,1055]
-
-
-
 
 ###############################
 突破系统
@@ -378,12 +358,18 @@ def emfilter(sif):
             sif.time < 935,
         )
 
+
 def emfilter2(sif):
     return gand(
             sif.time >958,
             sif.time < 1056,
         )
 
+def emfilter3(sif):
+    return gand(
+            sif.time > 929,
+            sif.time < 1000,
+        )
 
 def mfilter4(sif):   
     return gand(
@@ -582,7 +568,7 @@ break_flx.stop_closer = utrade.atr5_ustop_V1
 break_fx = [break_fhx,break_flx]    ##########一个还可以的独立策略. 日亏6点之后不动
 
 
-def nhh(sif,vbreak=30):
+def nhh(sif,vbreak=30,vrange=250):
     #使用最高点+30, 也就是说必须一下拉开3点
     #ldlow = dnext(sif.lowd/2+sif.closed/2,sif.close,sif.i_cofd)
     ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
@@ -590,7 +576,7 @@ def nhh(sif,vbreak=30):
     thigh = rollx(sif.dhigh+vbreak,3)
 
     #thigh = np.select([sif.time<1030,sif.time>=1030],[gmax(thigh,rollx(sif.dlow) + 200),thigh])
-    thigh = gmax(thigh,rollx(sif.dlow,1) + 250 + vbreak)
+    thigh = gmax(thigh,rollx(sif.dlow,1) + vrange + vbreak)
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
             sif.high > thigh,
@@ -681,6 +667,10 @@ break_nhh.name = u'向上突破新高'
 hbreak_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=nx2500X,ffilter=mfilter)  ##主要时段
 hbreak_nhh.name = u'日内向上突破新高'
 
+hbreak_nhh_e = BXFuncF1(fstate=gofilter,fsignal=fcustom(nhh,vrange=350),fwave=gofilter,ffilter=emfilter3)  ##主要时段
+hbreak_nhh_e.name = u'日内向上突破新高e'
+
+
 hbreak_nhh_k = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=nx2500X,ffilter=mfilterk)  ##主要时段
 hbreak_nhh_k.name = u'日内向上突破新高'
 hbreak_nhh_k.stop_closer = utrade.atr5_ustop_V
@@ -748,7 +738,7 @@ def mhh2(sif,length=20):
 
 
 ###时间低点突破
-def mll2(sif,length=75,vbreak=20):
+def mll2(sif,length=75,vbreak=20,vrange=350):
     #使用最低点
     tlow = rollx(tmin(sif.low,length)+vbreak,1)
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
@@ -764,7 +754,7 @@ def mll2(sif,length=75,vbreak=20):
 
     #tlow = gmin(tlow,ldmid-32)
     
-    tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(sif.dhigh-350,tlow),tlow])
+    tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(sif.dhigh-vrange,tlow),tlow])
     #tlow = gmin(sif.dhigh-400,tlow)
 
     signal = gand(
@@ -779,7 +769,7 @@ def mll2(sif,length=75,vbreak=20):
             #gor(tlow < ldmid-30,gand(sif.time>1330,tlow==rollx(sif.dlow)+vbreak)),  #1330之后tlow同时创新低时可绕过ldmid-30条件
             gor(tlow<ldmid-30,tlow==rollx(sif.dlow)+vbreak),
             #tlow < sif.dmid,
-            #rollx(sif.dhigh - sif.dlow) > 350, 
+            #rollx(sif.dhigh - sif.dlow) > vrange, 
             #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>320),
             rollx(sif.close,2) - tlow < 150,
             sif.time > 915,
@@ -814,6 +804,9 @@ def mfilterx(sif):
 shbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2000X,ffilter=mfilter2)    #优于nll
 shbreak_mll2.name = u'日内75分钟向下突破'
 
+shbreak_mll2_e = SXFuncA(fstate=gofilter,fsignal=fcustom(mll2,vrange=250),fwave=gofilter,ffilter=emfilter3)    #貌似无用
+shbreak_mll2_e.name = u'日内75分钟向下突破e'    
+
 shbreak_mll2m = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2000X,ffilter=mfilterx)    #优于nll
 shbreak_mll2m.stop_closer = utrade.atr5_ustop_T
 
@@ -845,7 +838,7 @@ mhbreak = [mhbreak_mll2,mhbreak_nhh]
 
 ##下跌采用75分钟的底部+2, 上涨采用日顶部+3(均在10:30-14:30)
 hbreak = [shbreak_mll2,break_nhh]  #利润比较好
-hbreak2 = [shbreak_mll2,hbreak_nhh]  #这个最大回撤最小      #####################采用此个
+hbreak2 = [shbreak_mll2,hbreak_nhh,hbreak_nhh_e]  #这个最大回撤最小      #####################采用此个
 
 d1_hbreak = [dhbreak_nhh,dshbreak_mll2]
 
@@ -2080,8 +2073,6 @@ dbrebound.name = u'向上反弹'
 dbrebound.lastupdate = 20101225
 dbrebound.stop_closer = utrade.atr5_ustop_6
 
-
-
 dsrebound = SXFuncD1(fstate=gofilter,fsignal=drebound,fwave=gofilter,ffilter=mfilter2)##e1430filter2)
 dsrebound.name = u'向下反弹'
 dsrebound.lastupdate = 20101225
@@ -2093,6 +2084,23 @@ d1_rebound = [dbrebound,dsrebound]
 
 rebound2 = [srebound2]#,brebound] #brebound2样本数太少，暂时忽略
 rebound3 = [srebound3,brebound3] 
+
+'''
+rebound2的早盘动作:#暂时停止. 次数比较少
+    每天只做第一次
+    开仓:
+        做多:   无
+        做空:   创新高后5分钟内跌回到前高-6处
+                1. 基准线: 5分钟之前的高点-6处
+                2. 新高突破原高1点
+                3. 最低价跌破基准线
+                4. 新高在触发的最近5分钟内创出
+                5. 振幅大于10点
+    平仓:
+        止损为8, 保本为8. 15分钟后如果盈利大于10点，则把止损拉到盈利8点或更多处
+    工作时段:
+        [959,1055]
+'''
 
 ###普通形态突破
 
@@ -4557,6 +4565,7 @@ hbreak_nhh.stop_closer = utrade.atr5_ustop_T
 shbreak_mll2.stop_closer = utrade.atr5_ustop_T
 hbreak_nhh.stop_closer = utrade.atr5_ustop_T
 
+hbreak_nhh_e.stop_closer = utrade.atr5_ustop_T
 
 break_nhh.stop_closer = utrade.atr5_ustop_T
 shbreak_nll2.stop_closer = utrade.atr5_ustop_T

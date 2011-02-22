@@ -68,7 +68,7 @@ hbreak2系列
         做空: 1. 低点小于75分钟低点+2处
               2. 比前两天的高点中点低或3点或者同时为日内新低
               3. xatr<2000,xatr30x<10000
-              4. 1330前开仓附加条件是:日内振幅>35. 即如果振幅<35,则将突破点移动到35处
+              4. 1330前开仓附加条件是:日内振幅>35+2. 即如果振幅<35+2,则将突破点移动到35处
               5. t120<180
     平仓:
         止损为7，保本为8. 30分钟后如果盈利大于10点，则把止损拉到盈利8点或更多处
@@ -577,6 +577,7 @@ def nhh(sif,vbreak=30,vrange=250):
 
     #thigh = np.select([sif.time<1030,sif.time>=1030],[gmax(thigh,rollx(sif.dlow) + 200),thigh])
     thigh = gmax(thigh,rollx(sif.dlow,1) + vrange + vbreak)
+    #thigh = np.select([gand(sif.time<1330,sif.dhigh-sif.dlow<vrange+vbreak),sif.time>0],[sif.dlow+vrange+vbreak,thigh])    
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
             sif.high > thigh,
@@ -754,7 +755,9 @@ def mll2(sif,length=75,vbreak=20,vrange=350):
 
     #tlow = gmin(tlow,ldmid-32)
     
-    tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(sif.dhigh-vrange,tlow),tlow])
+    #tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(sif.dhigh-vrange,tlow),tlow])
+    tlow = np.select([gand(sif.time<1330,sif.dhigh-sif.dlow<vrange+vbreak),sif.time>0],[sif.dhigh-vrange,tlow])
+    #tlow = gmin(sif.dhigh-vrange,tlow)
     #tlow = gmin(sif.dhigh-400,tlow)
 
     signal = gand(

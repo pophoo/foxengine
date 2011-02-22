@@ -71,8 +71,8 @@ class MdSpiDelegate(MdSpi):
 
     def user_login(self, broker_id, investor_id, passwd):
         req = UserApiStruct.ReqUserLogin(BrokerID=broker_id, UserID=investor_id, Password=passwd)
-        self.agent.inc_requestid()
-        r=self.api.ReqUserLogin(req, self.agent.get_requestid())
+        self.agent.inc_request_id()
+        r=self.api.ReqUserLogin(req, self.agent.get_request_id())
 
     def OnRspUserLogin(self, userlogin, info, rid, is_last):
         self.logger.info('user login,info:%s,rid:%s,is_last:%s' % (info,rid,is_last))
@@ -122,142 +122,163 @@ class TraderSpiDelegate(TraderSpi):
         self.passwd = passwd
         self.agent = agent
 
+ 
+    def isRspSuccess(self,RspInfo):
+        return RspInfo == None or RspInfo.ErrorID == 0
+
+    ##交易初始化
+    def OnFrontDisconnected(self, nReason):
+        #todo:logging
+        pass
+    
+    def OnFrontConnected(self, ):
+        '''
+            当客户端与交易后台建立起通信连接时（还未登录前），该方法被调用。
+        '''
+        if bIsLast and self.isRspSuccess(pRspInfo):
+            pass
+        else:
+            #logging
+            pass
+    
+
+    def OnRspUserLogin(self, pRspUserLogin, pRspInfo, nRequestID, bIsLast):
+        '''登录请求响应'''
+        pass
+
+    def OnRspUserLogout(self, pUserLogout, pRspInfo, nRequestID, bIsLast):
+        '''登出请求响应'''
+        pass
+
+    def OnRspQrySettlementInfo(self, pSettlementInfo, pRspInfo, nRequestID, bIsLast):
+        '''请求查询投资者结算结果响应'''
+        pass
+
+    def OnRspQrySettlementInfoConfirm(self, pSettlementInfoConfirm, pRspInfo, nRequestID, bIsLast):
+        '''请求查询结算信息确认响应'''
+        pass
+
+    def OnRspSettlementInfoConfirm(self, pSettlementInfoConfirm, pRspInfo, nRequestID, bIsLast):
+        '''投资者结算结果确认响应'''
+        pass
+
+    ###交易准备
     def OnRspQryInstrument(self, pInstrument, pRspInfo, nRequestID, bIsLast):
         #如果合约还要靠查才能确定，直接关机走人
         pass
 
     def OnRspQryInstrumentMarginRate(self, pInstrumentMarginRate, pRspInfo, nRequestID, bIsLast):
-        self.agent.RspQryInstrumentMarginRate(pInstrumentMarginRate,pRspInfo,nRequestID)
-
-    def OnFrontDisconnected(self, nReason):
-        #todo:logging
-        pass
-
-    def OnRspOrderAction(self, pInputOrderAction, pRspInfo, nRequestID, bIsLast):
-        pass
-
-    def OnRspQrySettlementInfo(self, pSettlementInfo, pRspInfo, nRequestID, bIsLast):
         '''
-请求查询投资者结算结果响应'''
-        pass
-
-    def OnRspError(self, pRspInfo, nRequestID, bIsLast):
+            保证金率回报。返回的必然是绝对值
         '''
-错误应答'''
-        pass
-
-    def OnRspUserLogin(self, pRspUserLogin, pRspInfo, nRequestID, bIsLast):
-        '''
-登录请求响应'''
-        pass
-
-    def OnErrRtnOrderAction(self, pOrderAction, pRspInfo):
-        '''
-报单操作错误回报'''
-        pass
-
-    def OnRspOrderInsert(self, pInputOrder, pRspInfo, nRequestID, bIsLast):
-        '''
-报单录入请求响应'''
-        pass
-
-    def OnRtnTradingNotice(self, pTradingNoticeInfo):
-        '''
-交易通知'''
-        pass
-
-    def OnRspQryInvestorPositionCombineDetail(self, pInvestorPositionCombineDetail, pRspInfo, nRequestID, bIsLast):
-        '''
-请求查询投资者持仓明细响应'''
-        pass
-
-    def OnHeartBeatWarning(self, nTimeLapse):
-        '''
-心跳超时警告。当长时间未收到报文时，该方法被调用。
-@param nTimeLapse 距离上次接收报文的时间'''
-        pass
-
-    def OnRspQryTradingCode(self, pTradingCode, pRspInfo, nRequestID, bIsLast):
-        '''
-请求查询交易编码响应'''
-        pass
-
-    def OnRspQrySettlementInfoConfirm(self, pSettlementInfoConfirm, pRspInfo, nRequestID, bIsLast):
-        '''
-请求查询结算信息确认响应'''
-        pass
-
-    def OnRtnOrder(self, pOrder):
-        '''
-报单通知'''
-        pass
-
-    def OnRspQryInvestorPosition(self, pInvestorPosition, pRspInfo, nRequestID, bIsLast):
-        '''
-请求查询投资者持仓响应'''
-        pass
-
-    def OnRspUserLogout(self, pUserLogout, pRspInfo, nRequestID, bIsLast):
-        '''
-登出请求响应'''
-        pass
-
-    def OnRspQryInvestorPositionDetail(self, pInvestorPositionDetail, pRspInfo, nRequestID, bIsLast):
-        '''
-请求查询投资者持仓明细响应'''
-        pass
-
-    def OnRspQueryMaxOrderVolume(self, pQueryMaxOrderVolume, pRspInfo, nRequestID, bIsLast):
-        '''
-查询最大报单数量响应'''
-        pass
-
-    def OnRtnTrade(self, pTrade):
-        '''
-成交通知'''
-        pass
-
-    def OnErrRtnOrderInsert(self, pInputOrder, pRspInfo):
-        '''
-报单录入错误回报'''
-        pass
-
+        if bIsLast and self.isRspSuccess(pRspInfo):
+            agent.rsp_qry_instrument_marginrate(pInstrumentMarginRate)
+        else:
+            #logging
+            pass
 
     def OnRspQryTradingAccount(self, pTradingAccount, pRspInfo, nRequestID, bIsLast):
         '''
-请求查询资金账户响应'''
-        pass
-
-
-    def OnRspSettlementInfoConfirm(self, pSettlementInfoConfirm, pRspInfo, nRequestID, bIsLast):
+            请求查询资金账户响应
         '''
-投资者结算结果确认响应'''
-        pass
+        if bIsLast and self.isRspSuccess(pRspInfo):
+            agent.rsp_qry_trading_account(pTradingAccount)
+        else:
+            #logging
+            pass
 
-    def OnRspQryDepthMarketData(self, pDepthMarketData, pRspInfo, nRequestID, bIsLast):
-        '''
-请求查询行情响应'''
-        pass
+    def OnRspQryInvestorPosition(self, pInvestorPosition, pRspInfo, nRequestID, bIsLast):
+        '''请求查询投资者持仓响应'''
+        if bIsLast and self.isRspSuccess(pRspInfo):
+            agent.rsp_qry_position(pInvestorPosition)
+        else:
+            #logging
+            pass
 
-    def OnFrontConnected(self, ):
-        '''
-当客户端与交易后台建立起通信连接时（还未登录前），该方法被调用。'''
-        pass
-
-    def OnRspQryInstrumentCommissionRate(self, pInstrumentCommissionRate, pRspInfo, nRequestID, bIsLast):
-        '''
-请求查询合约手续费率响应'''
+    def OnRspError(self, pRspInfo, nRequestID, bIsLast):
+        '''错误应答'''
+        #logging
         pass
 
     def OnRspQryOrder(self, pOrder, pRspInfo, nRequestID, bIsLast):
-        '''
-请求查询报单响应'''
-        pass
+        '''请求查询报单响应'''
+        if bIsLast and self.isRspSuccess(pRspInfo):
+            agent.rsp_qry_order(pOrder)
+        else:
+            #logging
+            pass
 
     def OnRspQryTrade(self, pTrade, pRspInfo, nRequestID, bIsLast):
+        '''请求查询成交响应'''
+        if bIsLast and self.isRspSuccess(pRspInfo):
+            agent.rsp_qry_trade(pTrade)
+        else:
+            #logging
+            pass
+
+
+    ###交易操作
+    def OnRspOrderInsert(self, pInputOrder, pRspInfo, nRequestID, bIsLast):
         '''
-请求查询成交响应'''
-        pass
+            报单未通过参数校验,被CTP拒绝
+            正常情况后不应该出现
+        '''
+        if bIsLast and self.isRspSuccess(pRspInfo):
+            agent.rsp_order_insert(pInputOrder.OrderRef,pInputOrder.InstrumentID,pRspInfo.ErrorID,pRspInfo.ErrorMsg)
+        else:
+            pass
+    
+    def OnErrRtnOrderInsert(self, pInputOrder, pRspInfo):
+        '''
+            交易所报单录入错误回报
+            正常情况后不应该出现
+            这个回报因为没有request_id,所以没办法对应
+        '''
+        if bIsLast and self.isRspSuccess(pRspInfo):
+            agent.err_order_insert(pInputOrder.OrderRef,pInputOrder.InstrumentID,pRspInfo.ErrorID,pRspInfo.ErrorMsg)
+        else:
+            pass
+    
+    def OnRtnOrder(self, pOrder):
+        ''' 报单通知
+            CTP、交易所接受报单
+        '''
+        if bIsLast and self.isRspSuccess(pRspInfo):
+            if pOrder.OrderStatus == 'a':
+                #CTP接受，但未发到交易所
+                agent.rtn_order_ctp(pOrder)
+            else:
+                agent.rtn_order_exchange(pOrder)
+        else:
+            pass
+
+    def OnRtnTrade(self, pTrade):
+        '''成交通知'''
+        if bIsLast and self.isRspSuccess(pRspInfo):
+            agent.rtn_trade(pTrade)
+        else:
+            pass
+
+    def OnRspOrderAction(self, pInputOrderAction, pRspInfo, nRequestID, bIsLast):
+        '''
+            ctp撤单校验错误
+        '''
+        if bIsLast and self.isRspSuccess(pRspInfo):
+            agent.rsp_order_action(self,pInputOrderAction.OrderRef,pInputOrderAction.InstrumentID,pRspInfo.ErrorID,pRspInfo.ErrorMsg)
+        else:
+            pass
+
+    def OnErrRtnOrderAction(self, pOrderAction, pRspInfo):
+        ''' 
+            交易所撤单操作错误回报
+            正常情况后不应该出现
+        '''
+        if bIsLast and self.isRspSuccess(pRspInfo):
+            agent.err_order_action(pOrderAction.OrderRef,pOrderAction.InstrumentID,pRspInfo.ErrorID,pRspInfo.ErrorMsg)
+        else:
+            pass
+
+
 
 
 class Agent(object):
@@ -268,7 +289,7 @@ class Agent(object):
             trader为交易对象
         '''
         self.trader = trader
-        self.requestid = 1
+        self.request_id = 1
         self.base_funcs = []  #基本函数集合. 如合成分钟数据,30,日数据等.  需处理动态数据. 
                               # 接口为(data,dyndata), 把dyndata添加到data的相应属性中去
                               #顺序关系非常重要
@@ -278,16 +299,16 @@ class Agent(object):
         self.strategy_map = {}
         self.data = {}    #为合约号==>合约数据的dict
         self.lastupdate = 0
-        self.holding = []   #(合约、策略族、基准价、基准时间、requestid、持仓量、止损价、止损函数)
+        self.holding = []   #(合约、策略族、基准价、基准时间、request_id、持仓量、止损价、止损函数)
         self.transited_orders = []    #发出后等待回报的指令, 回报后到holding
         self.queued_orders = []     #因为保证金原因等待发出的指令(合约、策略族、基准价、基准时间(到秒))
         #self.prepare()
 
-    def inc_requestid(self):
-        self.requestid += 1
+    def inc_request_id(self):
+        self.request_id += 1
 
-    def get_requestid(self):
-        return self.requestid
+    def get_request_id(self):
+        return self.request_id
 
     def prepare(self):
         '''
@@ -360,7 +381,6 @@ class Agent(object):
         '''
         return []
 
-
     def check_signal(self):
         '''
             检查信号并发出指令
@@ -398,16 +418,84 @@ class Agent(object):
         '''
         pass
 
-    def rtn_order(self):
+    def rtn_order_ctp(self,sorder):
         '''
-            下单回报, 需要处理下单错误, 正常时不应该发生，因为此时必须手工干预(无法判断网络问题或计算问题或其它问题)
+            ctp接受下单/撤单回报
         '''
         pass
 
+    def rtn_order_exchange(self,sorder):
+        '''
+            交易所接受下单/撤单回报
+        '''
+        pass
+
+    def rsp_order_insert(self,order_ref,instrument_id,error_id,error_msg):
+        '''
+            CTP下单错误回报
+        '''
+        pass
+
+    def err_order_insert(self,order_ref,instrument_id,error_id,error_msg):
+        '''
+            交易所下单错误回报
+        '''
+        pass
+
+    def rtn_trade(self,strade):
+        '''
+            成交回报
+        '''
+        pass
+
+    def rsp_order_action(self):
+        '''
+            CTP撤单错误回报
+        '''
+        pass
     
+    def err_order_action(self,order_ref,instrument_id,error_id,error_msg):
+        '''
+            交易所撤单错误回报
+        '''
+        pass
+    
+    
+    def rsp_qry_instrument_marginrate(self):
+        '''
+            查询保证金率回报
+        '''
+        pass
+
+    def rsp_qry_instrument(self):
+        pass
+
+    def rsp_qry_trading_account(self,account):
+        '''
+            查询资金帐户回报
+        '''
+        pass
+
+    def rsp_qry_position(self,position):
+        '''
+            查询持仓回报
+        '''
+        pass
+
+    def rsp_qry_order(self,sorder):
+        '''
+            查询报单
+        '''
+        pass
+
+    def rsp_qry_trade(self,strade):
+        '''
+            查询成交
+        '''
+        pass
 
 
-def md_main():
+def user_main():
     user = MdApi.CreateMdApi("data")
     my_agent = Agent()
     user.RegisterSpi(MdSpiDelegate(instruments=inst, 
@@ -421,6 +509,16 @@ def md_main():
 
     while True:
         time.sleep(1)
+
+def trade_main():
+    trader = TraderApi.CreateTraderApi("trader")
+    trader.RegisterSpi(TraderSpiDelegate(instruments=inst, 
+                             broker_id="2030",
+                             investor_id="0",
+                             passwd="8",
+                             agent = my_agent,
+                       ))
+
 
 if __name__=="__main__":
     main()

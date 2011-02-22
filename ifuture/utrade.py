@@ -747,6 +747,32 @@ atr5_ustop_T = fcustom(atr_stop_u,
                 tlimit = 30,
             )      #
 
+atr5_ustop_TU = fcustom(atr_stop_u,
+                fkeeper=iftrade.F80,
+                #win_times=250,                
+                #win_times=280,
+                #natr=5,
+                win_times=40,
+                natr = 270,
+                flost_base=iftrade.F70, #从6改到7
+                fmax_drawdown=iftrade.F333,
+                fmin_drawdown=iftrade.F150,
+                tlimit = 30,
+            )      #
+
+atr5_ustop_TD = fcustom(atr_stop_u,
+                fkeeper=iftrade.F80,
+                #win_times=250,                
+                #win_times=280,
+                #natr=5,
+                win_times=40,
+                natr = 270,
+                flost_base=iftrade.F70, #从6改到7
+                fmax_drawdown=iftrade.F333,
+                fmin_drawdown=iftrade.F150,
+                tlimit = 30,
+            )      #
+
 atr5_ustop_TT = fcustom(atr_stop_u,
                 fkeeper=iftrade.F200,
                 #win_times=250,                

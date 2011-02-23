@@ -24,7 +24,7 @@ THOST_TERT_RESTART  = 0
 THOST_TERT_RESUME   = 1
 THOST_TERT_QUICK    = 2
 
-inst = [u'IF1102',u'IF1103',u'IF1106']  #必须采用ctp使用的合约名字，内部不做检验
+inst = [u'IF1103']  #必须采用ctp使用的合约名字，内部不做检验
 #inst = [u'IF1102']
 
 
@@ -53,31 +53,30 @@ class MdSpiDelegate(MdSpi):
 
     def checkErrorRspInfo(self, info):
         if info.ErrorID !=0:
-            logger.error("ErrorID:%s,ErrorMsg:%s" %(info.ErrorID,info.ErrorMsg))
+            logger.error(u"ErrorID:%s,ErrorMsg:%s" %(info.ErrorID,info.ErrorMsg))
         return info.ErrorID !=0
 
     def OnRspError(self, info, RequestId, IsLast):
-        self.logger.error('requestID:%s,IsLast:%s,info:%s' % (RequestId,IsLast,str(info)))
+        self.logger.error(u'requestID:%s,IsLast:%s,info:%s' % (RequestId,IsLast,str(info)))
 
     def OnFrontDisConnected(self, reason):
-        self.logger.info('front disconnected,reason:%s' % (reason,))
+        self.logger.info(u'front disconnected,reason:%s' % (reason,))
 
     def OnHeartBeatWarning(self, time):
         pass
 
     def OnFrontConnected(self):
-        self.logger.info('front connected')
+        self.logger.info(u'front connected')
         self.user_login(self.broker_id, self.investor_id, self.passwd)
 
     def user_login(self, broker_id, investor_id, passwd):
         req = UserApiStruct.ReqUserLogin(BrokerID=broker_id, UserID=investor_id, Password=passwd)
-        self.agent.inc_request_id()
-        r=self.api.ReqUserLogin(req, self.agent.get_request_id())
+        r=self.api.ReqUserLogin(req,self.agent.inc_request_id())
 
     def OnRspUserLogin(self, userlogin, info, rid, is_last):
-        self.logger.info('user login,info:%s,rid:%s,is_last:%s' % (info,rid,is_last))
+        self.logger.info(u'user login,info:%s,rid:%s,is_last:%s' % (info,rid,is_last))
         if is_last and not self.checkErrorRspInfo(info):
-            self.logger.info("get today's trading day:%s" % repr(self.api.GetTradingDay()))
+            self.logger.info(u"get today's trading day:%s" % repr(self.api.GetTradingDay()))
             self.subscribe_market_data(self.instruments)
 
     def subscribe_market_data(self, instruments):
@@ -86,6 +85,8 @@ class MdSpiDelegate(MdSpi):
     def OnRtnDepthMarketData(self, depth_market_data):
         #print depth_market_data.BidPrice1,depth_market_data.BidVolume1,depth_market_data.AskPrice1,depth_market_data.AskVolume1,depth_market_data.LastPrice,depth_market_data.Volume,depth_market_data.UpdateTime,depth_market_data.UpdateMillisec,depth_market_data.InstrumentID
         #print 'on data......\n',
+        if depth_market_data.LastPrice > 999999 or depth_market_data.LastPrice < 10:
+            logger.warning(u'收到的行情数据有误:%s,LastPrice=:%s' %(depth_market_data.InstrumentID,depth_market_data.LastPrice))
         if depth_market_data.InstrumentID not in self.instruments:
             logger.warning(u'收到未订阅的行情:%s' %(depth_market_data.InstrumentID,))
         self.logger.debug(u'收到行情:%s,time=%s:%s' %(depth_market_data.InstrumentID,depth_market_data.UpdateTime,depth_market_data.UpdateMillisec))
@@ -94,13 +95,13 @@ class MdSpiDelegate(MdSpi):
             self.logger.debug(u'行情无变化，inst=%s,time=%s，volume=%s,last_volume=%s' % (dp.InstrumentID,dp.UpdateTime,dp.Volume,self.last_map[dp.InstrumentID]))
             return  #行情未变化
         self.last_map[dp.InstrumentID] = dp.Volume
-        self.logger.debug('before loop')
+        self.logger.debug(u'before loop')
         self.agent.RtnMarketData(depth_market_data)
-        self.logger.debug('before write md:')
+        self.logger.debug(u'before write md:')
         ff = open(make_filename(depth_market_data.InstrumentID),'a+')
-        ff.write('%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (dp.TradingDay,dp.UpdateTime,dp.UpdateMillisec,dp.OpenInterest,dp.Volume,dp.LastPrice,dp.HighestPrice,dp.LowestPrice,dp.BidPrice1,dp.BidVolume1,dp.AskPrice1,dp.AskVolume1))
+        ff.write(u'%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (dp.TradingDay,dp.UpdateTime,dp.UpdateMillisec,dp.OpenInterest,dp.Volume,dp.LastPrice,dp.HighestPrice,dp.LowestPrice,dp.BidPrice1,dp.BidVolume1,dp.AskPrice1,dp.AskVolume1))
         ff.close()
-        self.logger.debug('after write md:')
+        self.logger.debug(u'after write md:')
 
 
 class TraderSpiDelegate(TraderSpi):
@@ -127,32 +128,54 @@ class TraderSpiDelegate(TraderSpi):
         return RspInfo == None or RspInfo.ErrorID == 0
 
     ##交易初始化
-    def OnFrontDisconnected(self, nReason):
-        #todo:logging
-        pass
-    
-    def OnFrontConnected(self, ):
+    def OnFrontConnected(self):
         '''
             当客户端与交易后台建立起通信连接时（还未登录前），该方法被调用。
         '''
-        if bIsLast and self.isRspSuccess(pRspInfo):
-            pass
-        else:
-            #logging
-            pass
-    
+        self.logger.info(u'trader front connected')
+        self.user_login(self.broker_id, self.investor_id, self.passwd)
+
+    def OnFrontDisconnected(self, nReason):
+        self.logger.info(u'trader front disconnected,reason=%s' % (nReason,))
+
+    def user_login(self, broker_id, investor_id, passwd):
+        req = UserApiStruct.ReqUserLogin(BrokerID=broker_id, UserID=investor_id, Password=passwd)
+        r=self.api.ReqUserLogin(req,self.agent.inc_request_id())
 
     def OnRspUserLogin(self, pRspUserLogin, pRspInfo, nRequestID, bIsLast):
-        '''登录请求响应'''
-        pass
+        self.logger.info('trader login')
+        if not self.isRspSuccess(pRspInfo):
+            self.logger.warning(u'trader login failed, errMsg=%s' %(pRspInfo.ErrorMsg,))
+            return
+        self.agent.login_success(pRspUserLogin.FrontID,pRspUserLogin.SessionID,pRspUserLogin.MaxOrderRef)
+        #self.settlementInfoConfirm()
+        self.agent.set_trading_day(self.api.GetTradingDay())
+        self.query_settlement_info()
 
     def OnRspUserLogout(self, pUserLogout, pRspInfo, nRequestID, bIsLast):
         '''登出请求响应'''
-        pass
+        self.logger.info(u'trader logout')
+
+    def query_settlement_info(self):
+        #不填日期表示取上一天结算单
+        try:
+            req = UserApiStruct.QrySettlementInfo(BrokerID=self.broker_id,InvestorID=self.investor_id,TradingDay=u'        ')
+            print req.BrokerID,req.InvestorID,req.TradingDay
+            self.api.ReqQrySettlementInfo(req,self.agent.inc_request_id())
+            print 'xxxxxxxxxxxxxxx'
+        except inst:
+            print inst
+
+    def confirm_settlement_info(self):
+        req = UserApiStruct.SettlementInfoConfirm(BrokerID=self.broker_id,InvestorID=self.investor_id)
+        self.api.ReqSettlementInfoConfirm(req,self.agent.inc_request_id())
 
     def OnRspQrySettlementInfo(self, pSettlementInfo, pRspInfo, nRequestID, bIsLast):
         '''请求查询投资者结算结果响应'''
-        pass
+        if bIsLast and self.isRspSuccess(pRspInfo):
+            self.logger.info(u"查询投资者结算结果成功")
+        else:
+            self.logger.warning(u'查询投资者结算结果失败')
 
     def OnRspQrySettlementInfoConfirm(self, pSettlementInfoConfirm, pRspInfo, nRequestID, bIsLast):
         '''请求查询结算信息确认响应'''
@@ -160,7 +183,11 @@ class TraderSpiDelegate(TraderSpi):
 
     def OnRspSettlementInfoConfirm(self, pSettlementInfoConfirm, pRspInfo, nRequestID, bIsLast):
         '''投资者结算结果确认响应'''
-        pass
+        if bIsLast and self.isRspSuccess(pRspInfo):
+            self.logger.info(u"投资者结算结果确认成功")
+        else:
+            self.logger.warning(u"投资者结算结果确认失败,errorID=%s,errorMsg=%s" % (pRspInfo.ErrorID,pRspInfo.ErrorMsg))    
+        self.agent.initialize()
 
     ###交易准备
     def OnRspQryInstrument(self, pInstrument, pRspInfo, nRequestID, bIsLast):
@@ -243,14 +270,11 @@ class TraderSpiDelegate(TraderSpi):
         ''' 报单通知
             CTP、交易所接受报单
         '''
-        if bIsLast and self.isRspSuccess(pRspInfo):
-            if pOrder.OrderStatus == 'a':
-                #CTP接受，但未发到交易所
-                agent.rtn_order_ctp(pOrder)
-            else:
-                agent.rtn_order_exchange(pOrder)
+        if pOrder.OrderStatus == 'a':
+            #CTP接受，但未发到交易所
+            agent.rtn_order_ctp(pOrder)
         else:
-            pass
+            agent.rtn_order_exchange(pOrder)
 
     def OnRtnTrade(self, pTrade):
         '''成交通知'''
@@ -302,13 +326,34 @@ class Agent(object):
         self.holding = []   #(合约、策略族、基准价、基准时间、request_id、持仓量、止损价、止损函数)
         self.transited_orders = []    #发出后等待回报的指令, 回报后到holding
         self.queued_orders = []     #因为保证金原因等待发出的指令(合约、策略族、基准价、基准时间(到秒))
+        self.frontID = None
+        self.sessionID = None
+        self.order_ref = 1
+        self.trading_day = 20110101
         #self.prepare()
 
     def inc_request_id(self):
         self.request_id += 1
-
-    def get_request_id(self):
         return self.request_id
+
+    def set_trading_day(self,trading_day):
+        self.trading_day = trading_day
+
+    def get_trading_day(self):
+        return self.trading_day
+
+    def login_success(self,frontID,sessionID,max_order_ref):
+        self.frontID = frontID
+        self.sessionID = sessionID
+        self.order_ref = max_order_ref
+
+
+
+    def initialize(self):
+        '''
+            初始化，如保证金率，账户资金等
+        '''
+        pass
 
     def prepare(self):
         '''
@@ -360,7 +405,7 @@ class Agent(object):
         open_positions = self.make_position(open_signals)
         self.make_trade(open_positions)
         #撤单, 撤销3分钟内未成交的以及等待发出队列中30秒内未发出的单子
-        self.cancel()
+        self.cancel_order()
         #检查待发出单
         self.check_queued()
         ##扫尾
@@ -387,6 +432,13 @@ class Agent(object):
             信号包括开仓信号、平仓信号
         '''
         return []
+
+    def cancel_order(self):
+        pass
+
+    def check_queued(self):
+        pass
+
 
     def make_position(self,signals):
         '''
@@ -418,6 +470,10 @@ class Agent(object):
         '''
         pass
 
+
+    ###交易
+
+    ###回应
     def rtn_order_ctp(self,sorder):
         '''
             ctp接受下单/撤单回报
@@ -497,7 +553,7 @@ class Agent(object):
 
 def user_main():
     user = MdApi.CreateMdApi("data")
-    my_agent = Agent()
+    my_agent = Agent(None)
     user.RegisterSpi(MdSpiDelegate(instruments=inst, 
                              broker_id="2030",
                              investor_id="0",
@@ -510,15 +566,26 @@ def user_main():
     while True:
         time.sleep(1)
 
+FRONT_ADDR = 'tcp://asp-sim2-front1.financial-trading-platform.com:26205'
 def trade_main():
+    '''
+>>> import agent
+>>> trader,myagent = agent.trade_main()
+    '''
     trader = TraderApi.CreateTraderApi("trader")
+    my_agent = Agent(trader)
     trader.RegisterSpi(TraderSpiDelegate(instruments=inst, 
-                             broker_id="2030",
-                             investor_id="0",
-                             passwd="8",
+                             broker_id=u"4030",
+                             investor_id=u"80002709",
+                             passwd=u"123456",
                              agent = my_agent,
                        ))
-
+    trader.SubscribePublicTopic(THOST_TERT_QUICK)
+    trader.SubscribePrivateTopic(THOST_TERT_QUICK)
+    trader.RegisterFront(FRONT_ADDR)
+    trader.Init()
+    return trader,my_agent
+    
 
 if __name__=="__main__":
     main()

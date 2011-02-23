@@ -757,6 +757,9 @@ def mll2(sif,length=75,vbreak=20,vrange=350):
     
     #tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(sif.dhigh-vrange,tlow),tlow])
     tlow = np.select([gand(sif.time<1330,sif.dhigh-sif.dlow<vrange+vbreak),sif.time>0],[sif.dhigh-vrange,tlow])
+    #tlow = np.select([sif.time<1330,sif.time>0],[gmin(tlow,sif.dhigh-vrange),tlow])
+    #tlow = np.select([sif.dhigh-sif.dlow<vrange+vbreak,sif.time>0],[sif.dhigh-vrange,tlow])
+    #tlow = np.select([gand(sif.time<1330,sif.dhigh-sif.dlow<vrange+vbreak),gand(sif.time<1330,sif.dhigh-sif.dlow>vrange+vbreak),sif.time>1330],[sif.dhigh-vrange,tlow,gmin(sif.dhigh-350,tlow)])
     #tlow = gmin(sif.dhigh-vrange,tlow)
     #tlow = gmin(sif.dhigh-400,tlow)
 

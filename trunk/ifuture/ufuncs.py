@@ -571,6 +571,9 @@ break_fx = [break_fhx,break_flx]    ##########一个还可以的独立策略. �
 def nhh(sif,vbreak=30,vrange=250):
     #使用最高点+30, 也就是说必须一下拉开3点
     #ldlow = dnext(sif.lowd/2+sif.closed/2,sif.close,sif.i_cofd)
+
+    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)        
+    
     ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     thigh = rollx(sif.dhigh+vbreak,3)
@@ -604,6 +607,20 @@ def nll2(sif,vbreak=20):
             gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>350),
         )
  
+def nll2_old(sif,vbreak=20):
+    #使用最低点
+    tlow = rollx(sif.dlow+vbreak,1)
+    #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)    
+    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)        
+    return gand(
+            #cross(rollx(sif.dlow-30),sif.low)<0
+            #sif.low < rollx(sif.dlow+vbreak,3), #比close要小点
+            #sif.low < ldhigh,
+            cross(tlow,sif.low)<0,
+            tlow < ldmid-30,#rollx(sif.xatr)*2/XBASE,  #比前2天高点中点低才允许做空
+            gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>350),
+        )
+
 def nll3(sif,vbreak=20):
     #使用最低点
     tlow = rollx(tmin(sif.low,75)/2 + sif.dlow/2 +vbreak,2)
@@ -706,7 +723,7 @@ sbreak_nll20.name = u'向下突破--原始系统'
 sbreak_nll2 = SXFuncA(fstate=sdown,fsignal=nll2,fwave=nx2500X,ffilter=nfilter)    #这个R高，但是次数少
 sbreak_nll2.name = u'向下突破2'
 
-shbreak_nll2 = SXFuncA(fstate=sdown,fsignal=nll2,fwave=nx2000X,ffilter=mfilter01)    #
+shbreak_nll2 = SXFuncA(fstate=sdown,fsignal=nll2,fwave=nx2000X,ffilter=mfilter2)    #
 
 skbreak_nll2 = SXFuncD1(fstate=sdown,fsignal=nll2,fwave=nx2500X,ffilter=kfilter)    #
 #skbreak_nll2.stop_closer = utrade.atr5_ustop_V
@@ -4546,7 +4563,7 @@ xxx3 = dbreak+ xbreak1c + exbreak2 + xbreak1 + rebound2 #也还可以
 
 
 
-for x in xxx2+wxxx:
+for x in xxx2:
     #x.stop_closer = iftrade.atr5_uxstop_kF #60/120       
     #x.stop_closer = iftrade.atr5_uxstop_kQ #10/120       
     #x.stop_closer = iftrade.atr5_uxstop_kV #60/120/333
@@ -4631,6 +4648,9 @@ buma.stop_closer = utrade.atr5_ustop_V1
 bxbreak1u.stop_closer = utrade.atr5_ustop_63
 sxbreak1u.stop_closer = utrade.atr5_ustop_63
 
+##其它
+for tx in wxxx:
+    tx.stop_closer = utrade.atr5_ustop_T
 
 #b123b.stop_closer = utrade.atr5_ustop_X2
 

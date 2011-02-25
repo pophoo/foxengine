@@ -576,7 +576,7 @@ break_flx.stop_closer = utrade.atr5_ustop_V1
 break_fx = [break_fhx,break_flx]    ##########一个还可以的独立策略. 日亏6点之后不动
 
 
-def nhh(sif,vbreak=30,vrange=250):
+def nhh(sif,vbreak=30,vrange=250):  #貌似20/30都可以
     #使用最高点+30, 也就是说必须一下拉开3点
     #ldlow = dnext(sif.lowd/2+sif.closed/2,sif.close,sif.i_cofd)
 
@@ -588,7 +588,7 @@ def nhh(sif,vbreak=30,vrange=250):
 
     #thigh = np.select([sif.time<1030,sif.time>=1030],[gmax(thigh,rollx(sif.dlow) + 200),thigh])
     #thigh = gmax(thigh,rollx(sif.dlow,1) + vrange + vbreak)
-    thigh = np.select([gand(sif.time<1330,sif.dhigh-sif.dlow<vrange),sif.time>0],[sif.dlow+vrange+vbreak,thigh])    
+    thigh = np.select([gand(sif.time<1330,rollx(sif.dhigh-sif.dlow)<vrange),sif.time>0],[sif.dlow+vrange+vbreak,thigh])    
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
             sif.high > thigh,
@@ -788,10 +788,10 @@ def mll2(sif,length=75,vbreak=20,vrange=350):
     #tlow = gmin(tlow,ldmid-32)
     
     #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])    
-    #tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(sif.dhigh-vrange,tlow),tlow])
-    tlow = np.select([gand(sif.time<1330,sif.dhigh-sif.dlow<vrange+vbreak),sif.time>0],[sif.dhigh-vrange,tlow])
+    tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(sif.dhigh-350,tlow),tlow])
+    #tlow = np.select([gand(sif.time<1330,rollx(sif.dhigh-sif.dlow)<vrange+vbreak),sif.time>0],[sif.dhigh-vrange,tlow])
     #tlow = np.select([sif.time<1330,sif.time>0],[gmin(tlow,sif.dhigh-vrange),tlow])
-    #tlow = np.select([sif.dhigh-sif.dlow<vrange+vbreak,sif.time>0],[sif.dhigh-vrange,tlow])
+    #tlow = np.select([rollx(sif.dhigh-sif.dlow)<vrange+vbreak,sif.time>0],[sif.dhigh-vrange,tlow])
     #tlow = np.select([gand(sif.time<1330,sif.dhigh-sif.dlow<vrange+vbreak),gand(sif.time<1330,sif.dhigh-sif.dlow>vrange+vbreak),sif.time>1330],[sif.dhigh-vrange,tlow,gmin(sif.dhigh-350,tlow)])
     #tlow = gmin(sif.dhigh-vrange,tlow)
     #tlow = gmin(sif.dhigh-400,tlow)
@@ -814,7 +814,91 @@ def mll2(sif,length=75,vbreak=20,vrange=350):
             sif.time > 915,
         )
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入
+ 
+def mll2e(sif,length=75,vbreak=20,vrange=350):
+    #使用最低点
+    #ldmid = dnext((sif.highd+gmin(sif.closed,sif.opend))/2,sif.close,sif.i_cofd)
+    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
+    opend = dnext(sif.opend,sif.open,sif.i_oofd)            
+    #highd = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)            
+    #ldmid = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)        
+    #ldmid = dnext(sif.highd,sif.close,sif.i_cofd)        
+    #ldmid = dnext((sif.highd+sif.closed)/2,sif.close,sif.i_cofd)    
+    ldclose = dnext(sif.closed,sif.close,sif.i_cofd) 
+
+
+    #tlow = gmin(tlow,ldmid-32)
     
+    #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])    
+    #tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(sif.dhigh-vrange,tlow),tlow])
+    tlow = sif.dhigh-vrange
+    #tlow = np.select([sif.time<1330,sif.time>0],[gmin(tlow,sif.dhigh-vrange),tlow])
+    #tlow = np.select([sif.dhigh-sif.dlow<vrange+vbreak,sif.time>0],[sif.dhigh-vrange,tlow])
+    #tlow = np.select([gand(sif.time<1330,sif.dhigh-sif.dlow<vrange+vbreak),gand(sif.time<1330,sif.dhigh-sif.dlow>vrange+vbreak),sif.time>1330],[sif.dhigh-vrange,tlow,gmin(sif.dhigh-350,tlow)])
+    #tlow = gmin(sif.dhigh-vrange,tlow)
+    #tlow = gmin(sif.dhigh-400,tlow)
+
+    signal = gand(
+            #sif.time>1029,
+            cross(tlow,sif.low)<0,
+            sif.time < 1330,
+            rollx(sif.dhigh - sif.dlow) < vrange+vbreak,
+            #strend2(sif.low) <= 0,
+            #sif.low < tlow,
+            #tlow < rollx(sif.dhigh + sif.dlow)/2, #+ sif.dlow
+            #tlow < ldhigh-10,  #比昨日最高价低才允许做空
+            #tlow < ldmid-30,#rollx(sif.xatr)*2/XBASE,  #比前2天高点中点低才允许做空
+            #gor(tlow < ldmid-30,gand(sif.time>1330,tlow<opend)),#加上1330条件后，有助于减少回撤
+            #gor(tlow < ldmid-30,gand(sif.time>1330,tlow==rollx(sif.dlow)+vbreak)),  #1330之后tlow同时创新低时可绕过ldmid-30条件
+            gor(tlow<ldmid-60,tlow==rollx(sif.dlow)+vbreak),
+            #tlow < sif.dmid,
+            #rollx(sif.dhigh - sif.dlow) > vrange, 
+            #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>320),
+            rollx(sif.close,2) - tlow < 150,
+            sif.time > 915,
+        )
+    return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入
+
+
+def mll2w(sif,length=75,vbreak=20,vrange=350):
+    #使用最低点
+    tlow = rollx(tmin(sif.low,length)+vbreak,1)
+    #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
+    #ldmid = dnext((sif.highd+gmin(sif.closed,sif.opend))/2,sif.close,sif.i_cofd)
+    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
+    opend = dnext(sif.opend,sif.open,sif.i_oofd)            
+    #highd = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)            
+    #ldmid = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)        
+    #ldmid = dnext(sif.highd,sif.close,sif.i_cofd)        
+    #ldmid = dnext((sif.highd+sif.closed)/2,sif.close,sif.i_cofd)    
+    ldclose = dnext(sif.closed,sif.close,sif.i_cofd) 
+
+
+    #tlow = gmin(tlow,ldmid-32)
+    
+    #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])    
+    #tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(sif.dhigh-vrange,tlow),tlow])
+    #tlow = np.select([gand(sif.time<1330,sif.dhigh-sif.dlow<vrange+vbreak),sif.time>0],[sif.dhigh-vrange,tlow])
+    #tlow = np.select([sif.time<1330,sif.time>0],[gmin(tlow,sif.dhigh-vrange),tlow])
+    #tlow = np.select([sif.dhigh-sif.dlow<vrange+vbreak,sif.time>0],[sif.dhigh-vrange,tlow])
+    #tlow = np.select([gand(sif.time<1330,sif.dhigh-sif.dlow<vrange+vbreak),gand(sif.time<1330,sif.dhigh-sif.dlow>vrange+vbreak),sif.time>1330],[sif.dhigh-vrange,tlow,gmin(sif.dhigh-350,tlow)])
+    #tlow = gmin(sif.dhigh-vrange,tlow)
+    #tlow = gmin(sif.dhigh-400,tlow)
+
+    signal = gand(
+            #sif.time>1029,
+            cross(tlow,sif.low)<0,
+            gor(sif.time >= 1330,rollx(sif.dhigh-sif.dlow) >= vrange+vbreak),
+            gor(tlow<ldmid-60,tlow==rollx(sif.dlow)+vbreak),
+            #tlow < sif.dmid,
+            #rollx(sif.dhigh - sif.dlow) > vrange, 
+            #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>320),
+            rollx(sif.close,2) - tlow < 150,
+            sif.time > 915,
+        )
+    return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入
+
+
 def mll3(sif,length=75):
     #使用最低点
     tlow = gmin(rollx(tmin(sif.low,length)+20))
@@ -853,8 +937,13 @@ shbreak_mll2_k = SXFuncA(fstate=gofilter,fsignal=mll2,fwave=nx2500X,ffilter=mfil
 shbreak_mll2_k.name = u'日内向下突破新低'
 shbreak_mll2_k.stop_closer = utrade.atr5_ustop_X4
 
+shbreak_mll2e = SXFuncD1(fstate=sdown,fsignal=mll2e,fwave=nx2000X,ffilter=mfilter2)    #优于nll
+shbreak_mll2e.name = u'日内75分钟向下突破'
 
-shbreak_mll_30 = SXFuncD1(fstate=sdown,fsignal=fcustom(mll2,length=30),fwave=nx2000X,ffilter=kfilter)    #优于nll
+shbreak_mll2w = SXFuncA(fstate=sdown,fsignal=mll2w,fwave=nx2000X,ffilter=mfilter2)    #优于nll
+shbreak_mll2w.name = u'日内75分钟向下突破'
+
+shbreak_mll_30 = SXFuncA(fstate=sdown,fsignal=fcustom(mll2,length=30),fwave=nx2000X,ffilter=nfilter)    #优于nll
 shbreak_mll_30.name = u'日内30分钟向下突破'
 shbreak_mll_30.stop_closer = utrade.atr5_ustop_V
 
@@ -877,7 +966,10 @@ mhbreak = [mhbreak_mll2,mhbreak_nhh]
 
 ##下跌采用75分钟的底部+2, 上涨采用日顶部+3(均在10:30-14:30)
 hbreak = [shbreak_mll2,break_nhh]  #利润比较好
-hbreak2 = [shbreak_mll2,hbreak_nhh,hbreak_nhh_e]  #这个最大回撤最小      #####################采用此个
+#hbreak2 = [shbreak_mll2,hbreak_nhh,hbreak_nhh_e]  #这个最大回撤最小      #####################采用此个
+hbreak2 = [shbreak_mll2e,shbreak_mll2w,hbreak_nhh,hbreak_nhh_e]  #这个最大回撤最小      #####################采用此个
+
+hbreak3 = [hbreak_nhh,shbreak_nll2,hbreak_nhh_e]    #回撤比较大
 
 d1_hbreak = [dhbreak_nhh,dshbreak_mll2]
 
@@ -4603,6 +4695,10 @@ hbreak_nhh.stop_closer = utrade.atr5_ustop_T
 
 shbreak_mll2.stop_closer = utrade.atr5_ustop_T
 hbreak_nhh.stop_closer = utrade.atr5_ustop_T
+
+shbreak_mll2e.stop_closer = utrade.atr5_ustop_T
+shbreak_mll2w.stop_closer = utrade.atr5_ustop_T
+
 
 hbreak_nhh_e.stop_closer = utrade.atr5_ustop_T
 

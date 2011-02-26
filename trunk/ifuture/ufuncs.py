@@ -580,6 +580,36 @@ def nhh(sif,vbreak=30,vrange=250):  #貌似20/30都可以
     #使用最高点+30, 也就是说必须一下拉开3点
     #ldlow = dnext(sif.lowd/2+sif.closed/2,sif.close,sif.i_cofd)
 
+    #ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
+
+    #vrange = sif.close / 1200 * 10
+
+    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)        
+    
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
+    #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
+    thigh = rollx(sif.dhigh+vbreak,3)
+
+    #thigh = np.select([sif.time<1030,sif.time>=1030],[gmax(thigh,rollx(sif.dlow) + 200),thigh])
+    #thigh = gmax(thigh,rollx(sif.dlow,1) + vrange + vbreak)
+    #thigh = np.select([gand(sif.time<1330,rollx(sif.dhigh-sif.dlow)<vrange),sif.time>0],[sif.dlow+vrange+vbreak,thigh])    
+    thigh = gmax(thigh,sif.dlow + vrange + vbreak)
+    signal = gand(
+            #cross(rollx(sif.dhigh+30),sif.high)>0
+            sif.high > thigh,
+            #rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
+            #rollx(sif.dhigh-sif.dlow,3)>200,
+            #thigh - rollx(sif.close,2) < 150,
+            #gmax(rollx(sif.dhigh,1),thigh) > ldopen + 80,
+            thigh > ldopen + 60,
+            #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>200),
+        )
+    return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以跳空价进入
+ 
+def nhh_old(sif,vbreak=30,vrange=250):  #貌似20/30都可以
+    #使用最高点+30, 也就是说必须一下拉开3点
+    #ldlow = dnext(sif.lowd/2+sif.closed/2,sif.close,sif.i_cofd)
+
     ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)        
     
     ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
@@ -600,8 +630,9 @@ def nhh(sif,vbreak=30,vrange=250):  #貌似20/30都可以
             #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>200),
         )
     return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以跳空价进入
-    
-def nll2(sif,vbreak=20,vrange=350):
+
+
+def nll2(sif,vbreak=10,vrange=350):
     #使用最低点
     tlow = rollx(sif.dlow+vbreak,1)
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)    
@@ -702,7 +733,6 @@ hbreak_nhh.name = u'日内向上突破新高'
 hbreak_nhh_e = BXFuncF1(fstate=gofilter,fsignal=fcustom(nhh,vrange=350),fwave=gofilter,ffilter=emfilter3)  ##主要时段
 hbreak_nhh_e.name = u'日内向上突破新高e'
 
-
 hbreak_nhh_k = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=nx2500X,ffilter=mfilterk)  ##主要时段
 hbreak_nhh_k.name = u'日内向上突破新高'
 hbreak_nhh_k.stop_closer = utrade.atr5_ustop_V
@@ -733,7 +763,7 @@ def sup(sif):
 sbreak_nll20 = SXFuncA(fstate=gofilter,fsignal=fcustom(nll2,vbreak=0),fwave=nx2500X,ffilter=filter0)    #这个R高，但是次数少
 sbreak_nll20.name = u'向下突破--原始系统'
 
-sbreak_nll2 = SXFuncA(fstate=sdown,fsignal=nll2,fwave=nx2500X,ffilter=nfilter)    #这个R高，不错
+sbreak_nll2 = SXFuncA(fstate=sdown,fsignal=nll2,fwave=nx2500X,ffilter=mfilter2)    #这个R高，不错
 sbreak_nll2.name = u'向下突破2'
 
 shbreak_nll2 = SXFuncA(fstate=sdown,fsignal=nll2,fwave=nx2500X,ffilter=nfilter)    #
@@ -789,7 +819,7 @@ def mll2(sif,length=75,vbreak=20,vrange=350):
     #tlow = gmin(tlow,ldmid-32)
     
     #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])    
-    tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(sif.dhigh-350,tlow),tlow])
+    tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(sif.dhigh-vrange,tlow),tlow])
     #tlow = np.select([gand(sif.time<1330,rollx(sif.dhigh-sif.dlow)<vrange+vbreak),sif.time>0],[sif.dhigh-vrange,tlow])
     #tlow = np.select([sif.time<1330,sif.time>0],[gmin(tlow,sif.dhigh-vrange),tlow])
     #tlow = np.select([rollx(sif.dhigh-sif.dlow)<vrange+vbreak,sif.time>0],[sif.dhigh-vrange,tlow])
@@ -843,7 +873,7 @@ def mll2e(sif,length=75,vbreak=20,vrange=350):
             #sif.time>1029,
             cross(tlow,sif.low)<0,
             sif.time < 1330,
-            rollx(sif.dhigh - sif.dlow) < vrange+vbreak,
+            #rollx(sif.dhigh - sif.dlow) < vrange+vbreak,
             #strend2(sif.low) <= 0,
             #sif.low < tlow,
             #tlow < rollx(sif.dhigh + sif.dlow)/2, #+ sif.dlow
@@ -889,7 +919,8 @@ def mll2w(sif,length=75,vbreak=20,vrange=350):
     signal = gand(
             #sif.time>1029,
             cross(tlow,sif.low)<0,
-            gor(sif.time >= 1330,rollx(sif.dhigh-sif.dlow) >= vrange+vbreak),
+            sif.time >= 1330,
+            #gor(sif.time >= 1330),rollx(sif.dhigh-sif.dlow) >= vrange+vbreak),
             gor(tlow<ldmid-60,tlow==rollx(sif.dlow)+vbreak),
             #tlow < sif.dmid,
             #rollx(sif.dhigh - sif.dlow) > vrange, 
@@ -939,10 +970,10 @@ shbreak_mll2_k.name = u'日内向下突破新低'
 shbreak_mll2_k.stop_closer = utrade.atr5_ustop_X4
 
 shbreak_mll2e = SXFuncD1(fstate=sdown,fsignal=mll2e,fwave=nx2000X,ffilter=mfilter2)    #优于nll
-shbreak_mll2e.name = u'日内75分钟向下突破'
+shbreak_mll2e.name = u'日内75分钟向下突破e'
 
 shbreak_mll2w = SXFuncA(fstate=sdown,fsignal=mll2w,fwave=nx2000X,ffilter=mfilter2)    #优于nll
-shbreak_mll2w.name = u'日内75分钟向下突破'
+shbreak_mll2w.name = u'日内75分钟向下突破w'
 
 shbreak_mll_30 = SXFuncA(fstate=sdown,fsignal=fcustom(mll2,length=30),fwave=nx2000X,ffilter=nfilter)    #优于nll
 shbreak_mll_30.name = u'日内30分钟向下突破'
@@ -1575,10 +1606,12 @@ sfwave.stop_closer = utrade.atr5_ustop_V1
 
 fwave = [bfwave,sfwave]
 
-lwilliams = erange + fwave  #叠加反效果， 单独的以erange为好. 稳定性达到0.37
+lwilliams = erange #+ fwave  #叠加反效果， 单独的以erange为好. 稳定性达到0.37
 
 for x in lwilliams:
-    x.stop_closer = utrade.atr5_ustop_V1
+    x.stop_closer = utrade.atr5_ustop_T9
+
+#erange以每日一次失败为限
 
 ###123/2B
 def u123(sif):
@@ -4615,7 +4648,7 @@ txxx = hbreak2 + txfs
 #xxx1 = hbreak2 + xbreak1v + rebound3 +dbreak + exbreak2 + rebound2    #此方法每日亏损18点(775)或12点(75)之后趴下装死比较妥当. 关键是保持一致性
 
 #xxx1a = hbreak2 +  dbreak + rebound3 + rebound2#一个独立的策略
-xxx1a = hbreak2 + rebound3 + rebound2#一个独立的策略, 暂时删除dbreak, 增加的收益不够
+xxx1a = zhbreak #hbreak2 + rebound3 + rebound2#一个独立的策略, 暂时删除dbreak, 增加的收益不够
 xxx1b = tma  # 一个不错的候补策略. 和hbreak2+xbreak1v不协调
 xxx1c = exbreak2 + xbreak1v #2011-1正在衰退
 xxx1d = [bxbreak1v] + rbreak
@@ -4725,11 +4758,10 @@ hbreak_nhh.stop_closer = utrade.atr5_ustop_T
 shbreak_mll2e.stop_closer = utrade.atr5_ustop_T
 shbreak_mll2w.stop_closer = utrade.atr5_ustop_T
 
-
 hbreak_nhh_e.stop_closer = utrade.atr5_ustop_T
 
 break_nhh.stop_closer = utrade.atr5_ustop_T
-shbreak_nll2.stop_closer = utrade.atr5_ustop_V
+shbreak_nll2.stop_closer = utrade.atr5_ustop_T
 
 sbreak_nll20.stop_closer = utrade.atr5_ustop_TA
 sbreak_nll2.stop_closer = utrade.atr5_ustop_TA

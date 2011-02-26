@@ -63,12 +63,11 @@ hbreak2系列
     开仓:
         做多: 1. 高点在一分钟内拉高到3分钟前日内高点+3(基准)处. 即如果上一分钟新高了，则该新高不计入内
               2. xatr<2500,xatr30x<10000
-              3. 3分钟前日内振幅>25, 即如果振幅小于25,则将突破点移动到25+3处
-              4. 突破点>开盘+9, 否则将突破点移动到开盘+9
-        做空: 1. 低点小于日内低点+1处
+              3. 突破点取最高点+3,最低点+28和开盘价+9三个值的最大值
+        做空: 1. 低点小于75分钟低点+2处
               2. xatr<2000,xatr30x<10000
-              3. 1330前开仓附加条件是:日内振幅>35+1. 即如果振幅<35+1,则将突破点移动到36处
-              4. 突破点小于开盘-15,否则移动到开盘-15
+              3. 1330前开仓，突破点取基准点和日内高点-35的低者，1330后直接取基准点
+              4. 突破点小于开盘-6,或者为日内最低+2
               5. t120<180
     平仓:
         止损为7，保本为8. 30分钟后如果盈利大于10点，则把止损拉到盈利8点或更多处
@@ -593,7 +592,7 @@ def nhh(sif,vbreak=30,vrange=250):  #貌似20/30都可以
     #thigh = np.select([sif.time<1030,sif.time>=1030],[gmax(thigh,rollx(sif.dlow) + 200),thigh])
     #thigh = gmax(thigh,rollx(sif.dlow,1) + vrange + vbreak)
     #thigh = np.select([gand(sif.time<1330,rollx(sif.dhigh-sif.dlow)<vrange),sif.time>0],[sif.dlow+vrange+vbreak,thigh])    
-    thigh = gmax(thigh,sif.dlow + vrange + vbreak,ldopen+90)
+    thigh = gmax(thigh,rollx(sif.dlow,1) + vrange + vbreak,ldopen+90)
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
             sif.high > thigh,
@@ -632,12 +631,12 @@ def nhh_old(sif,vbreak=30,vrange=250):  #貌似20/30都可以
     return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以跳空价进入
 
 
-def nll2(sif,vbreak=10,vrange=350):
+def nll2(sif,vbreak=-10,vrange=350):
     #使用最低点
     tlow = rollx(sif.dlow+vbreak,1)
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)    
     ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)        
-    tlow = np.select([gand(sif.time<1330,sif.dhigh-sif.dlow<vrange+vbreak),sif.time>0],[sif.dhigh-vrange,tlow])    
+    tlow = np.select([gand(sif.time<1330,rollx(sif.dhigh-sif.dlow)<vrange+vbreak),sif.time>0],[sif.dhigh-vrange,tlow])    
     #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])
     #tlow = gmin(tlow,sif.dhigh-vrange+vbreak)
     ldopen = dnext(sif.opend,sif.close,sif.i_oofd)            
@@ -823,12 +822,14 @@ def mll2(sif,length=75,vbreak=20,vrange=350):
     
     #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])    
     tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(sif.dhigh-vrange,tlow),tlow])
+    #tlow = np.select([tlow<=rollx(sif.dlow)+vbreak,1],[tlow,gmin(tlow,ldmid-90)])
     #tlow = np.select([gand(sif.time<1330,rollx(sif.dhigh-sif.dlow)<vrange+vbreak),sif.time>0],[sif.dhigh-vrange,tlow])
     #tlow = np.select([sif.time<1330,sif.time>0],[gmin(tlow,sif.dhigh-vrange),tlow])
     #tlow = np.select([rollx(sif.dhigh-sif.dlow)<vrange+vbreak,sif.time>0],[sif.dhigh-vrange,tlow])
     #tlow = np.select([gand(sif.time<1330,sif.dhigh-sif.dlow<vrange+vbreak),gand(sif.time<1330,sif.dhigh-sif.dlow>vrange+vbreak),sif.time>1330],[sif.dhigh-vrange,tlow,gmin(sif.dhigh-350,tlow)])
     #tlow = gmin(sif.dhigh-vrange,tlow)
     #tlow = gmin(sif.dhigh-400,tlow)
+
 
     signal = gand(
             #sif.time>1029,
@@ -844,7 +845,7 @@ def mll2(sif,length=75,vbreak=20,vrange=350):
             #tlow < sif.dmid,
             #rollx(sif.dhigh - sif.dlow) > vrange, 
             #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>320),
-            rollx(sif.close,2) - tlow < 150,
+            #rollx(sif.high,2) - tlow < 150,
             sif.time > 915,
         )
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入
@@ -1002,9 +1003,9 @@ mhbreak = [mhbreak_mll2,mhbreak_nhh]
 ##下跌采用75分钟的底部+2, 上涨采用日顶部+3(均在10:30-14:30)
 hbreak = [shbreak_mll2,break_nhh]  #利润比较好
 #hbreak2 = [shbreak_mll2,hbreak_nhh,hbreak_nhh_e]  #这个最大回撤最小      #####################采用此个
-hbreak2 = [shbreak_mll2e,shbreak_mll2w,hbreak_nhh,hbreak_nhh_e]  #这个最大回撤最小      #####################采用此个
+hbreak2 = [shbreak_mll2,hbreak_nhh]#,hbreak_nhh_e]  #这个最大回撤最小      #####################采用此个
 
-hbreak3 = [hbreak_nhh,shbreak_nll2,hbreak_nhh_e]    #回撤比较大
+hbreak3 = [hbreak_nhh,shbreak_mll2]#,hbreak_nhh_e]#
 
 d1_hbreak = [dhbreak_nhh,dshbreak_mll2]
 
@@ -4651,8 +4652,8 @@ txxx = hbreak2 + txfs
 #xxx1 = hbreak2 + xbreak1v + rebound3 +dbreak + exbreak2 + rebound2    #此方法每日亏损18点(775)或12点(75)之后趴下装死比较妥当. 关键是保持一致性
 
 #xxx1a = hbreak2 +  dbreak + rebound3 + rebound2#一个独立的策略
-xxx1a = zhbreak #hbreak2 + rebound3 + rebound2#一个独立的策略, 暂时删除dbreak, 增加的收益不够
-xxx1a2 = zhbreak + [hbreak_nhh_e]
+xxx1a = hbreak2 #hbreak2 + rebound3 + rebound2#一个独立的策略, 暂时删除dbreak, 增加的收益不够
+xxx1a2 = xxx1a + [hbreak_nhh_e]
 xxx1b = tma  # 一个不错的候补策略. 和hbreak2+xbreak1v不协调
 xxx1c = exbreak2 + xbreak1v #2011-1正在衰退
 xxx1d = [bxbreak1v] + rbreak

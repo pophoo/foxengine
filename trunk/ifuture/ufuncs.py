@@ -614,6 +614,7 @@ def nll2(sif,vbreak=20,vrange=350):
             #sif.low < rollx(sif.dlow+vbreak,3), #比close要小点
             #sif.low < ldhigh,
             cross(tlow,sif.low)<0,
+            #sif.low < tlow,
             tlow < ldmid-60,#rollx(sif.xatr)*2/XBASE,  #比前2天高点中点低才允许做空
             #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>350),
         )
@@ -1185,6 +1186,31 @@ def dxchannel(sif,length=20):#
 sxchannel = SXFuncA(fstate=sdown,fsignal=dxchannel,fwave=nx2000X,ffilter=nfilter2)
 sxchannel.name = u'中间通道向下突破'
 sxchannel.stop_closer = utrade.atr5_ustop_V7
+
+def dxchannel2(sif,length=20):#
+    twave = sif.atr/XBASE * 7/2
+
+    tmid = (tmax(sif.high,length) + tmin(sif.low,length))/2
+
+    tbreak = tmid - twave
+
+    bline = rollx(tbreak,1)
+    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
+
+    signal = gand(
+            #cross(bline,sif.low)<0,
+            #mcmid > 0,
+            cross(tmid,sif.high)<0,
+            sif.low < rollx(sif.low),
+            sif.time > 915,
+            sif.dhigh > sif.dlow + 360,
+            tmid < ldmid - 30,
+        )
+    return signal#np.select([signal>0],[gmin(sif.open,tmid)],0)
+sxchannel2 = SXFuncA(fstate=sdown,fsignal=dxchannel2,fwave=nx2000X,ffilter=nfilter2)
+sxchannel2.name = u'中间通道向下突破'
+sxchannel2.stop_closer = utrade.atr5_ustop_V7
+
 
 xchannel = [bxchannel,sxchannel]    #####一对非常好的备用策略
 

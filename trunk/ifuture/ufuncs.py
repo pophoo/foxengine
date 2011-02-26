@@ -451,7 +451,7 @@ def nhhx(sif,vbreak=0,vrange=300):
     thigh = rollx(sif.dhigh+vbreak,1)
     ldclose = dnext(sif.closed,sif.close,sif.i_cofd)
     blow = gmin(sif.dlow,ldclose)
-    thigh = np.select([gand(sif.time<1330,sif.dhigh-sif.dlow<vrange),sif.time>0],[sif.dlow+vrange+vbreak,thigh])    
+    thigh = np.select([gand(sif.time<1330,rollx(sif.dhigh-sif.dlow)<vrange),sif.time>0],[sif.dlow+vrange+vbreak,thigh])    
     
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0

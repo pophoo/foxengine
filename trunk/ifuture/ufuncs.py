@@ -64,17 +64,17 @@ hbreak2系列
         做多: 1. 高点在一分钟内拉高到3分钟前日内高点+3(基准)处. 即如果上一分钟新高了，则该新高不计入内
               2. xatr<2500,xatr30x<10000
               3. 3分钟前日内振幅>25, 即如果振幅小于25,则将突破点移动到25+3处
-              4. 基准>开盘+6
-        做空: 1. 低点小于75分钟低点+2处
-              2. 比前两天的高点中点低6点或者同时为日内新低
-              3. xatr<2000,xatr30x<10000
-              4. 1330前开仓附加条件是:日内振幅>35+2. 即如果振幅<35+2,则将突破点移动到35处
+              4. 突破点>开盘+9, 否则将突破点移动到开盘+9
+        做空: 1. 低点小于日内低点+1处
+              2. xatr<2000,xatr30x<10000
+              3. 1330前开仓附加条件是:日内振幅>35+1. 即如果振幅<35+1,则将突破点移动到36处
+              4. 突破点小于开盘-15,否则移动到开盘-15
               5. t120<180
     平仓:
         止损为7，保本为8. 30分钟后如果盈利大于10点，则把止损拉到盈利8点或更多处
     工作时段: 
         做多:[1036,1435]
-        做空:[1015,1444]
+        做空:[945,1459]
 
     早盘做多:[930,959]
               1. 高点在一分钟内拉高到3分钟前日内高点+3(基准)处. 即如果上一分钟新高了，则该新高不计入内
@@ -593,7 +593,7 @@ def nhh(sif,vbreak=30,vrange=250):  #貌似20/30都可以
     #thigh = np.select([sif.time<1030,sif.time>=1030],[gmax(thigh,rollx(sif.dlow) + 200),thigh])
     #thigh = gmax(thigh,rollx(sif.dlow,1) + vrange + vbreak)
     #thigh = np.select([gand(sif.time<1330,rollx(sif.dhigh-sif.dlow)<vrange),sif.time>0],[sif.dlow+vrange+vbreak,thigh])    
-    thigh = gmax(thigh,sif.dlow + vrange + vbreak)
+    thigh = gmax(thigh,sif.dlow + vrange + vbreak,ldopen+90)
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
             sif.high > thigh,
@@ -601,7 +601,7 @@ def nhh(sif,vbreak=30,vrange=250):  #貌似20/30都可以
             #rollx(sif.dhigh-sif.dlow,3)>200,
             #thigh - rollx(sif.close,2) < 150,
             #gmax(rollx(sif.dhigh,1),thigh) > ldopen + 80,
-            thigh > ldopen + 60,
+            #thigh > ldopen + 60,
             #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>200),
         )
     return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以跳空价进入
@@ -639,14 +639,17 @@ def nll2(sif,vbreak=10,vrange=350):
     ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)        
     tlow = np.select([gand(sif.time<1330,sif.dhigh-sif.dlow<vrange+vbreak),sif.time>0],[sif.dhigh-vrange,tlow])    
     #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])
-    #tlow = gmin(tlow,sif.dhigh-vrange)
+    #tlow = gmin(tlow,sif.dhigh-vrange+vbreak)
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)            
+    tlow = gmin(tlow,ldopen-150)
     signal = gand(
             #cross(rollx(sif.dlow-30),sif.low)<0
             #sif.low < rollx(sif.dlow+vbreak,3), #比close要小点
             #sif.low < ldhigh,
             cross(tlow,sif.low)<0,
             #sif.low < tlow,
-            tlow < ldmid-60,#rollx(sif.xatr)*2/XBASE,  #比前2天高点中点低才允许做空
+            #tlow < ldmid-60,#rollx(sif.xatr)*2/XBASE,  #比前2天高点中点低才允许做空
+            #tlow < ldopen - 100,
             #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>350),
         )
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入
@@ -4649,6 +4652,7 @@ txxx = hbreak2 + txfs
 
 #xxx1a = hbreak2 +  dbreak + rebound3 + rebound2#一个独立的策略
 xxx1a = zhbreak #hbreak2 + rebound3 + rebound2#一个独立的策略, 暂时删除dbreak, 增加的收益不够
+xxx1a2 = zhbreak + [hbreak_nhh_e]
 xxx1b = tma  # 一个不错的候补策略. 和hbreak2+xbreak1v不协调
 xxx1c = exbreak2 + xbreak1v #2011-1正在衰退
 xxx1d = [bxbreak1v] + rbreak

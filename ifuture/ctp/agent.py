@@ -122,6 +122,7 @@ class TraderSpiDelegate(TraderSpi):
         self.investor_id = investor_id
         self.passwd = passwd
         self.agent = agent
+        self.agent.set_spi(self)
 
  
     def isRspSuccess(self,RspInfo):
@@ -156,13 +157,30 @@ class TraderSpiDelegate(TraderSpi):
         '''登出请求响应'''
         self.logger.info(u'trader logout')
 
+    def resp_common(self,rsp_info,bIsLast,name='默认'):
+        if not self.isRspSuccess(rsp_info):
+            self.logger.info(u"%s失败" % name)
+            return -1
+        elif bIsLast and self.isRspSuccess(rsp_info):
+            self.logger.info(u"%s成功" % name)
+            return 1
+        else:
+            self.logger.info(u"%s结果: 等待数据接收完全..." % name)
+            return 0
+
+    def query_settlement_confirm(self):
+        try:
+            pass
+        except:
+            pass
+
     def query_settlement_info(self):
         #不填日期表示取上一天结算单
         try:
-            req = UserApiStruct.QrySettlementInfo(BrokerID=self.broker_id,InvestorID=self.investor_id,TradingDay=u'        ')
-            print req.BrokerID,req.InvestorID,req.TradingDay
+            req = UserApiStruct.QrySettlementInfo(BrokerID=self.broker_id,InvestorID=self.investor_id,TradingDay=u'')
+            #print req.BrokerID,req.InvestorID,req.TradingDay
             self.api.ReqQrySettlementInfo(req,self.agent.inc_request_id())
-            print 'xxxxxxxxxxxxxxx'
+            #print u'查询投资者结算结果'
         except inst:
             print inst
 
@@ -172,10 +190,9 @@ class TraderSpiDelegate(TraderSpi):
 
     def OnRspQrySettlementInfo(self, pSettlementInfo, pRspInfo, nRequestID, bIsLast):
         '''请求查询投资者结算结果响应'''
-        if bIsLast and self.isRspSuccess(pRspInfo):
-            self.logger.info(u"查询投资者结算结果成功")
-        else:
-            self.logger.warning(u'查询投资者结算结果失败')
+        print u'Rsp 结算单查询'
+        if(self.resp_common(pRspInfo,bIsLast,u'结算单查询')>0):
+            print u'结算单内容:%s' % pSettlementInfo.Content
 
     def OnRspQrySettlementInfoConfirm(self, pSettlementInfoConfirm, pRspInfo, nRequestID, bIsLast):
         '''请求查询结算信息确认响应'''
@@ -183,11 +200,8 @@ class TraderSpiDelegate(TraderSpi):
 
     def OnRspSettlementInfoConfirm(self, pSettlementInfoConfirm, pRspInfo, nRequestID, bIsLast):
         '''投资者结算结果确认响应'''
-        if bIsLast and self.isRspSuccess(pRspInfo):
-            self.logger.info(u"投资者结算结果确认成功")
-        else:
-            self.logger.warning(u"投资者结算结果确认失败,errorID=%s,errorMsg=%s" % (pRspInfo.ErrorID,pRspInfo.ErrorMsg))    
-        self.agent.initialize()
+        self.resp_common(pRspInfo,bIsLast,u'结算单确认')
+        #self.agent.initialize()
 
     ###交易准备
     def OnRspQryInstrument(self, pInstrument, pRspInfo, nRequestID, bIsLast):
@@ -331,6 +345,9 @@ class Agent(object):
         self.order_ref = 1
         self.trading_day = 20110101
         #self.prepare()
+
+    def set_spi(self,spi):
+        self.spi = spi
 
     def inc_request_id(self):
         self.request_id += 1
@@ -574,12 +591,13 @@ def trade_main():
     '''
     trader = TraderApi.CreateTraderApi("trader")
     my_agent = Agent(trader)
-    trader.RegisterSpi(TraderSpiDelegate(instruments=inst, 
+    myspi = TraderSpiDelegate(instruments=inst, 
                              broker_id=u"4030",
                              investor_id=u"80002709",
                              passwd=u"123456",
                              agent = my_agent,
-                       ))
+                       )
+    trader.RegisterSpi(myspi)
     trader.SubscribePublicTopic(THOST_TERT_QUICK)
     trader.SubscribePrivateTopic(THOST_TERT_QUICK)
     trader.RegisterFront(FRONT_ADDR)

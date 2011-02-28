@@ -4757,8 +4757,8 @@ for x in rxxx:
 shbreak_mll2.stop_closer = utrade.atr5_ustop_T
 hbreak_nhh.stop_closer = utrade.atr5_ustop_T
 
-shbreak_mll2.stop_closer = utrade.atr5_ustop_T
-hbreak_nhh.stop_closer = utrade.atr5_ustop_T
+shbreak_mll2.stop_closer = utrade.atr5_ustop_TA
+hbreak_nhh.stop_closer = utrade.atr5_ustop_TA
 
 shbreak_mll2e.stop_closer = utrade.atr5_ustop_T
 shbreak_mll2w.stop_closer = utrade.atr5_ustop_T

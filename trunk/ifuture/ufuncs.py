@@ -822,7 +822,8 @@ def mll2(sif,length=75,vbreak=20,vrange=350):
     
     #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])    
     tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(sif.dhigh-vrange,tlow),tlow])
-    #tlow = np.select([tlow<=rollx(sif.dlow)+vbreak,1],[tlow,gmin(tlow,ldmid-90)])
+    #tlow = np.select([tlow<=rollx(sif.dlow)+vbreak,1],[tlow,gmin(tlow,ldmid-60)])
+    #tlow = np.select([tlow>ldmid-60,tlow<=ldmid-60],[rollx(sif.dlow),tlow])
     #tlow = np.select([gand(sif.time<1330,rollx(sif.dhigh-sif.dlow)<vrange+vbreak),sif.time>0],[sif.dhigh-vrange,tlow])
     #tlow = np.select([sif.time<1330,sif.time>0],[gmin(tlow,sif.dhigh-vrange),tlow])
     #tlow = np.select([rollx(sif.dhigh-sif.dlow)<vrange+vbreak,sif.time>0],[sif.dhigh-vrange,tlow])
@@ -1193,7 +1194,7 @@ def uxchannel(sif,length=20):#
             cross(bline,sif.high)>0,
             bline > gmax(ldopen,sif.dmid) ,
             sif.time > 915,
-            sif.dhigh > sif.dlow + 360,
+            sif.dhigh > sif.dlow + 300,
         )
     return np.select([signal>0],[gmax(sif.open,bline)],0)
 bxchannel = BXFuncA(fstate=sdown,fsignal=uxchannel,fwave=nx2000X,ffilter=nfilter2)
@@ -1214,7 +1215,7 @@ def dxchannel(sif,length=20):#
             cross(bline,sif.low)<0,
             #mcmid > 0,
             sif.time > 915,
-            sif.dhigh > sif.dlow + 360,
+            sif.dhigh > sif.dlow + 300,
             bline < ldmid - 30,
         )
     return np.select([signal>0],[gmin(sif.open,bline)],0)

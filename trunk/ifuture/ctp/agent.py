@@ -539,8 +539,8 @@ class Agent(object):
                 UserID = self.cuser.investor_id,
                 InstrumentID = order.instrument,
                 OrderRef = order.order_ref,
-                CombOffsetFlag = THOST_FTDC_OF_Open,         #开仓,头四位干吗的  
-                CombHedgeFlag = THOST_FTDC_HF_Speculation,   #投机
+                CombOffsetFlag = THOST_FTDC_OF_Open,         #开仓 5位字符,但是只用到第0位
+                CombHedgeFlag = THOST_FTDC_HF_Speculation,   #投机 5位字符,但是只用到第0位
                 Direction = order.direction,
                 OrderPriceType = utype.THOST_FTDC_OPT_LimitPrice,
                 LimitPrice = order.price,

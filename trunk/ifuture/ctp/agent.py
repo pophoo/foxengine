@@ -18,7 +18,9 @@ todo:
 import time
 import logging
 
-import UserApiStruct
+import UserApiStruct as ustruct
+import UserApiType as utype
+
 from MdApi import MdApi, MdSpi
 from TraderApi import TraderApi, TraderSpi  
 
@@ -81,7 +83,7 @@ class MdSpiDelegate(MdSpi):
         self.user_login(self.broker_id, self.investor_id, self.passwd)
 
     def user_login(self, broker_id, investor_id, passwd):
-        req = UserApiStruct.ReqUserLogin(BrokerID=broker_id, UserID=investor_id, Password=passwd)
+        req = ustruct.ReqUserLogin(BrokerID=broker_id, UserID=investor_id, Password=passwd)
         r=self.api.ReqUserLogin(req,self.agent.inc_request_id())
 
     def OnRspUserLogin(self, userlogin, info, rid, is_last):
@@ -152,7 +154,7 @@ class TraderSpiDelegate(TraderSpi):
         self.logger.info(u'trader front disconnected,reason=%s' % (nReason,))
 
     def user_login(self, broker_id, investor_id, passwd):
-        req = UserApiStruct.ReqUserLogin(BrokerID=broker_id, UserID=investor_id, Password=passwd)
+        req = ustruct.ReqUserLogin(BrokerID=broker_id, UserID=investor_id, Password=passwd)
         r=self.api.ReqUserLogin(req,self.agent.inc_request_id())
 
     def OnRspUserLogin(self, pRspUserLogin, pRspInfo, nRequestID, bIsLast):
@@ -192,19 +194,19 @@ class TraderSpiDelegate(TraderSpi):
             CTP写代码的这帮家伙素质太差了，边界条件也不测试，后置断言也不整，空指针乱飞
             2011-3-1 确认每天未确认前查询确认情况时,返回的响应中pSettlementInfoConfirm为空指针
         '''
-        req = UserApiStruct.QrySettlementInfoConfirm(BrokerID=self.broker_id,InvestorID=self.investor_id)
+        req = ustruct.QrySettlementInfoConfirm(BrokerID=self.broker_id,InvestorID=self.investor_id)
         self.api.ReqQrySettlementInfoConfirm(req,self.agent.inc_request_id())
 
     def query_settlement_info(self):
         #不填日期表示取上一天结算单,并在响应函数中确认
         self.logger.info(u'取上一日结算单信息并确认')
-        req = UserApiStruct.QrySettlementInfo(BrokerID=self.broker_id,InvestorID=self.investor_id,TradingDay=u'')
+        req = ustruct.QrySettlementInfo(BrokerID=self.broker_id,InvestorID=self.investor_id,TradingDay=u'')
         #print req.BrokerID,req.InvestorID,req.TradingDay
         self.api.ReqQrySettlementInfo(req,self.agent.inc_request_id())
         #print u'查询投资者结算结果'
 
     def confirm_settlement_info(self):
-        req = UserApiStruct.SettlementInfoConfirm(BrokerID=self.broker_id,InvestorID=self.investor_id)
+        req = ustruct.SettlementInfoConfirm(BrokerID=self.broker_id,InvestorID=self.investor_id)
         self.api.ReqSettlementInfoConfirm(req,self.agent.inc_request_id())
 
     def OnRspQrySettlementInfo(self, pSettlementInfo, pRspInfo, nRequestID, bIsLast):
@@ -354,11 +356,12 @@ class TraderSpiDelegate(TraderSpi):
 class Agent(object):
     logger = logging.getLogger('ctp.agent')
 
-    def __init__(self,trader):
+    def __init__(self,trader,cuser):
         '''
             trader为交易对象
         '''
         self.trader = trader
+        self.cuser = cuser
         self.request_id = 1
         self.base_funcs = []  #基本函数集合. 如合成分钟数据,30,日数据等.  需处理动态数据. 
                               # 接口为(data,dyndata), 把dyndata添加到data的相应属性中去
@@ -391,6 +394,10 @@ class Agent(object):
         self.request_id += 1
         return self.request_id
 
+    def inc_order_ref(self):
+        self.order_ref += 1
+        return self.order_ref
+
     def set_trading_day(self,trading_day):
         self.trading_day = trading_day
 
@@ -401,8 +408,6 @@ class Agent(object):
         self.frontID = frontID
         self.sessionID = sessionID
         self.order_ref = max_order_ref
-
-
 
     def initialize(self):
         '''
@@ -453,7 +458,7 @@ class Agent(object):
     ##内务处理
     def fetch_trading_account(self):
         #获取资金帐户
-        req = UserApiStruct.QryTradingAccount(BrokerID=broker_id, UserID=investor_id)
+        req = ustruct.QryTradingAccount(BrokerID=broker_id, UserID=investor_id)
         r=self.trader.QryTradingAccount(req,self.inc_request_id())
 
     def fetch_investor_position(self):
@@ -528,7 +533,16 @@ class Agent(object):
         ''' 
             发出下单指令
         '''
-        pass
+        req = ustruct.InputOrder(
+                BrokerID = self.cuser.broker_id,
+                UserID = self.cuser.investor_id,
+                InstrumentID = order.instrument,
+                OrderRef = order.order_ref,
+                OrderPriceType = utype.THOST_FTDC_OPT_LimitPrice,
+                
+            )
+        r = self.api.ReqUserLogin(req,self.agent.inc_request_id())
+
 
     def close_position(self,order):
         ''' 
@@ -642,16 +656,16 @@ import config as c
 
 def user_main():
     user = MdApi.CreateMdApi("data")
-    my_agent = Agent(None)
-    addr = c.GD_USER
-    #addr = c.SQ_USER
+    cuser = c.GD_USER
+    #cuser = c.SQ_USER
+    my_agent = Agent(None,cuser)
     user.RegisterSpi(MdSpiDelegate(instruments=inst, 
-                             broker_id=addr.broker_id,
-                             investor_id= addr.investor_id,
-                             passwd= addr.passwd,
+                             broker_id=cuser.broker_id,
+                             investor_id= cuser.investor_id,
+                             passwd= cuser.passwd,
                              agent = my_agent,
                     ))
-    user.RegisterFront(addr.port)
+    user.RegisterFront(cuser.port)
     user.Init()
 
     while True:
@@ -663,19 +677,19 @@ def trade_main():
 >>> trader,myagent = agent.trade_main()
     '''
     trader = TraderApi.CreateTraderApi("trader")
-    my_agent = Agent(trader)
-    addr = c.SQ_MD1
-    #addr = c.SQ_MD2
+    cuser = c.SQ_MD1
+    #cuser = c.SQ_MD2
+    my_agent = Agent(trader,cuser)
     myspi = TraderSpiDelegate(instruments=inst, 
-                             broker_id=addr.broker_id,
-                             investor_id= addr.investor_id,
-                             passwd= addr.passwd,
+                             broker_id=cuser.broker_id,
+                             investor_id= cuser.investor_id,
+                             passwd= cuser.passwd,
                              agent = my_agent,
                        )
     trader.RegisterSpi(myspi)
     trader.SubscribePublicTopic(THOST_TERT_QUICK)
     trader.SubscribePrivateTopic(THOST_TERT_QUICK)
-    trader.RegisterFront(addr.port)
+    trader.RegisterFront(cuser.port)
     trader.Init()
     return trader,my_agent
     

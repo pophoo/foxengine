@@ -1059,15 +1059,15 @@ def lmx1(sif,length=30):#最低价突破中间价,收盘模型
     signal = gand(
             sif.low > tmid,
             sif.time > 915,
-            sif.low > sif.dlow + 300,
-            sif.close > sif.dmid,
+            sif.low > rollx(sif.dlow) + 300,
+            sif.close > rollx(sif.dmid),
         )
     signal = msum(signal,2) == 2
     signal = derepeatc(signal)
     return signal    #下一分钟介入
 bmx1 = BXFuncA(fstate=gofilter,fsignal=lmx1,fwave=nx2500X,ffilter=mfilter)
 bmx1.name = u'中间价向上突破1'
-bmx1.stop_closer = utrade.atr5_ustop_V1
+bmx1.stop_closer = utrade.atr5_ustop_V
 
 def hmx1(sif,length=30):#最高价突破中间价,收盘模型
     twave = sif.atr/XBASE*2
@@ -1077,7 +1077,7 @@ def hmx1(sif,length=30):#最高价突破中间价,收盘模型
     signal = gand(
             sif.high < tmid,
             sif.time > 915,
-            sif.dhigh-sif.dlow>360,
+            rollx(sif.dhigh-sif.dlow)>360,
             sif.dhigh > sif.high + 300,
         )
     signal = msum(signal,4) == 4
@@ -1085,9 +1085,9 @@ def hmx1(sif,length=30):#最高价突破中间价,收盘模型
     return signal    #下一分钟介入
 smx1 = SXFuncA(fstate=sdown,fsignal=hmx1,fwave=nx2000X,ffilter=mfilter)
 smx1.name = u'中间价向下突破1'
-smx1.stop_closer = utrade.atr5_ustop_V1
+smx1.stop_closer = utrade.atr5_ustop_V
 
-mxx1 = [bmx1,smx1]  #一个有点意思的独立策略,########
+mxx1 = [bmx1,smx1]  #一个有点意思的独立策略, 不错,########
 
 
 def lmx2(sif,length=30):#最高价突破中间价(5周期前),突破模型

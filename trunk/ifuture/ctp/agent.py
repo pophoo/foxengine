@@ -9,9 +9,10 @@ todo:
     2. 行情数据的整理
     3. 前期数据的衔接(5/30分钟)
     4. trader桩的建立
-    5. 根据trade桩模拟交易
-    6. 完全模拟交易
-    7. 有人值守实盘
+    5. 中间环境的恢复,如持仓
+    6. 根据trade桩模拟交易
+    7. 完全模拟交易
+    8. 有人值守实盘
 
 '''
 
@@ -538,8 +539,20 @@ class Agent(object):
                 UserID = self.cuser.investor_id,
                 InstrumentID = order.instrument,
                 OrderRef = order.order_ref,
+                CombOffsetFlag = THOST_FTDC_OF_Open,         #开仓,头四位干吗的  
+                CombHedgeFlag = THOST_FTDC_HF_Speculation,   #投机
+                Direction = order.direction,
                 OrderPriceType = utype.THOST_FTDC_OPT_LimitPrice,
+                LimitPrice = order.price,
+                VolumeTotalOriginal = order.volume,
+
+                VolumeCondition = utype.THOST_FTDC_VC_AV,
+                MinVolume = 1,
+                ForceCloseReason = utype.THOST_FTDC_FCC_NotForceClose,
+                IsAutoSuspend = 1,
+                UserForceClose = 0,
                 
+                TimeCondition = utype.THOST_FTDC_TC_GFD,
             )
         r = self.api.ReqUserLogin(req,self.agent.inc_request_id())
 

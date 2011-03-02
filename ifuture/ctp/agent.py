@@ -4,6 +4,15 @@ Agent的目的是合并行情和交易API到一个类中进行处理
     把行情和交易分开，从技术角度上来看挺好，但从使用者角度看就有些蛋疼了.
     正常都是根据行情决策
 
+todo:
+    1. 打通trade环节
+    2. 行情数据的整理
+    3. 前期数据的衔接(5/30分钟)
+    4. trader桩的建立
+    5. 根据trade桩模拟交易
+    6. 完全模拟交易
+    7. 有人值守实盘
+
 '''
 
 import time
@@ -148,6 +157,7 @@ class TraderSpiDelegate(TraderSpi):
 
     def OnRspUserLogin(self, pRspUserLogin, pRspInfo, nRequestID, bIsLast):
         self.logger.info('trader login')
+        self.logger.debug("loggin %s" % str(pRspInfo))
         if not self.isRspSuccess(pRspInfo):
             self.logger.warning(u'trader login failed, errMsg=%s' %(pRspInfo.ErrorMsg,))
             return
@@ -162,6 +172,7 @@ class TraderSpiDelegate(TraderSpi):
         self.logger.info(u'trader logout')
 
     def resp_common(self,rsp_info,bIsLast,name='默认'):
+        #self.logger.debug("resp: %s" % str(rsp_info))
         if not self.isRspSuccess(rsp_info):
             self.logger.info(u"%s失败" % name)
             return -1
@@ -179,12 +190,14 @@ class TraderSpiDelegate(TraderSpi):
                 pSettlementInfoConfirm为空指针. 如果是后者,则建议每日不查询确认情况,或者在generate_struct中对
                 CThostFtdcSettlementInfoConfirmField的new_函数进行特殊处理
             CTP写代码的这帮家伙素质太差了，边界条件也不测试，后置断言也不整，空指针乱飞
+            2011-3-1 确认每天未确认前查询确认情况时,返回的响应中pSettlementInfoConfirm为空指针
         '''
         req = UserApiStruct.QrySettlementInfoConfirm(BrokerID=self.broker_id,InvestorID=self.investor_id)
         self.api.ReqQrySettlementInfoConfirm(req,self.agent.inc_request_id())
 
     def query_settlement_info(self):
         #不填日期表示取上一天结算单,并在响应函数中确认
+        self.logger.info(u'取上一日结算单信息并确认')
         req = UserApiStruct.QrySettlementInfo(BrokerID=self.broker_id,InvestorID=self.investor_id,TradingDay=u'')
         #print req.BrokerID,req.InvestorID,req.TradingDay
         self.api.ReqQrySettlementInfo(req,self.agent.inc_request_id())
@@ -204,15 +217,17 @@ class TraderSpiDelegate(TraderSpi):
 
     def OnRspQrySettlementInfoConfirm(self, pSettlementInfoConfirm, pRspInfo, nRequestID, bIsLast):
         '''请求查询结算信息确认响应'''
+        self.logger.debug(u"结算单确认信息查询响应:rspInfo=%s,结算单确认=%s" % (pRspInfo,pSettlementInfoConfirm))
         if(self.resp_common(pRspInfo,bIsLast,u'结算单确认情况查询')>0):
-            self.logger.info(u'查询结算单确认时间: %s-%s' %(pSettlementInfoConfirm.ConfirmDate,pSettlementInfoConfirm.ConfirmTime))
-            if(int(pSettlementInfoConfirm.ConfirmDate) < self.cur_day):
+            if(pSettlementInfoConfirm == None or int(pSettlementInfoConfirm.ConfirmDate) < self.cur_day):
                 #其实这个判断是不对的，如果周日对周五的结果进行了确认，那么周一实际上已经不需要再次确认了
-                self.logger.info(u'最新结算单未确认，需查询后再确认,最后确认时间=%s,cur_day:%s' % (pSettlementInfoConfirm.ConfirmDate,self.cur_day))
+                if(pSettlementInfoConfirm != None):
+                    self.logger.info(u'最新结算单未确认，需查询后再确认,最后确认时间=%s,cur_day:%s' % (pSettlementInfoConfirm.ConfirmDate,self.cur_day))
+                else:
+                    self.logger.info(u'结算单确认结果为None')
                 self.query_settlement_info()
             else:
                 self.logger.info(u'最新结算单已确认，不需再次确认,最后确认时间=%s,cur_day:%s' % (pSettlementInfoConfirm.ConfirmDate,self.cur_day))
-            
 
     def OnRspSettlementInfoConfirm(self, pSettlementInfoConfirm, pRspInfo, nRequestID, bIsLast):
         '''投资者结算结果确认响应'''
@@ -362,7 +377,12 @@ class Agent(object):
         self.order_ref = 1
         self.trading_day = 20110101
         self.cur_day = int(time.strftime('%Y%m%d'))
+        #当前资金/持仓
+        self.account = 0
+        self.position = []
+
         #self.prepare()
+        
 
     def set_spi(self,spi):
         self.spi = spi
@@ -429,6 +449,19 @@ class Agent(object):
     def register_data_funcs(self,funcs):
         self.data_funcs.update(funcs)
 
+
+    ##内务处理
+    def fetch_trading_account(self):
+        #获取资金帐户
+        req = UserApiStruct.QryTradingAccount(BrokerID=broker_id, UserID=investor_id)
+        r=self.trader.QryTradingAccount(req,self.inc_request_id())
+
+    def fetch_investor_position(self):
+        #获取当前持仓
+        pass
+    
+
+    ##交易处理
     def RtnMarketData(self,market_data):#行情处理主循环
         inst = market_data.InstrumentID
         self.prepare(market_data)
@@ -437,7 +470,7 @@ class Agent(object):
         self.make_trade(close_positions)
         #再开仓.
         open_signals = self.check_signal()
-        open_positions = self.make_position(open_signals)
+        open_positions = self.calc_position(open_signals)
         self.make_trade(open_positions)
         #撤单, 撤销3分钟内未成交的以及等待发出队列中30秒内未发出的单子
         self.cancel_order()
@@ -475,7 +508,7 @@ class Agent(object):
         pass
 
 
-    def make_position(self,signals):
+    def calc_position(self,signals):
         '''
             根据信号集合来确定仓位
             signal的结构为(合约号、开/平、策略集id、开平比例)
@@ -490,6 +523,25 @@ class Agent(object):
                 这类指令必须在指定时间内(如30秒)实现，否则废弃
         '''
         pass
+
+    def open_position(self,order):
+        ''' 
+            发出下单指令
+        '''
+        pass
+
+    def close_position(self,order):
+        ''' 
+            发出平仓指令
+        '''
+        pass
+
+    def cancel_open(self,order):
+        '''
+            发出取消指令
+        '''
+        pass
+
 
     def finalize(self):
         #记录分钟数据??
@@ -586,26 +638,25 @@ class Agent(object):
         pass
 
 
+import config as c 
 
-USER_SQMN = "tcp://asp-sim2-md1.financial-trading-platform.com:26213"
-USER_GD = 'tcp://gdqh-md1.financial-trading-platform.com:41213' #果然正式行情也不用登陆
 def user_main():
     user = MdApi.CreateMdApi("data")
     my_agent = Agent(None)
+    addr = c.GD_USER
+    #addr = c.SQ_USER
     user.RegisterSpi(MdSpiDelegate(instruments=inst, 
-                             #broker_id="2030",
-                             broker_id="6000",
-                             investor_id="0",
-                             passwd="8",
+                             broker_id=addr.broker_id,
+                             investor_id= addr.investor_id,
+                             passwd= addr.passwd,
                              agent = my_agent,
-                             ))
-    user.RegisterFront(USER_GD)
+                    ))
+    user.RegisterFront(addr.port)
     user.Init()
 
     while True:
         time.sleep(1)
 
-TRADE_SQMN = 'tcp://asp-sim2-front1.financial-trading-platform.com:26205'
 def trade_main():
     '''
 >>> import agent
@@ -613,19 +664,18 @@ def trade_main():
     '''
     trader = TraderApi.CreateTraderApi("trader")
     my_agent = Agent(trader)
+    addr = c.SQ_MD1
+    #addr = c.SQ_MD2
     myspi = TraderSpiDelegate(instruments=inst, 
-                             #broker_id=u"4030",
-                             broker_id = u'2030',
-                             #investor_id=u"80002709",
-                             investor_id=u"352197",
-                             #passwd=u"123456",
-                             passwd = u'888888',
+                             broker_id=addr.broker_id,
+                             investor_id= addr.investor_id,
+                             passwd= addr.passwd,
                              agent = my_agent,
                        )
     trader.RegisterSpi(myspi)
     trader.SubscribePublicTopic(THOST_TERT_QUICK)
     trader.SubscribePrivateTopic(THOST_TERT_QUICK)
-    trader.RegisterFront(TRADE_SQMN)
+    trader.RegisterFront(addr.port)
     trader.Init()
     return trader,my_agent
     

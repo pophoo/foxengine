@@ -1,27 +1,5 @@
 #-*- coding=utf-8 -*-
 """
-A wrapper for CTP's Api library
-author: Lvsoft@gmail.com
-date: 2010-07-20
-
-This file is part of python-ctp library
-
-python-ctp is free software; you can redistribute it and/or modify it
-under the terms of the GUL Lesser General Public License as published
-by the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-python-ctp is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY of FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along the python-ctp; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-02110-1301 USA
-"""
-"""
 
 A wrapper for CTP's Api library
 author: Lvsoft@gmail.com
@@ -67,7 +45,7 @@ class CThostFtdcTransferQryDetailRspField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BankAccount', u'银行账号'),('FutureAccount', u'资金帐号'),('TradeDate', u'交易日期'),('TradeCode', u'交易代码'),('CurrencyCode', u'货币代码'),('BankSerial', u'银行流水号'),('FutureSerial', u'期货流水号'),('FutureID', u'期货公司代码'),('CertCode', u'证件号码'),('TxAmount', u'发生金额'),('Flag', u'有效标志'),('TradeTime', u'交易时间'),('BankBrchID', u'银行分中心代码'),('BankID', u'银行代码')]])
     def getval(self, n):
         if n in ['Flag']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcInvestorAccountField:
     def __init__(self, InvestorID="", BrokerID="", AccountID=""):
@@ -79,7 +57,7 @@ class CThostFtdcInvestorAccountField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('AccountID', u'投资者帐号')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcNoticeField:
     def __init__(self, Content="", SequenceLabel="", BrokerID=""):
@@ -91,7 +69,7 @@ class CThostFtdcNoticeField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('Content', u'消息正文'),('SequenceLabel', u'经纪公司通知内容序列号'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryCommRateModelField:
     def __init__(self, CommModelID="", BrokerID=""):
@@ -102,7 +80,7 @@ class CThostFtdcQryCommRateModelField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('CommModelID', u'手续费率模板代码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcBrokerSyncField:
     def __init__(self, BrokerID=""):
@@ -112,7 +90,7 @@ class CThostFtdcBrokerSyncField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryInvestorPositionField:
     def __init__(self, InstrumentID="", InvestorID="", BrokerID=""):
@@ -124,7 +102,7 @@ class CThostFtdcQryInvestorPositionField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcDepositResultInformField:
     def __init__(self, ReturnCode="", DepositSeqNo="", InvestorID="", BrokerID="", Deposit=0, DescrInfoForReturnCode="", RequestID=0):
@@ -140,7 +118,7 @@ class CThostFtdcDepositResultInformField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ReturnCode', u'返回代码'),('DepositSeqNo', u'出入金流水号，该流水号为银期报盘返回的流水号'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('Deposit', u'入金金额'),('DescrInfoForReturnCode', u'返回码描述'),('RequestID', u'请求编号')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcInvestorGroupField:
     def __init__(self, InvestorGroupID="", BrokerID="", InvestorGroupName=""):
@@ -152,7 +130,7 @@ class CThostFtdcInvestorGroupField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InvestorGroupID', u'投资者分组代码'),('BrokerID', u'经纪公司代码'),('InvestorGroupName', u'投资者分组名称')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcDiscountField:
     def __init__(self, InvestorID="", BrokerID="", InvestorRange='1', Discount=0):
@@ -165,7 +143,7 @@ class CThostFtdcDiscountField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('InvestorRange', u'投资者范围'),('Discount', u'资金折扣比例')]])
     def getval(self, n):
         if n in ['InvestorRange']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcBrokerUserField:
     def __init__(self, UserName="", UserID="", UserType='0', BrokerID="", IsUsingOTP=0, IsActive=0):
@@ -180,7 +158,7 @@ class CThostFtdcBrokerUserField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('UserName', u'用户名称'),('UserID', u'用户代码'),('UserType', u'用户类型'),('BrokerID', u'经纪公司代码'),('IsUsingOTP', u'是否使用令牌'),('IsActive', u'是否活跃')]])
     def getval(self, n):
         if n in ['UserType']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryOrderField:
     def __init__(self, InstrumentID="", ExchangeID="", InsertTimeStart="", InvestorID="", BrokerID="", OrderSysID="", InsertTimeEnd=""):
@@ -196,7 +174,7 @@ class CThostFtdcQryOrderField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('ExchangeID', u'交易所代码'),('InsertTimeStart', u'开始时间'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('OrderSysID', u'报单编号'),('InsertTimeEnd', u'结束时间')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcExchangeField:
     def __init__(self, ExchangeProperty='0', ExchangeID="", ExchangeName=""):
@@ -208,7 +186,7 @@ class CThostFtdcExchangeField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ExchangeProperty', u'交易所属性'),('ExchangeID', u'交易所代码'),('ExchangeName', u'交易所名称')]])
     def getval(self, n):
         if n in ['ExchangeProperty']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcReqQueryAccountField:
     def __init__(self, BrokerBranchID="", UserID="", BankPassWord="", TradeTime="", VerifyCertNoFlag='0', TID=0, AccountID="", BankAccount="", InstallID=0, CustomerName="", TradeCode="", BankBranchID="", SessionID=0, BankID="", Password="", BankPwdFlag='0', RequestID=0, CustType='0', IdentifiedCardNo="", BankSerial="", OperNo="", TradingDay="", BankSecuAcc="", BrokerID="", DeviceID="", IdCardType='0', PlateSerial=0, TradeDate="", CurrencyID="", BankAccType='1', LastFragment='0', FutureSerial=0, BankSecuAccType='1', BrokerIDByBank="", SecuPwdFlag='0', Digest=""):
@@ -253,7 +231,7 @@ class CThostFtdcReqQueryAccountField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BrokerBranchID', u'期商分支机构代码'),('UserID', u'用户标识'),('BankPassWord', u'银行密码'),('TradeTime', u'交易时间'),('VerifyCertNoFlag', u'验证客户证件号码标志'),('TID', u'交易ID'),('AccountID', u'投资者帐号'),('BankAccount', u'银行帐号'),('InstallID', u'安装编号'),('CustomerName', u'客户姓名'),('TradeCode', u'业务功能码'),('BankBranchID', u'银行分支机构代码'),('SessionID', u'会话号'),('BankID', u'银行代码'),('Password', u'期货密码'),('BankPwdFlag', u'银行密码标志'),('RequestID', u'请求编号'),('CustType', u'客户类型'),('IdentifiedCardNo', u'证件号码'),('BankSerial', u'银行流水号'),('OperNo', u'交易柜员'),('TradingDay', u'交易系统日期'),('BankSecuAcc', u'期货单位帐号'),('BrokerID', u'期商代码'),('DeviceID', u'渠道标志'),('IdCardType', u'证件类型'),('PlateSerial', u'银期平台消息流水号'),('TradeDate', u'交易日期'),('CurrencyID', u'币种代码'),('BankAccType', u'银行帐号类型'),('LastFragment', u'最后分片标志'),('FutureSerial', u'期货公司流水号'),('BankSecuAccType', u'期货单位帐号类型'),('BrokerIDByBank', u'期货公司银行编码'),('SecuPwdFlag', u'期货资金密码核对标志'),('Digest', u'摘要')]])
     def getval(self, n):
         if n in ['VerifyCertNoFlag', 'BankPwdFlag', 'CustType', 'IdCardType', 'BankAccType', 'LastFragment', 'BankSecuAccType', 'SecuPwdFlag']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcCancelAccountField:
     def __init__(self, MoneyAccountStatus='0', BrokerBranchID="", BankPassWord="", Telephone="", IdentifiedCardNo="", VerifyCertNoFlag='0', TID=0, AccountID="", BankAccount="", Fax="", InstallID=0, SecuPwdFlag='0', CustomerName="", CountryCode="", TradeCode="", BankBranchID="", SessionID=0, Address="", PlateSerial=0, BankPwdFlag='0', ErrorID=0, CustType='0', Gender='0', BankID="", BankSerial="", OperNo="", TradingDay="", BankSecuAcc="", BrokerID="", CashExchangeCode='1', IdCardType='0', Password="", MobilePhone="", TradeDate="", CurrencyID="", ErrorMsg="", BankAccType='1', LastFragment='0', ZipCode="", BankSecuAccType='1', BrokerIDByBank="", TradeTime="", EMail="", Digest="", DeviceID=""):
@@ -307,7 +285,7 @@ class CThostFtdcCancelAccountField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('MoneyAccountStatus', u'资金账户状态'),('BrokerBranchID', u'期商分支机构代码'),('BankPassWord', u'银行密码'),('Telephone', u'电话号码'),('IdentifiedCardNo', u'证件号码'),('VerifyCertNoFlag', u'验证客户证件号码标志'),('TID', u'交易ID'),('AccountID', u'投资者帐号'),('BankAccount', u'银行帐号'),('Fax', u'传真'),('InstallID', u'安装编号'),('SecuPwdFlag', u'期货资金密码核对标志'),('CustomerName', u'客户姓名'),('CountryCode', u'国家代码'),('TradeCode', u'业务功能码'),('BankBranchID', u'银行分支机构代码'),('SessionID', u'会话号'),('Address', u'地址'),('PlateSerial', u'银期平台消息流水号'),('BankPwdFlag', u'银行密码标志'),('ErrorID', u'错误代码'),('CustType', u'客户类型'),('Gender', u'性别'),('BankID', u'银行代码'),('BankSerial', u'银行流水号'),('OperNo', u'交易柜员'),('TradingDay', u'交易系统日期'),('BankSecuAcc', u'期货单位帐号'),('BrokerID', u'期商代码'),('CashExchangeCode', u'汇钞标志'),('IdCardType', u'证件类型'),('Password', u'期货密码'),('MobilePhone', u'手机'),('TradeDate', u'交易日期'),('CurrencyID', u'币种代码'),('ErrorMsg', u'错误信息'),('BankAccType', u'银行帐号类型'),('LastFragment', u'最后分片标志'),('ZipCode', u'邮编'),('BankSecuAccType', u'期货单位帐号类型'),('BrokerIDByBank', u'期货公司银行编码'),('TradeTime', u'交易时间'),('EMail', u'电子邮件'),('Digest', u'摘要'),('DeviceID', u'渠道标志')]])
     def getval(self, n):
         if n in ['MoneyAccountStatus', 'VerifyCertNoFlag', 'SecuPwdFlag', 'BankPwdFlag', 'CustType', 'Gender', 'CashExchangeCode', 'IdCardType', 'BankAccType', 'LastFragment', 'BankSecuAccType']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcTransferHeaderField:
     def __init__(self, TradeDate="", TradeCode="", FutureID="", OperNo="", SessionID=0, Version="", TradeTime="", DeviceID="", BankBrchID="", BankID="", RecordNum="", TradeSerial="", RequestID=0):
@@ -329,7 +307,7 @@ class CThostFtdcTransferHeaderField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('TradeDate', u'交易日期，必填，格式：yyyymmdd'),('TradeCode', u'交易代码，必填'),('FutureID', u'期货公司代码，必填'),('OperNo', u'操作员，N/A'),('SessionID', u'会话编号，N/A'),('Version', u'版本号，常量，1.0'),('TradeTime', u'交易时间，必填，格式：hhmmss'),('DeviceID', u'交易设备类型，N/A'),('BankBrchID', u'银行分中心代码，根据查询银行得到，必填'),('BankID', u'银行代码，根据查询银行得到，必填'),('RecordNum', u'记录数，N/A'),('TradeSerial', u'发起方流水号，N/A'),('RequestID', u'请求编号，N/A')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcFrontStatusField:
     def __init__(self, FrontID=0, LastReportDate="", IsActive=0, LastReportTime=""):
@@ -342,7 +320,7 @@ class CThostFtdcFrontStatusField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('FrontID', u'前置编号'),('LastReportDate', u'上次报告日期'),('IsActive', u'是否活跃'),('LastReportTime', u'上次报告时间')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcInvestorPositionField:
     def __init__(self, ShortFrozenAmount=0, FrozenMargin=0, HedgeFlag='1', PositionProfit=0, Commission=0, MarginRateByVolume=0, CombPosition=0, CashIn=0, PreSettlementPrice=0, CombLongFrozen=0, CloseAmount=0, PosiDirection='1', YdPosition=0, MarginRateByMoney=0, OpenVolume=0, CloseVolume=0, ExchangeMargin=0, InstrumentID="", PositionDate='1', CloseProfitByTrade=0, PreMargin=0, SettlementID=0, ShortFrozen=0, LongFrozen=0, TodayPosition=0, TradingDay="", PositionCost=0, BrokerID="", FrozenCash=0, OpenAmount=0, OpenCost=0, Position=0, FrozenCommission=0, CombShortFrozen=0, CloseProfitByDate=0, SettlementPrice=0, LongFrozenAmount=0, InvestorID="", CloseProfit=0, UseMargin=0):
@@ -391,7 +369,7 @@ class CThostFtdcInvestorPositionField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ShortFrozenAmount', u'开仓冻结金额'),('FrozenMargin', u'冻结的保证金'),('HedgeFlag', u'投机套保标志'),('PositionProfit', u'持仓盈亏'),('Commission', u'手续费'),('MarginRateByVolume', u'保证金率(按手数)'),('CombPosition', u'组合成交形成的持仓'),('CashIn', u'资金差额'),('PreSettlementPrice', u'上次结算价'),('CombLongFrozen', u'组合多头冻结'),('CloseAmount', u'平仓金额'),('PosiDirection', u'持仓多空方向'),('YdPosition', u'上日持仓'),('MarginRateByMoney', u'保证金率'),('OpenVolume', u'开仓量'),('CloseVolume', u'平仓量'),('ExchangeMargin', u'交易所保证金'),('InstrumentID', u'合约代码'),('PositionDate', u'持仓日期'),('CloseProfitByTrade', u'逐笔对冲平仓盈亏'),('PreMargin', u'上次占用的保证金'),('SettlementID', u'结算编号'),('ShortFrozen', u'空头冻结'),('LongFrozen', u'多头冻结'),('TodayPosition', u'今日持仓'),('TradingDay', u'交易日'),('PositionCost', u'持仓成本'),('BrokerID', u'经纪公司代码'),('FrozenCash', u'冻结的资金'),('OpenAmount', u'开仓金额'),('OpenCost', u'开仓成本'),('Position', u'今日持仓'),('FrozenCommission', u'冻结的手续费'),('CombShortFrozen', u'组合空头冻结'),('CloseProfitByDate', u'逐日盯市平仓盈亏'),('SettlementPrice', u'本次结算价'),('LongFrozenAmount', u'开仓冻结金额'),('InvestorID', u'投资者代码'),('CloseProfit', u'平仓盈亏'),('UseMargin', u'占用的保证金')]])
     def getval(self, n):
         if n in ['HedgeFlag', 'PosiDirection', 'PositionDate']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryExchangeSequenceField:
     def __init__(self, ExchangeID=""):
@@ -401,7 +379,7 @@ class CThostFtdcQryExchangeSequenceField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ExchangeID', u'交易所代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryLinkManField:
     def __init__(self, InvestorID="", BrokerID=""):
@@ -412,7 +390,7 @@ class CThostFtdcQryLinkManField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryTransferSerialField:
     def __init__(self, BankID="", BrokerID="", AccountID=""):
@@ -424,7 +402,7 @@ class CThostFtdcQryTransferSerialField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BankID', u'银行编码'),('BrokerID', u'经纪公司代码'),('AccountID', u'投资者帐号')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcExchangeOrderActionErrorField:
     def __init__(self, ExchangeID="", InstallID=0, OrderLocalID="", ErrorMsg="", TraderID="", ActionLocalID="", OrderSysID="", ErrorID=0):
@@ -441,7 +419,7 @@ class CThostFtdcExchangeOrderActionErrorField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ExchangeID', u'交易所代码'),('InstallID', u'安装编号'),('OrderLocalID', u'本地报单编号'),('ErrorMsg', u'错误信息'),('TraderID', u'交易所交易员代码'),('ActionLocalID', u'操作本地编号'),('OrderSysID', u'报单编号'),('ErrorID', u'错误代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcInvestorWithdrawAlgorithmField:
     def __init__(self, InvestorID="", BrokerID="", InvestorRange='1', UsingRatio=0):
@@ -454,7 +432,7 @@ class CThostFtdcInvestorWithdrawAlgorithmField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('InvestorRange', u'投资者范围'),('UsingRatio', u'可提资金比例')]])
     def getval(self, n):
         if n in ['InvestorRange']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryHisOrderField:
     def __init__(self, InstrumentID="", ExchangeID="", SettlementID=0, InsertTimeStart="", InvestorID="", BrokerID="", OrderSysID="", TradingDay="", InsertTimeEnd=""):
@@ -472,7 +450,7 @@ class CThostFtdcQryHisOrderField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('ExchangeID', u'交易所代码'),('SettlementID', u'结算编号'),('InsertTimeStart', u'开始时间'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('OrderSysID', u'报单编号'),('TradingDay', u'交易日'),('InsertTimeEnd', u'结束时间')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcSyncingInstrumentTradingRightField:
     def __init__(self, InstrumentID="", InvestorID="", BrokerID="", InvestorRange='1', TradingRight='0'):
@@ -486,7 +464,7 @@ class CThostFtdcSyncingInstrumentTradingRightField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('InvestorRange', u'投资者范围'),('TradingRight', u'交易权限')]])
     def getval(self, n):
         if n in ['InvestorRange', 'TradingRight']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryTradingCodeField:
     def __init__(self, InvestorID="", ExchangeID="", BrokerID="", ClientIDType='1', ClientID=""):
@@ -500,7 +478,7 @@ class CThostFtdcQryTradingCodeField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InvestorID', u'投资者代码'),('ExchangeID', u'交易所代码'),('BrokerID', u'经纪公司代码'),('ClientIDType', u'交易编码类型'),('ClientID', u'客户代码')]])
     def getval(self, n):
         if n in ['ClientIDType']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcRspUserLoginField:
     def __init__(self, CZCETime="", SHFETime="", MaxOrderRef="", UserID="", TradingDay="", SessionID=0, SystemName="", FrontID=0, FFEXTime="", BrokerID="", DCETime="", LoginTime=""):
@@ -521,7 +499,7 @@ class CThostFtdcRspUserLoginField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('CZCETime', u'郑商所时间'),('SHFETime', u'上期所时间'),('MaxOrderRef', u'最大报单引用'),('UserID', u'用户代码'),('TradingDay', u'交易日'),('SessionID', u'会话编号'),('SystemName', u'交易系统名称'),('FrontID', u'前置编号'),('FFEXTime', u'中金所时间'),('BrokerID', u'经纪公司代码'),('DCETime', u'大商所时间'),('LoginTime', u'登录成功时间')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcSyncingInvestorField:
     def __init__(self, CommModelID="", InvestorName="", Mobile="", IdentifiedCardNo="", Telephone="", InvestorID="", BrokerID="", Address="", InvestorGroupID="", OpenDate="", IsActive=0, IdentifiedCardType='0'):
@@ -542,7 +520,7 @@ class CThostFtdcSyncingInvestorField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('CommModelID', u'手续费率模板代码'),('InvestorName', u'投资者名称'),('Mobile', u'手机'),('IdentifiedCardNo', u'证件号码'),('Telephone', u'联系电话'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('Address', u'通讯地址'),('InvestorGroupID', u'投资者分组代码'),('OpenDate', u'开户日期'),('IsActive', u'是否活跃'),('IdentifiedCardType', u'证件类型')]])
     def getval(self, n):
         if n in ['IdentifiedCardType']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryInvestorPositionDetailField:
     def __init__(self, InstrumentID="", InvestorID="", BrokerID=""):
@@ -554,7 +532,7 @@ class CThostFtdcQryInvestorPositionDetailField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcInvestorPositionDetailField:
     def __init__(self, PositionProfitByDate=0, ExchMargin=0, TradeType='0', MarginRateByMoney=0, HedgeFlag='1', MarginRateByVolume=0, Direction='0', CloseAmount=0, OpenPrice=0, Volume=0, LastSettlementPrice=0, CloseVolume=0, InstrumentID="", ExchangeID="", CloseProfitByTrade=0, SettlementID=0, TradingDay="", BrokerID="", Margin=0, TradeID="", PositionProfitByTrade=0, CloseProfitByDate=0, SettlementPrice=0, InvestorID="", CombInstrumentID="", OpenDate=""):
@@ -589,7 +567,7 @@ class CThostFtdcInvestorPositionDetailField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('PositionProfitByDate', u'逐日盯市持仓盈亏'),('ExchMargin', u'交易所保证金'),('TradeType', u'成交类型'),('MarginRateByMoney', u'保证金率'),('HedgeFlag', u'投机套保标志'),('MarginRateByVolume', u'保证金率(按手数)'),('Direction', u'买卖'),('CloseAmount', u'平仓金额'),('OpenPrice', u'开仓价'),('Volume', u'数量'),('LastSettlementPrice', u'昨结算价'),('CloseVolume', u'平仓量'),('InstrumentID', u'合约代码'),('ExchangeID', u'交易所代码'),('CloseProfitByTrade', u'逐笔对冲平仓盈亏'),('SettlementID', u'结算编号'),('TradingDay', u'交易日'),('BrokerID', u'经纪公司代码'),('Margin', u'投资者保证金'),('TradeID', u'成交编号'),('PositionProfitByTrade', u'逐笔对冲持仓盈亏'),('CloseProfitByDate', u'逐日盯市平仓盈亏'),('SettlementPrice', u'结算价'),('InvestorID', u'投资者代码'),('CombInstrumentID', u'组合合约代码'),('OpenDate', u'开仓日期')]])
     def getval(self, n):
         if n in ['TradeType', 'HedgeFlag', 'Direction']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcExchangeOrderField:
     def __init__(self, ContingentCondition='1', NotifySequence=0, VolumeTraded=0, IsAutoSuspend=0, TraderID="", LimitPrice=0, Direction='0', InstallID=0, ParticipantID="", VolumeTotalOriginal=0, ExchangeInstID="", ClientID="", VolumeTotal=0, OrderPriceType='1', TimeCondition='1', OrderStatus='0', OrderSysID="", OrderSubmitStatus='0', CombOffsetFlag="", StopPrice=0, ExchangeID="", MinVolume=0, SettlementID=0, ForceCloseReason='0', OrderType='0', UpdateTime="", TradingDay="", ActiveTime="", OrderSource='0', InsertTime="", SuspendTime="", ClearingPartID="", CombHedgeFlag="", CancelTime="", GTDDate="", OrderLocalID="", BusinessUnit="", InsertDate="", SequenceNo=0, VolumeCondition='1', RequestID=0, ActiveTraderID=""):
@@ -640,7 +618,7 @@ class CThostFtdcExchangeOrderField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ContingentCondition', u'触发条件'),('NotifySequence', u'报单提示序号'),('VolumeTraded', u'今成交数量'),('IsAutoSuspend', u'自动挂起标志'),('TraderID', u'交易所交易员代码'),('LimitPrice', u'价格'),('Direction', u'买卖方向'),('InstallID', u'安装编号'),('ParticipantID', u'会员代码'),('VolumeTotalOriginal', u'数量'),('ExchangeInstID', u'合约在交易所的代码'),('ClientID', u'客户代码'),('VolumeTotal', u'剩余数量'),('OrderPriceType', u'报单价格条件'),('TimeCondition', u'有效期类型'),('OrderStatus', u'报单状态'),('OrderSysID', u'报单编号'),('OrderSubmitStatus', u'报单提交状态'),('CombOffsetFlag', u'组合开平标志'),('StopPrice', u'止损价'),('ExchangeID', u'交易所代码'),('MinVolume', u'最小成交量'),('SettlementID', u'结算编号'),('ForceCloseReason', u'强平原因'),('OrderType', u'报单类型'),('UpdateTime', u'最后修改时间'),('TradingDay', u'交易日'),('ActiveTime', u'激活时间'),('OrderSource', u'报单来源'),('InsertTime', u'委托时间'),('SuspendTime', u'挂起时间'),('ClearingPartID', u'结算会员编号'),('CombHedgeFlag', u'组合投机套保标志'),('CancelTime', u'撤销时间'),('GTDDate', u'GTD日期'),('OrderLocalID', u'本地报单编号'),('BusinessUnit', u'业务单元'),('InsertDate', u'报单日期'),('SequenceNo', u'序号'),('VolumeCondition', u'成交量类型'),('RequestID', u'请求编号'),('ActiveTraderID', u'最后修改交易所交易员代码')]])
     def getval(self, n):
         if n in ['ContingentCondition', 'Direction', 'OrderPriceType', 'TimeCondition', 'OrderStatus', 'OrderSubmitStatus', 'ForceCloseReason', 'OrderType', 'OrderSource', 'VolumeCondition']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcRspQueryAccountField:
     def __init__(self, BrokerBranchID="", UserID="", BankPassWord="", TradeTime="", VerifyCertNoFlag='0', TID=0, AccountID="", BankAccount="", InstallID=0, CustomerName="", TradeCode="", BankBranchID="", SessionID=0, BankID="", Password="", BankPwdFlag='0', RequestID=0, CustType='0', IdentifiedCardNo="", BankSerial="", OperNo="", TradingDay="", BankSecuAcc="", BrokerID="", DeviceID="", BankUseAmount=0, IdCardType='0', PlateSerial=0, TradeDate="", CurrencyID="", BankAccType='1', LastFragment='0', FutureSerial=0, BankSecuAccType='1', BrokerIDByBank="", SecuPwdFlag='0', Digest="", BankFetchAmount=0):
@@ -687,7 +665,7 @@ class CThostFtdcRspQueryAccountField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BrokerBranchID', u'期商分支机构代码'),('UserID', u'用户标识'),('BankPassWord', u'银行密码'),('TradeTime', u'交易时间'),('VerifyCertNoFlag', u'验证客户证件号码标志'),('TID', u'交易ID'),('AccountID', u'投资者帐号'),('BankAccount', u'银行帐号'),('InstallID', u'安装编号'),('CustomerName', u'客户姓名'),('TradeCode', u'业务功能码'),('BankBranchID', u'银行分支机构代码'),('SessionID', u'会话号'),('BankID', u'银行代码'),('Password', u'期货密码'),('BankPwdFlag', u'银行密码标志'),('RequestID', u'请求编号'),('CustType', u'客户类型'),('IdentifiedCardNo', u'证件号码'),('BankSerial', u'银行流水号'),('OperNo', u'交易柜员'),('TradingDay', u'交易系统日期'),('BankSecuAcc', u'期货单位帐号'),('BrokerID', u'期商代码'),('DeviceID', u'渠道标志'),('BankUseAmount', u'银行可用金额'),('IdCardType', u'证件类型'),('PlateSerial', u'银期平台消息流水号'),('TradeDate', u'交易日期'),('CurrencyID', u'币种代码'),('BankAccType', u'银行帐号类型'),('LastFragment', u'最后分片标志'),('FutureSerial', u'期货公司流水号'),('BankSecuAccType', u'期货单位帐号类型'),('BrokerIDByBank', u'期货公司银行编码'),('SecuPwdFlag', u'期货资金密码核对标志'),('Digest', u'摘要'),('BankFetchAmount', u'银行可取金额')]])
     def getval(self, n):
         if n in ['VerifyCertNoFlag', 'BankPwdFlag', 'CustType', 'IdCardType', 'BankAccType', 'LastFragment', 'BankSecuAccType', 'SecuPwdFlag']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQrySettlementInfoConfirmField:
     def __init__(self, InvestorID="", BrokerID=""):
@@ -698,7 +676,7 @@ class CThostFtdcQrySettlementInfoConfirmField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcOpenAccountField:
     def __init__(self, MoneyAccountStatus='0', BrokerBranchID="", BankPassWord="", Telephone="", IdentifiedCardNo="", VerifyCertNoFlag='0', TID=0, AccountID="", BankAccount="", Fax="", InstallID=0, SecuPwdFlag='0', CustomerName="", CountryCode="", TradeCode="", BankBranchID="", SessionID=0, Address="", PlateSerial=0, BankPwdFlag='0', ErrorID=0, CustType='0', Gender='0', BankID="", BankSerial="", OperNo="", TradingDay="", BankSecuAcc="", BrokerID="", CashExchangeCode='1', IdCardType='0', Password="", MobilePhone="", TradeDate="", CurrencyID="", ErrorMsg="", BankAccType='1', LastFragment='0', ZipCode="", BankSecuAccType='1', BrokerIDByBank="", TradeTime="", EMail="", Digest="", DeviceID=""):
@@ -752,7 +730,7 @@ class CThostFtdcOpenAccountField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('MoneyAccountStatus', u'资金账户状态'),('BrokerBranchID', u'期商分支机构代码'),('BankPassWord', u'银行密码'),('Telephone', u'电话号码'),('IdentifiedCardNo', u'证件号码'),('VerifyCertNoFlag', u'验证客户证件号码标志'),('TID', u'交易ID'),('AccountID', u'投资者帐号'),('BankAccount', u'银行帐号'),('Fax', u'传真'),('InstallID', u'安装编号'),('SecuPwdFlag', u'期货资金密码核对标志'),('CustomerName', u'客户姓名'),('CountryCode', u'国家代码'),('TradeCode', u'业务功能码'),('BankBranchID', u'银行分支机构代码'),('SessionID', u'会话号'),('Address', u'地址'),('PlateSerial', u'银期平台消息流水号'),('BankPwdFlag', u'银行密码标志'),('ErrorID', u'错误代码'),('CustType', u'客户类型'),('Gender', u'性别'),('BankID', u'银行代码'),('BankSerial', u'银行流水号'),('OperNo', u'交易柜员'),('TradingDay', u'交易系统日期'),('BankSecuAcc', u'期货单位帐号'),('BrokerID', u'期商代码'),('CashExchangeCode', u'汇钞标志'),('IdCardType', u'证件类型'),('Password', u'期货密码'),('MobilePhone', u'手机'),('TradeDate', u'交易日期'),('CurrencyID', u'币种代码'),('ErrorMsg', u'错误信息'),('BankAccType', u'银行帐号类型'),('LastFragment', u'最后分片标志'),('ZipCode', u'邮编'),('BankSecuAccType', u'期货单位帐号类型'),('BrokerIDByBank', u'期货公司银行编码'),('TradeTime', u'交易时间'),('EMail', u'电子邮件'),('Digest', u'摘要'),('DeviceID', u'渠道标志')]])
     def getval(self, n):
         if n in ['MoneyAccountStatus', 'VerifyCertNoFlag', 'SecuPwdFlag', 'BankPwdFlag', 'CustType', 'Gender', 'CashExchangeCode', 'IdCardType', 'BankAccType', 'LastFragment', 'BankSecuAccType']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryTradingNoticeField:
     def __init__(self, InvestorID="", BrokerID=""):
@@ -763,7 +741,7 @@ class CThostFtdcQryTradingNoticeField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryErrOrderField:
     def __init__(self, InvestorID="", BrokerID=""):
@@ -774,7 +752,7 @@ class CThostFtdcQryErrOrderField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcManualSyncBrokerUserOTPField:
     def __init__(self, UserID="", BrokerID="", FirstOTP="", SecondOTP="", OTPType='0'):
@@ -788,7 +766,7 @@ class CThostFtdcManualSyncBrokerUserOTPField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('UserID', u'用户代码'),('BrokerID', u'经纪公司代码'),('FirstOTP', u'第一个动态密码'),('SecondOTP', u'第二个动态密码'),('OTPType', u'动态令牌类型')]])
     def getval(self, n):
         if n in ['OTPType']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcDepthMarketDataField:
     def __init__(self, HighestPrice=0, BidPrice5=0, BidPrice4=0, BidPrice1=0, BidPrice3=0, BidPrice2=0, LowerLimitPrice=0, OpenPrice=0, AskPrice5=0, AskPrice4=0, AskPrice3=0, PreClosePrice=0, AskPrice1=0, PreSettlementPrice=0, AskVolume1=0, UpdateTime="", UpdateMillisec=0, AveragePrice=0, BidVolume5=0, BidVolume4=0, BidVolume3=0, BidVolume2=0, PreOpenInterest=0, AskPrice2=0, Volume=0, AskVolume3=0, AskVolume2=0, AskVolume5=0, AskVolume4=0, UpperLimitPrice=0, BidVolume1=0, InstrumentID="", ClosePrice=0, ExchangeID="", TradingDay="", PreDelta=0, OpenInterest=0, CurrDelta=0, Turnover=0, LastPrice=0, SettlementPrice=0, ExchangeInstID="", LowestPrice=0):
@@ -840,7 +818,7 @@ class CThostFtdcDepthMarketDataField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('HighestPrice', u'最高价'),('BidPrice5', u'申买价五'),('BidPrice4', u'申买价四'),('BidPrice1', u'申买价一'),('BidPrice3', u'申买价三'),('BidPrice2', u'申买价二'),('LowerLimitPrice', u'跌停板价'),('OpenPrice', u'今开盘'),('AskPrice5', u'申卖价五'),('AskPrice4', u'申卖价四'),('AskPrice3', u'申卖价三'),('PreClosePrice', u'昨收盘'),('AskPrice1', u'申卖价一'),('PreSettlementPrice', u'上次结算价'),('AskVolume1', u'申卖量一'),('UpdateTime', u'最后修改时间'),('UpdateMillisec', u'最后修改毫秒'),('AveragePrice', u'当日均价'),('BidVolume5', u'申买量五'),('BidVolume4', u'申买量四'),('BidVolume3', u'申买量三'),('BidVolume2', u'申买量二'),('PreOpenInterest', u'昨持仓量'),('AskPrice2', u'申卖价二'),('Volume', u'数量'),('AskVolume3', u'申卖量三'),('AskVolume2', u'申卖量二'),('AskVolume5', u'申卖量五'),('AskVolume4', u'申卖量四'),('UpperLimitPrice', u'涨停板价'),('BidVolume1', u'申买量一'),('InstrumentID', u'合约代码'),('ClosePrice', u'今收盘'),('ExchangeID', u'交易所代码'),('TradingDay', u'交易日'),('PreDelta', u'昨虚实度'),('OpenInterest', u'持仓量'),('CurrDelta', u'今虚实度'),('Turnover', u'成交金额'),('LastPrice', u'最新价'),('SettlementPrice', u'本次结算价'),('ExchangeInstID', u'合约在交易所的代码'),('LowestPrice', u'最低价')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcTraderOfferField:
     def __init__(self, StartDate="", ExchangeID="", InstallID=0, LastReportDate="", ParticipantID="", OrderLocalID="", LastReportTime="", TraderID="", MaxTradeID="", ConnectTime="", TraderConnectStatus='1', TradingDay="", ConnectRequestTime="", StartTime="", ConnectRequestDate="", MaxOrderMessageReference="", BrokerID="", Password="", ConnectDate=""):
@@ -868,7 +846,7 @@ class CThostFtdcTraderOfferField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('StartDate', u'启动日期'),('ExchangeID', u'交易所代码'),('InstallID', u'安装编号'),('LastReportDate', u'上次报告日期'),('ParticipantID', u'会员代码'),('OrderLocalID', u'本地报单编号'),('LastReportTime', u'上次报告时间'),('TraderID', u'交易所交易员代码'),('MaxTradeID', u'本席位最大成交编号'),('ConnectTime', u'完成连接时间'),('TraderConnectStatus', u'交易所交易员连接状态'),('TradingDay', u'交易日'),('ConnectRequestTime', u'发出连接请求的时间'),('StartTime', u'启动时间'),('ConnectRequestDate', u'发出连接请求的日期'),('MaxOrderMessageReference', u'本席位最大报单备拷'),('BrokerID', u'经纪公司代码'),('Password', u'密码'),('ConnectDate', u'完成连接日期')]])
     def getval(self, n):
         if n in ['TraderConnectStatus']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcCFMMCBrokerKeyField:
     def __init__(self, KeyID=0, ParticipantID="", CreateDate="", KeyKind='R', BrokerID="", CreateTime="", CurrentKey=""):
@@ -884,7 +862,7 @@ class CThostFtdcCFMMCBrokerKeyField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('KeyID', u'密钥编号'),('ParticipantID', u'经纪公司统一编码'),('CreateDate', u'密钥生成日期'),('KeyKind', u'动态密钥类型'),('BrokerID', u'经纪公司代码'),('CreateTime', u'密钥生成时间'),('CurrentKey', u'动态密钥')]])
     def getval(self, n):
         if n in ['KeyKind']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryDepthMarketDataField:
     def __init__(self, InstrumentID=""):
@@ -894,7 +872,7 @@ class CThostFtdcQryDepthMarketDataField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcTransferQryDetailReqField:
     def __init__(self, FutureAccount=""):
@@ -904,7 +882,7 @@ class CThostFtdcTransferQryDetailReqField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('FutureAccount', u'期货资金账户')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcBrokerWithdrawAlgorithmField:
     def __init__(self, IncludeCloseProfit='0', IsBrokerUserEvent=0, AvailIncludeCloseProfit='0', UsingRatio=0, BrokerID="", AllWithoutTrade='0', WithdrawAlgorithm='1'):
@@ -920,7 +898,7 @@ class CThostFtdcBrokerWithdrawAlgorithmField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('IncludeCloseProfit', u'可提是否包含平仓盈利'),('IsBrokerUserEvent', u'是否启用用户事件'),('AvailIncludeCloseProfit', u'可用是否包含平仓盈利'),('UsingRatio', u'资金使用率'),('BrokerID', u'经纪公司代码'),('AllWithoutTrade', u'本日无仓且无成交客户是否受可提比例限制'),('WithdrawAlgorithm', u'可提资金算法')]])
     def getval(self, n):
         if n in ['IncludeCloseProfit', 'AvailIncludeCloseProfit', 'AllWithoutTrade', 'WithdrawAlgorithm']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcMarketDataExchangeField:
     def __init__(self, ExchangeID=0):
@@ -930,7 +908,7 @@ class CThostFtdcMarketDataExchangeField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ExchangeID', u'交易所代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcExchangeOrderInsertErrorField:
     def __init__(self, ExchangeID="", InstallID=0, ParticipantID="", OrderLocalID="", ErrorMsg="", TraderID="", ErrorID=0):
@@ -946,7 +924,7 @@ class CThostFtdcExchangeOrderInsertErrorField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ExchangeID', u'交易所代码'),('InstallID', u'安装编号'),('ParticipantID', u'会员代码'),('OrderLocalID', u'本地报单编号'),('ErrorMsg', u'错误信息'),('TraderID', u'交易所交易员代码'),('ErrorID', u'错误代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQrySuperUserFunctionField:
     def __init__(self, UserID=""):
@@ -956,7 +934,7 @@ class CThostFtdcQrySuperUserFunctionField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('UserID', u'用户代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcRspRepealField:
     def __init__(self, BrokerBranchID="", UserID="", BankPassWord="", BankRepealFlag='0', RepealedTimes=0, TradeTime="", VerifyCertNoFlag='0', TID=0, FutureRepealSerial=0, AccountID="", BankAccount="", InstallID=0, SecuPwdFlag='0', CustomerName="", TradeCode="", BankBranchID="", SessionID=0, BankID="", PlateSerial=0, BankPwdFlag='0', ErrorID=0, RequestID=0, CustType='0', IdentifiedCardNo="", FeePayFlag='0', BankSerial="", OperNo="", TradingDay="", BankSecuAcc="", BrokerID="", DeviceID="", TransferStatus='0', BrokerRepealFlag='0', IdCardType='0', Password="", FutureFetchAmount=0, TradeDate="", CurrencyID="", BrokerFee=0, BankAccType='1', LastFragment='0', FutureSerial=0, BankRepealSerial="", ErrorMsg="", RepealTimeInterval=0, BankSecuAccType='1', BrokerIDByBank="", PlateRepealSerial=0, Message="", CustFee=0, TradeAmount=0, Digest=""):
@@ -1017,7 +995,7 @@ class CThostFtdcRspRepealField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BrokerBranchID', u'期商分支机构代码'),('UserID', u'用户标识'),('BankPassWord', u'银行密码'),('BankRepealFlag', u'银行冲正标志'),('RepealedTimes', u'已经冲正次数'),('TradeTime', u'交易时间'),('VerifyCertNoFlag', u'验证客户证件号码标志'),('TID', u'交易ID'),('FutureRepealSerial', u'被冲正期货流水号'),('AccountID', u'投资者帐号'),('BankAccount', u'银行帐号'),('InstallID', u'安装编号'),('SecuPwdFlag', u'期货资金密码核对标志'),('CustomerName', u'客户姓名'),('TradeCode', u'业务功能码'),('BankBranchID', u'银行分支机构代码'),('SessionID', u'会话号'),('BankID', u'银行代码'),('PlateSerial', u'银期平台消息流水号'),('BankPwdFlag', u'银行密码标志'),('ErrorID', u'错误代码'),('RequestID', u'请求编号'),('CustType', u'客户类型'),('IdentifiedCardNo', u'证件号码'),('FeePayFlag', u'费用支付标志'),('BankSerial', u'银行流水号'),('OperNo', u'交易柜员'),('TradingDay', u'交易系统日期'),('BankSecuAcc', u'期货单位帐号'),('BrokerID', u'期商代码'),('DeviceID', u'渠道标志'),('TransferStatus', u'转账交易状态'),('BrokerRepealFlag', u'期商冲正标志'),('IdCardType', u'证件类型'),('Password', u'期货密码'),('FutureFetchAmount', u'期货可取金额'),('TradeDate', u'交易日期'),('CurrencyID', u'币种代码'),('BrokerFee', u'应收期货公司费用'),('BankAccType', u'银行帐号类型'),('LastFragment', u'最后分片标志'),('FutureSerial', u'期货公司流水号'),('BankRepealSerial', u'被冲正银行流水号'),('ErrorMsg', u'错误信息'),('RepealTimeInterval', u'冲正时间间隔'),('BankSecuAccType', u'期货单位帐号类型'),('BrokerIDByBank', u'期货公司银行编码'),('PlateRepealSerial', u'被冲正平台流水号'),('Message', u'发送方给接收方的消息'),('CustFee', u'应收客户费用'),('TradeAmount', u'转帐金额'),('Digest', u'摘要')]])
     def getval(self, n):
         if n in ['BankRepealFlag', 'VerifyCertNoFlag', 'SecuPwdFlag', 'BankPwdFlag', 'CustType', 'FeePayFlag', 'TransferStatus', 'BrokerRepealFlag', 'IdCardType', 'BankAccType', 'LastFragment', 'BankSecuAccType']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryTradeField:
     def __init__(self, InstrumentID="", TradeTimeStart="", ExchangeID="", TradeID="", InvestorID="", BrokerID="", TradeTimeEnd=""):
@@ -1033,7 +1011,7 @@ class CThostFtdcQryTradeField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('TradeTimeStart', u'开始时间'),('ExchangeID', u'交易所代码'),('TradeID', u'成交编号'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('TradeTimeEnd', u'结束时间')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcTradingNoticeInfoField:
     def __init__(self, SequenceSeries=0, SequenceNo=0, FieldContent="", InvestorID="", BrokerID="", SendTime=""):
@@ -1048,7 +1026,7 @@ class CThostFtdcTradingNoticeInfoField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('SequenceSeries', u'序列系列号'),('SequenceNo', u'序列号'),('FieldContent', u'消息正文'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('SendTime', u'发送时间')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcErrOrderField:
     def __init__(self, ContingentCondition='1', CombOffsetFlag="", UserID="", LimitPrice=0, UserForceClose=0, Direction='0', VolumeTotalOriginal=0, OrderPriceType='1', TimeCondition='1', IsAutoSuspend=0, StopPrice=0, InstrumentID="", MinVolume=0, ForceCloseReason='0', ErrorID=0, BrokerID="", CombHedgeFlag="", GTDDate="", BusinessUnit="", ErrorMsg="", OrderRef="", InvestorID="", VolumeCondition='1', RequestID=0):
@@ -1081,7 +1059,7 @@ class CThostFtdcErrOrderField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ContingentCondition', u'触发条件'),('CombOffsetFlag', u'组合开平标志'),('UserID', u'用户代码'),('LimitPrice', u'价格'),('UserForceClose', u'用户强评标志'),('Direction', u'买卖方向'),('VolumeTotalOriginal', u'数量'),('OrderPriceType', u'报单价格条件'),('TimeCondition', u'有效期类型'),('IsAutoSuspend', u'自动挂起标志'),('StopPrice', u'止损价'),('InstrumentID', u'合约代码'),('MinVolume', u'最小成交量'),('ForceCloseReason', u'强平原因'),('ErrorID', u'错误代码'),('BrokerID', u'经纪公司代码'),('CombHedgeFlag', u'组合投机套保标志'),('GTDDate', u'GTD日期'),('BusinessUnit', u'业务单元'),('ErrorMsg', u'错误信息'),('OrderRef', u'报单引用'),('InvestorID', u'投资者代码'),('VolumeCondition', u'成交量类型'),('RequestID', u'请求编号')]])
     def getval(self, n):
         if n in ['ContingentCondition', 'Direction', 'OrderPriceType', 'TimeCondition', 'ForceCloseReason', 'VolumeCondition']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcContractBankField:
     def __init__(self, BankName="", BrokerID="", BankBrchID="", BankID=""):
@@ -1094,7 +1072,7 @@ class CThostFtdcContractBankField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BankName', u'银行名称'),('BrokerID', u'经纪公司代码'),('BankBrchID', u'银行分中心代码'),('BankID', u'银行代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryParkedOrderActionField:
     def __init__(self, InstrumentID="", InvestorID="", ExchangeID="", BrokerID=""):
@@ -1107,7 +1085,7 @@ class CThostFtdcQryParkedOrderActionField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('InvestorID', u'投资者代码'),('ExchangeID', u'交易所代码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcProductField:
     def __init__(self, MaxLimitOrderVolume=0, ExchangeID="", PositionDateType='1', MinLimitOrderVolume=0, MaxMarketOrderVolume=0, PriceTick=0, ProductName="", VolumeMultiple=0, PositionType='1', MinMarketOrderVolume=0, ProductClass='1', ProductID=""):
@@ -1128,7 +1106,7 @@ class CThostFtdcProductField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('MaxLimitOrderVolume', u'限价单最大下单量'),('ExchangeID', u'交易所代码'),('PositionDateType', u'持仓日期类型'),('MinLimitOrderVolume', u'限价单最小下单量'),('MaxMarketOrderVolume', u'市价单最大下单量'),('PriceTick', u'最小变动价位'),('ProductName', u'产品名称'),('VolumeMultiple', u'合约数量乘数'),('PositionType', u'持仓类型'),('MinMarketOrderVolume', u'市价单最小下单量'),('ProductClass', u'产品类型'),('ProductID', u'产品代码')]])
     def getval(self, n):
         if n in ['PositionDateType', 'PositionType', 'ProductClass']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryCFMMCBrokerKeyField:
     def __init__(self, BrokerID=""):
@@ -1138,7 +1116,7 @@ class CThostFtdcQryCFMMCBrokerKeyField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcBrokerTradingAlgosField:
     def __init__(self, InstrumentID="", HandlePositionAlgoID='1', ExchangeID="", FindMarginRateAlgoID='1', BrokerID="", HandleTradingAccountAlgoID='1'):
@@ -1153,7 +1131,7 @@ class CThostFtdcBrokerTradingAlgosField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('HandlePositionAlgoID', u'持仓处理算法编号'),('ExchangeID', u'交易所代码'),('FindMarginRateAlgoID', u'寻找保证金率算法编号'),('BrokerID', u'经纪公司代码'),('HandleTradingAccountAlgoID', u'资金处理算法编号')]])
     def getval(self, n):
         if n in ['HandlePositionAlgoID', 'FindMarginRateAlgoID', 'HandleTradingAccountAlgoID']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcTransferQryBankReqField:
     def __init__(self, CurrencyCode="", FutureAccount="", FuturePwdFlag='0', FutureAccPwd=""):
@@ -1166,7 +1144,7 @@ class CThostFtdcTransferQryBankReqField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('CurrencyCode', u'币种：RMB-人民币 USD-美圆 HKD-港元'),('FutureAccount', u'期货资金账户'),('FuturePwdFlag', u'密码标志'),('FutureAccPwd', u'密码')]])
     def getval(self, n):
         if n in ['FuturePwdFlag']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcReqChangeAccountField:
     def __init__(self, MoneyAccountStatus='0', NewBankPassWord="", BrokerBranchID="", BankPassWord="", Telephone="", IdentifiedCardNo="", VerifyCertNoFlag='0', TID=0, AccountID="", BankAccount="", Fax="", InstallID=0, SecuPwdFlag='0', CustomerName="", CountryCode="", TradeCode="", BankBranchID="", SessionID=0, NewBankAccount="", Address="", PlateSerial=0, BankPwdFlag='0', CustType='0', Gender='0', BankID="", BankSerial="", TradingDay="", BrokerID="", IdCardType='0', Password="", MobilePhone="", TradeDate="", CurrencyID="", BankAccType='1', LastFragment='0', ZipCode="", BrokerIDByBank="", TradeTime="", EMail="", Digest=""):
@@ -1215,7 +1193,7 @@ class CThostFtdcReqChangeAccountField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('MoneyAccountStatus', u'资金账户状态'),('NewBankPassWord', u'新银行密码'),('BrokerBranchID', u'期商分支机构代码'),('BankPassWord', u'银行密码'),('Telephone', u'电话号码'),('IdentifiedCardNo', u'证件号码'),('VerifyCertNoFlag', u'验证客户证件号码标志'),('TID', u'交易ID'),('AccountID', u'投资者帐号'),('BankAccount', u'银行帐号'),('Fax', u'传真'),('InstallID', u'安装编号'),('SecuPwdFlag', u'期货资金密码核对标志'),('CustomerName', u'客户姓名'),('CountryCode', u'国家代码'),('TradeCode', u'业务功能码'),('BankBranchID', u'银行分支机构代码'),('SessionID', u'会话号'),('NewBankAccount', u'新银行帐号'),('Address', u'地址'),('PlateSerial', u'银期平台消息流水号'),('BankPwdFlag', u'银行密码标志'),('CustType', u'客户类型'),('Gender', u'性别'),('BankID', u'银行代码'),('BankSerial', u'银行流水号'),('TradingDay', u'交易系统日期'),('BrokerID', u'期商代码'),('IdCardType', u'证件类型'),('Password', u'期货密码'),('MobilePhone', u'手机'),('TradeDate', u'交易日期'),('CurrencyID', u'币种代码'),('BankAccType', u'银行帐号类型'),('LastFragment', u'最后分片标志'),('ZipCode', u'邮编'),('BrokerIDByBank', u'期货公司银行编码'),('TradeTime', u'交易时间'),('EMail', u'电子邮件'),('Digest', u'摘要')]])
     def getval(self, n):
         if n in ['MoneyAccountStatus', 'VerifyCertNoFlag', 'SecuPwdFlag', 'BankPwdFlag', 'CustType', 'Gender', 'IdCardType', 'BankAccType', 'LastFragment']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcCommPhaseField:
     def __init__(self, TradingDay="", CommPhaseNo=0):
@@ -1226,7 +1204,7 @@ class CThostFtdcCommPhaseField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('TradingDay', u'交易日'),('CommPhaseNo', u'通讯时段编号')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryTraderOfferField:
     def __init__(self, ExchangeID="", TraderID="", ParticipantID=""):
@@ -1238,7 +1216,7 @@ class CThostFtdcQryTraderOfferField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ExchangeID', u'交易所代码'),('TraderID', u'交易所交易员代码'),('ParticipantID', u'会员代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcTransferFutureToBankReqField:
     def __init__(self, FutureAccount="", FutureAccPwd="", CurrencyCode="", TradeAmt=0, FuturePwdFlag='0', CustFee=0):
@@ -1253,7 +1231,7 @@ class CThostFtdcTransferFutureToBankReqField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('FutureAccount', u'期货资金账户'),('FutureAccPwd', u'密码'),('CurrencyCode', u'币种：RMB-人民币 USD-美圆 HKD-港元'),('TradeAmt', u'转账金额'),('FuturePwdFlag', u'密码标志'),('CustFee', u'客户手续费')]])
     def getval(self, n):
         if n in ['FuturePwdFlag']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcReqCancelAccountField:
     def __init__(self, MoneyAccountStatus='0', BrokerBranchID="", BankPassWord="", Telephone="", IdentifiedCardNo="", VerifyCertNoFlag='0', TID=0, AccountID="", BankAccount="", Fax="", InstallID=0, SecuPwdFlag='0', CustomerName="", CountryCode="", TradeCode="", BankBranchID="", SessionID=0, Address="", PlateSerial=0, BankPwdFlag='0', CustType='0', Gender='0', BankID="", BankSerial="", OperNo="", TradingDay="", BankSecuAcc="", BrokerID="", CashExchangeCode='1', IdCardType='0', Password="", MobilePhone="", TradeDate="", CurrencyID="", BankAccType='1', LastFragment='0', ZipCode="", BankSecuAccType='1', BrokerIDByBank="", TradeTime="", EMail="", Digest="", DeviceID=""):
@@ -1305,7 +1283,7 @@ class CThostFtdcReqCancelAccountField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('MoneyAccountStatus', u'资金账户状态'),('BrokerBranchID', u'期商分支机构代码'),('BankPassWord', u'银行密码'),('Telephone', u'电话号码'),('IdentifiedCardNo', u'证件号码'),('VerifyCertNoFlag', u'验证客户证件号码标志'),('TID', u'交易ID'),('AccountID', u'投资者帐号'),('BankAccount', u'银行帐号'),('Fax', u'传真'),('InstallID', u'安装编号'),('SecuPwdFlag', u'期货资金密码核对标志'),('CustomerName', u'客户姓名'),('CountryCode', u'国家代码'),('TradeCode', u'业务功能码'),('BankBranchID', u'银行分支机构代码'),('SessionID', u'会话号'),('Address', u'地址'),('PlateSerial', u'银期平台消息流水号'),('BankPwdFlag', u'银行密码标志'),('CustType', u'客户类型'),('Gender', u'性别'),('BankID', u'银行代码'),('BankSerial', u'银行流水号'),('OperNo', u'交易柜员'),('TradingDay', u'交易系统日期'),('BankSecuAcc', u'期货单位帐号'),('BrokerID', u'期商代码'),('CashExchangeCode', u'汇钞标志'),('IdCardType', u'证件类型'),('Password', u'期货密码'),('MobilePhone', u'手机'),('TradeDate', u'交易日期'),('CurrencyID', u'币种代码'),('BankAccType', u'银行帐号类型'),('LastFragment', u'最后分片标志'),('ZipCode', u'邮编'),('BankSecuAccType', u'期货单位帐号类型'),('BrokerIDByBank', u'期货公司银行编码'),('TradeTime', u'交易时间'),('EMail', u'电子邮件'),('Digest', u'摘要'),('DeviceID', u'渠道标志')]])
     def getval(self, n):
         if n in ['MoneyAccountStatus', 'VerifyCertNoFlag', 'SecuPwdFlag', 'BankPwdFlag', 'CustType', 'Gender', 'CashExchangeCode', 'IdCardType', 'BankAccType', 'LastFragment', 'BankSecuAccType']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcMarketDataLastMatchField:
     def __init__(self, Volume=0, OpenInterest=0, LastPrice=0, Turnover=0):
@@ -1318,7 +1296,7 @@ class CThostFtdcMarketDataLastMatchField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('Volume', u'数量'),('OpenInterest', u'持仓量'),('LastPrice', u'最新价'),('Turnover', u'成交金额')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcSuperUserFunctionField:
     def __init__(self, FunctionCode='1', UserID=""):
@@ -1329,7 +1307,7 @@ class CThostFtdcSuperUserFunctionField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('FunctionCode', u'功能代码'),('UserID', u'用户代码')]])
     def getval(self, n):
         if n in ['FunctionCode']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcParkedOrderActionField:
     def __init__(self, InstrumentID="", Status='1', ExchangeID="", ActionFlag='0', OrderActionRef=0, UserType='0', ErrorMsg="", UserID="", LimitPrice=0, OrderRef="", InvestorID="", SessionID=0, VolumeChange=0, BrokerID="", RequestID=0, OrderSysID="", ParkedOrderActionID="", FrontID=0, ErrorID=0):
@@ -1357,7 +1335,7 @@ class CThostFtdcParkedOrderActionField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('Status', u'预埋撤单状态'),('ExchangeID', u'交易所代码'),('ActionFlag', u'操作标志'),('OrderActionRef', u'报单操作引用'),('UserType', u'用户类型'),('ErrorMsg', u'错误信息'),('UserID', u'用户代码'),('LimitPrice', u'价格'),('OrderRef', u'报单引用'),('InvestorID', u'投资者代码'),('SessionID', u'会话编号'),('VolumeChange', u'数量变化'),('BrokerID', u'经纪公司代码'),('RequestID', u'请求编号'),('OrderSysID', u'报单编号'),('ParkedOrderActionID', u'预埋撤单单编号'),('FrontID', u'前置编号'),('ErrorID', u'错误代码')]])
     def getval(self, n):
         if n in ['Status', 'ActionFlag', 'UserType']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcUserSessionField:
     def __init__(self, MacAddress="", UserProductInfo="", InterfaceProductInfo="", UserID="", LoginDate="", SessionID=0, BrokerID="", FrontID=0, IPAddress="", LoginTime="", ProtocolInfo=""):
@@ -1377,7 +1355,7 @@ class CThostFtdcUserSessionField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('MacAddress', u'Mac地址'),('UserProductInfo', u'用户端产品信息'),('InterfaceProductInfo', u'接口端产品信息'),('UserID', u'用户代码'),('LoginDate', u'登录日期'),('SessionID', u'会话编号'),('BrokerID', u'经纪公司代码'),('FrontID', u'前置编号'),('IPAddress', u'IP地址'),('LoginTime', u'登录时间'),('ProtocolInfo', u'协议信息')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQueryMaxOrderVolumeWithPriceField:
     def __init__(self, InstrumentID="", Direction='0', OffsetFlag='0', Price=0, HedgeFlag='1', InvestorID="", BrokerID="", MaxVolume=0):
@@ -1394,7 +1372,7 @@ class CThostFtdcQueryMaxOrderVolumeWithPriceField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('Direction', u'买卖方向'),('OffsetFlag', u'开平标志'),('Price', u'报单价格'),('HedgeFlag', u'投机套保标志'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('MaxVolume', u'最大允许报单数量')]])
     def getval(self, n):
         if n in ['Direction', 'OffsetFlag', 'HedgeFlag']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcTransferBankToFutureReqField:
     def __init__(self, FutureAccount="", FutureAccPwd="", CurrencyCode="", TradeAmt=0, FuturePwdFlag='0', CustFee=0):
@@ -1409,7 +1387,7 @@ class CThostFtdcTransferBankToFutureReqField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('FutureAccount', u'期货资金账户'),('FutureAccPwd', u'密码'),('CurrencyCode', u'币种：RMB-人民币 USD-美圆 HKD-港元'),('TradeAmt', u'转账金额'),('FuturePwdFlag', u'密码标志'),('CustFee', u'客户手续费')]])
     def getval(self, n):
         if n in ['FuturePwdFlag']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcInstrumentStatusField:
     def __init__(self, InstrumentID="", ExchangeID="", EnterTime="", SettlementGroupID="", TradingSegmentSN=0, EnterReason='1', InstrumentStatus='0', ExchangeInstID=""):
@@ -1426,7 +1404,7 @@ class CThostFtdcInstrumentStatusField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('ExchangeID', u'交易所代码'),('EnterTime', u'进入本状态时间'),('SettlementGroupID', u'结算组代码'),('TradingSegmentSN', u'交易阶段编号'),('EnterReason', u'进入本状态原因'),('InstrumentStatus', u'合约交易状态'),('ExchangeInstID', u'合约在交易所的代码')]])
     def getval(self, n):
         if n in ['EnterReason', 'InstrumentStatus']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryCFMMCTradingAccountKeyField:
     def __init__(self, InvestorID="", BrokerID=""):
@@ -1437,7 +1415,7 @@ class CThostFtdcQryCFMMCTradingAccountKeyField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryContractBankField:
     def __init__(self, BrokerID="", BankBrchID="", BankID=""):
@@ -1449,7 +1427,7 @@ class CThostFtdcQryContractBankField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BrokerID', u'经纪公司代码'),('BankBrchID', u'银行分中心代码'),('BankID', u'银行代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcSyncingTradingCodeField:
     def __init__(self, ExchangeID="", ClientID="", InvestorID="", BrokerID="", ClientIDType='1', IsActive=0):
@@ -1464,7 +1442,7 @@ class CThostFtdcSyncingTradingCodeField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ExchangeID', u'交易所代码'),('ClientID', u'客户代码'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('ClientIDType', u'交易编码类型'),('IsActive', u'是否活跃')]])
     def getval(self, n):
         if n in ['ClientIDType']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryEWarrantOffsetField:
     def __init__(self, InstrumentID="", InvestorID="", ExchangeID="", BrokerID=""):
@@ -1477,7 +1455,7 @@ class CThostFtdcQryEWarrantOffsetField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('InvestorID', u'投资者代码'),('ExchangeID', u'交易所代码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryBrokerTradingParamsField:
     def __init__(self, InvestorID="", BrokerID=""):
@@ -1488,7 +1466,7 @@ class CThostFtdcQryBrokerTradingParamsField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcSyncingTradingAccountField:
     def __init__(self, Mortgage=0, ExchangeDeliveryMargin=0, FrozenMargin=0, WithdrawQuota=0, PositionProfit=0, Commission=0, Interest=0, CashIn=0, AccountID="", Available=0, PreCredit=0, PreMortgage=0, InterestBase=0, ExchangeMargin=0, PreMargin=0, SettlementID=0, DeliveryMargin=0, TradingDay="", BrokerID="", FrozenCash=0, Withdraw=0, Balance=0, Reserve=0, PreDeposit=0, Credit=0, PreBalance=0, CurrMargin=0, FrozenCommission=0, CloseProfit=0, Deposit=0):
@@ -1527,7 +1505,7 @@ class CThostFtdcSyncingTradingAccountField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('Mortgage', u'质押金额'),('ExchangeDeliveryMargin', u'交易所交割保证金'),('FrozenMargin', u'冻结的保证金'),('WithdrawQuota', u'可取资金'),('PositionProfit', u'持仓盈亏'),('Commission', u'手续费'),('Interest', u'利息收入'),('CashIn', u'资金差额'),('AccountID', u'投资者帐号'),('Available', u'可用资金'),('PreCredit', u'上次信用额度'),('PreMortgage', u'上次质押金额'),('InterestBase', u'利息基数'),('ExchangeMargin', u'交易所保证金'),('PreMargin', u'上次占用的保证金'),('SettlementID', u'结算编号'),('DeliveryMargin', u'投资者交割保证金'),('TradingDay', u'交易日'),('BrokerID', u'经纪公司代码'),('FrozenCash', u'冻结的资金'),('Withdraw', u'出金金额'),('Balance', u'期货结算准备金'),('Reserve', u'基本准备金'),('PreDeposit', u'上次存款额'),('Credit', u'信用额度'),('PreBalance', u'上次结算准备金'),('CurrMargin', u'当前保证金总额'),('FrozenCommission', u'冻结的手续费'),('CloseProfit', u'平仓盈亏'),('Deposit', u'入金金额')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryExchangeOrderField:
     def __init__(self, ExchangeInstID="", TraderID="", ExchangeID="", ParticipantID="", ClientID=""):
@@ -1541,7 +1519,7 @@ class CThostFtdcQryExchangeOrderField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ExchangeInstID', u'合约在交易所的代码'),('TraderID', u'交易所交易员代码'),('ExchangeID', u'交易所代码'),('ParticipantID', u'会员代码'),('ClientID', u'客户代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcChangeAccountField:
     def __init__(self, MoneyAccountStatus='0', NewBankPassWord="", BrokerBranchID="", BankPassWord="", Telephone="", IdentifiedCardNo="", VerifyCertNoFlag='0', TID=0, AccountID="", BankAccount="", Fax="", InstallID=0, SecuPwdFlag='0', CustomerName="", CountryCode="", TradeCode="", BankBranchID="", SessionID=0, NewBankAccount="", Address="", PlateSerial=0, BankPwdFlag='0', ErrorID=0, CustType='0', Gender='0', BankID="", BankSerial="", TradingDay="", BrokerID="", IdCardType='0', Password="", MobilePhone="", TradeDate="", CurrencyID="", ErrorMsg="", BankAccType='1', LastFragment='0', ZipCode="", BrokerIDByBank="", TradeTime="", EMail="", Digest=""):
@@ -1592,7 +1570,7 @@ class CThostFtdcChangeAccountField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('MoneyAccountStatus', u'资金账户状态'),('NewBankPassWord', u'新银行密码'),('BrokerBranchID', u'期商分支机构代码'),('BankPassWord', u'银行密码'),('Telephone', u'电话号码'),('IdentifiedCardNo', u'证件号码'),('VerifyCertNoFlag', u'验证客户证件号码标志'),('TID', u'交易ID'),('AccountID', u'投资者帐号'),('BankAccount', u'银行帐号'),('Fax', u'传真'),('InstallID', u'安装编号'),('SecuPwdFlag', u'期货资金密码核对标志'),('CustomerName', u'客户姓名'),('CountryCode', u'国家代码'),('TradeCode', u'业务功能码'),('BankBranchID', u'银行分支机构代码'),('SessionID', u'会话号'),('NewBankAccount', u'新银行帐号'),('Address', u'地址'),('PlateSerial', u'银期平台消息流水号'),('BankPwdFlag', u'银行密码标志'),('ErrorID', u'错误代码'),('CustType', u'客户类型'),('Gender', u'性别'),('BankID', u'银行代码'),('BankSerial', u'银行流水号'),('TradingDay', u'交易系统日期'),('BrokerID', u'期商代码'),('IdCardType', u'证件类型'),('Password', u'期货密码'),('MobilePhone', u'手机'),('TradeDate', u'交易日期'),('CurrencyID', u'币种代码'),('ErrorMsg', u'错误信息'),('BankAccType', u'银行帐号类型'),('LastFragment', u'最后分片标志'),('ZipCode', u'邮编'),('BrokerIDByBank', u'期货公司银行编码'),('TradeTime', u'交易时间'),('EMail', u'电子邮件'),('Digest', u'摘要')]])
     def getval(self, n):
         if n in ['MoneyAccountStatus', 'VerifyCertNoFlag', 'SecuPwdFlag', 'BankPwdFlag', 'CustType', 'Gender', 'IdCardType', 'BankAccType', 'LastFragment']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcInstrumentField:
     def __init__(self, IsTrading=0, ExpireDate="", PositionDateType='1', LongMarginRatio=0, PositionType='1', ProductClass='1', InstrumentName="", ShortMarginRatio=0, VolumeMultiple=0, DeliveryYear=0, CreateDate="", InstrumentID="", MaxLimitOrderVolume=0, ExchangeID="", MinLimitOrderVolume=0, MaxMarketOrderVolume=0, StartDelivDate="", DeliveryMonth=0, PriceTick=0, InstLifePhase='0', ExchangeInstID="", MinMarketOrderVolume=0, EndDelivDate="", OpenDate="", ProductID=""):
@@ -1626,7 +1604,7 @@ class CThostFtdcInstrumentField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('IsTrading', u'当前是否交易'),('ExpireDate', u'到期日'),('PositionDateType', u'持仓日期类型'),('LongMarginRatio', u'多头保证金率'),('PositionType', u'持仓类型'),('ProductClass', u'产品类型'),('InstrumentName', u'合约名称'),('ShortMarginRatio', u'空头保证金率'),('VolumeMultiple', u'合约数量乘数'),('DeliveryYear', u'交割年份'),('CreateDate', u'创建日'),('InstrumentID', u'合约代码'),('MaxLimitOrderVolume', u'限价单最大下单量'),('ExchangeID', u'交易所代码'),('MinLimitOrderVolume', u'限价单最小下单量'),('MaxMarketOrderVolume', u'市价单最大下单量'),('StartDelivDate', u'开始交割日'),('DeliveryMonth', u'交割月'),('PriceTick', u'最小变动价位'),('InstLifePhase', u'合约生命周期状态'),('ExchangeInstID', u'合约在交易所的代码'),('MinMarketOrderVolume', u'市价单最小下单量'),('EndDelivDate', u'结束交割日'),('OpenDate', u'上市日'),('ProductID', u'产品代码')]])
     def getval(self, n):
         if n in ['PositionDateType', 'PositionType', 'ProductClass', 'InstLifePhase']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryBrokerTradingAlgosField:
     def __init__(self, InstrumentID="", ExchangeID="", BrokerID=""):
@@ -1638,7 +1616,7 @@ class CThostFtdcQryBrokerTradingAlgosField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('ExchangeID', u'交易所代码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcReqTransferField:
     def __init__(self, BrokerBranchID="", UserID="", BankPassWord="", TradeTime="", VerifyCertNoFlag='0', TID=0, AccountID="", BankAccount="", InstallID=0, CustomerName="", TradeCode="", BankBranchID="", SessionID=0, BankID="", Password="", BankPwdFlag='0', RequestID=0, CustType='0', IdentifiedCardNo="", FeePayFlag='0', BankSerial="", OperNo="", TradingDay="", BankSecuAcc="", BrokerID="", DeviceID="", TransferStatus='0', IdCardType='0', PlateSerial=0, FutureFetchAmount=0, TradeDate="", CurrencyID="", BrokerFee=0, BankAccType='1', LastFragment='0', FutureSerial=0, BankSecuAccType='1', BrokerIDByBank="", SecuPwdFlag='0', Message="", CustFee=0, TradeAmount=0, Digest=""):
@@ -1690,7 +1668,7 @@ class CThostFtdcReqTransferField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BrokerBranchID', u'期商分支机构代码'),('UserID', u'用户标识'),('BankPassWord', u'银行密码'),('TradeTime', u'交易时间'),('VerifyCertNoFlag', u'验证客户证件号码标志'),('TID', u'交易ID'),('AccountID', u'投资者帐号'),('BankAccount', u'银行帐号'),('InstallID', u'安装编号'),('CustomerName', u'客户姓名'),('TradeCode', u'业务功能码'),('BankBranchID', u'银行分支机构代码'),('SessionID', u'会话号'),('BankID', u'银行代码'),('Password', u'期货密码'),('BankPwdFlag', u'银行密码标志'),('RequestID', u'请求编号'),('CustType', u'客户类型'),('IdentifiedCardNo', u'证件号码'),('FeePayFlag', u'费用支付标志'),('BankSerial', u'银行流水号'),('OperNo', u'交易柜员'),('TradingDay', u'交易系统日期'),('BankSecuAcc', u'期货单位帐号'),('BrokerID', u'期商代码'),('DeviceID', u'渠道标志'),('TransferStatus', u'转账交易状态'),('IdCardType', u'证件类型'),('PlateSerial', u'银期平台消息流水号'),('FutureFetchAmount', u'期货可取金额'),('TradeDate', u'交易日期'),('CurrencyID', u'币种代码'),('BrokerFee', u'应收期货公司费用'),('BankAccType', u'银行帐号类型'),('LastFragment', u'最后分片标志'),('FutureSerial', u'期货公司流水号'),('BankSecuAccType', u'期货单位帐号类型'),('BrokerIDByBank', u'期货公司银行编码'),('SecuPwdFlag', u'期货资金密码核对标志'),('Message', u'发送方给接收方的消息'),('CustFee', u'应收客户费用'),('TradeAmount', u'转帐金额'),('Digest', u'摘要')]])
     def getval(self, n):
         if n in ['VerifyCertNoFlag', 'BankPwdFlag', 'CustType', 'FeePayFlag', 'TransferStatus', 'IdCardType', 'BankAccType', 'LastFragment', 'BankSecuAccType', 'SecuPwdFlag']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcVerifyFuturePasswordAndCustInfoField:
     def __init__(self, CustType='0', CustomerName="", IdCardType='0', IdentifiedCardNo="", Password="", AccountID=""):
@@ -1705,7 +1683,7 @@ class CThostFtdcVerifyFuturePasswordAndCustInfoField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('CustType', u'客户类型'),('CustomerName', u'客户姓名'),('IdCardType', u'证件类型'),('IdentifiedCardNo', u'证件号码'),('Password', u'期货密码'),('AccountID', u'投资者帐号')]])
     def getval(self, n):
         if n in ['CustType', 'IdCardType']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcLogoutAllField:
     def __init__(self, FrontID=0, SessionID=0, SystemName=""):
@@ -1717,7 +1695,7 @@ class CThostFtdcLogoutAllField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('FrontID', u'前置编号'),('SessionID', u'会话编号'),('SystemName', u'系统名称')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcMarketDataStaticField:
     def __init__(self, ClosePrice=0, HighestPrice=0, SettlementPrice=0, OpenPrice=0, LowerLimitPrice=0, UpperLimitPrice=0, LowestPrice=0, CurrDelta=0):
@@ -1734,7 +1712,7 @@ class CThostFtdcMarketDataStaticField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ClosePrice', u'今收盘'),('HighestPrice', u'最高价'),('SettlementPrice', u'本次结算价'),('OpenPrice', u'今开盘'),('LowerLimitPrice', u'跌停板价'),('UpperLimitPrice', u'涨停板价'),('LowestPrice', u'最低价'),('CurrDelta', u'今虚实度')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcTradingCodeField:
     def __init__(self, ExchangeID="", ClientID="", InvestorID="", BrokerID="", ClientIDType='1', IsActive=0):
@@ -1749,7 +1727,7 @@ class CThostFtdcTradingCodeField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ExchangeID', u'交易所代码'),('ClientID', u'客户代码'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('ClientIDType', u'交易编码类型'),('IsActive', u'是否活跃')]])
     def getval(self, n):
         if n in ['ClientIDType']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcRspInfoField:
     def __init__(self, ErrorMsg="", ErrorID=0):
@@ -1760,7 +1738,7 @@ class CThostFtdcRspInfoField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ErrorMsg', u'错误信息'),('ErrorID', u'错误代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQrySuperUserField:
     def __init__(self, UserID=""):
@@ -1770,7 +1748,7 @@ class CThostFtdcQrySuperUserField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('UserID', u'用户代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryInstrumentMarginRateField:
     def __init__(self, InstrumentID="", InvestorID="", BrokerID="", HedgeFlag='1'):
@@ -1783,7 +1761,7 @@ class CThostFtdcQryInstrumentMarginRateField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('HedgeFlag', u'投机套保标志')]])
     def getval(self, n):
         if n in ['HedgeFlag']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryInvestorGroupField:
     def __init__(self, BrokerID=""):
@@ -1793,7 +1771,7 @@ class CThostFtdcQryInvestorGroupField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcReqRepealField:
     def __init__(self, BrokerBranchID="", UserID="", BankPassWord="", BankRepealFlag='0', RepealedTimes=0, TradeTime="", VerifyCertNoFlag='0', TID=0, FutureRepealSerial=0, AccountID="", BankAccount="", InstallID=0, SecuPwdFlag='0', CustomerName="", TradeCode="", BankBranchID="", SessionID=0, BankID="", PlateSerial=0, BankPwdFlag='0', RequestID=0, CustType='0', IdentifiedCardNo="", FeePayFlag='0', BankSerial="", OperNo="", TradingDay="", BankSecuAcc="", BrokerID="", DeviceID="", TransferStatus='0', BrokerRepealFlag='0', IdCardType='0', Password="", FutureFetchAmount=0, TradeDate="", CurrencyID="", BrokerFee=0, BankAccType='1', LastFragment='0', FutureSerial=0, BankRepealSerial="", RepealTimeInterval=0, BankSecuAccType='1', BrokerIDByBank="", PlateRepealSerial=0, Message="", CustFee=0, TradeAmount=0, Digest=""):
@@ -1852,7 +1830,7 @@ class CThostFtdcReqRepealField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BrokerBranchID', u'期商分支机构代码'),('UserID', u'用户标识'),('BankPassWord', u'银行密码'),('BankRepealFlag', u'银行冲正标志'),('RepealedTimes', u'已经冲正次数'),('TradeTime', u'交易时间'),('VerifyCertNoFlag', u'验证客户证件号码标志'),('TID', u'交易ID'),('FutureRepealSerial', u'被冲正期货流水号'),('AccountID', u'投资者帐号'),('BankAccount', u'银行帐号'),('InstallID', u'安装编号'),('SecuPwdFlag', u'期货资金密码核对标志'),('CustomerName', u'客户姓名'),('TradeCode', u'业务功能码'),('BankBranchID', u'银行分支机构代码'),('SessionID', u'会话号'),('BankID', u'银行代码'),('PlateSerial', u'银期平台消息流水号'),('BankPwdFlag', u'银行密码标志'),('RequestID', u'请求编号'),('CustType', u'客户类型'),('IdentifiedCardNo', u'证件号码'),('FeePayFlag', u'费用支付标志'),('BankSerial', u'银行流水号'),('OperNo', u'交易柜员'),('TradingDay', u'交易系统日期'),('BankSecuAcc', u'期货单位帐号'),('BrokerID', u'期商代码'),('DeviceID', u'渠道标志'),('TransferStatus', u'转账交易状态'),('BrokerRepealFlag', u'期商冲正标志'),('IdCardType', u'证件类型'),('Password', u'期货密码'),('FutureFetchAmount', u'期货可取金额'),('TradeDate', u'交易日期'),('CurrencyID', u'币种代码'),('BrokerFee', u'应收期货公司费用'),('BankAccType', u'银行帐号类型'),('LastFragment', u'最后分片标志'),('FutureSerial', u'期货公司流水号'),('BankRepealSerial', u'被冲正银行流水号'),('RepealTimeInterval', u'冲正时间间隔'),('BankSecuAccType', u'期货单位帐号类型'),('BrokerIDByBank', u'期货公司银行编码'),('PlateRepealSerial', u'被冲正平台流水号'),('Message', u'发送方给接收方的消息'),('CustFee', u'应收客户费用'),('TradeAmount', u'转帐金额'),('Digest', u'摘要')]])
     def getval(self, n):
         if n in ['BankRepealFlag', 'VerifyCertNoFlag', 'SecuPwdFlag', 'BankPwdFlag', 'CustType', 'FeePayFlag', 'TransferStatus', 'BrokerRepealFlag', 'IdCardType', 'BankAccType', 'LastFragment', 'BankSecuAccType']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcTradingAccountPasswordUpdateV1Field:
     def __init__(self, InvestorID="", NewPassword="", OldPassword="", BrokerID=""):
@@ -1865,7 +1843,7 @@ class CThostFtdcTradingAccountPasswordUpdateV1Field:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InvestorID', u'投资者代码'),('NewPassword', u'新的口令'),('OldPassword', u'原来的口令'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcExchangeTradeField:
     def __init__(self, TradeType='0', TraderID="", HedgeFlag='1', TradeTime="", OffsetFlag='0', Direction='0', ParticipantID="", Price=0, ClientID="", Volume=0, OrderSysID="", ExchangeID="", ClearingPartID="", OrderLocalID="", TradeID="", TradeDate="", BusinessUnit="", SequenceNo=0, ExchangeInstID="", TradeSource='0', PriceSource='0', TradingRole='1'):
@@ -1896,7 +1874,7 @@ class CThostFtdcExchangeTradeField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('TradeType', u'成交类型'),('TraderID', u'交易所交易员代码'),('HedgeFlag', u'投机套保标志'),('TradeTime', u'成交时间'),('OffsetFlag', u'开平标志'),('Direction', u'买卖方向'),('ParticipantID', u'会员代码'),('Price', u'价格'),('ClientID', u'客户代码'),('Volume', u'数量'),('OrderSysID', u'报单编号'),('ExchangeID', u'交易所代码'),('ClearingPartID', u'结算会员编号'),('OrderLocalID', u'本地报单编号'),('TradeID', u'成交编号'),('TradeDate', u'成交时期'),('BusinessUnit', u'业务单元'),('SequenceNo', u'序号'),('ExchangeInstID', u'合约在交易所的代码'),('TradeSource', u'成交来源'),('PriceSource', u'成交价来源'),('TradingRole', u'交易角色')]])
     def getval(self, n):
         if n in ['TradeType', 'HedgeFlag', 'OffsetFlag', 'Direction', 'TradeSource', 'PriceSource', 'TradingRole']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryUserSessionField:
     def __init__(self, FrontID=0, SessionID=0, BrokerID="", UserID=""):
@@ -1909,7 +1887,7 @@ class CThostFtdcQryUserSessionField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('FrontID', u'前置编号'),('SessionID', u'会话编号'),('BrokerID', u'经纪公司代码'),('UserID', u'用户代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcTradingNoticeField:
     def __init__(self, SequenceSeries=0, SequenceNo=0, UserID="", FieldContent="", InvestorID="", BrokerID="", SendTime="", InvestorRange='1'):
@@ -1926,7 +1904,7 @@ class CThostFtdcTradingNoticeField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('SequenceSeries', u'序列系列号'),('SequenceNo', u'序列号'),('UserID', u'用户代码'),('FieldContent', u'消息正文'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('SendTime', u'发送时间'),('InvestorRange', u'投资者范围')]])
     def getval(self, n):
         if n in ['InvestorRange']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcReqSyncKeyField:
     def __init__(self, InstallID=0, TradeDate="", TradeCode="", LastFragment='0', BrokerBranchID="", BrokerIDByBank="", BankSerial="", BankBranchID="", OperNo="", TradingDay="", SessionID=0, BrokerID="", DeviceID="", UserID="", BankID="", TID=0, TradeTime="", Message="", PlateSerial=0, RequestID=0):
@@ -1955,7 +1933,7 @@ class CThostFtdcReqSyncKeyField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstallID', u'安装编号'),('TradeDate', u'交易日期'),('TradeCode', u'业务功能码'),('LastFragment', u'最后分片标志'),('BrokerBranchID', u'期商分支机构代码'),('BrokerIDByBank', u'期货公司银行编码'),('BankSerial', u'银行流水号'),('BankBranchID', u'银行分支机构代码'),('OperNo', u'交易柜员'),('TradingDay', u'交易系统日期'),('SessionID', u'会话号'),('BrokerID', u'期商代码'),('DeviceID', u'渠道标志'),('UserID', u'用户标识'),('BankID', u'银行代码'),('TID', u'交易ID'),('TradeTime', u'交易时间'),('Message', u'交易核心给银期报盘的消息'),('PlateSerial', u'银期平台消息流水号'),('RequestID', u'请求编号')]])
     def getval(self, n):
         if n in ['LastFragment']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryBrokerUserField:
     def __init__(self, UserID="", BrokerID=""):
@@ -1966,7 +1944,7 @@ class CThostFtdcQryBrokerUserField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('UserID', u'用户代码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcNotifyFutureSignInField:
     def __init__(self, BrokerBranchID="", UserID="", TradeTime="", TID=0, InstallID=0, PinKey="", TradeCode="", BankBranchID="", SessionID=0, BankID="", MacKey="", PlateSerial=0, ErrorID=0, BankSerial="", OperNo="", TradingDay="", BrokerID="", DeviceID="", TradeDate="", CurrencyID="", ErrorMsg="", LastFragment='0', RequestID=0, BrokerIDByBank="", Digest=""):
@@ -2000,7 +1978,7 @@ class CThostFtdcNotifyFutureSignInField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BrokerBranchID', u'期商分支机构代码'),('UserID', u'用户标识'),('TradeTime', u'交易时间'),('TID', u'交易ID'),('InstallID', u'安装编号'),('PinKey', u'PIN密钥'),('TradeCode', u'业务功能码'),('BankBranchID', u'银行分支机构代码'),('SessionID', u'会话号'),('BankID', u'银行代码'),('MacKey', u'MAC密钥'),('PlateSerial', u'银期平台消息流水号'),('ErrorID', u'错误代码'),('BankSerial', u'银行流水号'),('OperNo', u'交易柜员'),('TradingDay', u'交易系统日期'),('BrokerID', u'期商代码'),('DeviceID', u'渠道标志'),('TradeDate', u'交易日期'),('CurrencyID', u'币种代码'),('ErrorMsg', u'错误信息'),('LastFragment', u'最后分片标志'),('RequestID', u'请求编号'),('BrokerIDByBank', u'期货公司银行编码'),('Digest', u'摘要')]])
     def getval(self, n):
         if n in ['LastFragment']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcSyncingInstrumentCommissionRateField:
     def __init__(self, InstrumentID="", OpenRatioByMoney=0, CloseRatioByVolume=0, CloseTodayRatioByMoney=0, InvestorID="", BrokerID="", InvestorRange='1', CloseRatioByMoney=0, OpenRatioByVolume=0, CloseTodayRatioByVolume=0):
@@ -2019,7 +1997,7 @@ class CThostFtdcSyncingInstrumentCommissionRateField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('OpenRatioByMoney', u'开仓手续费率'),('CloseRatioByVolume', u'平仓手续费'),('CloseTodayRatioByMoney', u'平今手续费率'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('InvestorRange', u'投资者范围'),('CloseRatioByMoney', u'平仓手续费率'),('OpenRatioByVolume', u'开仓手续费'),('CloseTodayRatioByVolume', u'平今手续费')]])
     def getval(self, n):
         if n in ['InvestorRange']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcSyncingInstrumentMarginRateField:
     def __init__(self, InstrumentID="", ShortMarginRatioByMoney=0, LongMarginRatioByMoney=0, IsRelative=0, HedgeFlag='1', InvestorID="", BrokerID="", InvestorRange='1', ShortMarginRatioByVolume=0, LongMarginRatioByVolume=0):
@@ -2038,7 +2016,7 @@ class CThostFtdcSyncingInstrumentMarginRateField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('ShortMarginRatioByMoney', u'空头保证金率'),('LongMarginRatioByMoney', u'多头保证金率'),('IsRelative', u'是否相对交易所收取'),('HedgeFlag', u'投机套保标志'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('InvestorRange', u'投资者范围'),('ShortMarginRatioByVolume', u'空头保证金费'),('LongMarginRatioByVolume', u'多头保证金费')]])
     def getval(self, n):
         if n in ['HedgeFlag', 'InvestorRange']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcForceUserLogoutField:
     def __init__(self, UserID="", BrokerID=""):
@@ -2049,7 +2027,7 @@ class CThostFtdcForceUserLogoutField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('UserID', u'用户代码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcNotifySyncKeyField:
     def __init__(self, BrokerBranchID="", UserID="", TradeTime="", TID=0, InstallID=0, TradeCode="", BankBranchID="", SessionID=0, BankID="", PlateSerial=0, ErrorID=0, BankSerial="", OperNo="", TradingDay="", BrokerID="", DeviceID="", TradeDate="", ErrorMsg="", LastFragment='0', RequestID=0, BrokerIDByBank="", Message=""):
@@ -2080,7 +2058,7 @@ class CThostFtdcNotifySyncKeyField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BrokerBranchID', u'期商分支机构代码'),('UserID', u'用户标识'),('TradeTime', u'交易时间'),('TID', u'交易ID'),('InstallID', u'安装编号'),('TradeCode', u'业务功能码'),('BankBranchID', u'银行分支机构代码'),('SessionID', u'会话号'),('BankID', u'银行代码'),('PlateSerial', u'银期平台消息流水号'),('ErrorID', u'错误代码'),('BankSerial', u'银行流水号'),('OperNo', u'交易柜员'),('TradingDay', u'交易系统日期'),('BrokerID', u'期商代码'),('DeviceID', u'渠道标志'),('TradeDate', u'交易日期'),('ErrorMsg', u'错误信息'),('LastFragment', u'最后分片标志'),('RequestID', u'请求编号'),('BrokerIDByBank', u'期货公司银行编码'),('Message', u'交易核心给银期报盘的消息')]])
     def getval(self, n):
         if n in ['LastFragment']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcMarketDataBid45Field:
     def __init__(self, BidPrice5=0, BidPrice4=0, BidVolume5=0, BidVolume4=0):
@@ -2093,7 +2071,7 @@ class CThostFtdcMarketDataBid45Field:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BidPrice5', u'申买价五'),('BidPrice4', u'申买价四'),('BidVolume5', u'申买量五'),('BidVolume4', u'申买量四')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcLinkManField:
     def __init__(self, PersonType='1', PersonName="", IdentifiedCardNo="", Telephone="", ZipCode="", Priority=0, InvestorID="", BrokerID="", Address="", IdentifiedCardType='0'):
@@ -2112,7 +2090,7 @@ class CThostFtdcLinkManField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('PersonType', u'联系人类型'),('PersonName', u'名称'),('IdentifiedCardNo', u'证件号码'),('Telephone', u'联系电话'),('ZipCode', u'邮政编码'),('Priority', u'优先级'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('Address', u'通讯地址'),('IdentifiedCardType', u'证件类型')]])
     def getval(self, n):
         if n in ['PersonType', 'IdentifiedCardType']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcCommRateModelField:
     def __init__(self, CommModelID="", BrokerID="", CommModelName=""):
@@ -2124,7 +2102,7 @@ class CThostFtdcCommRateModelField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('CommModelID', u'手续费率模板代码'),('BrokerID', u'经纪公司代码'),('CommModelName', u'模板名称')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcPositionProfitAlgorithmField:
     def __init__(self, Memo="", BrokerID="", Algorithm='1', AccountID=""):
@@ -2137,7 +2115,7 @@ class CThostFtdcPositionProfitAlgorithmField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('Memo', u'备注'),('BrokerID', u'经纪公司代码'),('Algorithm', u'盈亏算法'),('AccountID', u'投资者帐号')]])
     def getval(self, n):
         if n in ['Algorithm']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryExchangeField:
     def __init__(self, ExchangeID=""):
@@ -2147,7 +2125,7 @@ class CThostFtdcQryExchangeField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ExchangeID', u'交易所代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQueryMaxOrderVolumeField:
     def __init__(self, InstrumentID="", Direction='0', OffsetFlag='0', HedgeFlag='1', InvestorID="", BrokerID="", MaxVolume=0):
@@ -2163,7 +2141,7 @@ class CThostFtdcQueryMaxOrderVolumeField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('Direction', u'买卖方向'),('OffsetFlag', u'开平标志'),('HedgeFlag', u'投机套保标志'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('MaxVolume', u'最大允许报单数量')]])
     def getval(self, n):
         if n in ['Direction', 'OffsetFlag', 'HedgeFlag']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcMarketDataUpdateTimeField:
     def __init__(self, InstrumentID="", UpdateTime="", UpdateMillisec=0):
@@ -2175,7 +2153,7 @@ class CThostFtdcMarketDataUpdateTimeField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('UpdateTime', u'最后修改时间'),('UpdateMillisec', u'最后修改毫秒')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcCombinationLegField:
     def __init__(self, Direction='0', ImplyLevel=0, LegMultiple=0, LegID=0, LegInstrumentID="", CombInstrumentID=""):
@@ -2190,7 +2168,7 @@ class CThostFtdcCombinationLegField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('Direction', u'买卖方向'),('ImplyLevel', u'派生层数'),('LegMultiple', u'单腿乘数'),('LegID', u'单腿编号'),('LegInstrumentID', u'单腿合约代码'),('CombInstrumentID', u'组合合约代码')]])
     def getval(self, n):
         if n in ['Direction']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcExchangeSequenceField:
     def __init__(self, ExchangeID="", SequenceNo=0, MarketStatus='0'):
@@ -2202,7 +2180,7 @@ class CThostFtdcExchangeSequenceField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ExchangeID', u'交易所代码'),('SequenceNo', u'序号'),('MarketStatus', u'合约交易状态')]])
     def getval(self, n):
         if n in ['MarketStatus']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcSettlementInfoField:
     def __init__(self, SettlementID=0, InvestorID="", SequenceNo=0, Content="", TradingDay="", BrokerID=""):
@@ -2217,7 +2195,7 @@ class CThostFtdcSettlementInfoField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('SettlementID', u'结算编号'),('InvestorID', u'投资者代码'),('SequenceNo', u'序号'),('Content', u'消息正文'),('TradingDay', u'交易日'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcMDTraderOfferField:
     def __init__(self, StartDate="", ExchangeID="", InstallID=0, LastReportDate="", ParticipantID="", OrderLocalID="", LastReportTime="", TraderID="", MaxTradeID="", ConnectTime="", TraderConnectStatus='1', TradingDay="", ConnectRequestTime="", StartTime="", ConnectRequestDate="", MaxOrderMessageReference="", BrokerID="", Password="", ConnectDate=""):
@@ -2245,7 +2223,7 @@ class CThostFtdcMDTraderOfferField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('StartDate', u'启动日期'),('ExchangeID', u'交易所代码'),('InstallID', u'安装编号'),('LastReportDate', u'上次报告日期'),('ParticipantID', u'会员代码'),('OrderLocalID', u'本地报单编号'),('LastReportTime', u'上次报告时间'),('TraderID', u'交易所交易员代码'),('MaxTradeID', u'本席位最大成交编号'),('ConnectTime', u'完成连接时间'),('TraderConnectStatus', u'交易所交易员连接状态'),('TradingDay', u'交易日'),('ConnectRequestTime', u'发出连接请求的时间'),('StartTime', u'启动时间'),('ConnectRequestDate', u'发出连接请求的日期'),('MaxOrderMessageReference', u'本席位最大报单备拷'),('BrokerID', u'经纪公司代码'),('Password', u'密码'),('ConnectDate', u'完成连接日期')]])
     def getval(self, n):
         if n in ['TraderConnectStatus']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryInstrumentStatusField:
     def __init__(self, ExchangeID="", ExchangeInstID=""):
@@ -2256,7 +2234,7 @@ class CThostFtdcQryInstrumentStatusField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ExchangeID', u'交易所代码'),('ExchangeInstID', u'合约在交易所的代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcMarketDataAsk23Field:
     def __init__(self, AskVolume3=0, AskVolume2=0, AskPrice3=0, AskPrice2=0):
@@ -2269,7 +2247,7 @@ class CThostFtdcMarketDataAsk23Field:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('AskVolume3', u'申卖量三'),('AskVolume2', u'申卖量二'),('AskPrice3', u'申卖价三'),('AskPrice2', u'申卖价二')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryOrderActionField:
     def __init__(self, InvestorID="", ExchangeID="", BrokerID=""):
@@ -2281,7 +2259,7 @@ class CThostFtdcQryOrderActionField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InvestorID', u'投资者代码'),('ExchangeID', u'交易所代码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcUserRightsAssignField:
     def __init__(self, UserID="", DRIdentityID=0, BrokerID=""):
@@ -2293,7 +2271,7 @@ class CThostFtdcUserRightsAssignField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('UserID', u'用户代码'),('DRIdentityID', u'交易中心标识号'),('BrokerID', u'对应分配的经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcDisseminationField:
     def __init__(self, SequenceNo=0, SequenceSeries=0):
@@ -2304,7 +2282,7 @@ class CThostFtdcDisseminationField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('SequenceNo', u'序列号'),('SequenceSeries', u'序列系列号')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcUserLogoutField:
     def __init__(self, UserID="", BrokerID=""):
@@ -2315,7 +2293,7 @@ class CThostFtdcUserLogoutField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('UserID', u'用户代码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcCurrentTimeField:
     def __init__(self, CurrTime="", CurrDate="", CurrMillisec=0):
@@ -2327,7 +2305,7 @@ class CThostFtdcCurrentTimeField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('CurrTime', u'当前时间'),('CurrDate', u'当前日期'),('CurrMillisec', u'当前时间（毫秒）')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcErrOrderActionField:
     def __init__(self, ActionTime="", InvestorID="", TraderID="", UserID="", LimitPrice=0, OrderActionStatus='a', InstallID=0, ParticipantID="", OrderActionRef=0, VolumeChange=0, SessionID=0, ActionFlag='0', ErrorID=0, InstrumentID="", ExchangeID="", StatusMsg="", OrderSysID="", BrokerID="", ClientID="", ActionDate="", OrderLocalID="", BusinessUnit="", ErrorMsg="", OrderRef="", ActionLocalID="", RequestID=0, FrontID=0):
@@ -2363,7 +2341,7 @@ class CThostFtdcErrOrderActionField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ActionTime', u'操作时间'),('InvestorID', u'投资者代码'),('TraderID', u'交易所交易员代码'),('UserID', u'用户代码'),('LimitPrice', u'价格'),('OrderActionStatus', u'报单操作状态'),('InstallID', u'安装编号'),('ParticipantID', u'会员代码'),('OrderActionRef', u'报单操作引用'),('VolumeChange', u'数量变化'),('SessionID', u'会话编号'),('ActionFlag', u'操作标志'),('ErrorID', u'错误代码'),('InstrumentID', u'合约代码'),('ExchangeID', u'交易所代码'),('StatusMsg', u'状态信息'),('OrderSysID', u'报单编号'),('BrokerID', u'经纪公司代码'),('ClientID', u'客户代码'),('ActionDate', u'操作日期'),('OrderLocalID', u'本地报单编号'),('BusinessUnit', u'业务单元'),('ErrorMsg', u'错误信息'),('OrderRef', u'报单引用'),('ActionLocalID', u'操作本地编号'),('RequestID', u'请求编号'),('FrontID', u'前置编号')]])
     def getval(self, n):
         if n in ['OrderActionStatus', 'ActionFlag']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcBrokerUserRightAssignField:
     def __init__(self, DRIdentityID=0, BrokerID="", Tradeable=0):
@@ -2375,7 +2353,7 @@ class CThostFtdcBrokerUserRightAssignField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('DRIdentityID', u'交易中心标识号'),('BrokerID', u'经纪公司代码'),('Tradeable', u'能否交易')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcMarketDataBid23Field:
     def __init__(self, BidVolume3=0, BidVolume2=0, BidPrice3=0, BidPrice2=0):
@@ -2388,7 +2366,7 @@ class CThostFtdcMarketDataBid23Field:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BidVolume3', u'申买量三'),('BidVolume2', u'申买量二'),('BidPrice3', u'申买价三'),('BidPrice2', u'申买价二')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcMarketDataBaseField:
     def __init__(self, TradingDay="", PreDelta=0, PreClosePrice=0, PreOpenInterest=0, PreSettlementPrice=0):
@@ -2402,7 +2380,7 @@ class CThostFtdcMarketDataBaseField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('TradingDay', u'交易日'),('PreDelta', u'昨虚实度'),('PreClosePrice', u'昨收盘'),('PreOpenInterest', u'昨持仓量'),('PreSettlementPrice', u'上次结算价')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcTradeField:
     def __init__(self, TradeType='0', TraderID="", HedgeFlag='1', TradeTime="", Direction='0', ParticipantID="", Price=0, ClientID="", Volume=0, OrderSysID="", ClearingPartID="", InstrumentID="", ExchangeID="", SettlementID=0, UserID="", TradingDay="", BrokerID="", OffsetFlag='0', OrderLocalID="", TradeID="", TradeDate="", BusinessUnit="", SequenceNo=0, OrderRef="", BrokerOrderSeq=0, InvestorID="", ExchangeInstID="", TradeSource='0', PriceSource='0', TradingRole='1'):
@@ -2441,7 +2419,7 @@ class CThostFtdcTradeField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('TradeType', u'成交类型'),('TraderID', u'交易所交易员代码'),('HedgeFlag', u'投机套保标志'),('TradeTime', u'成交时间'),('Direction', u'买卖方向'),('ParticipantID', u'会员代码'),('Price', u'价格'),('ClientID', u'客户代码'),('Volume', u'数量'),('OrderSysID', u'报单编号'),('ClearingPartID', u'结算会员编号'),('InstrumentID', u'合约代码'),('ExchangeID', u'交易所代码'),('SettlementID', u'结算编号'),('UserID', u'用户代码'),('TradingDay', u'交易日'),('BrokerID', u'经纪公司代码'),('OffsetFlag', u'开平标志'),('OrderLocalID', u'本地报单编号'),('TradeID', u'成交编号'),('TradeDate', u'成交时期'),('BusinessUnit', u'业务单元'),('SequenceNo', u'序号'),('OrderRef', u'报单引用'),('BrokerOrderSeq', u'经纪公司报单编号'),('InvestorID', u'投资者代码'),('ExchangeInstID', u'合约在交易所的代码'),('TradeSource', u'成交来源'),('PriceSource', u'成交价来源'),('TradingRole', u'交易角色')]])
     def getval(self, n):
         if n in ['TradeType', 'HedgeFlag', 'Direction', 'OffsetFlag', 'TradeSource', 'PriceSource', 'TradingRole']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryParkedOrderField:
     def __init__(self, InstrumentID="", InvestorID="", ExchangeID="", BrokerID=""):
@@ -2454,7 +2432,7 @@ class CThostFtdcQryParkedOrderField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('InvestorID', u'投资者代码'),('ExchangeID', u'交易所代码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryBrokerUserEventField:
     def __init__(self, UserID="", BrokerID="", UserEventType='1'):
@@ -2466,7 +2444,7 @@ class CThostFtdcQryBrokerUserEventField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('UserID', u'用户代码'),('BrokerID', u'经纪公司代码'),('UserEventType', u'用户事件类型')]])
     def getval(self, n):
         if n in ['UserEventType']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryInstrumentCommissionRateField:
     def __init__(self, InstrumentID="", InvestorID="", BrokerID=""):
@@ -2478,7 +2456,7 @@ class CThostFtdcQryInstrumentCommissionRateField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcReturnResultField:
     def __init__(self, ReturnCode="", DescrInfoForReturnCode=""):
@@ -2489,7 +2467,7 @@ class CThostFtdcReturnResultField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ReturnCode', u'返回代码'),('DescrInfoForReturnCode', u'返回码描述')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcRemoveParkedOrderActionField:
     def __init__(self, InvestorID="", BrokerID="", ParkedOrderActionID=""):
@@ -2501,7 +2479,7 @@ class CThostFtdcRemoveParkedOrderActionField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('ParkedOrderActionID', u'预埋撤单编号')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryTraderField:
     def __init__(self, ExchangeID="", TraderID="", ParticipantID=""):
@@ -2513,7 +2491,7 @@ class CThostFtdcQryTraderField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ExchangeID', u'交易所代码'),('TraderID', u'交易所交易员代码'),('ParticipantID', u'会员代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcCFMMCTradingAccountKeyField:
     def __init__(self, KeyID=0, BrokerID="", ParticipantID="", CurrentKey="", AccountID=""):
@@ -2527,7 +2505,7 @@ class CThostFtdcCFMMCTradingAccountKeyField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('KeyID', u'密钥编号'),('BrokerID', u'经纪公司代码'),('ParticipantID', u'经纪公司统一编码'),('CurrentKey', u'动态密钥'),('AccountID', u'投资者帐号')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcRspFutureSignOutField:
     def __init__(self, BrokerBranchID="", UserID="", TradeTime="", TID=0, InstallID=0, TradeCode="", BankBranchID="", SessionID=0, BankID="", PlateSerial=0, ErrorID=0, BankSerial="", OperNo="", TradingDay="", BrokerID="", DeviceID="", TradeDate="", CurrencyID="", ErrorMsg="", LastFragment='0', RequestID=0, BrokerIDByBank="", Digest=""):
@@ -2559,7 +2537,7 @@ class CThostFtdcRspFutureSignOutField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BrokerBranchID', u'期商分支机构代码'),('UserID', u'用户标识'),('TradeTime', u'交易时间'),('TID', u'交易ID'),('InstallID', u'安装编号'),('TradeCode', u'业务功能码'),('BankBranchID', u'银行分支机构代码'),('SessionID', u'会话号'),('BankID', u'银行代码'),('PlateSerial', u'银期平台消息流水号'),('ErrorID', u'错误代码'),('BankSerial', u'银行流水号'),('OperNo', u'交易柜员'),('TradingDay', u'交易系统日期'),('BrokerID', u'期商代码'),('DeviceID', u'渠道标志'),('TradeDate', u'交易日期'),('CurrencyID', u'币种代码'),('ErrorMsg', u'错误信息'),('LastFragment', u'最后分片标志'),('RequestID', u'请求编号'),('BrokerIDByBank', u'期货公司银行编码'),('Digest', u'摘要')]])
     def getval(self, n):
         if n in ['LastFragment']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQrySyncDepositField:
     def __init__(self, DepositSeqNo="", BrokerID=""):
@@ -2570,7 +2548,7 @@ class CThostFtdcQrySyncDepositField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('DepositSeqNo', u'出入金流水号'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcReqUserLoginField:
     def __init__(self, MacAddress="", UserProductInfo="", UserID="", TradingDay="", InterfaceProductInfo="", BrokerID="", ClientIPAddress="", OneTimePassword="", ProtocolInfo="", Password=""):
@@ -2589,7 +2567,7 @@ class CThostFtdcReqUserLoginField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('MacAddress', u'Mac地址'),('UserProductInfo', u'用户端产品信息'),('UserID', u'用户代码'),('TradingDay', u'交易日'),('InterfaceProductInfo', u'接口端产品信息'),('BrokerID', u'经纪公司代码'),('ClientIPAddress', u'终端IP地址'),('OneTimePassword', u'动态密码'),('ProtocolInfo', u'协议信息'),('Password', u'密码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcVerifyCustInfoField:
     def __init__(self, CustType='0', IdentifiedCardNo="", CustomerName="", IdCardType='0'):
@@ -2602,7 +2580,7 @@ class CThostFtdcVerifyCustInfoField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('CustType', u'客户类型'),('IdentifiedCardNo', u'证件号码'),('CustomerName', u'客户姓名'),('IdCardType', u'证件类型')]])
     def getval(self, n):
         if n in ['CustType', 'IdCardType']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcInputOrderActionField:
     def __init__(self, InstrumentID="", ExchangeID="", ActionFlag='0', OrderActionRef=0, UserID="", LimitPrice=0, OrderRef="", InvestorID="", SessionID=0, VolumeChange=0, BrokerID="", RequestID=0, OrderSysID="", FrontID=0):
@@ -2625,7 +2603,7 @@ class CThostFtdcInputOrderActionField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('ExchangeID', u'交易所代码'),('ActionFlag', u'操作标志'),('OrderActionRef', u'报单操作引用'),('UserID', u'用户代码'),('LimitPrice', u'价格'),('OrderRef', u'报单引用'),('InvestorID', u'投资者代码'),('SessionID', u'会话编号'),('VolumeChange', u'数量变化'),('BrokerID', u'经纪公司代码'),('RequestID', u'请求编号'),('OrderSysID', u'报单编号'),('FrontID', u'前置编号')]])
     def getval(self, n):
         if n in ['ActionFlag']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcInvestorPositionCombineDetailField:
     def __init__(self, InstrumentID="", ExchangeID="", MarginRateByVolume=0, ComTradeID="", SettlementID=0, InvestorID="", TotalAmt=0, Margin=0, ExchMargin=0, LegMultiple=0, HedgeFlag='1', TradeID="", LegID=0, TradingDay="", MarginRateByMoney=0, Direction='0', BrokerID="", CombInstrumentID="", OpenDate=""):
@@ -2653,7 +2631,7 @@ class CThostFtdcInvestorPositionCombineDetailField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('ExchangeID', u'交易所代码'),('MarginRateByVolume', u'保证金率(按手数)'),('ComTradeID', u'组合编号'),('SettlementID', u'结算编号'),('InvestorID', u'投资者代码'),('TotalAmt', u'持仓量'),('Margin', u'投资者保证金'),('ExchMargin', u'交易所保证金'),('LegMultiple', u'单腿乘数'),('HedgeFlag', u'投机套保标志'),('TradeID', u'撮合编号'),('LegID', u'单腿编号'),('TradingDay', u'交易日'),('MarginRateByMoney', u'保证金率'),('Direction', u'买卖'),('BrokerID', u'经纪公司代码'),('CombInstrumentID', u'组合持仓合约编码'),('OpenDate', u'开仓日期')]])
     def getval(self, n):
         if n in ['HedgeFlag', 'Direction']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryBrokerUserFunctionField:
     def __init__(self, UserID="", BrokerID=""):
@@ -2664,7 +2642,7 @@ class CThostFtdcQryBrokerUserFunctionField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('UserID', u'用户代码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcParkedOrderField:
     def __init__(self, ContingentCondition='1', CombOffsetFlag="", UserID="", LimitPrice=0, UserForceClose=0, Status='1', Direction='0', UserType='0', VolumeTotalOriginal=0, OrderPriceType='1', TimeCondition='1', IsAutoSuspend=0, StopPrice=0, InstrumentID="", ExchangeID="", MinVolume=0, ForceCloseReason='0', ErrorID=0, ParkedOrderID="", BrokerID="", CombHedgeFlag="", GTDDate="", BusinessUnit="", ErrorMsg="", OrderRef="", InvestorID="", VolumeCondition='1', RequestID=0):
@@ -2701,7 +2679,7 @@ class CThostFtdcParkedOrderField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ContingentCondition', u'触发条件'),('CombOffsetFlag', u'组合开平标志'),('UserID', u'用户代码'),('LimitPrice', u'价格'),('UserForceClose', u'用户强评标志'),('Status', u'预埋单状态'),('Direction', u'买卖方向'),('UserType', u'用户类型'),('VolumeTotalOriginal', u'数量'),('OrderPriceType', u'报单价格条件'),('TimeCondition', u'有效期类型'),('IsAutoSuspend', u'自动挂起标志'),('StopPrice', u'止损价'),('InstrumentID', u'合约代码'),('ExchangeID', u'交易所代码'),('MinVolume', u'最小成交量'),('ForceCloseReason', u'强平原因'),('ErrorID', u'错误代码'),('ParkedOrderID', u'预埋报单编号'),('BrokerID', u'经纪公司代码'),('CombHedgeFlag', u'组合投机套保标志'),('GTDDate', u'GTD日期'),('BusinessUnit', u'业务单元'),('ErrorMsg', u'错误信息'),('OrderRef', u'报单引用'),('InvestorID', u'投资者代码'),('VolumeCondition', u'成交量类型'),('RequestID', u'请求编号')]])
     def getval(self, n):
         if n in ['ContingentCondition', 'Status', 'Direction', 'UserType', 'OrderPriceType', 'TimeCondition', 'ForceCloseReason', 'VolumeCondition']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcOrderActionField:
     def __init__(self, ActionTime="", InvestorID="", TraderID="", UserID="", LimitPrice=0, OrderActionStatus='a', InstallID=0, ParticipantID="", OrderActionRef=0, VolumeChange=0, SessionID=0, ActionFlag='0', InstrumentID="", ExchangeID="", StatusMsg="", OrderSysID="", BrokerID="", ClientID="", ActionDate="", OrderLocalID="", BusinessUnit="", OrderRef="", ActionLocalID="", RequestID=0, FrontID=0):
@@ -2735,7 +2713,7 @@ class CThostFtdcOrderActionField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ActionTime', u'操作时间'),('InvestorID', u'投资者代码'),('TraderID', u'交易所交易员代码'),('UserID', u'用户代码'),('LimitPrice', u'价格'),('OrderActionStatus', u'报单操作状态'),('InstallID', u'安装编号'),('ParticipantID', u'会员代码'),('OrderActionRef', u'报单操作引用'),('VolumeChange', u'数量变化'),('SessionID', u'会话编号'),('ActionFlag', u'操作标志'),('InstrumentID', u'合约代码'),('ExchangeID', u'交易所代码'),('StatusMsg', u'状态信息'),('OrderSysID', u'报单编号'),('BrokerID', u'经纪公司代码'),('ClientID', u'客户代码'),('ActionDate', u'操作日期'),('OrderLocalID', u'本地报单编号'),('BusinessUnit', u'业务单元'),('OrderRef', u'报单引用'),('ActionLocalID', u'操作本地编号'),('RequestID', u'请求编号'),('FrontID', u'前置编号')]])
     def getval(self, n):
         if n in ['OrderActionStatus', 'ActionFlag']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcPartBrokerField:
     def __init__(self, ExchangeID="", BrokerID="", ParticipantID="", IsActive=0):
@@ -2748,7 +2726,7 @@ class CThostFtdcPartBrokerField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ExchangeID', u'交易所代码'),('BrokerID', u'经纪公司代码'),('ParticipantID', u'会员代码'),('IsActive', u'是否活跃')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcReqOpenAccountField:
     def __init__(self, MoneyAccountStatus='0', BrokerBranchID="", BankPassWord="", Telephone="", IdentifiedCardNo="", VerifyCertNoFlag='0', TID=0, AccountID="", BankAccount="", Fax="", InstallID=0, SecuPwdFlag='0', CustomerName="", CountryCode="", TradeCode="", BankBranchID="", SessionID=0, Address="", PlateSerial=0, BankPwdFlag='0', CustType='0', Gender='0', BankID="", BankSerial="", OperNo="", TradingDay="", BankSecuAcc="", BrokerID="", CashExchangeCode='1', IdCardType='0', Password="", MobilePhone="", TradeDate="", CurrencyID="", BankAccType='1', LastFragment='0', ZipCode="", BankSecuAccType='1', BrokerIDByBank="", TradeTime="", EMail="", Digest="", DeviceID=""):
@@ -2800,7 +2778,7 @@ class CThostFtdcReqOpenAccountField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('MoneyAccountStatus', u'资金账户状态'),('BrokerBranchID', u'期商分支机构代码'),('BankPassWord', u'银行密码'),('Telephone', u'电话号码'),('IdentifiedCardNo', u'证件号码'),('VerifyCertNoFlag', u'验证客户证件号码标志'),('TID', u'交易ID'),('AccountID', u'投资者帐号'),('BankAccount', u'银行帐号'),('Fax', u'传真'),('InstallID', u'安装编号'),('SecuPwdFlag', u'期货资金密码核对标志'),('CustomerName', u'客户姓名'),('CountryCode', u'国家代码'),('TradeCode', u'业务功能码'),('BankBranchID', u'银行分支机构代码'),('SessionID', u'会话号'),('Address', u'地址'),('PlateSerial', u'银期平台消息流水号'),('BankPwdFlag', u'银行密码标志'),('CustType', u'客户类型'),('Gender', u'性别'),('BankID', u'银行代码'),('BankSerial', u'银行流水号'),('OperNo', u'交易柜员'),('TradingDay', u'交易系统日期'),('BankSecuAcc', u'期货单位帐号'),('BrokerID', u'期商代码'),('CashExchangeCode', u'汇钞标志'),('IdCardType', u'证件类型'),('Password', u'期货密码'),('MobilePhone', u'手机'),('TradeDate', u'交易日期'),('CurrencyID', u'币种代码'),('BankAccType', u'银行帐号类型'),('LastFragment', u'最后分片标志'),('ZipCode', u'邮编'),('BankSecuAccType', u'期货单位帐号类型'),('BrokerIDByBank', u'期货公司银行编码'),('TradeTime', u'交易时间'),('EMail', u'电子邮件'),('Digest', u'摘要'),('DeviceID', u'渠道标志')]])
     def getval(self, n):
         if n in ['MoneyAccountStatus', 'VerifyCertNoFlag', 'SecuPwdFlag', 'BankPwdFlag', 'CustType', 'Gender', 'CashExchangeCode', 'IdCardType', 'BankAccType', 'LastFragment', 'BankSecuAccType']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcVerifyInvestorPasswordField:
     def __init__(self, InvestorID="", Password="", BrokerID=""):
@@ -2812,7 +2790,7 @@ class CThostFtdcVerifyInvestorPasswordField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InvestorID', u'投资者代码'),('Password', u'密码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQueryBrokerDepositField:
     def __init__(self, ExchangeID="", BrokerID=""):
@@ -2823,7 +2801,7 @@ class CThostFtdcQueryBrokerDepositField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ExchangeID', u'交易所代码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcSuperUserField:
     def __init__(self, UserName="", Password="", UserID="", IsActive=0):
@@ -2836,7 +2814,7 @@ class CThostFtdcSuperUserField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('UserName', u'用户名称'),('Password', u'密码'),('UserID', u'用户代码'),('IsActive', u'是否活跃')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryProductField:
     def __init__(self, ProductID=""):
@@ -2846,7 +2824,7 @@ class CThostFtdcQryProductField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ProductID', u'产品代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcInvestorField:
     def __init__(self, CommModelID="", InvestorName="", Mobile="", IdentifiedCardNo="", Telephone="", InvestorID="", BrokerID="", Address="", InvestorGroupID="", OpenDate="", IsActive=0, IdentifiedCardType='0'):
@@ -2867,7 +2845,7 @@ class CThostFtdcInvestorField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('CommModelID', u'手续费率模板代码'),('InvestorName', u'投资者名称'),('Mobile', u'手机'),('IdentifiedCardNo', u'证件号码'),('Telephone', u'联系电话'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('Address', u'通讯地址'),('InvestorGroupID', u'投资者分组代码'),('OpenDate', u'开户日期'),('IsActive', u'是否活跃'),('IdentifiedCardType', u'证件类型')]])
     def getval(self, n):
         if n in ['IdentifiedCardType']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcSyncStatusField:
     def __init__(self, TradingDay="", DataSyncStatus='1'):
@@ -2878,7 +2856,7 @@ class CThostFtdcSyncStatusField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('TradingDay', u'交易日'),('DataSyncStatus', u'数据同步状态')]])
     def getval(self, n):
         if n in ['DataSyncStatus']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcInstrumentTradingRightField:
     def __init__(self, InstrumentID="", InvestorID="", BrokerID="", InvestorRange='1', TradingRight='0'):
@@ -2892,7 +2870,7 @@ class CThostFtdcInstrumentTradingRightField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('InvestorRange', u'投资者范围'),('TradingRight', u'交易权限')]])
     def getval(self, n):
         if n in ['InvestorRange', 'TradingRight']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcTransferQryBankRspField:
     def __init__(self, FutureAccount="", RetCode="", CurrencyCode="", TradeAmt=0, UseAmt=0, RetInfo="", FetchAmt=0):
@@ -2908,7 +2886,7 @@ class CThostFtdcTransferQryBankRspField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('FutureAccount', u'资金账户'),('RetCode', u'响应代码'),('CurrencyCode', u'币种'),('TradeAmt', u'银行余额'),('UseAmt', u'银行可用余额'),('RetInfo', u'响应信息'),('FetchAmt', u'银行可取余额')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcAccountregisterField:
     def __init__(self, BankAccount="", CustType='0', CustomerName="", CurrencyID="", BrokerBranchID="", OutDate="", IdentifiedCardNo="", BankBranchID="", RegDate="", BrokerID="", BankID="", TID=0, OpenOrDestroy='1', IdCardType='0', TradeDay="", BankAccType='1', AccountID=""):
@@ -2934,7 +2912,7 @@ class CThostFtdcAccountregisterField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BankAccount', u'银行帐号'),('CustType', u'客户类型'),('CustomerName', u'客户姓名'),('CurrencyID', u'币种代码'),('BrokerBranchID', u'期货公司分支机构编码'),('OutDate', u'解约日期'),('IdentifiedCardNo', u'证件号码'),('BankBranchID', u'银行分支机构编码'),('RegDate', u'签约日期'),('BrokerID', u'期货公司编码'),('BankID', u'银行编码'),('TID', u'交易ID'),('OpenOrDestroy', u'开销户类别'),('IdCardType', u'证件类型'),('TradeDay', u'交易日期'),('BankAccType', u'银行帐号类型'),('AccountID', u'投资者帐号')]])
     def getval(self, n):
         if n in ['CustType', 'OpenOrDestroy', 'IdCardType', 'BankAccType']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcBrokerDepositField:
     def __init__(self, Available=0, ExchangeID="", ParticipantID="", FrozenMargin=0, PreBalance=0, CurrMargin=0, TradingDay="", BrokerID="", Deposit=0, Withdraw=0, CloseProfit=0, Balance=0, Reserve=0):
@@ -2956,7 +2934,7 @@ class CThostFtdcBrokerDepositField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('Available', u'可提资金'),('ExchangeID', u'交易所代码'),('ParticipantID', u'会员代码'),('FrozenMargin', u'冻结的保证金'),('PreBalance', u'上次结算准备金'),('CurrMargin', u'当前保证金总额'),('TradingDay', u'交易日期'),('BrokerID', u'经纪公司代码'),('Deposit', u'入金金额'),('Withdraw', u'出金金额'),('CloseProfit', u'平仓盈亏'),('Balance', u'期货结算准备金'),('Reserve', u'基本准备金')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcErrorConditionalOrderField:
     def __init__(self, ContingentCondition='1', NotifySequence=0, ActiveUserID="", VolumeTraded=0, UserProductInfo="", CombOffsetFlag="", TraderID="", UserID="", LimitPrice=0, UserForceClose=0, RelativeOrderSysID="", Direction='0', InstallID=0, ParticipantID="", VolumeTotalOriginal=0, ExchangeInstID="", ClientID="", VolumeTotal=0, OrderPriceType='1', SessionID=0, TimeCondition='1', OrderStatus='0', OrderSysID="", OrderSubmitStatus='0', IsAutoSuspend=0, StopPrice=0, InstrumentID="", ExchangeID="", MinVolume=0, StatusMsg="", SettlementID=0, ForceCloseReason='0', OrderType='0', ErrorID=0, UpdateTime="", TradingDay="", ActiveTime="", BrokerID="", InsertTime="", FrontID=0, SuspendTime="", ClearingPartID="", CombHedgeFlag="", CancelTime="", GTDDate="", OrderLocalID="", BusinessUnit="", InsertDate="", SequenceNo=0, OrderRef="", BrokerOrderSeq=0, InvestorID="", VolumeCondition='1', RequestID=0, ErrorMsg="", OrderSource='0', ActiveTraderID=""):
@@ -3022,7 +3000,7 @@ class CThostFtdcErrorConditionalOrderField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ContingentCondition', u'触发条件'),('NotifySequence', u'报单提示序号'),('ActiveUserID', u'操作用户代码'),('VolumeTraded', u'今成交数量'),('UserProductInfo', u'用户端产品信息'),('CombOffsetFlag', u'组合开平标志'),('TraderID', u'交易所交易员代码'),('UserID', u'用户代码'),('LimitPrice', u'价格'),('UserForceClose', u'用户强评标志'),('RelativeOrderSysID', u'相关报单'),('Direction', u'买卖方向'),('InstallID', u'安装编号'),('ParticipantID', u'会员代码'),('VolumeTotalOriginal', u'数量'),('ExchangeInstID', u'合约在交易所的代码'),('ClientID', u'客户代码'),('VolumeTotal', u'剩余数量'),('OrderPriceType', u'报单价格条件'),('SessionID', u'会话编号'),('TimeCondition', u'有效期类型'),('OrderStatus', u'报单状态'),('OrderSysID', u'报单编号'),('OrderSubmitStatus', u'报单提交状态'),('IsAutoSuspend', u'自动挂起标志'),('StopPrice', u'止损价'),('InstrumentID', u'合约代码'),('ExchangeID', u'交易所代码'),('MinVolume', u'最小成交量'),('StatusMsg', u'状态信息'),('SettlementID', u'结算编号'),('ForceCloseReason', u'强平原因'),('OrderType', u'报单类型'),('ErrorID', u'错误代码'),('UpdateTime', u'最后修改时间'),('TradingDay', u'交易日'),('ActiveTime', u'激活时间'),('BrokerID', u'经纪公司代码'),('InsertTime', u'委托时间'),('FrontID', u'前置编号'),('SuspendTime', u'挂起时间'),('ClearingPartID', u'结算会员编号'),('CombHedgeFlag', u'组合投机套保标志'),('CancelTime', u'撤销时间'),('GTDDate', u'GTD日期'),('OrderLocalID', u'本地报单编号'),('BusinessUnit', u'业务单元'),('InsertDate', u'报单日期'),('SequenceNo', u'序号'),('OrderRef', u'报单引用'),('BrokerOrderSeq', u'经纪公司报单编号'),('InvestorID', u'投资者代码'),('VolumeCondition', u'成交量类型'),('RequestID', u'请求编号'),('ErrorMsg', u'错误信息'),('OrderSource', u'报单来源'),('ActiveTraderID', u'最后修改交易所交易员代码')]])
     def getval(self, n):
         if n in ['ContingentCondition', 'Direction', 'OrderPriceType', 'TimeCondition', 'OrderStatus', 'OrderSubmitStatus', 'ForceCloseReason', 'OrderType', 'VolumeCondition', 'OrderSource']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcDRTransferField:
     def __init__(self, DestBrokerID="", DestDRIdentityID=0, OrigDRIdentityID=0, OrigBrokerID=""):
@@ -3035,7 +3013,7 @@ class CThostFtdcDRTransferField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('DestBrokerID', u'目标经纪公司代码'),('DestDRIdentityID', u'目标交易中心标识号'),('OrigDRIdentityID', u'原交易中心标识号'),('OrigBrokerID', u'原经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcBrokerTradingParamsField:
     def __init__(self, InvestorID="", MarginPriceType='1', BrokerID="", AvailIncludeCloseProfit='0', Algorithm='1'):
@@ -3049,7 +3027,7 @@ class CThostFtdcBrokerTradingParamsField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InvestorID', u'投资者代码'),('MarginPriceType', u'保证金价格类型'),('BrokerID', u'经纪公司代码'),('AvailIncludeCloseProfit', u'可用是否包含平仓盈利'),('Algorithm', u'盈亏算法')]])
     def getval(self, n):
         if n in ['MarginPriceType', 'AvailIncludeCloseProfit', 'Algorithm']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcRemoveParkedOrderField:
     def __init__(self, InvestorID="", BrokerID="", ParkedOrderID=""):
@@ -3061,7 +3039,7 @@ class CThostFtdcRemoveParkedOrderField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('ParkedOrderID', u'预埋报单编号')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcBrokerUserPasswordField:
     def __init__(self, UserID="", Password="", BrokerID=""):
@@ -3073,7 +3051,7 @@ class CThostFtdcBrokerUserPasswordField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('UserID', u'用户代码'),('Password', u'密码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcOrderField:
     def __init__(self, ContingentCondition='1', NotifySequence=0, ActiveUserID="", VolumeTraded=0, UserProductInfo="", CombOffsetFlag="", TraderID="", UserID="", LimitPrice=0, UserForceClose=0, RelativeOrderSysID="", Direction='0', InstallID=0, ParticipantID="", VolumeTotalOriginal=0, ExchangeInstID="", ClientID="", VolumeTotal=0, OrderPriceType='1', SessionID=0, TimeCondition='1', OrderStatus='0', OrderSysID="", OrderSubmitStatus='0', IsAutoSuspend=0, StopPrice=0, InstrumentID="", ExchangeID="", MinVolume=0, StatusMsg="", SettlementID=0, ForceCloseReason='0', OrderType='0', UpdateTime="", TradingDay="", ActiveTime="", BrokerID="", InsertTime="", FrontID=0, SuspendTime="", ClearingPartID="", CombHedgeFlag="", CancelTime="", GTDDate="", OrderLocalID="", BusinessUnit="", InsertDate="", SequenceNo=0, OrderRef="", BrokerOrderSeq=0, InvestorID="", VolumeCondition='1', RequestID=0, OrderSource='0', ActiveTraderID=""):
@@ -3137,7 +3115,7 @@ class CThostFtdcOrderField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ContingentCondition', u'触发条件'),('NotifySequence', u'报单提示序号'),('ActiveUserID', u'操作用户代码'),('VolumeTraded', u'今成交数量'),('UserProductInfo', u'用户端产品信息'),('CombOffsetFlag', u'组合开平标志'),('TraderID', u'交易所交易员代码'),('UserID', u'用户代码'),('LimitPrice', u'价格'),('UserForceClose', u'用户强评标志'),('RelativeOrderSysID', u'相关报单'),('Direction', u'买卖方向'),('InstallID', u'安装编号'),('ParticipantID', u'会员代码'),('VolumeTotalOriginal', u'数量'),('ExchangeInstID', u'合约在交易所的代码'),('ClientID', u'客户代码'),('VolumeTotal', u'剩余数量'),('OrderPriceType', u'报单价格条件'),('SessionID', u'会话编号'),('TimeCondition', u'有效期类型'),('OrderStatus', u'报单状态'),('OrderSysID', u'报单编号'),('OrderSubmitStatus', u'报单提交状态'),('IsAutoSuspend', u'自动挂起标志'),('StopPrice', u'止损价'),('InstrumentID', u'合约代码'),('ExchangeID', u'交易所代码'),('MinVolume', u'最小成交量'),('StatusMsg', u'状态信息'),('SettlementID', u'结算编号'),('ForceCloseReason', u'强平原因'),('OrderType', u'报单类型'),('UpdateTime', u'最后修改时间'),('TradingDay', u'交易日'),('ActiveTime', u'激活时间'),('BrokerID', u'经纪公司代码'),('InsertTime', u'委托时间'),('FrontID', u'前置编号'),('SuspendTime', u'挂起时间'),('ClearingPartID', u'结算会员编号'),('CombHedgeFlag', u'组合投机套保标志'),('CancelTime', u'撤销时间'),('GTDDate', u'GTD日期'),('OrderLocalID', u'本地报单编号'),('BusinessUnit', u'业务单元'),('InsertDate', u'报单日期'),('SequenceNo', u'序号'),('OrderRef', u'报单引用'),('BrokerOrderSeq', u'经纪公司报单编号'),('InvestorID', u'投资者代码'),('VolumeCondition', u'成交量类型'),('RequestID', u'请求编号'),('OrderSource', u'报单来源'),('ActiveTraderID', u'最后修改交易所交易员代码')]])
     def getval(self, n):
         if n in ['ContingentCondition', 'Direction', 'OrderPriceType', 'TimeCondition', 'OrderStatus', 'OrderSubmitStatus', 'ForceCloseReason', 'OrderType', 'VolumeCondition', 'OrderSource']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQrySyncStatusField:
     def __init__(self, TradingDay=""):
@@ -3147,7 +3125,7 @@ class CThostFtdcQrySyncStatusField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('TradingDay', u'交易日')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryErrOrderActionField:
     def __init__(self, InvestorID="", BrokerID=""):
@@ -3158,7 +3136,7 @@ class CThostFtdcQryErrOrderActionField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcBrokerUserOTPParamField:
     def __init__(self, LastDrift=0, LastSuccess=0, SerialNumber="", UserID="", AuthKey="", BrokerID="", OTPVendorsID="", OTPType='0'):
@@ -3175,7 +3153,7 @@ class CThostFtdcBrokerUserOTPParamField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('LastDrift', u'漂移值'),('LastSuccess', u'成功值'),('SerialNumber', u'动态令牌序列号'),('UserID', u'用户代码'),('AuthKey', u'令牌密钥'),('BrokerID', u'经纪公司代码'),('OTPVendorsID', u'动态令牌提供商'),('OTPType', u'动态令牌类型')]])
     def getval(self, n):
         if n in ['OTPType']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcInstrumentMarginRateAdjustField:
     def __init__(self, InstrumentID="", ShortMarginRatioByMoney=0, LongMarginRatioByMoney=0, IsRelative=0, HedgeFlag='1', InvestorID="", BrokerID="", InvestorRange='1', ShortMarginRatioByVolume=0, LongMarginRatioByVolume=0):
@@ -3194,7 +3172,7 @@ class CThostFtdcInstrumentMarginRateAdjustField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('ShortMarginRatioByMoney', u'空头保证金率'),('LongMarginRatioByMoney', u'多头保证金率'),('IsRelative', u'是否相对交易所收取'),('HedgeFlag', u'投机套保标志'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('InvestorRange', u'投资者范围'),('ShortMarginRatioByVolume', u'空头保证金费'),('LongMarginRatioByVolume', u'多头保证金费')]])
     def getval(self, n):
         if n in ['HedgeFlag', 'InvestorRange']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryInvestorField:
     def __init__(self, InvestorID="", BrokerID=""):
@@ -3205,7 +3183,7 @@ class CThostFtdcQryInvestorField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcSpecificInstrumentField:
     def __init__(self, InstrumentID=""):
@@ -3215,7 +3193,7 @@ class CThostFtdcSpecificInstrumentField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcMarketDataAsk45Field:
     def __init__(self, AskPrice5=0, AskPrice4=0, AskVolume5=0, AskVolume4=0):
@@ -3228,7 +3206,7 @@ class CThostFtdcMarketDataAsk45Field:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('AskPrice5', u'申卖价五'),('AskPrice4', u'申卖价四'),('AskVolume5', u'申卖量五'),('AskVolume4', u'申卖量四')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcTradingAccountPasswordUpdateField:
     def __init__(self, NewPassword="", OldPassword="", BrokerID="", AccountID=""):
@@ -3241,7 +3219,7 @@ class CThostFtdcTradingAccountPasswordUpdateField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('NewPassword', u'新的口令'),('OldPassword', u'原来的口令'),('BrokerID', u'经纪公司代码'),('AccountID', u'投资者帐号')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcRspQueryTradeResultBySerialField:
     def __init__(self, OriginReturnCode="", OriginDescrInfoForReturnCode="", BrokerBranchID="", BankPassWord="", TradeTime="", AccountID="", BankAccount="", TradeCode="", BankBranchID="", RefrenceIssure="", SessionID=0, BankID="", PlateSerial=0, ErrorID=0, BankSerial="", TradingDay="", BrokerID="", RefrenceIssureType='0', Password="", Reference=0, TradeDate="", CurrencyID="", ErrorMsg="", LastFragment='0', TradeAmount=0, Digest=""):
@@ -3276,7 +3254,7 @@ class CThostFtdcRspQueryTradeResultBySerialField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('OriginReturnCode', u'原始返回代码'),('OriginDescrInfoForReturnCode', u'原始返回码描述'),('BrokerBranchID', u'期商分支机构代码'),('BankPassWord', u'银行密码'),('TradeTime', u'交易时间'),('AccountID', u'投资者帐号'),('BankAccount', u'银行帐号'),('TradeCode', u'业务功能码'),('BankBranchID', u'银行分支机构代码'),('RefrenceIssure', u'本流水号发布者机构编码'),('SessionID', u'会话号'),('BankID', u'银行代码'),('PlateSerial', u'银期平台消息流水号'),('ErrorID', u'错误代码'),('BankSerial', u'银行流水号'),('TradingDay', u'交易系统日期'),('BrokerID', u'期商代码'),('RefrenceIssureType', u'本流水号发布者的机构类型'),('Password', u'期货密码'),('Reference', u'流水号'),('TradeDate', u'交易日期'),('CurrencyID', u'币种代码'),('ErrorMsg', u'错误信息'),('LastFragment', u'最后分片标志'),('TradeAmount', u'转帐金额'),('Digest', u'摘要')]])
     def getval(self, n):
         if n in ['RefrenceIssureType', 'LastFragment']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcInstrumentCommissionRateField:
     def __init__(self, InstrumentID="", OpenRatioByMoney=0, CloseRatioByVolume=0, CloseTodayRatioByMoney=0, InvestorID="", BrokerID="", InvestorRange='1', CloseRatioByMoney=0, OpenRatioByVolume=0, CloseTodayRatioByVolume=0):
@@ -3295,7 +3273,7 @@ class CThostFtdcInstrumentCommissionRateField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('OpenRatioByMoney', u'开仓手续费率'),('CloseRatioByVolume', u'平仓手续费'),('CloseTodayRatioByMoney', u'平今手续费率'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('InvestorRange', u'投资者范围'),('CloseRatioByMoney', u'平仓手续费率'),('OpenRatioByVolume', u'开仓手续费'),('CloseTodayRatioByVolume', u'平今手续费')]])
     def getval(self, n):
         if n in ['InvestorRange']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryInvestorPositionCombineDetailField:
     def __init__(self, InvestorID="", BrokerID="", CombInstrumentID=""):
@@ -3307,7 +3285,7 @@ class CThostFtdcQryInvestorPositionCombineDetailField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('CombInstrumentID', u'组合持仓合约编码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryTransferBankField:
     def __init__(self, BankBrchID="", BankID=""):
@@ -3318,7 +3296,7 @@ class CThostFtdcQryTransferBankField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BankBrchID', u'银行分中心代码'),('BankID', u'银行代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcTransferSerialField:
     def __init__(self, BankNewAccount="", BrokerBranchID="", TradeTime="", OperatorCode="", AccountID="", BankAccount="", TradeCode="", BankBranchID="", SessionID=0, BankID="", PlateSerial=0, FutureAccType='1', ErrorID=0, BankSerial="", IdentifiedCardNo="", TradingDay="", BrokerID="", IdCardType='0', TradeDate="", CurrencyID="", BrokerFee=0, BankAccType='1', FutureSerial=0, InvestorID="", ErrorMsg="", CustFee=0, TradeAmount=0, AvailabilityFlag='0'):
@@ -3355,7 +3333,7 @@ class CThostFtdcTransferSerialField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BankNewAccount', u'新银行帐号'),('BrokerBranchID', u'期商分支机构代码'),('TradeTime', u'交易时间'),('OperatorCode', u'操作员'),('AccountID', u'投资者帐号'),('BankAccount', u'银行帐号'),('TradeCode', u'交易代码'),('BankBranchID', u'银行分支机构编码'),('SessionID', u'会话编号'),('BankID', u'银行编码'),('PlateSerial', u'平台流水号'),('FutureAccType', u'期货公司帐号类型'),('ErrorID', u'错误代码'),('BankSerial', u'银行流水号'),('IdentifiedCardNo', u'证件号码'),('TradingDay', u'交易日期'),('BrokerID', u'期货公司编码'),('IdCardType', u'证件类型'),('TradeDate', u'交易发起方日期'),('CurrencyID', u'币种代码'),('BrokerFee', u'应收期货公司费用'),('BankAccType', u'银行帐号类型'),('FutureSerial', u'期货公司流水号'),('InvestorID', u'投资者代码'),('ErrorMsg', u'错误信息'),('CustFee', u'应收客户费用'),('TradeAmount', u'交易金额'),('AvailabilityFlag', u'有效标志')]])
     def getval(self, n):
         if n in ['FutureAccType', 'IdCardType', 'BankAccType', 'AvailabilityFlag']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcExchangeMarginRateAdjustField:
     def __init__(self, InstrumentID="", ShortMarginRatioByMoney=0, ExchLongMarginRatioByMoney=0, ExchShortMarginRatioByMoney=0, LongMarginRatioByMoney=0, ExchShortMarginRatioByVolume=0, ExchLongMarginRatioByVolume=0, NoShortMarginRatioByMoney=0, NoLongMarginRatioByMoney=0, HedgeFlag='1', NoLongMarginRatioByVolume=0, NoShortMarginRatioByVolume=0, BrokerID="", ShortMarginRatioByVolume=0, LongMarginRatioByVolume=0):
@@ -3379,7 +3357,7 @@ class CThostFtdcExchangeMarginRateAdjustField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('ShortMarginRatioByMoney', u'跟随交易所投资者空头保证金率'),('ExchLongMarginRatioByMoney', u'交易所多头保证金率'),('ExchShortMarginRatioByMoney', u'交易所空头保证金率'),('LongMarginRatioByMoney', u'跟随交易所投资者多头保证金率'),('ExchShortMarginRatioByVolume', u'交易所空头保证金费'),('ExchLongMarginRatioByVolume', u'交易所多头保证金费'),('NoShortMarginRatioByMoney', u'不跟随交易所投资者空头保证金率'),('NoLongMarginRatioByMoney', u'不跟随交易所投资者多头保证金率'),('HedgeFlag', u'投机套保标志'),('NoLongMarginRatioByVolume', u'不跟随交易所投资者多头保证金费'),('NoShortMarginRatioByVolume', u'不跟随交易所投资者空头保证金费'),('BrokerID', u'经纪公司代码'),('ShortMarginRatioByVolume', u'跟随交易所投资者空头保证金费'),('LongMarginRatioByVolume', u'跟随交易所投资者多头保证金费')]])
     def getval(self, n):
         if n in ['HedgeFlag']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryFrontStatusField:
     def __init__(self, FrontID=0):
@@ -3389,7 +3367,7 @@ class CThostFtdcQryFrontStatusField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('FrontID', u'前置编号')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryNoticeField:
     def __init__(self, BrokerID=""):
@@ -3399,7 +3377,7 @@ class CThostFtdcQryNoticeField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcSyncingInvestorGroupField:
     def __init__(self, InvestorGroupID="", BrokerID="", InvestorGroupName=""):
@@ -3411,7 +3389,7 @@ class CThostFtdcSyncingInvestorGroupField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InvestorGroupID', u'投资者分组代码'),('BrokerID', u'经纪公司代码'),('InvestorGroupName', u'投资者分组名称')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcTraderField:
     def __init__(self, ExchangeID="", ParticipantID="", TraderID="", BrokerID="", InstallCount=0, Password=""):
@@ -3426,7 +3404,7 @@ class CThostFtdcTraderField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ExchangeID', u'交易所代码'),('ParticipantID', u'会员代码'),('TraderID', u'交易所交易员代码'),('BrokerID', u'经纪公司代码'),('InstallCount', u'安装数量'),('Password', u'密码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcNotifyFutureSignOutField:
     def __init__(self, BrokerBranchID="", UserID="", TradeTime="", TID=0, InstallID=0, TradeCode="", BankBranchID="", SessionID=0, BankID="", PlateSerial=0, ErrorID=0, BankSerial="", OperNo="", TradingDay="", BrokerID="", DeviceID="", TradeDate="", CurrencyID="", ErrorMsg="", LastFragment='0', RequestID=0, BrokerIDByBank="", Digest=""):
@@ -3458,7 +3436,7 @@ class CThostFtdcNotifyFutureSignOutField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BrokerBranchID', u'期商分支机构代码'),('UserID', u'用户标识'),('TradeTime', u'交易时间'),('TID', u'交易ID'),('InstallID', u'安装编号'),('TradeCode', u'业务功能码'),('BankBranchID', u'银行分支机构代码'),('SessionID', u'会话号'),('BankID', u'银行代码'),('PlateSerial', u'银期平台消息流水号'),('ErrorID', u'错误代码'),('BankSerial', u'银行流水号'),('OperNo', u'交易柜员'),('TradingDay', u'交易系统日期'),('BrokerID', u'期商代码'),('DeviceID', u'渠道标志'),('TradeDate', u'交易日期'),('CurrencyID', u'币种代码'),('ErrorMsg', u'错误信息'),('LastFragment', u'最后分片标志'),('RequestID', u'请求编号'),('BrokerIDByBank', u'期货公司银行编码'),('Digest', u'摘要')]])
     def getval(self, n):
         if n in ['LastFragment']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcLoginInfoField:
     def __init__(self, CZCETime="", MacAddress="", SHFETime="", MaxOrderRef="", UserProductInfo="", InterfaceProductInfo="", UserID="", LoginDate="", SystemName="", SessionID=0, BrokerID="", OneTimePassword="", FFEXTime="", FrontID=0, DCETime="", Password="", IPAddress="", LoginTime="", ProtocolInfo=""):
@@ -3486,7 +3464,7 @@ class CThostFtdcLoginInfoField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('CZCETime', u'郑商所时间'),('MacAddress', u'Mac地址'),('SHFETime', u'上期所时间'),('MaxOrderRef', u'最大报单引用'),('UserProductInfo', u'用户端产品信息'),('InterfaceProductInfo', u'接口端产品信息'),('UserID', u'用户代码'),('LoginDate', u'登录日期'),('SystemName', u'系统名称'),('SessionID', u'会话编号'),('BrokerID', u'经纪公司代码'),('OneTimePassword', u'动态密码'),('FFEXTime', u'中金所时间'),('FrontID', u'前置编号'),('DCETime', u'大商所时间'),('Password', u'密码'),('IPAddress', u'IP地址'),('LoginTime', u'登录时间'),('ProtocolInfo', u'协议信息')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcLoadSettlementInfoField:
     def __init__(self, BrokerID=""):
@@ -3496,7 +3474,7 @@ class CThostFtdcLoadSettlementInfoField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcTradingAccountPasswordField:
     def __init__(self, Password="", BrokerID="", AccountID=""):
@@ -3508,7 +3486,7 @@ class CThostFtdcTradingAccountPasswordField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('Password', u'密码'),('BrokerID', u'经纪公司代码'),('AccountID', u'投资者帐号')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcSettlementInfoConfirmField:
     def __init__(self, ConfirmTime="", InvestorID="", BrokerID="", ConfirmDate=""):
@@ -3521,7 +3499,7 @@ class CThostFtdcSettlementInfoConfirmField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ConfirmTime', u'确认时间'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('ConfirmDate', u'确认日期')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcRspTransferField:
     def __init__(self, BrokerBranchID="", UserID="", BankPassWord="", TradeTime="", VerifyCertNoFlag='0', TID=0, AccountID="", BankAccount="", InstallID=0, CustomerName="", TradeCode="", BankBranchID="", SessionID=0, BankID="", Password="", BankPwdFlag='0', ErrorID=0, RequestID=0, CustType='0', IdentifiedCardNo="", FeePayFlag='0', BankSerial="", OperNo="", TradingDay="", BankSecuAcc="", BrokerID="", DeviceID="", TransferStatus='0', IdCardType='0', PlateSerial=0, FutureFetchAmount=0, TradeDate="", CurrencyID="", BrokerFee=0, BankAccType='1', LastFragment='0', FutureSerial=0, ErrorMsg="", BankSecuAccType='1', BrokerIDByBank="", SecuPwdFlag='0', Message="", CustFee=0, TradeAmount=0, Digest=""):
@@ -3575,7 +3553,7 @@ class CThostFtdcRspTransferField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BrokerBranchID', u'期商分支机构代码'),('UserID', u'用户标识'),('BankPassWord', u'银行密码'),('TradeTime', u'交易时间'),('VerifyCertNoFlag', u'验证客户证件号码标志'),('TID', u'交易ID'),('AccountID', u'投资者帐号'),('BankAccount', u'银行帐号'),('InstallID', u'安装编号'),('CustomerName', u'客户姓名'),('TradeCode', u'业务功能码'),('BankBranchID', u'银行分支机构代码'),('SessionID', u'会话号'),('BankID', u'银行代码'),('Password', u'期货密码'),('BankPwdFlag', u'银行密码标志'),('ErrorID', u'错误代码'),('RequestID', u'请求编号'),('CustType', u'客户类型'),('IdentifiedCardNo', u'证件号码'),('FeePayFlag', u'费用支付标志'),('BankSerial', u'银行流水号'),('OperNo', u'交易柜员'),('TradingDay', u'交易系统日期'),('BankSecuAcc', u'期货单位帐号'),('BrokerID', u'期商代码'),('DeviceID', u'渠道标志'),('TransferStatus', u'转账交易状态'),('IdCardType', u'证件类型'),('PlateSerial', u'银期平台消息流水号'),('FutureFetchAmount', u'期货可取金额'),('TradeDate', u'交易日期'),('CurrencyID', u'币种代码'),('BrokerFee', u'应收期货公司费用'),('BankAccType', u'银行帐号类型'),('LastFragment', u'最后分片标志'),('FutureSerial', u'期货公司流水号'),('ErrorMsg', u'错误信息'),('BankSecuAccType', u'期货单位帐号类型'),('BrokerIDByBank', u'期货公司银行编码'),('SecuPwdFlag', u'期货资金密码核对标志'),('Message', u'发送方给接收方的消息'),('CustFee', u'应收客户费用'),('TradeAmount', u'转帐金额'),('Digest', u'摘要')]])
     def getval(self, n):
         if n in ['VerifyCertNoFlag', 'BankPwdFlag', 'CustType', 'FeePayFlag', 'TransferStatus', 'IdCardType', 'BankAccType', 'LastFragment', 'BankSecuAccType', 'SecuPwdFlag']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryExchangeOrderActionField:
     def __init__(self, ExchangeID="", TraderID="", ParticipantID="", ClientID=""):
@@ -3588,7 +3566,7 @@ class CThostFtdcQryExchangeOrderActionField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ExchangeID', u'交易所代码'),('TraderID', u'交易所交易员代码'),('ParticipantID', u'会员代码'),('ClientID', u'客户代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcTransferBankToFutureRspField:
     def __init__(self, FutureAccount="", RetCode="", CurrencyCode="", TradeAmt=0, RetInfo="", CustFee=0):
@@ -3603,7 +3581,7 @@ class CThostFtdcTransferBankToFutureRspField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('FutureAccount', u'资金账户'),('RetCode', u'响应代码'),('CurrencyCode', u'币种'),('TradeAmt', u'转帐金额'),('RetInfo', u'响应信息'),('CustFee', u'应收客户手续费')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcSyncDepositField:
     def __init__(self, InvestorID="", DepositSeqNo="", BrokerID="", Deposit=0, IsForce=0):
@@ -3617,7 +3595,7 @@ class CThostFtdcSyncDepositField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InvestorID', u'投资者代码'),('DepositSeqNo', u'出入金流水号'),('BrokerID', u'经纪公司代码'),('Deposit', u'入金金额'),('IsForce', u'是否强制进行')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcFutureSignIOField:
     def __init__(self, InstallID=0, TradeDate="", TradeCode="", LastFragment='0', BrokerBranchID="", BrokerIDByBank="", BankSerial="", BankBranchID="", OperNo="", TradingDay="", SessionID=0, BrokerID="", DeviceID="", UserID="", BankID="", TID=0, TradeTime="", PlateSerial=0, CurrencyID="", Digest="", RequestID=0):
@@ -3647,7 +3625,7 @@ class CThostFtdcFutureSignIOField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstallID', u'安装编号'),('TradeDate', u'交易日期'),('TradeCode', u'业务功能码'),('LastFragment', u'最后分片标志'),('BrokerBranchID', u'期商分支机构代码'),('BrokerIDByBank', u'期货公司银行编码'),('BankSerial', u'银行流水号'),('BankBranchID', u'银行分支机构代码'),('OperNo', u'交易柜员'),('TradingDay', u'交易系统日期'),('SessionID', u'会话号'),('BrokerID', u'期商代码'),('DeviceID', u'渠道标志'),('UserID', u'用户标识'),('BankID', u'银行代码'),('TID', u'交易ID'),('TradeTime', u'交易时间'),('PlateSerial', u'银期平台消息流水号'),('CurrencyID', u'币种代码'),('Digest', u'摘要'),('RequestID', u'请求编号')]])
     def getval(self, n):
         if n in ['LastFragment']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcBrokerField:
     def __init__(self, BrokerAbbr="", BrokerID="", BrokerName="", IsActive=0):
@@ -3660,7 +3638,7 @@ class CThostFtdcBrokerField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BrokerAbbr', u'经纪公司简称'),('BrokerID', u'经纪公司代码'),('BrokerName', u'经纪公司名称'),('IsActive', u'是否活跃')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryInstrumentTradingRightField:
     def __init__(self, InstrumentID="", InvestorID="", BrokerID=""):
@@ -3672,7 +3650,7 @@ class CThostFtdcQryInstrumentTradingRightField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryAccountregisterField:
     def __init__(self, BankID="", BrokerID="", AccountID=""):
@@ -3684,7 +3662,7 @@ class CThostFtdcQryAccountregisterField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BankID', u'银行编码'),('BrokerID', u'经纪公司代码'),('AccountID', u'投资者帐号')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcBrokerUserEventField:
     def __init__(self, InstrumentID="", EventSequenceNo=0, EventTime="", UserID="", InvestorID="", BrokerID="", UserEventInfo="", EventDate="", UserEventType='1'):
@@ -3702,7 +3680,7 @@ class CThostFtdcBrokerUserEventField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('EventSequenceNo', u'用户事件序号'),('EventTime', u'事件发生时间'),('UserID', u'用户代码'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('UserEventInfo', u'用户事件信息'),('EventDate', u'事件发生日期'),('UserEventType', u'用户事件类型')]])
     def getval(self, n):
         if n in ['UserEventType']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcBrokerUserFunctionField:
     def __init__(self, UserID="", BrokerID="", BrokerFunctionCode='1'):
@@ -3714,7 +3692,7 @@ class CThostFtdcBrokerUserFunctionField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('UserID', u'用户代码'),('BrokerID', u'经纪公司代码'),('BrokerFunctionCode', u'经纪公司功能代码')]])
     def getval(self, n):
         if n in ['BrokerFunctionCode']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcTradingAccountField:
     def __init__(self, Mortgage=0, ExchangeDeliveryMargin=0, FrozenMargin=0, WithdrawQuota=0, PositionProfit=0, Commission=0, Interest=0, CashIn=0, AccountID="", Available=0, PreCredit=0, PreMortgage=0, InterestBase=0, ExchangeMargin=0, PreMargin=0, SettlementID=0, DeliveryMargin=0, TradingDay="", BrokerID="", FrozenCash=0, Withdraw=0, Balance=0, Reserve=0, PreDeposit=0, Credit=0, PreBalance=0, CurrMargin=0, FrozenCommission=0, CloseProfit=0, Deposit=0):
@@ -3753,7 +3731,7 @@ class CThostFtdcTradingAccountField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('Mortgage', u'质押金额'),('ExchangeDeliveryMargin', u'交易所交割保证金'),('FrozenMargin', u'冻结的保证金'),('WithdrawQuota', u'可取资金'),('PositionProfit', u'持仓盈亏'),('Commission', u'手续费'),('Interest', u'利息收入'),('CashIn', u'资金差额'),('AccountID', u'投资者帐号'),('Available', u'可用资金'),('PreCredit', u'上次信用额度'),('PreMortgage', u'上次质押金额'),('InterestBase', u'利息基数'),('ExchangeMargin', u'交易所保证金'),('PreMargin', u'上次占用的保证金'),('SettlementID', u'结算编号'),('DeliveryMargin', u'投资者交割保证金'),('TradingDay', u'交易日'),('BrokerID', u'经纪公司代码'),('FrozenCash', u'冻结的资金'),('Withdraw', u'出金金额'),('Balance', u'期货结算准备金'),('Reserve', u'基本准备金'),('PreDeposit', u'上次存款额'),('Credit', u'信用额度'),('PreBalance', u'上次结算准备金'),('CurrMargin', u'当前保证金总额'),('FrozenCommission', u'冻结的手续费'),('CloseProfit', u'平仓盈亏'),('Deposit', u'入金金额')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcTransferBankField:
     def __init__(self, BankName="", IsActive=0, BankBrchID="", BankID=""):
@@ -3766,7 +3744,7 @@ class CThostFtdcTransferBankField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BankName', u'银行名称'),('IsActive', u'是否活跃'),('BankBrchID', u'银行分中心代码'),('BankID', u'银行代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcRspSyncKeyField:
     def __init__(self, BrokerBranchID="", UserID="", TradeTime="", TID=0, InstallID=0, TradeCode="", BankBranchID="", SessionID=0, BankID="", PlateSerial=0, ErrorID=0, BankSerial="", OperNo="", TradingDay="", BrokerID="", DeviceID="", TradeDate="", ErrorMsg="", LastFragment='0', RequestID=0, BrokerIDByBank="", Message=""):
@@ -3797,7 +3775,7 @@ class CThostFtdcRspSyncKeyField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BrokerBranchID', u'期商分支机构代码'),('UserID', u'用户标识'),('TradeTime', u'交易时间'),('TID', u'交易ID'),('InstallID', u'安装编号'),('TradeCode', u'业务功能码'),('BankBranchID', u'银行分支机构代码'),('SessionID', u'会话号'),('BankID', u'银行代码'),('PlateSerial', u'银期平台消息流水号'),('ErrorID', u'错误代码'),('BankSerial', u'银行流水号'),('OperNo', u'交易柜员'),('TradingDay', u'交易系统日期'),('BrokerID', u'期商代码'),('DeviceID', u'渠道标志'),('TradeDate', u'交易日期'),('ErrorMsg', u'错误信息'),('LastFragment', u'最后分片标志'),('RequestID', u'请求编号'),('BrokerIDByBank', u'期货公司银行编码'),('Message', u'交易核心给银期报盘的消息')]])
     def getval(self, n):
         if n in ['LastFragment']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcExchangeOrderActionField:
     def __init__(self, ActionDate="", ExchangeID="", ActionTime="", OrderSysID="", OrderLocalID="", BusinessUnit="", TraderID="", UserID="", LimitPrice=0, ActionLocalID="", InstallID=0, OrderActionStatus='a', VolumeChange=0, ActionFlag='0', ClientID="", ParticipantID=""):
@@ -3822,7 +3800,7 @@ class CThostFtdcExchangeOrderActionField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ActionDate', u'操作日期'),('ExchangeID', u'交易所代码'),('ActionTime', u'操作时间'),('OrderSysID', u'报单编号'),('OrderLocalID', u'本地报单编号'),('BusinessUnit', u'业务单元'),('TraderID', u'交易所交易员代码'),('UserID', u'用户代码'),('LimitPrice', u'价格'),('ActionLocalID', u'操作本地编号'),('InstallID', u'安装编号'),('OrderActionStatus', u'报单操作状态'),('VolumeChange', u'数量变化'),('ActionFlag', u'操作标志'),('ClientID', u'客户代码'),('ParticipantID', u'会员代码')]])
     def getval(self, n):
         if n in ['OrderActionStatus', 'ActionFlag']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcInstrumentMarginRateField:
     def __init__(self, InstrumentID="", ShortMarginRatioByMoney=0, LongMarginRatioByMoney=0, IsRelative=0, HedgeFlag='1', InvestorID="", BrokerID="", InvestorRange='1', ShortMarginRatioByVolume=0, LongMarginRatioByVolume=0):
@@ -3841,7 +3819,7 @@ class CThostFtdcInstrumentMarginRateField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('ShortMarginRatioByMoney', u'空头保证金率'),('LongMarginRatioByMoney', u'多头保证金率'),('IsRelative', u'是否相对交易所收取'),('HedgeFlag', u'投机套保标志'),('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('InvestorRange', u'投资者范围'),('ShortMarginRatioByVolume', u'空头保证金费'),('LongMarginRatioByVolume', u'多头保证金费')]])
     def getval(self, n):
         if n in ['HedgeFlag', 'InvestorRange']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcMarketDataAveragePriceField:
     def __init__(self, AveragePrice=0):
@@ -3851,7 +3829,7 @@ class CThostFtdcMarketDataAveragePriceField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('AveragePrice', u'当日均价')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryMDTraderOfferField:
     def __init__(self, ExchangeID="", TraderID="", ParticipantID=""):
@@ -3863,7 +3841,7 @@ class CThostFtdcQryMDTraderOfferField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ExchangeID', u'交易所代码'),('TraderID', u'交易所交易员代码'),('ParticipantID', u'会员代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcReqQueryTradeResultBySerialField:
     def __init__(self, BrokerBranchID="", BankPassWord="", TradeTime="", AccountID="", BankAccount="", CustomerName="", TradeCode="", BankBranchID="", RefrenceIssure="", SessionID=0, BankID="", PlateSerial=0, CustType='0', IdentifiedCardNo="", BankSerial="", TradingDay="", BrokerID="", RefrenceIssureType='0', IdCardType='0', Password="", Reference=0, TradeDate="", CurrencyID="", LastFragment='0', TradeAmount=0, Digest=""):
@@ -3898,7 +3876,7 @@ class CThostFtdcReqQueryTradeResultBySerialField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BrokerBranchID', u'期商分支机构代码'),('BankPassWord', u'银行密码'),('TradeTime', u'交易时间'),('AccountID', u'投资者帐号'),('BankAccount', u'银行帐号'),('CustomerName', u'客户姓名'),('TradeCode', u'业务功能码'),('BankBranchID', u'银行分支机构代码'),('RefrenceIssure', u'本流水号发布者机构编码'),('SessionID', u'会话号'),('BankID', u'银行代码'),('PlateSerial', u'银期平台消息流水号'),('CustType', u'客户类型'),('IdentifiedCardNo', u'证件号码'),('BankSerial', u'银行流水号'),('TradingDay', u'交易系统日期'),('BrokerID', u'期商代码'),('RefrenceIssureType', u'本流水号发布者的机构类型'),('IdCardType', u'证件类型'),('Password', u'期货密码'),('Reference', u'流水号'),('TradeDate', u'交易日期'),('CurrencyID', u'币种代码'),('LastFragment', u'最后分片标志'),('TradeAmount', u'转帐金额'),('Digest', u'摘要')]])
     def getval(self, n):
         if n in ['CustType', 'RefrenceIssureType', 'IdCardType', 'LastFragment']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcUserPasswordUpdateField:
     def __init__(self, UserID="", NewPassword="", OldPassword="", BrokerID=""):
@@ -3911,7 +3889,7 @@ class CThostFtdcUserPasswordUpdateField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('UserID', u'用户代码'),('NewPassword', u'新的口令'),('OldPassword', u'原来的口令'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcNotifyQueryAccountField:
     def __init__(self, BrokerBranchID="", UserID="", BankPassWord="", TradeTime="", VerifyCertNoFlag='0', TID=0, AccountID="", BankAccount="", InstallID=0, CustomerName="", TradeCode="", BankBranchID="", SessionID=0, BankID="", Password="", BankPwdFlag='0', ErrorID=0, RequestID=0, CustType='0', IdentifiedCardNo="", BankSerial="", OperNo="", TradingDay="", BankSecuAcc="", BrokerID="", DeviceID="", BankUseAmount=0, IdCardType='0', PlateSerial=0, TradeDate="", CurrencyID="", ErrorMsg="", BankAccType='1', LastFragment='0', FutureSerial=0, BankSecuAccType='1', BrokerIDByBank="", SecuPwdFlag='0', Digest="", BankFetchAmount=0):
@@ -3960,7 +3938,7 @@ class CThostFtdcNotifyQueryAccountField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BrokerBranchID', u'期商分支机构代码'),('UserID', u'用户标识'),('BankPassWord', u'银行密码'),('TradeTime', u'交易时间'),('VerifyCertNoFlag', u'验证客户证件号码标志'),('TID', u'交易ID'),('AccountID', u'投资者帐号'),('BankAccount', u'银行帐号'),('InstallID', u'安装编号'),('CustomerName', u'客户姓名'),('TradeCode', u'业务功能码'),('BankBranchID', u'银行分支机构代码'),('SessionID', u'会话号'),('BankID', u'银行代码'),('Password', u'期货密码'),('BankPwdFlag', u'银行密码标志'),('ErrorID', u'错误代码'),('RequestID', u'请求编号'),('CustType', u'客户类型'),('IdentifiedCardNo', u'证件号码'),('BankSerial', u'银行流水号'),('OperNo', u'交易柜员'),('TradingDay', u'交易系统日期'),('BankSecuAcc', u'期货单位帐号'),('BrokerID', u'期商代码'),('DeviceID', u'渠道标志'),('BankUseAmount', u'银行可用金额'),('IdCardType', u'证件类型'),('PlateSerial', u'银期平台消息流水号'),('TradeDate', u'交易日期'),('CurrencyID', u'币种代码'),('ErrorMsg', u'错误信息'),('BankAccType', u'银行帐号类型'),('LastFragment', u'最后分片标志'),('FutureSerial', u'期货公司流水号'),('BankSecuAccType', u'期货单位帐号类型'),('BrokerIDByBank', u'期货公司银行编码'),('SecuPwdFlag', u'期货资金密码核对标志'),('Digest', u'摘要'),('BankFetchAmount', u'银行可取金额')]])
     def getval(self, n):
         if n in ['VerifyCertNoFlag', 'BankPwdFlag', 'CustType', 'IdCardType', 'BankAccType', 'LastFragment', 'BankSecuAccType', 'SecuPwdFlag']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcMarketDataField:
     def __init__(self, HighestPrice=0, LowerLimitPrice=0, OpenPrice=0, PreClosePrice=0, PreSettlementPrice=0, UpdateTime="", UpdateMillisec=0, PreOpenInterest=0, Volume=0, UpperLimitPrice=0, InstrumentID="", ClosePrice=0, ExchangeID="", TradingDay="", PreDelta=0, OpenInterest=0, CurrDelta=0, Turnover=0, LastPrice=0, SettlementPrice=0, ExchangeInstID="", LowestPrice=0):
@@ -3991,7 +3969,7 @@ class CThostFtdcMarketDataField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('HighestPrice', u'最高价'),('LowerLimitPrice', u'跌停板价'),('OpenPrice', u'今开盘'),('PreClosePrice', u'昨收盘'),('PreSettlementPrice', u'上次结算价'),('UpdateTime', u'最后修改时间'),('UpdateMillisec', u'最后修改毫秒'),('PreOpenInterest', u'昨持仓量'),('Volume', u'数量'),('UpperLimitPrice', u'涨停板价'),('InstrumentID', u'合约代码'),('ClosePrice', u'今收盘'),('ExchangeID', u'交易所代码'),('TradingDay', u'交易日'),('PreDelta', u'昨虚实度'),('OpenInterest', u'持仓量'),('CurrDelta', u'今虚实度'),('Turnover', u'成交金额'),('LastPrice', u'最新价'),('SettlementPrice', u'本次结算价'),('ExchangeInstID', u'合约在交易所的代码'),('LowestPrice', u'最低价')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcEWarrantOffsetField:
     def __init__(self, InstrumentID="", ExchangeID="", InvestorID="", HedgeFlag='1', Direction='0', Volume=0, TradingDay="", BrokerID=""):
@@ -4008,7 +3986,7 @@ class CThostFtdcEWarrantOffsetField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('ExchangeID', u'交易所代码'),('InvestorID', u'投资者代码'),('HedgeFlag', u'投机套保标志'),('Direction', u'买卖方向'),('Volume', u'数量'),('TradingDay', u'交易日期'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in ['HedgeFlag', 'Direction']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcUserIPField:
     def __init__(self, MacAddress="", UserID="", IPMask="", BrokerID="", IPAddress=""):
@@ -4022,7 +4000,7 @@ class CThostFtdcUserIPField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('MacAddress', u'Mac地址'),('UserID', u'用户代码'),('IPMask', u'IP地址掩码'),('BrokerID', u'经纪公司代码'),('IPAddress', u'IP地址')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryBrokerField:
     def __init__(self, BrokerID=""):
@@ -4032,7 +4010,7 @@ class CThostFtdcQryBrokerField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryPartBrokerField:
     def __init__(self, ExchangeID="", BrokerID="", ParticipantID=""):
@@ -4044,7 +4022,7 @@ class CThostFtdcQryPartBrokerField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ExchangeID', u'交易所代码'),('BrokerID', u'经纪公司代码'),('ParticipantID', u'会员代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcSettlementRefField:
     def __init__(self, TradingDay="", SettlementID=0):
@@ -4055,7 +4033,7 @@ class CThostFtdcSettlementRefField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('TradingDay', u'交易日'),('SettlementID', u'结算编号')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcReqFutureSignOutField:
     def __init__(self, InstallID=0, TradeDate="", TradeCode="", LastFragment='0', BrokerBranchID="", BrokerIDByBank="", BankSerial="", BankBranchID="", OperNo="", TradingDay="", SessionID=0, BrokerID="", DeviceID="", UserID="", BankID="", TID=0, TradeTime="", PlateSerial=0, CurrencyID="", Digest="", RequestID=0):
@@ -4085,7 +4063,7 @@ class CThostFtdcReqFutureSignOutField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstallID', u'安装编号'),('TradeDate', u'交易日期'),('TradeCode', u'业务功能码'),('LastFragment', u'最后分片标志'),('BrokerBranchID', u'期商分支机构代码'),('BrokerIDByBank', u'期货公司银行编码'),('BankSerial', u'银行流水号'),('BankBranchID', u'银行分支机构代码'),('OperNo', u'交易柜员'),('TradingDay', u'交易系统日期'),('SessionID', u'会话号'),('BrokerID', u'期商代码'),('DeviceID', u'渠道标志'),('UserID', u'用户标识'),('BankID', u'银行代码'),('TID', u'交易ID'),('TradeTime', u'交易时间'),('PlateSerial', u'银期平台消息流水号'),('CurrencyID', u'币种代码'),('Digest', u'摘要'),('RequestID', u'请求编号')]])
     def getval(self, n):
         if n in ['LastFragment']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcTransferFutureToBankRspField:
     def __init__(self, FutureAccount="", RetCode="", CurrencyCode="", TradeAmt=0, RetInfo="", CustFee=0):
@@ -4100,7 +4078,7 @@ class CThostFtdcTransferFutureToBankRspField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('FutureAccount', u'资金账户'),('RetCode', u'响应代码'),('CurrencyCode', u'币种'),('TradeAmt', u'转帐金额'),('RetInfo', u'响应信息'),('CustFee', u'应收客户手续费')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryCombinationLegField:
     def __init__(self, LegInstrumentID="", LegID=0, CombInstrumentID=""):
@@ -4112,7 +4090,7 @@ class CThostFtdcQryCombinationLegField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('LegInstrumentID', u'单腿合约代码'),('LegID', u'单腿编号'),('CombInstrumentID', u'组合合约代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcExchangeMarginRateField:
     def __init__(self, InstrumentID="", ShortMarginRatioByMoney=0, LongMarginRatioByMoney=0, HedgeFlag='1', BrokerID="", ShortMarginRatioByVolume=0, LongMarginRatioByVolume=0):
@@ -4128,7 +4106,7 @@ class CThostFtdcExchangeMarginRateField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('ShortMarginRatioByMoney', u'空头保证金率'),('LongMarginRatioByMoney', u'多头保证金率'),('HedgeFlag', u'投机套保标志'),('BrokerID', u'经纪公司代码'),('ShortMarginRatioByVolume', u'空头保证金费'),('LongMarginRatioByVolume', u'多头保证金费')]])
     def getval(self, n):
         if n in ['HedgeFlag']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcReqDayEndFileReadyField:
     def __init__(self, FileBusinessCode='0', TradeDate="", TradeCode="", LastFragment='0', BrokerBranchID="", BankSerial="", BankBranchID="", TradingDay="", SessionID=0, BrokerID="", BankID="", TradeTime="", PlateSerial=0, Digest=""):
@@ -4151,7 +4129,7 @@ class CThostFtdcReqDayEndFileReadyField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('FileBusinessCode', u'文件业务功能'),('TradeDate', u'交易日期'),('TradeCode', u'业务功能码'),('LastFragment', u'最后分片标志'),('BrokerBranchID', u'期商分支机构代码'),('BankSerial', u'银行流水号'),('BankBranchID', u'银行分支机构代码'),('TradingDay', u'交易系统日期'),('SessionID', u'会话号'),('BrokerID', u'期商代码'),('BankID', u'银行代码'),('TradeTime', u'交易时间'),('PlateSerial', u'银期平台消息流水号'),('Digest', u'摘要')]])
     def getval(self, n):
         if n in ['FileBusinessCode', 'LastFragment']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryTradingAccountField:
     def __init__(self, InvestorID="", BrokerID=""):
@@ -4162,7 +4140,7 @@ class CThostFtdcQryTradingAccountField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcUserRightField:
     def __init__(self, UserRightType='1', UserID="", BrokerID="", IsForbidden=0):
@@ -4175,7 +4153,7 @@ class CThostFtdcUserRightField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('UserRightType', u'客户权限类型'),('UserID', u'用户代码'),('BrokerID', u'经纪公司代码'),('IsForbidden', u'是否禁止')]])
     def getval(self, n):
         if n in ['UserRightType']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcInputOrderField:
     def __init__(self, ContingentCondition='1', CombOffsetFlag="", UserID="", LimitPrice=0, UserForceClose=0, Direction='0', VolumeTotalOriginal=0, OrderPriceType='1', TimeCondition='1', IsAutoSuspend=0, StopPrice=0, InstrumentID="", MinVolume=0, ForceCloseReason='0', BrokerID="", CombHedgeFlag="", GTDDate="", BusinessUnit="", OrderRef="", InvestorID="", VolumeCondition='1', RequestID=0):
@@ -4206,7 +4184,7 @@ class CThostFtdcInputOrderField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ContingentCondition', u'触发条件'),('CombOffsetFlag', u'组合开平标志'),('UserID', u'用户代码'),('LimitPrice', u'价格'),('UserForceClose', u'用户强评标志'),('Direction', u'买卖方向'),('VolumeTotalOriginal', u'数量'),('OrderPriceType', u'报单价格条件'),('TimeCondition', u'有效期类型'),('IsAutoSuspend', u'自动挂起标志'),('StopPrice', u'止损价'),('InstrumentID', u'合约代码'),('MinVolume', u'最小成交量'),('ForceCloseReason', u'强平原因'),('BrokerID', u'经纪公司代码'),('CombHedgeFlag', u'组合投机套保标志'),('GTDDate', u'GTD日期'),('BusinessUnit', u'业务单元'),('OrderRef', u'报单引用'),('InvestorID', u'投资者代码'),('VolumeCondition', u'成交量类型'),('RequestID', u'请求编号')]])
     def getval(self, n):
         if n in ['ContingentCondition', 'Direction', 'OrderPriceType', 'TimeCondition', 'ForceCloseReason', 'VolumeCondition']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcVerifyFuturePasswordField:
     def __init__(self, BankAccount="", Password="", TradeDate="", TradeCode="", LastFragment='0', BrokerBranchID="", BankSerial="", BankBranchID="", BankPassWord="", TradingDay="", SessionID=0, InstallID=0, BrokerID="", BankID="", TID=0, TradeTime="", PlateSerial=0, AccountID=""):
@@ -4233,7 +4211,7 @@ class CThostFtdcVerifyFuturePasswordField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BankAccount', u'银行帐号'),('Password', u'期货密码'),('TradeDate', u'交易日期'),('TradeCode', u'业务功能码'),('LastFragment', u'最后分片标志'),('BrokerBranchID', u'期商分支机构代码'),('BankSerial', u'银行流水号'),('BankBranchID', u'银行分支机构代码'),('BankPassWord', u'银行密码'),('TradingDay', u'交易系统日期'),('SessionID', u'会话号'),('InstallID', u'安装编号'),('BrokerID', u'期商代码'),('BankID', u'银行代码'),('TID', u'交易ID'),('TradeTime', u'交易时间'),('PlateSerial', u'银期平台消息流水号'),('AccountID', u'投资者帐号')]])
     def getval(self, n):
         if n in ['LastFragment']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcSyncingInvestorPositionField:
     def __init__(self, ShortFrozenAmount=0, FrozenMargin=0, HedgeFlag='1', PositionProfit=0, Commission=0, MarginRateByVolume=0, CombPosition=0, CashIn=0, PreSettlementPrice=0, CombLongFrozen=0, CloseAmount=0, PosiDirection='1', YdPosition=0, MarginRateByMoney=0, OpenVolume=0, CloseVolume=0, ExchangeMargin=0, InstrumentID="", PositionDate='1', CloseProfitByTrade=0, PreMargin=0, SettlementID=0, ShortFrozen=0, LongFrozen=0, TodayPosition=0, TradingDay="", PositionCost=0, BrokerID="", FrozenCash=0, OpenAmount=0, OpenCost=0, Position=0, FrozenCommission=0, CombShortFrozen=0, CloseProfitByDate=0, SettlementPrice=0, LongFrozenAmount=0, InvestorID="", CloseProfit=0, UseMargin=0):
@@ -4282,7 +4260,7 @@ class CThostFtdcSyncingInvestorPositionField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('ShortFrozenAmount', u'开仓冻结金额'),('FrozenMargin', u'冻结的保证金'),('HedgeFlag', u'投机套保标志'),('PositionProfit', u'持仓盈亏'),('Commission', u'手续费'),('MarginRateByVolume', u'保证金率(按手数)'),('CombPosition', u'组合成交形成的持仓'),('CashIn', u'资金差额'),('PreSettlementPrice', u'上次结算价'),('CombLongFrozen', u'组合多头冻结'),('CloseAmount', u'平仓金额'),('PosiDirection', u'持仓多空方向'),('YdPosition', u'上日持仓'),('MarginRateByMoney', u'保证金率'),('OpenVolume', u'开仓量'),('CloseVolume', u'平仓量'),('ExchangeMargin', u'交易所保证金'),('InstrumentID', u'合约代码'),('PositionDate', u'持仓日期'),('CloseProfitByTrade', u'逐笔对冲平仓盈亏'),('PreMargin', u'上次占用的保证金'),('SettlementID', u'结算编号'),('ShortFrozen', u'空头冻结'),('LongFrozen', u'多头冻结'),('TodayPosition', u'今日持仓'),('TradingDay', u'交易日'),('PositionCost', u'持仓成本'),('BrokerID', u'经纪公司代码'),('FrozenCash', u'冻结的资金'),('OpenAmount', u'开仓金额'),('OpenCost', u'开仓成本'),('Position', u'今日持仓'),('FrozenCommission', u'冻结的手续费'),('CombShortFrozen', u'组合空头冻结'),('CloseProfitByDate', u'逐日盯市平仓盈亏'),('SettlementPrice', u'本次结算价'),('LongFrozenAmount', u'开仓冻结金额'),('InvestorID', u'投资者代码'),('CloseProfit', u'平仓盈亏'),('UseMargin', u'占用的保证金')]])
     def getval(self, n):
         if n in ['HedgeFlag', 'PosiDirection', 'PositionDate']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQrySettlementInfoField:
     def __init__(self, InvestorID="", BrokerID="", TradingDay=""):
@@ -4294,7 +4272,7 @@ class CThostFtdcQrySettlementInfoField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InvestorID', u'投资者代码'),('BrokerID', u'经纪公司代码'),('TradingDay', u'交易日')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcRspFutureSignInField:
     def __init__(self, BrokerBranchID="", UserID="", TradeTime="", TID=0, InstallID=0, PinKey="", TradeCode="", BankBranchID="", SessionID=0, BankID="", MacKey="", PlateSerial=0, ErrorID=0, BankSerial="", OperNo="", TradingDay="", BrokerID="", DeviceID="", TradeDate="", CurrencyID="", ErrorMsg="", LastFragment='0', RequestID=0, BrokerIDByBank="", Digest=""):
@@ -4328,7 +4306,7 @@ class CThostFtdcRspFutureSignInField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('BrokerBranchID', u'期商分支机构代码'),('UserID', u'用户标识'),('TradeTime', u'交易时间'),('TID', u'交易ID'),('InstallID', u'安装编号'),('PinKey', u'PIN密钥'),('TradeCode', u'业务功能码'),('BankBranchID', u'银行分支机构代码'),('SessionID', u'会话号'),('BankID', u'银行代码'),('MacKey', u'MAC密钥'),('PlateSerial', u'银期平台消息流水号'),('ErrorID', u'错误代码'),('BankSerial', u'银行流水号'),('OperNo', u'交易柜员'),('TradingDay', u'交易系统日期'),('BrokerID', u'期商代码'),('DeviceID', u'渠道标志'),('TradeDate', u'交易日期'),('CurrencyID', u'币种代码'),('ErrorMsg', u'错误信息'),('LastFragment', u'最后分片标志'),('RequestID', u'请求编号'),('BrokerIDByBank', u'期货公司银行编码'),('Digest', u'摘要')]])
     def getval(self, n):
         if n in ['LastFragment']:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcQryInstrumentField:
     def __init__(self, InstrumentID="", ExchangeID="", ExchangeInstID="", ProductID=""):
@@ -4341,7 +4319,7 @@ class CThostFtdcQryInstrumentField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('InstrumentID', u'合约代码'),('ExchangeID', u'交易所代码'),('ExchangeInstID', u'合约在交易所的代码'),('ProductID', u'产品代码')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 class CThostFtdcMarketDataBestPriceField:
     def __init__(self, AskVolume1=0, BidPrice1=0, AskPrice1=0, BidVolume1=0):
@@ -4354,7 +4332,7 @@ class CThostFtdcMarketDataBestPriceField:
     def __str__(self):  return "<%s>" % ",".join(["%s:%s" % (y, self.getval(x)) for x,y in [('AskVolume1', u'申卖量一'),('BidPrice1', u'申买价一'),('AskPrice1', u'申卖价一'),('BidVolume1', u'申买量一')]])
     def getval(self, n):
         if n in []:
-            return self.vcmap[n][getattr(self, n)].encode("utf-8")
+            return self.vcmap[n]["'%s'" % getattr(self, n)]
         else: return getattr(self, n)
 # Set short name alias for the stupid Hungarian Notation
 TransferQryDetailRsp=CThostFtdcTransferQryDetailRspField

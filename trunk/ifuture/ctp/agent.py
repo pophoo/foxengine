@@ -6,14 +6,17 @@ Agent的目的是合并行情和交易API到一个类中进行处理
 
 todo:
     1. 打通trade环节
-    2. 行情数据的整理
-    3. 前期数据的衔接(5/30分钟)
-    4. trader桩的建立
-    5. 中间环境的恢复,如持仓
-    6. 根据trade桩模拟交易
+    2. 前期数据的衔接(1分钟,5/30)
+    3. 行情数据的整理
+    4. 中间环境的恢复,如持仓. 
+       断点间的撤单--可延后 
+    5. trader桩的建立,根据trade桩模拟交易
     7. 完全模拟交易
     8. 有人值守实盘
 
+
+##因为流控原因,所有Qry命令都用Command模式?
+  不需要,可以忍受1s的延时. 因为行情通过别的来接收  
 '''
 
 import time
@@ -22,13 +25,13 @@ import logging
 import UserApiStruct as ustruct
 import UserApiType as utype
 
+from base import BaseObject
+
 from MdApi import MdApi, MdSpi
 from TraderApi import TraderApi, TraderSpi  
 
 from wolfox.fengine.core.base import BaseObject
 
-
-logging.basicConfig(filename="ctp_trade.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
 
 
 #数据定义中唯一一个enum
@@ -36,7 +39,7 @@ THOST_TERT_RESTART  = 0
 THOST_TERT_RESUME   = 1
 THOST_TERT_QUICK    = 2
 
-inst = [u'IF1103']#,u'IF1106']  #必须采用ctp使用的合约名字，内部不做检验
+inst = [u'IF1103',u'IF1104']  #必须采用ctp使用的合约名字，内部不做检验
 #建议每跟踪的一个合约都使用一个行情-交易对. 因为行情的接收是阻塞式的,在做处理的时候会延误后面接收的行情
 #套利时每一对合约都用一个行情-交易对
 #inst = [u'IF1102']
@@ -109,9 +112,9 @@ class MdSpiDelegate(MdSpi):
             self.logger.debug(u'行情无变化，inst=%s,time=%s，volume=%s,last_volume=%s' % (dp.InstrumentID,dp.UpdateTime,dp.Volume,self.last_map[dp.InstrumentID]))
             return  #行情未变化
         self.last_map[dp.InstrumentID] = dp.Volume
-        self.logger.debug(u'before loop')
+        #self.logger.debug(u'before loop')
         self.agent.RtnMarketData(depth_market_data)
-        self.logger.debug(u'before write md:')
+        #self.logger.debug(u'before write md:')
         ff = open(make_filename(depth_market_data.InstrumentID),'a+')
         ff.write(u'%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (dp.TradingDay,dp.UpdateTime,dp.UpdateMillisec,dp.OpenInterest,dp.Volume,dp.LastPrice,dp.HighestPrice,dp.LowestPrice,dp.BidPrice1,dp.BidVolume1,dp.AskPrice1,dp.AskVolume1))
         ff.close()
@@ -194,24 +197,24 @@ class TraderSpiDelegate(TraderSpi):
                 CThostFtdcSettlementInfoConfirmField的new_函数进行特殊处理
             CTP写代码的这帮家伙素质太差了，边界条件也不测试，后置断言也不整，空指针乱飞
             2011-3-1 确认每天未确认前查询确认情况时,返回的响应中pSettlementInfoConfirm为空指针
+            并且妥善处理空指针之后,仍然有问题,在其中查询结算单无动静
         '''
         req = ustruct.QrySettlementInfoConfirm(BrokerID=self.broker_id,InvestorID=self.investor_id)
         self.api.ReqQrySettlementInfoConfirm(req,self.agent.inc_request_id())
 
     def query_settlement_info(self):
         #不填日期表示取上一天结算单,并在响应函数中确认
-        self.logger.info(u'取上一日结算单信息并确认')
+        self.logger.info(u'取上一日结算单信息并确认,BrokerID=%s,investorID=%s' % (self.broker_id,self.investor_id))
         req = ustruct.QrySettlementInfo(BrokerID=self.broker_id,InvestorID=self.investor_id,TradingDay=u'')
         #print req.BrokerID,req.InvestorID,req.TradingDay
         self.api.ReqQrySettlementInfo(req,self.agent.inc_request_id())
-        #print u'查询投资者结算结果'
 
     def confirm_settlement_info(self):
         req = ustruct.SettlementInfoConfirm(BrokerID=self.broker_id,InvestorID=self.investor_id)
         self.api.ReqSettlementInfoConfirm(req,self.agent.inc_request_id())
 
     def OnRspQrySettlementInfo(self, pSettlementInfo, pRspInfo, nRequestID, bIsLast):
-        '''请求查询投资者结算结果响应'''
+        '''请求查询投资者结算信息响应'''
         print u'Rsp 结算单查询'
         if(self.resp_common(pRspInfo,bIsLast,u'结算单查询')>0):
             print u'结算单内容:%s' % pSettlementInfo.Content
@@ -221,6 +224,7 @@ class TraderSpiDelegate(TraderSpi):
     def OnRspQrySettlementInfoConfirm(self, pSettlementInfoConfirm, pRspInfo, nRequestID, bIsLast):
         '''请求查询结算信息确认响应'''
         self.logger.debug(u"结算单确认信息查询响应:rspInfo=%s,结算单确认=%s" % (pRspInfo,pSettlementInfoConfirm))
+        #self.query_settlement_info()
         if(self.resp_common(pRspInfo,bIsLast,u'结算单确认情况查询')>0):
             if(pSettlementInfoConfirm == None or int(pSettlementInfoConfirm.ConfirmDate) < self.cur_day):
                 #其实这个判断是不对的，如果周日对周五的结果进行了确认，那么周一实际上已经不需要再次确认了
@@ -228,6 +232,7 @@ class TraderSpiDelegate(TraderSpi):
                     self.logger.info(u'最新结算单未确认，需查询后再确认,最后确认时间=%s,cur_day:%s' % (pSettlementInfoConfirm.ConfirmDate,self.cur_day))
                 else:
                     self.logger.info(u'结算单确认结果为None')
+                time.sleep(1)   #满足1秒一次的查询间隔,避免流控
                 self.query_settlement_info()
             else:
                 self.logger.info(u'最新结算单已确认，不需再次确认,最后确认时间=%s,cur_day:%s' % (pSettlementInfoConfirm.ConfirmDate,self.cur_day))
@@ -257,8 +262,10 @@ class TraderSpiDelegate(TraderSpi):
         '''
             请求查询资金账户响应
         '''
+        print u'查询资金账户响应'
+        self.logger.debug(u'资金账户响应:%s' % pTradingAccount)
         if bIsLast and self.isRspSuccess(pRspInfo):
-            agent.rsp_qry_trading_account(pTradingAccount)
+            self.agent.rsp_qry_trading_account(pTradingAccount)
         else:
             #logging
             pass
@@ -266,7 +273,7 @@ class TraderSpiDelegate(TraderSpi):
     def OnRspQryInvestorPosition(self, pInvestorPosition, pRspInfo, nRequestID, bIsLast):
         '''请求查询投资者持仓响应'''
         if bIsLast and self.isRspSuccess(pRspInfo):
-            agent.rsp_qry_position(pInvestorPosition)
+            self.agent.rsp_qry_position(pInvestorPosition)
         else:
             #logging
             pass
@@ -279,7 +286,7 @@ class TraderSpiDelegate(TraderSpi):
     def OnRspQryOrder(self, pOrder, pRspInfo, nRequestID, bIsLast):
         '''请求查询报单响应'''
         if bIsLast and self.isRspSuccess(pRspInfo):
-            agent.rsp_qry_order(pOrder)
+            self.agent.rsp_qry_order(pOrder)
         else:
             #logging
             pass
@@ -287,7 +294,7 @@ class TraderSpiDelegate(TraderSpi):
     def OnRspQryTrade(self, pTrade, pRspInfo, nRequestID, bIsLast):
         '''请求查询成交响应'''
         if bIsLast and self.isRspSuccess(pRspInfo):
-            agent.rsp_qry_trade(pTrade)
+            self.agent.rsp_qry_trade(pTrade)
         else:
             #logging
             pass
@@ -299,10 +306,10 @@ class TraderSpiDelegate(TraderSpi):
             报单未通过参数校验,被CTP拒绝
             正常情况后不应该出现
         '''
-        if bIsLast and self.isRspSuccess(pRspInfo):
-            agent.rsp_order_insert(pInputOrder.OrderRef,pInputOrder.InstrumentID,pRspInfo.ErrorID,pRspInfo.ErrorMsg)
-        else:
-            pass
+        print pRspInfo,nRequestID
+        self.logger.warning(u'CTP报单录入错误回报, 正常后不应该出现,rspInfo=%s'%(str(pRspInfo),))
+        #self.logger.warning(u'报单校验错误,ErrorID=%s,ErrorMsg=%s,pRspInfo=%s,bIsLast=%s' % (pRspInfo.ErrorID,pRspInfo.ErrorMsg,str(pRspInfo),bIsLast))
+        self.agent.rsp_order_insert(pInputOrder.OrderRef,pInputOrder.InstrumentID,pRspInfo.ErrorID,pRspInfo.ErrorMsg)
     
     def OnErrRtnOrderInsert(self, pInputOrder, pRspInfo):
         '''
@@ -310,48 +317,44 @@ class TraderSpiDelegate(TraderSpi):
             正常情况后不应该出现
             这个回报因为没有request_id,所以没办法对应
         '''
-        if bIsLast and self.isRspSuccess(pRspInfo):
-            agent.err_order_insert(pInputOrder.OrderRef,pInputOrder.InstrumentID,pRspInfo.ErrorID,pRspInfo.ErrorMsg)
-        else:
-            pass
+        print u'ERROR Order Insert'
+        self.logger.warning(u'交易所报单录入错误回报, 正常后不应该出现,rspInfo=%s'%(str(pRspInfo),))
+        self.agent.err_order_insert(pInputOrder.OrderRef,pInputOrder.InstrumentID,pRspInfo.ErrorID,pRspInfo.ErrorMsg)
     
     def OnRtnOrder(self, pOrder):
         ''' 报单通知
             CTP、交易所接受报单
         '''
+        self.logger.info(u'报单响应,Order=%s' % str(pOrder))
         if pOrder.OrderStatus == 'a':
             #CTP接受，但未发到交易所
-            agent.rtn_order_ctp(pOrder)
+            #print u'CTP接受Order，但未发到交易所, BrokerID=%s,BrokerOrderSeq = %s,TraderID=%s, OrderLocalID=%s' % (pOrder.BrokerID,pOrder.BrokerOrderSeq,pOrder.TraderID,pOrder.OrderLocalID)
+            self.logger.info(u'CTP接受Order，但未发到交易所, BrokerID=%s,BrokerOrderSeq = %s,TraderID=%s, OrderLocalID=%s' % (pOrder.BrokerID,pOrder.BrokerOrderSeq,pOrder.TraderID,pOrder.OrderLocalID))
+            self.agent.rtn_order_ctp(pOrder)
         else:
-            agent.rtn_order_exchange(pOrder)
+            #print u'交易所接受Order,exchangeID=%s,OrderSysID=%s,TraderID=%s, OrderLocalID=%s' % (pOrder.ExchangeID,pOrder.OrderSysID,pOrder.TraderID,pOrder.OrderLocalID)
+            self.logger.info(u'交易所接受Order,exchangeID=%s,OrderSysID=%s,TraderID=%s, OrderLocalID=%s' % (pOrder.ExchangeID,pOrder.OrderSysID,pOrder.TraderID,pOrder.OrderLocalID))
+            self.agent.rtn_order_exchange(pOrder)
 
     def OnRtnTrade(self, pTrade):
         '''成交通知'''
-        if bIsLast and self.isRspSuccess(pRspInfo):
-            agent.rtn_trade(pTrade)
-        else:
-            pass
+        print u'成交通知,BrokerID=%s,BrokerOrderSeq = %s,exchangeID=%s,OrderSysID=%s,TraderID=%s, OrderLocalID=%s' %(pTrade.BrokerID,pTrade.BrokerOrderSeq,pTrade.ExchangeID,pTrade.OrderSysID,pTrade.TraderID,pTrade.OrderLocalID)
+        self.logger.info(u'成交回报,Trade=%s' % repr(pTrade))
 
     def OnRspOrderAction(self, pInputOrderAction, pRspInfo, nRequestID, bIsLast):
         '''
             ctp撤单校验错误
         '''
-        if bIsLast and self.isRspSuccess(pRspInfo):
-            agent.rsp_order_action(self,pInputOrderAction.OrderRef,pInputOrderAction.InstrumentID,pRspInfo.ErrorID,pRspInfo.ErrorMsg)
-        else:
-            pass
+        self.logger.warning(u'CTP撤单录入错误回报, 正常后不应该出现,rspInfo=%s'%(str(pRspInfo),))
+        self.agent.rsp_order_action(pInputOrderAction.OrderRef,pInputOrderAction.InstrumentID,pRspInfo.ErrorID,pRspInfo.ErrorMsg)
 
     def OnErrRtnOrderAction(self, pOrderAction, pRspInfo):
         ''' 
             交易所撤单操作错误回报
             正常情况后不应该出现
         '''
-        if bIsLast and self.isRspSuccess(pRspInfo):
-            agent.err_order_action(pOrderAction.OrderRef,pOrderAction.InstrumentID,pRspInfo.ErrorID,pRspInfo.ErrorMsg)
-        else:
-            pass
-
-
+        self.logger.warning(u'交易所撤单录入错误回报, 可能已经成交,rspInfo=%s'%(str(pRspInfo),))
+        self.agent.err_order_action(pOrderAction.OrderRef,pOrderAction.InstrumentID,pRspInfo.ErrorID,pRspInfo.ErrorMsg)
 
 
 class Agent(object):
@@ -376,8 +379,8 @@ class Agent(object):
         self.holding = []   #(合约、策略族、基准价、基准时间、request_id、持仓量、止损价、止损函数)
         self.transited_orders = []    #发出后等待回报的指令, 回报后到holding
         self.queued_orders = []     #因为保证金原因等待发出的指令(合约、策略族、基准价、基准时间(到秒))
-        self.frontID = None
-        self.sessionID = None
+        self.front_id = None
+        self.session_id = None
         self.order_ref = 1
         self.trading_day = 20110101
         self.cur_day = int(time.strftime('%Y%m%d'))
@@ -406,9 +409,9 @@ class Agent(object):
         return self.trading_day
 
     def login_success(self,frontID,sessionID,max_order_ref):
-        self.frontID = frontID
-        self.sessionID = sessionID
-        self.order_ref = max_order_ref
+        self.front_id = frontID
+        self.session_id = sessionID
+        self.order_ref = int(max_order_ref)
 
     def initialize(self):
         '''
@@ -459,8 +462,10 @@ class Agent(object):
     ##内务处理
     def fetch_trading_account(self):
         #获取资金帐户
-        req = ustruct.QryTradingAccount(BrokerID=broker_id, UserID=investor_id)
-        r=self.trader.QryTradingAccount(req,self.inc_request_id())
+        print u'获取资金帐户..'
+        req = ustruct.QryTradingAccount(BrokerID=self.cuser.broker_id, InvestorID=self.cuser.investor_id)
+        r=self.trader.ReqQryTradingAccount(req,self.inc_request_id())
+        print u'查询资金账户, 函数发出返回值:%s' % r
 
     def fetch_investor_position(self):
         #获取当前持仓
@@ -479,7 +484,7 @@ class Agent(object):
         open_positions = self.calc_position(open_signals)
         self.make_trade(open_positions)
         #撤单, 撤销3分钟内未成交的以及等待发出队列中30秒内未发出的单子
-        self.cancel_order()
+        self.cancel_orders()
         #检查待发出单
         self.check_queued()
         ##扫尾
@@ -507,7 +512,7 @@ class Agent(object):
         '''
         return []
 
-    def cancel_order(self):
+    def cancel_orders(self):
         pass
 
     def check_queued(self):
@@ -535,39 +540,70 @@ class Agent(object):
             发出下单指令
         '''
         req = ustruct.InputOrder(
-                BrokerID = self.cuser.broker_id,
-                UserID = self.cuser.investor_id,
                 InstrumentID = order.instrument,
-                OrderRef = order.order_ref,
-                CombOffsetFlag = THOST_FTDC_OF_Open,         #开仓 5位字符,但是只用到第0位
-                CombHedgeFlag = THOST_FTDC_HF_Speculation,   #投机 5位字符,但是只用到第0位
                 Direction = order.direction,
-                OrderPriceType = utype.THOST_FTDC_OPT_LimitPrice,
+                OrderRef = str(order.order_ref),
                 LimitPrice = order.price,
                 VolumeTotalOriginal = order.volume,
+                OrderPriceType = utype.THOST_FTDC_OPT_LimitPrice,
+                
+                BrokerID = self.cuser.broker_id,
+                InvestorID = self.cuser.investor_id,
+                CombOffsetFlag = utype.THOST_FTDC_OF_Open,         #开仓 5位字符,但是只用到第0位
+                CombHedgeFlag = utype.THOST_FTDC_HF_Speculation,   #投机 5位字符,但是只用到第0位
 
                 VolumeCondition = utype.THOST_FTDC_VC_AV,
                 MinVolume = 1,
                 ForceCloseReason = utype.THOST_FTDC_FCC_NotForceClose,
                 IsAutoSuspend = 1,
                 UserForceClose = 0,
-                
                 TimeCondition = utype.THOST_FTDC_TC_GFD,
             )
-        r = self.api.ReqUserLogin(req,self.agent.inc_request_id())
+        r = self.trader.ReqOrderInsert(req,self.inc_request_id())
 
 
-    def close_position(self,order):
+    def close_position(self,order,CombOffsetFlag = utype.THOST_FTDC_OF_CloseToday):
         ''' 
-            发出平仓指令
+            发出平仓指令. 默认平今仓
         '''
-        pass
+        req = ustruct.InputOrder(
+                InstrumentID = order.instrument,
+                Direction = order.direction,
+                OrderRef = str(order.order_ref),
+                LimitPrice = order.price,
+                VolumeTotalOriginal = order.volume,
+                CombOffsetFlag = CombOffsetFlag,
+                OrderPriceType = utype.THOST_FTDC_OPT_LimitPrice,
+                
+                BrokerID = self.cuser.broker_id,
+                InvestorID = self.cuser.investor_id,
+                CombHedgeFlag = utype.THOST_FTDC_HF_Speculation,   #投机 5位字符,但是只用到第0位
 
-    def cancel_open(self,order):
+                VolumeCondition = utype.THOST_FTDC_VC_AV,
+                MinVolume = 1,
+                ForceCloseReason = utype.THOST_FTDC_FCC_NotForceClose,
+                IsAutoSuspend = 1,
+                UserForceClose = 0,
+                TimeCondition = utype.THOST_FTDC_TC_GFD,
+            )
+        r = self.trader.ReqOrderInsert(req,self.inc_request_id())
+
+    def cancel_order(self,order):
         '''
-            发出取消指令
+            发出撤单指令
         '''
-        pass
+        req = ustruct.InputOrderAction(
+                InstrumentID = order.instrument,
+                OrderRef = str(order.order_ref),
+                
+                BrokerID = self.cuser.broker_id,
+                InvestorID = self.cuser.investor_id,
+                FrontID = self.front_id,
+                SessionID = self.session_id,
+                ActionFlag = utype.THOST_FTDC_AF_Delete,
+                #OrderActionRef = self.inc_order_ref()  #没用
+            )
+        r = self.trader.ReqOrderAction(req,self.inc_request_id())
 
 
     def finalize(self):
@@ -592,43 +628,44 @@ class Agent(object):
         '''
             ctp接受下单/撤单回报
         '''
-        pass
+        pass    #可以忽略
 
     def rtn_order_exchange(self,sorder):
         '''
             交易所接受下单/撤单回报
         '''
+        #需要记录
         pass
 
     def rsp_order_insert(self,order_ref,instrument_id,error_id,error_msg):
         '''
             CTP下单错误回报
         '''
-        pass
+        pass    #可以忽略
 
     def err_order_insert(self,order_ref,instrument_id,error_id,error_msg):
         '''
             交易所下单错误回报
         '''
-        pass
+        pass    #可以忽略
 
     def rtn_trade(self,strade):
         '''
             成交回报
         '''
-        pass
+        pass    #需要记录
 
-    def rsp_order_action(self):
+    def rsp_order_action(self,order_ref,instrument_id,error_id,error_msg):
         '''
             CTP撤单错误回报
         '''
-        pass
+        pass    #可以忽略
     
     def err_order_action(self,order_ref,instrument_id,error_id,error_msg):
         '''
             交易所撤单错误回报
         '''
-        pass
+        pass    #可能撤单已经成交
     
     
     def rsp_qry_instrument_marginrate(self):
@@ -656,21 +693,23 @@ class Agent(object):
         '''
             查询报单
         '''
-        pass
+        pass    #可以忽略
 
     def rsp_qry_trade(self,strade):
         '''
             查询成交
         '''
-        pass
+        pass    #可以忽略
 
 
 import config as c 
 
 def user_main():
+    logging.basicConfig(filename="ctp_user.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
+    
     user = MdApi.CreateMdApi("data")
-    cuser = c.GD_USER
-    #cuser = c.SQ_USER
+    #cuser = c.GD_USER
+    cuser = c.SQ_USER
     my_agent = Agent(None,cuser)
     user.RegisterSpi(MdSpiDelegate(instruments=inst, 
                              broker_id=cuser.broker_id,
@@ -686,12 +725,18 @@ def user_main():
 
 def trade_main():
     '''
->>> import agent
->>> trader,myagent = agent.trade_main()
+import agent
+trader,myagent = agent.trade_main()
+#开仓
+
+##释放连接
+trader.RegisterSpi(None)
     '''
+    logging.basicConfig(filename="ctp_trade.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
+    
     trader = TraderApi.CreateTraderApi("trader")
-    cuser = c.SQ_MD1
-    #cuser = c.SQ_MD2
+    #cuser = c.SQ_TRADER1
+    cuser = c.SQ_TRADER2
     my_agent = Agent(trader,cuser)
     myspi = TraderSpiDelegate(instruments=inst, 
                              broker_id=cuser.broker_id,
@@ -706,6 +751,40 @@ def trade_main():
     trader.Init()
     return trader,my_agent
     
+'''
+#测试
+import agent
+trader,myagent = agent.trade_main()
+
+myagent.spi.OnRspOrderInsert(agent.BaseObject(OrderRef='12',InstrumentID='IF1103'),agent.BaseObject(ErrorID=1,ErrorMsg='test'),1,1)
+myagent.spi.OnErrRtnOrderInsert(agent.BaseObject(OrderRef='12',InstrumentID='IF1103'),agent.BaseObject(ErrorID=1,ErrorMsg='test'))
+myagent.spi.OnRspOrderAction(agent.BaseObject(OrderRef='12',InstrumentID='IF1103'),agent.BaseObject(ErrorID=1,ErrorMsg='test'),1,1)
+myagent.spi.OnErrRtnOrderAction(agent.BaseObject(OrderRef='12',InstrumentID='IF1103'),agent.BaseObject(ErrorID=1,ErrorMsg='test'))
+
+myagent.fetch_trading_account()
+
+#测试报单
+morder = agent.BaseObject(instrument='IF1103',direction='0',order_ref=myagent.inc_order_ref(),price=3280,volume=1)
+myagent.open_position(morder)
+morder = agent.BaseObject(instrument='IF1103',direction='0',order_ref=myagent.inc_order_ref(),price=3280,volume=20)
+
+#平仓
+corder = agent.BaseObject(instrument='IF1103',direction='1',order_ref=myagent.inc_order_ref(),price=3220,volume=1)
+myagent.close_position(corder)
+
+#测试撤单
+import agent
+trader,myagent = agent.trade_main()
+
+cref = myagent.inc_order_ref()
+morder = agent.BaseObject(instrument='IF1103',direction='0',order_ref=cref,price=3180,volume=1)
+myagent.open_position(morder)
+
+rorder = agent.BaseObject(instrument='IF1103',order_ref=cref)
+myagent.cancel_order(rorder)
+
+'''
+
 
 if __name__=="__main__":
     main()

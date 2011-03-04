@@ -25,12 +25,12 @@ import logging
 import UserApiStruct as ustruct
 import UserApiType as utype
 
-from base import BaseObject
+
+from base import *
+import hreader
 
 from MdApi import MdApi, MdSpi
 from TraderApi import TraderApi, TraderSpi  
-
-from wolfox.fengine.core.base import BaseObject
 
 
 
@@ -39,10 +39,10 @@ THOST_TERT_RESTART  = 0
 THOST_TERT_RESUME   = 1
 THOST_TERT_QUICK    = 2
 
-inst = [u'IF1103',u'IF1104']  #必须采用ctp使用的合约名字，内部不做检验
+INST = [u'IF1103',u'IF1104']  #必须采用ctp使用的合约名字，内部不做检验
 #建议每跟踪的一个合约都使用一个行情-交易对. 因为行情的接收是阻塞式的,在做处理的时候会延误后面接收的行情
 #套利时每一对合约都用一个行情-交易对
-#inst = [u'IF1102']
+#INST = [u'IF1102']
 
 
 def make_filename(apart,suffix='txt'):
@@ -272,11 +272,22 @@ class TraderSpiDelegate(TraderSpi):
 
     def OnRspQryInvestorPosition(self, pInvestorPosition, pRspInfo, nRequestID, bIsLast):
         '''请求查询投资者持仓响应'''
+        print u'查询持仓响应',str(pInvestorPosition),str(pRspInfo)
         if bIsLast and self.isRspSuccess(pRspInfo):
             self.agent.rsp_qry_position(pInvestorPosition)
         else:
             #logging
             pass
+
+    def OnRspQryInvestorPositionDetail(self, pInvestorPositionDetail, pRspInfo, nRequestID, bIsLast):
+        '''请求查询投资者持仓明细响应'''
+        print str(pInvestorPositionDetail)
+        if bIsLast and self.isRspSuccess(pRspInfo):
+            self.agent.rsp_qry_position_detail(pInvestorPositionDetail)
+        else:
+            #logging
+            pass
+
 
     def OnRspError(self, pRspInfo, nRequestID, bIsLast):
         '''错误应答'''
@@ -360,12 +371,13 @@ class TraderSpiDelegate(TraderSpi):
 class Agent(object):
     logger = logging.getLogger('ctp.agent')
 
-    def __init__(self,trader,cuser):
+    def __init__(self,trader,cuser,instruments):
         '''
             trader为交易对象
         '''
         self.trader = trader
         self.cuser = cuser
+        self.instruments = instruments
         self.request_id = 1
         self.base_funcs = []  #基本函数集合. 如合成分钟数据,30,日数据等.  需处理动态数据. 
                               # 接口为(data,dyndata), 把dyndata添加到data的相应属性中去
@@ -425,6 +437,75 @@ class Agent(object):
         '''
         pass
 
+    @staticmethod
+    def read_history(instrument_id,path):
+        return hreader.read1(instrument_id,path=path)
+
+    @staticmethod
+    def prepare_data(instruments,path="data/"):
+        data = {}
+        for inst in instruments:
+            tdata = Agent.read_history(inst,path)
+            tdata.x1 = tdata.transaction
+            oc_index_3 = Agent.p3(tdata.transaction[ITIME])
+            tdata.x3 = Agent.compress(tdata.transaction,oc_index_3)
+            oc_index_5 = Agent.p5(tdata.transaction[ITIME])
+            tdata.x5 = Agent.compress(tdata.transaction,oc_index_5)
+            oc_index_15 = Agent.p15(tdata.transaction[ITIME])
+            tdata.x15 = Agent.compress(tdata.transaction,oc_index_15)
+            oc_index_30 = Agent.p30(tdata.transaction[ITIME])
+            tdata.x30 = Agent.compress(tdata.transaction,oc_index_30)
+            data[inst] = tdata
+        return data
+
+    @staticmethod
+    def p30(xtimes):#切30分钟,返回30分钟(30分开盘index,30分收盘index)
+        poss = filter(lambda x:(x[0]%100==14 or x[0]%100==44) and x[0]%1000!=914,zip(xtimes
+,range(len(xtimes))))
+        cposs = [y for (x,y) in poss]   #close
+        oposs = [c+1 if c-1>0 else 0 for c in cposs] #close
+        return zip(oposs,cposs[1:])
+
+    @staticmethod
+    def p3(xtimes):#切30分钟,返回30分钟(30分开盘index,30分收盘index)
+        poss = filter(lambda x:(x[0]%3==2 or x[0]%10000==1514) and x[0]%1000!=914,zip(xtimes
+,range(len(xtimes))))
+        cposs = [y for (x,y) in poss]   #close
+        oposs = [c+1 if c-1>0 else 0 for c in cposs] #close
+        return zip(oposs,cposs[1:])
+
+    @staticmethod
+    def p5(xtimes):#切30分钟,返回30分钟(30分开盘index,30分收盘index)
+        poss = filter(lambda x:(x[0]%10==4 or x[0]%10==9) and x[0]%1000!=914,zip(xtimes
+,range(len(xtimes))))
+        cposs = [y for (x,y) in poss]   #close
+        oposs = [c+1 if c-1>0 else 0 for c in cposs] #close
+        return zip(oposs,cposs[1:])
+
+    @staticmethod
+    def p15(xtimes):#切30分钟,返回30分钟(30分开盘index,30分收盘index)
+        poss = filter(lambda x:(x[0]%100==14 or x[0]%100==29 or x[0]%100==44 or x[0]%100==59) and x[0]%1000!=914,zip(xtimes,range(len(xtimes))))
+        cposs = [y for (x,y) in poss]   #close
+        oposs = [c+1 if c-1>0 else 0 for c in cposs] #close
+        return zip(oposs,cposs[1:])
+
+    @staticmethod
+    def compress(trans_data,oc_index):
+        '''
+            将trans_data的各数据根据oc_index压缩成相应的X分钟数据
+        '''
+        n = len(oc_index)
+        xdata = [[0]*n,[0]*n,[0]*n,[0]*n,[0]*n,[0]*n,[0]*n,[0]*n,[0]*n,]
+        xdata[IDATE] = [trans_data[IDATE][c] for o,c in oc_index]
+        xdata[ITIME] = [trans_data[ITIME][c] for o,c in oc_index]
+        xdata[IOPEN] = [trans_data[IOPEN][o] for o,c in oc_index]        
+        xdata[ICLOSE] = [trans_data[ICLOSE][c] for o,c in oc_index]
+        xdata[IHIGH] = [max(trans_data[IHIGH][o:c+1]) for o,c in oc_index]
+        xdata[ILOW] = [min(trans_data[ILOW][o:c+1]) for o,c in oc_index]
+        xdata[IVOL] = [sum(trans_data[IVOL][o:c+1]) for o,c in oc_index]
+        xdata[IHOLDING] = [trans_data[IHOLDING][c] for o,c in oc_index]
+        return xdata
+
     def register_strategy(self,strategys):
         '''
             策略注册. 简单版本，都按照100%用完合约分额计算. 这样，合约的某个策略集合持仓时，其它策略集合就不能再开仓
@@ -467,10 +548,19 @@ class Agent(object):
         r=self.trader.ReqQryTradingAccount(req,self.inc_request_id())
         print u'查询资金账户, 函数发出返回值:%s' % r
 
-    def fetch_investor_position(self):
-        #获取当前持仓
-        pass
+    def fetch_investor_position(self,instrument_id):
+        #获取合约的当前持仓
+        print u'获取合约%s的当前持仓..' % (instrument_id,)
+        req = ustruct.QryInvestorPosition(BrokerID=self.cuser.broker_id, InvestorID=self.cuser.investor_id,InstrumentID=instrument_id)
+        r=self.trader.ReqQryInvestorPosition(req,self.inc_request_id())
+        print u'查询持仓, 函数发出返回值:%s' % r
     
+    def fetch_investor_position_detail(self,instrument_id):
+        #获取合约的当前持仓明细
+        print u'获取合约%s的当前持仓..' % (instrument_id,)
+        req = ustruct.QryInvestorPositionDetail(BrokerID=self.cuser.broker_id, InvestorID=self.cuser.investor_id,InstrumentID=instrument_id)
+        r=self.trader.ReqQryInvestorPositionDetail(req,self.inc_request_id())
+        print u'查询持仓, 函数发出返回值:%s' % r
 
     ##交易处理
     def RtnMarketData(self,market_data):#行情处理主循环
@@ -685,9 +775,16 @@ class Agent(object):
 
     def rsp_qry_position(self,position):
         '''
-            查询持仓回报
+            查询持仓回报, 得到持仓的一多一空
         '''
         pass
+
+    def rsp_qry_position_detail(self,position_detail):
+        '''
+            查询持仓明细回报, 得到每一次成交的持仓,其中若已经平仓,则持量为0,平仓量>=1
+        '''
+        pass
+
 
     def rsp_qry_order(self,sorder):
         '''
@@ -710,8 +807,8 @@ def user_main():
     user = MdApi.CreateMdApi("data")
     cuser = c.GD_USER
     #cuser = c.SQ_USER
-    my_agent = Agent(None,cuser)
-    user.RegisterSpi(MdSpiDelegate(instruments=inst, 
+    my_agent = Agent(None,cuser,INST)
+    user.RegisterSpi(MdSpiDelegate(instruments=INST, 
                              broker_id=cuser.broker_id,
                              investor_id= cuser.investor_id,
                              passwd= cuser.passwd,
@@ -737,8 +834,8 @@ trader.RegisterSpi(None)
     trader = TraderApi.CreateTraderApi("trader")
     #cuser = c.SQ_TRADER1
     cuser = c.SQ_TRADER2
-    my_agent = Agent(trader,cuser)
-    myspi = TraderSpiDelegate(instruments=inst, 
+    my_agent = Agent(trader,cuser,INST)
+    myspi = TraderSpiDelegate(instruments=INST, 
                              broker_id=cuser.broker_id,
                              investor_id= cuser.investor_id,
                              passwd= cuser.passwd,
@@ -761,7 +858,10 @@ myagent.spi.OnErrRtnOrderInsert(agent.BaseObject(OrderRef='12',InstrumentID='IF1
 myagent.spi.OnRspOrderAction(agent.BaseObject(OrderRef='12',InstrumentID='IF1103'),agent.BaseObject(ErrorID=1,ErrorMsg='test'),1,1)
 myagent.spi.OnErrRtnOrderAction(agent.BaseObject(OrderRef='12',InstrumentID='IF1103'),agent.BaseObject(ErrorID=1,ErrorMsg='test'))
 
+#资金和持仓
 myagent.fetch_trading_account()
+myagent.fetch_investor_position(u'IF1103')
+myagent.fetch_investor_position_detail(u'IF1103')
 
 #测试报单
 morder = agent.BaseObject(instrument='IF1103',direction='0',order_ref=myagent.inc_order_ref(),price=3280,volume=1)
@@ -782,6 +882,7 @@ myagent.open_position(morder)
 
 rorder = agent.BaseObject(instrument='IF1103',order_ref=cref)
 myagent.cancel_order(rorder)
+
 
 '''
 

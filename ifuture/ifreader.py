@@ -126,6 +126,13 @@ read_ifs = fcustom(read_ifs,path=FPATH2)
 read_ifs2_zip = fcustom(read_ifs,path=FPATH2,readfunc=read_if_zip,suffix=SUFFIX_ZIP)
 read_ifs_zip = fcustom(read_ifs,path=FPATH2,readfunc=read_if_zip,suffix=SUFFIX_ZIP)
 
+def read_ifs1_only(name,extractor=extract_if,path=FPATH2,readfunc=read_if,suffix=SUFFIX):
+    ifs = BaseObject(name=name,transaction=read_if_as_np(path + prefix + ifn + suffix,extractor=extractor,readfunc=readfunc))
+    return ifs
+
+read_ifs1_only_zip = fcustom(read_ifs1_only,path=FPATH2,readfunc=read_if_zip,suffix=SUFFIX_ZIP)
+
+
 
 FBASE=10    #只用于macd提高精度，因为是整数运算，再往上就要溢出了
 

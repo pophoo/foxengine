@@ -708,8 +708,8 @@ def user_main():
     logging.basicConfig(filename="ctp_user.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
     
     user = MdApi.CreateMdApi("data")
-    #cuser = c.GD_USER
-    cuser = c.SQ_USER
+    cuser = c.GD_USER
+    #cuser = c.SQ_USER
     my_agent = Agent(None,cuser)
     user.RegisterSpi(MdSpiDelegate(instruments=inst, 
                              broker_id=cuser.broker_id,

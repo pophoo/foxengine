@@ -8,11 +8,11 @@ todo:
     1. 打通trade环节
     2. 前期数据的衔接(1分钟,5/30)
     3. 行情数据的整理
-    4. 中间环境的恢复,如持仓. 
+    4. trader桩的建立,根据trade桩模拟交易
+    5. 中间环境的恢复,如持仓. 
        断点间的撤单--可延后 
-    5. trader桩的建立,根据trade桩模拟交易
-    7. 完全模拟交易
-    8. 有人值守实盘
+    6. 完全模拟交易
+    7. 有人值守实盘
 
 
 ##因为流控原因,所有Qry命令都用Command模式?
@@ -27,7 +27,9 @@ import UserApiType as utype
 
 
 from base import *
+from dac import ATR,ATR1,STREND,STREND1,MA,MA1
 import hreader
+
 
 from MdApi import MdApi, MdSpi
 from TraderApi import TraderApi, TraderSpi  
@@ -39,14 +41,14 @@ THOST_TERT_RESTART  = 0
 THOST_TERT_RESUME   = 1
 THOST_TERT_QUICK    = 2
 
+NFUNC = lambda data:None    #空函数桩
+
 INST = [u'IF1103',u'IF1104']  #必须采用ctp使用的合约名字，内部不做检验
 #建议每跟踪的一个合约都使用一个行情-交易对. 因为行情的接收是阻塞式的,在做处理的时候会延误后面接收的行情
 #套利时每一对合约都用一个行情-交易对
 #INST = [u'IF1102']
 
 
-def make_filename(apart,suffix='txt'):
-    return '%s_%s.%s' % (apart,time.strftime('%Y%m%d'),suffix)
 
 class MdSpiDelegate(MdSpi):
     '''
@@ -113,14 +115,35 @@ class MdSpiDelegate(MdSpi):
             return  #行情未变化
         self.last_map[dp.InstrumentID] = dp.Volume
         #self.logger.debug(u'before loop')
-        self.agent.RtnMarketData(depth_market_data)
+        ctick = self.market_data2tick(depth_market_data)
+        self.agent.RtnMarketData(ctick)
         #self.logger.debug(u'before write md:')
-        ff = open(make_filename(depth_market_data.InstrumentID),'a+')
-        ff.write(u'%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (dp.TradingDay,dp.UpdateTime,dp.UpdateMillisec,dp.OpenInterest,dp.Volume,dp.LastPrice,dp.HighestPrice,dp.LowestPrice,dp.BidPrice1,dp.BidVolume1,dp.AskPrice1,dp.AskVolume1))
+        ff = open(hreader.make_tick_filename(ctick.instrument),'a+')
+        #print type(dp.UpdateMillisec),type(dp.OpenInterest),type(dp.Volume),type(dp.BidVolume1)
+        #ff.write(u'%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (dp.TradingDay,dp.UpdateTime,dp.UpdateMillisec,dp.OpenInterest,dp.Volume,dp.LastPrice,dp.HighestPrice,dp.LowestPrice,dp.BidPrice1,dp.BidVolume1,dp.AskPrice1,dp.AskVolume1))
+        ff.write(u'%(instrument)s,%(date)s,%(min1)s,%(sec)s,%(msec)s,%(holding)s,%(dvolume)s,%(price)s,%(high)s,%(low)s,%(bid_price)s,%(bid_volume)s,%(ask_price)s,%(ask_volume)s\n' % ctick.__dict__)
         ff.close()
         self.logger.debug(u'after write md:')
         #time.sleep(0.3)
         #self.logger.debug(u'after write sleep:')
+
+    def market_data2tick(self,market_data):
+        #market_data的格式转换和整理, 交易数据都转换为整数
+        rev = BaseObject(instrument = market_data.InstrumentID)
+        rev.date = int(market_data.TradingDay)
+        rev.min1 = int(market_data.UpdateTime[:2]+market_data.UpdateTime[3:5])
+        rev.sec = int(market_data.UpdateTime[-2:])
+        rev.msec = int(market_data.UpdateMillisec)
+        rev.holding = int(market_data.OpenInterest+0.1)
+        rev.dvolume = market_data.Volume
+        rev.price = int(market_data.LastPrice*10+0.1)
+        rev.high = int(market_data.HighestPrice*10+0.1)
+        rev.low = int(market_data.LowestPrice*10+0.1)
+        rev.bid_price = int(market_data.BidPrice1*10+0.1)
+        rev.bid_volume = market_data.BidVolume1
+        rev.ask_price = int(market_data.AskPrice1*10+0.1)
+        rev.ask_volume = market_data.AskVolume1
+        return rev
 
 class TraderSpiDelegate(TraderSpi):
     '''
@@ -141,7 +164,7 @@ class TraderSpiDelegate(TraderSpi):
         self.passwd = passwd
         self.agent = agent
         self.agent.set_spi(self)
-        self.cur_day = int(time.strftime('%Y%m%d'))
+        self.scur_day = int(time.strftime('%Y%m%d'))
  
     def isRspSuccess(self,RspInfo):
         return RspInfo == None or RspInfo.ErrorID == 0
@@ -226,16 +249,16 @@ class TraderSpiDelegate(TraderSpi):
         self.logger.debug(u"结算单确认信息查询响应:rspInfo=%s,结算单确认=%s" % (pRspInfo,pSettlementInfoConfirm))
         #self.query_settlement_info()
         if(self.resp_common(pRspInfo,bIsLast,u'结算单确认情况查询')>0):
-            if(pSettlementInfoConfirm == None or int(pSettlementInfoConfirm.ConfirmDate) < self.cur_day):
+            if(pSettlementInfoConfirm == None or int(pSettlementInfoConfirm.ConfirmDate) < self.scur_day):
                 #其实这个判断是不对的，如果周日对周五的结果进行了确认，那么周一实际上已经不需要再次确认了
                 if(pSettlementInfoConfirm != None):
-                    self.logger.info(u'最新结算单未确认，需查询后再确认,最后确认时间=%s,cur_day:%s' % (pSettlementInfoConfirm.ConfirmDate,self.cur_day))
+                    self.logger.info(u'最新结算单未确认，需查询后再确认,最后确认时间=%s,scur_day:%s' % (pSettlementInfoConfirm.ConfirmDate,self.scur_day))
                 else:
                     self.logger.info(u'结算单确认结果为None')
                 time.sleep(1)   #满足1秒一次的查询间隔,避免流控
                 self.query_settlement_info()
             else:
-                self.logger.info(u'最新结算单已确认，不需再次确认,最后确认时间=%s,cur_day:%s' % (pSettlementInfoConfirm.ConfirmDate,self.cur_day))
+                self.logger.info(u'最新结算单已确认，不需再次确认,最后确认时间=%s,scur_day:%s' % (pSettlementInfoConfirm.ConfirmDate,self.scur_day))
 
     def OnRspSettlementInfoConfirm(self, pSettlementInfoConfirm, pRspInfo, nRequestID, bIsLast):
         '''投资者结算结果确认响应'''
@@ -379,14 +402,17 @@ class Agent(object):
         self.cuser = cuser
         self.instruments = instruments
         self.request_id = 1
-        self.base_funcs = []  #基本函数集合. 如合成分钟数据,30,日数据等.  需处理动态数据. 
-                              # 接口为(data,dyndata), 把dyndata添加到data的相应属性中去
-                              #顺序关系非常重要
         self.data_funcs = []  #计算函数集合. 如计算各类指标, 顺序关系非常重要
-                              # 接口为(data), 从data的属性中取数据,并计算另外一些属性
+                              #每一类函数由一对函数组成，.sfunc计算序列用，.func1为动态计算用，只计算当前值
+                              #接口为(data), 从data的属性中取数据,并计算另外一些属性
                               #顺序关系非常重要，否则可能会紊乱
         self.strategy_map = {}
+        ###交易数据, instrument==>tdata的映射
+        #其中tdata.m1/m3/m5/m15/m30/d1为不同周期的数据
+        #   tdata.cur_min是当前分钟的行情，包括开盘,最高,最低,当前价格,持仓,累计成交量
+        #   tdata.cur_day是当日的行情，包括开盘,最高,最低,当前价格,持仓,累计成交量, 其中最高/最低有两类，一者是tick的当前价集合得到的，一者是tick中的最高/最低价得到的
         self.data = {}    #为合约号==>合约数据的dict
+        ###
         self.lastupdate = 0
         self.holding = []   #(合约、策略族、基准价、基准时间、request_id、持仓量、止损价、止损函数)
         self.transited_orders = []    #发出后等待回报的指令, 回报后到holding
@@ -395,12 +421,20 @@ class Agent(object):
         self.session_id = None
         self.order_ref = 1
         self.trading_day = 20110101
-        self.cur_day = int(time.strftime('%Y%m%d'))
+        self.scur_day = int(time.strftime('%Y%m%d'))
         #当前资金/持仓
         self.account = 0
         self.position = []
 
-        #self.prepare()
+
+        self.register_data_funcs(
+                BaseObject(sfunc=NFUNC,func1=hreader.time_period_switch),    #时间切换函数
+                BaseObject(sfunc=ATR,func1=ATR1),
+                BaseObject(sfunc=MA,func1=MA1),
+                BaseObject(sfunc=STREND,func1=STREND1),
+            )
+
+        self.prepare_data_env()
         
 
     def set_spi(self,spi):
@@ -431,80 +465,15 @@ class Agent(object):
         '''
         pass
 
-    def prepare(self):
+    def prepare_data_env(self):
         '''
-            准备数据, 如需要的30分钟数据
+            准备数据环境, 如需要的30分钟数据
         '''
-        pass
-
-    @staticmethod
-    def read_history(instrument_id,path):
-        return hreader.read1(instrument_id,path=path)
-
-    @staticmethod
-    def prepare_data(instruments,path="data/"):
-        data = {}
-        for inst in instruments:
-            tdata = Agent.read_history(inst,path)
-            tdata.x1 = tdata.transaction
-            oc_index_3 = Agent.p3(tdata.transaction[ITIME])
-            tdata.x3 = Agent.compress(tdata.transaction,oc_index_3)
-            oc_index_5 = Agent.p5(tdata.transaction[ITIME])
-            tdata.x5 = Agent.compress(tdata.transaction,oc_index_5)
-            oc_index_15 = Agent.p15(tdata.transaction[ITIME])
-            tdata.x15 = Agent.compress(tdata.transaction,oc_index_15)
-            oc_index_30 = Agent.p30(tdata.transaction[ITIME])
-            tdata.x30 = Agent.compress(tdata.transaction,oc_index_30)
-            data[inst] = tdata
-        return data
-
-    @staticmethod
-    def p30(xtimes):#切30分钟,返回30分钟(30分开盘index,30分收盘index)
-        poss = filter(lambda x:(x[0]%100==14 or x[0]%100==44) and x[0]%1000!=914,zip(xtimes
-,range(len(xtimes))))
-        cposs = [y for (x,y) in poss]   #close
-        oposs = [c+1 if c-1>0 else 0 for c in cposs] #close
-        return zip(oposs,cposs[1:])
-
-    @staticmethod
-    def p3(xtimes):#切30分钟,返回30分钟(30分开盘index,30分收盘index)
-        poss = filter(lambda x:(x[0]%3==2 or x[0]%10000==1514) and x[0]%1000!=914,zip(xtimes
-,range(len(xtimes))))
-        cposs = [y for (x,y) in poss]   #close
-        oposs = [c+1 if c-1>0 else 0 for c in cposs] #close
-        return zip(oposs,cposs[1:])
-
-    @staticmethod
-    def p5(xtimes):#切30分钟,返回30分钟(30分开盘index,30分收盘index)
-        poss = filter(lambda x:(x[0]%10==4 or x[0]%10==9) and x[0]%1000!=914,zip(xtimes
-,range(len(xtimes))))
-        cposs = [y for (x,y) in poss]   #close
-        oposs = [c+1 if c-1>0 else 0 for c in cposs] #close
-        return zip(oposs,cposs[1:])
-
-    @staticmethod
-    def p15(xtimes):#切30分钟,返回30分钟(30分开盘index,30分收盘index)
-        poss = filter(lambda x:(x[0]%100==14 or x[0]%100==29 or x[0]%100==44 or x[0]%100==59) and x[0]%1000!=914,zip(xtimes,range(len(xtimes))))
-        cposs = [y for (x,y) in poss]   #close
-        oposs = [c+1 if c-1>0 else 0 for c in cposs] #close
-        return zip(oposs,cposs[1:])
-
-    @staticmethod
-    def compress(trans_data,oc_index):
-        '''
-            将trans_data的各数据根据oc_index压缩成相应的X分钟数据
-        '''
-        n = len(oc_index)
-        xdata = [[0]*n,[0]*n,[0]*n,[0]*n,[0]*n,[0]*n,[0]*n,[0]*n,[0]*n,]
-        xdata[IDATE] = [trans_data[IDATE][c] for o,c in oc_index]
-        xdata[ITIME] = [trans_data[ITIME][c] for o,c in oc_index]
-        xdata[IOPEN] = [trans_data[IOPEN][o] for o,c in oc_index]        
-        xdata[ICLOSE] = [trans_data[ICLOSE][c] for o,c in oc_index]
-        xdata[IHIGH] = [max(trans_data[IHIGH][o:c+1]) for o,c in oc_index]
-        xdata[ILOW] = [min(trans_data[ILOW][o:c+1]) for o,c in oc_index]
-        xdata[IVOL] = [sum(trans_data[IVOL][o:c+1]) for o,c in oc_index]
-        xdata[IHOLDING] = [trans_data[IHOLDING][c] for o,c in oc_index]
-        return xdata
+        self.data.update(hreader.prepare_data(self.instruments))
+        for dinst in self.data.values():
+            for dfo in self.data_funcs:
+                dfo.sfunc(dinst)
+            
 
     def register_strategy(self,strategys):
         '''
@@ -533,12 +502,9 @@ class Agent(object):
                 self.strategy_map[ins_id] = []
             self.strategy_map[ins_id].append((s,proportion))    #重复的话就会引发多次下单
 
-    def register_base_funcs(self,funcs):
-        self.base_funcs.update(funcs)
     
     def register_data_funcs(self,funcs):
-        self.data_funcs.update(funcs)
-
+        self.data_funcs.append(funcs)
 
     ##内务处理
     def fetch_trading_account(self):
@@ -563,9 +529,9 @@ class Agent(object):
         print u'查询持仓, 函数发出返回值:%s' % r
 
     ##交易处理
-    def RtnMarketData(self,market_data):#行情处理主循环
-        inst = market_data.InstrumentID
-        self.prepare(market_data)
+    def RtnMarketData(self,ctick):#行情处理主循环
+        inst = ctick.instrument
+        self.prepare_tick(ctick)
         #先平仓
         close_positions = self.check_close_signal()
         self.make_trade(close_positions)
@@ -580,15 +546,71 @@ class Agent(object):
         ##扫尾
         self.finalize()
         
-    def prepare(self,dyndata):
+    def prepare_tick(self,ctick):
         '''
             准备计算, 包括分钟数据、指标的计算
         '''
-        for func in self.base_funcs:
-            func(self.data,dyndata)
-        for func in self.data_funcs:
-            func(self.data)
+        inst = ctick.instrument
+        if inst not in self.data:
+            logger.info(u'接收到未订阅的合约数据:%s' % (inst,))
+        dinst = self.data[inst]
+        if(prepare_base(dinst,ctick)>0):  #如果切分分钟则返回>0
+            for func in self.data_funcs:    #动态计算
+                func.func1(dinst)
 
+    def prepare_base(self,dinst,ctick):
+        '''
+            返回值标示是否是分钟的切换
+        '''
+        rev = False #默认不切换
+        if ctick.min1 != dinst.cur_min.vtime or ctick.date != dinst.cur_min.vdate):#时间切换
+            if len(dinst.stime)>0 and dinst.stime[-1] != ctick.min1:#已有分钟与已保存的有差别
+                #这里把00秒归入到新的分钟里面
+                dinst.sdate.append(dinst.cur_min.vdate)
+                dinst.stime.append(dinst.cur_min.vtime)
+                dinst.sopen.append(dinst.cur_min.vopen)
+                dinst.sclose.append(dinst.cur_min.vclose)
+                dinst.shigh.append(dinst.cur_min.vhigh)
+                dinst.slow.append(dinst.cur_min.vlow)
+                dinst.sholding.append(dinst.cur_min.vholding)
+                dinst.svolume.append(dinst.cur_min.vvolume)
+                ##需要save下
+                hreader.save1(dinst.name,dinst.cur_min)
+            dinst.cur_min.vdate = ctick.date
+            dinst.cur_min.vtime = ctick.min1
+            dinst.cur_min.vopen = ctick.price
+            dinst.cur_min.vclose = ctick.price
+            dinst.cur_min.vhigh = ctick.price
+            dinst.cur_min.vlow = ctick.price
+            dinst.cur_min.vholding = ctick.holding
+            dinst.cur_min.vvolume = ctick.dvolume - dinst.cur_day.vvolume if ctick.date == dinst.cur_day.vdate else 0
+            rev = True
+        else:#当分钟的处理
+            dinst.cur_min.vclose = ctick.price
+            if ctick.price > dinst.cur_min.vhigh:
+                dinst.cur_min.vhigh = ctick.price
+            if ctick.price < dinst.cur_min.vlow:
+                dinst.cur_min.vlow = ctick.price
+            dinst.cur_min.vholding = ctick.holding
+            dinst.cur_min.vvolume += (ctick.dvolume - dinst.cur_day.vvolume)
+        ##日的处理
+        if ctick.date != dinst.cur_day.vdate:
+            dinst.cur_day.vdate = ctick.date
+            dinst.cur_day.vopen = ctick.price
+            dinst.cur_day.vhigh = ctick.price
+            dinst.cur_day.vlow = ctick.price
+        else:
+            if ctick.price > dinst.cur_day.vhigh:
+                dinst.cur_day.vhigh = ctick.price   #根据当前价比较得到的最大/最小
+            if ctick.price < dinst.cur_day.vlow:
+                dinst.cur_day.vlow = ctick.price
+        dinst.cur_day.vholding = ctick.vholding
+        dinst.cur_day.vvolume = ctick.dvolume
+        dinst.cur_day.vhighd = ctick.high   #服务器传过来的最大/最小
+        dinst.cur_day.vlowd = ctick.low
+        dinst.cur_day.vclose = ctick.price
+        return rev
+        
     def check_close_signal(self):
         '''
             检查平仓信号
@@ -607,7 +629,6 @@ class Agent(object):
 
     def check_queued(self):
         pass
-
 
     def calc_position(self,signals):
         '''
@@ -805,8 +826,8 @@ def user_main():
     logging.basicConfig(filename="ctp_user.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
     
     user = MdApi.CreateMdApi("data")
-    cuser = c.GD_USER
-    #cuser = c.SQ_USER
+    #cuser = c.GD_USER
+    cuser = c.SQ_USER
     my_agent = Agent(None,cuser,INST)
     user.RegisterSpi(MdSpiDelegate(instruments=INST, 
                              broker_id=cuser.broker_id,

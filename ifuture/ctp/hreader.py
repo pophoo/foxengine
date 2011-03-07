@@ -218,14 +218,15 @@ def compress(trans_data,oc_index):
 
 
 ##是否是X分钟收盘分钟
-IS_END_3 = lambda x:(x%3==2 or x%10000==1514) and x%1000!=914
+IS_END_3 = lambda x:(x%100%3==2 or x%10000==1514) and x%1000!=914
 IS_END_5 = lambda x: x%5==4 and x%1000!=914
-
+IS_END_15 = lambda x:x%100%15 == 14 and x%1000!=914
+IS_END_30 = lambda x:x%100%30 == 14 and x%1000!=914
+IS_END_DAY = lambda x:x%10000 == 1514
 
 class IF_PREPARER(object):
     '''IF类的时间段划分
     '''
-
     @staticmethod
     def pd(xtimes):#切日
         poss = filter(lambda x:x[0]>x[1],zip(xtimes,xtimes[1:]+[0],range(len(xtimes))))
@@ -235,28 +236,28 @@ class IF_PREPARER(object):
     
     @staticmethod
     def p3(xtimes):#切3分钟,返回3分钟(3分开盘index,3分收盘index)
-        poss = filter(lambda x:(x[0]%3==2 or x[0]%10000==1514) and x[0]%1000!=914,zip(xtimes,range(len(xtimes))))
+        poss = filter(lambda x:IS_END_3(x[0]),zip(xtimes,range(len(xtimes))))
         cposs = [y for (x,y) in poss]   #close
         oposs = [c+1 if c-1>0 else 0 for c in cposs] #close
         return zip(oposs,cposs[1:])
 
     @staticmethod
     def p5(xtimes):#切5分钟,返回5分钟(5分开盘index,5分收盘index)
-        poss = filter(lambda x:(x[0]%10==4 or x[0]%10==9) and x[0]%1000!=914,zip(xtimes,range(len(xtimes))))
+        poss = filter(lambda x:IS_END_5(x[0]),zip(xtimes,range(len(xtimes))))
         cposs = [y for (x,y) in poss]   #close
         oposs = [c+1 if c-1>0 else 0 for c in cposs] #close
         return zip(oposs,cposs[1:])
 
     @staticmethod
     def p15(xtimes):#切15分钟,返回15分钟(15分开盘index,15分收盘index)
-        poss = filter(lambda x:(x[0]%100==14 or x[0]%100==29 or x[0]%100==44 or x[0]%100==59) and x[0]%1000!=914,zip(xtimes,range(len(xtimes))))
+        poss = filter(lambda x:IS_END_15(x[0]),zip(xtimes,range(len(xtimes))))
         cposs = [y for (x,y) in poss]   #close
         oposs = [c+1 if c-1>0 else 0 for c in cposs] #close
         return zip(oposs,cposs[1:])
 
     @staticmethod
     def p30(xtimes):#切30分钟,返回30分钟(30分开盘index,30分收盘index)
-        poss = filter(lambda x:(x[0]%100==14 or x[0]%100==44) and x[0]%1000!=914,zip(xtimes,range(len(xtimes))))
+        poss = filter(lambda x:IS_END_30(x[0]),zip(xtimes,range(len(xtimes))))
         cposs = [y for (x,y) in poss]   #close
         oposs = [c+1 if c-1>0 else 0 for c in cposs] #close
         return zip(oposs,cposs[1:])
@@ -300,4 +301,43 @@ def time_period_switch(data):
     '''
         判断分钟数据是否是3/5/15/30的卡点, 并计算相关数据
     '''
-    pass
+    assert len(data.sdate)>0
+    if IS_END_3(data.stime[-1]) and (len(data.m3[IDATE])==0 
+                                        or data.sdate[-1] > data.m3[IDATE][-1] 
+                                        or data.stime[-1] > data.m3[ITIME][-1]
+                                    ):#添加新的3分钟
+        append1(data.m3,data.m1,3)
+    if IS_END_5(data.stime[-1]) and (len(data.m5[IDATE])==0 
+                                        or data.sdate[-1] > data.m5[IDATE][-1] 
+                                        or data.stime[-1] > data.m5[ITIME][-1]
+                                    ):#添加新的5分钟
+        append1(data.m5,data.m1,5)
+    if IS_END_15(data.stime[-1]) and (len(data.m15[IDATE])==0 
+                                        or data.sdate[-1] > data.m15[IDATE][-1] 
+                                        or data.stime[-1] > data.m15[ITIME][-1]
+                                    ):#添加新的15分钟
+        append1(data.m15,data.m1,15)
+    if IS_END_30(data.stime[-1]) and (len(data.m30[IDATE])==0 
+                                        or data.sdate[-1] > data.m30[IDATE][-1] 
+                                        or data.stime[-1] > data.m30[ITIME][-1]
+                                    ):#添加新的30分钟
+        append1(data.m30,data.m1,30)
+    if IS_END_DAY(data.stime[-1]) and (len(data.d1[IDATE])==0 
+                                        or data.sdate[-1] > data.d1[IDATE][-1] 
+                                    ):#添加新的日数据
+        append1(data.m15,data.m1,270)
+ 
+def append1(xdata,data1,length):
+    '''
+        将data1中最后length的数据组合以后放入xdata
+    '''
+    mlen = min(len(data.sdate),length)
+    xdata[IDATE].append(data.sdate[-1])
+    xdata[ITIME].append(data.stime[-1])
+    xdata[IOPEN].append(data.sopen[-mlen])
+    xdata[ICLOSE].append(data.sclose[-1])
+    xdata[IHIGH].append(max(data.shigh[-mlen:]))
+    xdata[ILOW].append(min(data.slow[-mlen:]))
+    xdata[IVOL].append(sum(data.svolume[-mlen:]))
+    xdata[IHOLDING].append(data.holding[-1])
+

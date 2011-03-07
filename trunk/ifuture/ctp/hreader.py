@@ -68,8 +68,8 @@ def read_min_as_list(filename,length,extractor=extract_std,readfunc = read_data)
         records = readfunc(filename,extractor)
     except Exception,inst:#读不到数据,默认都为1(避免出现被0除)
         logger.error(u'文件打开错误，文件名=%s,错误信息=%s' % (filename,str(inst)))
-        n = length
-        tran_data = [[1]*n,[1]*n,[1]*n,[1]*n,[1]*n,[1]*n,[1]*n,[1]*n]
+        n = 0
+        return [[0]*n,[0]*n,[0]*n,[0]*n,[0]*n,[0]*n,[0]*n,[0]*n]
     else:   #正常读取到数据
         n = min(len(records),length)
         tran_data = [[0]*n,[0]*n,[0]*n,[0]*n,[0]*n,[0]*n,[0]*n,[0]*n]
@@ -95,7 +95,7 @@ make_his_filename = lambda path,prefix,name,suffix:path + prefix + name + suffix
 
 def read1(instrument,length=6000,path=DATA_PATH,extractor=extract_std,readfunc=read_data,suffix=SUFFIX):
     #6000是22天，足够应付日ATR计算
-    hdata = BaseObject(name=instrument,transaction=read_min_as_list(make_hfilename(path,prefix,instrument,suffix),length=length,extractor=extractor,readfunc=readfunc))
+    hdata = BaseObject(name=instrument,transaction=read_min_as_list(make_his_filename(path,prefix,instrument,suffix),length=length,extractor=extractor,readfunc=readfunc))
     return hdata
 
 #不从zip读数据
@@ -149,7 +149,8 @@ def prepare_data(instruments,path=DATA_PATH):
         data[inst] = tdata
         oc_index_d = PREPARER.pd(tdata.transaction[ITIME])
         tdata.d1 = compress(tdata.transaction,oc_index_d)
-        tdata.cur_day = BaseObject(
+        if len(tdata.d1[IDATE])>0:
+            tdata.cur_day = BaseObject(
                         vdate= tdata.d1[IDATE][-1],
                         vtime = tdata.stime[-1],    #最后的交易分钟
                         vopen = tdata.d1[IOPEN][-1],
@@ -159,9 +160,23 @@ def prepare_data(instruments,path=DATA_PATH):
                         vhighd = tdata.d1[IHIGH][-1],   #根据tick中的当日最大/最小, 是服务器计算的
                         vlowd = tdata.d1[ILOW][-1],
                         vholding = tdata.d1[IHOLDING][-1],
-                        vvolume = tdata.d1[IVOLUME][-1],
+                        vvolume = tdata.d1[IVOL][-1],
                     )
-        tdata.cur_min = BaseObject(
+        else:
+            tdata.cur_day = BaseObject(
+                        vdate= 0,
+                        vtime = 0,
+                        vopen = 0,
+                        vclose = 0,
+                        vhigh = 0,
+                        vlow = 0,
+                        vhighd = 0,
+                        vlowd = 0,
+                        vholding = 0,
+                        vvolume = 0,
+                    )
+        if len(tdata.sdate)>0:
+            tdata.cur_min = BaseObject(
                         vdate = tdata.sdate[-1],
                         vtime = tdata.stime[-1],
                         vopen = tdata.sopen[-1],
@@ -170,6 +185,17 @@ def prepare_data(instruments,path=DATA_PATH):
                         vlow = tdata.slow[-1],
                         vholding = tdata.sholding[-1],
                         vvolume = tdata.svolume[-1],
+                    )
+        else:
+            tdata.cur_min = BaseObject(
+                        vdate = 0,
+                        vtime = 0,
+                        vopen = 0,
+                        vclose = 0,
+                        vhigh = 0,
+                        vlow = 0,
+                        vholding = 0,
+                        vvolume = 0,
                     )
         data[inst] = tdata
     return data
@@ -191,6 +217,11 @@ def compress(trans_data,oc_index):
     return xdata
 
 
+##是否是X分钟收盘分钟
+IS_END_3 = lambda x:(x%3==2 or x%10000==1514) and x%1000!=914
+IS_END_5 = lambda x: x%5==4 and x%1000!=914
+
+
 class IF_PREPARER(object):
     '''IF类的时间段划分
     '''
@@ -203,29 +234,29 @@ class IF_PREPARER(object):
         return zip(oposs,cposs[1:])
     
     @staticmethod
-    def p30(xtimes):#切30分钟,返回30分钟(30分开盘index,30分收盘index)
-        poss = filter(lambda x:(x[0]%100==14 or x[0]%100==44) and x[0]%1000!=914,zip(xtimes,range(len(xtimes))))
-        cposs = [y for (x,y) in poss]   #close
-        oposs = [c+1 if c-1>0 else 0 for c in cposs] #close
-        return zip(oposs,cposs[1:])
-    
-    @staticmethod
-    def p3(xtimes):#切30分钟,返回30分钟(30分开盘index,30分收盘index)
+    def p3(xtimes):#切3分钟,返回3分钟(3分开盘index,3分收盘index)
         poss = filter(lambda x:(x[0]%3==2 or x[0]%10000==1514) and x[0]%1000!=914,zip(xtimes,range(len(xtimes))))
         cposs = [y for (x,y) in poss]   #close
         oposs = [c+1 if c-1>0 else 0 for c in cposs] #close
         return zip(oposs,cposs[1:])
 
     @staticmethod
-    def p5(xtimes):#切30分钟,返回30分钟(30分开盘index,30分收盘index)
+    def p5(xtimes):#切5分钟,返回5分钟(5分开盘index,5分收盘index)
         poss = filter(lambda x:(x[0]%10==4 or x[0]%10==9) and x[0]%1000!=914,zip(xtimes,range(len(xtimes))))
         cposs = [y for (x,y) in poss]   #close
         oposs = [c+1 if c-1>0 else 0 for c in cposs] #close
         return zip(oposs,cposs[1:])
 
     @staticmethod
-    def p15(xtimes):#切30分钟,返回30分钟(30分开盘index,30分收盘index)
+    def p15(xtimes):#切15分钟,返回15分钟(15分开盘index,15分收盘index)
         poss = filter(lambda x:(x[0]%100==14 or x[0]%100==29 or x[0]%100==44 or x[0]%100==59) and x[0]%1000!=914,zip(xtimes,range(len(xtimes))))
+        cposs = [y for (x,y) in poss]   #close
+        oposs = [c+1 if c-1>0 else 0 for c in cposs] #close
+        return zip(oposs,cposs[1:])
+
+    @staticmethod
+    def p30(xtimes):#切30分钟,返回30分钟(30分开盘index,30分收盘index)
+        poss = filter(lambda x:(x[0]%100==14 or x[0]%100==44) and x[0]%1000!=914,zip(xtimes,range(len(xtimes))))
         cposs = [y for (x,y) in poss]   #close
         oposs = [c+1 if c-1>0 else 0 for c in cposs] #close
         return zip(oposs,cposs[1:])

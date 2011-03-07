@@ -76,11 +76,11 @@ def atr1(ltr,target,length=20):
     return target[-1]
  
 def xatr(latr,sclose):
-    return [ia * XCBASE * XCBASE / ic for ia,ic in zip(latr,sclose)]
+    return [ia * CBASE * CBASE / ic for ia,ic in zip(latr,sclose)]
 
 def xatr1(latr,sclose,lxatr):
     assert len(latr) == len(sclose) == len(lxatr)
-    lxatr[-1] = latr[-1] * XCBASE * XBAES / sclose[-1]
+    lxatr[-1] = latr[-1] * CBASE * XBAES / sclose[-1]
     return xatr1
 
 def accumulate(source):

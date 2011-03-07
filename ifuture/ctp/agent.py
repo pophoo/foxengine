@@ -14,6 +14,7 @@ todo:
     6. 完全模拟交易
     7. 有人值守实盘
 
+##周一提前行动?
 
 ##因为流控原因,所有Qry命令都用Command模式?
   不需要,可以忍受1s的延时. 因为行情通过别的来接收  
@@ -108,7 +109,7 @@ class MdSpiDelegate(MdSpi):
             logger.warning(u'收到的行情数据有误:%s,LastPrice=:%s' %(depth_market_data.InstrumentID,depth_market_data.LastPrice))
         if depth_market_data.InstrumentID not in self.instruments:
             logger.warning(u'收到未订阅的行情:%s' %(depth_market_data.InstrumentID,))
-        self.logger.debug(u'收到行情:%s,time=%s:%s' %(depth_market_data.InstrumentID,depth_market_data.UpdateTime,depth_market_data.UpdateMillisec))
+        #self.logger.debug(u'收到行情:%s,time=%s:%s' %(depth_market_data.InstrumentID,depth_market_data.UpdateTime,depth_market_data.UpdateMillisec))
         dp = depth_market_data
         if dp.Volume <= self.last_map[dp.InstrumentID]:
             self.logger.debug(u'行情无变化，inst=%s,time=%s，volume=%s,last_volume=%s' % (dp.InstrumentID,dp.UpdateTime,dp.Volume,self.last_map[dp.InstrumentID]))
@@ -116,7 +117,7 @@ class MdSpiDelegate(MdSpi):
         self.last_map[dp.InstrumentID] = dp.Volume
         #self.logger.debug(u'before loop')
         ctick = self.market_data2tick(depth_market_data)
-        self.agent.RtnMarketData(ctick)
+        self.agent.RtnTick(ctick)
         #self.logger.debug(u'before write md:')
         ff = open(hreader.make_tick_filename(ctick.instrument),'a+')
         #print type(dp.UpdateMillisec),type(dp.OpenInterest),type(dp.Volume),type(dp.BidVolume1)
@@ -503,8 +504,9 @@ class Agent(object):
             self.strategy_map[ins_id].append((s,proportion))    #重复的话就会引发多次下单
 
     
-    def register_data_funcs(self,funcs):
-        self.data_funcs.append(funcs)
+    def register_data_funcs(self,*funcss):
+        for funcs in funcss:
+            self.data_funcs.append(funcs)
 
     ##内务处理
     def fetch_trading_account(self):
@@ -529,7 +531,7 @@ class Agent(object):
         print u'查询持仓, 函数发出返回值:%s' % r
 
     ##交易处理
-    def RtnMarketData(self,ctick):#行情处理主循环
+    def RtnTick(self,ctick):#行情处理主循环
         inst = ctick.instrument
         self.prepare_tick(ctick)
         #先平仓
@@ -563,7 +565,7 @@ class Agent(object):
             返回值标示是否是分钟的切换
         '''
         rev = False #默认不切换
-        if ctick.min1 != dinst.cur_min.vtime or ctick.date != dinst.cur_min.vdate):#时间切换
+        if ctick.min1 != dinst.cur_min.vtime or ctick.date != dinst.cur_min.vdate:#时间切换
             if len(dinst.stime)>0 and dinst.stime[-1] != ctick.min1:#已有分钟与已保存的有差别
                 #这里把00秒归入到新的分钟里面
                 dinst.sdate.append(dinst.cur_min.vdate)
@@ -583,7 +585,7 @@ class Agent(object):
             dinst.cur_min.vhigh = ctick.price
             dinst.cur_min.vlow = ctick.price
             dinst.cur_min.vholding = ctick.holding
-            dinst.cur_min.vvolume = ctick.dvolume - dinst.cur_day.vvolume if ctick.date == dinst.cur_day.vdate else 0
+            dinst.cur_min.vvolume = ctick.dvolume - dinst.cur_day.vvolume if ctick.date == dinst.cur_day.vdate else ctick.dvolume
             rev = True
         else:#当分钟的处理
             dinst.cur_min.vclose = ctick.price
@@ -819,8 +821,74 @@ class Agent(object):
         '''
         pass    #可以忽略
 
+class NULLAgent(object):
+    #只用于为行情提供桩
+    logger = logging.getLogger('ctp.nullagent')
+
+    def __init__(self,trader,cuser,instruments):
+        '''
+            trader为交易对象
+        '''
+        self.trader = trader
+        self.cuser = cuser
+        self.instruments = instruments
+        self.request_id = 1
+        ###
+        self.lastupdate = 0
+        self.front_id = None
+        self.session_id = None
+        self.order_ref = 1
+        self.trading_day = 20110101
+        self.scur_day = int(time.strftime('%Y%m%d'))
+
+    def set_spi(self,spi):
+        self.spi = spi
+
+    def inc_request_id(self):
+        self.request_id += 1
+        return self.request_id
+
+    def inc_order_ref(self):
+        self.order_ref += 1
+        return self.order_ref
+
+    def set_trading_day(self,trading_day):
+        self.trading_day = trading_day
+
+    def get_trading_day(self):
+        return self.trading_day
+
+    def login_success(self,frontID,sessionID,max_order_ref):
+        self.front_id = frontID
+        self.session_id = sessionID
+        self.order_ref = int(max_order_ref)
+
+
+    def RtnTick(self,ctick):#行情处理主循环
+        pass
+
 
 import config as c 
+
+def user_save():#仅为保存数据
+    logging.basicConfig(filename="ctp_user.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
+    
+    user = MdApi.CreateMdApi("data")
+    cuser = c.GD_USER
+    #cuser = c.SQ_USER
+    my_agent = NULLAgent(None,cuser,INST)
+    user.RegisterSpi(MdSpiDelegate(instruments=INST, 
+                             broker_id=cuser.broker_id,
+                             investor_id= cuser.investor_id,
+                             passwd= cuser.passwd,
+                             agent = my_agent,
+                    ))
+    user.RegisterFront(cuser.port)
+    user.Init()
+
+    while True:
+        time.sleep(1)
+
 
 def user_main():
     logging.basicConfig(filename="ctp_user.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')

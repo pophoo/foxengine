@@ -37,7 +37,7 @@ def cexpma1(source,n,target):
     '''
     assert len(source) == len(target),u'源序列与目标序列长度不相等'
     if(len(source) < 2):
-        return [0] * len(source)
+        return 0  
     target[-1] = (source[-1]*2 + target[-2] *(n-1) + (n+1)/2)/(n+1) 
     return target[-1]
 
@@ -60,7 +60,7 @@ def tr(sclose,shigh,slow):
 def tr1(sclose,shigh,slow,target):
     assert len(sclose) == len(target),u'源序列与目标序列长度不相等'
     if(len(sclose) < 2):
-        return [0] * len(source)
+        return 0
     hl = abs(shigh[-1] - slow[-1]) * CBASE
     hc = abs(shigh[-1] - sclose[-2]) * CBASE
     lc = abs(slow[-1] - sclose[-2]) * CBASE
@@ -71,6 +71,8 @@ def atr(ltr,length=20):
     return cexpma(ltr,length)
 
 def atr1(ltr,target,length=20):
+    if len(ltr)<1:
+        return 0
     assert len(ltr) == len(target)
     cexpma1(ltr,length,target)
     return target[-1]
@@ -79,9 +81,11 @@ def xatr(latr,sclose):
     return [ia * CBASE * CBASE / ic for ia,ic in zip(latr,sclose)]
 
 def xatr1(latr,sclose,lxatr):
+    if len(latr)<1:
+        return 0
     assert len(latr) == len(sclose) == len(lxatr)
-    lxatr[-1] = latr[-1] * CBASE * XBAES / sclose[-1]
-    return xatr1
+    lxatr[-1] = latr[-1] * CBASE * CBASE / sclose[-1]
+    return lxatr[-1]
 
 def accumulate(source):
     if(len(source) < 1):
@@ -94,9 +98,12 @@ def accumulate(source):
 
 def accumulate1(source,target):
     assert len(source) == len(target),u'源序列与目标序列长度不相等'
-    if(len(source) < 2):
-        return [s for s in source]
-    target[-1] = target[-2] + source[-1]
+    if(len(source) < 1):
+        return 0
+    if(len(source) == 1):
+        target[-1] = source[-1]
+    else:
+        target[-1] = target[-2] + source[-1]
     return target[-1]
 
 def ma(source,length):
@@ -118,6 +125,8 @@ def ma(source,length):
     return rev
 
 def ma1(source,length,target):
+    if len(source)<1:
+        return 0
     assert len(source) == len(target),u'源序列与目标序列长度不相等'
     target[-1] = (sum(source[-length:]) + length/2) / length
     return target[-1]
@@ -154,8 +163,11 @@ def strend2(source):
 
 def strend2_1(source,target):
     assert len(source) == len(target),u'源序列与目标序列长度不相等'
-    if(len(source) < 2):
-        return [0] * len(source)
+    if len(source) < 1:
+        return 0
+    elif len(source) == 1:
+        target[0] = 0
+        return 0
     cur_v,pre_v = source[-1],source[-2]
     cur = target[-2]
     if cur_v > pre_v:

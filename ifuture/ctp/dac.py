@@ -184,22 +184,22 @@ def ATR(data):
     '''
         计算ATR序列
     '''
-    data.tr1 = tr(data.m1[ICLOSE],data.m1[IHIGH],data.m1[ICLOSE])
+    data.tr1 = tr(data.m1[ICLOSE],data.m1[IHIGH],data.m1[ILOW])
     data.atr1 = atr(data.tr1,20)
     data.xatr1 = xatr(data.atr1,data.m1[ICLOSE])
-    #data.tr3 = tr(data.m3[ICLOSE],data.m3[IHIGH],data.m3[ICLOSE])
+    #data.tr3 = tr(data.m3[ICLOSE],data.m3[IHIGH],data.m3[ILOW])
     #data.atr3 = atr(data.tr3,20)
     #data.xatr3 = xatr(data.atr3,data.m3[ICLOSE])
-    data.tr5 = tr(data.m5[ICLOSE],data.m5[IHIGH],data.m5[ICLOSE])
+    data.tr5 = tr(data.m5[ICLOSE],data.m5[IHIGH],data.m5[ILOW])
     data.atr5 = atr(data.tr5,20)
     data.xatr5 = xatr(data.atr5,data.m5[ICLOSE])
-    #data.tr15 = tr(data.m15[ICLOSE],data.m15[IHIGH],data.m15[ICLOSE])
+    #data.tr15 = tr(data.m15[ICLOSE],data.m15[IHIGH],data.m15[ILOW])
     #data.atr15 = atr(data.tr15,20)
     #data.xatr15 = xatr(data.atr15,data.m15[ICLOSE])
-    data.tr30 = tr(data.m30[ICLOSE],data.m30[IHIGH],data.m30[ICLOSE])
+    data.tr30 = tr(data.m30[ICLOSE],data.m30[IHIGH],data.m30[ILOW])
     data.atr30 = atr(data.tr30,20)
     data.xatr30 = xatr(data.atr30,data.m30[ICLOSE])
-    data.trd1 = tr(data.d1[ICLOSE],data.d1[IHIGH],data.d1[ICLOSE])
+    data.trd1 = tr(data.d1[ICLOSE],data.d1[IHIGH],data.d1[ILOW])
     data.atrd1 = atr(data.trd1,20)
     data.xatrd1 = xatr(data.atrd1,data.d1[ICLOSE])
     
@@ -207,28 +207,35 @@ def ATR1(data):
     '''
         动态计算最新ATR
     '''
-    #tr
-    tr1(data.m1[ICLOSE],data.m1[IHIGH],data.m1[ICLOSE],data.tr1)
-    #tr1(data.m3[ICLOSE],data.m3[IHIGH],data.m3[ICLOSE],data.tr3)
-    tr1(data.m5[ICLOSE],data.m5[IHIGH],data.m5[ICLOSE],data.tr5)
-    #tr1(data.m15[ICLOSE],data.m15[IHIGH],data.m15[ICLOSE],data.tr15)
-    tr1(data.m30[ICLOSE],data.m30[IHIGH],data.m30[ICLOSE],data.tr30)
-    tr1(data.d1[ICLOSE],data.d1[IHIGH],data.d1[ICLOSE],data.trd1)
-    #atr
-    atr1(data.tr1,data.atr1,20)
-    #atr1(data.tr3,data.atr3,20)
-    atr1(data.tr5,data.atr5,20)
-    #atr1(data.tr15,data.atr15,20)
-    atr1(data.tr30,data.atr30,20)
-    atr1(data.trd1,data.atrd1,20)
-    #xatr
-    xatr1(data.atr1,data.m1[ICLOSE],data.xatr1)
-    #xatr1(data.atr3,data.m3[ICLOSE],data.xatr3)
-    xatr1(data.atr5,data.m5[ICLOSE],data.xatr5)
-    #xatr1(data.atr15,data.m15[ICLOSE],data.xatr15)
-    xatr1(data.atr30,data.m30[ICLOSE],data.xatr30)
-    xatr1(data.atrd1,data.d1[ICLOSE],data.xatrd1)
-
+    if len(data.m1[ICLOSE]) > len(data.tr1):    #1分钟数据
+        data.tr1.append(0)
+        tr1(data.m1[ICLOSE],data.m1[IHIGH],data.m1[ILOW],data.tr1)
+        data.atr1.append(0)
+        atr1(data.tr1,data.atr1,20)
+        data.xatr1.append(0)
+        xatr1(data.atr1,data.m1[ICLOSE],data.xatr1)
+    if len(data.m5[ICLOSE]) > len(data.tr5):    #5分钟数据
+        data.tr5.append(0)
+        tr1(data.m5[ICLOSE],data.m5[IHIGH],data.m5[ILOW],data.tr5)
+        data.atr5.append(0)
+        atr1(data.tr5,data.atr5,20)
+        data.xatr5.append(0)
+        xatr1(data.atr5,data.m5[ICLOSE],data.xatr5)
+    if len(data.m30[ICLOSE]) > len(data.tr30):    #30分钟数据
+        data.tr30.append(0)
+        tr1(data.m30[ICLOSE],data.m30[IHIGH],data.m30[ILOW],data.tr30)
+        data.atr30.append(0)
+        atr1(data.tr30,data.atr30,20)
+        data.xatr30.append(0)
+        xatr1(data.atr30,data.m30[ICLOSE],data.xatr30)
+    if len(data.d1[ICLOSE]) > len(data.trd1):    #d1分钟数据
+        data.trd1.append(0)
+        tr1(data.d1[ICLOSE],data.d1[IHIGH],data.d1[ILOW],data.trd1)
+        data.atrd1.append(0)
+        atr1(data.trd1,data.atrd1,20)
+        data.xatrd1.append(0)
+        xatr1(data.atrd1,data.d1[ICLOSE],data.xatrd1)
+    
 
 def STREND(data):
     '''
@@ -241,8 +248,11 @@ def STREND1(data):
     '''
         动态计算t120的最新值
     '''
-    ma1(data.m30[ICLOSE],120,data.ma30_120)
-    strend2_1(data.ma30_120,data.t120)
+    if len(data.m30[ICLOSE]) > len(data.ma30_120):  #需要计算
+        data.ma30_120.append(0)
+        data.t120.append(0)
+        ma1(data.m30[ICLOSE],120,data.ma30_120)
+        strend2_1(data.ma30_120,data.t120)
 
 def MA(data):
     '''
@@ -263,6 +273,16 @@ def MA1(data):
     '''
         动态计算基本均线, 1分钟的5/7/10/13/20/30/60/120/135/270均线
     '''
+    data.ma_5.append(0)
+    #data.ma_7.append(0)
+    #data.ma_10.append(0)
+    data.ma_13.append(0)
+    #data.ma_20.append(0)
+    data.ma_30.append(0)
+    data.ma_60.append(0)
+    data.ma_120.append(0)
+    #data.ma_135.append(0)    
+    data.ma_270.append(0)    
     ma1(data.sclose,5,data.ma_5)
     #ma1(data.sclose,7,data.ma_7)
     #ma1(data.sclose,10,data.ma_10)
@@ -273,4 +293,5 @@ def MA1(data):
     ma1(data.sclose,120,data.ma_120)
     #ma1(data.sclose,135,data.ma_135)
     ma1(data.sclose,270,data.ma_270)
+
 

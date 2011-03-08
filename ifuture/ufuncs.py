@@ -256,6 +256,13 @@ from wolfox.fengine.ifuture.xfuncs import *
 
 
 #主要时间过滤
+def nfilter0(sif):
+    return gand(
+            sif.time > 1031,
+            sif.time < 1505,
+        )
+
+
 def nfilter2(sif):
     return gand(
             sif.time > 1000,
@@ -491,9 +498,9 @@ def mllx(sif,length=75,vbreak=0):
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
     
 
-break_nhhx = BXFuncA(fstate=gofilter,fsignal=nhhx,fwave=gofilter,ffilter=mfilter0)  ##选择
+break_nhhx = BXFuncA(fstate=gofilter,fsignal=nhhx,fwave=gofilter,ffilter=nfilter0)  ##选择
 break_nhhx.name = u'向上突破新高--原始X系统'
-break_nllx = SXFuncA(fstate=gofilter,fsignal=nllx,fwave=nx2000X,ffilter=mfilter0)  ##选择
+break_nllx = SXFuncA(fstate=gofilter,fsignal=nllx,fwave=nx2000X,ffilter=nfilter0)  ##选择
 break_nllx.name = u'向下突破新低--原始X系统'
 
 break_mhhx = BXFuncA(fstate=gofilter,fsignal=mhhx,fwave=gofilter,ffilter=filter0)  ##选择

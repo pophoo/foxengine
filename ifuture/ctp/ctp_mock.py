@@ -16,6 +16,8 @@
     ...   
 '''
 
+import hreader
+import agent
 
 class TraderMock(object):
     pass
@@ -25,3 +27,16 @@ class UserMock(object):
 
 class MockManager(object):
     pass
+
+class MockMd(object):
+    '''简单起见，只能模拟一个合约，用于功能测试
+    '''
+    def __init__(self,instrument):
+        self.instrument = instrument
+        self.agent = agent.Agent(None,None,[instrument])
+
+    def play(self,tday=0):
+        ticks = hreader.read_ticks(self.instrument,tday)
+        for tick in ticks:
+            self.agent.RtnTick(tick)
+

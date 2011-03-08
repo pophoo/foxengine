@@ -12,10 +12,9 @@ logger = logging.getLogger('ctp.hreader')
 DATA_PATH = 'data/'
 
 
-def make_tick_filename(instrument,suffix='txt'):
-    return '%s%s_%s_tick.%s' % (DATA_PATH,instrument,time.strftime('%Y%m%d'),suffix)
-
-def make_tick_filename2(instrument,tday,suffix='txt'):
+def make_tick_filename(instrument,tday=0,suffix='txt'):
+    if tday == 0:
+        tday = time.strftime('%Y%m%d')
     return '%s%s_%s_tick.%s' % (DATA_PATH,instrument,tday,suffix)
 
 def make_min_filename(instrument,suffix='txt'):
@@ -95,7 +94,7 @@ make_his_filename = lambda path,prefix,name,suffix:path + prefix + name + suffix
 
 def read1(instrument,length=6000,path=DATA_PATH,extractor=extract_std,readfunc=read_data,suffix=SUFFIX):
     #6000是22天，足够应付日ATR计算
-    hdata = BaseObject(name=instrument,transaction=read_min_as_list(make_his_filename(path,prefix,instrument,suffix),length=length,extractor=extractor,readfunc=readfunc))
+    hdata = BaseObject(name=instrument,instrument=instrument,transaction=read_min_as_list(make_his_filename(path,prefix,instrument,suffix),length=length,extractor=extractor,readfunc=readfunc))
     return hdata
 
 #不从zip读数据
@@ -108,12 +107,15 @@ def read_history(instrument_id,path):
 #####################################################
 #分钟数据写入, 暂时写入到当日的分钟文件，而不是写到历史分钟文件中
 #####################################################
-def write1(instrument,min_data,path=DATA_PATH):
-    filename = make_min_filename(path,prefix,instrument,SUFFIX)
+def i2s(iv):    #将.1转化为正常点. 以与从文化财经保存的一致
+    return '%s.%s' % (iv/10,iv%10)
+
+def save1(instrument,min_data,path=DATA_PATH):
+    filename = make_min_filename(instrument)
     ff = open(filename,'a+')
     sdate = '%s/%s/%s' % (min_data.vdate/10000,min_data.vdate/100%100,min_data.vdate%100)
     stime = '%s:%s' % (min_data.vtime/100,min_data.vtime%100)
-    ff.write('%s,%s,%s,%s,%s,%s,%s,%s\n' % (sdata,stime,min_data.vopen,min_data.vhigh,min_data.vlow,min_data.vclose,min_data.vvolume,min_data.vholding))
+    ff.write('%s,%s,%s,%s,%s,%s,%s,%s\n' % (sdate,stime,i2s(min_data.vopen),i2s(min_data.vhigh),i2s(min_data.vlow),i2s(min_data.vclose),min_data.vvolume,min_data.vholding))
     ff.close()
 
 ##############################################################################
@@ -217,51 +219,61 @@ def compress(trans_data,oc_index):
     return xdata
 
 
-##是否是X分钟收盘分钟
-IS_END_3 = lambda x:(x%100%3==2 or x%10000==1514) and x%1000!=914
-IS_END_5 = lambda x: x%5==4 and x%1000!=914
-IS_END_15 = lambda x:x%100%15 == 14 and x%1000!=914
-IS_END_30 = lambda x:x%100%30 == 14 and x%1000!=914
-IS_END_DAY = lambda x:x%10000 == 1514
+##是否是IF的X分钟收盘分钟
+IF_XPREPARER = BaseObject()
+IF_XPREPARER.ISEND_3 = lambda x:(x%100%3==2 or x%10000==1514) and x%1000!=914
+IF_XPREPARER.ISEND_5 = lambda x: x%5==4 and x%1000!=914
+IF_XPREPARER.ISEND_15 = lambda x:x%100%15 == 14 and x%1000!=914
+IF_XPREPARER.ISEND_30 = lambda x:x%100%30 == 14 and x%1000!=914
+IF_XPREPARER.ISEND_DAY = lambda x:x%10000 == 1514
 
-class IF_PREPARER(object):
-    '''IF类的时间段划分
-    '''
-    @staticmethod
-    def pd(xtimes):#切日
+##是否是CM的X分钟收盘分钟
+CM_XPREPARER = BaseObject()
+CM_XPREPARER.ISEND_3 = lambda x:(x%100%3==2 or x%10000==1459) and x%1000!=859
+CM_XPREPARER.ISEND_5 = lambda x: x%5==4 and x%1000!=859
+CM_XPREPARER.ISEND_15 = lambda x:x%100%15 == 14 and x%1000!=859
+CM_XPREPARER.ISEND_30 = lambda x:(x%100%30 == 29 or x%10000 == 1014) and x%1000!=859
+CM_XPREPARER.ISEND_DAY = lambda x:x%10000 == 1459
+
+def is_if(instrument):#判断是否是IF
+    return instrument[:2] == 'IF'
+
+class XPREPARER(object):
+    def __init__(self,fpreparer):
+        self.fpreparer = fpreparer
+
+    def pd(self,xtimes):#切日
         poss = filter(lambda x:x[0]>x[1],zip(xtimes,xtimes[1:]+[0],range(len(xtimes))))
         cposs = [z for (x,y,z) in poss]   #close
         oposs = [c+1 if c-1>0 else 0 for c in cposs] #close
         return zip(oposs,cposs[1:])
     
-    @staticmethod
-    def p3(xtimes):#切3分钟,返回3分钟(3分开盘index,3分收盘index)
-        poss = filter(lambda x:IS_END_3(x[0]),zip(xtimes,range(len(xtimes))))
+    def p3(self,xtimes):#切3分钟,返回3分钟(3分开盘index,3分收盘index)
+        poss = filter(lambda x:self.fpreparer.ISEND_3(x[0]),zip(xtimes,range(len(xtimes))))
         cposs = [y for (x,y) in poss]   #close
         oposs = [c+1 if c-1>0 else 0 for c in cposs] #close
         return zip(oposs,cposs[1:])
 
-    @staticmethod
-    def p5(xtimes):#切5分钟,返回5分钟(5分开盘index,5分收盘index)
-        poss = filter(lambda x:IS_END_5(x[0]),zip(xtimes,range(len(xtimes))))
+    def p5(self,xtimes):#切5分钟,返回5分钟(5分开盘index,5分收盘index)
+        poss = filter(lambda x:self.fpreparer.ISEND_5(x[0]),zip(xtimes,range(len(xtimes))))
         cposs = [y for (x,y) in poss]   #close
         oposs = [c+1 if c-1>0 else 0 for c in cposs] #close
         return zip(oposs,cposs[1:])
 
-    @staticmethod
-    def p15(xtimes):#切15分钟,返回15分钟(15分开盘index,15分收盘index)
-        poss = filter(lambda x:IS_END_15(x[0]),zip(xtimes,range(len(xtimes))))
+    def p15(self,xtimes):#切15分钟,返回15分钟(15分开盘index,15分收盘index)
+        poss = filter(lambda x:self.fpreparer.ISEND_15(x[0]),zip(xtimes,range(len(xtimes))))
         cposs = [y for (x,y) in poss]   #close
         oposs = [c+1 if c-1>0 else 0 for c in cposs] #close
         return zip(oposs,cposs[1:])
 
-    @staticmethod
-    def p30(xtimes):#切30分钟,返回30分钟(30分开盘index,30分收盘index)
-        poss = filter(lambda x:IS_END_30(x[0]),zip(xtimes,range(len(xtimes))))
+    def p30(self,xtimes):#切30分钟,返回30分钟(30分开盘index,30分收盘index)
+        poss = filter(lambda x:self.fpreparer.ISEND_30(x[0]),zip(xtimes,range(len(xtimes))))
         cposs = [y for (x,y) in poss]   #close
         oposs = [c+1 if c-1>0 else 0 for c in cposs] #close
         return zip(oposs,cposs[1:])
 
+IF_PREPARER = XPREPARER(IF_XPREPARER)
+CM_PREPARER = XPREPARER(CM_XPREPARER)
 
 ##############################################
 ##ticks数据读取
@@ -285,12 +297,11 @@ def extract_tick(line):
     rev.ask_volume = int(items[13])
     return rev
 
-def read_ticks(instrument,length = 36000,extractor=extract_tick,readfunc = read_data):
-    records = readfunc(make_tick_filename(instrument),extractor)
-    return records[-length:]
-
-def read_ticks2(instrument,tday,length = 36000,extractor=extract_tick,readfunc = read_data):
-    records = readfunc(make_tick_filename2(instrument,tday),extractor)
+def read_ticks(instrument,tday=0,length = 36000,extractor=extract_tick,readfunc = read_data):
+    #读取指定日数据
+    records = readfunc(make_tick_filename(instrument,tday),extractor)
+    for record in records:
+        record.instrument = instrument
     return records[-length:]
 
 
@@ -302,42 +313,43 @@ def time_period_switch(data):
         判断分钟数据是否是3/5/15/30的卡点, 并计算相关数据
     '''
     assert len(data.sdate)>0
-    if IS_END_3(data.stime[-1]) and (len(data.m3[IDATE])==0 
+    fpreparer = IF_XPREPARER if is_if(data.instrument) else CM_XPREPARER
+    if fpreparer.ISEND_3(data.stime[-1]) and (len(data.m3[IDATE])==0 
                                         or data.sdate[-1] > data.m3[IDATE][-1] 
                                         or data.stime[-1] > data.m3[ITIME][-1]
                                     ):#添加新的3分钟
-        append1(data.m3,data.m1,3)
-    if IS_END_5(data.stime[-1]) and (len(data.m5[IDATE])==0 
+        append1(data.m3,data,3)
+    if fpreparer.ISEND_5(data.stime[-1]) and (len(data.m5[IDATE])==0 
                                         or data.sdate[-1] > data.m5[IDATE][-1] 
                                         or data.stime[-1] > data.m5[ITIME][-1]
                                     ):#添加新的5分钟
-        append1(data.m5,data.m1,5)
-    if IS_END_15(data.stime[-1]) and (len(data.m15[IDATE])==0 
+        append1(data.m5,data,5)
+    if fpreparer.ISEND_15(data.stime[-1]) and (len(data.m15[IDATE])==0 
                                         or data.sdate[-1] > data.m15[IDATE][-1] 
                                         or data.stime[-1] > data.m15[ITIME][-1]
                                     ):#添加新的15分钟
-        append1(data.m15,data.m1,15)
-    if IS_END_30(data.stime[-1]) and (len(data.m30[IDATE])==0 
+        append1(data.m15,data,15)
+    if fpreparer.ISEND_30(data.stime[-1]) and (len(data.m30[IDATE])==0 
                                         or data.sdate[-1] > data.m30[IDATE][-1] 
                                         or data.stime[-1] > data.m30[ITIME][-1]
                                     ):#添加新的30分钟
-        append1(data.m30,data.m1,30)
-    if IS_END_DAY(data.stime[-1]) and (len(data.d1[IDATE])==0 
+        append1(data.m30,data,30)
+    if fpreparer.ISEND_DAY(data.stime[-1]) and (len(data.d1[IDATE])==0 
                                         or data.sdate[-1] > data.d1[IDATE][-1] 
                                     ):#添加新的日数据
-        append1(data.m15,data.m1,270)
+        append1(data.m15,data,270)
  
 def append1(xdata,data1,length):
     '''
         将data1中最后length的数据组合以后放入xdata
     '''
-    mlen = min(len(data.sdate),length)
-    xdata[IDATE].append(data.sdate[-1])
-    xdata[ITIME].append(data.stime[-1])
-    xdata[IOPEN].append(data.sopen[-mlen])
-    xdata[ICLOSE].append(data.sclose[-1])
-    xdata[IHIGH].append(max(data.shigh[-mlen:]))
-    xdata[ILOW].append(min(data.slow[-mlen:]))
-    xdata[IVOL].append(sum(data.svolume[-mlen:]))
-    xdata[IHOLDING].append(data.holding[-1])
+    mlen = min(len(data1.sdate),length)
+    xdata[IDATE].append(data1.sdate[-1])
+    xdata[ITIME].append(data1.stime[-1])
+    xdata[IOPEN].append(data1.sopen[-mlen])
+    xdata[ICLOSE].append(data1.sclose[-1])
+    xdata[IHIGH].append(max(data1.shigh[-mlen:]))
+    xdata[ILOW].append(min(data1.slow[-mlen:]))
+    xdata[IVOL].append(sum(data1.svolume[-mlen:]))
+    xdata[IHOLDING].append(data1.sholding[-1])
 

@@ -44,10 +44,10 @@ THOST_TERT_QUICK    = 2
 
 NFUNC = lambda data:None    #空函数桩
 
-INST = [u'IF1103',u'IF1104']  #必须采用ctp使用的合约名字，内部不做检验
+INSTS = [u'IF1103',u'IF1104']  #必须采用ctp使用的合约名字，内部不做检验
 #建议每跟踪的一个合约都使用一个行情-交易对. 因为行情的接收是阻塞式的,在做处理的时候会延误后面接收的行情
 #套利时每一对合约都用一个行情-交易对
-#INST = [u'IF1102']
+#INSTS = [u'IF1102']
 
 
 
@@ -556,18 +556,27 @@ class Agent(object):
         if inst not in self.data:
             logger.info(u'接收到未订阅的合约数据:%s' % (inst,))
         dinst = self.data[inst]
-        if(prepare_base(dinst,ctick)>0):  #如果切分分钟则返回>0
+        if(self.prepare_base(dinst,ctick)>0):  #如果切分分钟则返回>0
             for func in self.data_funcs:    #动态计算
                 func.func1(dinst)
 
     def prepare_base(self,dinst,ctick):
         '''
             返回值标示是否是分钟的切换
+            这里没有处理15:00:00的问题
         '''
         rev = False #默认不切换
         if ctick.min1 != dinst.cur_min.vtime or ctick.date != dinst.cur_min.vdate:#时间切换
             if len(dinst.stime)>0 and dinst.stime[-1] != ctick.min1:#已有分钟与已保存的有差别
                 #这里把00秒归入到新的分钟里面
+                if (hreader.is_if(ctick.instrument) and ctick.min1 == 1515 and ctick.sec==0) or (not hreader.is_if(ctick.instrument) and ctick.min1 == 1500 and ctick.sec==0): #最后一秒钟算1514/1500的
+                    dinst.cur_min.vclose = ctick.price
+                    if ctick.price > dinst.cur_min.vhigh:
+                        dinst.cur_min.vhigh = ctick.price
+                    if ctick.price < dinst.cur_min.vlow:
+                        dinst.cur_min.vlow = ctick.price
+                    dinst.cur_min.vholding = ctick.holding
+                    dinst.cur_min.vvolume += (ctick.dvolume - dinst.cur_day.vvolume)
                 dinst.sdate.append(dinst.cur_min.vdate)
                 dinst.stime.append(dinst.cur_min.vtime)
                 dinst.sopen.append(dinst.cur_min.vopen)
@@ -606,7 +615,7 @@ class Agent(object):
                 dinst.cur_day.vhigh = ctick.price   #根据当前价比较得到的最大/最小
             if ctick.price < dinst.cur_day.vlow:
                 dinst.cur_day.vlow = ctick.price
-        dinst.cur_day.vholding = ctick.vholding
+        dinst.cur_day.vholding = ctick.holding
         dinst.cur_day.vvolume = ctick.dvolume
         dinst.cur_day.vhighd = ctick.high   #服务器传过来的最大/最小
         dinst.cur_day.vlowd = ctick.low
@@ -876,8 +885,8 @@ def user_save():#仅为保存数据
     user = MdApi.CreateMdApi("data")
     cuser = c.GD_USER
     #cuser = c.SQ_USER
-    my_agent = NULLAgent(None,cuser,INST)
-    user.RegisterSpi(MdSpiDelegate(instruments=INST, 
+    my_agent = NULLAgent(None,cuser,INSTS)
+    user.RegisterSpi(MdSpiDelegate(instruments=INSTS, 
                              broker_id=cuser.broker_id,
                              investor_id= cuser.investor_id,
                              passwd= cuser.passwd,
@@ -896,8 +905,8 @@ def user_main():
     user = MdApi.CreateMdApi("data")
     #cuser = c.GD_USER
     cuser = c.SQ_USER
-    my_agent = Agent(None,cuser,INST)
-    user.RegisterSpi(MdSpiDelegate(instruments=INST, 
+    my_agent = Agent(None,cuser,INSTS)
+    user.RegisterSpi(MdSpiDelegate(instruments=INSTS, 
                              broker_id=cuser.broker_id,
                              investor_id= cuser.investor_id,
                              passwd= cuser.passwd,
@@ -923,8 +932,8 @@ trader.RegisterSpi(None)
     trader = TraderApi.CreateTraderApi("trader")
     #cuser = c.SQ_TRADER1
     cuser = c.SQ_TRADER2
-    my_agent = Agent(trader,cuser,INST)
-    myspi = TraderSpiDelegate(instruments=INST, 
+    my_agent = Agent(trader,cuser,INSTS)
+    myspi = TraderSpiDelegate(instruments=INSTS, 
                              broker_id=cuser.broker_id,
                              investor_id= cuser.investor_id,
                              passwd= cuser.passwd,

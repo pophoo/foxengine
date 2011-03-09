@@ -823,7 +823,9 @@ def mll2(sif,length=75,vbreak=20,vrange=350):
     #ldmid = dnext(sif.highd,sif.close,sif.i_cofd)        
     #ldmid = dnext((sif.highd+sif.closed)/2,sif.close,sif.i_cofd)    
     ldclose = dnext(sif.closed,sif.close,sif.i_cofd) 
-
+    
+    ldatr = dnext(sif.atr30,sif.close,sif.i_cof30)
+    #vrange = ldatr *2 / XBASE
 
     #tlow = gmin(tlow,ldmid-32)
     

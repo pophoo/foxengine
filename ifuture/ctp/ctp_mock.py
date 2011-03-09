@@ -40,3 +40,73 @@ class MockMd(object):
         for tick in ticks:
             self.agent.RtnTick(tick)
 
+import time
+import logging
+
+class NULLAgent(object):
+    #只用于为行情提供桩
+    logger = logging.getLogger('ctp.nullagent')
+
+    def __init__(self,trader,cuser,instruments):
+        '''
+            trader为交易对象
+        '''
+        self.trader = trader
+        self.cuser = cuser
+        self.instruments = instruments
+        self.request_id = 1
+        ###
+        self.lastupdate = 0
+        self.front_id = None
+        self.session_id = None
+        self.order_ref = 1
+        self.trading_day = 20110101
+        self.scur_day = int(time.strftime('%Y%m%d'))
+
+    def set_spi(self,spi):
+        self.spi = spi
+
+    def inc_request_id(self):
+        self.request_id += 1
+        return self.request_id
+
+    def inc_order_ref(self):
+        self.order_ref += 1
+        return self.order_ref
+
+    def set_trading_day(self,trading_day):
+        self.trading_day = trading_day
+
+    def get_trading_day(self):
+        return self.trading_day
+
+    def login_success(self,frontID,sessionID,max_order_ref):
+        self.front_id = frontID
+        self.session_id = sessionID
+        self.order_ref = int(max_order_ref)
+
+
+    def RtnTick(self,ctick):#行情处理主循环
+        pass
+
+from agent import MdApi,MdSpiDelegate,c,INSTS
+
+def user_save():#仅为保存数据
+    logging.basicConfig(filename="ctp_user.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
+    
+    user = MdApi.CreateMdApi("data")
+    cuser = c.GD_USER
+    #cuser = c.SQ_USER
+    my_agent = NULLAgent(None,cuser,INSTS)
+    user.RegisterSpi(MdSpiDelegate(instruments=INSTS, 
+                             broker_id=cuser.broker_id,
+                             investor_id= cuser.investor_id,
+                             passwd= cuser.passwd,
+                             agent = my_agent,
+                    ))
+    user.RegisterFront(cuser.port)
+    user.Init()
+
+    while True:
+        time.sleep(1)
+

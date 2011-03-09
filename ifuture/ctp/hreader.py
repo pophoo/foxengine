@@ -113,8 +113,8 @@ def i2s(iv):    #将.1转化为正常点. 以与从文化财经保存的一致
 def save1(instrument,min_data,path=DATA_PATH):
     filename = make_min_filename(instrument)
     ff = open(filename,'a+')
-    sdate = '%s/%s/%s' % (min_data.vdate/10000,min_data.vdate/100%100,min_data.vdate%100)
-    stime = '%s:%s' % (min_data.vtime/100,min_data.vtime%100)
+    sdate = '%s/%02d/%02d' % (min_data.vdate/10000,min_data.vdate/100%100,min_data.vdate%100)
+    stime = '%02d:%02d' % (min_data.vtime/100,min_data.vtime%100)
     ff.write('%s,%s,%s,%s,%s,%s,%s,%s\n' % (sdate,stime,i2s(min_data.vopen),i2s(min_data.vhigh),i2s(min_data.vlow),i2s(min_data.vclose),min_data.vvolume,min_data.vholding))
     ff.close()
 

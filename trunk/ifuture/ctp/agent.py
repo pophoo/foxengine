@@ -14,6 +14,8 @@ todo:
     6. 完全模拟交易
     7. 有人值守实盘
 
+    8. 生产环境必须考虑多个行情接入端, 有可能会出现延时情况.
+
 后续工作
     B.1. 合约的自动匹配
 
@@ -25,6 +27,7 @@ todo:
 
 import time
 import logging
+import thread
 
 import UserApiStruct as ustruct
 import UserApiType as utype
@@ -47,7 +50,8 @@ THOST_TERT_QUICK    = 2
 
 NFUNC = lambda data:None    #空函数桩
 
-INSTS = [u'IF1103',u'IF1104']  #必须采用ctp使用的合约名字，内部不做检验
+#INSTS = [u'IF1103',u'IF1104']  #必须采用ctp使用的合约名字，内部不做检验
+INSTS = [u'IF1103']  #必须采用ctp使用的合约名字，内部不做检验
 #建议每跟踪的一个合约都使用一个行情-交易对. 因为行情的接收是阻塞式的,在做处理的时候会延误后面接收的行情
 #套利时每一对合约都用一个行情-交易对
 #INSTS = [u'IF1102']
@@ -73,6 +77,7 @@ class MdSpiDelegate(MdSpi):
         self.passwd = passwd
         self.agent = agent
         self.last_map = dict([(id,0) for id in instruments])
+        self.mylock = thread.allocate_lock()
 
     def checkErrorRspInfo(self, info):
         if info.ErrorID !=0:
@@ -108,19 +113,26 @@ class MdSpiDelegate(MdSpi):
     def OnRtnDepthMarketData(self, depth_market_data):
         #print depth_market_data.BidPrice1,depth_market_data.BidVolume1,depth_market_data.AskPrice1,depth_market_data.AskVolume1,depth_market_data.LastPrice,depth_market_data.Volume,depth_market_data.UpdateTime,depth_market_data.UpdateMillisec,depth_market_data.InstrumentID
         #print 'on data......\n',
+        self.mylock.acquire()
         if depth_market_data.LastPrice > 999999 or depth_market_data.LastPrice < 10:
             logger.warning(u'收到的行情数据有误:%s,LastPrice=:%s' %(depth_market_data.InstrumentID,depth_market_data.LastPrice))
         if depth_market_data.InstrumentID not in self.instruments:
             logger.warning(u'收到未订阅的行情:%s' %(depth_market_data.InstrumentID,))
         #self.logger.debug(u'收到行情:%s,time=%s:%s' %(depth_market_data.InstrumentID,depth_market_data.UpdateTime,depth_market_data.UpdateMillisec))
         dp = depth_market_data
+        self.logger.debug(u'收到行情，inst=%s,time=%s，volume=%s,last_volume=%s' % (dp.InstrumentID,dp.UpdateTime,dp.Volume,self.last_map[dp.InstrumentID]))
         if dp.Volume <= self.last_map[dp.InstrumentID]:
             self.logger.debug(u'行情无变化，inst=%s,time=%s，volume=%s,last_volume=%s' % (dp.InstrumentID,dp.UpdateTime,dp.Volume,self.last_map[dp.InstrumentID]))
             return  #行情未变化
         self.last_map[dp.InstrumentID] = dp.Volume
+        #self.mylock.release()   #至此已经去掉重复的数据
+
+        self.logger.debug(u'after modify lastvolume:%s,curVolume:%s' % (self.last_map[dp.InstrumentID],dp.Volume))
         #self.logger.debug(u'before loop')
         ctick = self.market_data2tick(depth_market_data)
         self.agent.RtnTick(ctick)
+
+        self.mylock.release()   #至此主要工作完成
         #self.logger.debug(u'before write md:')
         ff = open(hreader.make_tick_filename(ctick.instrument),'a+')
         #print type(dp.UpdateMillisec),type(dp.OpenInterest),type(dp.Volume),type(dp.BidVolume1)
@@ -439,7 +451,6 @@ class Agent(object):
             )
 
         self.prepare_data_env()
-        
 
     def set_spi(self,spi):
         self.spi = spi
@@ -535,6 +546,7 @@ class Agent(object):
 
     ##交易处理
     def RtnTick(self,ctick):#行情处理主循环
+        print u'in my lock, close长度:%s,ma_5长度:%s\n' %(len(self.data[ctick.instrument].sclose),len(self.data[ctick.instrument].ma_5))
         inst = ctick.instrument
         self.prepare_tick(ctick)
         #先平仓
@@ -550,6 +562,7 @@ class Agent(object):
         self.check_queued()
         ##扫尾
         self.finalize()
+        print u'after my lock, close长度:%s,ma_5长度:%s\n' %(len(self.data[ctick.instrument].sclose),len(self.data[ctick.instrument].ma_5))
         
     def prepare_tick(self,ctick):
         '''
@@ -559,7 +572,7 @@ class Agent(object):
         if inst not in self.data:
             logger.info(u'接收到未订阅的合约数据:%s' % (inst,))
         dinst = self.data[inst]
-        if(self.prepare_base(dinst,ctick)>0):  #如果切分分钟则返回>0
+        if(self.prepare_base(dinst,ctick)):  #如果切分分钟则返回>0
             for func in self.data_funcs:    #动态计算
                 func.func1(dinst)
 
@@ -570,9 +583,12 @@ class Agent(object):
         '''
         rev = False #默认不切换
         if ctick.min1 != dinst.cur_min.vtime or ctick.date != dinst.cur_min.vdate:#时间切换
-            if len(dinst.stime)>0 and dinst.stime[-1] != ctick.min1:#已有分钟与已保存的有差别
+            rev = True
+            #print ctick.min1,dinst.cur_min.vtime,ctick.date,dinst.cur_min.vdate
+            if (len(dinst.stime)>0 and (ctick.date > dinst.sdate[-1] or ctick.min1 > dinst.stime[-1]) or len(dinst.stime)==0:#已有分钟与已保存的有差别
                 #这里把00秒归入到新的分钟里面
                 if (hreader.is_if(ctick.instrument) and ctick.min1 == 1515 and ctick.sec==0) or (not hreader.is_if(ctick.instrument) and ctick.min1 == 1500 and ctick.sec==0): #最后一秒钟算1514/1500的
+                    print u'最后一秒钟....'
                     dinst.cur_min.vclose = ctick.price
                     if ctick.price > dinst.cur_min.vhigh:
                         dinst.cur_min.vhigh = ctick.price
@@ -580,16 +596,21 @@ class Agent(object):
                         dinst.cur_min.vlow = ctick.price
                     dinst.cur_min.vholding = ctick.holding
                     dinst.cur_min.vvolume += (ctick.dvolume - dinst.cur_day.vvolume)
-                dinst.sdate.append(dinst.cur_min.vdate)
-                dinst.stime.append(dinst.cur_min.vtime)
-                dinst.sopen.append(dinst.cur_min.vopen)
-                dinst.sclose.append(dinst.cur_min.vclose)
-                dinst.shigh.append(dinst.cur_min.vhigh)
-                dinst.slow.append(dinst.cur_min.vlow)
-                dinst.sholding.append(dinst.cur_min.vholding)
-                dinst.svolume.append(dinst.cur_min.vvolume)
-                ##需要save下
-                hreader.save1(dinst.name,dinst.cur_min)
+                if dinst.cur_min.vdate != 0:    #不是史上第一个
+                    print u'正常保存分钟数据.......'
+                    dinst.sdate.append(dinst.cur_min.vdate)
+                    dinst.stime.append(dinst.cur_min.vtime)
+                    dinst.sopen.append(dinst.cur_min.vopen)
+                    dinst.sclose.append(dinst.cur_min.vclose)
+                    dinst.shigh.append(dinst.cur_min.vhigh)
+                    dinst.slow.append(dinst.cur_min.vlow)
+                    dinst.sholding.append(dinst.cur_min.vholding)
+                    dinst.svolume.append(dinst.cur_min.vvolume)
+                    ##需要save下
+                    hreader.save1(dinst.name,dinst.cur_min)
+                else:#是史上第一个，之前的cur_min是默认值
+                    print u'不保存分钟数据,date=%s' % (dinst.cur_min.vdate)
+                    rev = False
             dinst.cur_min.vdate = ctick.date
             dinst.cur_min.vtime = ctick.min1
             dinst.cur_min.vopen = ctick.price
@@ -598,7 +619,6 @@ class Agent(object):
             dinst.cur_min.vlow = ctick.price
             dinst.cur_min.vholding = ctick.holding
             dinst.cur_min.vvolume = ctick.dvolume - dinst.cur_day.vvolume if ctick.date == dinst.cur_day.vdate else ctick.dvolume
-            rev = True
         else:#当分钟的处理
             dinst.cur_min.vclose = ctick.price
             if ctick.price > dinst.cur_min.vhigh:
@@ -835,30 +855,43 @@ class Agent(object):
 
 import config as c 
 
+def make_user(my_agent,hq_user,name='data'):
+    user = MdApi.CreateMdApi(name)
+    user.RegisterSpi(MdSpiDelegate(instruments=my_agent.instruments, 
+                             broker_id=hq_user.broker_id,
+                             investor_id= hq_user.investor_id,
+                             passwd= hq_user.passwd,
+                             agent = my_agent,
+                    ))
+    user.RegisterFront(hq_user.port)
+    user.Init()
+    
 
 def user_main():
     logging.basicConfig(filename="ctp_user.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
     
-    user = MdApi.CreateMdApi("data")
-    #cuser = c.GD_USER
-    cuser = c.SQ_USER
-    my_agent = Agent(None,cuser,INSTS)
-    user.RegisterSpi(MdSpiDelegate(instruments=INSTS, 
-                             broker_id=cuser.broker_id,
-                             investor_id= cuser.investor_id,
-                             passwd= cuser.passwd,
-                             agent = my_agent,
-                    ))
-    user.RegisterFront(cuser.port)
-    user.Init()
+    cuser0 = c.SQ_USER
+    cuser1 = c.GD_USER
+    cuser2 = c.GD_USER_3
+    cuser_wt1= c.GD_USER_2  #网通
+    cuser_wt2= c.GD_USER_4  #网通
+
+    my_agent = Agent(None,None,INSTS)
+
+    make_user(my_agent,cuser0,'data')
+    #make_user(my_agent,cuser0,'data')
+    #make_user(my_agent,cuser0,'data')
+    #make_user(my_agent,cuser0,'data')
+    #make_user(my_agent,cuser0,'data')
+    #make_user(my_agent,cuser0,'data')
 
     while True:
         time.sleep(1)
 
-def trade_main():
+def trade_test_main():
     '''
 import agent
-trader,myagent = agent.trade_main()
+trader,myagent = agent.trade_test_main()
 #开仓
 
 ##释放连接
@@ -886,7 +919,7 @@ trader.RegisterSpi(None)
 '''
 #测试
 import agent
-trader,myagent = agent.trade_main()
+trader,myagent = agent.trade_test_main()
 
 myagent.spi.OnRspOrderInsert(agent.BaseObject(OrderRef='12',InstrumentID='IF1103'),agent.BaseObject(ErrorID=1,ErrorMsg='test'),1,1)
 myagent.spi.OnErrRtnOrderInsert(agent.BaseObject(OrderRef='12',InstrumentID='IF1103'),agent.BaseObject(ErrorID=1,ErrorMsg='test'))
@@ -909,7 +942,7 @@ myagent.close_position(corder)
 
 #测试撤单
 import agent
-trader,myagent = agent.trade_main()
+trader,myagent = agent.trade_test_main()
 
 cref = myagent.inc_order_ref()
 morder = agent.BaseObject(instrument='IF1103',direction='0',order_ref=cref,price=3180,volume=1)

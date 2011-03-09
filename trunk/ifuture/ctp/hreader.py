@@ -312,6 +312,8 @@ def time_period_switch(data):
     '''
         判断分钟数据是否是3/5/15/30的卡点, 并计算相关数据
     '''
+    #if(len(data.sdate) == 0):   #该合约史上第一分钟,不引起切换. 这个在外部保障
+    #    return
     assert len(data.sdate)>0
     fpreparer = IF_XPREPARER if is_if(data.instrument) else CM_XPREPARER
     if fpreparer.ISEND_3(data.stime[-1]) and (len(data.m3[IDATE])==0 

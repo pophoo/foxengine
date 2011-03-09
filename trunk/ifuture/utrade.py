@@ -787,13 +787,13 @@ atr5_ustop_T9 = fcustom(atr_stop_u,
             )   #
 
 atr5_ustop_TA = fcustom(atr_stop_u,
-                fkeeper=iftrade.F150,   #12为好,15太大了，相当于回撤15+9=24点
+                fkeeper=iftrade.F120,   #12为好,15太大了，相当于回撤15+9=24点
                 #win_times=250,                
                 #win_times=280,
                 #natr=5,
                 win_times=40,
                 natr = 270,
-                flost_base=lambda x:90,
+                flost_base=lambda x:70,
                 fmax_drawdown=iftrade.F333,
                 fmin_drawdown=iftrade.F150,
                 tlimit = 30,

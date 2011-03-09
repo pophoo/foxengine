@@ -6,7 +6,7 @@
     2. 结合实时行情，测试策略的实时信号
     3. 结合历史ticks行情，对策略进行确认测试
 
-为真实起见，在mock中采用Command模式
+TODO:   为真实起见，在mock中采用Command模式 
 桩机控制: (数据播放循环)
     数据播放
     触发Agent数据准备
@@ -29,7 +29,7 @@ class MockManager(object):
     pass
 
 class MockMd(object):
-    '''简单起见，只能模拟一个合约，用于功能测试
+    '''简单起见，只模拟一个合约，用于功能测试
     '''
     def __init__(self,instrument):
         self.instrument = instrument
@@ -38,6 +38,7 @@ class MockMd(object):
     def play(self,tday=0):
         ticks = hreader.read_ticks(self.instrument,tday)
         for tick in ticks:
+            self.agent.RtnTick(tick)
             self.agent.RtnTick(tick)
 
 import time
@@ -85,28 +86,52 @@ class NULLAgent(object):
         self.session_id = sessionID
         self.order_ref = int(max_order_ref)
 
-
     def RtnTick(self,ctick):#行情处理主循环
         pass
+
 
 from agent import MdApi,MdSpiDelegate,c,INSTS
 
 def user_save():#仅为保存数据
     logging.basicConfig(filename="ctp_user.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
     
-    user = MdApi.CreateMdApi("data")
-    cuser = c.GD_USER
-    #cuser = c.SQ_USER
-    my_agent = NULLAgent(None,cuser,INSTS)
-    user.RegisterSpi(MdSpiDelegate(instruments=INSTS, 
-                             broker_id=cuser.broker_id,
-                             investor_id= cuser.investor_id,
-                             passwd= cuser.passwd,
-                             agent = my_agent,
-                    ))
-    user.RegisterFront(cuser.port)
-    user.Init()
+    cuser0 = c.SQ_USER
+    cuser1 = c.GD_USER
+    cuser2 = c.GD_USER_3
+    cuser_wt1= c.GD_USER_2  #网通
+    cuser_wt2= c.GD_USER_4  #网通
 
-    while True:
-        time.sleep(1)
+    my_agent1 = NULLAgent(None,None,INSTS)
+    #my_agent = agent.Agent(None,cuser0,INSTS)
 
+    agent.make_user(my_agent,'data')
+
+
+    #while True:
+    #    time.sleep(1)
+
+    return my_agent
+
+
+def user_save2():
+    logging.basicConfig(filename="ctp_user.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
+    
+
+    cuser0 = c.SQ_USER
+    cuser1 = c.GD_USER
+    cuser2 = c.GD_USER_3
+    cuser_wt1= c.GD_USER_2  #网通
+    cuser_wt2= c.GD_USER_4  #网通
+
+    #my_agent = agent.Agent(None,cuser_wt1,INSTS)
+    #my_agent = agent.Agent(None,cuser_wt2,INSTS)
+    my_agent = agent.Agent(None,cuser0,INSTS)
+
+    agent.make_user(my_agent,'data')
+    #make_user(my_agent,'data1')
+
+    #while True:
+    #    time.sleep(1)
+
+    return my_agent
+   

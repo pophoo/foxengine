@@ -35,7 +35,7 @@ def cexpma1(source,n,target):
         其中target[:-2]是已经计算的结果
         用于整数的source,有四舍五入因子(n+1)/2. 因此不能传入浮点数，会因为该因子而导致数据变化
     '''
-    assert len(source) == len(target),u'源序列与目标序列长度不相等'
+    assert len(source) == len(target),u'源序列与目标序列长度不相等,%s:%s' % (len(source),len(target))
     if(len(source) < 2):
         return 0  
     target[-1] = (source[-1]*2 + target[-2] *(n-1) + (n+1)/2)/(n+1) 
@@ -58,7 +58,7 @@ def tr(sclose,shigh,slow):
     return [max(hl,hc,lc) for hl,hc,lc in zip(shl,shc,slc)]
 
 def tr1(sclose,shigh,slow,target):
-    assert len(sclose) == len(target),u'源序列与目标序列长度不相等'
+    assert len(sclose) == len(target),u'源序列与目标序列长度不相等,%s:%s' % (len(sclose),len(target))
     if(len(sclose) < 2):
         return 0
     hl = abs(shigh[-1] - slow[-1]) * CBASE
@@ -73,7 +73,7 @@ def atr(ltr,length=20):
 def atr1(ltr,target,length=20):
     if len(ltr)<1:
         return 0
-    assert len(ltr) == len(target)
+    assert len(ltr) == len(target),u'源序列与目标序列长度不相等,%s:%s' % (len(ltr),len(target))
     cexpma1(ltr,length,target)
     return target[-1]
  
@@ -83,7 +83,7 @@ def xatr(latr,sclose):
 def xatr1(latr,sclose,lxatr):
     if len(latr)<1:
         return 0
-    assert len(latr) == len(sclose) == len(lxatr)
+    assert len(latr) == len(sclose) == len(lxatr),u'源序列与目标序列长度不相等,%s:%s' % (len(latr),len(target))
     lxatr[-1] = latr[-1] * CBASE * CBASE / sclose[-1]
     return lxatr[-1]
 
@@ -97,7 +97,7 @@ def accumulate(source):
     return rev
 
 def accumulate1(source,target):
-    assert len(source) == len(target),u'源序列与目标序列长度不相等'
+    assert len(source) == len(target),u'源序列与目标序列长度不相等,%s:%s' % (len(source),len(target))
     if(len(source) < 1):
         return 0
     if(len(source) == 1):
@@ -127,7 +127,7 @@ def ma(source,length):
 def ma1(source,length,target):
     if len(source)<1:
         return 0
-    assert len(source) == len(target),u'源序列与目标序列长度不相等'
+    assert len(source) == len(target),u'源序列与目标序列长度不相等,%s:%s' % (len(source),len(target))
     target[-1] = (sum(source[-length:]) + length/2) / length
     return target[-1]
 
@@ -162,7 +162,7 @@ def strend2(source):
     return rev    
 
 def strend2_1(source,target):
-    assert len(source) == len(target),u'源序列与目标序列长度不相等'
+    assert len(source) == len(target),u'源序列与目标序列长度不相等,%s:%s' % (len(source),len(target))
     if len(source) < 1:
         return 0
     elif len(source) == 1:
@@ -258,6 +258,8 @@ def MA(data):
     '''
         序列计算基本均线, 1分钟的5/7/10/13/20/30/60/120/135/270均线
     '''
+    data.ma_1 = ma(data.sclose,1)
+    
     data.ma_5 = ma(data.sclose,5)
     #data.ma_7 = ma(data.sclose,7)
     #data.ma_10 = ma(data.sclose,10)
@@ -273,6 +275,8 @@ def MA1(data):
     '''
         动态计算基本均线, 1分钟的5/7/10/13/20/30/60/120/135/270均线
     '''
+    print u'before:收盘序列长度:%s,ma5序列长度:%s' % (len(data.sclose),len(data.ma_5))
+    data.ma_1.append(0)
     data.ma_5.append(0)
     #data.ma_7.append(0)
     #data.ma_10.append(0)
@@ -283,6 +287,7 @@ def MA1(data):
     data.ma_120.append(0)
     #data.ma_135.append(0)    
     data.ma_270.append(0)    
+    ma1(data.sclose,1,data.ma_1)    
     ma1(data.sclose,5,data.ma_5)
     #ma1(data.sclose,7,data.ma_7)
     #ma1(data.sclose,10,data.ma_10)
@@ -293,5 +298,6 @@ def MA1(data):
     ma1(data.sclose,120,data.ma_120)
     #ma1(data.sclose,135,data.ma_135)
     ma1(data.sclose,270,data.ma_270)
+    print u'after:收盘序列长度:%s,ma5序列长度:%s' % (len(data.sclose),len(data.ma_5))
 
 

@@ -871,12 +871,12 @@ def make_user(my_agent,hq_user,name='data'):
                              passwd= hq_user.passwd,
                              agent = my_agent,
                     ))
-    #user.RegisterFront(hq_user.port)
+    user.RegisterFront(hq_user.port)
     
-    user.RegisterFront(c.GD_USER.port)
-    user.RegisterFront(c.GD_USER_3.port)    
-    user.RegisterFront(c.GD_USER_2.port)        
-    user.RegisterFront(c.GD_USER_4.port)            
+    #user.RegisterFront(c.GD_USER.port)
+    #user.RegisterFront(c.GD_USER_3.port)    
+    #user.RegisterFront(c.GD_USER_2.port)        
+    #user.RegisterFront(c.GD_USER_4.port)            
     user.Init()
     
 

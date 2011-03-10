@@ -29,15 +29,12 @@ import time
 import logging
 import thread
 
-import UserApiStruct as ustruct
-import UserApiType as utype
-
-
 from base import *
 from dac import ATR,ATR1,STREND,STREND1,MA,MA1
 import hreader
 
-
+import UserApiStruct as ustruct
+import UserApiType as utype
 from MdApi import MdApi, MdSpi
 from TraderApi import TraderApi, TraderSpi  
 
@@ -56,6 +53,7 @@ INSTS = [u'IF1103']  #必须采用ctp使用的合约名字，内部不做检验
 #套利时每一对合约都用一个行情-交易对
 #INSTS = [u'IF1102']
 
+#mylock = thread.allocate_lock()
 
 
 class MdSpiDelegate(MdSpi):
@@ -63,7 +61,10 @@ class MdSpiDelegate(MdSpi):
         将行情信息转发到Agent
         并自行处理杂务
     '''
-    logger = logging.getLogger('ctp.MdSpiDelegate')    
+    logger = logging.getLogger('ctp.MdSpiDelegate')
+    
+    last_map = {}
+
     def __init__(self,
             instruments, #合约列表
             broker_id,   #期货公司ID
@@ -76,8 +77,8 @@ class MdSpiDelegate(MdSpi):
         self.investor_id = investor_id
         self.passwd = passwd
         self.agent = agent
-        self.last_map = dict([(id,0) for id in instruments])
-        self.mylock = thread.allocate_lock()
+        #self.last_map = dict([(id,0) for id in instruments])
+        self.last_map.update(dict([(id,0) for id in instruments]))
 
     def checkErrorRspInfo(self, info):
         if info.ErrorID !=0:
@@ -113,26 +114,33 @@ class MdSpiDelegate(MdSpi):
     def OnRtnDepthMarketData(self, depth_market_data):
         #print depth_market_data.BidPrice1,depth_market_data.BidVolume1,depth_market_data.AskPrice1,depth_market_data.AskVolume1,depth_market_data.LastPrice,depth_market_data.Volume,depth_market_data.UpdateTime,depth_market_data.UpdateMillisec,depth_market_data.InstrumentID
         #print 'on data......\n',
-        self.mylock.acquire()
-        if depth_market_data.LastPrice > 999999 or depth_market_data.LastPrice < 10:
-            logger.warning(u'收到的行情数据有误:%s,LastPrice=:%s' %(depth_market_data.InstrumentID,depth_market_data.LastPrice))
-        if depth_market_data.InstrumentID not in self.instruments:
-            logger.warning(u'收到未订阅的行情:%s' %(depth_market_data.InstrumentID,))
-        #self.logger.debug(u'收到行情:%s,time=%s:%s' %(depth_market_data.InstrumentID,depth_market_data.UpdateTime,depth_market_data.UpdateMillisec))
-        dp = depth_market_data
-        self.logger.debug(u'收到行情，inst=%s,time=%s，volume=%s,last_volume=%s' % (dp.InstrumentID,dp.UpdateTime,dp.Volume,self.last_map[dp.InstrumentID]))
-        if dp.Volume <= self.last_map[dp.InstrumentID]:
-            self.logger.debug(u'行情无变化，inst=%s,time=%s，volume=%s,last_volume=%s' % (dp.InstrumentID,dp.UpdateTime,dp.Volume,self.last_map[dp.InstrumentID]))
-            return  #行情未变化
-        self.last_map[dp.InstrumentID] = dp.Volume
-        #self.mylock.release()   #至此已经去掉重复的数据
+        #with mylock:
+        try:
+            #mylock.acquire()
+            #self.logger.debug(u'获得锁.................,mylock.id=%s' % id(mylock))        
+            if depth_market_data.LastPrice > 999999 or depth_market_data.LastPrice < 10:
+                logger.warning(u'收到的行情数据有误:%s,LastPrice=:%s' %(depth_market_data.InstrumentID,depth_market_data.LastPrice))
+            if depth_market_data.InstrumentID not in self.instruments:
+                logger.warning(u'收到未订阅的行情:%s' %(depth_market_data.InstrumentID,))
+            #self.logger.debug(u'收到行情:%s,time=%s:%s' %(depth_market_data.InstrumentID,depth_market_data.UpdateTime,depth_market_data.UpdateMillisec))
+            dp = depth_market_data
+            self.logger.debug(u'收到行情，inst=%s,time=%s，volume=%s,last_volume=%s' % (dp.InstrumentID,dp.UpdateTime,dp.Volume,self.last_map[dp.InstrumentID]))
+            if dp.Volume <= self.last_map[dp.InstrumentID]:
+                self.logger.debug(u'行情无变化，inst=%s,time=%s，volume=%s,last_volume=%s' % (dp.InstrumentID,dp.UpdateTime,dp.Volume,self.last_map[dp.InstrumentID]))
+                return  #行情未变化
+            self.last_map[dp.InstrumentID] = dp.Volume
+            #mylock.release()   #至此已经去掉重复的数据
 
-        self.logger.debug(u'after modify lastvolume:%s,curVolume:%s' % (self.last_map[dp.InstrumentID],dp.Volume))
-        #self.logger.debug(u'before loop')
-        ctick = self.market_data2tick(depth_market_data)
-        self.agent.RtnTick(ctick)
+            self.logger.debug(u'after modify instrument=%s,lastvolume:%s,curVolume:%s' % (dp.InstrumentID,self.last_map[dp.InstrumentID],dp.Volume))
+            #self.logger.debug(u'before loop')
+            ctick = self.market_data2tick(depth_market_data)
+            self.agent.RtnTick(ctick)
+        finally:
+            pass
+            #mylock.release()   #至此主要工作完成
+            #self.logger.debug(u'释放锁.................,mylock.id=%s' % id(mylock))
+        
 
-        self.mylock.release()   #至此主要工作完成
         #self.logger.debug(u'before write md:')
         ff = open(hreader.make_tick_filename(ctick.instrument),'a+')
         #print type(dp.UpdateMillisec),type(dp.OpenInterest),type(dp.Volume),type(dp.BidVolume1)
@@ -585,7 +593,7 @@ class Agent(object):
         if ctick.min1 != dinst.cur_min.vtime or ctick.date != dinst.cur_min.vdate:#时间切换
             rev = True
             #print ctick.min1,dinst.cur_min.vtime,ctick.date,dinst.cur_min.vdate
-            if (len(dinst.stime)>0 and (ctick.date > dinst.sdate[-1] or ctick.min1 > dinst.stime[-1]) or len(dinst.stime)==0:#已有分钟与已保存的有差别
+            if (len(dinst.stime)>0 and (ctick.date > dinst.sdate[-1] or ctick.min1 > dinst.stime[-1])) or len(dinst.stime)==0:#已有分钟与已保存的有差别
                 #这里把00秒归入到新的分钟里面
                 if (hreader.is_if(ctick.instrument) and ctick.min1 == 1515 and ctick.sec==0) or (not hreader.is_if(ctick.instrument) and ctick.min1 == 1500 and ctick.sec==0): #最后一秒钟算1514/1500的
                     print u'最后一秒钟....'
@@ -863,12 +871,17 @@ def make_user(my_agent,hq_user,name='data'):
                              passwd= hq_user.passwd,
                              agent = my_agent,
                     ))
-    user.RegisterFront(hq_user.port)
+    #user.RegisterFront(hq_user.port)
+    
+    user.RegisterFront(c.GD_USER.port)
+    user.RegisterFront(c.GD_USER_3.port)    
+    user.RegisterFront(c.GD_USER_2.port)        
+    user.RegisterFront(c.GD_USER_4.port)            
     user.Init()
     
 
 def user_main():
-    logging.basicConfig(filename="ctp_user.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
+    logging.basicConfig(filename="ctp_user_agent.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
     
     cuser0 = c.SQ_USER
     cuser1 = c.GD_USER
@@ -878,15 +891,20 @@ def user_main():
 
     my_agent = Agent(None,None,INSTS)
 
-    make_user(my_agent,cuser0,'data')
+    make_user(my_agent,cuser1,'data1')
+    #make_user(my_agent,cuser2,'data2')    
+    #make_user(my_agent,cuser_wt1,'data_wt1')
+    #make_user(my_agent,cuser_wt2,'data_wt2')    
+    
+    #make_user(my_agent,cuser0,'data')
     #make_user(my_agent,cuser0,'data')
     #make_user(my_agent,cuser0,'data')
     #make_user(my_agent,cuser0,'data')
     #make_user(my_agent,cuser0,'data')
     #make_user(my_agent,cuser0,'data')
 
-    while True:
-        time.sleep(1)
+    #while True:
+    #    time.sleep(1)
 
 def trade_test_main():
     '''

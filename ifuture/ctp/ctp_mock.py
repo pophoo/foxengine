@@ -92,30 +92,8 @@ class NULLAgent(object):
 
 from agent import MdApi,MdSpiDelegate,c,INSTS
 
-def user_save():#仅为保存数据
-    logging.basicConfig(filename="ctp_user.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
-    
-    cuser0 = c.SQ_USER
-    cuser1 = c.GD_USER
-    cuser2 = c.GD_USER_3
-    cuser_wt1= c.GD_USER_2  #网通
-    cuser_wt2= c.GD_USER_4  #网通
-
-    my_agent1 = NULLAgent(None,None,INSTS)
-    #my_agent = agent.Agent(None,cuser0,INSTS)
-
-    agent.make_user(my_agent,'data')
-
-
-    #while True:
-    #    time.sleep(1)
-
-    return my_agent
-
-
 def user_save2():
     logging.basicConfig(filename="ctp_user.log",level=logging.DEBUG,format='%(name)s:%(funcName)s:%(lineno)d:%(asctime)s %(levelname)s %(message)s')
-    
 
     cuser0 = c.SQ_USER
     cuser1 = c.GD_USER
@@ -123,12 +101,11 @@ def user_save2():
     cuser_wt1= c.GD_USER_2  #网通
     cuser_wt2= c.GD_USER_4  #网通
 
-    #my_agent = agent.Agent(None,cuser_wt1,INSTS)
-    #my_agent = agent.Agent(None,cuser_wt2,INSTS)
-    my_agent = agent.Agent(None,cuser0,INSTS)
+    my_agent = NULLAgent(None,None,INSTS)
 
-    agent.make_user(my_agent,'data')
-    #make_user(my_agent,'data1')
+    agent.make_user(my_agent,cuser1,'data')
+    agent.make_user(my_agent,cuser2,'data')
+    agent.make_user(my_agent,cuser_wt2,'data')
 
     #while True:
     #    time.sleep(1)

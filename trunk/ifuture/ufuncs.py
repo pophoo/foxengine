@@ -258,10 +258,9 @@ from wolfox.fengine.ifuture.xfuncs import *
 #主要时间过滤
 def nfilter0(sif):
     return gand(
-            sif.time > 1031,
+            sif.time > 929,
             sif.time < 1505,
         )
-
 
 def nfilter2(sif):
     return gand(
@@ -454,12 +453,15 @@ def filter0(sif):
             sif.time<1510,
         )
 
-def nhhx(sif,vbreak=0,vrange=300):
+def nhhx(sif,vbreak=0,vrange=350):
     thigh = rollx(sif.dhigh+vbreak,1)
-    ldclose = dnext(sif.closed,sif.close,sif.i_cofd)
-    blow = gmin(sif.dlow,ldclose)
-    thigh = np.select([gand(sif.time<1330,rollx(sif.dhigh-sif.dlow)<vrange),sif.time>0],[sif.dlow+vrange+vbreak,thigh])    
     
+    ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
+    vrange = ldatr * 3/5 /XBASE
+    #blow = gmin(sif.dlow,ldclose)
+    #thigh = np.select([gand(sif.time<1330,rollx(sif.dhigh-sif.dlow)<vrange),sif.time>0],[sif.dlow+vrange+vbreak,thigh])    
+    thigh = gmax(thigh,sif.dlow+vrange)
+
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
             #sif.high > thigh,
@@ -469,8 +471,11 @@ def nhhx(sif,vbreak=0,vrange=300):
         )
     return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以开盘价进入
 
-def nllx(sif,vbreak=0):
+def nllx(sif,vbreak=0,vrange=400):
     tlow = rollx(sif.dlow - vbreak,1)
+    ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
+    vrange = ldatr * 2/3 /XBASE
+    tlow = gmin(tlow,sif.dhigh-vrange)
     signal = gand(
             #sif.low < tlow,
             cross(tlow,sif.low)<0,
@@ -500,7 +505,7 @@ def mllx(sif,length=75,vbreak=0):
 
 break_nhhx = BXFuncA(fstate=gofilter,fsignal=nhhx,fwave=gofilter,ffilter=nfilter0)  ##选择
 break_nhhx.name = u'向上突破新高--原始X系统'
-break_nllx = SXFuncA(fstate=gofilter,fsignal=nllx,fwave=nx2000X,ffilter=nfilter0)  ##选择
+break_nllx = SXFuncA(fstate=sdown,fsignal=nllx,fwave=nx2000X,ffilter=nfilter0)  ##选择
 break_nllx.name = u'向下突破新低--原始X系统'
 
 break_mhhx = BXFuncA(fstate=gofilter,fsignal=mhhx,fwave=gofilter,ffilter=filter0)  ##选择
@@ -521,8 +526,8 @@ break_nllxm = SXFuncA(fstate=gofilter,fsignal=fcustom(nllx,vbreak=0),fwave=nx200
 break_nllxm.name = u'向下突破新低--原始X系统-主要时段'
 
 
-break_nhhx.stop_closer = utrade.atr5_ustop_T
-break_nllx.stop_closer = utrade.atr5_ustop_T
+break_nhhx.stop_closer = utrade.atr5_ustop_TT
+break_nllx.stop_closer = utrade.atr5_ustop_TT
 break_mhhx.stop_closer = utrade.atr5_ustop_V1
 break_mllx.stop_closer = utrade.atr5_ustop_V1
 break_nhhxm.stop_closer = utrade.atr5_ustop_V1
@@ -4782,7 +4787,8 @@ sbreak_nll20.stop_closer = utrade.atr5_ustop_TA
 sbreak_nll2.stop_closer = utrade.atr5_ustop_TA
 
 
-break_nhhx.stop_closer = utrade.atr5_ustop_T
+break_nhhx.stop_closer = utrade.atr5_ustop_TT
+break_nllx.stop_closer = utrade.atr5_ustop_TT
 
 break_nhhxm.stop_closer = utrade.atr5_ustop_V1
 break_nllxm.stop_closer = utrade.atr5_ustop_V1  #注意，这个是V1,即5个点的止损

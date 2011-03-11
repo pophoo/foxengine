@@ -295,15 +295,15 @@ class CFuncD2(CFunc):#每日前2次
         return d2_filter(sif,signal)
 
 
-class BXFuncD3(BXFuncA):#每日前2次
+class BXFuncD3(BXFuncA):#每日前3次
     def signal_filter(self,sif,signal):
         return d3_filter(sif,signal)
 
-class SXFuncD3(SXFuncA):#每日前2次
+class SXFuncD3(SXFuncA):#每日前3次
     def signal_filter(self,sif,signal):
         return d3_filter(sif,signal)
 
-class CFuncD3(CFunc):#每日前2次
+class CFuncD3(CFunc):#每日前3次
     def signal_filter(self,sif,signal):
         return d3_filter(sif,signal)
 

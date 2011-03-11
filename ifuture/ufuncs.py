@@ -246,6 +246,11 @@ http://www.toujidao.com/viewthread.php?tid=17287
 盘整的幅度越宽越难以突破，维持的时间也越长。  
 转化为交易策略就是不追买、也不追卖，低买高卖就行了。  
 
+##有史以来波幅分布(截止20110310)
+>>> [s300,s500,s800,s1000,s1500,s2000]
+[19, 57, 68, 33, 30, 8]
+<300,300-500,500-800,800-1000,1000-1500,>1500
+
 '''
 
 from wolfox.fengine.ifuture.ibase import *
@@ -253,6 +258,18 @@ import wolfox.fengine.ifuture.iftrade as iftrade
 import wolfox.fengine.ifuture.utrade as utrade
 import wolfox.fengine.ifuture.fcontrol as control
 from wolfox.fengine.ifuture.xfuncs import *
+
+def sdown(sif):
+    return gand(
+            sif.t120 < 180,
+            #sif.t120 < -200,    #周期为1个月，末期会不明,有点太投机
+        )
+
+def sup(sif):
+    return gand(
+            sif.t120 < 200, #200均可 这个有点太投机
+            #sif.s30>0,
+        )
 
 
 #主要时间过滤
@@ -453,14 +470,15 @@ def filter0(sif):
             sif.time<1510,
         )
 
-def nhhx(sif,vbreak=0,vrange=350):
+def nhhx(sif,vbreak=0):
     thigh = rollx(sif.dhigh+vbreak,1)
     
     ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
+    ldclose = dnext(sif.highd,sif.close,sif.i_cofd)
     vrange = ldatr * 3/5 /XBASE
     #blow = gmin(sif.dlow,ldclose)
-    #thigh = np.select([gand(sif.time<1330,rollx(sif.dhigh-sif.dlow)<vrange),sif.time>0],[sif.dlow+vrange+vbreak,thigh])    
     thigh = gmax(thigh,sif.dlow+vrange)
+    #thigh = gmax(thigh,blow+vrange)
 
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
@@ -471,11 +489,42 @@ def nhhx(sif,vbreak=0,vrange=350):
         )
     return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以开盘价进入
 
-def nllx(sif,vbreak=0,vrange=400):
+def nhhy(sif,vbreak=0):
+    
+    ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
+    ldclose = dnext(sif.closed,sif.close,sif.i_cofd)
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)
+    vrange = ldatr * 1/3 /XBASE
+    ldbase = gmin(ldopen,ldopen)
+    thigh = rollx(ldbase+vrange,1)
+    
+    #blow = gmin(sif.dlow,ldclose)
+    #thigh = gmax(thigh,sif.dlow+vrange)
+    #thigh = gmax(thigh,blow+vrange)
+
+    signal = gand(
+            #cross(rollx(sif.dhigh+30),sif.high)>0
+            #sif.high > thigh,
+            cross(thigh,sif.high)>0,
+            #rollx(sif.dhigh-sif.dlow) > 250,   #150可
+            #rollx(sif.dhigh-blow)>200,
+            rollx(sif.ma3)  > rollx(sif.ma13),
+        )
+    return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以开盘价进入
+
+
+def nllx(sif,vbreak=-10):
     tlow = rollx(sif.dlow - vbreak,1)
     ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
+    #ldclose = dnext(sif.closed,sif.close,sif.i_cofd)
+    
     vrange = ldatr * 2/3 /XBASE
+
+    #dhigh = gmax(sif.dhigh,ldclose)
+
     tlow = gmin(tlow,sif.dhigh-vrange)
+    #tlow = gmin(tlow,dhigh-vrange)
+
     signal = gand(
             #sif.low < tlow,
             cross(tlow,sif.low)<0,
@@ -507,6 +556,10 @@ break_nhhx = BXFuncA(fstate=gofilter,fsignal=nhhx,fwave=gofilter,ffilter=nfilter
 break_nhhx.name = u'向上突破新高--原始X系统'
 break_nllx = SXFuncA(fstate=sdown,fsignal=nllx,fwave=nx2000X,ffilter=nfilter0)  ##选择
 break_nllx.name = u'向下突破新低--原始X系统'
+
+break_nhhy = BXFuncD2(fstate=gofilter,fsignal=nhhy,fwave=gofilter,ffilter=nfilter0)  ##选择
+break_nhhy.name = u'向上突破新高--原始X系统'
+
 
 break_mhhx = BXFuncA(fstate=gofilter,fsignal=mhhx,fwave=gofilter,ffilter=filter0)  ##选择
 break_mhhx.name = u'X分钟向上突破新高--原始X系统'
@@ -762,17 +815,6 @@ hbreak_nlhh = BXFuncA(fstate=gofilter,fsignal=nlhh,fwave=nx2500X,ffilter=efilter
 break_cgap = BXFuncF1(fstate=gofilter,fsignal=cgap,fwave=nx2500X,ffilter=e1400filter)  ##选择
 hbreak_cgap = BXFuncF1(fstate=gofilter,fsignal=cgap,fwave=nx2500X,ffilter=efilter2)  ##主要时段
 
-def sdown(sif):
-    return gand(
-            sif.t120 < 180,
-            #sif.t120 < -200,    #周期为1个月，末期会不明,有点太投机
-        )
-
-def sup(sif):
-    return gand(
-            sif.t120 < 200, #200均可 这个有点太投机
-            #sif.s30>0,
-        )
 
 sbreak_nll20 = SXFuncA(fstate=gofilter,fsignal=fcustom(nll2,vbreak=0),fwave=nx2500X,ffilter=filter0)    #这个R高，但是次数少
 sbreak_nll20.name = u'向下突破--原始系统'
@@ -1493,8 +1535,8 @@ def erangeu(sif):
             cross(bline,sif.high)>0,
             #rollx(sif.dhigh - gmin(sif.dlow,ldclose)) > 200,
             #rollx(sif.dhigh - sif.dlow) > 200,
-            sif.time > 945,
-            sif.time < 1400,
+            sif.time > 944,
+            sif.time < 1445,
             #sif.time < 1430,
             #rollx(sif.xatr>600),
         )
@@ -1508,8 +1550,8 @@ def erangeu2(sif):
             cross(bline,sif.high)>0,
             #rollx(sif.dhigh - gmin(sif.dlow,ldclose)) > 200,
             #rollx(sif.dhigh - sif.dlow) > 200,
-            sif.time > 945,
-            sif.time < 1400,
+            sif.time > 944,
+            sif.time < 1445,
             #sif.time < 1430,
             #rollx(sif.xatr>600),
         )
@@ -1536,8 +1578,8 @@ def eranged(sif):
             cross(bline,sif.low)<0,
             #rollx(sif.dhigh - gmin(sif.dlow,ldclose)) > 200,
             #rollx(sif.dhigh - sif.dlow) > 200,
-            sif.time > 945,
-            sif.time < 1400,
+            sif.time > 944,
+            sif.time < 1445,
             #sif.time < 1430,
             #rollx(sif.xatr>600),
         )
@@ -1572,6 +1614,8 @@ seranged2.stop_closer = utrade.atr5_ustop_V1
 serange = [seranged,seranged2]
 
 erange = berange + serange      #一组非常好的独立策略
+
+erange1 = [berangeu,seranged2]
 
 ###失败振荡
 def ufwave(sif):
@@ -4509,6 +4553,35 @@ brdc.lastupdate = 20110116
 brdc.stop_closer = utrade.atr5_ustop_V1
 
 rc = [sruc,brdc]    #不如macd系统
+
+def rsi_long_x2(sif,sopened=None,rshort=7,rlong=19):
+    '''
+        比较妥当的是 7/19和13/41参数,其中前者明显优于后者
+    '''
+
+    #signal = cross(sif.dea1,sif.diff1)>0
+    rshort = 7
+    rlong = 19
+    rsia = rsi2(sif.close,rshort)   #7,19/13,41
+    rsib = rsi2(sif.close,rlong)
+    signal = cross(rsib,rsia)>0    
+
+    signal = gand(signal
+              ,sif.rm_trend>0
+              ,sif.ltrend>0               
+              ,sif.ms>0
+              ,sif.ma3>sif.ma13  
+              ,sif.ma7> sif.ma30              
+              ,sif.s30>0
+            )
+
+    return signal
+brsi2 = BXFuncA(fstate=gofilter,fsignal=rsi_long_x2,fwave=gofilter,ffilter=nfilter2)
+brsi2.name = u'rsi上叉做多'
+brsi2.lastupdate = 20110311
+brsi2.stop_closer = utrade.atr5_ustop_TT
+
+
 
 ###xud
 def xudd(sif):

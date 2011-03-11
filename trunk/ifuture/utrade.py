@@ -478,10 +478,11 @@ def sync_tradess_u(sif,tradess,acstrategy=iftrade.late_strategy):
             trade.open_action = trade.actions[0]
             continue
            
-        if trade.actions[0].index > cur_trade.actions[0].index and (iftrade.aprofit(cur_trade.open_action,sclose[trade.actions[0].index]) > 251 
-                or iftrade.aprofit(cur_trade.open_action,sclose[trade.actions[0].index]) < 31
-                or trade.actions[0].index - cur_trade.actions[0].index > 20
-                ):   #取决于浮动收益和持仓时间,大于25就平调(宁可后面再开)，小于3也平掉
+        #if trade.actions[0].index > cur_trade.actions[0].index and (iftrade.aprofit(cur_trade.open_action,sclose[trade.actions[0].index]) > 251 
+        #        or iftrade.aprofit(cur_trade.open_action,sclose[trade.actions[0].index]) < 31
+        #        or trade.actions[0].index - cur_trade.actions[0].index > 20
+        #        ):   #取决于浮动收益和持仓时间,大于25就平调(宁可后面再开)，小于3也平掉
+        if trade.actions[0].index > cur_trade.actions[0].index: #必然平掉
             if trade.direction == cur_trade.direction:  #同向取代关系
                 #print u'同向增强,%s|%s:%s被%s增强'%(cur_trade.functor,cur_trade.actions[0].date,cur_trade.actions[0].time,trade.functor)
                 close_action = acstrategy(close_action,trade.actions[-1])

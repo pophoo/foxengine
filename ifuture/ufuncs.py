@@ -486,21 +486,20 @@ def nhhx(sif,vbreak=0):
             cross(thigh,sif.high)>0,
             #rollx(sif.dhigh-sif.dlow) > 250,   #150可
             #rollx(sif.dhigh-blow)>200,
+            rollx(sif.ma13)  > rollx(sif.ma30),
         )
     return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以开盘价进入
 
 def nhhy(sif,vbreak=0):
     
-    ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
-    ldclose = dnext(sif.closed,sif.close,sif.i_cofd)
-    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)
-    vrange = ldatr * 1/3 /XBASE
-    ldbase = gmin(ldopen,ldopen)
-    thigh = rollx(ldbase+vrange,1)
+    pivot = dnext((sif.highd+sif.lowd+sif.closed)/3,sif.close,sif.i_cofd)
+    phigh = dnext(sif.highd,sif.close,sif.i_cofd)
+    plow = dnext(sif.lowd,sif.close,sif.i_cofd)
     
-    #blow = gmin(sif.dlow,ldclose)
-    #thigh = gmax(thigh,sif.dlow+vrange)
-    #thigh = gmax(thigh,blow+vrange)
+    r1 = pivot * 2 - plow
+    s1 = pivot * 2 - phigh
+
+    thigh = r1
 
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
@@ -529,6 +528,7 @@ def nllx(sif,vbreak=-10):
             #sif.low < tlow,
             cross(tlow,sif.low)<0,
             #rollx(sif.dhigh-sif.dlow)>360,
+            rollx(sif.ma13)  < rollx(sif.ma30),
         )
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且大于突破点，就以开盘价进入
 
@@ -557,7 +557,7 @@ break_nhhx.name = u'向上突破新高--原始X系统'
 break_nllx = SXFuncA(fstate=sdown,fsignal=nllx,fwave=nx2000X,ffilter=nfilter0)  ##选择
 break_nllx.name = u'向下突破新低--原始X系统'
 
-break_nhhy = BXFuncD2(fstate=gofilter,fsignal=nhhy,fwave=gofilter,ffilter=nfilter0)  ##选择
+break_nhhy = BXFuncA(fstate=gofilter,fsignal=nhhy,fwave=gofilter,ffilter=nfilter0)  ##选择
 break_nhhy.name = u'向上突破新高--原始X系统'
 
 
@@ -654,10 +654,11 @@ def nhh(sif,vbreak=30,vrange=250):  #貌似20/30都可以
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     thigh = rollx(sif.dhigh+vbreak,3)
 
+    blow = rollx(sif.dlow,1)
     #thigh = np.select([sif.time<1030,sif.time>=1030],[gmax(thigh,rollx(sif.dlow) + 200),thigh])
     #thigh = gmax(thigh,rollx(sif.dlow,1) + vrange + vbreak)
     #thigh = np.select([gand(sif.time<1330,rollx(sif.dhigh-sif.dlow)<vrange),sif.time>0],[sif.dlow+vrange+vbreak,thigh])    
-    thigh = gmax(thigh,rollx(sif.dlow,1) + vrange + vbreak,ldopen+90)
+    thigh = gmax(thigh,blow + vrange + vbreak,ldopen+90)
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
             sif.high > thigh,
@@ -904,6 +905,7 @@ def mll2(sif,length=75,vbreak=20,vrange=350):
             #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>320),
             #rollx(sif.high,2) - tlow < 150,
             sif.time > 915,
+            rollx(sif.ma13) < rollx(sif.ma30),
         )
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入
  

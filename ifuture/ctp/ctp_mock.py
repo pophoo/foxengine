@@ -20,7 +20,13 @@ import hreader
 import agent
 
 class TraderMock(object):
-    pass
+    def __init__(self,myagent):
+        '''记录agent以回调agent的成交回报接口'''
+        self.myagent = myagent
+
+    def ReqOrderInsert(self, pInputOrder, nRequestID):
+        '''报单录入请求, 需要调用成交函数'''
+        pass
 
 class UserMock(object):
     pass

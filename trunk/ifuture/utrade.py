@@ -52,15 +52,17 @@ def atr_stop_u2(
         ,sbclose
         ,ssclose
         ,flost_base = 25
-        ,fmax_drawdown = iftrade.F100_25 #fdmax:买入点数 --> 最大回落
-        ,fmin_drawdown = iftrade.F60_15#fdmin:买入点数 --> 最小回落
-        ,fkeeper = iftrade.FKEEP_30 #买入点数-->固定移动止损，移动到价格为止
+        #,fmax_drawdown = iftrade.F100_25 #fdmax:买入点数 --> 最大回落
+        #,fmin_drawdown = iftrade.F60_15#fdmin:买入点数 --> 最小回落
+        #,fkeeper = iftrade.FKEEP_30 #买入点数-->固定移动止损，移动到价格为止
+        ,keeper_base = 25
         ,win_times=300        
         ,ftarget = iftrade.FTARGET #盈利目标,默认是无穷大
         ,tlimit = 300    #约定时间线. 目前没用
         ,wtlimit = -1000   #约定时间线的价格有利变动目标，如果不符合则平仓
         ,natr=1
         ,natr2=30
+        ,nkeeper=30
         ):
     '''
         根据价格突破即时止损,而不是下一个开盘价，返回值为止损价，未考虑滑点
@@ -79,6 +81,7 @@ def atr_stop_u2(
     #print sbclose[-10:],ssclose[-10:]
     satr = iftrade.afm[natr](sif)
     satr2 = iftrade.afm[natr2](sif)
+    skeeper = iftrade.afm[nkeeper](sif)
     trans = sif.transaction
     rev = np.zeros_like(sopened)
     isignal = np.nonzero(sopened)[0]
@@ -96,10 +99,10 @@ def atr_stop_u2(
         #willlost = flost_base(aprice)
         willlost = satr2[i]*flost_base/XBASE/XBASE
         #willlost = satr[i]*25/XBASE/XBASE
-        willlost = willlost if willlost < 250 else 250
-        max_drawdown = fmax_drawdown(aprice)
-        min_drawdown = fmin_drawdown(aprice)
-        keeper = fkeeper(aprice)
+        #willlost = willlost if willlost < 250 else 250
+        #max_drawdown = fmax_drawdown(aprice)
+        #min_drawdown = fmin_drawdown(aprice)
+        keeper = skeeper[i] * keeper_base / XBASE /XBASE
         #print price,willlost,max_drawdown,min_drawdown
         will_losts.append(willlost)
         if price<0: #多头止损
@@ -144,25 +147,26 @@ def atr_stop_u2(
                         #print 'sell in sclose:'#,i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
                         break
                     elif j==i+tlimit and tv<wtlimit:    #时间到
+                        #print u'时间到'
                         ilong_closed = j
                         rev[j] = trans[ICLOSE][j] * XSELL 
-                        #print 'sell in time limit:'#,i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
+                        print 'sell in time limit:'#,i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
                         break
                     elif trans[IHIGH][j] > wtarget: #超过目标价
                         ilong_closed = j                        
                         rev[j] = wtarget * XSELL
                         #print 'sell at target:'#,i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
                         break
-                    if j == i+tlimit and cur_stop < buy_price+100 and trans[ICLOSE][j] > buy_price+100:
-                        cur_stop = buy_price+80
+                    #if j == i+tlimit and cur_stop < buy_price+100 and trans[ICLOSE][j] > buy_price+100:
+                    #    cur_stop = buy_price+80
                     nhigh = trans[IHIGH][j]
                     if(nhigh > cur_high):
                         cur_high = nhigh
                         drawdown = satr[j] * win_times / XBASE / XBASE
-                        if drawdown > max_drawdown:
-                            drawdown = max_drawdown
-                        if drawdown < min_drawdown:
-                            drawdown = min_drawdown
+                        #if drawdown > max_drawdown:
+                        #    drawdown = max_drawdown
+                        #if drawdown < min_drawdown:
+                        #    drawdown = min_drawdown
                         win_stop = cur_high - drawdown
                         #win_stop = cur_high - satr[j] * win_times / XBASE
                         #print nhigh,cur_stop,win_stop,satr[j]
@@ -222,10 +226,10 @@ def atr_stop_u2(
                     if(nlow < cur_low):
                         cur_low = nlow
                         drawdown = satr[j] * win_times / XBASE / XBASE
-                        if drawdown > max_drawdown:
-                            drawdown = max_drawdown
-                        if drawdown < min_drawdown:
-                            drawdown = min_drawdown
+                        #if drawdown > max_drawdown:
+                        #    drawdown = max_drawdown
+                        #if drawdown < m0n_drawdown:
+                        #    drawdown = min_drawdown
                         win_stop = cur_low + drawdown
                         #print nlow,cur_stop,win_stop,satr[j],win_times,drawdown
                         #win_stop = cur_low + satr[j] * win_times / XBASE / XBASE
@@ -996,6 +1000,19 @@ atr5_ustop_TA = fcustom(atr_stop_u,
                 tlimit = 30,
             )   #
 
+atr5_ustop_TB = fcustom(atr_stop_u,
+                fkeeper=iftrade.F120,   #12为好,15太大了，相当于回撤15+9=24点
+                #win_times=250,                
+                #win_times=280,
+                #natr=5,
+                win_times=40,
+                natr = 270,
+                flost_base=lambda x:100,
+                fmax_drawdown=iftrade.F333,
+                fmin_drawdown=iftrade.F150,
+                tlimit = 30,
+            )   #
+
 atr5_ustop_TT = fcustom(atr_stop_u2,
                 fkeeper=iftrade.F300,
                 #win_times=250,                
@@ -1011,19 +1028,23 @@ atr5_ustop_TT = fcustom(atr_stop_u2,
             )      #
 
 atr5_ustop_TU = fcustom(atr_stop_u2,
-                fkeeper=iftrade.F300,
-                #win_times=250,                
-                #win_times=280,
-                #natr=5,
+                keeper_base=15,
+                nkeeper = 270,
+                win_times=60,
+                natr = 270,
+                flost_base=10,
+                natr2 = 270,
+            )      #
+
+
+atr5_ustop_TV = fcustom(atr_stop_u2,
+                keeper_base=20,
+                nkeeper = 270,
                 win_times=40,
                 natr = 270,
-                #flost_base=100,
-                flost_base=40,
-                fmax_drawdown=iftrade.F333,
-                fmin_drawdown=iftrade.F150,
-                natr2 = 30,
-                #tlimit = 30,
-            )      #
+                flost_base=12,
+                natr2 = 270,
+            )#
 
 
 atr5_ustop_T5 = fcustom(atr_stop_u,

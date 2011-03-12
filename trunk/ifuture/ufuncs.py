@@ -696,7 +696,7 @@ def nhh_old(sif,vbreak=30,vrange=250):  #貌似20/30都可以
         )
     return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以跳空价进入
 
-def nhhz(sif,vbreak=30,vrange=250):  #貌似20/30都可以
+def nhhz(sif,vbreak=30):  #貌似20/30都可以
     #使用最高点+30, 也就是说必须一下拉开3点
     #ldlow = dnext(sif.lowd/2+sif.closed/2,sif.close,sif.i_cofd)
 
@@ -719,6 +719,7 @@ def nhhz(sif,vbreak=30,vrange=250):  #貌似20/30都可以
     ldclose = dnext(sif.highd,sif.close,sif.i_cofd)
     vrange = ldatr * 3/10 /XBASE
     vopen = ldatr * 1/8 /XBASE
+    #vbreak = ldatr * 1/20 /XBASE
 
     thigh = gmax(thigh,blow + vrange + vbreak,ldopen+vopen)
     signal = gand(
@@ -730,6 +731,7 @@ def nhhz(sif,vbreak=30,vrange=250):  #貌似20/30都可以
             #gmax(rollx(sif.dhigh,1),thigh) > ldopen + 80,
             #thigh > ldopen + 60,
             #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>200),
+            rollx(sif.ma5) > rollx(sif.ma13),
         )
     return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以跳空价进入
 
@@ -948,7 +950,7 @@ def mll2(sif,length=75,vbreak=20,vrange=350):
         )
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入
  
-def mll2z(sif,length=75,vbreak=20,vrange=350):
+def mll2z(sif,length=80,vbreak=20):
     #使用最低点
     tlow = rollx(tmin(sif.low,length)+vbreak,1)
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
@@ -961,13 +963,21 @@ def mll2z(sif,length=75,vbreak=20,vrange=350):
     #ldmid = dnext((sif.highd+sif.closed)/2,sif.close,sif.i_cofd)    
     ldclose = dnext(sif.closed,sif.close,sif.i_cofd) 
     
-    ldatr = dnext(sif.atr30,sif.close,sif.i_cof30)
-    #vrange = ldatr *2 / XBASE
+    ldatr30 = dnext(sif.atr30,sif.close,sif.i_cof30)
+    ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
+    
+    #bhigh = gmax(ldclose,sif.dhigh)
+    bhigh = sif.dhigh
+
+    vrange = ldatr *2/3 / XBASE
+    vmid = ldatr *1/8/XBASE
+    #vmid = 60
 
     #tlow = gmin(tlow,ldmid-32)
     
     #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])    
-    tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(sif.dhigh-vrange,tlow),tlow])
+    tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(bhigh-vrange,tlow),tlow])
+    #tlow = gmin(sif.dhigh-vrange,tlow)
     #tlow = np.select([tlow<=rollx(sif.dlow)+vbreak,1],[tlow,gmin(tlow,ldmid-60)])
     #tlow = np.select([tlow>ldmid-60,tlow<=ldmid-60],[rollx(sif.dlow),tlow])
     #tlow = np.select([gand(sif.time<1330,rollx(sif.dhigh-sif.dlow)<vrange+vbreak),sif.time>0],[sif.dhigh-vrange,tlow])
@@ -977,6 +987,7 @@ def mll2z(sif,length=75,vbreak=20,vrange=350):
     #tlow = gmin(sif.dhigh-vrange,tlow)
     #tlow = gmin(sif.dhigh-400,tlow)
 
+    
 
     signal = gand(
             #sif.time>1029,
@@ -988,7 +999,7 @@ def mll2z(sif,length=75,vbreak=20,vrange=350):
             #tlow < ldmid-30,#rollx(sif.xatr)*2/XBASE,  #比前2天高点中点低才允许做空
             #gor(tlow < ldmid-30,gand(sif.time>1330,tlow<opend)),#加上1330条件后，有助于减少回撤
             #gor(tlow < ldmid-30,gand(sif.time>1330,tlow==rollx(sif.dlow)+vbreak)),  #1330之后tlow同时创新低时可绕过ldmid-30条件
-            gor(tlow<ldmid-60,tlow==rollx(sif.dlow)+vbreak),
+            gor(tlow<ldmid-vmid,tlow==rollx(sif.dlow)+vbreak),
             #tlow < sif.dmid,
             #rollx(sif.dhigh - sif.dlow) > vrange, 
             #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>320),
@@ -1161,7 +1172,7 @@ hbreak3 = [hbreak_nhh,shbreak_mll2]#,hbreak_nhh_e]#
 
 d1_hbreak = [dhbreak_nhh,dshbreak_mll2]
 
-hbreak2z = [shbreak_mll2z,hbreak_nhhz]#,hbreak_nhh_e]  #这个最大回撤最小      #####################采用此个
+hbreak2z = [shbreak_mll2z,hbreak_nhhz]
 
 
 ###中间价突破
@@ -4943,10 +4954,10 @@ for x in rxxx:
 shbreak_mll2.stop_closer = utrade.atr5_ustop_T
 hbreak_nhh.stop_closer = utrade.atr5_ustop_T
 
-shbreak_mll2.stop_closer = utrade.atr5_ustop_TA
+shbreak_mll2.stop_closer = utrade.atr5_ustop_TV #_TV
 hbreak_nhh.stop_closer = utrade.atr5_ustop_TA
 
-hbreak_nhhz.stop_closer = utrade.atr5_ustop_TA
+hbreak_nhhz.stop_closer = utrade.atr5_ustop_TV
 shbreak_mll2z.stop_closer = utrade.atr5_ustop_TU
 
 shbreak_mll2e.stop_closer = utrade.atr5_ustop_T

@@ -1010,6 +1010,20 @@ atr5_ustop_TT = fcustom(atr_stop_u2,
                 #tlimit = 30,
             )      #
 
+atr5_ustop_TU = fcustom(atr_stop_u2,
+                fkeeper=iftrade.F300,
+                #win_times=250,                
+                #win_times=280,
+                #natr=5,
+                win_times=40,
+                natr = 270,
+                #flost_base=100,
+                flost_base=40,
+                fmax_drawdown=iftrade.F333,
+                fmin_drawdown=iftrade.F150,
+                natr2 = 30,
+                #tlimit = 30,
+            )      #
 
 
 atr5_ustop_T5 = fcustom(atr_stop_u,

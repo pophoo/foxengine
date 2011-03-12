@@ -79,9 +79,9 @@ def atr_stop_u2(
         只能持有一张合约。即当前合约在未平前会屏蔽掉所有其它开仓
     '''
     #print sbclose[-10:],ssclose[-10:]
-    satr = iftrade.afm[natr](sif)
-    satr2 = iftrade.afm[natr2](sif)
-    skeeper = iftrade.afm[nkeeper](sif)
+    satr = rollx(iftrade.afm[natr](sif))
+    satr2 = rollx(iftrade.afm[natr2](sif))
+    skeeper = rollx(iftrade.afm[nkeeper](sif))
     trans = sif.transaction
     rev = np.zeros_like(sopened)
     isignal = np.nonzero(sopened)[0]

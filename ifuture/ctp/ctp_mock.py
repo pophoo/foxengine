@@ -28,6 +28,11 @@ class TraderMock(object):
         '''报单录入请求, 需要调用成交函数'''
         pass
 
+    def ReqOrderAction(self, pInputOrderAction, nRequestID):
+        '''撤单请求'''
+        return _ctp_Trader.ReqOrderAction(self.api_ptr, pInputOrderAction, nRequestID)
+
+
 class UserMock(object):
     pass
 

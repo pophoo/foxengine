@@ -33,8 +33,8 @@ i00 = ifmap['IF0001']   #当月连续
 #i07 = ifmap['IF1007']
 #i08 = ifmap['IF1008']
 #i09 = ifmap['IF1009']
-i12 = ifmap['IF1012']
-i01 = ifmap['IF1101']
+#i12 = ifmap['IF1012']
+#i01 = ifmap['IF1101']
 #i10 = ifmap['IF1010']
 #i11 = ifmap['IF1011']
 

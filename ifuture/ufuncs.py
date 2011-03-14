@@ -835,6 +835,71 @@ def mhhz(sif,vbreak=0):  #貌似20/30都可以
         )
     return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以跳空价进入
 
+def nllz(sif,vbreak=20):
+    #使用最低点
+    tlow = rollx(sif.dlow+vbreak,1)
+    #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
+    #ldmid = dnext((sif.highd+gmin(sif.closed,sif.opend))/2,sif.close,sif.i_cofd)
+    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
+    opend = dnext(sif.opend,sif.open,sif.i_oofd)            
+    #highd = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)            
+    #ldmid = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)        
+    #ldmid = dnext(sif.highd,sif.close,sif.i_cofd)        
+    #ldmid = dnext((sif.highd+sif.closed)/2,sif.close,sif.i_cofd)    
+    ldrange = dnext(sif.highd-sif.lowd,sif.close,sif.i_cofd) 
+    ldclose = dnext(sif.closed,sif.close,sif.i_cofd) 
+    
+    ldatr30 = dnext(sif.atr30,sif.close,sif.i_cof30)
+    ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
+    
+    xatrd = dnext(sif.xatrd,sif.close,sif.i_cofd)
+
+    #bhigh = gmax(ldclose,sif.dhigh)
+    bhigh = sif.dhigh
+
+    vrange = ldatr *8/10 / XBASE
+    #vrange = np.select([vrange<500],[vrange],500)
+    vrange = gmin(vrange,ldclose/66)    #vrange不能超过太大
+    vmid = ldatr *1/15/XBASE
+    #vmid = 60
+
+    #tlow = gmin(tlow,ldmid-32)
+    
+    #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])    
+    tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(bhigh-vrange,tlow),tlow])
+    #tlow = gmin(sif.dhigh-vrange,tlow)
+    #tlow = np.select([tlow<=rollx(sif.dlow)+vbreak,1],[tlow,gmin(tlow,ldmid-60)])
+    #tlow = np.select([tlow>ldmid-60,tlow<=ldmid-60],[rollx(sif.dlow),tlow])
+    #tlow = np.select([gand(sif.time<1330,rollx(sif.dhigh-sif.dlow)<vrange+vbreak),sif.time>0],[sif.dhigh-vrange,tlow])
+    #tlow = np.select([sif.time<1330,sif.time>0],[gmin(tlow,sif.dhigh-vrange),tlow])
+    #tlow = np.select([rollx(sif.dhigh-sif.dlow)<vrange+vbreak,sif.time>0],[sif.dhigh-vrange,tlow])
+    #tlow = np.select([gand(sif.time<1330,sif.dhigh-sif.dlow<vrange+vbreak),gand(sif.time<1330,sif.dhigh-sif.dlow>vrange+vbreak),sif.time>1330],[sif.dhigh-vrange,tlow,gmin(sif.dhigh-350,tlow)])
+    #tlow = gmin(sif.dhigh-vrange,tlow)
+    #tlow = gmin(sif.dhigh-400,tlow)
+
+    
+
+    signal = gand(
+            #sif.time>1029,
+            cross(tlow,sif.low)<0,
+            #strend2(sif.low) <= 0,
+            #sif.low < tlow,
+            #tlow < rollx(sif.dhigh + sif.dlow)/2, #+ sif.dlow
+            #tlow < ldhigh-10,  #比昨日最高价低才允许做空
+            #tlow < ldmid-30,#rollx(sif.xatr)*2/XBASE,  #比前2天高点中点低才允许做空
+            #gor(tlow < ldmid-30,gand(sif.time>1330,tlow<opend)),#加上1330条件后，有助于减少回撤
+            #gor(tlow < ldmid-30,gand(sif.time>1330,tlow==rollx(sif.dlow)+vbreak)),  #1330之后tlow同时创新低时可绕过ldmid-30条件
+            tlow < ldmid - vmid,
+            #rollx(sif.dhigh - sif.dlow) > vrange, 
+            #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>320),
+            #rollx(sif.high,2) - tlow < 150,
+            sif.time > 915,
+            rollx(sif.ma13) < rollx(sif.ma30),
+            rollx(sif.xatr)<2500,
+            rollx(sif.xatr30x)<10000,
+        )
+    return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入
+
 def nll2(sif,vbreak=-10,vrange=350):
     #使用最低点
     tlow = rollx(sif.dlow+vbreak,1)
@@ -939,6 +1004,10 @@ hbreak_nhh.name = u'日内向上突破新高'
 hbreak_nhhz = BXFuncA(fstate=gofilter,fsignal=nhhz,fwave=gofilter,ffilter=mfilter)  ##主要时段
 hbreak_nhhz.name = u'日内向上突破新高'
 
+shbreak_nllz = SXFuncA(fstate=sdown,fsignal=nllz,fwave=gofilter,ffilter=mfilter2)    #优于nll
+shbreak_nllz.name = u'日内7向下突破新低z'
+
+
 hbreak_nhhv = BXFuncA(fstate=gofilter,fsignal=nhhv,fwave=gofilter,ffilter=mfilter)  ##主要时段
 hbreak_nhhv.name = u'日内向上突破新高'
 
@@ -1039,20 +1108,9 @@ def mll2(sif,length=75,vbreak=20,vrange=350):
 
 
     signal = gand(
-            #sif.time>1029,
             cross(tlow,sif.low)<0,
-            #strend2(sif.low) <= 0,
             #sif.low < tlow,
-            #tlow < rollx(sif.dhigh + sif.dlow)/2, #+ sif.dlow
-            #tlow < ldhigh-10,  #比昨日最高价低才允许做空
-            #tlow < ldmid-30,#rollx(sif.xatr)*2/XBASE,  #比前2天高点中点低才允许做空
-            #gor(tlow < ldmid-30,gand(sif.time>1330,tlow<opend)),#加上1330条件后，有助于减少回撤
-            #gor(tlow < ldmid-30,gand(sif.time>1330,tlow==rollx(sif.dlow)+vbreak)),  #1330之后tlow同时创新低时可绕过ldmid-30条件
             gor(tlow<ldmid-60,tlow==rollx(sif.dlow)+vbreak),
-            #tlow < sif.dmid,
-            #rollx(sif.dhigh - sif.dlow) > vrange, 
-            #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>320),
-            #rollx(sif.high,2) - tlow < 150,
             sif.time > 915,
             rollx(sif.ma13) < rollx(sif.ma30),
         )
@@ -1081,6 +1139,7 @@ def mll2z(sif,length=80,vbreak=20):
     bhigh = sif.dhigh
 
     vrange = ldatr *2/3 / XBASE
+
     #vrange = np.select([vrange<500],[vrange],500)
     vrange = gmin(vrange,ldclose/66)    #vrange不能超过太大
     vmid = ldatr *1/8/XBASE
@@ -1091,32 +1150,12 @@ def mll2z(sif,length=80,vbreak=20):
     #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])    
     tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(bhigh-vrange,tlow),tlow])
     #tlow = gmin(sif.dhigh-vrange,tlow)
-    #tlow = np.select([tlow<=rollx(sif.dlow)+vbreak,1],[tlow,gmin(tlow,ldmid-60)])
-    #tlow = np.select([tlow>ldmid-60,tlow<=ldmid-60],[rollx(sif.dlow),tlow])
-    #tlow = np.select([gand(sif.time<1330,rollx(sif.dhigh-sif.dlow)<vrange+vbreak),sif.time>0],[sif.dhigh-vrange,tlow])
-    #tlow = np.select([sif.time<1330,sif.time>0],[gmin(tlow,sif.dhigh-vrange),tlow])
-    #tlow = np.select([rollx(sif.dhigh-sif.dlow)<vrange+vbreak,sif.time>0],[sif.dhigh-vrange,tlow])
-    #tlow = np.select([gand(sif.time<1330,sif.dhigh-sif.dlow<vrange+vbreak),gand(sif.time<1330,sif.dhigh-sif.dlow>vrange+vbreak),sif.time>1330],[sif.dhigh-vrange,tlow,gmin(sif.dhigh-350,tlow)])
-    #tlow = gmin(sif.dhigh-vrange,tlow)
-    #tlow = gmin(sif.dhigh-400,tlow)
-
     
 
     signal = gand(
-            #sif.time>1029,
             cross(tlow,sif.low)<0,
-            #strend2(sif.low) <= 0,
             #sif.low < tlow,
-            #tlow < rollx(sif.dhigh + sif.dlow)/2, #+ sif.dlow
-            #tlow < ldhigh-10,  #比昨日最高价低才允许做空
-            #tlow < ldmid-30,#rollx(sif.xatr)*2/XBASE,  #比前2天高点中点低才允许做空
-            #gor(tlow < ldmid-30,gand(sif.time>1330,tlow<opend)),#加上1330条件后，有助于减少回撤
-            #gor(tlow < ldmid-30,gand(sif.time>1330,tlow==rollx(sif.dlow)+vbreak)),  #1330之后tlow同时创新低时可绕过ldmid-30条件
             gor(tlow<ldmid-vmid,tlow==rollx(sif.dlow)+vbreak),
-            #tlow < sif.dmid,
-            #rollx(sif.dhigh - sif.dlow) > vrange, 
-            #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>320),
-            #rollx(sif.high,2) - tlow < 150,
             sif.time > 915,
             rollx(sif.ma13) < rollx(sif.ma30),
             rollx(sif.xatr)<2000,
@@ -1287,7 +1326,9 @@ hbreak3 = [hbreak_nhh,shbreak_mll2]#,hbreak_nhh_e]#
 
 d1_hbreak = [dhbreak_nhh,dshbreak_mll2]
 
-hbreak2z = [shbreak_mll2z,hbreak_nhhz]
+break2z = [shbreak_nllz,hbreak_nhhz]
+
+hbreak2z = [shbreak_mll2z,hbreak_nhhz]  #超过12点后趴下
 
 
 ###中间价突破

@@ -721,6 +721,7 @@ def nhhz(sif,vbreak=30):  #貌似20/30都可以
     ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
     ldclose = dnext(sif.highd,sif.close,sif.i_cofd)
     vrange = ldatr * 3/10 /XBASE
+    #vrange = ldatr /XBASE
     vrange = gmin(vrange,ldclose/100)    #vrange不能超过太大
     vopen = ldatr * 1/8 /XBASE
 
@@ -1138,7 +1139,9 @@ def mll2z(sif,length=80,vbreak=20):
     #bhigh = gmax(ldclose,sif.dhigh)
     bhigh = sif.dhigh
 
-    vrange = ldatr *2/3 / XBASE
+    #vrange = ldatr *2/3 / XBASE
+    vrange = ldatr / XBASE
+    vrange2 = ldatr /2/ XBASE
 
     #vrange = np.select([vrange<500],[vrange],500)
     vrange = gmin(vrange,ldclose/66)    #vrange不能超过太大
@@ -1156,6 +1159,7 @@ def mll2z(sif,length=80,vbreak=20):
             cross(tlow,sif.low)<0,
             #sif.low < tlow,
             gor(tlow<ldmid-vmid,tlow==rollx(sif.dlow)+vbreak),
+            #gor(tlow<ldmid-vmid,tlow<=rollx(sif.dlow)+vbreak),
             sif.time > 915,
             rollx(sif.ma13) < rollx(sif.ma30),
             rollx(sif.xatr)<2000,
@@ -5084,6 +5088,21 @@ xxx3 = dbreak+ xbreak1c + exbreak2 + xbreak1 + rebound2 #也还可以
 1500 21 12626 2 -220
 5000 8 9583 0 0
 
+>>> pds = utrade.pd2(i00,mds)    #求标准波幅-利润分布
+>>> for pd in pds:print pd.end,pd.wins,pd.pwins,pd.losts,pd.plosts
+...
+0.6 6 338 21 -1593
+1 23 4183 42 -3838
+1.5 25 8074 9 -366
+4 37 22777 0 0
+>>> pds = utrade.pd2(i00,mds,[0.4,0.7,1,1.5,4])    #求标准波幅-利润分布
+>>> for pd in pds:print pd.end,pd.wins,pd.pwins,pd.losts,pd.plosts
+0.4 2 44 3 -254
+0.7 8 824 32 -2642
+1 19 3653 28 -2535
+1.5 25 8074 9 -366
+4 37 22777 0 0
+##表明波幅<atrd时，总体是在制造润滑, 利润完全来自于波幅/atrd>1的部分
 '''
 
 

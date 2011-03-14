@@ -1511,7 +1511,7 @@ def profit_distribution2(sif,dtrades,limit = [300,500,1000,1500,10000]):#求按�
     mylimit.append(99999999)  #哨兵
     results = [BaseObject(end=il,wins=0,losts=0,pwins=0,plosts=0) for il in mylimit]
     for dtrade in dtrades:
-        drange = sif.day2range[dtrade.day]
+        drange = sif.day2range_std[dtrade.day]
         id = 0
         while(drange > mylimit[id]): #必然会触及条件
             id+=1

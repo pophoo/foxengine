@@ -676,7 +676,7 @@ def prepare_index(sif):
     sif.atrdx[sif.i_cofd] = sif.atrd
     sif.atrdx = extend2next(sif.atrdx)
     
-    sif.day2range_std = dict(zip(sif.date[sif.i_cofd],(sif.highd-sif.lowd)*XBASE*XBASE*XBASE/rollx(sif.atrd)))
+    sif.day2range_std = dict(zip(sif.date[sif.i_cofd],(sif.highd-sif.lowd)*XBASE*1.0/rollx(sif.atrd)))
     
     '''
     sif.svap3,sif.v2i3 = svap_ma(sif.vol3,sif.close3,67)

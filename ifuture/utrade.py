@@ -1506,7 +1506,7 @@ def profit_distribution(sif,dtrades,limit = [300,500,1000,1500,10000]):#求盈�
             results[id].plosts += dtrade.sprofit
     return results[:-1]
 
-def profit_distribution2(sif,dtrades,limit = [300,500,1000,1500,10000]):#求按照振幅/atr的盈利分布
+def profit_distribution2(sif,dtrades,limit = [0.6,1,1.5,4]):#求按照振幅/atr的盈利分布
     mylimit = [l for l in limit]
     mylimit.append(99999999)  #哨兵
     results = [BaseObject(end=il,wins=0,losts=0,pwins=0,plosts=0) for il in mylimit]

@@ -163,6 +163,8 @@ def atr_stop_u2(
                     if(nhigh > cur_high):
                         cur_high = nhigh
                         drawdown = satr[j] * win_times / XBASE / XBASE
+                        if drawdown > trans[ICLOSE][j] *9/8/100:
+                            drawdown = trans[ICLOSE][j] *9/8/100
                         #if drawdown > max_drawdown:
                         #    drawdown = max_drawdown
                         #if drawdown < min_drawdown:
@@ -226,6 +228,8 @@ def atr_stop_u2(
                     if(nlow < cur_low):
                         cur_low = nlow
                         drawdown = satr[j] * win_times / XBASE / XBASE
+                        if drawdown > trans[ICLOSE][j] *9/8/100:
+                            drawdown = trans[ICLOSE][j] *9/8/100
                         #if drawdown > max_drawdown:
                         #    drawdown = max_drawdown
                         #if drawdown < m0n_drawdown:

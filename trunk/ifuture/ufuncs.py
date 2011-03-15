@@ -1280,7 +1280,7 @@ def mfilterx(sif):
 shbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2000X,ffilter=mfilter2)    #优于nll
 shbreak_mll2.name = u'日内75分钟向下突破'
 
-shbreak_mll2z = SXFuncA(fstate=sdown,fsignal=mll2z,fwave=gofilter,ffilter=mfilter2)    #优于nll
+shbreak_mll2z = SXFuncA(fstate=sdown,fsignal=mll2z,fwave=gofilter,ffilter=nfilter3)    #优于nll
 shbreak_mll2z.name = u'日内75分钟向下突破z'
 
 

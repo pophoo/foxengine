@@ -739,6 +739,7 @@ def nhhz(sif,vbreak=30):  #貌似20/30都可以
             #thigh > ldopen + 60,
             #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>200),
             #rollx(sif.ma3) > rollx(sif.ma13),
+            rollx(ma(sif.low,3)) > rollx(ma(sif.low,13)),
             rollx(sif.xatr) < 2000,
         )
     return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以跳空价进入
@@ -1139,9 +1140,9 @@ def mll2z(sif,length=80,vbreak=20):
     #bhigh = gmax(ldclose,sif.dhigh)
     bhigh = sif.dhigh
 
-    #vrange = ldatr *2/3 / XBASE
-    vrange = ldatr / XBASE
-    vrange2 = ldatr /2/ XBASE
+    vrange = ldatr *2/3 / XBASE
+    #vrange = ldatr / XBASE
+    #vrange2 = ldatr /2/ XBASE
 
     #vrange = np.select([vrange<500],[vrange],500)
     vrange = gmin(vrange,ldclose/66)    #vrange不能超过太大
@@ -1161,7 +1162,8 @@ def mll2z(sif,length=80,vbreak=20):
             gor(tlow<ldmid-vmid,tlow==rollx(sif.dlow)+vbreak),
             #gor(tlow<ldmid-vmid,tlow<=rollx(sif.dlow)+vbreak),
             sif.time > 915,
-            rollx(sif.ma13) < rollx(sif.ma30),
+            #rollx(sif.ma13) < rollx(sif.ma30),
+            rollx(ma(sif.high,13)) < rollx(ma(sif.high,30)),
             rollx(sif.xatr)<2000,
             rollx(sif.xatr30x)<10000,
         )
@@ -5135,6 +5137,11 @@ hbreak_nhh.stop_closer = utrade.atr5_ustop_TA
 hbreak_nhhz.stop_closer = utrade.atr5_ustop_TV
 shbreak_mll2z.stop_closer = utrade.atr5_ustop_TU
 
+#shbreak_mll2z.stop_closer = utrade.step_stop_7
+#hbreak_nhhz.stop_closer = utrade.step_stop_7
+shbreak_mll2.stop_closer = utrade.step_stop_7
+hbreak_nhh.stop_closer = utrade.step_stop_7
+
 hbreak_nhhv.stop_closer = utrade.atr5_ustop_TV
 
 
@@ -5152,6 +5159,10 @@ sbreak_nll2.stop_closer = utrade.atr5_ustop_TA
 
 break_nhhx.stop_closer = utrade.atr5_ustop_TB
 break_nllx.stop_closer = utrade.atr5_ustop_TB
+
+break_nhhx.stop_closer = utrade.step_stop_7
+break_nllx.stop_closer = utrade.step_stop_7
+
 
 break_nhhxm.stop_closer = utrade.atr5_ustop_V1
 break_nllxm.stop_closer = utrade.atr5_ustop_V1  #注意，这个是V1,即5个点的止损

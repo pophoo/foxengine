@@ -5139,8 +5139,8 @@ shbreak_mll2z.stop_closer = utrade.atr5_ustop_TU
 
 #shbreak_mll2z.stop_closer = utrade.step_stop_7
 #hbreak_nhhz.stop_closer = utrade.step_stop_7
-shbreak_mll2.stop_closer = utrade.step_stop_7
-hbreak_nhh.stop_closer = utrade.step_stop_7
+#shbreak_mll2.stop_closer = utrade.step_stop_7
+#hbreak_nhh.stop_closer = utrade.step_stop_7
 
 hbreak_nhhv.stop_closer = utrade.atr5_ustop_TV
 
@@ -5160,8 +5160,8 @@ sbreak_nll2.stop_closer = utrade.atr5_ustop_TA
 break_nhhx.stop_closer = utrade.atr5_ustop_TB
 break_nllx.stop_closer = utrade.atr5_ustop_TB
 
-break_nhhx.stop_closer = utrade.step_stop_7
-break_nllx.stop_closer = utrade.step_stop_7
+#break_nhhx.stop_closer = utrade.step_stop_7
+#break_nllx.stop_closer = utrade.step_stop_7
 
 
 break_nhhxm.stop_closer = utrade.atr5_ustop_V1

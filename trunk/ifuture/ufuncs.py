@@ -1160,7 +1160,7 @@ def mll2z(sif,length=80,vbreak=20):
             cross(tlow,sif.low)<0,
             #sif.low < tlow,
             gor(tlow<ldmid-vmid,tlow==rollx(sif.dlow)+vbreak),
-            #gor(tlow<ldmid-vmid,tlow<=rollx(sif.dlow)+vbreak),
+            #tlow < ldmid-vmid,
             sif.time > 915,
             #rollx(sif.ma13) < rollx(sif.ma30),
             rollx(ma(sif.high,13)) < rollx(ma(sif.high,30)),

@@ -744,6 +744,85 @@ def nhhz(sif,vbreak=30):  #貌似20/30都可以
         )
     return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以跳空价进入
 
+def nhhz2(sif,vbreak=30):  #貌似20/30都可以
+    #使用最高点+30, 也就是说必须一下拉开3点
+    #ldlow = dnext(sif.lowd/2+sif.closed/2,sif.close,sif.i_cofd)
+
+    #ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
+
+    #vrange = sif.close / 1200 * 10
+
+    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)        
+    
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
+    ldclose = dnext(sif.closed,sif.close,sif.i_cofd)
+    
+    #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
+    thigh = rollx(sif.dhigh+vbreak,3)
+
+    blow = rollx(sif.dlow,1)
+    #blow = gmin(blow,ldclose)
+    #thigh = np.select([sif.time<1030,sif.time>=1030],[gmax(thigh,rollx(sif.dlow) + 200),thigh])
+    #thigh = gmax(thigh,rollx(sif.dlow,1) + vrange + vbreak)
+    #thigh = np.select([gand(sif.time<1330,rollx(sif.dhigh-sif.dlow)<vrange),sif.time>0],[sif.dlow+vrange+vbreak,thigh])    
+    
+    ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
+    ldclose = dnext(sif.highd,sif.close,sif.i_cofd)
+    vrange = ldatr * 3/10 /XBASE
+    #vrange = ldatr /XBASE
+    vrange = gmin(vrange,ldclose/100)    #vrange不能超过太大
+    vopen = ldatr * 1/8 /XBASE
+
+    #vbreak = ldatr * 1/20 /XBASE
+
+    #ldrange = np.abs(sif.closed-sif.opend)*1000 / (sif.highd-sif.lowd)
+    ldrange = np.abs(sif.closed-sif.opend)*100000 / sif.atrd
+    #ldwave = np.abs(sif.closed-sif.opend)*1000 / sif.opend
+    ldwave = np.abs(sif.closed-sif.opend)*1000 / sif.atrd
+
+    cldrange = cexpma(cexpma(np.abs(sif.closed-sif.opend)*1000*XBASE / sif.atrd,10),10)
+    cldwave = cexpma(np.abs(sif.closed-sif.opend)*1000*XBASE / sif.atrd,10)
+    crange = dnext(cldrange,sif.close,sif.i_cofd)
+    cwave = dnext(cldwave,sif.close,sif.i_cofd)
+
+    lrange = dnext(ldrange,sif.close,sif.i_cofd)
+    lwave = dnext(ma(ldwave,10),sif.close,sif.i_cofd)
+    mlrange = dnext(ma(ldrange,10),sif.close,sif.i_cofd)
+    ldrange2 = 100000 / (sif.highd-sif.lowd)
+    #ldrange2 = sif.atrd / (sif.highd-sif.lowd)
+    #ldrange2 = sif.lowd / (sif.highd-sif.lowd)
+    #lrange2 = dnext(nma(ldrange2,10),sif.close,sif.i_cofd)
+    lrange2 = dnext(nma(ldrange2,10),sif.close,sif.i_cofd)
+
+    ldxatr = dnext(sif.xatrd,sif.close,sif.i_cofd)
+    ldmxatr = dnext(sif.mxatrd,sif.close,sif.i_cofd)
+
+    thigh = gmax(thigh,blow + vrange + vbreak,ldopen+vopen)
+    signal = gand(
+            #cross(rollx(sif.dhigh+30),sif.high)>0
+            #sif.high > thigh,
+            cross(thigh,sif.high)>0,
+            #rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
+            #rollx(sif.dhigh-sif.dlow,3)>200,
+            #thigh - rollx(sif.close,2) < 150,
+            #gmax(rollx(sif.dhigh,1),thigh) > ldopen + 80,
+            #thigh > ldopen + 60,
+            #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>200),
+            #rollx(sif.ma3) > rollx(sif.ma13),
+            rollx(ma(sif.low,3)) > rollx(ma(sif.low,13)),
+            rollx(sif.xatr) < 2000,
+            lrange2 > 105,#这个最好
+            #crange > 450,
+            #cwave > 400,
+            #lrange>mlrange,
+            #lrange > 30,
+            #lwave > 12,
+            #strend2(ldmxatr)>0,
+            #ldxatr > 16000,
+        )
+    return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以跳空价进入
+
+
 def nhhv(sif,vbreak=30):  #貌似20/30都可以
     #使用最高点+30, 也就是说必须一下拉开3点
     #ldlow = dnext(sif.lowd/2+sif.closed/2,sif.close,sif.i_cofd)
@@ -1006,6 +1085,10 @@ hbreak_nhh.name = u'日内向上突破新高'
 hbreak_nhhz = BXFuncA(fstate=gofilter,fsignal=nhhz,fwave=gofilter,ffilter=mfilter)  ##主要时段
 hbreak_nhhz.name = u'日内向上突破新高'
 
+hbreak_nhhz2 = BXFuncA(fstate=gofilter,fsignal=nhhz2,fwave=gofilter,ffilter=mfilter)  ##主要时段
+hbreak_nhhz2.name = u'日内向上突破新高'
+
+
 shbreak_nllz = SXFuncA(fstate=sdown,fsignal=nllz,fwave=gofilter,ffilter=mfilter2)    #优于nll
 shbreak_nllz.name = u'日内7向下突破新低z'
 
@@ -1169,6 +1252,61 @@ def mll2z(sif,length=80,vbreak=20):
         )
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入
 
+def mll2z2(sif,length=80,vbreak=20):
+    #使用最低点
+    tlow = rollx(tmin(sif.low,length)+vbreak,1)
+    #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
+    #ldmid = dnext((sif.highd+gmin(sif.closed,sif.opend))/2,sif.close,sif.i_cofd)
+    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
+    opend = dnext(sif.opend,sif.open,sif.i_oofd)            
+    #highd = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)            
+    #ldmid = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)        
+    #ldmid = dnext(sif.highd,sif.close,sif.i_cofd)        
+    #ldmid = dnext((sif.highd+sif.closed)/2,sif.close,sif.i_cofd)    
+    ldrange = dnext(sif.highd-sif.lowd,sif.close,sif.i_cofd) 
+    ldclose = dnext(sif.closed,sif.close,sif.i_cofd) 
+    
+    ldatr30 = dnext(sif.atr30,sif.close,sif.i_cof30)
+    ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
+    
+    xatrd = dnext(sif.xatrd,sif.close,sif.i_cofd)
+
+    #bhigh = gmax(ldclose,sif.dhigh)
+    bhigh = sif.dhigh
+
+    vrange = ldatr *2/3 / XBASE
+    #vrange = ldatr / XBASE
+    #vrange2 = ldatr /2/ XBASE
+
+    #vrange = np.select([vrange<500],[vrange],500)
+    vrange = gmin(vrange,ldclose/66)    #vrange不能超过太大
+    vmid = ldatr *1/8/XBASE
+    #vmid = 60
+
+    #tlow = gmin(tlow,ldmid-32)
+    
+    #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])    
+    tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(bhigh-vrange,tlow),tlow])
+    #tlow = gmin(sif.dhigh-vrange,tlow)
+    
+    ldrange2 = 100000 / (sif.highd-sif.lowd)
+    lrange2 = dnext(nma(ldrange2,10),sif.close,sif.i_cofd)
+
+    signal = gand(
+            cross(tlow,sif.low)<0,
+            #sif.low < tlow,
+            gor(tlow<ldmid-vmid,tlow==rollx(sif.dlow)+vbreak),
+            #tlow < ldmid-vmid,
+            sif.time > 915,
+            #rollx(sif.ma13) < rollx(sif.ma30),
+            rollx(ma(sif.high,13)) < rollx(ma(sif.high,30)),
+            rollx(sif.xatr)<2000,
+            rollx(sif.xatr30x)<10000,
+            lrange2 > 90,
+        )
+    return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入
+
+
 def mll2e(sif,length=75,vbreak=20,vrange=350):
     #使用最低点
     #ldmid = dnext((sif.highd+gmin(sif.closed,sif.opend))/2,sif.close,sif.i_cofd)
@@ -1285,6 +1423,8 @@ shbreak_mll2.name = u'日内75分钟向下突破'
 shbreak_mll2z = SXFuncA(fstate=sdown,fsignal=mll2z,fwave=gofilter,ffilter=nfilter3)    #优于nll
 shbreak_mll2z.name = u'日内75分钟向下突破z'
 
+shbreak_mll2z2 = SXFuncA(fstate=sdown,fsignal=mll2z2,fwave=gofilter,ffilter=nfilter3)    #优于nll
+shbreak_mll2z2.name = u'日内75分钟向下突破z2'
 
 shbreak_mll2_e = SXFuncA(fstate=gofilter,fsignal=fcustom(mll2,vrange=250),fwave=gofilter,ffilter=emfilter3)    #貌似无用
 shbreak_mll2_e.name = u'日内75分钟向下突破e'    
@@ -1336,6 +1476,7 @@ break2z = [shbreak_nllz,hbreak_nhhz]
 
 hbreak2z = [shbreak_mll2z,hbreak_nhhz]  #超过12点后趴下
 
+hbreak2z2 = [shbreak_mll2z2,hbreak_nhhz2]  #超过12点后趴下
 
 ###中间价突破
 def lmx(sif,length=30):#最低价突破中间价,收盘模型
@@ -5136,6 +5277,10 @@ hbreak_nhh.stop_closer = utrade.atr5_ustop_TA
 
 hbreak_nhhz.stop_closer = utrade.atr5_ustop_TV
 shbreak_mll2z.stop_closer = utrade.atr5_ustop_TU
+
+hbreak_nhhz2.stop_closer = utrade.atr5_ustop_TV
+shbreak_mll2z2.stop_closer = utrade.atr5_ustop_TU
+
 
 #shbreak_mll2z.stop_closer = utrade.step_stop_7
 #hbreak_nhhz.stop_closer = utrade.step_stop_7

@@ -1197,11 +1197,12 @@ def mll2(sif,length=75,vbreak=20,vrange=350):
     #tlow = gmin(sif.dhigh-vrange,tlow)
     #tlow = gmin(sif.dhigh-400,tlow)
 
+    #tlow = np.select([gand(tlow>ldmid-60,tlow>rollx(sif.dlow)+vbreak),gor(tlow<=ldmid-60,tlow==rollx(sif.dlow)+vbreak)],[ldmid-60,tlow])
 
     signal = gand(
             cross(tlow,sif.low)<0,
             #sif.low < tlow,
-            gor(tlow<ldmid-60,tlow==rollx(sif.dlow)+vbreak),
+            gor(tlow<ldmid-60),#,tlow==rollx(sif.dlow)+vbreak),
             sif.time > 915,
             rollx(sif.ma13) < rollx(sif.ma30),
         )
@@ -1249,6 +1250,7 @@ def mll2z(sif,length=80,vbreak=20):
             cross(tlow,sif.low)<0,
             #sif.low < tlow,
             gor(tlow<ldmid-vmid,tlow==rollx(sif.dlow)+vbreak),
+            #tlow<ldmid-vmid,
             #tlow < ldmid-vmid,
             sif.time > 915,
             #rollx(sif.ma13) < rollx(sif.ma30),

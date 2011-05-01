@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-IDATE,ITIME,IOPEN,ICLOSE,IHIGH,ILOW,IVOL,IHOLDING,IMID = 0,1,2,3,4,5,6,7,8
+IDATE,ITIME,IOPEN,ICLOSE,IHIGH,ILOW,IVOL,IHOLDING,IMID,IORDER = 0,1,2,3,4,5,6,7,8,9
 
 #position的标记
 LONG,SHORT,EMPTY = -1,1,0   #多仓出钱,淡仓收钱
@@ -28,6 +28,28 @@ TAX = 10    #tax为0.8个点,设为1
 XFOLLOW,XBREAK,XAGAINST,XORB = 1000,500,-500,800
 
 TREND_UP,TREND_DOWN = 1,-1
+
+def calc_t2order(begin,end,(mid1,mid2)=(1130,1300)):
+    ##为便于计算30分钟线，商品的节休息段仍然计算序号. 这样，1000->1029算一个30分钟段
+    t2order = {}
+    nbegin = begin / 100 * 60 + begin % 100
+    for i in range(begin,mid1):
+        if i%100 > 59:
+            continue
+        it = i/100 * 60 + i%100
+        t2order[i] = it - nbegin
+
+    for i in range(mid2,end):
+        it = i/100 * 60 + i%100
+        t2order[i] = it - nbegin - 90
+    return t2order
+
+#IF: time-->order
+t2order_if = calc_t2order(914,1515)
+
+#商品: time-->order. 中间有休息
+t2order_com = calc_t2order(859,1500)
+
 
 import numpy as np
 

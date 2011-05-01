@@ -1151,7 +1151,7 @@ atr5_ustop_TT = fcustom(atr_stop_u2,
             )      #
 
 atr5_ustop_TU = fcustom(atr_stop_u2,
-                keeper_base=15,
+                keeper_base=50,
                 nkeeper = 270,
                 win_times=60,
                 natr = 270,

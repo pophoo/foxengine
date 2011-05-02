@@ -5353,6 +5353,9 @@ shbreak_mll2z.stop_closer = utrade.atr5_ustop_TU
 hbreak_nhhz2.stop_closer = utrade.atr5_ustop_TV
 shbreak_mll2z2.stop_closer = utrade.atr5_ustop_TU
 
+#bx7.stop_closer = utrade.atr5_ustop_T
+#sx7.stop_closer = utrade.atr5_ustop_T
+
 
 #shbreak_mll2z.stop_closer = utrade.step_stop_7
 #hbreak_nhhz.stop_closer = utrade.step_stop_7

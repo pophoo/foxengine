@@ -1189,7 +1189,8 @@ def mll2(sif,length=75,vbreak=20,vrange=350):
     #tlow = gmin(tlow,ldmid-32)
     
     #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])    
-    tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(sif.dhigh-vrange,tlow),tlow])
+    tlow = np.select([sif.time<1315,sif.time>=1315],[gmin(sif.dhigh-vrange,tlow),tlow])
+    #tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(sif.dhigh-vrange,tlow),tlow])
     #tlow = np.select([tlow<=rollx(sif.dlow)+vbreak,1],[tlow,gmin(tlow,ldmid-60)])
     #tlow = np.select([tlow>ldmid-60,tlow<=ldmid-60],[rollx(sif.dlow),tlow])
     #tlow = np.select([gand(sif.time<1330,rollx(sif.dhigh-sif.dlow)<vrange+vbreak),sif.time>0],[sif.dhigh-vrange,tlow])
@@ -1205,7 +1206,7 @@ def mll2(sif,length=75,vbreak=20,vrange=350):
             cross(tlow,sif.low)<0,
             #sif.low < tlow,
             gor(tlow<ldmid-60),#,tlow==rollx(sif.dlow)+vbreak),
-            sif.time > 915,
+            #sif.time > 915,
             rollx(sif.ma13) < rollx(sif.ma30),
         )
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入
@@ -1233,6 +1234,7 @@ def mll2z(sif,length=80,vbreak=20):
     bhigh = sif.dhigh
 
     vrange = ldatr *2/3 / XBASE
+    #vrange = ldatr *1/2 / XBASE
     #vrange = ldatr / XBASE
     #vrange2 = ldatr /2/ XBASE
 
@@ -1244,7 +1246,8 @@ def mll2z(sif,length=80,vbreak=20):
     #tlow = gmin(tlow,ldmid-32)
     
     #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])    
-    tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(bhigh-vrange,tlow),tlow])
+    #tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(bhigh-vrange,tlow),tlow])
+    tlow = np.select([sif.time<1315,sif.time>=1315],[gmin(bhigh-vrange,tlow),tlow])    
     #tlow = gmin(sif.dhigh-vrange,tlow)
     
 

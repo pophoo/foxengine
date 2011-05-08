@@ -1170,7 +1170,7 @@ def mhh2(sif,length=20):
 
 
 ###时间低点突破
-def mll2(sif,length=75,vbreak=20,vrange=350):
+def mll2(sif,length=80,vbreak=10,vrange=350):
     #使用最低点
     tlow = rollx(tmin(sif.low,length)+vbreak,1)
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
@@ -1185,11 +1185,15 @@ def mll2(sif,length=75,vbreak=20,vrange=350):
     
     ldatr = dnext(sif.atr30,sif.close,sif.i_cof30)
     #vrange = ldatr *2 / XBASE
+    #vrange2 = 0
 
     #tlow = gmin(tlow,ldmid-32)
     
+    #mytime = 1315
+
     #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])    
     tlow = np.select([sif.time<1315,sif.time>=1315],[gmin(sif.dhigh-vrange,tlow),tlow])
+    #tlow = np.select([sif.time<mytime,sif.time>=mytime],[gmin(sif.dhigh-vrange,tlow),gmin(sif.dhigh-vrange2,tlow)])
     #tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(sif.dhigh-vrange,tlow),tlow])
     #tlow = np.select([tlow<=rollx(sif.dlow)+vbreak,1],[tlow,gmin(tlow,ldmid-60)])
     #tlow = np.select([tlow>ldmid-60,tlow<=ldmid-60],[rollx(sif.dlow),tlow])

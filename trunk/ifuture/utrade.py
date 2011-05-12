@@ -1410,6 +1410,9 @@ step_stop_7 = fcustom(step_stop,
 utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 utrade_d = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=iftrade.last_trades,sync_trades=iftrade.null_sync_tradess)
 
+utrade_c = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_short_c],sclosers=[ifuncs.daystop_long_c])
+
+
 utrade_nr = fcustom(utrade,make_trades=repeat_trades,sync_trades=iftrade.null_sync_tradess,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 
 utrade_s = fcustom(utrade,stop_closer=step_stop,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])

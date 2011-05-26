@@ -1212,6 +1212,7 @@ def mll2(sif,length=80,vbreak=10,vrange=350):
             gor(tlow<ldmid-60),#,tlow==rollx(sif.dlow)+vbreak),
             #sif.time > 915,
             rollx(sif.ma13) < rollx(sif.ma30),
+            #sif.dhigh - sif.low > 150,
         )
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入
  
@@ -1266,6 +1267,7 @@ def mll2z(sif,length=80,vbreak=20):
             rollx(ma(sif.high,13)) < rollx(ma(sif.high,30)),
             rollx(sif.xatr)<2000,
             rollx(sif.xatr30x)<10000,
+            #sif.dhigh - sif.low > 150,            
         )
     #signal = gand(msum(signal,10) > 1,signal)
     

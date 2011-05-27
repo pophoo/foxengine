@@ -6,6 +6,8 @@
 
 from wolfox.fengine.ifuture.ibase import *
 
+TAX = 14    #滑点+手续费=1.4点
+
 DTSORT = lambda x,y: int(((x.date%1000000 * 10000)+x.time) - ((y.date%1000000 * 10000)+y.time)) or -x.xtype+y.xtype #避免溢出, 先平仓再开仓
 
 simple_profit = lambda actions: actions[0].price * actions[0].position + actions[1].price * actions[1].position - TAX

@@ -646,7 +646,7 @@ break_flx.stop_closer = utrade.atr5_ustop_V1
 break_fx = [break_fhx,break_flx]    ##########一个还可以的独立策略. 日亏6点之后不动
 
 
-def nhh(sif,vbreak=30,vrange=250):  #貌似20/30都可以
+def nhh(sif,vbreak=30,vrange=250):  #可以借鉴nhhn的过滤条件
     #使用最高点+30, 也就是说必须一下拉开3点
     #ldlow = dnext(sif.lowd/2+sif.closed/2,sif.close,sif.i_cofd)
 
@@ -677,13 +677,17 @@ def nhh(sif,vbreak=30,vrange=250):  #貌似20/30都可以
         )
     return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以跳空价进入
  
-def nhhn(sif,vbreak=30,vrange=250):  #貌似20/30都可以
+def nhhn(sif,vbreak=30):  #不需要删除V
     #使用最高点+30, 也就是说必须一下拉开3点
     #ldlow = dnext(sif.lowd/2+sif.closed/2,sif.close,sif.i_cofd)
 
     #ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
 
     #vrange = sif.close / 1200 * 10
+
+    ldclose = dnext(sif.closed,sif.close,sif.i_cofd)
+
+    vrange = ldclose/125
 
     ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)        
     
@@ -694,17 +698,19 @@ def nhhn(sif,vbreak=30,vrange=250):  #貌似20/30都可以
     mysdown = gand(sif.low < sif.dhigh-250)
     #mysdown = derepeatc(mysdown)
     sss = dsum(mysdown,sif.iday)
+    #sss = extend(mysdown,60)
 
     blow = rollx(sif.dlow,1)
     #thigh = np.select([sif.time<1030,sif.time>=1030],[gmax(thigh,rollx(sif.dlow) + 200),thigh])
     #thigh = gmax(thigh,rollx(sif.dlow,1) + vrange + vbreak)
     #thigh = np.select([gand(sif.time<1330,rollx(sif.dhigh-sif.dlow)<vrange),sif.time>0],[sif.dlow+vrange+vbreak,thigh])    
-    thigh = gmax(thigh,blow + vrange + vbreak,ldopen+90)
+    thigh = gmax(thigh,blow + vrange + vbreak,ldopen * 1003/1000)
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
+            #cross(thigh,sif.high)>0,
             sif.high > thigh,
-            #sss >= 0,
-            sss < 1,
+            rollx(sif.low) > rollx(sif.ma13),
+            #sss < 1,
             #rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
             #rollx(sif.dhigh-sif.dlow,3)>200,
             #thigh - rollx(sif.close,2) < 150,
@@ -1127,8 +1133,8 @@ break_nhh.name = u'向上突破新高'
 hbreak_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=nx2500X,ffilter=mfilter)  ##主要时段
 hbreak_nhh.name = u'日内向上突破新高'
 
-hbreak_nhhn = BXFuncA(fstate=gofilter,fsignal=nhhn,fwave=gofilter,ffilter=mfilter)  ##主要时段
-hbreak_nhhn.name = u'日内向上突破新高'
+hbreak_nhhn = BXFuncA(fstate=gofilter,fsignal=nhhn,fwave=nx2500X,ffilter=mfilter)  ##主要时段
+hbreak_nhhn.name = u'日内向上突破新高n'
 
 
 hbreak_nhhz = BXFuncA(fstate=gofilter,fsignal=nhhz,fwave=gofilter,ffilter=mfilter)  ##主要时段
@@ -1296,15 +1302,79 @@ def mll2n(sif,length=80,vbreak=10,vrange=350):
     #tlow = np.select([gand(tlow>ldmid-60,tlow>rollx(sif.dlow)+vbreak),gor(tlow<=ldmid-60,tlow==rollx(sif.dlow)+vbreak)],[ldmid-60,tlow])
 
     #mysup = gand(sif.high > opend + 90)
-    mysup = gand(sif.high > sif.dlow+150)
-    sss = dsum(mysup,sif.iday)
+    #mysup = gand(sif.high > sif.dlow + 160)
+    mysup = gand(sif.high > sif.dlow + sif.dlow/ 12000* 80)
+    #mysup = gand(sif.high > sif.dlow + sif.atr5x *2.5/XBASE)
+    #mysup = gand(sif.high > sif.dlow +ldclose/200)#160)
+    #mysup = gand(sif.high > sif.dlow  * 1005/1000)#+160)
+    #sss = dsum(mysup,sif.iday)
+    sss = extend(mysup,60)
+
+    signal = gand(
+            #cross(tlow,sif.low)<0,
+            sif.low < tlow,
+            gor(tlow<ldmid-60),#,tlow==rollx(sif.dlow)+vbreak),
+            #sif.time > 915,
+            #rollx(sif.ma13) < rollx(sif.ma30),
+            rollx(sif.high) < rollx(sif.ma20),
+            sss < 1,
+            #sif.dhigh - sif.low > 150,
+        )
+    return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入
+
+###时间低点突破
+def mll2r(sif,length=80,vbreak=10,vrange=250):
+    #使用最低点
+    #tlow = rollx(tmin(sif.low,length)+vbreak,1)
+    #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
+    #ldmid = dnext((sif.highd+gmin(sif.closed,sif.opend))/2,sif.close,sif.i_cofd)
+    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
+    opend = dnext(sif.opend,sif.open,sif.i_oofd)            
+    #highd = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)            
+    #ldmid = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)        
+    #ldmid = dnext(sif.highd,sif.close,sif.i_cofd)        
+    #ldmid = dnext((sif.highd+sif.closed)/2,sif.close,sif.i_cofd)    
+    ldclose = dnext(sif.closed,sif.close,sif.i_cofd) 
+    
+    ldatr = dnext(sif.atr30,sif.close,sif.i_cof30)
+    #vrange = ldatr *2 / XBASE
+    #vrange2 = 0
+
+    #tlow = gmin(tlow,ldmid-32)
+    
+    #mytime = 1315
+
+    #vrange = ldatr *5/3/ XBASE
+    vrange = 400
+    #vrange = gmin(vrange,ldclose/66)    #vrange不能超过太大
+
+    #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])    
+    #tlow = np.select([sif.time<1315,sif.time>=1315],[gmin(sif.dhigh-vrange,tlow),tlow])
+    tlow = sif.dhigh-vrange
+    #tlow = np.select([sif.time<mytime,sif.time>=mytime],[gmin(sif.dhigh-vrange,tlow),gmin(sif.dhigh-vrange2,tlow)])
+    #tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(sif.dhigh-vrange,tlow),tlow])
+    #tlow = np.select([tlow<=rollx(sif.dlow)+vbreak,1],[tlow,gmin(tlow,ldmid-60)])
+    #tlow = np.select([tlow>ldmid-60,tlow<=ldmid-60],[rollx(sif.dlow),tlow])
+    #tlow = np.select([gand(sif.time<1330,rollx(sif.dhigh-sif.dlow)<vrange+vbreak),sif.time>0],[sif.dhigh-vrange,tlow])
+    #tlow = np.select([sif.time<1330,sif.time>0],[gmin(tlow,sif.dhigh-vrange),tlow])
+    #tlow = np.select([rollx(sif.dhigh-sif.dlow)<vrange+vbreak,sif.time>0],[sif.dhigh-vrange,tlow])
+    #tlow = np.select([gand(sif.time<1330,sif.dhigh-sif.dlow<vrange+vbreak),gand(sif.time<1330,sif.dhigh-sif.dlow>vrange+vbreak),sif.time>1330],[sif.dhigh-vrange,tlow,gmin(sif.dhigh-350,tlow)])
+    #tlow = gmin(sif.dhigh-vrange,tlow)
+    #tlow = gmin(sif.dhigh-400,tlow)
+
+    #tlow = np.select([gand(tlow>ldmid-60,tlow>rollx(sif.dlow)+vbreak),gor(tlow<=ldmid-60,tlow==rollx(sif.dlow)+vbreak)],[ldmid-60,tlow])
+
+    #mysup = gand(sif.high > opend + 90)
+    mysup = gand(sif.high > sif.dlow+160)
+    #sss = dsum(mysup,sif.iday)
+    sss = extend(mysup,60)
 
     signal = gand(
             cross(tlow,sif.low)<0,
             #sif.low < tlow,
-            gor(tlow<ldmid-60),#,tlow==rollx(sif.dlow)+vbreak),
+            gor(tlow<ldmid-90),#,tlow==rollx(sif.dlow)+vbreak),
             #sif.time > 915,
-            rollx(sif.ma13) < rollx(sif.ma30),
+            #rollx(sif.ma13) < rollx(sif.ma30),
             sss < 1,
             #sif.dhigh - sif.low > 150,
         )
@@ -1350,6 +1420,10 @@ def mll2z(sif,length=80,vbreak=20):
     tlow = np.select([sif.time<1315,sif.time>=1315],[gmin(bhigh-vrange,tlow),tlow])    
     #tlow = gmin(sif.dhigh-vrange,tlow)
     
+    #mysup = gand(sif.high > sif.dlow+ldatr/2/XBASE)
+    mysup = gand(sif.high > sif.dlow+ldatr/2/XBASE)
+    #sss = dsum(mysup,sif.iday)
+    sss = extend(mysup,60)
 
     signal = gand(
             cross(tlow,sif.low)<0,
@@ -1362,6 +1436,7 @@ def mll2z(sif,length=80,vbreak=20):
             rollx(ma(sif.high,13)) < rollx(ma(sif.high,30)),
             rollx(sif.xatr)<2000,
             rollx(sif.xatr30x)<10000,
+            #sss < 1,
             #sif.dhigh - sif.low > 150,            
         )
     #signal = gand(msum(signal,10) > 1,signal)
@@ -1596,10 +1671,13 @@ shbreak_mll2 = SXFuncA(fstate=gofilter,fsignal=mll2,fwave=nx2000X,ffilter=mfilte
 #shbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2000X,ffilter=efilter)    #优于nll
 shbreak_mll2.name = u'日内75分钟向下突破'
 
-shbreak_mll2n = SXFuncA(fstate=gofilter,fsignal=mll2n,fwave=gofilter,ffilter=nfilter3)    #优于nll
+shbreak_mll2n = SXFuncA(fstate=gofilter,fsignal=mll2n,fwave=nx2000X,ffilter=mfilter2)    #优于nll
 #shbreak_mll2n = SXFuncA(fstate=sdown,fsignal=mll2n,fwave=gofilter,ffilter=efilter)    #优于nll
 shbreak_mll2n.name = u'日内75分钟向下突破n'
 
+shbreak_mll2r = SXFuncA(fstate=gofilter,fsignal=mll2r,fwave=nx2000X,ffilter=mfilter2)    #优于nll
+#shbreak_mll2r = SXFuncA(fstate=sdown,fsignal=mll2r,fwave=gofilter,ffilter=efilter)    #优于nll
+shbreak_mll2r.name = u'日内75分钟向下突破n'
 
 #shbreak_mll2z = SXFuncA(fstate=sdown,fsignal=mll2z,fwave=gofilter,ffilter=nfilter3)    #优于nll
 shbreak_mll2z = SXFuncA(fstate=gofilter,fsignal=mll2z,fwave=gofilter,ffilter=nfilter3)    #优于nll
@@ -1657,7 +1735,7 @@ d1_hbreak = [dhbreak_nhh,dshbreak_mll2]
 
 break2z = [shbreak_nllz,hbreak_nhhz]
 
-hbreak2n = [shbreak_mll2n,hbreak_nhhn]  #超过12点后趴下
+hbreak2n = [shbreak_mll2n,hbreak_nhhn]  #建议采用这个,效率很高
 
 
 hbreak2z = [shbreak_mll2z,hbreak_nhhz]  #超过12点后趴下
@@ -4276,6 +4354,94 @@ def rbreaks(sif,distance=400):
             )
     return np.select([signal1>0],[gmin(sif.open,bline)],0)
 
+def rbreakb2(sif,distance=250):
+    '''
+        幅度从最低跨越distance点时开仓
+        如果30分钟内已经有失败尝试，则拉高step点
+    '''
+
+    ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
+
+    ldclose = dnext(sif.closed,sif.close,sif.i_cofd)
+    #distance = ldclose / 80 - ldatr/XBASE/100
+    distance = ldclose / 80
+
+    
+    bline1 = sif.dlow + distance
+
+    rbline = rollx(tmin(sif.low,75),1)
+    
+    t1 = gand(sif.time > 1030,
+              cross(bline1,sif.high)>0,
+              #bline1 > rbline,
+        )
+    ms1 = msum(t1,30)
+
+    bline2 = sif.dhigh + distance + 60
+    bline = bline1
+    bline = np.select([ms1<3,ms1>=3],[bline1,bline2])
+
+    ldlow = dnext(sif.lowd/2+rollx(sif.lowd)/2,sif.close,sif.i_cofd)
+
+    #mysdown = gand(sif.low < sif.dhigh-400)
+    mysdown = gand(sif.low < sif.dhigh - ldclose/75) 
+    #mysdown = derepeatc(mysdown)
+    #sss = dsum(mysdown,sif.iday)
+    sss = extend(mysdown,80)
+    
+    signal1 = gand(
+                sif.high > bline,
+                bline > rollx(sif.dmid),   #这一条保证了很多. 至少拉开之后，不会被触发
+                #bline > rbline,
+                #rollx(sif.close) > rollx(sif.close,11),
+                rollx(sif.high) > rollx(ma(sif.high,10)),
+                #rollx(sif.high) > rollx(sif.high,11),
+                rollx(sif.low) > rollx(sif.ma5),
+                #sif.dlow > ldlow , 
+                sss<1,
+            )
+    return np.select([signal1>0],[gmax(sif.open,bline)],0)
+
+def rbreaks2(sif,distance=400):
+    '''
+        幅度从最高跨越distance点时开仓
+    '''
+    ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
+
+    ldclose = dnext(sif.closed,sif.close,sif.i_cofd)
+    #distance = ldclose / 1000 * 1000/ 75 
+    distance = ldclose / 75 
+    #distance = sif.atr30x * 3 / XBASE
+
+    bline1 = sif.dhigh - distance
+
+    t1 = gand(
+              cross(bline1,sif.low)<0,
+              #bline1 < rbline,
+        )
+
+    ms1 = msum(t1,30)
+
+    bline2 = sif.dhigh - distance - 90
+
+    bline = bline1
+    #bline = np.select([ms1<3,ms1>=3],[bline1,bline2])
+
+    #ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)        
+
+    #mysup = gand(sif.high > sif.dlow+160)
+    mysup = gand(sif.high > sif.dlow + sif.dlow/ 12000* 80)
+    
+    #sss = dsum(mysup,sif.iday)
+    sss = extend(mysup,60)
+
+    signal1 = gand(
+                sif.low < bline,
+                rollx(sif.high) < rollx(sif.ma13),
+                sss<1,
+            )
+    return np.select([signal1>0],[gmin(sif.open,bline)],0)
+
 def rmbreakb(sif,distance=250):
     '''
         幅度从最低跨越distance点时开仓
@@ -4314,6 +4480,18 @@ srbreak.name = u'幅度向下突破40'
 srbreak.lastupdate = 20110106
 srbreak.stop_closer = utrade.atr5_ustop_V1
 
+brbreak2 = BXFunc(fstate=gofilter,fsignal=rbreakb2,fwave=nx2000X,ffilter=mfilter1400)
+brbreak2.name = u'幅度向上突破25'
+brbreak2.lastupdate = 20110106
+brbreak2.stop_closer = utrade.atr5_ustop_V1
+
+
+srbreak2 = SXFunc(fstate=gofilter,fsignal=rbreaks2,fwave=nx2000X,ffilter=nfilter3)
+srbreak2.name = u'幅度向下突破40'
+srbreak2.lastupdate = 20110106
+srbreak2.stop_closer = utrade.atr5_ustop_V1
+
+
 lbrbreak = BXFuncD1(fstate=gofilter,fsignal=rbreakb,fwave=gofilter,ffilter=lmfilter)
 lbrbreak.name = u'尾盘幅度向上突破25'
 lbrbreak.lastupdate = 20110106
@@ -4346,6 +4524,9 @@ lsmrbreak.stop_closer = utrade.atr5_ustop_X4
 
 
 rbreak = [brbreak,srbreak]  #这是一个很好的备选主方案, 无遗漏系统
+
+rbreak2 = [brbreak2,srbreak2]  #这是一个很好的备选主方案, 无遗漏系统.远远优于rbreak
+
 lrbreak = [lbrbreak,lsrbreak]  #
 
 rbreak_all = rbreak + [lsrbreak] + [shbreak_mll2_k]#时段
@@ -5455,19 +5636,24 @@ for x in rxxx:
 
 
 ###第一序列
-shbreak_mll2.stop_closer = utrade.atr5_ustop_T
-hbreak_nhh.stop_closer = utrade.atr5_ustop_T
+#shbreak_mll2.stop_closer = utrade.atr5_ustop_T
+#hbreak_nhh.stop_closer = utrade.atr5_ustop_T
+
+#hbreakn是最好的
 
 shbreak_mll2.stop_closer = utrade.atr5_ustop_TV #_TV
 hbreak_nhh.stop_closer = utrade.atr5_ustop_TA
 
-hbreak_nhhn.stop_closer = utrade.atr5_ustop_TV
-shbreak_mll2n.stop_closer = utrade.atr5_ustop_TA
+shbreak_mll2n.stop_closer = utrade.atr5_ustop_TV    #最好的
+hbreak_nhhn.stop_closer = utrade.atr5_ustop_TA      #最好的
 
 hbreak_nhhz.stop_closer = utrade.atr5_ustop_TV
 shbreak_mll2z.stop_closer = utrade.atr5_ustop_TU
 
+shbreak_mll2r.stop_closer = utrade.atr5_ustop_TV
 
+srbreak2.stop_closer = utrade.atr5_ustop_TA
+brbreak2.stop_closer = utrade.atr5_ustop_TV
 
 hbreak_nhhz2.stop_closer = utrade.atr5_ustop_TV
 shbreak_mll2z2.stop_closer = utrade.atr5_ustop_TU

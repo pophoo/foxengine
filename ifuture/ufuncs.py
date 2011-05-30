@@ -695,7 +695,7 @@ def nhhn(sif,vbreak=30):  #不需要删除V
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     thigh = rollx(sif.dhigh+vbreak,3)
 
-    mysdown = gand(sif.low < sif.dhigh-250)
+    mysdown = gand(sif.low < sif.dhigh-ldclose/75)
     #mysdown = derepeatc(mysdown)
     sss = dsum(mysdown,sif.iday)
     #sss = extend(mysdown,60)
@@ -710,7 +710,7 @@ def nhhn(sif,vbreak=30):  #不需要删除V
             #cross(thigh,sif.high)>0,
             sif.high > thigh,
             rollx(sif.low) > rollx(sif.ma13),
-            #sss < 1,
+            sss < 1,
             #rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
             #rollx(sif.dhigh-sif.dlow,3)>200,
             #thigh - rollx(sif.close,2) < 150,
@@ -1265,13 +1265,14 @@ def mll2(sif,length=80,vbreak=10,vrange=350):
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入
  
 ###时间低点突破
-def mll2n(sif,length=80,vbreak=10,vrange=350):
+def mll2n(sif,length=80,vbreak=10,vrange=350):#创新低后弹起16点后60分钟内不能开空
     #使用最低点
     tlow = rollx(tmin(sif.low,length)+vbreak,1)
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     #ldmid = dnext((sif.highd+gmin(sif.closed,sif.opend))/2,sif.close,sif.i_cofd)
     ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
     opend = dnext(sif.opend,sif.open,sif.i_oofd)            
+
     #highd = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)            
     #ldmid = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)        
     #ldmid = dnext(sif.highd,sif.close,sif.i_cofd)        
@@ -1279,6 +1280,9 @@ def mll2n(sif,length=80,vbreak=10,vrange=350):
     ldclose = dnext(sif.closed,sif.close,sif.i_cofd) 
     
     ldatr = dnext(sif.atr30,sif.close,sif.i_cof30)
+    
+    vrange = ldclose / 80
+
     #vrange = ldatr *2 / XBASE
     #vrange2 = 0
 
@@ -1304,16 +1308,20 @@ def mll2n(sif,length=80,vbreak=10,vrange=350):
     #mysup = gand(sif.high > opend + 90)
     #mysup = gand(sif.high > sif.dlow + 160)
     mysup = gand(sif.high > sif.dlow + sif.dlow/ 12000* 80)
+    #mysup = derepeatc(mysup)
+    mysup = decover1(mysup,30)
     #mysup = gand(sif.high > sif.dlow + sif.atr5x *2.5/XBASE)
     #mysup = gand(sif.high > sif.dlow +ldclose/200)#160)
     #mysup = gand(sif.high > sif.dlow  * 1005/1000)#+160)
-    #sss = dsum(mysup,sif.iday)
-    sss = extend(mysup,60)
+    sss = dsum(mysup,sif.iday)
+    
+    #sss = extend(mysup,60)
 
     signal = gand(
             #cross(tlow,sif.low)<0,
             sif.low < tlow,
-            gor(tlow<ldmid-60),#,tlow==rollx(sif.dlow)+vbreak),
+            #gor(tlow<ldmid-60),#,tlow==rollx(sif.dlow)+vbreak),
+            gor(tlow<ldmid-120),#,tlow==rollx(sif.dlow)+vbreak),
             #sif.time > 915,
             #rollx(sif.ma13) < rollx(sif.ma30),
             rollx(sif.high) < rollx(sif.ma20),

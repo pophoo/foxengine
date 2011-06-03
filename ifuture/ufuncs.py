@@ -922,7 +922,7 @@ def nhhv(sif,vbreak=30):  #貌似20/30都可以
     return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以跳空价进入
 
 
-def mhhz(sif,vbreak=0):  #貌似20/30都可以
+def mhhz(sif,vbreak=50):  #貌似20/30都可以
     #使用最高点+30, 也就是说必须一下拉开3点
 
     #ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
@@ -936,7 +936,8 @@ def mhhz(sif,vbreak=0):  #貌似20/30都可以
     
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     #thigh = rollx(sif.dhigh+vbreak,3)
-    thigh = rollx(tmax(sif.high,75)+vbreak,20)
+    #thigh = rollx(tmax(sif.high,75)+vbreak,20)
+    thigh = rollx(tmax(sif.high,90)+vbreak,3)
 
     blow = rollx(sif.dlow,1)
     #blow = gmin(blow,ldclose)
@@ -949,21 +950,28 @@ def mhhz(sif,vbreak=0):  #貌似20/30都可以
     vrange = ldatr *3/10 /XBASE
     #vrange = gmin(vrange,ldclose/133)    #vrange不能超过太大
     vopen = ldatr * 1/8 /XBASE
+    vrange2 = ldatr *4/10 /XBASE
 
     #vbreak = ldatr * 1/20 /XBASE
 
-    thigh = gmax(thigh,blow + vrange + vbreak)#,ldopen)#+vopen)
+    thigh2 = gmax(thigh,blow + vrange)#,ldopen)#+vopen)
+    thigh3 = gmax(thigh,blow + vrange2)#,ldopen)#+vopen)
+
+    thigh = np.select([sif.time<1315,sif.time>=1315],[thigh2,thigh])
+    #thigh = thigh2
+
     signal = gand(
-            #cross(rollx(sif.dhigh+30),sif.high)>0
-            sif.high > thigh,
+            cross(thigh,sif.high)>0,
+            #sif.high > thigh,
             #rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
             #rollx(sif.dhigh-sif.dlow,3)>200,
             #thigh - rollx(sif.close,2) < 150,
             #gmax(rollx(sif.dhigh,1),thigh) > ldopen + 80,
             #thigh > ldopen + 60,
             #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>200),
-            rollx(sif.ma5) > rollx(sif.ma13),
-            rollx(sif.xatr) < 2000,
+            rollx(ma(sif.low,3)) > rollx(ma(sif.low,13)),
+            #rollx(sif.ma5) > rollx(sif.ma13),
+            #rollx(sif.xatr) < 2000,
         )
     return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以跳空价进入
 
@@ -1153,7 +1161,7 @@ hbreak_nhhv = BXFuncA(fstate=gofilter,fsignal=nhhv,fwave=gofilter,ffilter=mfilte
 hbreak_nhhv.name = u'日内向上突破新高'
 
 
-hbreak_mhhz = BXFuncA(fstate=gofilter,fsignal=mhhz,fwave=gofilter,ffilter=nfilter2)  ##主要时段
+hbreak_mhhz = BXFuncA(fstate=gofilter,fsignal=mhhz,fwave=gofilter,ffilter=mfilter)  ##主要时段
 hbreak_mhhz.name = u'日内向上突破分钟新高'
 
 
@@ -5655,6 +5663,8 @@ hbreak_nhh.stop_closer = utrade.atr5_ustop_TA
 
 shbreak_mll2n.stop_closer = utrade.atr5_ustop_TV    #最好的
 hbreak_nhhn.stop_closer = utrade.atr5_ustop_TA      #最好的
+
+hbreak_mhhz.stop_closer = utrade.atr5_ustop_TU  #最好的
 
 hbreak_nhhz.stop_closer = utrade.atr5_ustop_TV
 shbreak_mll2z.stop_closer = utrade.atr5_ustop_TU

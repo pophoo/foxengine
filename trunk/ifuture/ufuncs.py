@@ -5733,7 +5733,7 @@ def _ad_up(sif,sopened=None):
     #lad = ssad.cumsum()
     lad = dsum(ssad,sif.iday)
     mlad2 = ma(lad,45)
-    mlad1 = ma(lad,2)
+    mlad1 = ma(lad,3)
 
     signal = gand(
                 cross(mlad2,mlad1)>0,
@@ -5741,6 +5741,8 @@ def _ad_up(sif,sopened=None):
                 sif.sdiff5x>sif.sdea5x,
                 sif.xatr < 2000,
                 sif.diff1>0,
+                strend2(sif.ma30)>0,
+                sif.r120>1,
             )
 
     return signal
@@ -5768,6 +5770,7 @@ def _ad_down(sif,sopened=None):
                 sif.s1<0,
                 sif.s5<0,
                 sif.xatr30x < sif.mxatr30x,
+                sif.ma3 < sif.ma13,
             )
 
 
@@ -5776,7 +5779,7 @@ ad_down = SXFuncA(fstate=gofilter,fsignal=_ad_down,fwave=gofilter,ffilter=nfilte
 ad_down.name = u'id_down'
 ad_down.stop_closer = utrade.atr5_ustop_TV
 
-ad = [ad_up,ad_down]   #效果足够,次数还不够
+ad = [ad_up,ad_down]   #合成无增益
 
 
 
@@ -5809,7 +5812,7 @@ rxxx2 = rbreak + break_xr + xbreak1b #xbreak1b:突破回调系统
 
 xxx3 = dbreak+ xbreak1c + exbreak2 + xbreak1 + rebound2 #也还可以
 
-_xmax = [shbreak_mll2n]+x1164 #目前的最大
+_xmax = hbreak2n +x1164 #目前的最大
 
 #xxx2 = rxxx
 

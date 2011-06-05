@@ -2231,17 +2231,17 @@ xxx_xxx = [
         #xdds,       #15
         K1_UD,      #18
         #K15_M3B,    #14
-        xdds2,      #18
-        xdds3,      #23
+        xdds2,      #18     #OK
+        xdds3,      #23     #OK
         #---R<5
         K15_M3,     #25
         K5_R3,      #25
         #K1_UUD,     #10
         k5_d3b,     #24
-        xds,        #27
+        xds,        #27     #OK
         #FA_15_H5,   #6，但条件非常简单
-        #k3_d3,      #16
-        K15_H1,     #19
+        #k3_d3,      #16    #OK
+        K15_H1,     #19     #OK#
         #K1_RD,      #11
         xuub,       #20
         da_fa,      #29
@@ -2249,7 +2249,7 @@ xxx_xxx = [
         #FA_3_L12,   #9
         #K1_DDUUD,   #10
         #K1_DDX2,    #15
-        xdds4,      #36
+        xdds4,      #36     #OK#
         xdown01,    #19
         ua_fa_a,    #18
         K1_DDX,     #26
@@ -2257,7 +2257,7 @@ xxx_xxx = [
         #FA_15_M,    #10
         K1_DDD1,    #32
         FA_15_120B, #17
-        k5_d3,      #45
+        k5_d3,      #45 #OK#
         #FA_5_H36,   #9
         K1_UUX,     #17
         #K1_DV,      #11
@@ -2267,7 +2267,7 @@ xxx_xxx = [
         #xmacd3s,    #18 MDD比较大
         K1_DIIU,    #20
         #---R<3
-        Z5_P2,      #25
+        Z5_P2,      #25 #OK
         xup01,      #20
         #FA_15_120,  #13
         #da_m30b,    #12
@@ -2282,3 +2282,10 @@ xxx_xxx = [
         #K10_H1,     #27
         #ua_fa_m,    #11
     ]
+
+#2011-06-04
+import wolfox.fengine.ifuture.utrade as utrade
+for x in set(xxx+xxx_candidate):
+    x.stop_closer = utrade.atr5_ustop_TV
+
+x1164=[xdds3,xds,k3_d3]#,K15_H1]#,xdds4]#,k5_d3]#,Z5_P2]#,xdds2]

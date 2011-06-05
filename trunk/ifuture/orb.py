@@ -22,7 +22,7 @@ def orb_normal_day_b(sif,sopened=None):
     signal = gand(signal
             )
 
-    return signal * orb_normal_b.direction
+    return signal * orb_normal_day_b.direction
 
 orb_normal_day_b.direction = XBUY
 orb_normal_day_b.priority = 2480

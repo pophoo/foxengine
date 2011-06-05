@@ -384,7 +384,7 @@ def mfilter3(sif):
                 sif.time > 1031,
                 sif.time < 1430,
             ),
-            sif.time < 935,
+            gand(sif.time < 935,sif.time>919)
         )
 
 def emfilter(sif):
@@ -922,7 +922,7 @@ def nhhv(sif,vbreak=30):  #貌似20/30都可以
     return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以跳空价进入
 
 
-def mhhz(sif,vbreak=50):  #貌似20/30都可以
+def mhhz(sif,vbreak=36):  #貌似20/30都可以
     #使用最高点+30, 也就是说必须一下拉开3点
 
     #ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
@@ -933,6 +933,7 @@ def mhhz(sif,vbreak=50):  #貌似20/30都可以
     
     ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
     ldclose = dnext(sif.closed,sif.close,sif.i_cofd)
+    ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     #thigh = rollx(sif.dhigh+vbreak,3)
@@ -965,13 +966,13 @@ def mhhz(sif,vbreak=50):  #貌似20/30都可以
             #sif.high > thigh,
             #rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
             #rollx(sif.dhigh-sif.dlow,3)>200,
-            #thigh - rollx(sif.close,2) < 150,
+            #rollx(thigh) - rollx(sif.close,2) < 150,
             #gmax(rollx(sif.dhigh,1),thigh) > ldopen + 80,
             #thigh > ldopen + 60,
             #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>200),
             rollx(ma(sif.low,3)) > rollx(ma(sif.low,13)),
-            #rollx(sif.ma5) > rollx(sif.ma13),
-            #rollx(sif.xatr) < 2000,
+            rollx(sif.xatr) < 2000,
+            sif.sdiff5x > 0,
         )
     return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以跳空价进入
 
@@ -1208,7 +1209,6 @@ zhbreak2 = [break_nhhx,shbreak_nll2]     #也是一个不错的主方法   #####
 
 ###
 def mhh2(sif,length=20):
-    #使用最低点
     thigh = rollx(tmax(sif.high,length))
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     #ldmid = dnext((sif.highd+gmin(sif.closed,sif.opend))/2,sif.close,sif.i_cofd)
@@ -5270,55 +5270,65 @@ x7 = [bx7,sx7]  #合成之后，879点,290次,80点回撤. 止损4保本8
 
 ##指标系统
 ###macd
-def muc(sif):
+def muc(sif):   #macd下降途中上叉放空
     signal = gand(
             cross(sif.dea1,sif.diff1)>0,
-            sif.s30 < 0,
-            sif.close < sif.dlow + 150,
+            sif.s15 < 0,
+            sif.diff1 < 0,
+            rollx(sif.high) < rollx(sif.dlow) + 120,
+            rollx(strend2(sif.ma13))<0,
+            rollx(strend2(sif.ma60))<0,
+            rollx(strend2(sif.ma120))<0,
           )
     return signal
-smuc = SXFuncD1(fstate=sdown,fsignal=muc,fwave=nx2500X,ffilter=mfilter)
-smuc.name = u'macd上叉放空'
+smuc = SXFuncA(fstate=sdown,fsignal=muc,fwave=nx2000X,ffilter=mfilter2)
+smuc.name = u'下降趋势中macd上叉放空'
 smuc.lastupdate = 20110116
-smuc.stop_closer = utrade.atr5_ustop_V1
+smuc.stop_closer = utrade.atr5_ustop_TV
 
-def mdc(sif):
+def mdc(sif):   #上升过程中下叉开多
     signal = gand(
             cross(sif.dea1,sif.diff1)<0,
             sif.s30 > 0,
-            sif.close >sif.dlow + 200,
-            sif.high < sif.dhigh,
+            sif.diff1 > 0,
+            rollx(strend2(sif.ma13))>0,
+            rollx(strend2(sif.ma60))>0,
+            rollx(strend2(sif.ma120))>0,
           )
     return signal
-bmdc = BXFuncD1(fstate=sdown,fsignal=mdc,fwave=nx2500X,ffilter=mfilter)
-bmdc.name = u'macd下叉做多'
+bmdc = BXFuncA(fstate=sdown,fsignal=mdc,fwave=nx2500X,ffilter=mfilter2)
+bmdc.name = u'上升趋势中macd下叉做多'
 bmdc.lastupdate = 20110116
-bmdc.stop_closer = utrade.atr5_ustop_V1
+bmdc.stop_closer = utrade.atr5_ustop_T
+
+mc = [smuc,bmdc]
 
 def muc0(sif):
     signal = gand(
-            cross(cached_zeros(len(sif.close)),sif.diff1)>0,
-            sif.s30 < 0,
-            sif.close < sif.dlow + 150,
+            cross(cached_zeros(len(sif.close)),sif.diff1)<0,
+            sif.s15 < 0,
+            rollx(sif.high) < rollx(sif.dlow) + 150,
+            rollx(strend2(sif.ma13))<0,
+            rollx(strend2(sif.ma60))<0,
+            rollx(strend2(sif.ma120))<0,
           )
     return signal
-smuc0 = SXFuncD1(fstate=sdown,fsignal=muc0,fwave=nx2500X,ffilter=mfilter)
+smuc0 = SXFuncA(fstate=sdown,fsignal=muc0,fwave=nx2500X,ffilter=mfilter)
 smuc0.name = u'macd上叉0放空'
 smuc0.lastupdate = 20110116
-smuc0.stop_closer = utrade.atr5_ustop_V1
+smuc0.stop_closer = utrade.atr5_ustop_TV
 
 def mdc0(sif):
     signal = gand(
             cross(cached_zeros(len(sif.close)),sif.diff1)>0,
             sif.s30 > 0,
-            sif.close >sif.dlow + 200,
-            sif.high < sif.dhigh,
+            sif.sdiff5x>=0,
           )
     return signal
-bmdc0 = BXFuncD1(fstate=sdown,fsignal=mdc0,fwave=nx2500X,ffilter=mfilter)
+bmdc0 = BXFuncA(fstate=gofilter,fsignal=mdc0,fwave=nx2500X,ffilter=mfilter)
 bmdc0.name = u'macd上叉做多'
 bmdc0.lastupdate = 20110116
-bmdc0.stop_closer = utrade.atr5_ustop_V1
+bmdc0.stop_closer = utrade.atr5_ustop_TV
 
 mc = [bmdc,smuc,smuc0,bmdc0]    #一种简单的基于macd的系统
 
@@ -5327,10 +5337,10 @@ def ruc(sif):
     signal = gand(
             cross(sif.rsi19,sif.rsi7)<0,
             sif.s30 < 0,
-            sif.close < sif.dlow + 150,
+            rollx(strend2(sif.ma120))<0,
           )
     return signal
-sruc = SXFuncD1(fstate=sdown,fsignal=ruc,fwave=nx2500X,ffilter=mfilter)
+sruc = SXFuncA(fstate=sdown,fsignal=ruc,fwave=nx2500X,ffilter=mfilter)
 sruc.name = u'rsi上叉放空'
 sruc.lastupdate = 20110116
 sruc.stop_closer = utrade.atr5_ustop_V1
@@ -5346,7 +5356,7 @@ def rdc(sif):
 brdc = BXFuncD1(fstate=sdown,fsignal=rdc,fwave=nx2500X,ffilter=mfilter)
 brdc.name = u'rsi下叉做多'
 brdc.lastupdate = 20110116
-brdc.stop_closer = utrade.atr5_ustop_V1
+brdc.stop_closer = utrade.atr5_ustop_TV
 
 rc = [sruc,brdc]    #不如macd系统
 
@@ -5500,6 +5510,8 @@ tma2 = [buma2,sdma2]    #另一个还可以的ma策略,12点后趴下
 ####添加老系统
 wxxx = [xds,xdds3,k5_d3b,xuub,K1_DDD1,K1_UUX,K1_RU,Z5_P2,xmacd3s,xup01,ua_fa,FA_15_120,K1_DVB,K1_DDUU,K1_DVBR]
 
+wok = [xds,xdds3]
+
 #wxxx_s = [xds,xdds3,k5_d3b,K1_DDD1,Z5_P2,xmacd3s,FA_15_120]
 #wxxx_b = [xuub,K1_UUX,K1_RU,xup01,ua_fa,K1_DDUU]
 #wxxx_b2 = [K1_DVB,K1_DVBR]
@@ -5529,6 +5541,245 @@ xxx = hbreak2 + rebound  + ebreak + break123c + dbreak
 txfs = [xds,xuub,K1_RU,xup01,FA_15_120,K1_DVBR,Z5_P2,k5_d3b,xmacd3s,ua_fa,K1_DVB]   #剔除xdds3,K1_UUX,K1_DDD1
 #K1_DDUU样本数太少，要观察
 
+##老系统的重新实现,都是分钟收盘后出信号
+def _k3d3(sif): #k3d3的实现
+    xfilter = gand(
+                sif.s30 < 0,
+                sif.t120 < 0,
+                sif.r60 < 0,
+                sif.r13<0,
+            )
+    xsignal3 = gand(
+                sif.close3 < sif.open3,
+                rollx(sif.close3) < rollx(sif.open3),
+                rollx(sif.high3)<rollx(sif.high3,2),
+                sif.diff3x < sif.dea3x,
+                sif.low3 == tmin(sif.low3,3),            
+            )
+    xsignal = dnext_cover(xsignal3,sif.close,sif.i_cof3,1)
+    xwave = gand(
+             sif.mxatr > rollx(sif.mxatr,270),  #xatr在放大中,这个条件在单个很有用，合并时被处理掉             
+             sif.mxadtr > sif.mxautr,
+        )
+    signal = gand(xfilter,xsignal,xwave)
+    return signal
+
+k3d3 = SXFuncA(fstate=gofilter,fsignal=_k3d3,fwave=gofilter,ffilter=mfilter2)    #这个单个效益好，叠加无作用
+k3d3.name = u'k3d3'
+k3d3.stop_closer = utrade.atr5_ustop_TA
+
+def _ydds2(sif): #xdds2的实现
+    xfilter = gand(
+                sif.sdiff30x<0,
+                sif.s30<0,
+                sif.s3<0,
+                sif.r120<0,
+                sif.r13<0,
+            )
+    xsignal = gand(
+                sif.close < rollx(tmin(sif.low,120))+60,
+                rollx(sif.close,1) < rollx(sif.close,2),
+            )
+    xwave = gand(
+                sif.xatr<2000,
+            )
+    signal = gand(xfilter,xsignal,xwave)
+    return signal
+
+ydds2 = SXFuncA(fstate=gofilter,fsignal=_ydds2,fwave=gofilter,ffilter=mfilter3)    #这个单个效益巨好
+ydds2.name = u'ydds2'
+ydds2.stop_closer = utrade.atr5_ustop_TA
+
+def _ydds3(sif): #xdds3的实现
+    xfilter = gand(
+                sif.s30 < 0,
+                sif.s5<0,
+                sif.t120 < 0,
+                sif.r60 < 0,
+                strend2(sif.ma60)<0,
+            )
+    xsignal = gand(
+                rollx(sif.close,1) < rollx(sif.close,2),
+                sif.close < rollx(sif.close),
+                sif.low < rollx(sif.low,2),
+                sif.high < rollx(sif.high,2),
+            )
+    xwave = gand(
+             #sif.mxadtr30x > sif.mxautr30x,
+             #sif.xatr30x < sif.mxatr30x,
+             #sif.xatr<3600,
+             #sif.xatr30x<12000,
+             sif.mxatr > rollx(sif.mxatr,270),  #xatr在放大中,这个条件在单个很有用，合并时被处理掉             
+             sif.mxadtr > sif.mxautr,
+        )
+    signal = gand(xfilter,xsignal,xwave)
+    return signal
+
+ydds3 = SXFuncA(fstate=gofilter,fsignal=_ydds3,fwave=gofilter,ffilter=mfilter)    #这个单个效益巨好
+ydds3.name = u'ydds3'
+ydds3.stop_closer = utrade.atr5_ustop_TA
+
+def _ydds4(sif): #xdds4的实现
+    xfilter = gand(
+                sif.s15< 0,
+                sif.s5<0,
+                sif.s1<0,
+                strend2(sif.ma13 - sif.ma30)<0, #差距扩大中
+                sif.r60 < 0,
+                sif.t120<0,
+            )
+    xsignal = gand(
+                #rollx(sif.close,1) < rollx(sif.close,2),
+                sif.close < rollx(sif.close),
+                rollx(sif.close)<rollx(sif.open),
+            )
+    xwave = gand(
+                sif.xatr30x < 10000,
+            )
+    signal = gand(xfilter,xsignal,xwave)
+    return signal
+
+ydds4 = SXFuncA(fstate=gofilter,fsignal=_ydds4,fwave=gofilter,ffilter=mfilter3)    #这个单个效益巨好
+ydds4.name = u'ydds4'
+ydds4.stop_closer = utrade.atr5_ustop_TA
+
+def _yds(sif): #xds的实现
+    xfilter = gand(
+                sif.r120<0,
+                sif.s3<0,
+                sif.r60<0,
+        )
+    xsignal = gand(
+                sif.close < sif.open,
+                sif.close < rollx(tmin(sif.low,30)),
+                tmax(sif.high,10) > tmax(sif.high,30) - 30
+            )
+    xwave = gand(
+                sif.xatr > sif.mxatr,
+                strend2(sif.mxatr30x)<0,
+                sif.xatr30x < sif.mxatr30x,
+            )
+    signal = gand(xfilter,xsignal,xwave)
+    return signal
+
+yds = SXFuncA(fstate=gofilter,fsignal=_yds,fwave=gofilter,ffilter=mfilter3)    
+yds.name = u'yds'
+yds.stop_closer = utrade.atr5_ustop_TA
+
+##最好的空头组合
+best_s = [yds,ydds3,shbreak_mll2n]
+
+##其它尝试
+def _id_up(sif,sopened=None):
+    '''
+        内移日次日向上
+    '''
+
+ 
+    sday = gand(sif.highd<rollx(sif.highd),sif.lowd>rollx(sif.lowd))
+    #print [(d,s) for d,s in zip(sif.day,sday) if s!=0]
+
+    highd = np.select([sday],[sif.highd+sif.atrd/XBASE/10],default=0)
+
+    #print zip(sif.day,highd,sif.atrd,sif.highd)
+
+    chighd = dnext_cover(highd,sif.close,sif.i_cofd,260) 
+
+    signal = gand(
+                cross(chighd,sif.high)>0,
+            )
+
+    return signal
+id_up = BXFuncA(fstate=gofilter,fsignal=_id_up,fwave=gofilter,ffilter=nfilter2)
+id_up.name = u'id_up'
+id_up.stop_closer = utrade.atr5_ustop_TV
+
+def _id_down(sif,sopened=None):
+    '''
+        内移日次日向下
+    '''
+
+ 
+    sday = gand(sif.highd<rollx(sif.highd),sif.lowd>rollx(sif.lowd))
+    #print [(d,s) for d,s in zip(sif.day,sday) if s!=0]
+
+    lowd = np.select([sday],[sif.lowd-sif.atrd/XBASE/3],default=0)
+
+    #print zip(sif.day,highd,sif.atrd,sif.highd)
+
+    clowd = dnext_cover(lowd,sif.close,sif.i_cofd,260) 
+
+    signal = gand(
+                cross(clowd,sif.low)<0,
+            )
+
+    return signal
+id_down = SXFuncF1(fstate=gofilter,fsignal=_id_down,fwave=gofilter,ffilter=nfilter2)
+id_down.name = u'id_up'
+id_down.stop_closer = utrade.atr5_ustop_TV
+
+idx = [id_up,id_down]   #效果足够,次数还不够
+
+##AD
+def _ad_up(sif,sopened=None):
+    '''
+        AD指标
+    '''
+
+    sad = (sif.close+sif.close-sif.high-sif.low)*1.0 / (sif.high-sif.low) * sif.vol
+    ssad = np.select([sif.high>sif.low],[sad],0)    #被0除则为0
+
+    #lad = msum(ssad,270)
+    #lad = ssad.cumsum()
+    lad = dsum(ssad,sif.iday)
+    mlad2 = ma(lad,45)
+    mlad1 = ma(lad,2)
+
+    signal = gand(
+                cross(mlad2,mlad1)>0,
+                sif.s15>0,
+                sif.sdiff5x>sif.sdea5x,
+                sif.xatr < 2000,
+                sif.diff1>0,
+            )
+
+    return signal
+ad_up = BXFuncA(fstate=gofilter,fsignal=_ad_up,fwave=gofilter,ffilter=mfilter)
+ad_up.name = u'id_up'
+ad_up.stop_closer = utrade.atr5_ustop_TV
+
+def _ad_down(sif,sopened=None):
+    '''
+        AD指标
+    '''
+
+ 
+    sad = (sif.close+sif.close-sif.high-sif.low)*1.0 / (sif.high-sif.low) * sif.vol
+    ssad = np.select([sif.high>sif.low],[sad],0)    #被0除则为0
+
+    #lad = msum(ssad,270)
+    #lad = ssad.cumsum()
+    lad = dsum(ssad,sif.iday)
+    mlad2 = ma(lad,75)
+    mlad1 = ma(lad,1)
+
+    signal = gand(
+                cross(mlad2,mlad1)<0,
+                sif.s1<0,
+                sif.s5<0,
+                sif.xatr30x < sif.mxatr30x,
+            )
+
+
+    return signal
+ad_down = SXFuncA(fstate=gofilter,fsignal=_ad_down,fwave=gofilter,ffilter=nfilter2)
+ad_down.name = u'id_down'
+ad_down.stop_closer = utrade.atr5_ustop_TV
+
+ad = [ad_up,ad_down]   #效果足够,次数还不够
+
+
+
 txxx = hbreak2 + txfs
 
 #xxx1 = xbreak1c + hbreak2 + dbreak + exbreak2 + rebound2#+ d1_rebound #+ amm #+ break123c  #此方法每日亏损20点之后趴下装死比较妥当
@@ -5557,6 +5808,8 @@ mrxxx = mrbreak + edbreak +exbreak #+ rebound #一个很牛的独立策略，类
 rxxx2 = rbreak + break_xr + xbreak1b #xbreak1b:突破回调系统
 
 xxx3 = dbreak+ xbreak1c + exbreak2 + xbreak1 + rebound2 #也还可以
+
+_xmax = [shbreak_mll2n]+x1164 #目前的最大
 
 #xxx2 = rxxx
 
@@ -5763,7 +6016,7 @@ sxbreak1u.stop_closer = utrade.atr5_ustop_63
 
 ##其它
 for tx in wxxx:
-    tx.stop_closer = utrade.atr5_ustop_T
+    tx.stop_closer = utrade.atr5_ustop_TV
 
 #b123b.stop_closer = utrade.atr5_ustop_X2
 

@@ -1926,7 +1926,7 @@ sema.stop_closer = utrade.atr5_ustop_V1
 ema = [bema,sema]
 
 ###中间通道突破
-def uxchannel(sif,length=20):#
+def _bxchannel(sif,length=20):#
     twave = sif.atr/XBASE * 3
     #twave = np.select([twave>150],[150],twave)
 
@@ -1937,20 +1937,73 @@ def uxchannel(sif,length=20):#
     bline = rollx(tbreak,1)
 
     ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
-    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)    
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd) + 30
+
+    bline = gmax(ldopen,bline)
 
     signal = gand(
             cross(bline,sif.high)>0,
-            bline > gmax(ldopen,sif.dmid) ,
+            #bline > gmax(ldopen,sif.dmid) ,
             sif.time > 915,
             sif.dhigh > sif.dlow + 300,
         )
     return np.select([signal>0],[gmax(sif.open,bline)],0)
-bxchannel = BXFuncA(fstate=sdown,fsignal=uxchannel,fwave=nx2000X,ffilter=nfilter2)
+
+def _bxchannel2(sif,length=20):#
+    twave = sif.atr/XBASE * 3
+    #twave = np.select([twave>150],[150],twave)
+
+    tmid = (tmax(sif.high,length) + tmin(sif.low,length))/2
+
+    tbreak = tmid + twave
+
+
+    bline = rollx(tbreak,1)
+ 
+    treverse = tmid - twave
+ 
+    breverse = rollx(treverse,1)
+
+    sreverse = gand(
+                sif.low < breverse,
+            )
+    
+    sreverse = derepeatc(sreverse)
+
+    mreverse = msum(sreverse,60)
+
+    sfollow = gand(
+                sif.high > bline,
+            )
+
+    sfollow = derepeatc(sfollow)
+
+    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd) + 30
+
+    bline = gmax(ldopen,bline)
+
+    signal = gand(
+            cross(bline,sif.high)>0,
+            #bline > gmax(ldopen,sif.dmid) ,
+            sif.time > 915,
+            sif.dhigh > sif.dlow + 300,
+            mreverse < 1,
+            rollx(sif.xatr) < 1600,
+            sif.xatr30x < 10000,
+        )
+    return np.select([signal>0],[gmax(sif.open,bline)],0)
+
+bxchannel = BXFuncA(fstate=sdown,fsignal=_bxchannel,fwave=nx2000X,ffilter=nfilter2)
 bxchannel.name = u'中间通道向上突破'
 bxchannel.stop_closer = utrade.atr5_ustop_V7
 
-def dxchannel(sif,length=20):#
+bxchannel2 = BXFuncA(fstate=gofilter,fsignal=_bxchannel2,fwave=gofilter,ffilter=mfilter)
+bxchannel2.name = u'中间通道向上突破2'
+bxchannel2.stop_closer = utrade.atr5_ustop_V
+
+
+def _sxchannel(sif,length=20):#
     twave = sif.atr/XBASE * 7/2
 
     tmid = (tmax(sif.high,length) + tmin(sif.low,length))/2
@@ -1968,11 +2021,11 @@ def dxchannel(sif,length=20):#
             bline < ldmid - 30,
         )
     return np.select([signal>0],[gmin(sif.open,bline)],0)
-sxchannel = SXFuncA(fstate=sdown,fsignal=dxchannel,fwave=nx2000X,ffilter=nfilter2)
+sxchannel = SXFuncA(fstate=sdown,fsignal=_sxchannel,fwave=nx2000X,ffilter=nfilter2)
 sxchannel.name = u'中间通道向下突破'
 sxchannel.stop_closer = utrade.atr5_ustop_V7
 
-def dxchannel2(sif,length=20):#
+def _sxchannel2(sif,length=20):#
     twave = sif.atr/XBASE * 7/2
 
     tmid = (tmax(sif.high,length) + tmin(sif.low,length))/2
@@ -1981,18 +2034,32 @@ def dxchannel2(sif,length=20):#
 
     bline = rollx(tbreak,1)
     ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
+    
+    treverse = tmid + twave
+ 
+    breverse = rollx(treverse,1)
+
+    sreverse = gand(
+                sif.high > breverse,
+            )
+    
+    sreverse = derepeatc(sreverse)
+
+    mreverse = msum(sreverse,60)
 
     signal = gand(
-            #cross(bline,sif.low)<0,
+            cross(bline,sif.low)<0,
             #mcmid > 0,
-            cross(tmid,sif.high)<0,
-            sif.low < rollx(sif.low),
             sif.time > 915,
-            sif.dhigh > sif.dlow + 360,
-            tmid < ldmid - 30,
+            sif.dhigh > sif.dlow + 300,
+            bline < ldmid - 30,
+            mreverse < 1,
         )
-    return signal#np.select([signal>0],[gmin(sif.open,tmid)],0)
-sxchannel2 = SXFuncA(fstate=sdown,fsignal=dxchannel2,fwave=nx2000X,ffilter=nfilter2)
+    
+    
+
+    return np.select([signal>0],[gmin(sif.open,bline)],0)
+sxchannel2 = SXFuncA(fstate=sdown,fsignal=_sxchannel2,fwave=nx2000X,ffilter=nfilter2)
 sxchannel2.name = u'中间通道向下突破'
 sxchannel2.stop_closer = utrade.atr5_ustop_V7
 
@@ -2073,13 +2140,13 @@ def brd_old(sif):
     return np.select([signal],[gmin(sif.open,ldlow-30)],0)    #避免跳空/skdj后延情况，如果跳空且大于突破点，就以分钟开盘价进入
 
 def brd(sif):
-    ldlow = dnext(sif.lowd,sif.close,sif.i_cofd) - 20
+    ldlow = dnext(sif.lowd,sif.close,sif.i_cofd) - 30
     ldclose = dnext(sif.closed,sif.close,sif.i_cofd)        
     signal = gand(
             sif.low < ldlow ,  
             rollx(gmax(sif.dhigh,ldclose) - sif.dlow) > 200,
             #rollx(sif.dhigh - sif.dlow) > 200,
-            sif.time < 1401,
+            sif.time < 1331,
             sif.time> 915,
             #sif.t120<60,
         )
@@ -2105,10 +2172,12 @@ dbreakb.lastupdate = 20101213
 
 dbreakbx = BXFuncD1(fstate=gofilter,fsignal=brux,fwave=nx2000X,ffilter=efilter)
 
-dbreaks = SXFuncD1(fstate=sdown,fsignal=brd,fwave=nx2500X,ffilter=efilter)
+dbreaks = SXFuncD1(fstate=sdown,fsignal=brd,fwave=nx2000X,ffilter=nfilter)
 dbreaksh = SXFuncD1(fstate=gofilter,fsignal=brdh,fwave=nx2500X,ffilter=efilter)
 dbreaks.name = u'突破前日低点'
 dbreaks.lastupdate = 20101213
+dbreaks.stop_closer = utrade.atr5_ustop_TA
+
 
 edbreakb = BXFuncD1(fstate=gofilter,fsignal=bru,fwave=nx2500X,ffilter=emfilter)
 edbreakb.name = u'早盘突破前日高点'

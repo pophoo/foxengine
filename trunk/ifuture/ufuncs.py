@@ -1301,6 +1301,7 @@ def mll2n(sif,length=80,vbreak=10,vrange=350):#创新低后弹起16点后60分�
 
     #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])    
     tlow = np.select([sif.time<1315,sif.time>=1315],[gmin(sif.dhigh-vrange,tlow),tlow])
+    #tlow = gmin(sif.dhigh-vrange,tlow)
     #tlow = np.select([sif.time<mytime,sif.time>=mytime],[gmin(sif.dhigh-vrange,tlow),gmin(sif.dhigh-vrange2,tlow)])
     #tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(sif.dhigh-vrange,tlow),tlow])
     #tlow = np.select([tlow<=rollx(sif.dlow)+vbreak,1],[tlow,gmin(tlow,ldmid-60)])

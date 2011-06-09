@@ -1680,6 +1680,7 @@ def mll3(sif,length=75):
 sbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2500X,ffilter=nfilter)    #优于nll
 bbreak_mhh2 = BXFuncA(fstate=gofilter,fsignal=mhh2,fwave=nx2500X,ffilter=nfilter)    #优于nll
 
+
 def mfilterx(sif):
     return gand(sif.time > 1015,sif.time<1326)
 
@@ -1759,6 +1760,11 @@ hbreak2n = [shbreak_mll2n,hbreak_nhhn]  #建议采用这个,效率很高
 hbreak2z = [shbreak_mll2z,hbreak_nhhz]  #超过12点后趴下
 
 hbreak2z2 = [shbreak_mll2z2,hbreak_nhhz2]  #超过12点后趴下
+
+###单边
+def srise(sif,n1=5,n2=10):
+    m5 = tmax
+
 
 ###中间价突破
 def lmx(sif,length=30):#最低价突破中间价,收盘模型

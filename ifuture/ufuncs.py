@@ -587,7 +587,7 @@ break_nllxm.name = u'向下突破新低--原始X系统-主要时段'
 
 break_nhhx.stop_closer = utrade.atr5_ustop_TT
 break_nllx.stop_closer = utrade.atr5_ustop_TT
-break_mhhx.stop_closer = utrade.atr5_ustop_V1
+break_mhhx.stop_closer = utrade.atr5_ustop_V7
 break_mllx.stop_closer = utrade.atr5_ustop_V1
 break_nhhxm.stop_closer = utrade.atr5_ustop_V1
 break_nllxm.stop_closer = utrade.atr5_ustop_V1
@@ -1762,8 +1762,123 @@ hbreak2z = [shbreak_mll2z,hbreak_nhhz]  #超过12点后趴下
 hbreak2z2 = [shbreak_mll2z2,hbreak_nhhz2]  #超过12点后趴下
 
 ###单边
-def srise(sif,n1=5,n2=10):
-    m5 = tmax
+def _srise(sif,n1=5,n2=19):
+    mh = gmax(tmax(sif.high,n1),rollx(sif.close,n1))
+    ml = gmin(tmin(sif.low,n1),rollx(sif.close,n1))
+    th = gand(  #向上单边
+            sif.high > rollx(mh),
+            sif.low < rollx(ml,n1),
+        )
+    tl = gand(  #向下单边
+            sif.high > rollx(mh,-n1),
+            sif.low < rollx(ml),
+        )
+
+    hn1 = np.zeros_like(sif.high)
+    hn1[np.where(tl)] = tmax(sif.high[np.where(tl)],n2)
+    exhn1 = extend2next(hn1)
+
+    thl = np.select([th,tl],[1,-1],default=0)
+
+    exthl = extend2next(thl)  #最近的一次单边信号
+    tdis = distance(thl)    #当前日距信号日的距离
+
+    tl_high = np.select([tl],[sif.high],default=0)
+    
+    signal = gand(
+                exthl == 1,
+                tdis > n1,#因为n1是偷看期   
+                #sif.close > rollx(tmax(tl_high,n2),n1),
+                sif.close > exhn1,
+            )
+    return signal
+srise = BXFuncA(fstate=gofilter,fsignal=_srise,fwave=gofilter,ffilter=mfilter3)
+srise.name = u'向上单边突破'
+srise.stop_closer = utrade.atr5_ustop_TU
+
+def _srise2(sif,n1=5,n2=1):
+    mh = gmax(tmax(sif.high,n1),rollx(sif.close,n1))
+    ml = gmin(tmin(sif.low,n1),rollx(sif.close,n1))
+    th = gand(  #向上单边
+            sif.high > rollx(mh),
+            sif.low < rollx(ml,n1),
+        )
+    tl = gand(  #向下单边
+            sif.high > rollx(mh,-n1),
+            sif.low < rollx(ml),
+        )
+
+    hn1 = np.zeros_like(sif.high)
+    hn1[np.where(tl)] = tmax(sif.high[np.where(tl)],n2)
+    exhn1 = extend2next(hn1)
+
+    thl = np.select([th,tl],[1,-1],default=0)
+
+    exthl = extend2next(thl)  #最近的一次单边信号
+    tdis = distance(thl)    #当前日距信号日的距离
+
+    tl_high = np.select([tl],[sif.high],default=0)
+
+    chl = np.zeros_like(sif.close)
+    c = 0
+    for i in range(len(thl)):
+        if thl[i] == 1:
+            c += 1
+        elif thl[i] == -1:
+            c = 0
+        chl[i] = c
+
+    print max(chl)
+
+    signal = gand(
+                tdis > n1,#因为n1是偷看期   
+                chl > n2,
+            )
+    return signal
+srise2 = BXFuncA(fstate=gofilter,fsignal=_srise2,fwave=gofilter,ffilter=mfilter3)
+srise2.name = u'向上单边突破2'
+srise2.stop_closer = utrade.atr5_ustop_TA
+
+def _sdown2(sif,n1=5,n2=25):
+    mh = gmax(tmax(sif.high,n1),rollx(sif.close,n1))
+    ml = gmin(tmin(sif.low,n1),rollx(sif.close,n1))
+    th = gand(  #向上单边
+            sif.high > rollx(mh),
+            sif.low < rollx(ml,n1),
+        )
+    tl = gand(  #向下单边
+            sif.high > rollx(mh,-n1),
+            sif.low < rollx(ml),
+        )
+
+    hn1 = np.zeros_like(sif.high)
+    hn1[np.where(tl)] = tmax(sif.high[np.where(tl)],n2)
+    exhn1 = extend2next(hn1)
+
+    thl = np.select([th,tl],[1,-1],default=0)
+
+    exthl = extend2next(thl)  #最近的一次单边信号
+    tdis = distance(thl)    #当前日距信号日的距离
+
+    tl_high = np.select([tl],[sif.high],default=0)
+
+    chl = np.zeros_like(sif.close)
+    c = 0
+    for i in range(len(thl)):
+        if thl[i] == -1:
+            c += 1
+        elif thl[i] == 1:
+            c = 0
+        chl[i] = c
+
+    signal = gand(
+                tdis > n1,#因为n1是偷看期   
+                chl > n2,
+            )
+    return signal
+sdown2 = SXFuncA(fstate=gofilter,fsignal=_sdown2,fwave=gofilter,ffilter=mfilter)
+sdown2.name = u'向上单边突破2'
+sdown2.stop_closer = utrade.atr5_ustop_TV
 
 
 ###中间价突破
@@ -5743,7 +5858,9 @@ yds.name = u'yds'
 yds.stop_closer = utrade.atr5_ustop_TA
 
 ##最好的空头组合
-best_s = [yds,ydds3,shbreak_mll2n]
+best_s = [yds,ydds3]
+
+#best_s = [yds,ydds3,shbreak_mll2n]
 
 ##其它尝试
 def _id_up(sif,sopened=None):
@@ -5888,7 +6005,9 @@ rxxx2 = rbreak + break_xr + xbreak1b #xbreak1b:突破回调系统
 
 xxx3 = dbreak+ xbreak1c + exbreak2 + xbreak1 + rebound2 #也还可以
 
-_xmax = hbreak2n +x1164 #目前的最大
+_xmax = hbreak2n +best_s #目前的最大
+
+_ymax = hbreak2 + best_s    #目前最稳定
 
 #xxx2 = rxxx
 
@@ -5991,7 +6110,12 @@ for x in rxxx:
 #hbreakn是最好的
 
 shbreak_mll2.stop_closer = utrade.atr5_ustop_TV #_TV
+
+#shbreak_mll2.stop_closer = utrade.atr5_ustop_V7
+
 hbreak_nhh.stop_closer = utrade.atr5_ustop_TA
+
+#hbreak_nhh.stop_closer = utrade.atr5_ustop_V7
 
 shbreak_mll2n.stop_closer = utrade.atr5_ustop_TV    #最好的
 hbreak_nhhn.stop_closer = utrade.atr5_ustop_TA      #最好的
@@ -6000,6 +6124,8 @@ hbreak_mhhz.stop_closer = utrade.atr5_ustop_TU  #最好的
 
 hbreak_nhhz.stop_closer = utrade.atr5_ustop_TV
 shbreak_mll2z.stop_closer = utrade.atr5_ustop_TU
+
+#shbreak_mll2z.stop_closer = utrade.atr5_ustop_TA
 
 shbreak_mll2r.stop_closer = utrade.atr5_ustop_TV
 
@@ -6102,3 +6228,6 @@ for tx in wxxx:
 #for x in dxxx:#
 #    x.stop_closer = utrade.atr5_ustop_V
 
+for tx in x1164:
+    tx.stop_closer = utrade.atr5_ustop_V7
+    

@@ -2502,6 +2502,29 @@ erange = berange + serange      #一组非常好的独立策略
 erange1 = [berangeu,seranged2]
 
 ###失败振荡
+def _ugsv(sif):
+    d_wave = np.select([sif.closed < sif.opend],[sif.highd-sif.opend],[0])
+    id_gsv = np.where(d_wave>0)
+    d_gsv = np.zeros_like(sif.closed)
+    d_gsv[id_gsv] = ma(d_wave[id_gsv],22)
+    d_gsv = extend2next(d_gsv)
+
+    gsv = dnext(d_gsv,sif.close,sif.i_cofd)
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)    
+
+    bline = ldopen + gsv * 5/2
+    signal = gand(
+            cross(bline,sif.high)>0,
+            #rollx(sif.dhigh - gmin(sif.dlow,ldclose)) > 200,
+            #rollx(sif.dhigh - sif.dlow) > 200,
+            sif.time > 1014,
+            sif.time < 1416,
+            #ldc1 < ldc2,
+            #sif.time < 1430,
+            #rollx(sif.xatr>600),
+        )
+    return np.select([signal],[gmax(sif.open,bline)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
+
 def ufwave(sif):
     fwave = dnext(ma(sif.highd-sif.opend,3),sif.close,sif.i_cofd)
     ldopen = dnext(sif.opend,sif.close,sif.i_oofd)    
@@ -2520,6 +2543,7 @@ def ufwave(sif):
             #rollx(sif.xatr>600),
         )
     return np.select([signal],[gmax(sif.open,bline)],0)    #避免跳空情况，如果跳空且大于突破点，就以最低价进入
+
 
 def dfwave(sif):
     fwave = dnext(ma(sif.highd-sif.opend,3),sif.close,sif.i_cofd)
@@ -2545,6 +2569,12 @@ bfwave = BXFuncD1(fstate=gofilter,fsignal=ufwave,fwave=gofilter,ffilter=gofilter
 bfwave.name = u'振荡突破向上'
 bfwave.lastupdate = 20110110
 bfwave.stop_closer = utrade.atr5_ustop_V1
+
+ugsv = BXFunc(fstate=gofilter,fsignal=_ugsv,fwave=gofilter,ffilter=gofilter)
+ugsv.name = u'gsv振荡突破向上'
+ugsv.lastupdate = 20110110
+ugsv.stop_closer = utrade.atr5_ustop_V1
+
 
 sfwave = SXFuncD1(fstate=gofilter,fsignal=dfwave,fwave=gofilter,ffilter=gofilter)
 sfwave.name = u'振荡突破向下'
@@ -5578,6 +5608,67 @@ brsi2.name = u'rsi上叉做多'
 brsi2.lastupdate = 20110311
 brsi2.stop_closer = utrade.atr5_ustop_TT
 
+###min5
+def _umin5(sif):
+    exp1 = cexpma(sif.close5,3)
+    exp2 = cexpma(sif.close5,54)    #日周期
+    signal5 = gand(
+                cross(exp2,exp1)>0,
+                sif.diff5x >= 0,
+                strend2(sif.diff5x-sif.dea5x)>0,
+                #sif.diff5x-sif.dea5x>0,
+            )
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof5] = signal5
+    signal = gand(
+                signal,
+                strend2(sif.ma270)>0,
+                #strend2(sif.ma13-sif.ma30)>0,
+                #sif.close < sif.dhigh - 150,
+           )
+    return signal
+umin5 = BXFunc(fstate=gofilter,fsignal=_umin5,fwave=gofilter,ffilter=mfilter)
+umin5.name = u'min5做多'
+umin5.lastupdate = 20110612
+umin5.stop_closer = utrade.atr5_ustop_TV
+
+def _dmin5(sif):
+    exp1 = cexpma(sif.close5,3)
+    exp2 = cexpma(sif.close5,54)    #日周期
+    signal5 = gand(
+                cross(exp2,exp1)<0,
+                #sif.diff5x <= 0,
+            )
+    signal = np.zeros_like(sif.close)
+    signal[sif.i_cof5] = signal5
+    signal = gand(
+                signal,
+                strend2(sif.ma30)<0,
+                #sif.close < sif.dhigh - 150,
+           )
+    return signal
+dmin5 = SXFunc(fstate=gofilter,fsignal=_dmin5,fwave=gofilter,ffilter=mfilter)
+dmin5.name = u'min5做空'
+dmin5.lastupdate = 20110612
+dmin5.stop_closer = utrade.atr5_ustop_TA
+
+#发散
+def _ufs(sif):
+    signal = gand(
+            sif.ma5 > sif.ma13,
+            sif.ma13 > sif.ma30,
+            sif.ma30 > sif.ma120,
+            strend2(sif.ma30)>0,
+            strend2(sif.ma120)>0,
+            strend2(sif.ma270)>0,
+            strend2(sif.ma3-sif.ma13)>0,
+            strend2(sif.ma13-sif.ma120)>0,
+           )
+    return signal
+ufs = BXFunc(fstate=gofilter,fsignal=_ufs,fwave=gofilter,ffilter=mfilter)
+ufs.name = u'min5做多'
+ufs.lastupdate = 20110612
+ufs.stop_closer = utrade.atr5_ustop_TU
 
 
 ###xud
@@ -5858,7 +5949,8 @@ yds.name = u'yds'
 yds.stop_closer = utrade.atr5_ustop_TA
 
 ##最好的空头组合
-best_s = [yds,ydds3]
+#best_s = [yds,ydds3]
+best_s = [ydds3]
 
 #best_s = [yds,ydds3,shbreak_mll2n]
 

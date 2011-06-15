@@ -517,6 +517,27 @@ def nhhy(sif,vbreak=0):
         )
     return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以开盘价进入
 
+def nhhk(sif,vbreak=0):
+    thigh = rollx(sif.dlow + (sif.dhigh-sif.dlow)*15/30,1)
+    
+    ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
+    ldclose = dnext(sif.highd,sif.close,sif.i_cofd)
+    ldsignal = dnext(sif.closed > sif.opend,sif.close,sif.i_cofd)#,rollx(sif.closed)>rollx(sif.opend)),sif.close,sif.i_cofd)
+    #vrange = ldatr * 3/5 /XBASE
+    #blow = gmin(sif.dlow,ldclose)
+    #thigh = gmax(thigh,sif.dlow+vrange)
+    #thigh = gmax(thigh,blow+vrange)
+
+    signal = gand(
+            #cross(rollx(sif.dhigh+30),sif.high)>0
+            #sif.high > thigh,
+            cross(thigh,sif.high)>0,
+            #rollx(sif.dhigh-sif.dlow) > 250,   #150可
+            #rollx(sif.dhigh-blow)>200,
+            #rollx(sif.ma13)  > rollx(sif.ma30),
+            ldsignal,
+        )
+    return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以开盘价进入
 
 def nllx(sif,vbreak=-10):
     tlow = rollx(sif.dlow - vbreak,1)
@@ -583,6 +604,10 @@ break_nhhxm = BXFuncA(fstate=gofilter,fsignal=fcustom(nhhx,vbreak=20),fwave=gofi
 break_nhhxm.name = u'向上突破新高--原始X系统-主要时段'
 break_nllxm = SXFuncA(fstate=gofilter,fsignal=fcustom(nllx,vbreak=0),fwave=nx2000X,ffilter=mfilter)  ##选择
 break_nllxm.name = u'向下突破新低--原始X系统-主要时段'
+
+break_nhhk = BXFuncA(fstate=gofilter,fsignal=nhhk,fwave=gofilter,ffilter=mfilter)  
+break_nhhk.name = u'向上突破新高--原始X系统'
+break_nhhk.stop_closer = utrade.atr5_ustop_V7
 
 
 break_nhhx.stop_closer = utrade.atr5_ustop_TT

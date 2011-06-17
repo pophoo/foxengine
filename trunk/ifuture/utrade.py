@@ -63,6 +63,7 @@ def atr_stop_u2(
         ,natr=1
         ,natr2=30
         ,nkeeper=30
+        ,wave_stop = 300,  #约定的反向折返幅度最大比例(千分之一)单位. 基准幅度是dhigh-dlow
         ):
     '''
         根据价格突破即时止损,而不是下一个开盘价，返回值为止损价，未考虑滑点
@@ -103,6 +104,9 @@ def atr_stop_u2(
         #max_drawdown = fmax_drawdown(aprice)
         #min_drawdown = fmin_drawdown(aprice)
         keeper = skeeper[i] * keeper_base / XBASE /XBASE
+        wave_stop_v = (sif.dhigh[i] - sif.dlow[i]) * wave_stop / 1000
+        if willlost>wave_stop_v:
+            willlost = wave_stop_v
         #print price,willlost,max_drawdown,min_drawdown
         will_losts.append(willlost)
         if price<0: #多头止损
@@ -263,6 +267,7 @@ def atr_stop_u(
         ,tlimit = 300    #约定时间线. 目前没用
         ,wtlimit = -1000   #约定时间线的价格有利变动目标，如果不符合则平仓
         ,natr=1
+        ,wave_stop = 300,  #约定的反向折返幅度最大比例(千分之一)单位. 基准幅度是dhigh-dlow
         ):
     '''
         根据价格突破即时止损,而不是下一个开盘价，返回值为止损价，未考虑滑点
@@ -299,6 +304,9 @@ def atr_stop_u(
         min_drawdown = fmin_drawdown(aprice)
         keeper = fkeeper(aprice)
         #print price,willlost,max_drawdown,min_drawdown
+        wave_stop_v = (sif.dhigh[i] - sif.dlow[i]) * wave_stop / 1000
+        if willlost>wave_stop_v:
+            willlost = wave_stop_v
         will_losts.append(willlost)
         if price<0: #多头止损
             #print u'多头止损'
@@ -1065,6 +1073,66 @@ atr5_ustop_V8 = fcustom(atr_stop_u,
                 win_times=40,
                 natr = 270,
                 flost_base=iftrade.F80,
+                fmax_drawdown=iftrade.F333
+            )      #
+
+atr5_ustop_V9 = fcustom(atr_stop_u,
+                fkeeper=iftrade.F80,
+                #win_times=250,
+                #natr=5,
+                win_times=40,
+                natr = 270,
+                flost_base=iftrade.F90,
+                fmax_drawdown=iftrade.F333
+            )      #
+
+atr5_ustop_V10 = fcustom(atr_stop_u,
+                fkeeper=iftrade.F80,
+                #win_times=250,
+                #natr=5,
+                win_times=40,
+                natr = 270,
+                flost_base=iftrade.F100,
+                fmax_drawdown=iftrade.F333
+            )      #
+
+atr5_ustop_V12 = fcustom(atr_stop_u,
+                fkeeper=iftrade.F120,
+                #win_times=250,
+                #natr=5,
+                win_times=40,
+                natr = 270,
+                flost_base=iftrade.F120,
+                fmax_drawdown=iftrade.F333
+            )      #
+
+atr5_ustop_V15 = fcustom(atr_stop_u,
+                fkeeper=iftrade.F120,
+                #win_times=250,
+                #natr=5,
+                win_times=40,
+                natr = 270,
+                flost_base=iftrade.F150,
+                fmax_drawdown=iftrade.F333
+            )      #
+
+atr5_ustop_V20 = fcustom(atr_stop_u,
+                fkeeper=iftrade.F120,
+                #win_times=250,
+                #natr=5,
+                win_times=40,
+                natr = 270,
+                flost_base=iftrade.F200,
+                fmax_drawdown=iftrade.F333
+            )      #
+
+atr5_ustop_V25 = fcustom(atr_stop_u,
+                fkeeper=iftrade.F150,
+                #win_times=250,
+                #natr=5,
+                win_times=40,
+                natr = 270,
+                flost_base=iftrade.F250,
                 fmax_drawdown=iftrade.F333
             )      #
 

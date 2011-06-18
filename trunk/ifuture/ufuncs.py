@@ -671,7 +671,7 @@ break_flx.stop_closer = utrade.atr5_ustop_V1
 break_fx = [break_fhx,break_flx]    ##########一个还可以的独立策略. 日亏6点之后不动
 
 
-def nhh(sif,vbreak=30,vrange=250):  #可以借鉴nhhn的过滤条件
+def nhh(sif,vbreak=30,vrange=250):  #可以借鉴nhhn的过滤条件,300也不错
     #使用最高点+30, 也就是说必须一下拉开3点
     #ldlow = dnext(sif.lowd/2+sif.closed/2,sif.close,sif.i_cofd)
 
@@ -6093,7 +6093,62 @@ ad_down.stop_closer = utrade.atr5_ustop_TV
 
 ad = [ad_up,ad_down]   #合成无增益
 
+##三重滤网
+def _tri_up(sif,sopened=None):
+    '''
+        三重滤网
+    '''
 
+    bline = rollx(tmax(sif.high,30),1)
+
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
+
+    bfilter = gand(
+                sif.sdiff10x>sif.sdea10x,
+                sif.sdiff10x > 0,
+                sif.dhigh - sif.dlow > 180,
+                #sif.dhigh > ldopen + 30, 
+                sif.r120>0,
+            )
+
+    signal = gand(
+                cross(bline,sif.high)>0,
+                rollx(bfilter),
+            )
+
+    return np.select([signal],[gmax(sif.open,bline)],0)    #避免跳空情况，如果跳空且大于突破点，就以跳空价进入
+
+tri_up = BXFuncA(fstate=gofilter,fsignal=_tri_up,fwave=gofilter,ffilter=mfilter3)
+tri_up.name = u'tri_up'
+tri_up.stop_closer = utrade.atr5_ustop_V15
+
+def _tri_down(sif,sopened=None):
+    '''
+        三重滤网, 向下找不到合适的
+    '''
+
+    bline = rollx(tmax(sif.low,60),1)
+
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
+
+    bfilter = gand(
+                sif.sdiff15x < sif.sdea15x,
+                sif.sdiff3x > 0,
+                sif.dhigh - sif.dlow > 180,
+            )
+
+    signal = gand(
+                cross(bline,sif.low)<0,
+                rollx(bfilter),
+            )
+
+    return np.select([signal],[gmin(sif.open,bline)],0)    #避免跳空情况，如果跳空且大于突破点，就以跳空价进入
+
+tri_down = SXFuncA(fstate=gofilter,fsignal=_tri_down,fwave=gofilter,ffilter=mfilter)
+tri_down.name = u'tri_down'
+tri_down.stop_closer = utrade.atr5_ustop_V12
+
+best_b = [tri_up]
 
 txxx = hbreak2 + txfs
 
@@ -6124,9 +6179,10 @@ rxxx2 = rbreak + break_xr + xbreak1b #xbreak1b:突破回调系统
 
 xxx3 = dbreak+ xbreak1c + exbreak2 + xbreak1 + rebound2 #也还可以
 
-_xmax = hbreak2n +best_s #目前的最大
+_xmax = hbreak2n +best_s + best_b #目前的最大
 
-_ymax = hbreak2 + best_s    #目前最稳定
+_ymax = hbreak2 + best_s + best_b #目前最稳定
+
 
 #xxx2 = rxxx
 
@@ -6230,7 +6286,7 @@ for x in rxxx:
 
 shbreak_mll2.stop_closer = utrade.atr5_ustop_TV #_TV
 
-#shbreak_mll2.stop_closer = utrade.atr5_ustop_V25 #这个也不错
+shbreak_mll2.stop_closer = utrade.atr5_ustop_V25 #这个也不错
 
 #shbreak_mll2.stop_closer = utrade.atr5_ustop_V7
 

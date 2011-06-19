@@ -6104,15 +6104,15 @@ def _tri_up(sif,sopened=None):
     ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
 
     bfilter = gand(
-                sif.sdiff10x>sif.sdea10x,
-                sif.sdiff10x > 0,
+                sif.sdiff10x>sif.sdea10x,#第二重a
+                sif.sdiff10x > 0,#第二重b
                 sif.dhigh - sif.dlow > 180,
-                #sif.dhigh > ldopen + 30, 
-                sif.r120>0,
+                sif.high > ldopen, 
+                sif.r120>0, #第一重
             )
 
     signal = gand(
-                cross(bline,sif.high)>0,
+                cross(bline,sif.high)>0,#第三重
                 rollx(bfilter),
             )
 
@@ -6127,14 +6127,15 @@ def _tri_down(sif,sopened=None):
         三重滤网, 向下找不到合适的
     '''
 
-    bline = rollx(tmax(sif.low,60),1)
+    bline = rollx(tmin(sif.low,45),1)
 
     ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
 
     bfilter = gand(
-                sif.sdiff15x < sif.sdea15x,
-                sif.sdiff3x > 0,
-                sif.dhigh - sif.dlow > 180,
+                sif.sdiff10x < sif.sdea10x,
+                sif.dhigh - sif.dlow > 360,
+                sif.r60<0,
+                strend2(sif.ma30)<0,
             )
 
     signal = gand(
@@ -6146,7 +6147,9 @@ def _tri_down(sif,sopened=None):
 
 tri_down = SXFuncA(fstate=gofilter,fsignal=_tri_down,fwave=gofilter,ffilter=mfilter)
 tri_down.name = u'tri_down'
-tri_down.stop_closer = utrade.atr5_ustop_V12
+tri_down.stop_closer = utrade.atr5_ustop_V25
+
+xtri = [tri_up,tri_down]        #一个非常好的候选策略
 
 best_b = [tri_up]
 

@@ -5927,6 +5927,7 @@ def _ydds3(sif): #xdds3的实现
 ydds3 = SXFuncA(fstate=gofilter,fsignal=_ydds3,fwave=gofilter,ffilter=mfilter)    #这个单个效益巨好
 ydds3.name = u'ydds3'
 ydds3.stop_closer = utrade.atr5_ustop_TA
+#ydds3.stop_closer = utrade.atr5_ustop_V15
 
 def _ydds4(sif): #xdds4的实现
     xfilter = gand(

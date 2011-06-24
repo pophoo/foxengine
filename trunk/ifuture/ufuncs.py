@@ -673,23 +673,28 @@ break_fx = [break_fhx,break_flx]    ##########一个还可以的独立策略. �
 
 def nhh(sif,vbreak=30,vrange=250):  #可以借鉴nhhn的过滤条件,300也不错
     #使用最高点+30, 也就是说必须一下拉开3点
-    #ldlow = dnext(sif.lowd/2+sif.closed/2,sif.close,sif.i_cofd)
+    ldup = dnext(gand(sif.highd>rollx(sif.highd),sif.lowd>rollx(sif.lowd)),sif.close,sif.i_cofd)
 
     #ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
 
     #vrange = sif.close / 1200 * 10
 
-    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)        
+    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)     
     
     ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
-    #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
+    
+    ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     thigh = rollx(sif.dhigh+vbreak,3)
 
     blow = rollx(sif.dlow,1)
     #thigh = np.select([sif.time<1030,sif.time>=1030],[gmax(thigh,rollx(sif.dlow) + 200),thigh])
     #thigh = gmax(thigh,rollx(sif.dlow,1) + vrange + vbreak)
     #thigh = np.select([gand(sif.time<1330,rollx(sif.dhigh-sif.dlow)<vrange),sif.time>0],[sif.dlow+vrange+vbreak,thigh])    
-    thigh = gmax(thigh,blow + vrange + vbreak,ldopen+90)
+
+    slimit = gmax(blow + vrange + vbreak,ldopen+90)
+    #slimit = np.select([bnot(ldup)],[slimit],rollx(sif.dhigh))
+
+    thigh = gmax(thigh,slimit)
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
             sif.high > thigh,
@@ -1257,6 +1262,11 @@ def mll2(sif,length=80,vbreak=10,vrange=350):
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     #ldmid = dnext((sif.highd+gmin(sif.closed,sif.opend))/2,sif.close,sif.i_cofd)
     ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
+
+    ldlow = dnext(gmin(sif.closed,sif.opend),sif.close,sif.i_cofd) - 0 
+    lddown = dnext(gand(sif.highd < rollx(sif.highd),sif.lowd<rollx(sif.lowd)),sif.close,sif.i_cofd)
+
+
     opend = dnext(sif.opend,sif.open,sif.i_oofd)            
     #highd = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)            
     #ldmid = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)        
@@ -1272,8 +1282,13 @@ def mll2(sif,length=80,vbreak=10,vrange=350):
     
     #mytime = 1315
 
-    #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])    
-    tlow = np.select([sif.time<1325,sif.time>=1325],[gmin(sif.dhigh-vrange,tlow),gmin(tlow,sif.dhigh-250)])
+    #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])
+    slimit = np.select([sif.time<1325,sif.time>=1325],[sif.dhigh-vrange,sif.dhigh-250])
+    #slimit = np.select([sif.time<1325,sif.time>=1325],[sif.dhigh-vrange,gmax(sif.dhigh-250,ldlow)])
+    #slimit = gmax(slimit,ldlow)
+    #slimit = np.select([lddown],[sif.dhigh-250],slimit)
+    #tlow = np.select([sif.time<1325,sif.time>=1325],[gmin(sif.dhigh-vrange,tlow),gmin(tlow,sif.dhigh-250)])
+    tlow = gmin(slimit,tlow)
     #tlow = np.select([sif.time<1325,sif.time>=1325],[gmin(sif.dhigh-vrange,tlow),tlow])
     #tlow = np.select([sif.time<mytime,sif.time>=mytime],[gmin(sif.dhigh-vrange,tlow),gmin(sif.dhigh-vrange2,tlow)])
     #tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(sif.dhigh-vrange,tlow),tlow])

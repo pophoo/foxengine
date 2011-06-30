@@ -6307,9 +6307,9 @@ shbreak_mll2.stop_closer = utrade.atr5_ustop_TV #_TV
 
 shbreak_mll2.stop_closer = utrade.atr5_ustop_V25 #这个也不错
 
-#shbreak_mll2.stop_closer = utrade.atr5_ustop_V7
+#shbreak_mll2.stop_closer = utrade.atr5_ustop_TU
 
-hbreak_nhh.stop_closer = utrade.atr5_ustop_TA
+#hbreak_nhh.stop_closer = utrade.atr5_ustop_TA
 
 #hbreak_nhh.stop_closer = utrade.atr5_ustop_V25
 

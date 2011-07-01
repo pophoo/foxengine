@@ -1288,7 +1288,7 @@ def mll2(sif,length=80,vbreak=10,vrange=350):
     #slimit = gmax(slimit,ldlow)
     #slimit = np.select([lddown],[sif.dhigh-250],slimit)
     #tlow = np.select([sif.time<1325,sif.time>=1325],[gmin(sif.dhigh-vrange,tlow),gmin(tlow,sif.dhigh-250)])
-    tlow = gmin(slimit,tlow)
+    tlow = gmin(slimit,tlow,ldmid-60)
     #tlow = np.select([sif.time<1325,sif.time>=1325],[gmin(sif.dhigh-vrange,tlow),tlow])
     #tlow = np.select([sif.time<mytime,sif.time>=mytime],[gmin(sif.dhigh-vrange,tlow),gmin(sif.dhigh-vrange2,tlow)])
     #tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(sif.dhigh-vrange,tlow),tlow])
@@ -6307,7 +6307,7 @@ shbreak_mll2.stop_closer = utrade.atr5_ustop_TV #_TV
 
 shbreak_mll2.stop_closer = utrade.atr5_ustop_V25 #这个也不错
 
-#shbreak_mll2.stop_closer = utrade.atr5_ustop_TU
+shbreak_mll2.stop_closer = utrade.atr5_ustop_V7
 
 #hbreak_nhh.stop_closer = utrade.atr5_ustop_TA
 

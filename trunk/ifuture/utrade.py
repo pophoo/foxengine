@@ -1066,6 +1066,17 @@ atr5_ustop_V7 = fcustom(atr_stop_u,
                 fmax_drawdown=iftrade.F333
             )      #
 
+atr5_ustop_V712 = fcustom(atr_stop_u,
+                fkeeper=iftrade.F120,
+                #win_times=250,
+                #natr=5,
+                win_times=40,
+                natr = 270,
+                flost_base=iftrade.F70,
+                fmax_drawdown=iftrade.F333
+            )      #
+
+
 atr5_ustop_V8 = fcustom(atr_stop_u,
                 fkeeper=iftrade.F80,
                 #win_times=250,

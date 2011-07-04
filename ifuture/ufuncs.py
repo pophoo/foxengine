@@ -6311,7 +6311,7 @@ shbreak_mll2.stop_closer = utrade.atr5_ustop_V25 #这个也不错
 
 #shbreak_mll2.stop_closer = utrade.atr5_ustop_V712
 
-#hbreak_nhh.stop_closer = utrade.atr5_ustop_TA
+hbreak_nhh.stop_closer = utrade.atr5_ustop_TA
 
 #hbreak_nhh.stop_closer = utrade.atr5_ustop_V25
 
@@ -6321,6 +6321,8 @@ shbreak_mll2.stop_closer = utrade.atr5_ustop_V25 #这个也不错
 
 shbreak_mll2n.stop_closer = utrade.atr5_ustop_TV    #最好的
 hbreak_nhhn.stop_closer = utrade.atr5_ustop_TA      #最好的
+
+
 
 hbreak_mhhz.stop_closer = utrade.atr5_ustop_TU  #最好的
 

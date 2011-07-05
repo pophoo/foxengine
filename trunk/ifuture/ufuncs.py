@@ -6313,7 +6313,7 @@ shbreak_mll2.stop_closer = utrade.atr5_ustop_V25 #这个也不错
 
 hbreak_nhh.stop_closer = utrade.atr5_ustop_TA
 
-#hbreak_nhh.stop_closer = utrade.atr5_ustop_V25
+hbreak_nhh.stop_closer = utrade.atr5_ustop_V25
 
 #hbreak_nhh.stop_closer = utrade.atr5_ustop_V7
 

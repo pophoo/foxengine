@@ -562,7 +562,8 @@ def atr_stop_v(
                     if(nlow < cur_low):
                         cur_low = nlow
                         win_stop = lost_stop - (sell_price - cur_low)/mytstep * vstep 
-                        cur_stop = win_stop
+                        mstop = cur_low + max_drawdown
+                        cur_stop = win_stop if win_stop < mstop else mstop
                         
     #print will_losts
     #print rev[np.nonzero(rev)]
@@ -1639,11 +1640,17 @@ step_stop_7 = fcustom(step_stop,
 
 vstop_10_42 = fcustom(atr_stop_v,
                 flost_base = iftrade.F100,    
-                fmax_drawdown = iftrade.F250, 
+                fmax_drawdown = iftrade.F360, 
                 tstep = lambda sif,i:40,     
                 vstep = 20,                  
             )
 
+vstop_7_42 = fcustom(atr_stop_v,
+                flost_base = iftrade.F70,    
+                fmax_drawdown = iftrade.F360, 
+                tstep = lambda sif,i:40,     
+                vstep = 20,                  
+            )
 
 
 utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])

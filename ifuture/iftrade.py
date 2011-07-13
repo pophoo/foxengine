@@ -2146,7 +2146,14 @@ F180 = lambda bpoint:180
 F200 = lambda bpoint:200
 F250 = lambda bpoint:250
 F300 = lambda bpoint:300
+F320 = lambda bpoint:320
 F333 = lambda bpoint:333
+F350 = lambda bpoint:350
+F360 = lambda bpoint:360
+
+F400 = lambda bpoint:400
+F500 = lambda bpoint:500
+
 
 atr5_uxstop_k0 = fcustom(atr_uxstop_k,fkeeper=F40,win_times=250,natr=5,flost_base=F60)      #40-60
 atr5_uxstop_kA = fcustom(atr_uxstop_k,fkeeper=F60,win_times=250,natr=5,flost_base=F40)      #60-40

@@ -447,6 +447,127 @@ def atr_stop_u(
     #print rev[np.nonzero(rev)]
     return rev
 
+def atr_stop_v(
+        sif,
+        sopened,
+        sbclose,
+        ssclose,
+        flost_base = iftrade.F70,    #flost:买入点数 --> 止损点数
+        fmax_drawdown = iftrade.F250, #最大回落
+        tstep = lambda sif,i:40,     #行情顺向滑动单位
+        vstep = 20,                  #止损顺向移动单位   
+        ):
+    '''
+    '''
+    #print sbclose[-10:],ssclose[-10:]
+    trans = sif.transaction
+    rev = np.zeros_like(sopened)
+    isignal = np.nonzero(sopened)[0]
+    ilong_closed = 0    #多头平仓日
+    ishort_closed = 0   #空头平仓日
+    will_losts = []
+    myssclose = ssclose * XSELL #取符号, 如果是买入平仓，则<0
+    mysbclose = sbclose * XBUY #取符号, 如果是卖出平仓，则<0
+    #print mysbclose[-300:]
+    #print myssclose[np.nonzero(myssclose)]
+    #print target
+    for i in isignal:
+        price = sopened[i]
+        aprice = abs(price)
+        willlost = flost_base(aprice)
+        max_drawdown = fmax_drawdown(aprice)
+        will_losts.append(willlost)
+        mytstep = tstep(sif,i)
+        if price<0: #多头止损
+            #print u'多头止损'
+            if i <= ilong_closed:
+                #print 'long skipped'
+                continue
+            #print 'find long stop:',i
+            #if i < ilong_closed:    #已经开了多头仓，且未平，不再计算
+            #    print 'skiped',trans[IDATE][i],trans[ITIME][i],trans[IDATE][ilong_closed],trans[ITIME][ilong_closed]
+            #    continue
+            buy_price = -price
+            lost_stop = buy_price - willlost
+            cur_high = max(buy_price,sif.close[i])
+            win_stop = lost_stop + (cur_high - buy_price)/mytstep * vstep
+            #cur_stop = lost_stop if lost_stop > win_stop else win_stop
+            cur_stop = win_stop #win_stop必然大于lost_stop
+            #print 'wtarget:%s',wtarget
+            #print 'stop init:',cur_stop,lost_stop,willlost,min_lost,max_lost
+            if myssclose[i] > 0:
+                #print 'sell signali:',trans[IDATE][i],trans[ITIME][i],trans[ICLOSE][i]
+                pass
+            if trans[ICLOSE][i] < cur_stop:#到达止损
+                #print '----sell----------:',trans[IDATE][i],trans[ITIME][i],cur_stop,trans[ICLOSE][i],cur_high,lost_stop
+                ilong_closed = i
+                rev[i] = cur_stop * XSELL   #设定价格
+            elif myssclose[i] >0:#或平仓
+                ilong_closed = i                
+                rev[i] = myssclose[i] * XSELL
+            else:
+                for j in range(i+1,len(rev)):
+                    tv = sif.close[j] - buy_price
+                    #print trans[ITIME][j],buy_price,lost_stop,cur_high,win_stop,cur_stop,trans[ILOW][j],satr[j]
+                    if trans[ILOW][j] < cur_stop:
+                        ilong_closed = j
+                        rev[j] = cur_stop * XSELL 
+                        #print 'sell in atrstop:'#,i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
+                        break
+                    elif  myssclose[j] >0:
+                        ilong_closed = j
+                        rev[j] = myssclose[j] * XSELL 
+                        #print 'sell in sclose:'#,i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
+                        break
+                    nhigh = trans[IHIGH][j]
+                    if(nhigh > cur_high):
+                        cur_high = nhigh
+                        win_stop = lost_stop + (cur_high - buy_price)/mytstep * vstep
+                        mstop = cur_high - max_drawdown
+                        cur_stop = win_stop if win_stop > mstop else mstop
+        else:   #空头止损
+            #print 'find short stop:',i
+            if i<=ishort_closed:
+                #print 'short skipped'
+                continue
+            sell_price = price
+            lost_stop = sell_price + willlost
+            cur_low = min(sell_price,trans[ICLOSE][i])
+            win_stop = lost_stop - (sell_price - cur_low)/mytstep * vstep 
+            cur_stop = win_stop
+            if trans[ICLOSE][i] > cur_stop:
+                #print '----buy----------:',cur_stop,trans[ICLOSE][i],cur_high,lost_stop
+                ishort_closed = i
+                rev[i] = cur_stop * XBUY
+            elif mysbclose[i] >0:
+                #print 'buy signali:',trans[IDATE][i],trans[ITIME][i],trans[ICLOSE][i]
+                ishort_closed = i
+                rev[i] = mysbclose[i] *XBUY
+            else:
+                for j in range(i+1,len(rev)):
+                    tv = sell_price - sif.close[j]
+                    #print trans[ITIME][j],sell_price,lost_stop,cur_low,win_stop,cur_stop,trans[IHIGH][j],satr[j]                
+                    if trans[IHIGH][j] > cur_stop:
+                        ishort_closed = j
+                        rev[j] = cur_stop * XBUY
+                        #print 'buy:',j
+                        #print 'buy:',i,price,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j]                        
+                        break
+                    elif mysbclose[j] >0:
+                        #print 'buy signalj:',trans[IDATE][j],trans[ITIME][j],cur_stop,trans[ICLOSE][j]
+                        ishort_closed = j
+                        rev[j] = mysbclose[j] * XBUY
+                        break
+                    nlow = trans[ILOW][j]
+                    if(nlow < cur_low):
+                        cur_low = nlow
+                        win_stop = lost_stop - (sell_price - cur_low)/mytstep * vstep 
+                        cur_stop = win_stop
+                        
+    #print will_losts
+    #print rev[np.nonzero(rev)]
+    return rev
+
 def step_stop(
         sif
         ,sopened
@@ -1515,6 +1636,14 @@ step_stop_7 = fcustom(step_stop,
                 flost_base = lambda x:275,
                 step = 550,
                 )
+
+vstop_10_42 = fcustom(atr_stop_v,
+                flost_base = iftrade.F100,    
+                fmax_drawdown = iftrade.F250, 
+                tstep = lambda sif,i:40,     
+                vstep = 20,                  
+            )
+
 
 
 utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])

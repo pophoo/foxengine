@@ -1282,8 +1282,11 @@ def mll2(sif,length=80,vbreak=10,vrange=350):
     
     #mytime = 1315
 
+    tlimit = 1325
+
     #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])
-    slimit = np.select([sif.time<1325,sif.time>=1325],[sif.dhigh-vrange,sif.dhigh-250])
+    #slimit = np.select([sif.time<1325,sif.time>=1325],[sif.dhigh-vrange,sif.dhigh-250])
+    slimit = np.select([sif.time<tlimit,sif.time>=tlimit],[sif.dhigh-vrange,tlow])
     #slimit = np.select([sif.time<1325,sif.time>=1325],[sif.dhigh-vrange,gmax(sif.dhigh-250,ldlow)])
     #slimit = gmax(slimit,ldlow)
     #slimit = np.select([lddown],[sif.dhigh-250],slimit)
@@ -1309,9 +1312,9 @@ def mll2(sif,length=80,vbreak=10,vrange=350):
             gor(tlow<ldmid-60),#,tlow==rollx(sif.dlow)+vbreak),
             #sif.time > 915,
             rollx(sif.ma13) < rollx(sif.ma30),
-            rollx(sif.ma7) < rollx(sif.ma20),
+            #rollx(sif.ma7) < rollx(sif.ma20),
             #sif.dhigh - sif.low > 150,
-            sif.dhigh - tlow > 120,
+            #sif.dhigh - tlow > 120,
         )
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入
  
@@ -6307,7 +6310,9 @@ for x in rxxx:
 
 shbreak_mll2.stop_closer = utrade.atr5_ustop_V25 #这个也不错
 
-#shbreak_mll2.stop_closer = utrade.atr5_ustop_V7
+shbreak_mll2.stop_closer = utrade.atr5_ustop_V7
+
+shbreak_mll2.stop_closer = utrade.vstop_10_42
 
 #shbreak_mll2.stop_closer = utrade.atr5_ustop_V712
 
@@ -6315,7 +6320,9 @@ hbreak_nhh.stop_closer = utrade.atr5_ustop_TA
 
 hbreak_nhh.stop_closer = utrade.atr5_ustop_V25
 
-#hbreak_nhh.stop_closer = utrade.atr5_ustop_V7
+hbreak_nhh.stop_closer = utrade.atr5_ustop_V7
+
+hbreak_nhh.stop_closer = utrade.vstop_10_42
 
 #hbreak_nhh.stop_closer = utrade.atr5_ustop_V7
 

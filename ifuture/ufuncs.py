@@ -6314,6 +6314,8 @@ shbreak_mll2.stop_closer = utrade.atr5_ustop_V7
 
 shbreak_mll2.stop_closer = utrade.vstop_10_42
 #shbreak_mll2.stop_closer = utrade.vstop_7_42
+#shbreak_mll2.stop_closer = utrade.atr5_ustop_V10
+
 
 #shbreak_mll2.stop_closer = utrade.atr5_ustop_V712
 
@@ -6326,6 +6328,8 @@ hbreak_nhh.stop_closer = utrade.atr5_ustop_V7
 hbreak_nhh.stop_closer = utrade.vstop_10_42
 #hbreak_nhh.stop_closer = utrade.vstop_7_42
 
+#hbreak_nhh.stop_closer = utrade.atr5_ustop_V10
+
 #hbreak_nhh.stop_closer = utrade.atr5_ustop_V7
 
 shbreak_mll2n.stop_closer = utrade.atr5_ustop_TV    #最好的
@@ -6337,6 +6341,9 @@ hbreak_mhhz.stop_closer = utrade.atr5_ustop_TU  #最好的
 
 hbreak_nhhz.stop_closer = utrade.atr5_ustop_TV
 shbreak_mll2z.stop_closer = utrade.atr5_ustop_TU
+#shbreak_mll2z.stop_closer = utrade.vstop_10_42
+#hbreak_nhhz.stop_closer = utrade.vstop_10_42
+
 
 #shbreak_mll2z.stop_closer = utrade.atr5_ustop_TA
 

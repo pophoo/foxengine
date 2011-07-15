@@ -934,6 +934,11 @@ def nhhv(sif,vbreak=30):  #貌似20/30都可以
 
     #vbreak = ldatr * 1/20 /XBASE
 
+    vwave = dnext(ma(sif.dhigh-sif.dlow,30),sif.close,sif.i_cofd)
+
+    vrange = vwave * 3/2
+
+
     #thigh = gmax(thigh,blow + vrange + vbreak,ldopen+vopen)
     thigh = blow + vrange
     signal = gand(
@@ -1506,7 +1511,7 @@ def mll2z(sif,length=80,vbreak=20):
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入
 
 
-def mll2v(sif,length=80,vbreak=20):
+def mll2v(sif,length=80,vbreak=10):
     #使用最低点
     tlow = rollx(tmin(sif.low,length)+vbreak,1)
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
@@ -1530,18 +1535,22 @@ def mll2v(sif,length=80,vbreak=20):
 
     vwave = dnext(ma(sif.dhigh-sif.dlow,30),sif.close,sif.i_cofd)
 
-    vrange = vwave * 6/5
+    vrange = vwave * 5/3
 
     #vrange = np.select([vrange<500],[vrange],500)
-    vrange = gmin(vrange,ldclose/66)    #vrange不能超过太大
-    vmid = ldatr *1/8/XBASE
-    #vmid = 60
+    #vrange = gmin(vrange,ldclose/66)    #vrange不能超过太大
+    vrange = gmin(vrange,opend/66)    #vrange不能超过太大
+    #vmid = ldatr *1/8/XBASE
+    vmid = 60
+    #vmid = (opend +250)/ 500
 
     #tlow = gmin(tlow,ldmid-32)
     
+    tlimit = 1325
     #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])    
     #tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(bhigh-vrange,tlow),tlow])
-    tlow = np.select([sif.time<1325,sif.time>=1325],[gmin(bhigh-vrange,tlow),tlow])    
+    tlow = np.select([sif.time<=tlimit,sif.time>tlimit],[gmin(bhigh-vrange,tlow),tlow])    
+    #tlow = gmin(bhigh-vrange,tlow)
     #tlow = gmin(sif.dhigh-vrange,tlow)
     
     #mysup = gand(sif.high > sif.dlow+ldatr/2/XBASE)
@@ -1552,7 +1561,8 @@ def mll2v(sif,length=80,vbreak=20):
     signal = gand(
             cross(tlow,sif.low)<0,
             #sif.low < tlow,
-            gor(tlow<ldmid-vmid,tlow==rollx(sif.dlow)+vbreak),
+            #gor(tlow<ldmid-vmid,tlow==rollx(sif.dlow)+vbreak),
+            tlow < ldmid - vmid,
             #tlow<ldmid-vmid,
             #tlow < ldmid-vmid,
             sif.time > 915,
@@ -6416,6 +6426,8 @@ shbreak_mll2z.stop_closer = utrade.atr5_ustop_TU
 
 shbreak_mll2v.stop_closer = utrade.atr5_ustop_TU
 shbreak_mll2v.stop_closer = utrade.vstop_10_42
+hbreak_nhhv.stop_closer = utrade.atr5_ustop_TV
+hbreak_nhhv.stop_closer = utrade.vstop_10_42
 
 
 #shbreak_mll2z.stop_closer = utrade.atr5_ustop_TA
@@ -6437,7 +6449,6 @@ shbreak_mll2z2.stop_closer = utrade.atr5_ustop_TU
 #shbreak_mll2.stop_closer = utrade.step_stop_7
 #hbreak_nhh.stop_closer = utrade.step_stop_7
 
-hbreak_nhhv.stop_closer = utrade.atr5_ustop_TV
 
 
 shbreak_mll2e.stop_closer = utrade.atr5_ustop_T

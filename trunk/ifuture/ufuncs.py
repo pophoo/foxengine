@@ -1443,7 +1443,6 @@ def mll2r(sif,length=80,vbreak=10,vrange=250):
         )
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入
 
-
 def mll2z(sif,length=80,vbreak=20):
     #使用最低点
     tlow = rollx(tmin(sif.low,length)+vbreak,1)
@@ -1480,7 +1479,69 @@ def mll2z(sif,length=80,vbreak=20):
     
     #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])    
     #tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(bhigh-vrange,tlow),tlow])
-    tlow = np.select([sif.time<1315,sif.time>=1315],[gmin(bhigh-vrange,tlow),tlow])    
+    tlow = np.select([sif.time<1325,sif.time>=1325],[gmin(bhigh-vrange,tlow),tlow])    
+    #tlow = gmin(sif.dhigh-vrange,tlow)
+    
+    #mysup = gand(sif.high > sif.dlow+ldatr/2/XBASE)
+    mysup = gand(sif.high > sif.dlow+ldatr/2/XBASE)
+    #sss = dsum(mysup,sif.iday)
+    sss = extend(mysup,60)
+
+    signal = gand(
+            cross(tlow,sif.low)<0,
+            #sif.low < tlow,
+            gor(tlow<ldmid-vmid,tlow==rollx(sif.dlow)+vbreak),
+            #tlow<ldmid-vmid,
+            #tlow < ldmid-vmid,
+            sif.time > 915,
+            #rollx(sif.ma13) < rollx(sif.ma30),
+            rollx(ma(sif.high,13)) < rollx(ma(sif.high,30)),
+            rollx(sif.xatr)<2000,
+            rollx(sif.xatr30x)<10000,
+            #sss < 1,
+            #sif.dhigh - tlow > 120,  
+        )
+    #signal = gand(msum(signal,10) > 1,signal)
+    
+    return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入
+
+
+def mll2v(sif,length=80,vbreak=20):
+    #使用最低点
+    tlow = rollx(tmin(sif.low,length)+vbreak,1)
+    #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
+    #ldmid = dnext((sif.highd+gmin(sif.closed,sif.opend))/2,sif.close,sif.i_cofd)
+    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
+    opend = dnext(sif.opend,sif.open,sif.i_oofd)            
+    #highd = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)            
+    #ldmid = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)        
+    #ldmid = dnext(sif.highd,sif.close,sif.i_cofd)        
+    #ldmid = dnext((sif.highd+sif.closed)/2,sif.close,sif.i_cofd)    
+    ldrange = dnext(sif.highd-sif.lowd,sif.close,sif.i_cofd) 
+    ldclose = dnext(sif.closed,sif.close,sif.i_cofd) 
+    
+    ldatr30 = dnext(sif.atr30,sif.close,sif.i_cof30)
+    ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
+    
+    xatrd = dnext(sif.xatrd,sif.close,sif.i_cofd)
+
+    #bhigh = gmax(ldclose,sif.dhigh)
+    bhigh = sif.dhigh
+
+    vwave = dnext(ma(sif.dhigh-sif.dlow,30),sif.close,sif.i_cofd)
+
+    vrange = vwave * 6/5
+
+    #vrange = np.select([vrange<500],[vrange],500)
+    vrange = gmin(vrange,ldclose/66)    #vrange不能超过太大
+    vmid = ldatr *1/8/XBASE
+    #vmid = 60
+
+    #tlow = gmin(tlow,ldmid-32)
+    
+    #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])    
+    #tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(bhigh-vrange,tlow),tlow])
+    tlow = np.select([sif.time<1325,sif.time>=1325],[gmin(bhigh-vrange,tlow),tlow])    
     #tlow = gmin(sif.dhigh-vrange,tlow)
     
     #mysup = gand(sif.high > sif.dlow+ldatr/2/XBASE)
@@ -1750,6 +1811,11 @@ shbreak_mll2z.name = u'日内75分钟向下突破z'
 
 shbreak_mll2z2 = SXFuncA(fstate=sdown,fsignal=mll2z2,fwave=gofilter,ffilter=nfilter3)    #优于nll
 shbreak_mll2z2.name = u'日内75分钟向下突破z2'
+
+shbreak_mll2v = SXFuncA(fstate=gofilter,fsignal=mll2v,fwave=gofilter,ffilter=nfilter3)    #优于nll
+#shbreak_mll2v = SXFuncA(fstate=sdown,fsignal=mll2v,fwave=gofilter,ffilter=efilter)    #优于nll
+shbreak_mll2v.name = u'日内75分钟向下突破v'
+
 
 shbreak_mll2_e = SXFuncA(fstate=gofilter,fsignal=fcustom(mll2,vrange=250),fwave=gofilter,ffilter=emfilter3)    #貌似无用
 shbreak_mll2_e.name = u'日内75分钟向下突破e'    
@@ -6335,6 +6401,8 @@ hbreak_nhh.stop_closer = utrade.vstop_10_42
 shbreak_mll2n.stop_closer = utrade.atr5_ustop_TV    #最好的
 hbreak_nhhn.stop_closer = utrade.atr5_ustop_TA      #最好的
 
+#hbreak_nhhn.stop_closer = utrade.vstop_10_42
+#shbreak_mll2n.stop_closer = utrade.vstop_10_42
 
 
 hbreak_mhhz.stop_closer = utrade.atr5_ustop_TU  #最好的
@@ -6343,6 +6411,11 @@ hbreak_nhhz.stop_closer = utrade.atr5_ustop_TV
 shbreak_mll2z.stop_closer = utrade.atr5_ustop_TU
 #shbreak_mll2z.stop_closer = utrade.vstop_10_42
 #hbreak_nhhz.stop_closer = utrade.vstop_10_42
+#hbreak_nhhz.stop_closer = utrade.vstop_10_42
+#shbreak_mll2z.stop_closer = utrade.vstop_10_42
+
+shbreak_mll2v.stop_closer = utrade.atr5_ustop_TU
+shbreak_mll2v.stop_closer = utrade.vstop_10_42
 
 
 #shbreak_mll2z.stop_closer = utrade.atr5_ustop_TA

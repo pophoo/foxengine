@@ -475,6 +475,7 @@ def atr_stop_v(
         price = sopened[i]
         aprice = abs(price)
         willlost = flost_base(aprice)
+        #willlost = sif.atr15x[i]/XBASE    #效果不佳
         max_drawdown = fmax_drawdown(aprice)
         will_losts.append(willlost)
         mytstep = tstep(sif,i)

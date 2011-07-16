@@ -569,6 +569,8 @@ def rover(shigh,slow,threshold=100):#10点转向
     '''
     assert len(shigh) == len(slow)
     rev = np.zeros_like(shigh)
+    #rev2 = np.zeros_like(shigh)
+    #rev3 = np.zeros_like(shigh)
     if(len(shigh) < 3):
         return rev
     hstate,lstate = 0,0
@@ -581,6 +583,8 @@ def rover(shigh,slow,threshold=100):#10点转向
                 hstate = 0
                 if hpeak - hbegin > threshold:  #幅度超过额定
                     rev[i] = hpeak - hbegin
+                    #rev2[i] = hpeak
+                    #rev3[i] = hbegin
             elif ch > hpeak:    #如果cl<hpeak-threshold,则即便ch>hpeak，也算终止
                 hpeak = ch
             else:
@@ -594,6 +598,8 @@ def rover(shigh,slow,threshold=100):#10点转向
                 lstate = 0
                 if lbegin - lpeak > threshold:
                     rev[i] = lpeak - lbegin #负数
+                    #rev2[i] = lpeak
+                    #rev3[i] = lbegin
             elif cl < lpeak:
                 lpeak = cl
             else:
@@ -603,7 +609,7 @@ def rover(shigh,slow,threshold=100):#10点转向
             lpeak = cl
             lstate = 1
         hpre,lpre = ch,cl
-    return rev
+    return rev#,rev2,rev3
 
 def wms(tclose,thigh,tlow,length):
     ''' 威廉指标

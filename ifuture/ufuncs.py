@@ -936,11 +936,11 @@ def nhhv(sif,vbreak=30):  #貌似20/30都可以
 
     vwave = dnext(ma(sif.dhigh-sif.dlow,30),sif.close,sif.i_cofd)
 
-    vrange = vwave * 3/2
+    vrange = vwave * 1/2
+    vrange = gmin(vrange,ldclose/100)    #vrange不能超过太大
 
-
-    #thigh = gmax(thigh,blow + vrange + vbreak,ldopen+vopen)
-    thigh = blow + vrange
+    thigh = gmax(thigh,blow + vrange)
+    #thigh = blow + vrange
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
             #sif.high > thigh,
@@ -1868,6 +1868,9 @@ mhbreak = [mhbreak_mll2,mhbreak_nhh]
 hbreak = [shbreak_mll2,break_nhh]  #利润比较好
 #hbreak2 = [shbreak_mll2,hbreak_nhh,hbreak_nhh_e]  #这个最大回撤最小      #####################采用此个
 hbreak2 = [shbreak_mll2,hbreak_nhh]#,hbreak_nhh_e]  #这个最大回撤最小      #####################采用此个
+
+hbreak2v = [shbreak_mll2v,hbreak_nhhv]#,hbreak_nhh_e]  #这个去除了对特定过滤幅度值的依赖, 次数减少20%,收益减少2%;
+
 
 hbreak3 = [hbreak_nhh,shbreak_mll2]#,hbreak_nhh_e]#
 

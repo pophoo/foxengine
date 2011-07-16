@@ -564,6 +564,47 @@ def zigzag(source,threshold):#source[i]不能为0. 因为用到了 and . or 选�
         boundary[i] = limit
     return points,boundary
 
+def rover(shigh,slow,threshold=100):#10点转向
+    ''' 幅度计算
+    '''
+    assert len(shigh) == len(slow)
+    rev = np.zeros_like(shigh)
+    if(len(shigh) < 3):
+        return rev
+    hstate,lstate = 0,0
+    hpeak = hbegin = hpre = shigh[0]
+    lpeak = lbegin = lpre = slow[0]    
+    for i in xrange(1,len(shigh)):
+        ch,cl = shigh[i],slow[i]
+        if(hstate == 1):#上行过程
+            if cl < hpeak-threshold:  #上行终止
+                hstate = 0
+                if hpeak - hbegin > threshold:  #幅度超过额定
+                    rev[i] = hpeak - hbegin
+            elif ch > hpeak:    #如果cl<hpeak-threshold,则即便ch>hpeak，也算终止
+                hpeak = ch
+            else:
+                pass    #平安无事
+        elif ch > hpre:   #上行无状态
+            hbegin = hpre
+            hpeak = ch
+            hstate = 1
+        if(lstate == 1):#下行过程
+            if ch > lpeak + threshold: #下行终止
+                lstate = 0
+                if lbegin - lpeak > threshold:
+                    rev[i] = lpeak - lbegin #负数
+            elif cl < lpeak:
+                lpeak = cl
+            else:
+                pass
+        elif cl < lpre:
+            lbegin = lpre
+            lpeak = cl
+            lstate = 1
+        hpre,lpre = ch,cl
+    return rev
+
 def wms(tclose,thigh,tlow,length):
     ''' 威廉指标
         可单独使用，同时也被kdj用到

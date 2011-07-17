@@ -539,6 +539,25 @@ def nhhk(sif,vbreak=0):
         )
     return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以开盘价进入
 
+def nhht(sif):
+ 
+    #sr = srover2(sif.high,sif.low,sif.time==1514,50,30)
+    sr = srover(sif.high,sif.low,sif.time==1514,150,150)
+    isr = np.nonzero(sr)
+    msr = np.zeros_like(sif.close)
+    msr[isr] = rollx(ma(sr[isr],7))
+    msr = extend2next(msr)
+
+    slow = tmin(sif.low,60)
+
+    thigh = rollx(slow + msr *12/10,3)
+
+    signal = gand(
+            cross(thigh+20,sif.high)>0,
+        )
+    return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以开盘价进入
+
+
 def nllx(sif,vbreak=-10):
     tlow = rollx(sif.dlow - vbreak,1)
     ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
@@ -1188,6 +1207,9 @@ hbreak_nhhz.name = u'日内向上突破新高'
 hbreak_nhhz2 = BXFuncA(fstate=gofilter,fsignal=nhhz2,fwave=gofilter,ffilter=mfilter)  ##主要时段
 hbreak_nhhz2.name = u'日内向上突破新高'
 
+hbreak_nhht = BXFuncA(fstate=gofilter,fsignal=nhht,fwave=gofilter,ffilter=efilter)  ##主要时段
+#hbreak_nhht = BXFuncA(fstate=gofilter,fsignal=nhht,fwave=gofilter,ffilter=efilter)  ##主要时段
+hbreak_nhht.name = u'日内向上突破新高'
 
 shbreak_nllz = SXFuncA(fstate=sdown,fsignal=nllz,fwave=gofilter,ffilter=mfilter2)    #优于nll
 shbreak_nllz.name = u'日内7向下突破新低z'
@@ -6426,6 +6448,7 @@ shbreak_mll2z.stop_closer = utrade.atr5_ustop_TU
 #hbreak_nhhz.stop_closer = utrade.vstop_10_42
 #hbreak_nhhz.stop_closer = utrade.vstop_10_42
 #shbreak_mll2z.stop_closer = utrade.vstop_10_42
+hbreak_nhht.stop_closer = utrade.vstop_15_42
 
 shbreak_mll2v.stop_closer = utrade.atr5_ustop_TU
 shbreak_mll2v.stop_closer = utrade.vstop_10_42

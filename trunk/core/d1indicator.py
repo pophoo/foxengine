@@ -564,8 +564,10 @@ def zigzag(source,threshold):#source[i]不能为0. 因为用到了 and . or 选�
         boundary[i] = limit
     return points,boundary
 
-def rover(shigh,slow,threshold=100):#10点转向
+def rover(shigh,slow,threshold=100):#
     ''' 幅度计算
+        默认10点转向
+        连续计算
     '''
     assert len(shigh) == len(slow)
     rev = np.zeros_like(shigh)
@@ -608,6 +610,123 @@ def rover(shigh,slow,threshold=100):#10点转向
             lbegin = lpre
             lpeak = cl
             lstate = 1
+        hpre,lpre = ch,cl
+    return rev#,rev2,rev3
+
+def srover(shigh,slow,ssync,threshold=150,threshold2=100):#
+    ''' 幅度计算
+        默认10点转向
+        每日间隔,ssync为日结束点
+        threshold: 趋势回撤确认点
+        threshold2: 最小趋势过滤幅度，小于此幅度的不记录
+    '''
+    assert len(shigh) == len(slow)
+    rev = np.zeros_like(shigh)
+    #rev2 = np.zeros_like(shigh)
+    #rev3 = np.zeros_like(shigh)
+    if(len(shigh) < 3):
+        return rev
+    hstate,lstate = 0,0
+    hpeak = hbegin = hpre = shigh[0]
+    lpeak = lbegin = lpre = slow[0]    
+    for i in xrange(1,len(shigh)):
+        ch,cl = shigh[i],slow[i]
+        sy = ssync[i]
+        if(hstate == 1):#上行过程
+            if cl < hpeak-threshold or sy == 1:  #上行终止或当日结束
+                hstate = 0
+                if hpeak - hbegin > threshold2:  #幅度超过额定
+                    rev[i] = hpeak - hbegin
+                    #rev2[i] = hpeak
+                    #rev3[i] = hbegin
+            elif ch > hpeak:    #如果cl<hpeak-threshold,则即便ch>hpeak，也算终止
+                hpeak = ch
+            else:
+                pass    #平安无事
+        elif ch > hpre and sy == 0:   #上行无状态
+            hbegin = hpre
+            hpeak = ch
+            hstate = 1
+        if(lstate == 1):#下行过程
+            if ch > lpeak + threshold or sy == 1: #下行终止或当日结束
+                lstate = 0
+                if lbegin - lpeak > threshold2:
+                    rev[i] = lpeak - lbegin #负数
+                    #rev2[i] = lpeak
+                    #rev3[i] = lbegin
+            elif cl < lpeak:
+                lpeak = cl
+            else:
+                pass
+        elif cl < lpre and sy == 0:
+            lbegin = lpre
+            lpeak = cl
+            lstate = 1
+        hpre,lpre = ch,cl
+    return rev#,rev2,rev3
+
+def srover2(shigh,slow,ssync,threshold=50,threshold2=33):#
+    ''' 幅度计算
+        默认10点转向
+        每日间隔,ssync为日结束点
+        threshold: 趋势回撤确认点. 以hpeak当前值的万分之一为单位
+        threshold2: 最小趋势过滤幅度，小于此幅度的不记录. 以hpeak当前值的万分之一为单位
+    '''
+    assert len(shigh) == len(slow)
+    rev = np.zeros_like(shigh)
+    #rev2 = np.zeros_like(shigh)
+    #rev3 = np.zeros_like(shigh)
+    if(len(shigh) < 3):
+        return rev
+    hstate,lstate = 0,0
+    hpeak = hbegin = hpre = shigh[0]
+    lpeak = lbegin = lpre = slow[0]    
+    h_threshold = shigh[0] * threshold / 10000
+    h_threshold2 = shigh[0] * threshold2 / 10000
+    l_threshold = slow[0] * threshold / 10000
+    l_threshold2 = slow[0] * threshold2 / 10000
+
+    for i in xrange(1,len(shigh)):
+        ch,cl = shigh[i],slow[i]
+        sy = ssync[i]
+        if(hstate == 1):#上行过程
+            if cl < hpeak - h_threshold or sy == 1:  #上行终止或当日结束
+                hstate = 0
+                if hpeak - hbegin > h_threshold2:  #幅度超过额定
+                    rev[i] = hpeak - hbegin
+                    #rev2[i] = hpeak
+                    #rev3[i] = hbegin
+            elif ch > hpeak:    #如果cl<hpeak-threshold,则即便ch>hpeak，也算终止
+                hpeak = ch
+                h_threshold = hpeak * threshold / 10000
+                h_threshold2 = hpeak * threshold2 / 10000
+            else:
+                pass    #平安无事
+        elif ch > hpre and sy == 0:   #上行无状态
+            hbegin = hpre
+            hpeak = ch
+            hstate = 1
+            h_threshold = hpeak * threshold / 10000
+            h_threshold2 = hpeak * threshold2 / 10000
+        if(lstate == 1):#下行过程
+            if ch > lpeak + l_threshold or sy == 1: #下行终止或当日结束
+                lstate = 0
+                if lbegin - lpeak > l_threshold2:
+                    rev[i] = lpeak - lbegin #负数
+                    #rev2[i] = lpeak
+                    #rev3[i] = lbegin
+            elif cl < lpeak:
+                lpeak = cl
+                l_threshold = lpeak * threshold / 10000
+                l_threshold2 = lpeak * threshold2 / 10000
+            else:
+                pass
+        elif cl < lpre and sy == 0:
+            lbegin = lpre
+            lpeak = cl
+            lstate = 1
+            l_threshold = lpeak * threshold / 10000
+            l_threshold2 = lpeak * threshold2 / 10000
         hpre,lpre = ch,cl
     return rev#,rev2,rev3
 

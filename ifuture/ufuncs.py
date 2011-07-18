@@ -541,21 +541,52 @@ def nhhk(sif,vbreak=0):
 
 def nhht(sif):
  
-    #sr = srover2(sif.high,sif.low,sif.time==1514,50,30)
-    sr = srover(sif.high,sif.low,sif.time==1514,150,150)
-    isr = np.nonzero(sr)
+    sr = srover2(sif.high,sif.low,sif.time==1514,50,40)
+    #sr = srover(sif.high,sif.low,sif.time==1514,150,120)
+    isr = np.nonzero(sr>0)
     msr = np.zeros_like(sif.close)
     msr[isr] = rollx(ma(sr[isr],7))
     msr = extend2next(msr)
 
-    slow = tmin(sif.low,60)
+    thigh = rollx(sif.dhigh+30,1)
 
-    thigh = rollx(slow + msr *12/10,3)
+    blow = rollx(sif.dlow,1)
+
+    #slimit = gmax(blow + msr)
+
+    #slow = tmin(sif.low,60)
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)
+
+    #thigh = rollx(slow + msr *12/10,3)
+    thigh = gmax(thigh,blow+msr*105/100,ldopen+90)
 
     signal = gand(
-            cross(thigh+20,sif.high)>0,
+            #cross(thigh,sif.high)>0,
+            sif.high > thigh,
         )
     return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以开盘价进入
+
+def mll2t(sif):
+ 
+    sr = srover2(sif.high,sif.low,sif.time==1514,50,40)
+    #sr = srover(sif.high,sif.low,sif.time==1514,150,120)
+    isr = np.nonzero(sr<0)
+    msr = np.zeros_like(sif.close)
+    msr[isr] = -rollx(ma(sr[isr],7))
+    msr = extend2next(msr)
+
+    slow = tmin(sif.low,80)
+    tlow = rollx(slow+10,1)
+
+    bhigh = rollx(sif.dhigh,1)
+
+    tlow = gmin(tlow,bhigh - msr*120/100)
+
+    signal = gand(
+            cross(tlow,sif.low)<0,
+            #sif.low < tlow,
+        )
+    return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入
 
 
 def nllx(sif,vbreak=-10):
@@ -1207,7 +1238,7 @@ hbreak_nhhz.name = u'日内向上突破新高'
 hbreak_nhhz2 = BXFuncA(fstate=gofilter,fsignal=nhhz2,fwave=gofilter,ffilter=mfilter)  ##主要时段
 hbreak_nhhz2.name = u'日内向上突破新高'
 
-hbreak_nhht = BXFuncA(fstate=gofilter,fsignal=nhht,fwave=gofilter,ffilter=efilter)  ##主要时段
+hbreak_nhht = BXFuncA(fstate=gofilter,fsignal=nhht,fwave=gofilter,ffilter=nfilter3)  ##主要时段
 #hbreak_nhht = BXFuncA(fstate=gofilter,fsignal=nhht,fwave=gofilter,ffilter=efilter)  ##主要时段
 hbreak_nhht.name = u'日内向上突破新高'
 
@@ -1848,6 +1879,9 @@ shbreak_mll2v = SXFuncA(fstate=gofilter,fsignal=mll2v,fwave=gofilter,ffilter=nfi
 #shbreak_mll2v = SXFuncA(fstate=sdown,fsignal=mll2v,fwave=gofilter,ffilter=efilter)    #优于nll
 shbreak_mll2v.name = u'日内75分钟向下突破v'
 
+shbreak_mll2t = SXFuncA(fstate=gofilter,fsignal=mll2t,fwave=gofilter,ffilter=nfilter3)    #优于nll
+#shbreak_mll2t = SXFuncA(fstate=sdown,fsignal=mll2t,fwave=gofilter,ffilter=efilter)    #优于nll
+shbreak_mll2t.name = u'日内75分钟向下突破t'
 
 shbreak_mll2_e = SXFuncA(fstate=gofilter,fsignal=fcustom(mll2,vrange=250),fwave=gofilter,ffilter=emfilter3)    #貌似无用
 shbreak_mll2_e.name = u'日内75分钟向下突破e'    
@@ -1885,6 +1919,8 @@ mhbreak_mll2.stop_closer = utrade.atr5_ustop_V
 mhbreak_nhh.stop_closer = utrade.atr5_ustop_V
 mhbreak = [mhbreak_mll2,mhbreak_nhh]
 
+
+hbreak2t = [hbreak_nhht,shbreak_mll2t]  #没啥用
 
 ##下跌采用75分钟的底部+2, 上涨采用日顶部+3(均在10:30-14:30)
 hbreak = [shbreak_mll2,break_nhh]  #利润比较好
@@ -6448,7 +6484,8 @@ shbreak_mll2z.stop_closer = utrade.atr5_ustop_TU
 #hbreak_nhhz.stop_closer = utrade.vstop_10_42
 #hbreak_nhhz.stop_closer = utrade.vstop_10_42
 #shbreak_mll2z.stop_closer = utrade.vstop_10_42
-hbreak_nhht.stop_closer = utrade.vstop_15_42
+hbreak_nhht.stop_closer = utrade.vstop_10_42
+shbreak_mll2t.stop_closer = utrade.vstop_10_42
 
 shbreak_mll2v.stop_closer = utrade.atr5_ustop_TU
 shbreak_mll2v.stop_closer = utrade.vstop_10_42

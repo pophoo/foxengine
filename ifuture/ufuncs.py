@@ -1342,9 +1342,16 @@ def mll2(sif,length=80,vbreak=10,vrange=350):
 
     tlimit = 1325
 
+    drange = sif.dhigh - sif.dlow
+
     #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])
     #slimit = np.select([sif.time<1325,sif.time>=1325],[sif.dhigh-vrange,sif.dhigh-250])
     slimit = np.select([sif.time<tlimit,sif.time>=tlimit],[sif.dhigh-vrange,tlow])
+
+    #slimit = np.select([gor(sif.time>=tlimit,drange >= vrange),sif.time<tlimit],[tlow,sif.dhigh-vrange])
+
+    slimit = np.select([gand(sif.time<tlimit,drange<vrange)],[sif.dhigh-vrange],tlow)
+
     #slimit = np.select([sif.time<1325,sif.time>=1325],[sif.dhigh-vrange,gmax(sif.dhigh-250,ldlow)])
     #slimit = gmax(slimit,ldlow)
     #slimit = np.select([lddown],[sif.dhigh-250],slimit)
@@ -1600,10 +1607,15 @@ def mll2v(sif,length=80,vbreak=10):
 
     #tlow = gmin(tlow,ldmid-32)
     
+    drange = sif.dhigh - sif.dlow
+
     tlimit = 1325
     #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])    
     #tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(bhigh-vrange,tlow),tlow])
-    tlow = np.select([sif.time<=tlimit,sif.time>tlimit],[gmin(bhigh-vrange,tlow),tlow])    
+    
+    #tlow = np.select([sif.time<tlimit,sif.time>=tlimit],[gmin(bhigh-vrange,tlow),tlow])    
+    tlow = np.select([gand(sif.time<tlimit,drange<vrange)],[gmin(bhigh-vrange,tlow)],tlow)
+
     #tlow = gmin(bhigh-vrange,tlow)
     #tlow = gmin(sif.dhigh-vrange,tlow)
     
@@ -1928,7 +1940,7 @@ hbreak = [shbreak_mll2,break_nhh]  #利润比较好
 #hbreak2 = [shbreak_mll2,hbreak_nhh,hbreak_nhh_e]  #这个最大回撤最小      #####################采用此个
 hbreak2 = [shbreak_mll2,hbreak_nhh]#,hbreak_nhh_e]  #这个最大回撤最小      #####################采用此个
 
-hbreak2v = [shbreak_mll2v,hbreak_nhhv]#,hbreak_nhh_e]  #这个去除了对特定过滤幅度值的依赖, 次数减少20%,收益减少2%;
+hbreak2v = [shbreak_mll2v,hbreak_nhhv]#,hbreak_nhh_e]  #这个去除了对特定过滤幅度值的依赖, 次数减少18%,收益增加2%;
 
 
 hbreak3 = [hbreak_nhh,shbreak_mll2]#,hbreak_nhh_e]#

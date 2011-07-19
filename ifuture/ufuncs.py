@@ -1588,11 +1588,12 @@ def mll2v(sif,length=80,vbreak=10):
 
     vwave = dnext(ma(sif.dhigh-sif.dlow,30),sif.close,sif.i_cofd)
 
-    vrange = vwave * 5/3
+    vrange = vwave * 5/2
 
     #vrange = np.select([vrange<500],[vrange],500)
     #vrange = gmin(vrange,ldclose/66)    #vrange不能超过太大
     vrange = gmin(vrange,opend/66)    #vrange不能超过太大
+    #vrange = opend/66
     #vmid = ldatr *1/8/XBASE
     vmid = 60
     #vmid = (opend +250)/ 500
@@ -1607,9 +1608,9 @@ def mll2v(sif,length=80,vbreak=10):
     #tlow = gmin(sif.dhigh-vrange,tlow)
     
     #mysup = gand(sif.high > sif.dlow+ldatr/2/XBASE)
-    mysup = gand(sif.high > sif.dlow+ldatr/2/XBASE)
+    #mysup = gand(sif.high > sif.dlow+ldatr/2/XBASE)
     #sss = dsum(mysup,sif.iday)
-    sss = extend(mysup,60)
+    #sss = extend(mysup,60)
 
     signal = gand(
             cross(tlow,sif.low)<0,
@@ -6447,9 +6448,11 @@ for x in rxxx:
 
 shbreak_mll2.stop_closer = utrade.atr5_ustop_V25 #这个也不错
 
-shbreak_mll2.stop_closer = utrade.atr5_ustop_V7
+#shbreak_mll2.stop_closer = utrade.atr5_ustop_V7
 
 shbreak_mll2.stop_closer = utrade.vstop_10_42
+
+
 #shbreak_mll2.stop_closer = utrade.vstop_7_42
 #shbreak_mll2.stop_closer = utrade.atr5_ustop_V10
 
@@ -6460,9 +6463,11 @@ hbreak_nhh.stop_closer = utrade.atr5_ustop_TA
 
 hbreak_nhh.stop_closer = utrade.atr5_ustop_V25
 
-hbreak_nhh.stop_closer = utrade.atr5_ustop_V7
+#hbreak_nhh.stop_closer = utrade.atr5_ustop_V7
 
 hbreak_nhh.stop_closer = utrade.vstop_10_42
+
+
 #hbreak_nhh.stop_closer = utrade.vstop_7_42
 
 #hbreak_nhh.stop_closer = utrade.atr5_ustop_V10

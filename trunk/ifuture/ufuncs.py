@@ -1340,7 +1340,8 @@ def mll2(sif,length=80,vbreak=10,vrange=350):
     
     #mytime = 1315
 
-    tlimit = 1325
+    tlimit = 1325   #不如所有时间都作幅度要求
+    #tlimit = 1515
 
     drange = sif.dhigh - sif.dlow
 
@@ -1609,7 +1610,8 @@ def mll2v(sif,length=80,vbreak=10):
     
     drange = sif.dhigh - sif.dlow
 
-    tlimit = 1325
+    #tlimit = 1325
+    tlimit = 1400
     #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])    
     #tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(bhigh-vrange,tlow),tlow])
     

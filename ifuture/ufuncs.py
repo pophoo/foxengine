@@ -5903,21 +5903,27 @@ buma.lastupdate = 20110116
 buma.stop_closer = utrade.atr5_ustop_V1
 
 def dma(sif):
-    ldclose = dnext(sif.closed,sif.close,sif.i_cofd)
-    signal = gand(cross(sif.ma5,sif.high)<0,
-            strend2(sif.ma5)<0,
+    #ldclose = dnext(sif.closed,sif.close,sif.i_cofd)
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
+    bline = gmin(rollx(sif.dma),ldopen-60)#,(sif.dhigh+sif.dlow)/2)
+    signal = gand(
+            #cross(sif.ma5,sif.high)<0,
+            cross(bline,sif.low)<0,
+            #rollx(sif.sdma) < 0,
+            #strend2(sif.ma5)<0,
             #sif.s30 < 0,
-            sif.close < gmax(sif.dhigh,ldclose) - 400,
-            #sif.dhigh-sif.dlow > 300,
+            #sif.close < gmax(sif.dhigh,ldclose) - 400,
             #sif.close < sif.dhigh - 400,
-            sif.ma5 < sif.ma13,
-            sif.ma13 < sif.ma30,
+            #sif.ma5 < sif.ma13,
+            #sif.ma13 < sif.ma30,
            )
-    return signal
-sdma = SXFunc(fstate=sdown,fsignal=dma,fwave=nx2000X,ffilter=mfilter00)
+    return np.select([signal],[gmin(sif.open,bline)],0) 
+
+sdma = SXFunc(fstate=sdown,fsignal=dma,fwave=nx2000X,ffilter=efilter)
 sdma.name = u'最高价穿越ma5'
 sdma.lastupdate = 20110116
-sdma.stop_closer = utrade.atr5_ustop_V1
+#sdma.stop_closer = utrade.atr5_ustop_V1
+sdma.stop_closer = utrade.vstop_10_42
 
 tma = [buma,sdma]   #这个系统更加强,是个不错的主策略, 简单. 稳定性=0.36
 '''
@@ -6601,6 +6607,8 @@ samm.stop_closer = utrade.atr5_ustop_V1
 sdma.stop_closer = utrade.atr5_ustop_V1
 buma.stop_closer = utrade.atr5_ustop_V1
 
+sdma.stop_closer = utrade.vstop_10_42
+buma.stop_closer = utrade.vstop_10_42
 ####震荡模型
 bxbreak1u.stop_closer = utrade.atr5_ustop_63
 sxbreak1u.stop_closer = utrade.atr5_ustop_63

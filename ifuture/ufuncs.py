@@ -5498,7 +5498,7 @@ def k5d(sif):   #集成效果不佳,但可以作为主单元
 sk5a = SXFunc(fstate=sdown,fsignal=k5d,fwave=nx2500X,ffilter=mfilter)
 sk5a.name = u'k5向下突破'
 sk5a.lastupdate = 20101224
-sk5a.stop_closer = utrade.atr5_ustop_V
+sk5a.stop_closer = utrade.vstop_10_42
 
 def k5u(sif):   #
     bline = hdnext_cover(sif.high5+30,sif.close,sif.i_cof5,4)
@@ -5548,23 +5548,29 @@ bk15a.stop_closer = utrade.atr5_ustop_V
 def k5rd(sif):
     
     signal5 = gand(
-                rollx(sif.high5) == tmax(sif.high5,6),
-                #sif.low5 < rollx(sif.low5)
-                sif.close5 < rollx(sif.low5),
+                rollx(sif.high5) < rollx(sif.high5,2),
+                rollx(sif.high5,2) < rollx(sif.high5,3),
+                strend2(ma(sif.low5,5))<0,
               )
 
+    delay = 5
+    bline = dnext_cover(sif.low5,sif.close,sif.i_cof5,3)
+    signal1 = gand(
+            cross(bline,sif.low)<0,
+           )
 
-    signal = np.zeros_like(sif.close)
-    signal[sif.i_cof5] = signal5
-    #signal = dnext_cover(signal5,sif.close,sif.i_cof5,delay)
- 
+    signal2 = dnext_cover(signal5,sif.close,sif.i_cof5,delay)
+    
+    signal = gand(signal1,
+                signal2,
+            )
+    return np.select([signal],[gmin(sif.open,bline)],0)
 
-    return signal
 
-sk15d = SXFunc(fstate=gofilter,fsignal=k5rd,fwave=gofilter,ffilter=nfilter)
+sk15d = SXFunc(fstate=gofilter,fsignal=k5rd,fwave=gofilter,ffilter=nfilter2)
 sk15d.name = u'k5向上突破'
 sk15d.lastupdate = 20101224
-sk15d.stop_closer = utrade.atr5_ustop_V
+sk15d.stop_closer = utrade.vstop_10_42
 
 def k5rd2(sif):
     

@@ -1344,7 +1344,7 @@ def mll2(sif,length=80,vbreak=10,vrange=350):
     
     #mytime = 1315
 
-    tlimit = 1525   #不如所有时间都作幅度要求
+    tlimit = 1325   #不如所有时间都作幅度要求
     #tlimit = 1515
     
     vhigh = sif.dhigh

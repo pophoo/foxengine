@@ -750,7 +750,9 @@ def nhh(sif,vbreak=30,vrange=250):  #可以借鉴nhhn的过滤条件,300也不�
     thigh = gmax(thigh,slimit)
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
-            sif.high > thigh,
+            cross(thigh,sif.high)>0,
+            #sif.high > thigh,
+            #rollx(sif.low) > thigh * 9950/10000,
             #rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
             #rollx(sif.dhigh-sif.dlow,3)>200,
             #thigh - rollx(sif.close,2) < 150,
@@ -998,6 +1000,8 @@ def nhhv(sif,vbreak=30):  #貌似20/30都可以
             #cross(rollx(sif.dhigh+30),sif.high)>0
             #sif.high > thigh,
             cross(thigh,sif.high)>0,
+            #rollx(sif.close) > thigh * 9970/10000, 
+            #rollx(sif.low) > thigh * 9940/10000,
             #rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
             #rollx(sif.dhigh-sif.dlow,3)>200,
             #thigh - rollx(sif.close,2) < 150,
@@ -1384,6 +1388,9 @@ def mll2(sif,length=80,vbreak=10,vrange=350):
 
     signal = gand(
             cross(tlow,sif.low)<0,
+            #rollx(sif.close) < tlow + 50,
+            rollx(sif.close) < tlow * 10015/10000,
+            #rollx(sif.high) < tlow * 10025/10000,
             #sif.low < tlow,
             gor(tlow<ldmid-60),#,tlow==rollx(sif.dlow)+vbreak),
             #sif.time > 915,
@@ -1641,6 +1648,8 @@ def mll2v(sif,length=80,vbreak=10):
             #sif.low < tlow,
             #gor(tlow<ldmid-vmid,tlow==rollx(sif.dlow)+vbreak),
             tlow < ldmid - vmid,
+            #rollx(sif.close) < tlow * 10030/10000,
+            #rollx(sif.high) < tlow * 10030/10000,
             #tlow<ldmid-vmid,
             #tlow < ldmid-vmid,
             sif.time > 915,
@@ -6632,6 +6641,7 @@ sxbreak1u.stop_closer = utrade.atr5_ustop_63
 ##其它
 for tx in wxxx:
     tx.stop_closer = utrade.atr5_ustop_TV
+    tx.stop_closer = utrade.vstop_10_42
 
 #b123b.stop_closer = utrade.atr5_ustop_X2
 
@@ -6640,4 +6650,5 @@ for tx in wxxx:
 
 for tx in x1164:
     tx.stop_closer = utrade.atr5_ustop_V7
+    tx.stop_closer = utrade.vstop_10_42
     

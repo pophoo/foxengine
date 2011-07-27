@@ -1398,6 +1398,8 @@ def mll2(sif,length=80,vbreak=10,vrange=350):
             #rollx(sif.ma7) < rollx(sif.ma20),
             #sif.dhigh - sif.low > 150,
             #sif.dhigh - tlow > 120,
+            #sif.time < 1325,
+            #tlow > sif.dhigh - 350,
         )
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入
  

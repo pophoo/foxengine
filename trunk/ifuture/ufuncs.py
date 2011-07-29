@@ -1000,7 +1000,7 @@ def nhhv(sif,vbreak=30):  #貌似20/30都可以
             #cross(rollx(sif.dhigh+30),sif.high)>0
             #sif.high > thigh,
             cross(thigh,sif.high)>0,
-            #rollx(sif.close) > thigh * 9970/10000, 
+            #rollx(sif.close) > thigh * 9975/10000, 
             #rollx(sif.low) > thigh * 9940/10000,
             #rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
             #rollx(sif.dhigh-sif.dlow,3)>200,
@@ -1322,7 +1322,7 @@ def mhh2(sif,length=20):
 
 ###时间低点突破
 #def mll2(sif,length=80,vbreak=10,vrange=350):
-def mll2(sif,length=80,vbreak=10,vrange=260):    
+def mll2(sif,length=80,vbreak=10,vrange=270):    
     '''
         280去掉时间放松
         与350加时间放松效果类似
@@ -1620,7 +1620,8 @@ def mll2v(sif,length=80,vbreak=10):
 
     vwave = dnext(ma(sif.dhigh-sif.dlow,30),sif.close,sif.i_cofd)
 
-    vrange = vwave * 5/2
+    #vrange = vwave * 5/2
+    vrange = vwave * 4/3
 
     #vrange = np.select([vrange<500],[vrange],500)
     #vrange = gmin(vrange,ldclose/66)    #vrange不能超过太大
@@ -6498,7 +6499,7 @@ for x in rxxx:
 
 #shbreak_mll2.stop_closer = utrade.atr5_ustop_TV #_TV
 
-shbreak_mll2.stop_closer = utrade.atr5_ustop_V25 #这个也不错
+#shbreak_mll2.stop_closer = utrade.atr5_ustop_V25 #这个也不错
 
 #shbreak_mll2.stop_closer = utrade.atr5_ustop_V7
 
@@ -6511,9 +6512,9 @@ shbreak_mll2.stop_closer = utrade.vstop_10_42
 
 #shbreak_mll2.stop_closer = utrade.atr5_ustop_V712
 
-hbreak_nhh.stop_closer = utrade.atr5_ustop_TA
+#hbreak_nhh.stop_closer = utrade.atr5_ustop_TA
 
-hbreak_nhh.stop_closer = utrade.atr5_ustop_V25
+#hbreak_nhh.stop_closer = utrade.atr5_ustop_V25
 
 #hbreak_nhh.stop_closer = utrade.atr5_ustop_V7
 

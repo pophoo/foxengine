@@ -752,6 +752,7 @@ def nhh(sif,vbreak=30,vrange=250):  #可以借鉴nhhn的过滤条件,300也不�
             #cross(rollx(sif.dhigh+30),sif.high)>0
             cross(thigh,sif.high)>0,
             #sif.high > thigh,
+            #rollx(sif.close,3) > thigh * 9950/10000, 
             #rollx(sif.low) > thigh * 9950/10000,
             #rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
             #rollx(sif.dhigh-sif.dlow,3)>200,
@@ -1000,7 +1001,7 @@ def nhhv(sif,vbreak=30):  #貌似20/30都可以
             #cross(rollx(sif.dhigh+30),sif.high)>0
             #sif.high > thigh,
             cross(thigh,sif.high)>0,
-            #rollx(sif.close) > thigh * 9975/10000, 
+            rollx(sif.close,3) > thigh * 9950/10000, 
             #rollx(sif.low) > thigh * 9940/10000,
             #rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
             #rollx(sif.dhigh-sif.dlow,3)>200,
@@ -1395,6 +1396,7 @@ def mll2(sif,length=80,vbreak=10,vrange=270):
             cross(tlow,sif.low)<0,
             #rollx(sif.close) < tlow + 50,
             rollx(sif.close) < tlow * 10015/10000,
+            #rollx(sif.close,3) < tlow * 10050/10000,
             #rollx(sif.high) < tlow * 10025/10000,
             #sif.low < tlow,
             gor(tlow<ldmid-60),#,tlow==rollx(sif.dlow)+vbreak),
@@ -1656,7 +1658,8 @@ def mll2v(sif,length=80,vbreak=10):
             #sif.low < tlow,
             #gor(tlow<ldmid-vmid,tlow==rollx(sif.dlow)+vbreak),
             tlow < ldmid - vmid,
-            #rollx(sif.close) < tlow * 10030/10000,
+            rollx(sif.close,3) < tlow * 10050/10000,
+            #rollx(sif.close,1) < tlow * 10030/10000,
             #rollx(sif.high) < tlow * 10030/10000,
             #tlow<ldmid-vmid,
             #tlow < ldmid-vmid,
@@ -6547,12 +6550,12 @@ shbreak_mll2t.stop_closer = utrade.vstop_10_42
 
 #shbreak_mll2v.stop_closer = utrade.atr5_ustop_TU
 shbreak_mll2v.stop_closer = utrade.vstop_10_42
-#shbreak_mll2v.stop_closer = utrade.vstop_8_42
+#shbreak_mll2v.stop_closer = utrade.vstop_5_42
 #shbreak_mll2v.stop_closer = utrade.atr5_ustop_V7
 
 #hbreak_nhhv.stop_closer = utrade.atr5_ustop_TA
 hbreak_nhhv.stop_closer = utrade.vstop_10_42
-#hbreak_nhhv.stop_closer = utrade.vstop_8_42
+#hbreak_nhhv.stop_closer = utrade.vstop_5_42
 #hbreak_nhhv.stop_closer = utrade.atr5_ustop_V7
 
 

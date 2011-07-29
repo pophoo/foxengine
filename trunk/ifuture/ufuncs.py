@@ -6545,10 +6545,15 @@ shbreak_mll2z.stop_closer = utrade.atr5_ustop_TU
 hbreak_nhht.stop_closer = utrade.vstop_10_42
 shbreak_mll2t.stop_closer = utrade.vstop_10_42
 
-shbreak_mll2v.stop_closer = utrade.atr5_ustop_TU
+#shbreak_mll2v.stop_closer = utrade.atr5_ustop_TU
 shbreak_mll2v.stop_closer = utrade.vstop_10_42
-hbreak_nhhv.stop_closer = utrade.atr5_ustop_TV
+#shbreak_mll2v.stop_closer = utrade.vstop_8_42
+#shbreak_mll2v.stop_closer = utrade.atr5_ustop_V7
+
+#hbreak_nhhv.stop_closer = utrade.atr5_ustop_TA
 hbreak_nhhv.stop_closer = utrade.vstop_10_42
+#hbreak_nhhv.stop_closer = utrade.vstop_8_42
+#hbreak_nhhv.stop_closer = utrade.atr5_ustop_V7
 
 
 #shbreak_mll2z.stop_closer = utrade.atr5_ustop_TA

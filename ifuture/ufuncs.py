@@ -1321,7 +1321,12 @@ def mhh2(sif,length=20):
 
 
 ###时间低点突破
-def mll2(sif,length=80,vbreak=10,vrange=350):
+#def mll2(sif,length=80,vbreak=10,vrange=350):
+def mll2(sif,length=80,vbreak=10,vrange=260):    
+    '''
+        280去掉时间放松
+        与350加时间放松效果类似
+    '''
     #使用最低点
     tlow = rollx(tmin(sif.low,length)+vbreak,1)
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
@@ -1348,8 +1353,8 @@ def mll2(sif,length=80,vbreak=10,vrange=350):
     
     #mytime = 1315
 
-    tlimit = 1325   #不如所有时间都作幅度要求
-    #tlimit = 1515
+    tlimit = 1525   #不如所有时间都作幅度要求
+    #tlimit = 1325
     
     vhigh = sif.dhigh
     #vhigh = gmax((ldclose-sif.dhigh)/2+sif.dhigh,sif.dhigh)

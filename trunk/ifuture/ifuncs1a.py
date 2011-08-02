@@ -1120,13 +1120,17 @@ def xud_short_2(sif,sopened=None):
     signal = np.zeros_like(sif.close)
     signal[sif.i_cof10] = mxc
 
-    signal = gand(signal
-            ,sif.xatr30x<7000
-            ,sif.s5<0
-            ,sif.s30>0
-            ,strend2(sif.ma270)>0
-            ,strend2(sif.ma13)<0
-            )
+    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
+
+    signal = gand(signal,
+            sif.xatr30x<6600,
+            #sif.s5<0,
+            sif.s30>0,
+            strend2(sif.ma270)>0,
+            #strend2(sif.ma13)<0,
+            sif.ma13 < sif.ma30,
+            sif.dhigh - sif.dlow < (sif.dlow + 500)/66,#500,
+           )
 
     return signal * xud_short_2.direction
 xud_short_2.direction = XSELL

@@ -1683,6 +1683,14 @@ vstop_5_42 = fcustom(atr_stop_v,
                 vstep = 20,                  
             )
 
+vstop_4_42 = fcustom(atr_stop_v,
+                flost_base = iftrade.F40,    
+                fmax_drawdown = iftrade.F360, 
+                tstep = lambda sif,i:40,     
+                vstep = 20,                  
+            )
+
+
 utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 utrade_d = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=iftrade.last_trades,sync_trades=iftrade.null_sync_tradess)
 

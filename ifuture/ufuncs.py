@@ -1324,10 +1324,11 @@ def mhh2(sif,length=20):
 
 ###时间低点突破
 #def mll2(sif,length=80,vbreak=10,vrange=350):
-def mll2(sif,length=80,vbreak=10,vrange=270):    
+def mll2(sif,length=80,vbreak=10,vrange=270,vrange2=200):    
     '''
         280去掉时间放松
         与350加时间放松效果类似
+        vrange2为tlimit后的约束
     '''
     #使用最低点
     tlow = rollx(tmin(sif.low,length)+vbreak,1)
@@ -1355,7 +1356,7 @@ def mll2(sif,length=80,vbreak=10,vrange=270):
     
     #mytime = 1315
 
-    tlimit = 1525   #不如所有时间都作幅度要求
+    tlimit = 1325   #不如所有时间都作幅度要求
     #tlimit = 1325
     
     vhigh = sif.dhigh
@@ -1372,7 +1373,8 @@ def mll2(sif,length=80,vbreak=10,vrange=270):
     #slimit = np.select([gor(sif.time>=tlimit,drange >= vrange),sif.time<tlimit],[tlow,sif.dhigh-vrange])   #时间大于tlimit或振幅大于vrange,则以现有分钟均线为准
 
     #slimit = np.select([gand(sif.time<tlimit,drange<vrange)],[sif.dhigh-vrange],tlow)   #时间大于tlimit或振幅大于vrange,则以现有分钟均线为准
-    slimit = np.select([gand(sif.time<tlimit,drange<vrange)],[vhigh-vrange],tlow)   #时间大于tlimit或振幅大于vrange,则以现有分钟均线为准
+    #slimit = np.select([gand(sif.time<tlimit,drange<vrange)],[vhigh-vrange],tlow)   #时间大于tlimit或振幅大于vrange,则以现有分钟均线为准
+    slimit = np.select([gand(sif.time<tlimit,drange<vrange),gand(sif.time>tlimit,drange<vrange)],[vhigh-vrange,vhigh-vrange2],tlow)   #时间大于tlimit或振幅大于vrange,则以现有分钟均线为准
 
     #slimit = np.select([sif.time<1325,sif.time>=1325],[sif.dhigh-vrange,gmax(sif.dhigh-250,ldlow)])
     #slimit = gmax(slimit,ldlow)
@@ -1711,9 +1713,12 @@ def mll2v(sif,length=80,vbreak=10):
     #vrange = vwave * 5/2
     vrange = vwave * 4/3
 
+    vrange2 = vwave * 2/3
+
     #vrange = np.select([vrange<500],[vrange],500)
     #vrange = gmin(vrange,ldclose/66)    #vrange不能超过太大
     vrange = gmin(vrange,opend/66)    #vrange不能超过太大
+    vrange2 = gmin(vrange2,opend/66)    #vrange不能超过太大
     #vrange = opend/66
     #vmid = ldatr *1/8/XBASE
     vmid = 60
@@ -1729,7 +1734,8 @@ def mll2v(sif,length=80,vbreak=10):
     #tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(bhigh-vrange,tlow),tlow])
     
     #tlow = np.select([sif.time<tlimit,sif.time>=tlimit],[gmin(bhigh-vrange,tlow),tlow])    
-    tlow = np.select([gand(sif.time<tlimit,drange<vrange)],[gmin(bhigh-vrange,tlow)],tlow)  #时间大于tlimit或振幅大于vrange,则以现有分钟均线为准
+    #tlow = np.select([gand(sif.time<tlimit,drange<vrange)],[gmin(bhigh-vrange,tlow)],tlow)  #时间大于tlimit或振幅大于vrange,则以现有分钟均线为准
+    tlow = np.select([gand(sif.time<tlimit,drange<vrange),gand(sif.time>tlimit,drange<vrange2)],[gmin(bhigh-vrange,tlow),gmin(bhigh-vrange2,tlow)],tlow)   #时间大于tlimit或振幅大于vrange,则以现有分钟均线为准
 
     #tlow = gmin(bhigh-vrange,tlow)
     #tlow = gmin(sif.dhigh-vrange,tlow)

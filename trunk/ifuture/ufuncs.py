@@ -6041,8 +6041,41 @@ def xud_short_2(sif,sopened=None):
     return signal * xud_short_2.direction
 xud_short_2.direction = XSELL
 xud_short_2.priority = 2400
-xud_short_2.stop_closer = utrade.vstop_10_42        #一个很好的候选
+xud_short_2.stop_closer = utrade.vstop_10_42        
 #xud_short_2.stop_closer = utrade.atr5_ustop_TV
+
+def _xud_short(sif,sopened=None):
+    '''
+    '''
+    #mxc = xc0c(sif.open10,sif.close10,sif.high10,sif.low10,13) < 0
+    #signal = np.zeros_like(sif.close)
+    #signal[sif.i_cof10] = mxc
+
+    mxc0 = xc0c(sif.open10,sif.close10,sif.high10,sif.low10,13) < 0
+
+    signal = dnext_cover(mxc0,sif.close,sif.i_cof10,2)
+
+
+    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
+
+    signal = gand(signal,
+            sif.xatr30x<6600,
+            #sif.s5<0,
+            sif.s30>0,
+            strend2(sif.ma270)>0,
+            #strend2(sif.ma13)<0,
+            sif.ma13 < sif.ma30,
+            sif.dhigh - sif.dlow < sif.dlow/66,#500,
+           )
+
+    return signal
+xud_short = SXFunc(fstate=gofilter,fsignal=_xud_short,fwave=gofilter,ffilter=efilter2)
+xud_short.name = u'xud放空'
+xud_short.lastupdate = 20110804
+#xud_short.stop_closer = utrade.atr5_ustop_V1
+#xud_short.stop_closer = utrade.atr5_ustop_TV
+xud_short.stop_closer = utrade.vstop_10_42      #一个很好的候选
+
 
 ###ma
 def uma(sif):

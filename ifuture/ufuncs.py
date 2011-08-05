@@ -1001,7 +1001,8 @@ def nhhv(sif,vbreak=30):  #貌似20/30都可以
             #cross(rollx(sif.dhigh+30),sif.high)>0
             #sif.high > thigh,
             cross(thigh,sif.high)>0,
-            rollx(sif.close,3) > thigh * 9950/10000, 
+            rollx(sif.close,3) > thigh * 9966/10000, 
+            #rollx(sif.close,3) > thigh * 9950/10000, 
             #rollx(sif.low) > thigh * 9940/10000,
             #rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
             #rollx(sif.dhigh-sif.dlow,3)>200,

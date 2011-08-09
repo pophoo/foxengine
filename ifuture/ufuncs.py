@@ -720,7 +720,6 @@ break_flx.stop_closer = utrade.atr5_ustop_V1
 
 break_fx = [break_fhx,break_flx]    ##########一个还可以的独立策略. 日亏6点之后不动
 
-
 def nhh(sif,vbreak=30,vrange=250):  #可以借鉴nhhn的过滤条件,300也不错
     #使用最高点+30, 也就是说必须一下拉开3点
     ldup = dnext(gand(sif.highd>rollx(sif.highd),sif.lowd>rollx(sif.lowd)),sif.close,sif.i_cofd)
@@ -1233,7 +1232,7 @@ break_nhh0.name = u'向上突破新高--原始系统'
 break_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=nx2500X,ffilter=nfilter)  ##选择
 break_nhh.name = u'向上突破新高'
 
-hbreak_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=nx2500X,ffilter=mfilter)  ##主要时段
+hbreak_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=gofilter,ffilter=mfilter)  ##主要时段
 #hbreak_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=nx2500X,ffilter=nfilter2)  ##主要时段
 hbreak_nhh.name = u'日内向上突破新高'
 

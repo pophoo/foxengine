@@ -750,8 +750,10 @@ def nhh(sif,vbreak=30,vrange=250):  #可以借鉴nhhn的过滤条件,300也不�
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
             cross(thigh,sif.high)>0,
+            thigh - sif.dlow < ldopen/33,   #不能涨太多
             #sif.high > thigh,
             rollx(sif.close,3) > thigh * 9966/10000, 
+            sif.xatr < 2500,
             #rollx(sif.low) > thigh * 9950/10000,
             #rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
             #rollx(sif.dhigh-sif.dlow,3)>200,
@@ -1011,6 +1013,7 @@ def nhhv(sif,vbreak=30):  #貌似20/30都可以
             #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>200),
             rollx(sif.ma5) > rollx(sif.ma13),
             rollx(sif.xatr) < 2000,
+            thigh - sif.dlow < ldopen/33,   #不能涨太多
         )
     return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以跳空价进入
 
@@ -1410,6 +1413,7 @@ def mll2(sif,length=80,vbreak=10,vrange=270,vrange2=200):
             #sif.dhigh - tlow > 120,
             #sif.time < 1325,
             #tlow > sif.dhigh - 350,
+            sif.dhigh - tlow < opend/33,   #不能跌太多
         )
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入
  
@@ -1761,6 +1765,7 @@ def mll2v(sif,length=80,vbreak=10):
             rollx(sif.xatr)<2000,
             rollx(sif.xatr30x)<10000,
             #sss < 1,
+            sif.dhigh - tlow < opend/33,   #不能跌太多
             #sif.dhigh - tlow > 120,  
         )
     #signal = gand(msum(signal,10) > 1,signal)

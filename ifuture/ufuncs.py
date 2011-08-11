@@ -1377,8 +1377,8 @@ def mll2(sif,length=80,vbreak=10,vrange=270,vrange2=200):
     #slimit = np.select([gor(sif.time>=tlimit,drange >= vrange),sif.time<tlimit],[tlow,sif.dhigh-vrange])   #时间大于tlimit或振幅大于vrange,则以现有分钟均线为准
 
     #slimit = np.select([gand(sif.time<tlimit,drange<vrange)],[sif.dhigh-vrange],tlow)   #时间大于tlimit或振幅大于vrange,则以现有分钟均线为准
-    #slimit = np.select([gand(sif.time<tlimit,drange<vrange)],[vhigh-vrange],tlow)   #时间大于tlimit或振幅大于vrange,则以现有分钟均线为准
-    slimit = np.select([gand(sif.time<tlimit,drange<vrange),gand(sif.time>tlimit,drange<vrange)],[vhigh-vrange,vhigh-vrange2],tlow)   #时间大于tlimit或振幅大于vrange,则以现有分钟均线为准
+    slimit = np.select([gand(sif.time<tlimit,drange<vrange)],[vhigh-vrange],tlow)   #时间大于tlimit或振幅大于vrange,则以现有分钟均线为准
+    #slimit = np.select([gand(sif.time<tlimit,drange<vrange),gand(sif.time>tlimit,drange<vrange)],[vhigh-vrange,vhigh-vrange2],tlow)   #时间大于tlimit或振幅大于vrange,则以现有分钟均线为准
 
     #slimit = np.select([sif.time<1325,sif.time>=1325],[sif.dhigh-vrange,gmax(sif.dhigh-250,ldlow)])
     #slimit = gmax(slimit,ldlow)
@@ -2000,6 +2000,9 @@ def mfilterx(sif):
 #shbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2000X,ffilter=mfilter2)    #优于nll
 #shbreak_mll2 = SXFuncA(fstate=gofilter,fsignal=mll2,fwave=nx2000X,ffilter=mfilter2)    #优于nll
 shbreak_mll2 = SXFuncA(fstate=gofilter,fsignal=mll2,fwave=nx2000X,ffilter=nfilter2)    #1000-1445
+
+#shbreak_mll2 = SXFuncA(fstate=gofilter,fsignal=mll2,fwave=gofilter,ffilter=nfilter2)    #1000-1445
+
 #shbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2000X,ffilter=efilter)    #优于nll
 shbreak_mll2.name = u'日内75分钟向下突破'
 

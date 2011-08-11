@@ -750,6 +750,7 @@ def nhh(sif,vbreak=30,vrange=250):  #可以借鉴nhhn的过滤条件,300也不�
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
             cross(thigh,sif.high)>0,
+            #sif.high  > thigh,
             thigh - sif.dlow < ldopen/33,   #不能涨太多
             #sif.high > thigh,
             rollx(sif.close,3) > thigh * 9966/10000, 
@@ -1235,7 +1236,7 @@ break_nhh0.name = u'向上突破新高--原始系统'
 break_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=nx2500X,ffilter=nfilter)  ##选择
 break_nhh.name = u'向上突破新高'
 
-hbreak_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=gofilter,ffilter=nfilter)  ##主要时段
+hbreak_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=gofilter,ffilter=mfilter)  ##主要时段
 #hbreak_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=nx2500X,ffilter=nfilter2)  ##主要时段
 hbreak_nhh.name = u'日内向上突破新高'
 

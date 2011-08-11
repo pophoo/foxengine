@@ -1235,7 +1235,7 @@ break_nhh0.name = u'向上突破新高--原始系统'
 break_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=nx2500X,ffilter=nfilter)  ##选择
 break_nhh.name = u'向上突破新高'
 
-hbreak_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=gofilter,ffilter=mfilter)  ##主要时段
+hbreak_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=gofilter,ffilter=nfilter)  ##主要时段
 #hbreak_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=nx2500X,ffilter=nfilter2)  ##主要时段
 hbreak_nhh.name = u'日内向上突破新高'
 

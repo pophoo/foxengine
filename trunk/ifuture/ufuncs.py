@@ -754,7 +754,7 @@ def nhh(sif,vbreak=30,vrange=250):  #可以借鉴nhhn的过滤条件,300也不�
             thigh - sif.dlow < ldopen/33,   #不能涨太多
             #sif.high > thigh,
             rollx(sif.close,3) > thigh * 9966/10000, 
-            sif.xatr < 2500,
+            rollx(sif.xatr) < 2500,
             #rollx(sif.low) > thigh * 9950/10000,
             #rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
             #rollx(sif.dhigh-sif.dlow,3)>200,

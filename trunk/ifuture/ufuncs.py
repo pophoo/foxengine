@@ -476,6 +476,24 @@ def filter0(sif):
             sif.time<1510,
         )
 
+def nx2000X(sif):
+    xx = gand(
+                sif.xatr < 2000,
+                sif.xatr30x < 10000,
+                #sif.xatr5x< 4000,
+           )
+    return rollx(xx)
+
+def nx2500X(sif):
+    xx = gand(
+                sif.xatr < 2500,
+                sif.xatr30x < 10000,
+                #sif.xatr5x< 4000,
+           )
+    return rollx(xx)
+
+
+
 def nhhx(sif,vbreak=0):
     thigh = rollx(sif.dhigh+vbreak,1)
     
@@ -1189,22 +1207,6 @@ def nll3(sif,vbreak=20):
             gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>350),
         )
 
-
-def nx2000X(sif):
-    xx = gand(
-                rollx(sif.xatr) < 2000,
-                sif.xatr30x < 10000,
-                #sif.xatr5x< 4000,
-           )
-    return rollx(xx)
-
-def nx2500X(sif):
-    xx = gand(
-                rollx(sif.xatr) < 2500,
-                sif.xatr30x < 10000,
-                #sif.xatr5x< 4000,
-           )
-    return rollx(xx)
 
 def nlhh(sif):
     #使用最高点+30, 也就是说必须一下拉开3点
@@ -2023,6 +2025,7 @@ shbreak_mll2z2 = SXFuncA(fstate=sdown,fsignal=mll2z2,fwave=gofilter,ffilter=nfil
 shbreak_mll2z2.name = u'日内75分钟向下突破z2'
 
 shbreak_mll2v = SXFuncA(fstate=gofilter,fsignal=mll2v,fwave=gofilter,ffilter=nfilter3)    #优于nll
+#shbreak_mll2v = SXFuncA(fstate=gofilter,fsignal=mll2v,fwave=gofilter,ffilter=nfilter3)    #优于nll
 #shbreak_mll2v = SXFuncA(fstate=sdown,fsignal=mll2v,fwave=gofilter,ffilter=efilter)    #优于nll
 shbreak_mll2v.name = u'日内75分钟向下突破v'
 

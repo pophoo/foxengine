@@ -1746,6 +1746,8 @@ def mll2v(sif,length=80,vbreak=10):
     #tlow = np.select([gand(sif.time<tlimit,drange<vrange)],[gmin(bhigh-vrange,tlow)],tlow)  #时间大于tlimit或振幅大于vrange,则以现有分钟均线为准
     tlow = np.select([gand(sif.time<tlimit,drange<vrange),gand(sif.time>tlimit,drange<vrange2)],[gmin(bhigh-vrange,tlow),gmin(bhigh-vrange2,tlow)],tlow)   #时间大于tlimit或振幅大于vrange,则以现有分钟均线为准
 
+    print vwave[-30:],tlow[-30:]
+
     #tlow = gmin(bhigh-vrange,tlow)
     #tlow = gmin(sif.dhigh-vrange,tlow)
     

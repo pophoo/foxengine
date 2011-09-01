@@ -767,7 +767,8 @@ def nhh(sif,vbreak=30,vrange=250):  #可以借鉴nhhn的过滤条件,300也不�
     thigh = gmax(thigh,slimit)
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
-            cross(thigh,sif.high)>0,
+            cross(thigh,sif.high)>0,    #这里在设计实盘的时候要非常小心，本分钟的thigh!=上分钟的thigh
+                                        #   好的一点是本分钟的thigh也是能提前计算出来的,所以不算未来数据
             #sif.high  > thigh,
             thigh - sif.dlow < ldopen/33,   #不能涨太多
             #sif.high > thigh,
@@ -1420,7 +1421,7 @@ def mll2(sif,length=80,vbreak=10,vrange=270,vrange2=200):
             #tlow > sif.dhigh - 350,
             sif.dhigh - tlow < opend/33,   #不能跌太多
         )
-    return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入
+    return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入.
  
 def rll(sif,length=80,vbreak=10,vrange=270):    
     #使用最低点
@@ -1698,6 +1699,7 @@ def mll2z(sif,length=80,vbreak=20):
 def mll2v(sif,length=80,vbreak=10):
     #使用最低点
     tlow = rollx(tmin(sif.low,length)+vbreak,1)
+    #print tlow[-270:]
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     #ldmid = dnext((sif.highd+gmin(sif.closed,sif.opend))/2,sif.close,sif.i_cofd)
     ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
@@ -1712,22 +1714,33 @@ def mll2v(sif,length=80,vbreak=10):
     ldatr30 = dnext(sif.atr30,sif.close,sif.i_cof30)
     ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
     
-    xatrd = dnext(sif.xatrd,sif.close,sif.i_cofd)
-
+    xatrd = dnext(sif.xatrd,sif.close,sif.i_cofd)/100
     #bhigh = gmax(ldclose,sif.dhigh)
     bhigh = sif.dhigh
 
-    vwave = dnext(ma(sif.dhigh-sif.dlow,30),sif.close,sif.i_cofd)
+    #vwave = dnext(ma(sif.dhigh-sif.dlow,30),sif.close,sif.i_cofd)
+    vwave = dnext(ma(sif.highd-sif.lowd,3),sif.close,sif.i_cofd)
 
+    #vwave = xatrd
+    #print vwave[-270:]
     #vrange = vwave * 5/2
-    vrange = vwave * 4/3
+    #vrange = vwave * 4/3
+    #vrange2 = vwave * 2/3
 
-    vrange2 = vwave * 2/3
+    vrange = vwave * 2/3
+    vrange2 = vwave * 1/2
+
+    #vrange = vwave * 5/3
+    #vrange2 = vwave * 4/3
+
+    #print vrange[-270:],vrange2[-270:]
 
     #vrange = np.select([vrange<500],[vrange],500)
     #vrange = gmin(vrange,ldclose/66)    #vrange不能超过太大
-    vrange = gmin(vrange,opend/66)    #vrange不能超过太大
-    vrange2 = gmin(vrange2,opend/66)    #vrange不能超过太大
+    #vrange = gmin(vrange,opend/66)    #vrange不能超过太大
+    #vrange2 = gmin(vrange2,opend/66)    #vrange不能超过太大
+    #vrange = gmin(vrange,opend/30)    #vrange不能超过太大
+    #vrange2 = gmin(vrange2,opend/30)    #vrange不能超过太大
     #vrange = opend/66
     #vmid = ldatr *1/8/XBASE
     vmid = 60
@@ -1735,7 +1748,7 @@ def mll2v(sif,length=80,vbreak=10):
 
     #tlow = gmin(tlow,ldmid-32)
     
-    drange = sif.dhigh - sif.dlow
+    drange = rollx(sif.dhigh - sif.dlow)
 
     tlimit = 1325
     #tlimit = 1400
@@ -1746,7 +1759,9 @@ def mll2v(sif,length=80,vbreak=10):
     #tlow = np.select([gand(sif.time<tlimit,drange<vrange)],[gmin(bhigh-vrange,tlow)],tlow)  #时间大于tlimit或振幅大于vrange,则以现有分钟均线为准
     tlow = np.select([gand(sif.time<tlimit,drange<vrange),gand(sif.time>tlimit,drange<vrange2)],[gmin(bhigh-vrange,tlow),gmin(bhigh-vrange2,tlow)],tlow)   #时间大于tlimit或振幅大于vrange,则以现有分钟均线为准
 
-    print vwave[-30:],tlow[-30:]
+    #print vwave[-30:],tlow[-30:]
+    #print (bhigh-vrange)[-270:]
+    #print tlow[-270:]
 
     #tlow = gmin(bhigh-vrange,tlow)
     #tlow = gmin(sif.dhigh-vrange,tlow)

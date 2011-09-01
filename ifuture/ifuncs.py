@@ -3208,7 +3208,7 @@ atr_stop_15_25 = fcustom(atr_stop,lost_times=150,win_times=250)
 atr_stop_2_3 = fcustom(atr_stop,lost_times=200,win_times=300)
 atr_stop_25_4 = fcustom(atr_stop,lost_times=250,win_times=400)
 
-def daystop_long(sif,sopened,tend=1511):
+def daystop_long(sif,sopened,tend=1457):
     '''
         每日收盘前的平仓,平多仓
         最后3分钟也平仓，用于兼容到期日(最后交易时间为1500)
@@ -3220,7 +3220,7 @@ def daystop_long(sif,sopened,tend=1511):
 
 daystop_long_c = fcustom(daystop_long,tend=1456)
 
-def daystop_short(sif,sopened,tend=1511):
+def daystop_short(sif,sopened,tend=1457):
     '''
         每日收盘前的平仓,平空仓
         最后3分钟也平仓，用于兼容到期日(最后交易时间为1500)

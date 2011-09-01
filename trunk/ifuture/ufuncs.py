@@ -293,8 +293,8 @@ def nfilter2(sif):
 
 def nfilter3(sif):
     return gand(
-            sif.time > 915,
-            sif.time < 1450,
+            sif.time > 944,
+            sif.time < 1445,
         )
     
 def mfilter0(sif):

@@ -989,7 +989,7 @@ def nhhv(sif,vbreak=30):  #貌似20/30都可以
 
     #vrange = sif.close / 1200 * 10
 
-    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)        
+    #ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)        
     
     ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
     ldclose = dnext(sif.closed,sif.close,sif.i_cofd)
@@ -997,7 +997,8 @@ def nhhv(sif,vbreak=30):  #貌似20/30都可以
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     thigh = rollx(sif.dhigh+vbreak,3)
 
-    blow = ldopen
+    #blow = ldopen
+    blow = rollx(sif.dlow,1)
     #blow = gmin(blow,ldclose)
     #thigh = np.select([sif.time<1030,sif.time>=1030],[gmax(thigh,rollx(sif.dlow) + 200),thigh])
     #thigh = gmax(thigh,rollx(sif.dlow,1) + vrange + vbreak)
@@ -1005,18 +1006,20 @@ def nhhv(sif,vbreak=30):  #貌似20/30都可以
     
     ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
     ldclose = dnext(sif.highd,sif.close,sif.i_cofd)
-    vrange = ldatr * 1/3 /XBASE
+    #vrange = ldatr * 1/3 /XBASE
     #vrange = gmin(vrange,ldclose/133)    #vrange不能超过太大
-    vopen = ldatr * 1/8 /XBASE
+    #vopen = ldatr * 1/8 /XBASE
 
     #vbreak = ldatr * 1/20 /XBASE
 
-    vwave = dnext(ma(sif.dhigh-sif.dlow,30),sif.close,sif.i_cofd)
+    #vwave = dnext(ma(sif.dhigh-sif.dlow,30),sif.close,sif.i_cofd)
+    #vwave = dnext(ma(sif.highd-sif.lowd,3),sif.close,sif.i_cofd)
 
-    vrange = vwave * 1/2
-    vrange = gmin(vrange,ldclose/100)    #vrange不能超过太大
+    #vrange = vwave * 2/3
+    #vrange = gmin(vrange,ldclose/100)    #vrange不能超过太大
+    vrange = ldclose/100
 
-    thigh = gmax(thigh,blow + vrange)
+    thigh = gmax(thigh,blow + vrange)#,ldopen+60)
     #thigh = blow + vrange
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0

@@ -86,7 +86,7 @@ sum([trade.profit for trade in tradesy if trade.actions[0].date>20100714 and tra
 
 #输出到文件
 fo = open('d:/temp/201000.txt','w+')
-for trade in tradesy:print >>fo,'%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s' % (trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].date,trade.actions[1].time,trade.actions[1].position,trade.actions[1].price,trade.actions[1].index-trade.actions[0].index,trade.orignal.name
+for trade in tradesy:print >>fo,'%s,%s,%s,%s,%s,%s,%s,%s,%s,%s' % (trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].date,trade.actions[1].time,trade.actions[1].position,trade.actions[1].price,trade.actions[1].index-trade.actions[0].index,trade.orignal.name)
 fo.close()
 
 '''

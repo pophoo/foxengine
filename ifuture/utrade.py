@@ -1950,3 +1950,23 @@ def profit_distribution2(sif,dtrades,limit = [0.6,1,1.5,4]):#求按照振幅/atr
 
 pd = profit_distribution
 pd2 = profit_distribution2
+
+
+def calc_profit(trades,av=200000,rate=0.9,lever=0.17,base=300):#计算增量
+    '''
+        理论计算
+        av:起点值
+        rate:用于交易的资金比例
+        lever:保证金比例
+    '''
+    s = av
+    for trade in trades:
+        price = trade.actions[0].price
+        am = price * base / 10 * lever
+        volume = int(s * rate / am)
+        volume = volume - 1 if volume > 1 and volume < 20 else volume
+        volume = volume if volume < 80 else 80
+        s = s + volume * trade.profit/10 * base
+        #print price,am,volume,s
+    return s
+

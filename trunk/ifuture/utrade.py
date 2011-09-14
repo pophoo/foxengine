@@ -1952,7 +1952,7 @@ pd = profit_distribution
 pd2 = profit_distribution2
 
 
-def calc_profit(trades,av=200000,rate=0.9,lever=0.17,base=300):#计算增量
+def calc_profit(trades,av=200000,rate=0.9,lever=0.17,base=300,max_volume=80):#计算增量
     '''
         理论计算
         av:起点值
@@ -1965,7 +1965,7 @@ def calc_profit(trades,av=200000,rate=0.9,lever=0.17,base=300):#计算增量
         am = price * base / 10 * lever
         volume = int(s * rate / am)
         volume = volume - 1 if volume > 1 and volume < 20 else volume
-        volume = volume if volume < 80 else 80
+        volume = volume if volume < max_volume else max_volume
         s = s + volume * trade.profit/10 * base
         #print price,am,volume,s
     return s

@@ -1416,7 +1416,7 @@ def mll2(sif,length=80,vbreak=10,vrange=270,vrange2=200):
             #sif.low < tlow,
             gor(tlow<ldmid-60),#,tlow==rollx(sif.dlow)+vbreak),
             #sif.time > 915,
-            #rollx(sif.ma13) < rollx(sif.ma30),
+            rollx(sif.ma13) < rollx(sif.ma30),
             #rollx(sif.ma7) < rollx(sif.ma20),
             #sif.dhigh - sif.low > 150,
             #sif.dhigh - tlow > 120,

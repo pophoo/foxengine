@@ -1387,6 +1387,7 @@ def mll2(sif,length=80,vbreak=10,vrange=270,vrange2=200):
     #slimit = np.select([gand(sif.time<tlimit,drange<vrange)],[vhigh-vrange],tlow)   #时间大于tlimit或振幅大于vrange,则以现有分钟均线为准
     #这个有问题，当价格处于vrange和vrange2之间时，有问题
     slimit = np.select([gand(sif.time<tlimit,drange<vrange),gand(sif.time>tlimit,drange<vrange)],[vhigh-vrange,vhigh-vrange2],tlow)   #时间大于tlimit或振幅大于vrange,则以现有分钟均线为准
+    #slimit = np.select([gand(drange<vrange)],[vhigh-vrange],tlow)
 
     #slimit = np.select([sif.time<1325,sif.time>=1325],[sif.dhigh-vrange,gmax(sif.dhigh-250,ldlow)])
     #slimit = gmax(slimit,ldlow)

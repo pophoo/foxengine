@@ -17,6 +17,64 @@ DTSORT2 = lambda x,y: int(((x.date%1000000 * 10000)+x.time) - ((y.date%1000000 *
 day2weekday = lambda x:date(x/10000,x%10000/100,x%100).weekday() + 1
 d2wd = day2weekday
 
+def last_stop_long(sif,sopened,ttrace=1500,tend=1511,drawback=60):
+    '''
+        每日收盘前的平仓,平多仓
+        从ttrace开始跟踪
+        如果价格回撤超过drawback就平仓
+    '''
+    sl = np.zeros_like(sif.time)
+    poss = filter(lambda x: gand(x[0]>=ttrace,x[0]<=tend),zip(sif.time,range(len(sif.time))))
+    xhigh = 0
+    for v,iv in poss:
+        if v == ttrace:
+            xhigh = sif.open[iv]
+            xstop = xhigh - drawback
+        if sif.low[iv] < xstop: #先比较是否破位再做高点比较。会有误差，但不大
+            sl[iv] = xstop
+        if sif.high[iv] > xhigh:
+            xhigh = sif.high[iv]
+            xstop = xhigh - drawback
+        if v == tend:
+            xhigh = 0
+            sl[iv] = 1
+    sl[-3:] = 1
+    return  sl * XSELL
+
+def last_stop_short(sif,sopened,ttrace=1500,tend=1511,drawback=60):
+    '''
+        每日收盘前的平仓,平多仓
+        从ttrace开始跟踪
+        如果价格回撤超过drawback就平仓
+    '''
+    sl = np.zeros_like(sif.time)
+    poss = filter(lambda x: gand(x[0]>=ttrace,x[0]<=tend),zip(sif.time,range(len(sif.time))))
+    xlow = 999999
+    for v,iv in poss:
+        if v == ttrace:
+            xlow = sif.open[iv]
+            xstop = xlow + drawback
+        if sif.high[iv] > xstop: #先比较是否破位再做高点比较。会有误差，但不大
+            sl[iv] = xstop
+        if sif.low[iv] < xlow:
+            xlow = sif.low[iv]
+            xstop = xlow + drawback
+        if v == tend:
+            xlow = 999999
+            sl[iv] = 1
+    sl[-3:] = 1
+    return  sl * XBUY
+
+def stop_long_3(sif,sopened):
+    sl = np.zeros_like(sif.time)
+    sl[-3:] = 1
+    return  sl * XSELL
+
+def stop_short_3(sif,sopened):
+    sl = np.zeros_like(sif.time)
+    sl[-3:] = 1
+    return  sl * XBUY
+
 def repeat_trades(actions,calc_profit=iftrade.normal_profit):  #简单的trades,每个trade只有一次开仓和平仓
     ''' 不支持同时双向开仓
         但支持同向多次开仓
@@ -512,7 +570,8 @@ def atr_stop_v(
                     #print trans[ITIME][j],buy_price,lost_stop,cur_high,win_stop,cur_stop,trans[ILOW][j],satr[j]
                     if trans[ILOW][j] < cur_stop:
                         ilong_closed = j
-                        rev[j] = cur_stop * XSELL 
+                        #rev[j] = cur_stop * XSELL 
+                        rev[j] = (cur_stop if cur_stop < trans[IOPEN][j] else trans[IOPEN][j])* XSELL 
                         #print 'sell in atrstop:'#,i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
                         break
                     elif  myssclose[j] >0:
@@ -550,7 +609,8 @@ def atr_stop_v(
                     #print trans[ITIME][j],sell_price,lost_stop,cur_low,win_stop,cur_stop,trans[IHIGH][j],satr[j]                
                     if trans[IHIGH][j] > cur_stop:
                         ishort_closed = j
-                        rev[j] = cur_stop * XBUY
+                        #rev[j] = cur_stop * XBUY
+                        rev[j] = (cur_stop if cur_stop > trans[IOPEN][j] else trans[IOPEN][j])* XBUY
                         #print 'buy:',j
                         #print 'buy:',i,price,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j]                        
                         break
@@ -1691,7 +1751,12 @@ vstop_4_42 = fcustom(atr_stop_v,
             )
 
 
+
+###这里设定的stop_closer会被opener函数指定的stop_closer所覆盖
 utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+#utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[],sclosers=[])
+#utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[stop_short_3],sclosers=[stop_long_3])  #最后平仓. 增长惊人
+#utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[last_stop_short],sclosers=[last_stop_long])
 utrade_d = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=iftrade.last_trades,sync_trades=iftrade.null_sync_tradess)
 
 utrade_c = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_short_c],sclosers=[ifuncs.daystop_long_c])

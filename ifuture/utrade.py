@@ -1699,8 +1699,22 @@ step_stop_7 = fcustom(step_stop,
                 step = 550,
                 )
 
+vstop_9_42 = fcustom(atr_stop_v,
+                flost_base = iftrade.F90,    
+                fmax_drawdown = iftrade.F360, 
+                tstep = lambda sif,i:40,     
+                vstep = 20,                  
+            )
+
 vstop_10_42 = fcustom(atr_stop_v,
                 flost_base = iftrade.F100,    
+                fmax_drawdown = iftrade.F360, 
+                tstep = lambda sif,i:40,     
+                vstep = 20,                  
+            )
+
+vstop_12_42 = fcustom(atr_stop_v,
+                flost_base = iftrade.F120,    
                 fmax_drawdown = iftrade.F360, 
                 tstep = lambda sif,i:40,     
                 vstep = 20,                  

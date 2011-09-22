@@ -770,10 +770,11 @@ def nhh(sif,vbreak=30,vrange=250):  #可以借鉴nhhn的过滤条件,300也不�
             cross(thigh,sif.high)>0,    #这里在设计实盘的时候要非常小心，本分钟的thigh!=上分钟的thigh
                                         #   好的一点是本分钟的thigh也是能提前计算出来的,所以不算未来数据
             #sif.high  > thigh,
-            thigh - sif.dlow < ldopen/33,   #不能涨太多
+            #thigh - sif.dlow < ldopen/33,   #不能涨太多
             #sif.high > thigh,
             #rollx(sif.close,3) > thigh * 9900/10000, 
             rollx(sif.xatr) < 2500,
+            #rollx(tmin(sif.low,5)) > rollx(tmin(sif.low,13)),             
             #rollx(sif.low) > thigh * 9950/10000,
             #rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
             #rollx(sif.dhigh-sif.dlow,3)>200,
@@ -1036,7 +1037,7 @@ def nhhv(sif,vbreak=30):  #貌似20/30都可以
             #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>200),
             rollx(sif.ma5) > rollx(sif.ma13),
             rollx(sif.xatr) < 2000,
-            thigh - sif.dlow < ldopen/33,   #不能涨太多
+            #thigh - sif.dlow < ldopen/33,   #不能涨太多
         )
     return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以跳空价进入
 
@@ -1411,19 +1412,20 @@ def mll2(sif,length=80,vbreak=10,vrange=270,vrange2=200):
     signal = gand(
             cross(tlow,sif.low)<0,
             #rollx(sif.close) < tlow + 50,
-            rollx(sif.close) < tlow * 10015/10000,
+            #rollx(sif.close) < tlow * 10015/10000,
             #rollx(sif.close,3) < tlow * 10050/10000,
             #rollx(sif.high) < tlow * 10025/10000,
             #sif.low < tlow,
             gor(tlow<ldmid-60),#,tlow==rollx(sif.dlow)+vbreak),
             #sif.time > 915,
             rollx(sif.ma13) < rollx(sif.ma30),
-            #rollx(sif.ma7) < rollx(sif.ma20),
+            rollx(tmax(sif.high,13)) < rollx(tmax(sif.high,30)), 
+            #rollx(sif.ma7) < rollx(sif.ma20)
             #sif.dhigh - sif.low > 150,
             #sif.dhigh - tlow > 120,
             #sif.time < 1325,
             #tlow > sif.dhigh - 350,
-            sif.dhigh - tlow < opend/33,   #不能跌太多
+            #sif.dhigh - tlow < opend/33,   #不能跌太多
         )
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入.
  
@@ -1780,7 +1782,7 @@ def mll2v(sif,length=80,vbreak=10):
             #sif.low < tlow,
             #gor(tlow<ldmid-vmid,tlow==rollx(sif.dlow)+vbreak),
             tlow < ldmid - vmid,
-            rollx(sif.close,3) < tlow * 10050/10000,
+            #rollx(sif.close,3) < tlow * 10050/10000,
             #rollx(sif.close,1) < tlow * 10030/10000,
             #rollx(sif.high) < tlow * 10030/10000,
             #tlow<ldmid-vmid,
@@ -1788,10 +1790,11 @@ def mll2v(sif,length=80,vbreak=10):
             sif.time > 915,
             #rollx(sif.ma13) < rollx(sif.ma30),
             rollx(ma(sif.high,13)) < rollx(ma(sif.high,30)),
+            #rollx(tmax(sif.high,13)) < rollx(tmax(sif.high,30)), 
             rollx(sif.xatr)<2000,
             rollx(sif.xatr30x)<10000,
             #sss < 1,
-            sif.dhigh - tlow < opend/33,   #不能跌太多
+            #sif.dhigh - tlow < opend/33,   #不能跌太多
             #sif.dhigh - tlow > 120,  
         )
     #signal = gand(msum(signal,10) > 1,signal)
@@ -2945,7 +2948,8 @@ fwave = [bfwave,sfwave]
 lwilliams = erange #+ fwave  #叠加反效果， 单独的以erange为好. 稳定性达到0.37
 
 for x in lwilliams:
-    x.stop_closer = utrade.atr5_ustop_T9
+    #x.stop_closer = utrade.atr5_ustop_T9
+    x.stop_closer = utrade.vstop_9_42
 
 #erange以每日一次失败为限
 

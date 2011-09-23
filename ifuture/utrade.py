@@ -1769,7 +1769,7 @@ vstop_4_42 = fcustom(atr_stop_v,
 ###这里设定的stop_closer会被opener函数指定的stop_closer所覆盖
 utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 #utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[],sclosers=[])
-#utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[stop_short_3],sclosers=[stop_long_3])  #最后平仓. 增长惊人
+utrade_m = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[stop_short_3],sclosers=[stop_long_3])  #最后平仓. 增长惊人
 #utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[last_stop_short],sclosers=[last_stop_long])
 utrade_d = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=iftrade.last_trades,sync_trades=iftrade.null_sync_tradess)
 
@@ -1779,6 +1779,11 @@ utrade_c = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_shor
 utrade_nr = fcustom(utrade,make_trades=repeat_trades,sync_trades=iftrade.null_sync_tradess,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 
 utrade_s = fcustom(utrade,stop_closer=step_stop,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+
+#最简单的合并
+#>>> tz2 = sorted(tz2,lambda tradex,tradey:cmp(tradex.actions[0].date,tradey.actions[0].date))
+#>>> tz2 = sorted(trades1 + trades2,iftrade.DTSORT3)
+
 
 def utrade_nc(sif,*fss):    #返回策略集合的独立运算的合并结果
     tradess = [utrade_n(sif,fs) for fs in fss]

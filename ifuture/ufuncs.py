@@ -1343,6 +1343,9 @@ def mll2(sif,length=80,vbreak=10,vrange=270,vrange2=200):
     '''
     #使用最低点
     tlow = rollx(tmin(sif.low,length)+vbreak,1)
+    
+    tlow = np.select([sif.iorder < length],[rollx(sif.dlow)],tlow)
+
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     #ldmid = dnext((sif.highd+gmin(sif.closed,sif.opend))/2,sif.close,sif.i_cofd)
     ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
@@ -1705,6 +1708,7 @@ def mll2z(sif,length=80,vbreak=20):
 def mll2v(sif,length=80,vbreak=10):
     #使用最低点
     tlow = rollx(tmin(sif.low,length)+vbreak,1)
+    #tlow = np.select([sif.iorder < length],[rollx(sif.dlow)],tlow) 
     #print tlow[-270:]
     #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     #ldmid = dnext((sif.highd+gmin(sif.closed,sif.opend))/2,sif.close,sif.i_cofd)

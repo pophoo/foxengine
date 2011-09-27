@@ -176,6 +176,7 @@ def prepare_index(sif):
     sif.index = sif.i_cof
     sif.time = trans[ITIME]
     sif.date = trans[IDATE]
+    sif.iorder = trans[IORDER]
 
     
     fcore.dpeak(sif)    #设置当日的高低点及其坐标 dhigh/dlow

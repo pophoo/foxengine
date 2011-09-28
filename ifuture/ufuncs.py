@@ -757,7 +757,7 @@ def nhh(sif,vbreak=30,vrange=250):  #可以借鉴nhhn的过滤条件,300也不�
     thigh = rollx(sif.dhigh+vbreak,3)
     ldclose = dnext(sif.closed,sif.close,sif.i_cofd)
 
-    vrange = ldopen / 105
+    #vrange = ldopen / 105
 
     blow = rollx(sif.dlow,1)
     #blow = rollx(gmin(sif.dlow,ldclose),1)
@@ -1046,6 +1046,54 @@ def nhhv(sif,vbreak=30):  #貌似20/30都可以
         )
     return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以跳空价进入
 
+def nhhv2(sif,vbreak=30):  #可以借鉴nhhn的过滤条件,300也不错
+    #使用最高点+30, 也就是说必须一下拉开3点
+
+    ldup = dnext(gand(sif.highd>rollx(sif.highd),sif.lowd>rollx(sif.lowd)),sif.close,sif.i_cofd)
+
+    #ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
+
+
+    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)     
+    
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
+    
+    ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
+    thigh = rollx(sif.dhigh+vbreak,3)
+    ldclose = dnext(sif.closed,sif.close,sif.i_cofd)
+
+    vrange = ldopen / 105
+
+    blow = rollx(sif.dlow,1)
+    #blow = rollx(gmin(sif.dlow,ldclose),1)
+    #blow = rollx(gmin(sif.dlow,ldhigh),1)
+    #thigh = np.select([sif.time<1030,sif.time>=1030],[gmax(thigh,rollx(sif.dlow) + 200),thigh])
+    #thigh = gmax(thigh,rollx(sif.dlow,1) + vrange + vbreak)
+    #thigh = np.select([gand(sif.time<1330,rollx(sif.dhigh-sif.dlow)<vrange),sif.time>0],[sif.dlow+vrange+vbreak,thigh])    
+
+    slimit = gmax(blow + vrange + vbreak,ldopen+90)
+    #slimit = np.select([bnot(ldup)],[slimit],rollx(sif.dhigh))
+
+    thigh = gmax(thigh,slimit)
+    signal = gand(
+            #cross(rollx(sif.dhigh+30),sif.high)>0
+            cross(thigh,sif.high)>0,    #这里在设计实盘的时候要非常小心，本分钟的thigh!=上分钟的thigh
+                                        #   好的一点是本分钟的thigh也是能提前计算出来的,所以不算未来数据
+            #sif.high  > thigh,
+            #thigh - sif.dlow < ldopen/33,   #不能涨太多
+            #sif.high > thigh,
+            #rollx(sif.close,3) > thigh * 9900/10000, 
+            rollx(sif.xatr) < 2500,
+            #rollx(tmin(sif.low,5)) > rollx(tmin(sif.low,13)),             
+            #rollx(sif.low) > thigh * 9950/10000,
+            #rollx(sif.dhigh) > ldlow + 10,     #大于昨日低点
+            #rollx(sif.dhigh-sif.dlow,3)>200,
+            #thigh - rollx(sif.close,2) < 150,
+            #gmax(rollx(sif.dhigh,1),thigh) > ldopen + 80,
+            #thigh > ldopen + 60,
+            #gor(sif.time>=1330,rollx(sif.dhigh-sif.dlow)>200),
+        )
+    return np.select([signal],[gmax(sif.open,thigh)],0)    #避免跳空情况，如果跳空且大于突破点，就以跳空价进入
 
 def mhhz(sif,vbreak=36):  #貌似20/30都可以
     #使用最高点+30, 也就是说必须一下拉开3点
@@ -1251,6 +1299,9 @@ break_nhh.name = u'向上突破新高'
 hbreak_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=gofilter,ffilter=mfilter)  ##主要时段
 #hbreak_nhh = BXFuncA(fstate=gofilter,fsignal=nhh,fwave=nx2500X,ffilter=nfilter2)  ##主要时段
 hbreak_nhh.name = u'日内向上突破新高'
+
+hbreak_nhhv2 = BXFuncA(fstate=gofilter,fsignal=nhhv2,fwave=gofilter,ffilter=mfilter)  ##主要时段
+hbreak_nhhv2.name = u'日内向上突破新高v2'
 
 hbreak_nhhn = BXFuncA(fstate=gofilter,fsignal=nhhn,fwave=nx2500X,ffilter=mfilter)  ##主要时段
 hbreak_nhhn.name = u'日内向上突破新高n'
@@ -1816,6 +1867,107 @@ def mll2v(sif,length=80,vbreak=10):
     
     return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入
 
+def mll2v2(sif,length=80,vbreak=10):    
+    '''
+        280去掉时间放松
+        与350加时间放松效果类似
+        vrange2为tlimit后的约束
+    '''
+    #使用最低点
+    tlow = rollx(tmin(sif.low,length)+vbreak,1)
+    
+    tlow = np.select([sif.iorder < length],[rollx(sif.dlow)],tlow)
+
+    #ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
+    #ldmid = dnext((sif.highd+gmin(sif.closed,sif.opend))/2,sif.close,sif.i_cofd)
+    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
+
+    #ldlow = dnext(gmin(sif.closed,sif.opend),sif.close,sif.i_cofd) - 0 
+    ldlow = dnext(sif.lowd,sif.close,sif.i_cofd) 
+    lddown = dnext(gand(sif.highd < rollx(sif.highd),sif.lowd<rollx(sif.lowd)),sif.close,sif.i_cofd)
+
+
+    opend = dnext(sif.opend,sif.open,sif.i_oofd)            
+    #highd = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)            
+    #ldmid = dnext(gmax(sif.highd,rollx(sif.highd)),sif.close,sif.i_cofd)        
+    #ldmid = dnext(sif.highd,sif.close,sif.i_cofd)        
+    #ldmid = dnext((sif.highd+sif.closed)/2,sif.close,sif.i_cofd)    
+    ldclose = dnext(sif.closed,sif.close,sif.i_cofd) 
+    
+    ldatr = dnext(sif.atr30,sif.close,sif.i_cof30)
+
+    vrange = opend / 110
+    vrange2 = opend / 143
+
+    #vrange = ldatr *2 / XBASE
+    #vrange2 = 0
+
+    #tlow = gmin(tlow,ldmid-32)
+    
+    #mytime = 1315
+
+    tlimit = 1325   #不如所有时间都作幅度要求
+    #tlimit = 1325
+    
+    vhigh = sif.dhigh
+    #vhigh = gmax((ldclose-sif.dhigh)/2+sif.dhigh,sif.dhigh)
+    #vhigh = gmax(ldclose,sif.dhigh)
+    #vhigh = gmax(ldlow,sif.dhigh)
+    drange = rollx(vhigh - sif.dlow)
+    #drange = rollx(sif.dhigh - sif.dlow)
+
+    #tlow = np.select([sif.time<1330,sif.time>0],[sif.dhigh-vrange,tlow])
+    #slimit = np.select([sif.time<1325,sif.time>=1325],[sif.dhigh-vrange,sif.dhigh-250])
+    #slimit = np.select([sif.time<tlimit,sif.time>=tlimit],[sif.dhigh-vrange,tlow])
+
+    #slimit = np.select([gor(sif.time>=tlimit,drange >= vrange),sif.time<tlimit],[tlow,sif.dhigh-vrange])   #时间大于tlimit或振幅大于vrange,则以现有分钟均线为准
+
+    #slimit = np.select([gand(sif.time<tlimit,drange<vrange)],[sif.dhigh-vrange],tlow)   #时间大于tlimit或振幅大于vrange,则以现有分钟均线为准
+    
+    #slimit = np.select([gand(sif.time<tlimit,drange<vrange)],[vhigh-vrange],tlow)   #时间大于tlimit或振幅大于vrange,则以现有分钟均线为准
+    #这个有问题，当价格处于vrange和vrange2之间时，有问题
+    slimit = np.select([gand(sif.time<tlimit,drange<vrange),gand(sif.time>tlimit,drange<vrange)],[vhigh-vrange,vhigh-vrange2],tlow)   #时间大于tlimit或振幅大于vrange,则以现有分钟均线为准
+    #slimit = np.select([gand(drange<vrange)],[vhigh-vrange],tlow)
+
+    #slimit = np.select([sif.time<1325,sif.time>=1325],[sif.dhigh-vrange,gmax(sif.dhigh-250,ldlow)])
+    #slimit = gmax(slimit,ldlow)
+    #slimit = np.select([lddown],[sif.dhigh-250],slimit)
+    #tlow = np.select([sif.time<1325,sif.time>=1325],[gmin(sif.dhigh-vrange,tlow),gmin(tlow,sif.dhigh-250)])
+    tlow = gmin(slimit,tlow,ldmid-60)
+    #tlow = np.select([sif.time<1325,sif.time>=1325],[gmin(sif.dhigh-vrange,tlow),tlow])
+    #tlow = np.select([sif.time<mytime,sif.time>=mytime],[gmin(sif.dhigh-vrange,tlow),gmin(sif.dhigh-vrange2,tlow)])
+    #tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(sif.dhigh-vrange,tlow),tlow])
+    #tlow = np.select([tlow<=rollx(sif.dlow)+vbreak,1],[tlow,gmin(tlow,ldmid-60)])
+    #tlow = np.select([tlow>ldmid-60,tlow<=ldmid-60],[rollx(sif.dlow),tlow])
+    #tlow = np.select([gand(sif.time<1330,rollx(sif.dhigh-sif.dlow)<vrange+vbreak),sif.time>0],[sif.dhigh-vrange,tlow])
+    #tlow = np.select([sif.time<1330,sif.time>0],[gmin(tlow,sif.dhigh-vrange),tlow])
+    #tlow = np.select([rollx(sif.dhigh-sif.dlow)<vrange+vbreak,sif.time>0],[sif.dhigh-vrange,tlow])
+    #tlow = np.select([gand(sif.time<1330,sif.dhigh-sif.dlow<vrange+vbreak),gand(sif.time<1330,sif.dhigh-sif.dlow>vrange+vbreak),sif.time>1330],[sif.dhigh-vrange,tlow,gmin(sif.dhigh-350,tlow)])
+    #tlow = gmin(sif.dhigh-vrange,tlow)
+    #tlow = gmin(sif.dhigh-400,tlow)
+
+    #tlow = np.select([gand(tlow>ldmid-60,tlow>rollx(sif.dlow)+vbreak),gor(tlow<=ldmid-60,tlow==rollx(sif.dlow)+vbreak)],[ldmid-60,tlow])
+
+    signal = gand(
+            cross(tlow,sif.low)<0,
+            #rollx(sif.close) < tlow + 50,
+            #rollx(sif.close) < tlow * 10015/10000,
+            #rollx(sif.close,3) < tlow * 10050/10000,
+            #rollx(sif.high) < tlow * 10025/10000,
+            #sif.low < tlow,
+            gor(tlow<ldmid-60),#,tlow==rollx(sif.dlow)+vbreak),
+            #sif.time > 915,
+            rollx(sif.ma13) < rollx(sif.ma30),
+            rollx(tmax(sif.high,13)) < rollx(tmax(sif.high,30)), 
+            #rollx(sif.ma7) < rollx(sif.ma20)
+            #sif.dhigh - sif.low > 150,
+            #sif.dhigh - tlow > 120,
+            #sif.time < 1325,
+            #tlow > sif.dhigh - 350,
+            #sif.dhigh - tlow < opend/33,   #不能跌太多
+        )
+    return np.select([signal],[gmin(sif.open,tlow)],0)    #避免跳空情况，如果跳空且小于突破点，就以跳空价进入.
+
 def mll2z0(sif,length=80,vbreak=20):
     #使用最低点, 第二次突破
     tlow = rollx(tmin(sif.low,length)+vbreak,1)
@@ -2043,11 +2195,13 @@ def mfilterx(sif):
 #shbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2000X,ffilter=mfilter2)    #优于nll
 #shbreak_mll2 = SXFuncA(fstate=gofilter,fsignal=mll2,fwave=nx2000X,ffilter=mfilter2)    #优于nll
 shbreak_mll2 = SXFuncA(fstate=gofilter,fsignal=mll2,fwave=nx2000X,ffilter=nfilter2)    #1000-1445
-
 #shbreak_mll2 = SXFuncA(fstate=gofilter,fsignal=mll2,fwave=gofilter,ffilter=nfilter2)    #1000-1445
-
 #shbreak_mll2 = SXFuncA(fstate=sdown,fsignal=mll2,fwave=nx2000X,ffilter=efilter)    #优于nll
 shbreak_mll2.name = u'日内75分钟向下突破'
+
+shbreak_mll2v2 = SXFuncA(fstate=gofilter,fsignal=mll2v2,fwave=nx2000X,ffilter=nfilter2)    #1000-1445
+shbreak_mll2v2.name = u'日内75分钟向下突破v2'
+
 
 shbreak_mll2n = SXFuncA(fstate=gofilter,fsignal=mll2n,fwave=nx2000X,ffilter=mfilter2)    #优于nll
 #shbreak_mll2n = SXFuncA(fstate=sdown,fsignal=mll2n,fwave=gofilter,ffilter=efilter)    #优于nll
@@ -2118,8 +2272,9 @@ hbreak = [shbreak_mll2,break_nhh]  #利润比较好
 #hbreak2 = [shbreak_mll2,hbreak_nhh,hbreak_nhh_e]  #这个最大回撤最小      #####################采用此个
 hbreak2 = [shbreak_mll2,hbreak_nhh]#,hbreak_nhh_e]  #这个最大回撤最小      #####################采用此个
 
-hbreak2v = [shbreak_mll2v,hbreak_nhhv]#,hbreak_nhh_e]  #这个去除了对特定过滤幅度值的依赖, 次数减少18%,收益增加2%;
+hbreak2v = [shbreak_mll2v,hbreak_nhhv]#,hbreak_nhh_e]  #这个去除了对特定过滤幅度值的依赖, 次数减少18%,收益增加2%;长期跟踪效果不好
 
+hbreak2v2 = [shbreak_mll2v2,hbreak_nhhv2]#,hbreak_nhh_e]  #这个去除了对特定过滤幅度值的依赖,
 
 hbreak3 = [hbreak_nhh,shbreak_mll2]#,hbreak_nhh_e]#
 
@@ -6720,6 +6875,7 @@ for x in rxxx:
 
 shbreak_mll2.stop_closer = utrade.vstop_10_42
 
+shbreak_mll2v2.stop_closer = utrade.vstop_10_42
 
 #shbreak_mll2.stop_closer = utrade.vstop_7_42
 #shbreak_mll2.stop_closer = utrade.atr5_ustop_V10
@@ -6734,7 +6890,7 @@ shbreak_mll2.stop_closer = utrade.vstop_10_42
 #hbreak_nhh.stop_closer = utrade.atr5_ustop_V7
 
 hbreak_nhh.stop_closer = utrade.vstop_10_42
-
+hbreak_nhhv2.stop_closer = utrade.vstop_10_42
 
 #hbreak_nhh.stop_closer = utrade.vstop_7_42
 

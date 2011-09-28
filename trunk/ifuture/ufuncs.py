@@ -740,6 +740,9 @@ break_fx = [break_fhx,break_flx]    ##########一个还可以的独立策略. �
 
 def nhh(sif,vbreak=30,vrange=250):  #可以借鉴nhhn的过滤条件,300也不错
     #使用最高点+30, 也就是说必须一下拉开3点
+
+    
+
     ldup = dnext(gand(sif.highd>rollx(sif.highd),sif.lowd>rollx(sif.lowd)),sif.close,sif.i_cofd)
 
     #ldatr = dnext(sif.atrd,sif.close,sif.i_cofd)
@@ -753,6 +756,8 @@ def nhh(sif,vbreak=30,vrange=250):  #可以借鉴nhhn的过滤条件,300也不�
     ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)
     thigh = rollx(sif.dhigh+vbreak,3)
     ldclose = dnext(sif.closed,sif.close,sif.i_cofd)
+
+    vrange = ldopen / 105
 
     blow = rollx(sif.dlow,1)
     #blow = rollx(gmin(sif.dlow,ldclose),1)
@@ -1363,6 +1368,12 @@ def mll2(sif,length=80,vbreak=10,vrange=270,vrange2=200):
     ldclose = dnext(sif.closed,sif.close,sif.i_cofd) 
     
     ldatr = dnext(sif.atr30,sif.close,sif.i_cof30)
+
+    #vrange = opend / 110
+    #vrange2 = opend / 143
+    #vrange = opend / 110
+    #vrange2 = opend / 143
+
     #vrange = ldatr *2 / XBASE
     #vrange2 = 0
 

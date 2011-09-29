@@ -772,9 +772,9 @@ def nhh(sif,vbreak=30,vrange=250):  #可以借鉴nhhn的过滤条件,300也不�
     thigh = gmax(thigh,slimit)
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
-            cross(thigh,sif.high)>0,    #这里在设计实盘的时候要非常小心，本分钟的thigh!=上分钟的thigh
+            #cross(thigh,sif.high)>0,    #这里在设计实盘的时候要非常小心，本分钟的thigh!=上分钟的thigh
                                         #   好的一点是本分钟的thigh也是能提前计算出来的,所以不算未来数据
-            #sif.high  > thigh,
+            sif.high  > thigh,
             #thigh - sif.dlow < ldopen/33,   #不能涨太多
             #sif.high > thigh,
             #rollx(sif.close,3) > thigh * 9900/10000, 
@@ -1077,9 +1077,9 @@ def nhhv2(sif,vbreak=30):  #可以借鉴nhhn的过滤条件,300也不错
     thigh = gmax(thigh,slimit)
     signal = gand(
             #cross(rollx(sif.dhigh+30),sif.high)>0
-            cross(thigh,sif.high)>0,    #这里在设计实盘的时候要非常小心，本分钟的thigh!=上分钟的thigh
+            #cross(thigh,sif.high)>0,    #这里在设计实盘的时候要非常小心，本分钟的thigh!=上分钟的thigh
                                         #   好的一点是本分钟的thigh也是能提前计算出来的,所以不算未来数据
-            #sif.high  > thigh,
+            sif.high  > thigh,
             #thigh - sif.dlow < ldopen/33,   #不能涨太多
             #sif.high > thigh,
             #rollx(sif.close,3) > thigh * 9900/10000, 

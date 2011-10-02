@@ -2455,18 +2455,27 @@ mxx = [bmx,smx] #又一个独立策略 ############
 
 def lmx1(sif,length=30):#最低价突破中间价,收盘模型
     twave = sif.atr/XBASE*5/2
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
+    #twave = ldopen / 210
+
+    #twave = dnext(ma(sif.highd-sif.lowd,5)/6,sif.close,sif.i_cofd)
+
     #twave = np.select([twave>150],[150],twave)
 
-    tmid =  tmin(sif.low,length)/2 + tmax(sif.high,length)/2 + twave
+    tmid =  rollx(tmin(sif.low,length)/2 + tmax(sif.high,length)/2 + twave)
+    #tmid = rollx((sif.dhigh+sif.dlow)/2 + twave)
 
     signal = gand(
             sif.low > tmid,
+            #sif.high > tmid,
+            #cross(tmid,sif.low)>0,
             sif.time > 915,
-            sif.low > rollx(sif.dlow) + 300,
-            sif.close > rollx(sif.dmid),
+            sif.low > rollx(sif.dlow) + ldopen/120,
+            tmid > sif.dmid + ldopen/1000,
+            
         )
-    signal = msum(signal,2) == 2
-    signal = derepeatc(signal)
+    #signal = msum(signal,2) == 2
+    #signal = derepeatc(signal)
     return signal    #下一分钟介入
 bmx1 = BXFuncA(fstate=gofilter,fsignal=lmx1,fwave=nx2500X,ffilter=mfilter)
 bmx1.name = u'中间价向上突破1'
@@ -2475,11 +2484,15 @@ bmx1.stop_closer = utrade.atr5_ustop_V
 def hmx1(sif,length=30):#最高价突破中间价,收盘模型
     twave = sif.atr/XBASE*2
     #twave = np.select([twave<50],[50],twave)
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
     
-    tmid =  tmin(sif.low,length)/2 + tmax(sif.high,length)/2 - twave
+    tmid =  rollx(tmin(sif.low,length)/2 + tmax(sif.high,length)/2 - twave)
     signal = gand(
             sif.high < tmid,
+            #cross(tmid,sif.high)<0,
             sif.time > 915,
+            #tmid < sif.dmid - ldopen/1000,
+            #sif.high < rollx(sif.dhigh) - ldopen/110,
             rollx(sif.dhigh-sif.dlow)>360,
             sif.dhigh > sif.high + 300,
         )
@@ -2559,6 +2572,7 @@ def uema(sif,length=20):#
 bema = BXFuncA(fstate=gofilter,fsignal=uema,fwave=nx2500X,ffilter=nfilter)
 bema.name = u'ema通道向上突破'
 bema.stop_closer = utrade.atr5_ustop_V
+#bema.stop_closer = utrade.vstop_10_42
 
 def dema(sif,length=30):#
     twave = sif.atr/XBASE*2
@@ -2576,6 +2590,7 @@ def dema(sif,length=30):#
 sema = SXFuncA(fstate=sdown,fsignal=dema,fwave=nx2000X,ffilter=mfilter)
 sema.name = u'ema通道向下突破'
 sema.stop_closer = utrade.atr5_ustop_V1
+#sema.stop_closer = utrade.vstop_10_42
 
 ema = [bema,sema]
 
@@ -2651,6 +2666,7 @@ def _bxchannel2(sif,length=20):#
 bxchannel = BXFuncA(fstate=sdown,fsignal=_bxchannel,fwave=nx2000X,ffilter=nfilter2)
 bxchannel.name = u'中间通道向上突破'
 bxchannel.stop_closer = utrade.atr5_ustop_V7
+#bxchannel.stop_closer = utrade.vstop_10_42
 
 bxchannel2 = BXFuncA(fstate=gofilter,fsignal=_bxchannel2,fwave=gofilter,ffilter=mfilter)
 bxchannel2.name = u'中间通道向上突破2'
@@ -2678,6 +2694,8 @@ def _sxchannel(sif,length=20):#
 sxchannel = SXFuncA(fstate=sdown,fsignal=_sxchannel,fwave=nx2000X,ffilter=nfilter2)
 sxchannel.name = u'中间通道向下突破'
 sxchannel.stop_closer = utrade.atr5_ustop_V7
+
+#sxchannel.stop_closer = utrade.vstop_10_42
 
 def _sxchannel2(sif,length=20):#
     twave = sif.atr/XBASE * 7/2
@@ -2716,10 +2734,11 @@ def _sxchannel2(sif,length=20):#
 sxchannel2 = SXFuncA(fstate=sdown,fsignal=_sxchannel2,fwave=nx2000X,ffilter=nfilter2)
 sxchannel2.name = u'中间通道向下突破'
 sxchannel2.stop_closer = utrade.atr5_ustop_V7
+sxchannel2.stop_closer = utrade.vstop_10_42
 
 
 xchannel = [bxchannel,sxchannel]    #####一对非常好的备用策略
-
+xchannel2 = [bxchannel2,sxchannel2]    #####一对非常好的备用策略
 
 ##突破前一日高/低点
 def bru_old(sif):
@@ -2986,6 +3005,9 @@ berangeu2.stop_closer = utrade.atr5_ustop_V1
 
 berange = [berangeu,berangeu2]
 
+berangeu.stop_closer = utrade.vstop_10_42
+berangeu2.stop_closer = utrade.vstop_10_42
+
 def eranged(sif):
     erange = dnext(sif.highd-sif.lowd,sif.close,sif.i_cofd)
     ldopen = dnext(sif.opend,sif.close,sif.i_oofd)    
@@ -3026,6 +3048,10 @@ seranged2 = SXFuncD1(fstate=gofilter,fsignal=eranged2,fwave=gofilter,ffilter=gof
 seranged2.name = u'扩张向下2'
 seranged2.lastupdate = 20110110
 seranged2.stop_closer = utrade.atr5_ustop_V1
+
+seranged.stop_closer = utrade.vstop_10_42
+seranged2.stop_closer = utrade.vstop_10_42
+
 
 serange = [seranged,seranged2]
 
@@ -6686,7 +6712,8 @@ def _tri_up(sif,sopened=None):
     bfilter = gand(
                 sif.sdiff10x>sif.sdea10x,#第二重a
                 sif.sdiff10x > 0,#第二重b
-                sif.dhigh - sif.dlow > 180,
+                #sif.dhigh - sif.dlow > 180,
+                rollx(sif.dhigh - sif.dlow) > ldopen/200,#180,
                 sif.high > ldopen, 
                 sif.r120>0, #第一重
             )
@@ -6700,7 +6727,8 @@ def _tri_up(sif,sopened=None):
 
 tri_up = BXFuncA(fstate=gofilter,fsignal=_tri_up,fwave=gofilter,ffilter=mfilter3)
 tri_up.name = u'tri_up'
-tri_up.stop_closer = utrade.atr5_ustop_V15
+#tri_up.stop_closer = utrade.atr5_ustop_V15
+tri_up.stop_closer = utrade.vstop_10_42
 
 def _tri_down(sif,sopened=None):
     '''
@@ -6713,7 +6741,7 @@ def _tri_down(sif,sopened=None):
 
     bfilter = gand(
                 sif.sdiff10x < sif.sdea10x,
-                sif.dhigh - sif.dlow > 360,
+                rollx(sif.dhigh - sif.dlow) > ldopen/88,#360,
                 sif.r60<0,
                 strend2(sif.ma30)<0,
             )
@@ -6727,7 +6755,8 @@ def _tri_down(sif,sopened=None):
 
 tri_down = SXFuncA(fstate=gofilter,fsignal=_tri_down,fwave=gofilter,ffilter=mfilter)
 tri_down.name = u'tri_down'
-tri_down.stop_closer = utrade.atr5_ustop_V25
+#tri_down.stop_closer = utrade.atr5_ustop_V25
+tri_down.stop_closer = utrade.vstop_10_42
 
 xtri = [tri_up,tri_down]        #一个非常好的候选策略
 
@@ -6971,8 +7000,24 @@ break_nhhxm.stop_closer = utrade.atr5_ustop_V1
 break_nllxm.stop_closer = utrade.atr5_ustop_V1  #注意，这个是V1,即5个点的止损
 
 
-bmx.stop_closer = utrade.atr5_ustop_V1
-smx.stop_closer = utrade.atr5_ustop_V1
+#bmx.stop_closer = utrade.atr5_ustop_V1
+#smx.stop_closer = utrade.atr5_ustop_V1
+
+bmx.stop_closer = utrade.vstop_10_42
+smx.stop_closer = utrade.vstop_10_42
+
+#bmx1.stop_closer = utrade.atr5_ustop_V1
+#smx1.stop_closer = utrade.atr5_ustop_V1
+
+#bmx1.stop_closer = utrade.atr5_ustop_V
+#smx1.stop_closer = utrade.atr5_ustop_V
+
+bmx1.stop_closer = utrade.vstop_10_42
+smx1.stop_closer = utrade.vstop_10_42
+
+bmx2.stop_closer = utrade.vstop_10_42
+smx2.stop_closer = utrade.vstop_10_42
+
 
 dbreakb.stop_closer = utrade.atr5_ustop_T
 dbreaks.stop_closer = utrade.atr5_ustop_T

@@ -3582,6 +3582,8 @@ def _hb123(sif,vbreak=16):
                 rollx(sif.sdma)>0,
                 #shh >= opend * 1003/1000,   #shh如果小于这个值，必须放弃等待第二次
                 #rollx(sif.xatr) < 2500,    #引入的收益不足以抵消复杂性
+                rollx(tmin(sif.low,5)) >= rollx(tmin(sif.low,20)),   #不能创了新低
+                rollx(sif.ma13) >= rollx(sif.ma30),
             )
     return np.select([signal],[gmax(sif.open,shh)],0)
 
@@ -3590,8 +3592,74 @@ hb123.name = u'向上h123'
 hb123.lastupdate = 20111010
 hb123.stop_closer = utrade.vstop_10_42
 
-def _hs123(sif,vbreak=30):
+def _hb123n(sif,vbreak=16):
     #向上123
+
+    len1 = 11
+    len2 = 1
+
+    iup = 0
+    idown = 0
+    hpre = 0
+    lpre = 0
+    hpeak_pre = 0
+    lpeak_pre = 0
+
+    hpeak = np.zeros_like(sif.close5)
+    lpeak = np.zeros_like(sif.close5)
+    hhpeak = np.zeros_like(sif.close5)
+    slpeak = False
+
+    for i in range(1,len(sif.close5)):
+        hcur = sif.high5[i]
+        lcur = sif.low5[i]
+        if hcur > hpre:
+            iup += 1
+        elif hcur < hpre:
+            hpeak[i-1] = iup
+            hhpeak[i-1] = 1 if hpre >= hpeak_pre and slpeak else 0
+            iup = 0
+            hpeak_pre = hpre
+        if lcur < lpre:
+            idown += 1
+        elif lcur > lpre:
+            lpeak[i-1] = idown
+            idown = 0
+            slpeak = True if lpre > lpeak_pre else False
+            lpeak_pre = lpre
+        hpre = hcur
+        lpre = lcur
+    
+    opend = dnext(sif.opend,sif.open,sif.i_oofd)        
+
+    phh = np.select([hhpeak],[sif.high5],0)
+
+    shh = extend2next(phh) #+ vbreak
+
+    shh = dnext(shh,sif.close,sif.i_cof5)        
+    
+    shh = gmax(shh,opend * 1005/1000)
+
+
+    signal = gand(
+                cross(shh,sif.high)>0,
+                #rollx(sif.sdma)>0,
+                #sif.high > rollx(tmax(sif.high,20)),
+                #rollx(strend2(sif.ma120))>0,
+                rollx(sif.dhigh-sif.dlow)>opend / 110 ,
+                #rollx(sif.sdma)>0,
+                #shh >= opend * 1003/1000,   #shh如果小于这个值，必须放弃等待第二次
+                #rollx(sif.xatr) < 2500,    #引入的收益不足以抵消复杂性
+            )
+    return np.select([signal],[gmax(sif.open,shh)],0)
+hb123n = BXFunc(fstate=gofilter,fsignal=_hb123n,fwave=gofilter,ffilter=mfilter3)
+hb123n.name = u'向上h123n'
+hb123n.lastupdate = 20111010
+hb123n.stop_closer = utrade.vstop_10_42
+
+
+def _hs123(sif,vbreak=30):
+    #向下123
 
     len1 = 5
     len2 = 1
@@ -3640,7 +3708,8 @@ def _hs123(sif,vbreak=30):
     signal = gand(
                 cross(sll,sif.low)<0,
                 rollx(sif.dhigh-sif.dlow)>opend / 110,
-                #sif.r60<0,
+                rollx(tmax(sif.high,5)) < rollx(tmax(sif.high,20)), 
+                rollx(sif.ma5) <= rollx(sif.ma13),#这个过滤性太强. 13/30搭配还要强
             )
     return np.select([signal],[gmin(sif.open,sll)],0)
 hs123 = SXFunc(fstate=gofilter,fsignal=_hs123,fwave=gofilter,ffilter=mfilter3)
@@ -3648,7 +3717,7 @@ hs123.name = u'向下s123'
 hs123.lastupdate = 20111010
 hs123.stop_closer = utrade.vstop_10_42
 
-h123 = [hb123,hs123]    #第二个策略??? 需要观察
+h123 = [hb123,hs123]    #第二个策略??? 需要观察. 效果已经超过hbreak2v2?
 
 
 ####反弹类

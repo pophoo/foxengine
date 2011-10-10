@@ -3178,17 +3178,18 @@ def u123(sif):
     #lpcll = extend2next(pcll)
 
     rlhh = rollx(lhh+50)    #连续上去，没出现新的极点
-
+    opend = dnext(sif.opend,sif.open,sif.i_oofd)        
     signal = gand(shh>-10,
                 sll>0,#上次允许是微弱失败尝试
-                tmin(rollx(sif.low),4)>lll,
+                #tmin(rollx(sif.low),4)>lll,
                 #pphh - ppll < 120,                
                 cross(rlhh,sif.high)>0,
                 rollx(sif.sdma)>0,
                 #sif.high > rollx(tmax(sif.high,20)),
                 #rollx(strend2(sif.ma120))>0,
+                sif.dhigh - sif.dlow > opend/105,
             )
-    return np.select([signal],[rlhh],0)
+    return np.select([signal],[gmax(sif.open,rlhh)],0)
 
 
 
@@ -3481,7 +3482,7 @@ def d2b(sif):
 b123 = BXFunc(fstate=gofilter,fsignal=u123,fwave=nx2500X,ffilter=n1430filter)
 b123.name = u'向上123'
 b123.lastupdate = 20101222
-b123.stop_closer = utrade.atr5_ustop_V
+b123.stop_closer = utrade.vstop_10_42#atr5_ustop_V
 
 s123 = SXFunc(fstate=gofilter,fsignal=d123,fwave=nx2500X,ffilter=nfilter)
 s123.name = u'向下123'
@@ -3578,6 +3579,7 @@ def _hb123(sif,vbreak=16):
                 #sif.high > rollx(tmax(sif.high,20)),
                 #rollx(strend2(sif.ma120))>0,
                 rollx(sif.dhigh-sif.dlow)>opend / 100 ,
+                rollx(sif.sdma)>0,
                 #shh >= opend * 1003/1000,   #shh如果小于这个值，必须放弃等待第二次
                 #rollx(sif.xatr) < 2500,    #引入的收益不足以抵消复杂性
             )
@@ -3588,7 +3590,7 @@ hb123.name = u'向上h123'
 hb123.lastupdate = 20111010
 hb123.stop_closer = utrade.vstop_10_42
 
-def _hs123(sif,vbreak=-30):
+def _hs123(sif,vbreak=30):
     #向上123
 
     len1 = 5
@@ -3631,13 +3633,14 @@ def _hs123(sif,vbreak=-30):
 
     pll = np.select([llpeak],[sif.low],0)
 
-    sll = extend2next(pll) + vbreak
+    sll = extend2next(pll) - vbreak
 
     sll = gmin(sll,opend * 1005/1000)
 
     signal = gand(
                 cross(sll,sif.low)<0,
                 rollx(sif.dhigh-sif.dlow)>opend / 110,
+                #sif.r60<0,
             )
     return np.select([signal],[gmin(sif.open,sll)],0)
 hs123 = SXFunc(fstate=gofilter,fsignal=_hs123,fwave=gofilter,ffilter=mfilter3)

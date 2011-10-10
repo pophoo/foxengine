@@ -3478,7 +3478,6 @@ def d2b(sif):
             )
     return np.select([signal],[gmin(tp,sif.open)],0)
 
-
 b123 = BXFunc(fstate=gofilter,fsignal=u123,fwave=nx2500X,ffilter=n1430filter)
 b123.name = u'向上123'
 b123.lastupdate = 20101222
@@ -3525,6 +3524,129 @@ break123b = [b123b,s123b]  #b123b集成性比较好,s123b不好
 
 break123c = [b123b,b2b,s2b]  #集成性可能比较好
 break123c = [b123b]#,s2b,b2b]  #集成性可能比较好, b2b样本太少. b123b作为突破后收盘模型，较难操作，因有惯性
+
+def _hb123(sif,vbreak=16):
+    #向上123
+
+    len1 = 11
+    len2 = 1
+    rev = np.zeros_like(sif.close)
+
+    iup = 0
+    idown = 0
+    hpre = 0
+    lpre = 0
+    hpeak_pre = 0
+    lpeak_pre = 0
+
+    hpeak = np.zeros_like(sif.close)
+    lpeak = np.zeros_like(sif.close)
+    hhpeak = np.zeros_like(sif.close)
+    slpeak = False
+
+    for i in range(1,len(sif.close)):
+        hcur = sif.high[i]
+        lcur = sif.low[i]
+        if hcur > hpre:
+            iup += 1
+        elif hcur < hpre:
+            hpeak[i-1] = iup
+            hhpeak[i-1] = 1 if hpre >= hpeak_pre and slpeak else 0
+            iup = 0
+            hpeak_pre = hpre
+        if lcur < lpre:
+            idown += 1
+        elif lcur > lpre:
+            lpeak[i-1] = idown
+            idown = 0
+            slpeak = True if lpre > lpeak_pre else False
+            lpeak_pre = lpre
+        hpre = hcur
+        lpre = lcur
+    
+    opend = dnext(sif.opend,sif.open,sif.i_oofd)        
+
+    phh = np.select([hhpeak],[sif.high],0)
+
+    shh = extend2next(phh) + vbreak
+
+    shh = gmax(shh,opend * 1003/1000)
+
+    signal = gand(
+                cross(shh,sif.high)>0,
+                #rollx(sif.sdma)>0,
+                #sif.high > rollx(tmax(sif.high,20)),
+                #rollx(strend2(sif.ma120))>0,
+                rollx(sif.dhigh-sif.dlow)>opend / 100 ,
+                #shh >= opend * 1003/1000,   #shh如果小于这个值，必须放弃等待第二次
+                #rollx(sif.xatr) < 2500,    #引入的收益不足以抵消复杂性
+            )
+    return np.select([signal],[gmax(sif.open,shh)],0)
+
+hb123 = BXFunc(fstate=gofilter,fsignal=_hb123,fwave=gofilter,ffilter=mfilter3)
+hb123.name = u'向上h123'
+hb123.lastupdate = 20111010
+hb123.stop_closer = utrade.vstop_10_42
+
+def _hs123(sif,vbreak=-30):
+    #向上123
+
+    len1 = 5
+    len2 = 1
+    rev = np.zeros_like(sif.close)
+
+    iup = 0
+    idown = 0
+    hpre = 0
+    lpre = 0
+    hpeak_pre = 0
+    lpeak_pre = 0
+
+    hpeak = np.zeros_like(sif.close)
+    lpeak = np.zeros_like(sif.close)
+    llpeak = np.zeros_like(sif.close)
+    shpeak = False
+
+    for i in range(1,len(sif.close)):
+        hcur = sif.high[i]
+        lcur = sif.low[i]
+        if hcur > hpre:
+            iup += 1
+        elif hcur < hpre:
+            hpeak[i-1] = iup
+            shpeak = True if hpre < hpeak_pre else False 
+            iup = 0
+            hpeak_pre = hpre
+        if lcur < lpre:
+            idown += 1
+        elif lcur > lpre:
+            lpeak[i-1] = idown
+            llpeak[i-1] = 1 if lpre <= lpeak_pre and shpeak else 0
+            idown = 0
+            lpeak_pre = lpre
+        hpre = hcur
+        lpre = lcur
+    
+    opend = dnext(sif.opend,sif.open,sif.i_oofd)        
+
+    pll = np.select([llpeak],[sif.low],0)
+
+    sll = extend2next(pll) + vbreak
+
+    sll = gmin(sll,opend * 1005/1000)
+
+    signal = gand(
+                cross(sll,sif.low)<0,
+                rollx(sif.dhigh-sif.dlow)>opend / 110,
+            )
+    return np.select([signal],[gmin(sif.open,sll)],0)
+hs123 = SXFunc(fstate=gofilter,fsignal=_hs123,fwave=gofilter,ffilter=mfilter3)
+hs123.name = u'向下s123'
+hs123.lastupdate = 20111010
+hs123.stop_closer = utrade.vstop_10_42
+
+h123 = [hb123,hs123]    #第二个策略??? 需要观察
+
 
 ####反弹类
 def urebound(sif):

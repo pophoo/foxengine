@@ -3526,7 +3526,7 @@ break123b = [b123b,s123b]  #b123b集成性比较好,s123b不好
 break123c = [b123b,b2b,s2b]  #集成性可能比较好
 break123c = [b123b]#,s2b,b2b]  #集成性可能比较好, b2b样本太少. b123b作为突破后收盘模型，较难操作，因有惯性
 
-def _hb123(sif,vbreak=16):
+def _hb123(sif,vbreak=4):
     #向上123
 
     len1 = 11
@@ -3658,7 +3658,7 @@ hb123n.lastupdate = 20111010
 hb123n.stop_closer = utrade.vstop_10_42
 
 
-def _hs123(sif,vbreak=30):
+def _hs123(sif,vbreak=30):  #4也是一个选择，与hb123配合时，因为早平仓，可以有更大的收益
     #向下123
 
     len1 = 5

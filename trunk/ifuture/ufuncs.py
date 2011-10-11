@@ -1933,7 +1933,10 @@ def mll2v2(sif,length=80,vbreak=10):
     #slimit = gmax(slimit,ldlow)
     #slimit = np.select([lddown],[sif.dhigh-250],slimit)
     #tlow = np.select([sif.time<1325,sif.time>=1325],[gmin(sif.dhigh-vrange,tlow),gmin(tlow,sif.dhigh-250)])
+    
     tlow = gmin(slimit,tlow,ldmid-60)
+    #tlow = gmin(slimit,tlow)
+
     #tlow = np.select([sif.time<1325,sif.time>=1325],[gmin(sif.dhigh-vrange,tlow),tlow])
     #tlow = np.select([sif.time<mytime,sif.time>=mytime],[gmin(sif.dhigh-vrange,tlow),gmin(sif.dhigh-vrange2,tlow)])
     #tlow = np.select([sif.time<1330,sif.time>=1330],[gmin(sif.dhigh-vrange,tlow),tlow])
@@ -3658,7 +3661,7 @@ hb123n.lastupdate = 20111010
 hb123n.stop_closer = utrade.vstop_10_42
 
 
-def _hs123(sif,vbreak=30):  #4也是一个选择，与hb123配合时，因为早平仓，可以有更大的收益
+def _hs123(sif,vbreak=30):  #30首选;4也是一个选择，与hb123配合时，因为早平仓，可以有更大的收益
     #向下123
 
     len1 = 5
@@ -3698,12 +3701,14 @@ def _hs123(sif,vbreak=30):  #4也是一个选择，与hb123配合时，因为早
         lpre = lcur
     
     opend = dnext(sif.opend,sif.open,sif.i_oofd)        
+    ldmid = dnext((sif.highd+rollx(sif.highd))/2,sif.close,sif.i_cofd)    
 
     pll = np.select([llpeak],[sif.low],0)
 
     sll = extend2next(pll) - vbreak
 
-    sll = gmin(sll,opend * 1005/1000)
+    #sll = gmin(sll,opend * 1005/1000)
+    sll = gmin(sll,opend * 1005/1000,ldmid) #??需要加这个过滤么?
 
     signal = gand(
                 cross(sll,sif.low)<0,

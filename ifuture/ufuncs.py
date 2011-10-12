@@ -3717,6 +3717,7 @@ def _hs123(sif,vbreak=30):  #30首选;4也是一个选择，与hb123配合时，
                 rollx(sif.ma5) <= rollx(sif.ma13),#这个过滤性太强. 13/30搭配还要强
             )
     return np.select([signal],[gmin(sif.open,sll)],0)
+#hs123 = SXFunc(fstate=gofilter,fsignal=_hs123,fwave=gofilter,ffilter=mfilter3)
 hs123 = SXFunc(fstate=gofilter,fsignal=_hs123,fwave=gofilter,ffilter=mfilter3)
 hs123.name = u'向下s123'
 hs123.lastupdate = 20111010

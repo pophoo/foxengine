@@ -809,6 +809,7 @@ def sync_tradess_u(sif,tradess,acstrategy=iftrade.late_strategy):
                 trade.open_action = cur_trade.open_action
                 cur_trade = trade
             else:   #逆向平仓
+            #elif 1>2:   #不逆向
                 #print u'\n\t逆向平仓:',iftrade.aprofit(cur_trade.open_action,sclose[trade.actions[0].index]),sif.date[cur_trade.open_action.index],sif.time[cur_trade.open_action.index],func_name(cur_trade.orignal),'--',func_name(trade.functor)
                 reversed.append(trade)
                 xindex = reversed[0].actions[0].index
@@ -820,6 +821,12 @@ def sync_tradess_u(sif,tradess,acstrategy=iftrade.late_strategy):
                 cur_trade = trade
                 extended,filtered,rfiltered,reversed = [],[],[],[]
                 close_action = cur_trade.actions[-1]                
+                ##逆向平仓但不开
+                #reversed.append(trade)
+                #xindex = reversed[0].actions[0].index
+                #close_action = BaseObject(index=xindex,date=sdate[xindex],time=stime[xindex],position=reversed[0].direction,xtype=XCLOSE)    #因为已经抑制了1514开仓,必然不会溢出
+                #close_action.price = make_close_price(close_action.position,sopen[xindex],sclose[xindex],shigh[xindex],slow[xindex])
+
         else:   #低优先级或逆势对顺势
             #print u'低优先级'
             if trade.direction == cur_trade.direction:  #同向屏蔽

@@ -3661,7 +3661,7 @@ hb123n.lastupdate = 20111010
 hb123n.stop_closer = utrade.vstop_10_42
 
 
-def _hs123(sif,vbreak=30):  #30首选;4也是一个选择，与hb123配合时，因为早平仓，可以有更大的收益
+def _hs123(sif,vbreak=4):  #30首选;4也是一个选择，与hb123配合时，因为早平仓，可以有更大的收益
     #向下123
 
     len1 = 5

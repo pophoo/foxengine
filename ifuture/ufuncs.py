@@ -3587,6 +3587,7 @@ def _hb123(sif,vbreak=4):
                 #rollx(sif.xatr) < 2500,    #引入的收益不足以抵消复杂性
                 rollx(tmin(sif.low,5)) >= rollx(tmin(sif.low,20)),   #不能创了新低
                 rollx(sif.ma13) >= rollx(sif.ma30),
+                #shh > sif.dhigh * 992/1000,
             )
     return np.select([signal],[gmax(sif.open,shh)],0)
 
@@ -3715,6 +3716,7 @@ def _hs123(sif,vbreak=4):  #30首选;4也是一个选择，与hb123配合时，�
                 rollx(sif.dhigh-sif.dlow)>opend / 110,
                 rollx(tmax(sif.high,5)) < rollx(tmax(sif.high,20)), 
                 rollx(sif.ma5) <= rollx(sif.ma13),#这个过滤性太强. 13/30搭配还要强
+                #sll < rollx(sif.dlow) * 102/100,
             )
     return np.select([signal],[gmin(sif.open,sll)],0)
 #hs123 = SXFunc(fstate=gofilter,fsignal=_hs123,fwave=gofilter,ffilter=mfilter3)

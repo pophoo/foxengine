@@ -3723,6 +3723,17 @@ hs123.name = u'向下s123'
 hs123.lastupdate = 20111010
 hs123.stop_closer = utrade.vstop_10_42
 
+def _hs123_stop(sif,sopened):
+    rev = _hs123(sif,0) * XSELL #提早平仓
+    return rev
+
+def _hb123_stop(sif,sopened):
+    rev = _hb123(sif,0) * XBUY
+    return rev
+
+#用逆向信号提前平仓
+trade_ms = fcustom(utrade.utrade,stop_closer=utrade.atr5_ustop_V,bclosers=[utrade.ifuncs.daystop_short,_hb123_stop],sclosers=[utrade.ifuncs.daystop_long,_hs123_stop])
+
 h123 = [hb123,hs123]    #第二个策略??? 需要观察. 效果已经超过hbreak2v2?
 
 

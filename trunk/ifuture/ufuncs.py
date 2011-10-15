@@ -3594,49 +3594,41 @@ def _hb123n(sif,vbreak=16):
     hpeak_pre = 0
     lpeak_pre = 0
 
-    hpeak = np.zeros_like(sif.close5)
-    lpeak = np.zeros_like(sif.close5)
-    hhpeak = np.zeros_like(sif.close5)
+    hpeak = np.zeros_like(sif.close3)
+    lpeak = np.zeros_like(sif.close3)
+    hhpeak = np.zeros_like(sif.close3)
     slpeak = False
 
-    for i in range(1,len(sif.close5)):
-        hcur = sif.high5[i]
-        lcur = sif.low5[i]
-        if hcur > hpre:
-            iup += 1
-        elif hcur < hpre:
-            hpeak[i-1] = iup
-            hhpeak[i-1] = 1 if hpre >= hpeak_pre and slpeak else 0
-            iup = 0
+    for i in range(1,len(sif.close3)):
+        hcur = sif.high3[i]
+        if hcur < hpre:
+            hhpeak[i-1] = 1 if hpre > hpeak_pre else 0
             hpeak_pre = hpre
-        if lcur < lpre:
-            idown += 1
-        elif lcur > lpre:
-            lpeak[i-1] = idown
-            idown = 0
-            slpeak = True if lpre > lpeak_pre else False
-            lpeak_pre = lpre
         hpre = hcur
-        lpre = lcur
     
     opend = dnext(sif.opend,sif.open,sif.i_oofd)        
 
-    phh = np.select([hhpeak],[sif.high5],0)
+    phh = np.select([hhpeak],[sif.high3],0)
 
     shh = extend2next(phh) #+ vbreak
 
-    shh = dnext(shh,sif.close,sif.i_cof5)        
+    shh = dnext(shh,sif.close,sif.i_cof3)        
     
-    shh = gmax(shh,opend * 1005/1000)
+    shh = gmax(shh,opend * 1007/1000)
 
+    signal1 = cross(shh,sif.high)>0
+    h1 = np.select([signal1],[sif.high+2],9999999)
+
+    shh = rollx(h1) 
+    shh2 = rollx(h1,2)
 
     signal = gand(
-                cross(shh,sif.high)>0,
-                #rollx(sif.sdma)>0,
+                sif.high > shh,
                 #sif.high > rollx(tmax(sif.high,20)),
                 #rollx(strend2(sif.ma120))>0,
                 rollx(sif.dhigh-sif.dlow)>opend / 110 ,
-                #rollx(sif.sdma)>0,
+                rollx(sif.sdma)>0,
+                rollx(tmin(sif.low,5)) > rollx(tmin(sif.low,20)),   #不能创了新低
                 #shh >= opend * 1003/1000,   #shh如果小于这个值，必须放弃等待第二次
                 #rollx(sif.xatr) < 2500,    #引入的收益不足以抵消复杂性
             )

@@ -3535,14 +3535,18 @@ def _hb123(sif,vbreak=2):
 
     hpre = 0
     hpeak_pre = 0
+    hpre2 = 0
+    hpre3 = 0
 
     hhpeak = np.zeros_like(sif.close)
 
     for i in range(1,len(sif.close)):
         hcur = sif.high[i]
-        if hcur < hpre:
-            hhpeak[i-1] = 1 if hpre > hpeak_pre else 0
+        if hcur <= hpre:
+            hhpeak[i-1] = 1 if hpre >= hpeak_pre else 0
             hpeak_pre = hpre
+        hpre3 = hpre2
+        hpre2 = hpre
         hpre = hcur
     
     opend = dnext(sif.opend,sif.open,sif.i_oofd)        
@@ -3556,7 +3560,7 @@ def _hb123(sif,vbreak=2):
     #shh = rollx(shh)
 
     signal1 = cross(shh,sif.high)>0
-    h1 = np.select([signal1],[sif.high+2],9999999)
+    h1 = np.select([signal1],[sif.high+2],9999999)  #必须是+，否则又成未来函数
 
     shh = rollx(h1) 
 
@@ -3643,15 +3647,19 @@ def _hs123(sif,vbreak=20):  #30首选;4也是一个选择，与hb123配合时，
 
     lpre = 0
     lpeak_pre = 0
+    lpre2 = 0
+    lpre3 = 0
 
     lpeak = np.zeros_like(sif.close)
     llpeak = np.zeros_like(sif.close)
 
     for i in range(1,len(sif.close)):
         lcur = sif.low[i]
-        if lcur > lpre:
+        if lcur > lpre:# and lpre2>=lpre:
             llpeak[i-1] = 1 if lpre <= lpeak_pre else 0
             lpeak_pre = lpre
+        lpre3 = lpre2
+        lpre2 = lpre
         lpre = lcur
     
     opend = dnext(sif.opend,sif.open,sif.i_oofd)        
@@ -3666,7 +3674,7 @@ def _hs123(sif,vbreak=20):  #30首选;4也是一个选择，与hb123配合时，
 
     #sll = rollx(sll)
     signal1 = cross(sll,sif.low)<0
-    l1 = np.select([signal1],[sif.low-8],0)
+    l1 = np.select([signal1],[sif.low-8],0) #必须是-，否则又成未来函数
 
     sll = rollx(l1) 
 

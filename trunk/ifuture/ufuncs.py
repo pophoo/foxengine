@@ -3535,8 +3535,6 @@ def _hb123(sif,vbreak=2):
 
     hpre = 0
     hpeak_pre = 0
-    hpre2 = 0
-    hpre3 = 0
 
     hhpeak = np.zeros_like(sif.close)
 
@@ -3544,11 +3542,14 @@ def _hb123(sif,vbreak=2):
         hcur = sif.high[i]
         if hcur <= hpre:
             hhpeak[i-1] = 1 if hpre >= hpeak_pre else 0
+            #hhpeak[i-1] = 1 if hpre >= hpre2 else 0
             hpeak_pre = hpre
-        hpre3 = hpre2
-        hpre2 = hpre
         hpre = hcur
     
+    #for i in range(len(sif.close)-1,len(sif.close)-1000,-1):
+    #    if hhpeak[i] == 1:
+    #        print sif.time[i]
+
     opend = dnext(sif.opend,sif.open,sif.i_oofd)        
 
     phh = np.select([hhpeak],[sif.high],0)
@@ -3559,20 +3560,22 @@ def _hb123(sif,vbreak=2):
 
     #shh = rollx(shh)
 
-    signal1 = cross(shh,sif.high)>0
+    #signal1 = cross(shh,sif.high)>0
+    signal1 = sif.high > shh
     h1 = np.select([signal1],[sif.high+2],9999999)  #必须是+，否则又成未来函数
 
     shh = rollx(h1) 
 
-    signal = gand(sif.high > shh,
+    signal = gand(
+                sif.high > shh,
                 ##sif.high > rollx(tmax(sif.high,20)),
                 #rollx(strend2(sif.ma120))>0,
-                rollx(sif.dhigh-sif.dlow)>opend / 105 ,
+                rollx(sif.dhigh-sif.dlow)>opend / 115 ,
                 #rollx(sif.sdma)>0,
                 ##shh >= opend * 1003/1000,   #shh如果小于这个值，必须放弃等待第二次
                 rollx(sif.xatr) < 2500,    #引入的收益不足以抵消复杂性
                 rollx(tmin(sif.low,5)) > rollx(tmin(sif.low,20)),   #不能创了新低
-                rollx(sif.ma13) >= rollx(sif.ma30),
+                rollx(sif.ma13) > rollx(sif.ma30),
                 ##shh > sif.dhigh * 992/1000,
                 sif.time>915,
             )
@@ -3580,7 +3583,7 @@ def _hb123(sif,vbreak=2):
 
 
 #hb123 = BXFunc(fstate=gofilter,fsignal=_hb123,fwave=gofilter,ffilter=mfilter3)
-hb123 = BXFunc(fstate=gofilter,fsignal=_hb123,fwave=gofilter,ffilter=mfilter)
+hb123 = BXFunc(fstate=gofilter,fsignal=_hb123,fwave=gofilter,ffilter=mfilter3)  #mfilter也可
 hb123.name = u'向上h123'
 hb123.lastupdate = 20111010
 hb123.stop_closer = utrade.vstop_10_42
@@ -3647,8 +3650,6 @@ def _hs123(sif,vbreak=20):  #30首选;4也是一个选择，与hb123配合时，
 
     lpre = 0
     lpeak_pre = 0
-    lpre2 = 0
-    lpre3 = 0
 
     lpeak = np.zeros_like(sif.close)
     llpeak = np.zeros_like(sif.close)
@@ -3658,8 +3659,6 @@ def _hs123(sif,vbreak=20):  #30首选;4也是一个选择，与hb123配合时，
         if lcur > lpre:# and lpre2>=lpre:
             llpeak[i-1] = 1 if lpre <= lpeak_pre else 0
             lpeak_pre = lpre
-        lpre3 = lpre2
-        lpre2 = lpre
         lpre = lcur
     
     opend = dnext(sif.opend,sif.open,sif.i_oofd)        
@@ -3674,13 +3673,13 @@ def _hs123(sif,vbreak=20):  #30首选;4也是一个选择，与hb123配合时，
 
     #sll = rollx(sll)
     signal1 = cross(sll,sif.low)<0
+    #signal1 = sif.low < sll 
     l1 = np.select([signal1],[sif.low-8],0) #必须是-，否则又成未来函数
 
     sll = rollx(l1) 
 
     signal = gand(
-                #cross(sll,sif.low)<0,
-                sif.low < sll,
+                sif.low < sll,  #效果一样
                 rollx(sif.dhigh-sif.dlow)>opend / 90,#120
                 rollx(tmax(sif.high,5)) < rollx(tmax(sif.high,20)), 
                 rollx(sif.ma5) <= rollx(sif.ma13),#这个过滤性太强. 13/30搭配还要强

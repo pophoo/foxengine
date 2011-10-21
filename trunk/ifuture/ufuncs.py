@@ -387,6 +387,16 @@ def mfilter3(sif):
             gand(sif.time < 935,sif.time>919)
         )
 
+def mfilter30(sif):   
+    return gor(
+            gand(
+                sif.time > 1031,
+                sif.time < 1430,
+            ),
+            gand(sif.time < 945,sif.time>919)
+        )
+
+
 def emfilter(sif):
     return gor(
             sif.time < 935,
@@ -3556,7 +3566,7 @@ def _hb123(sif,vbreak=2):
 
     shh = extend2next(phh) + vbreak
 
-    shh = gmax(shh,opend * 1005/1000)
+    #shh = gmax(shh,opend * 1005/1000)
 
     #shh = rollx(shh)
 
@@ -3572,18 +3582,19 @@ def _hb123(sif,vbreak=2):
                 #rollx(strend2(sif.ma120))>0,
                 rollx(sif.dhigh-sif.dlow)>opend / 115 ,
                 #rollx(sif.sdma)>0,
-                ##shh >= opend * 1003/1000,   #shh如果小于这个值，必须放弃等待第二次
+                shh >= opend * 1005/1000,   #shh如果小于这个值，必须放弃等待第二次
                 rollx(sif.xatr) < 2500,    #引入的收益不足以抵消复杂性
                 rollx(tmin(sif.low,5)) > rollx(tmin(sif.low,20)),   #不能创了新低
                 rollx(sif.ma13) > rollx(sif.ma30),
                 ##shh > sif.dhigh * 992/1000,
                 sif.time>915,
+                #sif.xatr > 800,
             )
     return np.select([signal],[gmax(sif.open,shh)],0)
 
 
 #hb123 = BXFunc(fstate=gofilter,fsignal=_hb123,fwave=gofilter,ffilter=mfilter3)
-hb123 = BXFunc(fstate=gofilter,fsignal=_hb123,fwave=gofilter,ffilter=mfilter3)  #mfilter也可
+hb123 = BXFunc(fstate=gofilter,fsignal=_hb123,fwave=gofilter,ffilter=mfilter30)  #mfilter也可
 hb123.name = u'向上h123'
 hb123.lastupdate = 20111010
 hb123.stop_closer = utrade.vstop_10_42
@@ -3683,11 +3694,13 @@ def _hs123(sif,vbreak=20):  #30首选;4也是一个选择，与hb123配合时，
                 rollx(sif.dhigh-sif.dlow)>opend / 90,#120
                 rollx(tmax(sif.high,5)) < rollx(tmax(sif.high,20)), 
                 rollx(sif.ma5) <= rollx(sif.ma13),#这个过滤性太强. 13/30搭配还要强
+                #sif.xatr30x < 10000,   #这个过滤太牛X, 超级削减次数，但不减收益
+                #sif.xatr > 800,
                 #sll < rollx(sif.dlow) * 102/100,
             )
     return np.select([signal],[gmin(sif.open,sll)],0)
 #hs123 = SXFunc(fstate=gofilter,fsignal=_hs123,fwave=gofilter,ffilter=mfilter3)
-hs123 = SXFunc(fstate=gofilter,fsignal=_hs123,fwave=gofilter,ffilter=mfilter3)
+hs123 = SXFunc(fstate=gofilter,fsignal=_hs123,fwave=gofilter,ffilter=mfilter30)
 hs123.name = u'向下s123'
 hs123.lastupdate = 20111010
 hs123.stop_closer = utrade.vstop_10_42

@@ -636,7 +636,8 @@ def atr_stop_x(
         sbclose,
         ssclose,
         flost_base = iftrade.F70,    #flost:买入点数 --> 止损点数
-        fmax_drawdown = 0.012, #最大回落比例
+        fmax_drawdown = iftrade.F250, #最大回落比例
+        pmax_drawdown = 0.012, #最大回落比例
         tstep = lambda sif,i:40,     #行情顺向滑动单位
         vstep = 20,                  #止损顺向移动单位   
         ):
@@ -659,7 +660,9 @@ def atr_stop_x(
         aprice = abs(price)
         willlost = flost_base(aprice)
         #willlost = sif.atr15x[i]/XBASE    #效果不佳
-        max_drawdown = fmax_drawdown * aprice
+        spmax_drawdown = pmax_drawdown * aprice
+        sfmax_drawdown = fmax_drawdown(aprice)
+        max_drawdown = spmax_drawdown if spmax_drawdown < sfmax_drawdown else sfmax_drawdown
         will_losts.append(willlost)
         mytstep = tstep(sif,i)
         if price<0: #多头止损
@@ -1847,7 +1850,8 @@ vstop_10_42 = fcustom(atr_stop_v,
 
 vstop_10_42 = fcustom(atr_stop_x,
                 flost_base = iftrade.F100,    
-                fmax_drawdown = 0.011, 
+                fmax_drawdown = iftrade.F360, 
+                pmax_drawdown = 0.011, 
                 tstep = lambda sif,i:40,     
                 vstep = 20,                  
             )

@@ -1847,11 +1847,10 @@ vstop_10_42 = fcustom(atr_stop_v,
 
 vstop_10_42 = fcustom(atr_stop_x,
                 flost_base = iftrade.F100,    
-                fmax_drawdown = 0.012, 
+                fmax_drawdown = 0.011, 
                 tstep = lambda sif,i:40,     
                 vstep = 20,                  
             )
-
 
 vstop_12_42 = fcustom(atr_stop_v,
                 flost_base = iftrade.F120,    

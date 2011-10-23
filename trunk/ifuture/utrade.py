@@ -1848,8 +1848,27 @@ vstop_10_42 = fcustom(atr_stop_v,
                 vstep = 20,                  
             )
 
+
+def PSTOP_BASE(price,p=0.004):
+    sbase = int(price * p + 0.5)/10*10
+    return sbase
+
+def SSTOP_BASE(price):
+    if price > 40000:
+        return 120
+    if price > 34000:
+        return 110
+    if price > 27000:
+        return 100
+    elif price > 18000:
+        return 90
+    elif price > 10000:
+        return 80
+    return 50
+
 vstop_10_42 = fcustom(atr_stop_x,
-                flost_base = iftrade.F100,    
+                flost_base = iftrade.F100, 
+                #flost_base = SSTOP_BASE, 
                 fmax_drawdown = iftrade.F360, 
                 pmax_drawdown = 0.011, 
                 tstep = lambda sif,i:40,     
@@ -2127,7 +2146,12 @@ utrade_ncdt_125_1330 = utrade_ncdt_n(2,1,(1,2,5),1330) # 貌似意义不大
 
 
 def range_distribution(sif,rlimit = [300,500,800,1200,1500,10000]):#求振幅分布
+    '''
+>>> for range in ranges:
+...     print range.begin,range.end,range.times
+    '''
     srange = sif.highd - sif.lowd
+    #srange = srange[-180:]
     results = [0]*len(rlimit)
     prelimit = 0
     i = 0
@@ -2140,6 +2164,8 @@ def range_distribution(sif,rlimit = [300,500,800,1200,1500,10000]):#求振幅分
 
 rd = range_distribution
 
+
+#day_trades能获取dtrades
 def profit_distribution(sif,dtrades,limit = [300,500,1000,1500,10000]):#求盈利分布
     mylimit = [l for l in limit]
     mylimit.append(999999)  #哨兵
@@ -2196,4 +2222,39 @@ def calc_profit(trades,av=200000,rate=0.9,lever=0.17,base=300,max_volume=80):#�
         s = s + volume * trade.profit/10 * base
         #print price,am,volume,s
     return s
+
+def limit_lost(trades,maxlost=200): #请参见day_trades,有更完善版本
+    #限定每日最大损失，超过改值后不再开仓
+    cur_day = 0
+    rtrades = []
+    cur_lost = 0
+    for trade in trades:
+        dopen = trade.actions[0].date
+        if dopen > cur_day: #换日
+            cur_lost = 0
+            cur_day = dopen
+        if cur_lost <= -maxlost:
+            continue
+        cur_lost += trade.profit
+        rtrades.append(trade)
+    return rtrades
+
+def limit_times(trades,maxtimes=3):
+    #限定每日操作次数，超过此数(>=)就不再开仓
+    cur_day = 0
+    rtrades = []
+    cur_times = 0
+    for trade in trades:
+        dopen = trade.actions[0].date
+        if dopen > cur_day: #换日
+            cur_times = 0
+            cur_day = dopen
+        if cur_times >= maxtimes:
+            continue
+        cur_times += 1
+        rtrades.append(trade)
+    return rtrades
+
+def limit2(trades,maxlost=200,maxtimes=3):
+    return limit_lost(limit_times(trades,maxtimes),maxlost)
 

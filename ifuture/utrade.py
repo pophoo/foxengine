@@ -1597,6 +1597,14 @@ atr5_ustop_TV = fcustom(atr_stop_u2,
                 natr2 = 270,
             )#
 
+atr5_ustop_TX = fcustom(atr_stop_u2,
+                keeper_base=400,
+                nkeeper = 1,
+                win_times=800,
+                natr = 1,
+                flost_base=600,
+                natr2 = 1,
+            )#
 
 atr5_ustop_T5 = fcustom(atr_stop_u,
                 fkeeper=iftrade.F80,

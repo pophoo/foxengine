@@ -65,6 +65,65 @@ def last_stop_short(sif,sopened,ttrace=1500,tend=1511,drawback=60):
     sl[-3:] = 1
     return  sl * XBUY
 
+def last_stop_long2(sif,sopened,ttrace=240,tend=270,vbegin=0.01):
+    '''
+        每日收盘前的拉近止损,平多仓
+        从ttrace开始跟踪
+    '''
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)
+    #ldopen = np.select([sopened!=0],[-sopened],0)
+    #ldopen = extend2next(ldopen)
+    vmax_stop = ldopen * vbegin
+    vstep = vmax_stop / (tend - ttrace)
+    cstop = vmax_stop - (sif.iorder - ttrace+1) * vstep
+    sl = np.zeros_like(sif.iorder)
+
+    poss = filter(lambda x: gand(x[0]>=ttrace,x[0]<=tend),zip(sif.iorder,range(len(sif.iorder))))
+    xhigh = 0
+    pre_high = 0
+    for v,iv in poss:
+        if v == ttrace:
+            xhigh = sif.open[iv]
+        elif pre_high > xhigh:
+            xhigh = pre_high
+        pre_high = sif.high[iv]
+        cur_stop = xhigh - cstop[iv]
+        if sif.low[iv] < cur_stop: #先比较是否破位再做高点比较。会有误差，但不大
+            sl[iv] = cur_stop
+        if v == tend-1:
+            sl[iv] = 1
+    sl[-3:] = 1
+    return  sl * XSELL
+
+def last_stop_short2(sif,sopened,ttrace=240,tend=270,vbegin=0.01):
+    '''
+        每日收盘前的拉近止损,平多仓
+        从ttrace开始跟踪
+    '''
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)
+    vmax_stop = ldopen * vbegin
+    vstep = vmax_stop / (tend - ttrace)
+    cstop = vmax_stop - (sif.iorder - ttrace+1) * vstep
+    sl = np.zeros_like(sif.iorder)
+
+    poss = filter(lambda x: gand(x[0]>=ttrace,x[0]<=tend),zip(sif.iorder,range(len(sif.iorder))))
+    xlow = 99999999
+    pre_low = 99999999
+    for v,iv in poss:
+        if v == ttrace:
+            xlow = sif.open[iv]
+        elif pre_low < xlow:
+            xlow = pre_low
+        pre_low = sif.low[iv]
+        cur_stop = xlow + cstop[iv]
+        if sif.high[iv] > cur_stop: #先比较是否破位再做高点比较。会有误差，但不大
+            sl[iv] = cur_stop
+        if v == tend-1:
+            sl[iv] = 1
+    sl[-3:] = 1
+    return  sl * XBUY
+
+
 def stop_long_3(sif,sopened):
     sl = np.zeros_like(sif.time)
     sl[-3:] = 1
@@ -1943,6 +2002,8 @@ utrade_m = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[stop_short_3],sclos
 #utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[last_stop_short],sclosers=[last_stop_long])
 utrade_d = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=iftrade.last_trades,sync_trades=iftrade.null_sync_tradess)
 
+utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_short,fcustom(last_stop_short2,ttrace=225,tend=266,vbegin=0.015)],sclosers=[fcustom(last_stop_long2,ttrace=225,tend=266,vbegin=0.015)])
+
 utrade_c = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_short_c],sclosers=[ifuncs.daystop_long_c])
 
 
@@ -2230,6 +2291,64 @@ def calc_profit(trades,av=200000,rate=0.9,lever=0.17,base=300,max_volume=80):#�
         s = s + volume * trade.profit/10 * base
         #print price,am,volume,s
     return s
+
+def calc_profit2(trades,av=200000,rate=0.97,lever=0.17,base=300,max_volume=80):#计算增量
+    '''
+        理论计算
+        av:起点值
+        rate:用于交易的资金比例
+        lever:保证金比例
+        区别:
+        一旦手数增加，除非不足，不能下降
+    '''
+    s = av
+    cur_volume = 1
+    for trade in trades:
+        price = trade.actions[0].price
+        am = price * base / 10 * lever
+        #volume = int(s * rate / am)
+        volume0 = int(s/am)
+        if volume0 < cur_volume:
+            cur_volume = volume0
+        else:
+            volume = int(s * rate / am)
+            volume = volume if volume < max_volume else max_volume
+            if volume > cur_volume:
+                cur_volume = volume
+        s = s + cur_volume * trade.profit/10 * base
+        #print price,am,cur_volume,s
+    return s
+
+def calc_profit2d(trades,av=200000,rate=0.97,lever=0.17,base=300,max_volume=80):#计算增量
+    '''
+        理论计算
+        av:起点值
+        rate:用于交易的资金比例
+        lever:保证金比例
+        区别:
+            每日计算一次
+            0.97保证第二次开仓的时候手数还能不变
+    '''
+    s = av
+    cur_volume = 1
+    cur_date = 0
+    for trade in trades:
+        price = trade.actions[0].price
+        am = price * base / 10 * lever
+        #volume = int(s * rate / am)
+        volume0 = int(s/am)
+        if volume0 < cur_volume:
+            cur_volume = volume0
+        elif trade.actions[0].date != cur_date:
+            cur_date = trade.actions[0].date
+            volume = int(s * rate / am)
+            volume = volume if volume < max_volume else max_volume
+            if volume > cur_volume:
+                cur_volume = volume
+        s = s + cur_volume * trade.profit/10 * base
+        print cur_date,price,am,cur_volume,s
+    return s
+
 
 def limit_lost(trades,maxlost=200): #请参见day_trades,有更完善版本
     #限定每日最大损失，超过改值后不再开仓

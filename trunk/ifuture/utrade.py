@@ -77,18 +77,20 @@ def last_stop_long2(sif,sopened,ttrace=240,tend=270,vbegin=0.01):
     vstep = vmax_stop / (tend - ttrace)
     cstop = vmax_stop - (sif.iorder - ttrace+1) * vstep
     sl = np.zeros_like(sif.iorder)
+    h30 = tmax(sif.high,30)
 
     poss = filter(lambda x: gand(x[0]>=ttrace,x[0]<=tend),zip(sif.iorder,range(len(sif.iorder))))
     xhigh = 0
     pre_high = 0
     for v,iv in poss:
         if v == ttrace:
-            xhigh = sif.open[iv]
+            #xhigh = sif.open[iv]
+            xhigh = h30[iv]
         elif pre_high > xhigh:
             xhigh = pre_high
         pre_high = sif.high[iv]
         cur_stop = xhigh - cstop[iv]
-        if sif.low[iv] < cur_stop: #先比较是否破位再做高点比较。会有误差，但不大
+        if sif.low[iv] < cur_stop: 
             sl[iv] = cur_stop
         if v == tend-1:
             sl[iv] = 1
@@ -97,7 +99,7 @@ def last_stop_long2(sif,sopened,ttrace=240,tend=270,vbegin=0.01):
 
 def last_stop_short2(sif,sopened,ttrace=240,tend=270,vbegin=0.01):
     '''
-        每日收盘前的拉近止损,平多仓
+        每日收盘前的拉近止损,平空仓
         从ttrace开始跟踪
     '''
     ldopen = dnext(sif.opend,sif.close,sif.i_oofd)
@@ -105,18 +107,20 @@ def last_stop_short2(sif,sopened,ttrace=240,tend=270,vbegin=0.01):
     vstep = vmax_stop / (tend - ttrace)
     cstop = vmax_stop - (sif.iorder - ttrace+1) * vstep
     sl = np.zeros_like(sif.iorder)
+    l30 = tmin(sif.low,30)
 
     poss = filter(lambda x: gand(x[0]>=ttrace,x[0]<=tend),zip(sif.iorder,range(len(sif.iorder))))
     xlow = 99999999
     pre_low = 99999999
     for v,iv in poss:
         if v == ttrace:
-            xlow = sif.open[iv]
+            #xlow = sif.open[iv]
+            xlow = l30[iv]
         elif pre_low < xlow:
             xlow = pre_low
         pre_low = sif.low[iv]
         cur_stop = xlow + cstop[iv]
-        if sif.high[iv] > cur_stop: #先比较是否破位再做高点比较。会有误差，但不大
+        if sif.high[iv] > cur_stop: 
             sl[iv] = cur_stop
         if v == tend-1:
             sl[iv] = 1
@@ -2002,7 +2006,7 @@ utrade_m = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[stop_short_3],sclos
 #utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[last_stop_short],sclosers=[last_stop_long])
 utrade_d = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=iftrade.last_trades,sync_trades=iftrade.null_sync_tradess)
 
-utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_short,fcustom(last_stop_short2,ttrace=225,tend=266,vbegin=0.015)],sclosers=[fcustom(last_stop_long2,ttrace=225,tend=266,vbegin=0.015)])
+utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[fcustom(last_stop_short2,ttrace=250,tend=266,vbegin=0.020)],sclosers=[fcustom(last_stop_long2,ttrace=240,tend=266,vbegin=0.020)])
 
 utrade_c = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_short_c],sclosers=[ifuncs.daystop_long_c])
 
@@ -2346,7 +2350,7 @@ def calc_profit2d(trades,av=200000,rate=0.97,lever=0.17,base=300,max_volume=80):
             if volume > cur_volume:
                 cur_volume = volume
         s = s + cur_volume * trade.profit/10 * base
-        print cur_date,price,am,cur_volume,s
+        #print cur_date,price,am,cur_volume,s
     return s
 
 

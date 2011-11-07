@@ -82,6 +82,7 @@ def last_stop_long2(sif,sopened,ttrace=240,tend=270,vbegin=0.01):
     poss = filter(lambda x: gand(x[0]>=ttrace,x[0]<=tend),zip(sif.iorder,range(len(sif.iorder))))
     xhigh = 0
     pre_high = 0
+    cur_stop = 0
     for v,iv in poss:
         if v == ttrace:
             #xhigh = sif.open[iv]
@@ -2000,7 +2001,7 @@ vstop_4_42 = fcustom(atr_stop_v,
 
 
 ###这里设定的stop_closer会被opener函数指定的stop_closer所覆盖
-utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
+utrade_n0 = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_short],sclosers=[ifuncs.daystop_long])
 #utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[],sclosers=[])
 utrade_m = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[stop_short_3],sclosers=[stop_long_3])  #最后平仓. 增长惊人
 #utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[last_stop_short],sclosers=[last_stop_long])

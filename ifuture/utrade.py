@@ -135,6 +135,48 @@ def last_stop_short2(sif,sopened,ttrace=240,tend=270,vbegin=0.01):
     return  sl * XBUY
 
 
+weights = [1.0 for i in range(270)]
+def last_stop_short3(sif,sopened,ttrace=240,tend=270,vbegin=0.01):
+    '''
+        每日收盘前的拉近止损,平空仓
+        从ttrace开始跟踪
+    '''
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)
+    vmax_stop = ldopen * vbegin
+    #vstep = vmax_stop / (tend - ttrace)
+    myweights = weights[:tend-ttrace]
+    myweights.reverse()
+    swght = sum(myweights)
+    #cstop = vmax_stop - (sif.iorder - ttrace+1) * vstep
+    #cstop = vmax_stop - (sif.iorder - ttrace+1) * vstep
+    sl = np.zeros_like(sif.iorder)
+    l30 = tmin(sif.low,30)
+
+    poss = filter(lambda x: gand(x[0]>=ttrace,x[0]<=tend),zip(sif.iorder,range(len(sif.iorder))))
+    xlow = 99999999
+    pre_low = 99999999
+    
+    cs = np.zeros_like(sif.iorder)#临时调试用
+    
+    for v,iv in poss:
+        if v == ttrace:
+            #xlow = sif.open[iv]
+            xlow = l30[iv]
+        elif pre_low < xlow:
+            xlow = pre_low
+        pre_low = sif.low[iv]
+        #cur_stop = xlow + cstop[iv]
+        cur_stop = xlow + (swght-sum(myweights[:v-ttrace+1]))/swght * vmax_stop[iv]
+        cs[iv] = cur_stop
+        if sif.high[iv] > cur_stop: 
+            sl[iv] = cur_stop if sif.open[iv] < cur_stop else sif.open[iv]
+        if v == tend-1:
+            sl[iv] = 1
+    sl[-3:] = 1
+    #print zip(sif.iorder[-30:],cs[-30:])
+    return  sl * XBUY
+
+
 def stop_long_3(sif,sopened):
     sl = np.zeros_like(sif.time)
     sl[-3:] = 1

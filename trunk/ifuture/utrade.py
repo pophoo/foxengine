@@ -92,7 +92,8 @@ def last_stop_long2(sif,sopened,ttrace=240,tend=270,vbegin=0.01):
         pre_high = sif.high[iv]
         cur_stop = xhigh - cstop[iv]
         if sif.low[iv] < cur_stop: 
-            sl[iv] = cur_stop
+            #sl[iv] = cur_stop
+            sl[iv] = cur_stop if sif.open[iv] > cur_stop else sif.open[iv]
         if v == tend-1:
             sl[iv] = 1
     sl[-3:] = 1
@@ -113,6 +114,9 @@ def last_stop_short2(sif,sopened,ttrace=240,tend=270,vbegin=0.01):
     poss = filter(lambda x: gand(x[0]>=ttrace,x[0]<=tend),zip(sif.iorder,range(len(sif.iorder))))
     xlow = 99999999
     pre_low = 99999999
+    
+    cs = np.zeros_like(sif.iorder)#临时调试用
+    
     for v,iv in poss:
         if v == ttrace:
             #xlow = sif.open[iv]
@@ -121,11 +125,13 @@ def last_stop_short2(sif,sopened,ttrace=240,tend=270,vbegin=0.01):
             xlow = pre_low
         pre_low = sif.low[iv]
         cur_stop = xlow + cstop[iv]
+        cs[iv] = cur_stop
         if sif.high[iv] > cur_stop: 
-            sl[iv] = cur_stop
+            sl[iv] = cur_stop if sif.open[iv] < cur_stop else sif.open[iv]
         if v == tend-1:
             sl[iv] = 1
     sl[-3:] = 1
+    print zip(sif.iorder[-30:],cstop[-30:],cs[-30:])
     return  sl * XBUY
 
 

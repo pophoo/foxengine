@@ -131,7 +131,7 @@ def last_stop_short2(sif,sopened,ttrace=240,tend=270,vbegin=0.01):
         if v == tend-1:
             sl[iv] = 1
     sl[-3:] = 1
-    print zip(sif.iorder[-30:],cstop[-30:],cs[-30:])
+    #print zip(sif.iorder[-30:],cstop[-30:],cs[-30:])
     return  sl * XBUY
 
 

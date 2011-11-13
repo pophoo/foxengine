@@ -2356,6 +2356,7 @@ def calc_profit2(trades,av=200000,rate=0.97,lever=0.17,base=300,max_volume=80):#
     '''
     s = av
     cur_volume = 1
+    ff = open('d:/work/temp/dd.csv','w+')
     for trade in trades:
         price = trade.actions[0].price
         am = price * base / 10 * lever
@@ -2369,7 +2370,8 @@ def calc_profit2(trades,av=200000,rate=0.97,lever=0.17,base=300,max_volume=80):#
             if volume > cur_volume:
                 cur_volume = volume
         s = s + cur_volume * trade.profit/10 * base
-        #print price,am,cur_volume,s
+        print >> ff,'%s,%s,%s,%s,%s,%s' % (trade.actions[0].date,trade.profit,s,price,am,cur_volume)
+    ff.close()
     return s
 
 def calc_profit2d(trades,av=200000,rate=0.97,lever=0.17,base=300,max_volume=80):#计算增量

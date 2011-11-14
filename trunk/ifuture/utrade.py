@@ -824,6 +824,8 @@ def atr_stop_x(
                         cur_high = nhigh
                         win_stop = lost_stop + (cur_high - buy_price)/mytstep * vstep
                         mstop = cur_high - max_drawdown
+                        mstop2 = buy_price if nhigh - buy_price > nhigh/250 else 0
+                        mstop = mstop2 if mstop2>mstop else mstop
                         cur_stop = win_stop if win_stop > mstop else mstop
         else:   #空头止损
             #print 'find short stop:',i
@@ -864,6 +866,8 @@ def atr_stop_x(
                         cur_low = nlow
                         win_stop = lost_stop - (sell_price - cur_low)/mytstep * vstep 
                         mstop = cur_low + max_drawdown
+                        mstop2 = sell_price if sell_price - cur_low > cur_low/180 else 99999999
+                        mstop = mstop2 if mstop2 < mstop else mstop
                         cur_stop = win_stop if win_stop < mstop else mstop
                         
     #print will_losts

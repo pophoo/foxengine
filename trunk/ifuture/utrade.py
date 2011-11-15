@@ -302,10 +302,10 @@ def atr_stop_u2(
             if trans[ICLOSE][i] < cur_stop:#到达止损
                 #print '----sell----------:',trans[IDATE][i],trans[ITIME][i],cur_stop,trans[ICLOSE][i],cur_high,lost_stop
                 ilong_closed = i
-                rev[i] = cur_stop * XSELL   #设定价格
+                rev[i] = cur_stop * XSELL   #设定价格,两次乘XSELL，把符号整回来
             elif myssclose[i] >0:#或平仓
                 ilong_closed = i                
-                rev[i] = myssclose[i] * XSELL
+                rev[i] = myssclose[i] * XSELL   #两次乘XSELL，把符号整回来
             else:
                 for j in range(i+1,len(rev)):
                     tv = sif.close[j] - buy_price
@@ -323,12 +323,12 @@ def atr_stop_u2(
                     elif j==i+tlimit and tv<wtlimit:    #时间到
                         #print u'时间到'
                         ilong_closed = j
-                        rev[j] = trans[ICLOSE][j] * XSELL 
+                        rev[j] = trans[ICLOSE][j] * XSELL   #两次乘XSELL，把符号整回来
                         print 'sell in time limit:'#,i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
                         break
                     elif trans[IHIGH][j] > wtarget: #超过目标价
                         ilong_closed = j                        
-                        rev[j] = wtarget * XSELL
+                        rev[j] = wtarget * XSELL    #两次乘XSELL，把符号整回来
                         #print 'sell at target:'#,i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
                         break
                     #if j == i+tlimit and cur_stop < buy_price+100 and trans[ICLOSE][j] > buy_price+100:
@@ -766,6 +766,7 @@ def atr_stop_x(
     mysbclose = sbclose * XBUY #取符号, 如果是卖出平仓，则<0
     #print mysbclose[-300:]
     #print myssclose[np.nonzero(myssclose)]
+    #print mysbclose[np.nonzero(mysbclose)]
     #print target
     for i in isignal:
         price = sopened[i]
@@ -800,10 +801,10 @@ def atr_stop_x(
             if trans[ICLOSE][i] < cur_stop:#到达止损
                 #print '----sell----------:',trans[IDATE][i],trans[ITIME][i],cur_stop,trans[ICLOSE][i],cur_high,lost_stop
                 ilong_closed = i
-                rev[i] = cur_stop * XSELL   #设定价格
+                rev[i] = cur_stop * XSELL   #设定价格   #两次乘XSELL，把符号整回来
             elif myssclose[i] >0:#或平仓
                 ilong_closed = i                
-                rev[i] = myssclose[i] * XSELL
+                rev[i] = myssclose[i] * XSELL   #两次乘XSELL，把符号整回来
             else:
                 for j in range(i+1,len(rev)):
                     tv = sif.close[j] - buy_price
@@ -812,12 +813,14 @@ def atr_stop_x(
                         ilong_closed = j
                         #rev[j] = cur_stop * XSELL 
                         rev[j] = (cur_stop if cur_stop < trans[IOPEN][j] else trans[IOPEN][j])* XSELL 
+
+                        #if abs(myssclose[j]) >10 and abs(myssclose[j]) > rev[j]:    #不仅仅是信号
+                        #    rev[j] = abs(myssclose[j]) * XSELL 
                         #print 'sell in atrstop:'#,i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
                         break
-                    elif  myssclose[j] >0:
+                    elif  myssclose[j] >0:    #这个优先级比直接止损低，因为可能为收盘信号
                         ilong_closed = j
-                        rev[j] = myssclose[j] * XSELL 
-                        #print 'sell in sclose:'#,i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
+                        rev[j] = myssclose[j] * XSELL   #两次乘XSELL，把符号整回来
                         break
                     nhigh = trans[IHIGH][j]
                     if(nhigh > cur_high):
@@ -840,11 +843,11 @@ def atr_stop_x(
             if trans[ICLOSE][i] > cur_stop:
                 #print '----buy----------:',cur_stop,trans[ICLOSE][i],cur_high,lost_stop
                 ishort_closed = i
-                rev[i] = cur_stop * XBUY
-            elif mysbclose[i] >0:
+                rev[i] = cur_stop * XBUY    #两次乘XBUY，把符号整回来
+            elif abs(mysbclose[i]) >0:
                 #print 'buy signali:',trans[IDATE][i],trans[ITIME][i],trans[ICLOSE][i]
                 ishort_closed = i
-                rev[i] = mysbclose[i] *XBUY
+                rev[i] = abs(mysbclose[i]) *XBUY    #两次乘XBUY，把符号整回来
             else:
                 for j in range(i+1,len(rev)):
                     tv = sell_price - sif.close[j]
@@ -856,10 +859,10 @@ def atr_stop_x(
                         #print 'buy:',j
                         #print 'buy:',i,price,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j]                        
                         break
-                    elif mysbclose[j] >0:
+                    elif abs(mysbclose[j]) >0:
                         #print 'buy signalj:',trans[IDATE][j],trans[ITIME][j],cur_stop,trans[ICLOSE][j]
                         ishort_closed = j
-                        rev[j] = mysbclose[j] * XBUY
+                        rev[j] = abs(mysbclose[j]) * XBUY   #两次乘XBUY，把符号整回来
                         break
                     nlow = trans[ILOW][j]
                     if(nlow < cur_low):
@@ -932,10 +935,10 @@ def atr_stop_x2(
             if trans[ICLOSE][i] < cur_stop:#到达止损
                 #print '----sell----------:',trans[IDATE][i],trans[ITIME][i],cur_stop,trans[ICLOSE][i],cur_high,lost_stop
                 ilong_closed = i
-                rev[i] = cur_stop * XSELL   #设定价格
+                rev[i] = cur_stop * XSELL   #设定价格#两次乘XSELL，把符号整回来
             elif myssclose[i] >0:#或平仓
                 ilong_closed = i                
-                rev[i] = myssclose[i] * XSELL
+                rev[i] = myssclose[i] * XSELL   #两次乘XSELL，把符号整回来
             else:
                 for j in range(i+1,len(rev)):
                     tv = sif.close[j] - buy_price
@@ -944,11 +947,14 @@ def atr_stop_x2(
                         ilong_closed = j
                         #rev[j] = cur_stop * XSELL 
                         rev[j] = (cur_stop if cur_stop < trans[IOPEN][j] else trans[IOPEN][j])* XSELL 
+                        if myssclose[j] >10 and myssclose[j] > rev[j]:    #不仅仅是信号
+                            rev[j] = myssclose[j] * XSELL   #两次乘XSELL，把符号整回来
                         #print 'sell in atrstop:'#,i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
                         break
                     elif  myssclose[j] >0:
                         ilong_closed = j
-                        rev[j] = myssclose[j] * XSELL 
+                        #rev[j] = myssclose[j] * XSELL 
+                        rev[j] = (myssclose[j] if myssclose[j] > cur_stop else cur_stop)* XSELL #两次乘XSELL，把符号整回来
                         #print 'sell in sclose:'#,i,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j],sif.low[j],cur_stop
                         break
                     nhigh = trans[IHIGH][j]
@@ -958,7 +964,9 @@ def atr_stop_x2(
                         mstop = cur_high - max_drawdown
                         mstop2 = buy_price if nhigh - buy_price > nhigh/250 else 0
                         mstop = mstop2 if mstop2>mstop else mstop
-                        cur_stop = win_stop if win_stop > mstop else mstop
+                        #cur_stop = win_stop if win_stop > mstop else mstop
+                        #assert cur_stop == max(mstop,mstop2,win_stop)
+                        cur_stop = max(mstop,mstop2,win_stop)
         else:   #空头止损
             #print 'find short stop:',i
             if i<=ishort_closed:
@@ -972,11 +980,11 @@ def atr_stop_x2(
             if trans[ICLOSE][i] > cur_stop:
                 #print '----buy----------:',cur_stop,trans[ICLOSE][i],cur_high,lost_stop
                 ishort_closed = i
-                rev[i] = cur_stop * XBUY
+                rev[i] = cur_stop * XBUY    #两次乘XBUY，把符号整回来
             elif mysbclose[i] >0:
                 #print 'buy signali:',trans[IDATE][i],trans[ITIME][i],trans[ICLOSE][i]
                 ishort_closed = i
-                rev[i] = mysbclose[i] *XBUY
+                rev[i] = mysbclose[i] *XBUY #两次乘XBUY，把符号整回来
             else:
                 for j in range(i+1,len(rev)):
                     tv = sell_price - sif.close[j]
@@ -991,16 +999,199 @@ def atr_stop_x2(
                     elif mysbclose[j] >0:
                         #print 'buy signalj:',trans[IDATE][j],trans[ITIME][j],cur_stop,trans[ICLOSE][j]
                         ishort_closed = j
-                        rev[j] = mysbclose[j] * XBUY
+                        rev[j] = mysbclose[j] * XBUY    #两次乘XBUY，把符号整回来
                         break
                     nlow = trans[ILOW][j]
                     if(nlow < cur_low):
                         cur_low = nlow
                         win_stop = lost_stop - (sell_price - cur_low)/mytstep * vstep 
                         mstop = cur_low + max_drawdown
-                        mstop2 = sell_price if sell_price - cur_low > sell_price/180 else 99999999
+                        mstop2 = sell_price if sell_price - cur_low > cur_low/180 else 99999999
                         mstop = mstop2 if mstop2 < mstop else mstop
                         cur_stop = win_stop if win_stop < mstop else mstop
+                        
+    #print will_losts
+    #print rev[np.nonzero(rev)]
+    return rev
+
+def atr_stop_y( #atr_stop_x的最后版本，不再是主要stoper，而成为众多一致性stoper中的一个
+        sif,
+        sopened,
+        flost_base = iftrade.F70,    #flost:买入点数 --> 止损点数
+        fmax_drawdown = iftrade.F250, #最大回落比例
+        pmax_drawdown = 0.012, #最大回落比例
+        tstep = lambda sif,i:40,     #行情顺向滑动单位
+        vstep = 20,                  #止损顺向移动单位   
+        ):
+    '''
+    '''
+    trans = sif.transaction
+    rev = np.zeros_like(sopened)
+    isignal = np.nonzero(sopened)[0]
+    ilong_closed = 0    #多头平仓日
+    ishort_closed = 0   #空头平仓日
+    will_losts = []
+    for i in isignal:
+        price = sopened[i]
+        aprice = abs(price)
+        willlost = flost_base(aprice)
+        #willlost = sif.atr15x[i]/XBASE    #效果不佳
+        spmax_drawdown = pmax_drawdown * aprice
+        sfmax_drawdown = fmax_drawdown(aprice)
+        max_drawdown = spmax_drawdown if spmax_drawdown < sfmax_drawdown else sfmax_drawdown
+        will_losts.append(willlost)
+        mytstep = tstep(sif,i)
+        if price<0: #多头止损
+            #print u'多头止损'
+            if i <= ilong_closed:
+                #print 'long skipped'
+                continue
+            #print 'find long stop:',i
+            #if i < ilong_closed:    #已经开了多头仓，且未平，不再计算
+            #    print 'skiped',trans[IDATE][i],trans[ITIME][i],trans[IDATE][ilong_closed],trans[ITIME][ilong_closed]
+            #    continue
+            buy_price = -price
+            lost_stop = buy_price - willlost
+            cur_high = max(buy_price,sif.close[i])
+            win_stop = lost_stop + (cur_high - buy_price)/mytstep * vstep
+            #cur_stop = lost_stop if lost_stop > win_stop else win_stop
+            cur_stop = win_stop #win_stop必然大于lost_stop
+            #print 'wtarget:%s',wtarget
+            print 'stop init:',buy_price,cur_stop,trans[IDATE][i],trans[ITIME][i]
+            if trans[ICLOSE][i] < cur_stop:#到达止损
+                print '----sell----------:',trans[IDATE][i],trans[ITIME][i],cur_stop,trans[ICLOSE][i],cur_high,lost_stop
+                ilong_closed = i
+                rev[i] = cur_stop * XSELL   #设定价格   #两次乘XSELL，把符号整回来
+            else:
+                #if trans[IDATE][i] == 20110214:
+                print 'begin:',trans[IDATE][i],trans[ITIME][i],buy_price,lost_stop,cur_high,win_stop,cur_stop,trans[ILOW][i]
+                for j in range(i+1,len(rev)):
+                    if trans[IORDER][j] >= 269: #换日
+                        ilong_closed = j
+                        break
+                    if trans[ILOW][j] < cur_stop:
+                        ilong_closed = j
+                        rev[j] = (cur_stop if cur_stop < trans[IOPEN][j] else trans[IOPEN][j])* XSELL 
+                        break
+                    nhigh = trans[IHIGH][j]
+                    if(nhigh > cur_high):
+                        cur_high = nhigh
+                        win_stop = lost_stop + (cur_high - buy_price)/mytstep * vstep
+                        mstop = cur_high - max_drawdown
+                        #mstop2 = buy_price if nhigh - buy_price > nhigh/250 else 0
+                        #mstop = mstop2 if mstop2>mstop else mstop
+                        cur_stop = win_stop if win_stop > mstop else mstop
+        else:   #空头止损
+            #print 'find short stop:',i
+            if i<=ishort_closed:
+                #print 'short skipped'
+                continue
+            sell_price = price
+            lost_stop = sell_price + willlost
+            cur_low = min(sell_price,trans[ICLOSE][i])
+            win_stop = lost_stop - (sell_price - cur_low)/mytstep * vstep 
+            cur_stop = win_stop
+            if trans[ICLOSE][i] > cur_stop:
+                #print '----buy----------:',cur_stop,trans[ICLOSE][i],cur_high,lost_stop
+                ishort_closed = i
+                rev[i] = cur_stop * XBUY    #两次乘XBUY，把符号整回来
+            else:
+                for j in range(i+1,len(rev)):
+                    if trans[IORDER][j] >= 269: #换日
+                        ishort_closed = j
+                        break
+                    if trans[IHIGH][j] > cur_stop:
+                        ishort_closed = j
+                        #rev[j] = cur_stop * XBUY
+                        rev[j] = (cur_stop if cur_stop > trans[IOPEN][j] else trans[IOPEN][j])* XBUY
+                        #print 'buy:',j
+                        #print 'buy:',i,price,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j]                        
+                        break
+                    nlow = trans[ILOW][j]
+                    if(nlow < cur_low):
+                        cur_low = nlow
+                        win_stop = lost_stop - (sell_price - cur_low)/mytstep * vstep 
+                        mstop = cur_low + max_drawdown
+                        #mstop2 = sell_price if sell_price - cur_low > sell_price/180 else 99999999
+                        #mstop = mstop2 if mstop2 < mstop else mstop
+                        cur_stop = win_stop if win_stop < mstop else mstop
+                        
+    #print will_losts
+    #print rev[np.nonzero(rev)]
+    return rev
+
+def keep_stoper(
+        ##这个是不妥的，单独有状态的stoper不能叠加. 因为连续的信号出来之后，前面一个如果一直没有平仓，则后面的被遮蔽了
+        sif,
+        sopened,
+        lkeep = 250,    #cur_high的1/lkeep
+        skeep = 180,    #cur_low的1/skeep
+        ):
+    '''
+    '''
+    #print sbclose[-10:],ssclose[-10:]
+    trans = sif.transaction
+    rev = np.zeros_like(sopened)
+    isignal = np.nonzero(sopened)[0]
+    ilong_closed = 0    #多头平仓日
+    ishort_closed = 0   #空头平仓日
+    for i in isignal:
+        price = sopened[i]
+        aprice = abs(price)
+        if price<0: #多头止损
+            #print u'多头止损'
+            if i <= ilong_closed:
+                #print 'long skipped'
+                continue
+            buy_price = -price
+            cur_high = max(buy_price,sif.close[i])
+            cur_stop = 0
+            #print 'wtarget:%s',wtarget
+            #print 'stop init:',cur_stop,lost_stop,willlost,min_lost,max_lost
+            if trans[ICLOSE][i] < cur_stop:#到达止损
+                #print '----sell----------:',trans[IDATE][i],trans[ITIME][i],cur_stop,trans[ICLOSE][i],cur_high,lost_stop
+                ilong_closed = i
+                rev[i] = cur_stop * XSELL   #设定价格
+            else:
+                for j in range(i+1,len(rev)):
+                    if trans[ILOW][j] < cur_stop:
+                        ilong_closed = j
+                        rev[j] = (cur_stop if cur_stop < trans[IOPEN][j] else trans[IOPEN][j])* XSELL 
+                        break
+                    if trans[IORDER][j] >265:
+                        ilong_closed = j
+                        rev[j] = trans[IOPEN][j]
+                        break
+                    nhigh = trans[IHIGH][j]
+                    if(nhigh > cur_high):
+                        cur_high = nhigh
+                        cur_stop = buy_price if cur_high - buy_price > cur_high/lkeep else 0
+        else:   #空头止损
+            #print 'find short stop:',i
+            if i<=ishort_closed:
+                #print 'short skipped'
+                continue
+            sell_price = price
+            cur_stop = 99999999
+            cur_low = min(sell_price,trans[ICLOSE][i])
+            if trans[ICLOSE][i] > cur_stop:
+                #print '----buy----------:',cur_stop,trans[ICLOSE][i],cur_high,lost_stop
+                ishort_closed = i
+                rev[i] = cur_stop * XBUY
+            else:
+                for j in range(i+1,len(rev)):
+                    if trans[IHIGH][j] > cur_stop:
+                        ishort_closed = j
+                        rev[j] = (cur_stop if cur_stop > trans[IOPEN][j] else trans[IOPEN][j])* XBUY
+                        break
+                    if trans[IORDER][j] ==270:
+                        ilong_closed = j
+                        rev[j] = trans[IOPEN][j]
+                        break
+                    nlow = trans[ILOW][j]
+                    if(nlow < cur_low):
+                        cur_low = nlow
+                        cur_stop = sell_price if sell_price - cur_low > cur_low/skeep else 99999999
                         
     #print will_losts
     #print rev[np.nonzero(rev)]
@@ -1434,13 +1625,13 @@ def utrade(sif     #期指
                 #print closer,cur_s[-300:],XSELL,odir
                 cur_ps = np.select([cur_s!=0],[np.abs(cur_s)],PS_MAX)   #把0转换为最大值
                 psclose = gmin(psclose,cur_ps)       #卖出选最小
-            sclose = np.select([psclose!=PS_MAX],[psclose* (-odir)],0) #将PS_MAX变回0
+            sclose = np.select([psclose!=PS_MAX],[psclose* (-odir)],0) #将PS_MAX变回0, 已经有符号了
             #print sclose[np.nonzero(sclose)]
         else:#买平
             psclose = np.abs(sclose)
             for closer in closers:#这里默认认为closer返回的数据中只要非0就算是有信号, 而不是区分买平还是卖平
                 psclose = gmax(psclose,np.abs(closer(sif,sopened)))
-            sclose = psclose * (-odir)
+            sclose = psclose * (-odir)  #已经有符号了
 
         ms_closer = stop_closer if 'stop_closer' not in opener.__dict__ else opener.stop_closer
         
@@ -2202,6 +2393,9 @@ utrade_m = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[stop_short_3],sclos
 utrade_d = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.xdaystop_short],sclosers=[ifuncs.xdaystop_long],make_trades=iftrade.last_trades,sync_trades=iftrade.null_sync_tradess)
 
 utrade_n = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[fcustom(last_stop_short2,ttrace=250,tend=266,vbegin=0.020)],sclosers=[fcustom(last_stop_long2,ttrace=240,tend=266,vbegin=0.020)])
+
+utrade_nk = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[fcustom(last_stop_short2,ttrace=250,tend=266,vbegin=0.020),keep_stoper],sclosers=[fcustom(last_stop_long2,ttrace=240,tend=266,vbegin=0.020),keep_stoper])
+
 
 utrade_c = fcustom(utrade,stop_closer=atr5_ustop_V,bclosers=[ifuncs.daystop_short_c],sclosers=[ifuncs.daystop_long_c])
 

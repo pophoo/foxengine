@@ -764,6 +764,7 @@ def atr_stop_x(
     will_losts = []
     myssclose = ssclose * XSELL #取符号, 如果是买入平仓，则<0
     mysbclose = sbclose * XBUY #取符号, 如果是卖出平仓，则<0
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
     #print mysbclose[-300:]
     #print myssclose[np.nonzero(myssclose)]
     #print mysbclose[np.nonzero(mysbclose)]
@@ -771,7 +772,8 @@ def atr_stop_x(
     for i in isignal:
         price = sopened[i]
         aprice = abs(price)
-        willlost = flost_base(aprice)
+        #willlost = flost_base(aprice)
+        willlost = flost_base(ldopen[i])    #开盘价的定数
         #willlost = sif.atr15x[i]/XBASE    #效果不佳
         spmax_drawdown = pmax_drawdown * aprice
         sfmax_drawdown = fmax_drawdown(aprice)
@@ -2321,6 +2323,16 @@ vstop_10_42 = fcustom(atr_stop_x,
                 tstep = lambda sif,i:40,     
                 vstep = 20,                  
             )
+
+vstop_10_42 = fcustom(atr_stop_x,
+                flost_base = lambda p:p/250, 
+                #flost_base = SSTOP_BASE, 
+                fmax_drawdown = iftrade.F360, 
+                pmax_drawdown = 0.011, 
+                tstep = lambda sif,i:40,     
+                vstep = 20,                  
+            )
+
 
 vstop2_10_42 = fcustom(atr_stop_x2,
                 flost_base = iftrade.F100, 

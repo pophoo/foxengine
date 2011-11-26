@@ -2333,6 +2333,24 @@ vstop_10_42 = fcustom(atr_stop_x,
                 vstep = 20,                  
             )
 
+vstop_5_21 = fcustom(atr_stop_x,
+                flost_base = lambda p:p/666, 
+                #flost_base = SSTOP_BASE, 
+                fmax_drawdown = iftrade.F360, 
+                pmax_drawdown = 0.011, 
+                tstep = lambda sif,i:20,     
+                vstep = 10,                  
+            )
+
+vstop_8_21 = fcustom(atr_stop_x,
+                flost_base = lambda p:p/300, 
+                #flost_base = SSTOP_BASE, 
+                fmax_drawdown = iftrade.F360, 
+                pmax_drawdown = 0.011, 
+                tstep = lambda sif,i:20,     
+                vstep = 10,                  
+            )
+
 
 vstop2_10_42 = fcustom(atr_stop_x2,
                 flost_base = iftrade.F100, 

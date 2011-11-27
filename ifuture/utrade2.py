@@ -26,10 +26,12 @@ def long_moving_stoper( #多头移动平仓
     isignal = np.nonzero(sopened)[0]
     iclosed = 0    #多头平仓日
     will_losts = []
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
     for i in isignal:
         price = sopened[i]
         aprice = abs(price)
-        willlost = flost_base(aprice)
+        #willlost = flost_base(aprice)
+        willlost = flost_base(ldopen[i])    #开盘价的定数
         #willlost = sif.atr15x[i]/XBASE    #效果不佳
         spmax_drawdown = pmax_drawdown * aprice
         sfmax_drawdown = fmax_drawdown(aprice)
@@ -88,10 +90,13 @@ def short_moving_stoper(
     isignal = np.nonzero(sopened)[0]
     iclosed = 0   #空头平仓日
     will_losts = []
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
+    
     for i in isignal:
         price = sopened[i]
         aprice = abs(price)
-        willlost = flost_base(aprice)
+        #willlost = flost_base(aprice)
+        willlost = flost_base(ldopen[i])    #开盘价的定数
         #willlost = sif.atr15x[i]/XBASE    #效果不佳
         spmax_drawdown = pmax_drawdown * aprice
         sfmax_drawdown = fmax_drawdown(aprice)
@@ -108,7 +113,7 @@ def short_moving_stoper(
         cur_low = min(sell_price,trans[ICLOSE][i])
         win_stop = lost_stop - (sell_price - cur_low)/mytstep * vstep 
         cur_stop = win_stop
-        #print trans[IDATE][i],trans[ITIME][i],cur_low,cur_stop,
+        #print trans[IDATE][i],trans[ITIME][i],cur_low,cur_stop
         if trans[ICLOSE][i] > cur_stop:
             #print '----buy----------:',cur_stop,trans[ICLOSE][i],cur_high,lost_stop
             iclosed = i
@@ -389,7 +394,56 @@ def utrade2x(sif     #
     return sync_trades(sif,tradess,acstrategy)
 
 
+lm_stoper_10_42_old = fcustom(long_moving_stoper,
+                flost_base = iftrade.F100, 
+                fmax_drawdown = iftrade.F360, 
+                pmax_drawdown = 0.011, 
+                tstep = lambda sif,i:40,     
+                vstep = 20,                  
+            )
+
 lm_stoper_10_42 = fcustom(long_moving_stoper,
+                flost_base = lambda p:p/250, 
+                fmax_drawdown = iftrade.F360, 
+                pmax_drawdown = 0.011, 
+                tstep = lambda sif,i:40,     
+                vstep = 20,                  
+            )
+
+
+lm_stoper_10_21 = fcustom(long_moving_stoper,
+                flost_base = lambda p:p/250, 
+                fmax_drawdown = iftrade.F360, 
+                pmax_drawdown = 0.011, 
+                tstep = lambda sif,i:20,     
+                vstep = 10,                  
+            )
+
+lm_stoper_8_21 = fcustom(long_moving_stoper,
+                flost_base = lambda p:p/300, 
+                fmax_drawdown = iftrade.F360, 
+                pmax_drawdown = 0.011, 
+                tstep = lambda sif,i:20,     
+                vstep = 10,                  
+            )
+
+lm_stoper_6_21 = fcustom(long_moving_stoper,
+                flost_base = lambda p:p/400, 
+                fmax_drawdown = iftrade.F360, 
+                pmax_drawdown = 0.011, 
+                tstep = lambda sif,i:20,     
+                vstep = 12,                  
+            )
+
+lm_stoper_5_21 = fcustom(long_moving_stoper,
+                flost_base = lambda p:p/666, 
+                fmax_drawdown = iftrade.F360, 
+                pmax_drawdown = 0.011, 
+                tstep = lambda sif,i:20,     
+                vstep = 10,                  
+            )
+
+sm_stoper_10_42_old = fcustom(short_moving_stoper,
                 flost_base = iftrade.F100, 
                 fmax_drawdown = iftrade.F360, 
                 pmax_drawdown = 0.011, 
@@ -398,13 +452,44 @@ lm_stoper_10_42 = fcustom(long_moving_stoper,
             )
 
 sm_stoper_10_42 = fcustom(short_moving_stoper,
-                flost_base = iftrade.F100, 
+                flost_base = lambda p:p/250, 
                 fmax_drawdown = iftrade.F360, 
                 pmax_drawdown = 0.011, 
                 tstep = lambda sif,i:40,     
                 vstep = 20,                  
             )
 
+sm_stoper_10_21 = fcustom(short_moving_stoper,
+                flost_base = lambda p:p/250, 
+                fmax_drawdown = iftrade.F360, 
+                pmax_drawdown = 0.011, 
+                tstep = lambda sif,i:20,     
+                vstep = 10,                  
+            )
+
+sm_stoper_8_21 = fcustom(short_moving_stoper,
+                flost_base = lambda p:p/300, 
+                fmax_drawdown = iftrade.F360, 
+                pmax_drawdown = 0.011, 
+                tstep = lambda sif,i:20,     
+                vstep = 10,                  
+            )
+
+sm_stoper_6_21 = fcustom(short_moving_stoper,
+                flost_base = lambda p:p/400, 
+                fmax_drawdown = iftrade.F360, 
+                pmax_drawdown = 0.011, 
+                tstep = lambda sif,i:20,     
+                vstep = 12,                  
+            )
+
+sm_stoper_5_21 = fcustom(short_moving_stoper,
+                flost_base = lambda p:p/666, 
+                fmax_drawdown = iftrade.F360, 
+                pmax_drawdown = 0.011, 
+                tstep = lambda sif,i:20,     
+                vstep = 10,                  
+            )
 
 ystop_10_42 = fcustom(atr_stop_y,
                 flost_base = iftrade.F100, 

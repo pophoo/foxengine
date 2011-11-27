@@ -18,6 +18,8 @@ import wolfox.fengine.ifuture.xfuncs2 as xfuncs2
 import wolfox.fengine.ifuture.xtfuncs as xtfuncs
 import wolfox.fengine.ifuture.utrade as utrade
 import wolfox.fengine.ifuture.ufuncs as ufuncs
+import wolfox.fengine.ifuture.ufuncs2 as ufuncs2
+import wolfox.fengine.ifuture.utrade2 as utrade2
 
 
 from wolfox.fengine.ifuture.ifuncs import *
@@ -41,7 +43,8 @@ i00 = ifmap['IF0001']   #当月连续
 #tradesy =  control.itradex8_yt(i00,ifuncs2.xxx2)
 #tradesy =  control.itradex8_zt(i00,ifuncs2.xxx2)
 #tradesy =  control.itradex8_yy(i00,xfuncs.xxx)
-tradesy =  utrade.utrade_n(i00,ufuncs.xxx)
+#tradesy =  utrade.utrade_n(i00,ufuncs.xxx)
+tradesy =  utrade2.utrade2_n(i00,ufuncs2.mbreak)
 
 iftrade.limit_profit(tradesy,-90)
 

@@ -1611,12 +1611,12 @@ def utrade(sif     #期指
         if 'closer' in opener.__dict__: #是否有特定的closer,如要将macd下叉也作为多头持仓的平仓条件,则可设置函数,在返回值中添加该下叉信号算法
             if odir == XBUY:
                 #print 'buy closer:',opener.closer
-                closers = opener.closer(sclosers)
+                closers = opener.closer(sclosers)[:]    #复制
             elif odir == XSELL:
-                closers = opener.closer(bclosers)
+                closers = opener.closer(bclosers)[:]
         else:
             #print 'opener without close iftrade.fdirection(opener) = %s' % ('XBUY' if iftrade.fdirection(opener) == XBUY else 'XSELL',)
-            closers = sclosers if odir == XBUY else bclosers
+            closers = sclosers[:] if odir == XBUY else bclosers[:]
 
 
         #这里需要u处理

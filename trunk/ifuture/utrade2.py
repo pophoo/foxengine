@@ -427,6 +427,15 @@ lm_stoper_8_21 = fcustom(long_moving_stoper,
                 vstep = 10,                  
             )
 
+lm_stoper_8_42 = fcustom(long_moving_stoper,
+                flost_base = lambda p:p/300, 
+                fmax_drawdown = iftrade.F360, 
+                pmax_drawdown = 0.011, 
+                tstep = lambda sif,i:40,     
+                vstep = 20,                  
+            )
+
+
 lm_stoper_6_21 = fcustom(long_moving_stoper,
                 flost_base = lambda p:p/400, 
                 fmax_drawdown = iftrade.F360, 
@@ -465,6 +474,14 @@ sm_stoper_10_21 = fcustom(short_moving_stoper,
                 pmax_drawdown = 0.011, 
                 tstep = lambda sif,i:20,     
                 vstep = 10,                  
+            )
+
+sm_stoper_8_42 = fcustom(short_moving_stoper,
+                flost_base = lambda p:p/300, 
+                fmax_drawdown = iftrade.F360, 
+                pmax_drawdown = 0.011, 
+                tstep = lambda sif,i:40,     
+                vstep = 20,                  
             )
 
 sm_stoper_8_21 = fcustom(short_moving_stoper,

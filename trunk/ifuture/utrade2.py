@@ -316,6 +316,47 @@ def short_atr_keep_stoper(
     return rev
 
 
+def long_rapid_stoper(
+        sif,
+        sopened,
+        ltime=3,    #新高后ltime分钟内
+        ldown=4,    #回落ldown个atr
+        ):
+    '''
+        新高后ltime分钟回落ldown个atr即平仓
+    '''
+    trans = sif.transaction
+    #ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
+    
+    #rev = np.zeros_like(sopened)
+    lhigh = rollx(tmax(sif.high,ltime))
+    bline = lhigh - rollx(sif.atr/XBASE) * ldown
+    signal = gand(cross(bline,sif.low) < 0,
+                  lhigh == rollx(sif.dhigh),  
+                )
+    return np.select([signal],[gmin(sif.open,bline)],0)
+
+def short_rapid_stoper(
+        sif,
+        sopened,
+        ltime=3,    #新高后ltime分钟内
+        lup=6,    #回落ldown个atr
+        ):
+    '''
+        新低后ltime分钟回升lup个atr即平仓
+    '''
+    trans = sif.transaction
+    #ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
+    
+    #rev = np.zeros_like(sopened)
+    llow = rollx(tmin(sif.low,ltime))
+    bline = llow + rollx(sif.atr/XBASE) * lup
+    signal = gand(cross(bline,sif.high) > 0,
+                  llow == rollx(sif.dlow),  
+                )
+    return np.select([signal],[gmax(sif.open,bline)],0)
+
+
 def utrade2x(sif     #
             ,openers    #opener函数集合
             ,bclosers   #默认的多平仓函数集合(空头平仓)
@@ -518,5 +559,7 @@ ystop_10_42 = fcustom(atr_stop_y,
 
 
 #utrade2_n = fcustom(utrade2x,bclosers=[atr_stop_y,fcustom(last_stop_short2,ttrace=250,tend=266,vbegin=0.020)],sclosers=[atr_stop_y,fcustom(last_stop_long2,ttrace=240,tend=266,vbegin=0.020)])
+#utrade2_n = fcustom(utrade2x,bclosers=[fcustom(last_stop_short2,ttrace=250,tend=266,vbegin=0.020),short_rapid_stoper],sclosers=[fcustom(last_stop_long2,ttrace=240,tend=266,vbegin=0.020),long_rapid_stoper]) #收效甚微
 utrade2_n = fcustom(utrade2x,bclosers=[fcustom(last_stop_short2,ttrace=250,tend=266,vbegin=0.020)],sclosers=[fcustom(last_stop_long2,ttrace=240,tend=266,vbegin=0.020)])
+
 #utrade2_n = fcustom(utrade2x,bclosers=[],sclosers=[])

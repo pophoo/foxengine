@@ -506,6 +506,19 @@ def short_rapid_stoper(
                 )
     return np.select([signal],[gmax(sif.open,bline)],0)
 
+def short_high_stoper(
+        sif,
+        sopened,
+        hshort = 13,
+        hlong = 30,    
+        ):
+    '''
+        新低后ltime分钟回升lup个atr即平仓
+    '''
+    bline = rollx(tmax(sif.high,hshort))
+    signal = gand(cross(bline,sif.high)>0,
+                )
+    return np.select([signal],[gmax(sif.open,bline)],0)
 
 def utrade2x(sif     #
             ,openers    #opener函数集合

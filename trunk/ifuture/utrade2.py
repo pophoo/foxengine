@@ -139,6 +139,138 @@ def short_moving_stoper(
                         
     return rev
 
+def long_moving_stoper2( #多头移动平仓,一步调整到开仓位
+        sif,
+        sopened,
+        flost_base = iftrade.F70,    #flost:买入点数 --> 止损点数
+        fmax_drawdown = iftrade.F250, #最大回落比例
+        pmax_drawdown = 0.012, #最大回落比例
+        tstep = lambda sif,i:40,     #行情顺向滑动单位
+        vstep = 20,                  #止损顺向移动单位   
+        fkeeper = iftrade.F120,
+        ):
+    '''
+    '''
+    trans = sif.transaction
+    rev = np.zeros_like(sopened)
+    isignal = np.nonzero(sopened)[0]
+    iclosed = 0    #多头平仓日
+    will_losts = []
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
+    for i in isignal:
+        price = sopened[i]
+        aprice = abs(price)
+        #willlost = flost_base(aprice)
+        willlost = flost_base(ldopen[i])    #开盘价的定数
+        #willlost = sif.atr15x[i]/XBASE    #效果不佳
+        spmax_drawdown = pmax_drawdown * aprice
+        sfmax_drawdown = fmax_drawdown(aprice)
+        max_drawdown = spmax_drawdown if spmax_drawdown < sfmax_drawdown else sfmax_drawdown
+        will_losts.append(willlost)
+        mytstep = tstep(sif,i)
+        #print u'多头止损'
+        if i <= iclosed:
+            #print 'long skipped'
+            continue
+        buy_price = -price
+        lost_stop = buy_price - willlost
+        cur_high = max(buy_price,sif.close[i])
+        win_stop = lost_stop + (cur_high - buy_price)/mytstep * vstep
+        #cur_stop = lost_stop if lost_stop > win_stop else win_stop
+        cur_stop = win_stop #win_stop必然大于lost_stop
+        #print 'wtarget:%s',wtarget
+        #print 'stop init:',buy_price,cur_stop,trans[IDATE][i],trans[ITIME][i]
+        if trans[ICLOSE][i] < cur_stop:#到达止损
+            print '----sell----------:',trans[IDATE][i],trans[ITIME][i],cur_stop,trans[ICLOSE][i],cur_high,lost_stop
+            iclosed = i
+            rev[i] = cur_stop * XSELL   #设定价格   #两次乘XSELL，把符号整回来
+        else:
+            #if trans[IDATE][i] == 20110214:
+            #print 'begin:',trans[IDATE][i],trans[ITIME][i],buy_price,lost_stop,cur_high,win_stop,cur_stop,trans[ILOW][i]
+            for j in range(i+1,len(rev)):
+                if trans[IORDER][j] >= 269: #换日
+                    iclosed = j
+                    break
+                if trans[ILOW][j] < cur_stop:
+                    iclosed = j
+                    rev[j] = (cur_stop if cur_stop < trans[IOPEN][j] else trans[IOPEN][j])* XSELL 
+                    break
+                nhigh = trans[IHIGH][j]
+                if(nhigh > cur_high):
+                    cur_high = nhigh
+                    win_stop = lost_stop + (cur_high - buy_price)/mytstep * vstep
+                    mstop = cur_high - max_drawdown
+                    cur_stop = win_stop if win_stop > mstop else mstop
+                    
+    return rev
+
+def short_moving_stoper2(
+        sif,
+        sopened,
+        flost_base = iftrade.F70,    #flost:买入点数 --> 止损点数
+        fmax_drawdown = iftrade.F250, #最大回落比例
+        pmax_drawdown = 0.012, #最大回落比例
+        tstep = lambda sif,i:40,     #行情顺向滑动单位
+        vstep = 20,                  #止损顺向移动单位   
+        fkeeper = iftrade.F120,
+        ):
+    '''
+    '''
+    trans = sif.transaction
+    rev = np.zeros_like(sopened)
+    isignal = np.nonzero(sopened)[0]
+    iclosed = 0   #空头平仓日
+    will_losts = []
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
+    
+    for i in isignal:
+        price = sopened[i]
+        aprice = abs(price)
+        #willlost = flost_base(aprice)
+        willlost = flost_base(ldopen[i])    #开盘价的定数
+        #willlost = sif.atr15x[i]/XBASE    #效果不佳
+        spmax_drawdown = pmax_drawdown * aprice
+        sfmax_drawdown = fmax_drawdown(aprice)
+        max_drawdown = spmax_drawdown if spmax_drawdown < sfmax_drawdown else sfmax_drawdown
+        will_losts.append(willlost)
+        mytstep = tstep(sif,i)
+
+        #print 'find short stop:',i
+        if i<=iclosed:
+            #print 'short skipped'
+            continue
+        sell_price = price
+        lost_stop = sell_price + willlost
+        cur_low = min(sell_price,trans[ICLOSE][i])
+        win_stop = lost_stop - (sell_price - cur_low)/mytstep * vstep 
+        cur_stop = win_stop
+        #print trans[IDATE][i],trans[ITIME][i],cur_low,cur_stop
+        if trans[ICLOSE][i] > cur_stop:
+            #print '----buy----------:',cur_stop,trans[ICLOSE][i],cur_high,lost_stop
+            iclosed = i
+            rev[i] = cur_stop * XBUY    #两次乘XBUY，把符号整回来
+        else:
+            for j in range(i+1,len(rev)):
+                if trans[IORDER][j] >= 269: #换日
+                    iclosed = j
+                    break
+                if trans[IHIGH][j] > cur_stop:
+                    iclosed = j
+                    #rev[j] = cur_stop * XBUY
+                    rev[j] = (cur_stop if cur_stop > trans[IOPEN][j] else trans[IOPEN][j])* XBUY
+                    #print 'buy:',j
+                    #print 'buy:',i,price,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j]                        
+                    break
+                nlow = trans[ILOW][j]
+                if(nlow < cur_low):
+                    cur_low = nlow
+                    win_stop = lost_stop - (sell_price - cur_low)/mytstep * vstep 
+                    mstop = cur_low + max_drawdown
+                    cur_stop = win_stop if win_stop < mstop else mstop
+                        
+    return rev
+
+
 def long_keep_stoper(
         ##这个是不妥的，单独有状态的stoper不能叠加. 因为连续的信号出来之后，前面一个如果一直没有平仓，则后面的被遮蔽了
         sif,
@@ -443,6 +575,15 @@ lm_stoper_10_42_old = fcustom(long_moving_stoper,
                 vstep = 20,                  
             )
 
+lm_stoper_18_43 = fcustom(long_moving_stoper,
+                flost_base = lambda p:p/133, 
+                fmax_drawdown = iftrade.F360, 
+                pmax_drawdown = 0.011, 
+                tstep = lambda sif,i:40,     
+                vstep = 30,                  
+            )
+
+
 lm_stoper_10_42 = fcustom(long_moving_stoper,
                 flost_base = lambda p:p/250, 
                 fmax_drawdown = iftrade.F360, 
@@ -451,6 +592,14 @@ lm_stoper_10_42 = fcustom(long_moving_stoper,
                 vstep = 20,                  
             )
 
+lm_stoper_10_42b = fcustom(long_moving_stoper,
+                flost_base = lambda p:p/250, 
+                fmax_drawdown = iftrade.F360, 
+                pmax_drawdown = 0.011, 
+                tstep = lambda sif,i:40,     
+                vstep = 20,                  
+                fkeeper = lambda p:p/200,
+            )
 
 lm_stoper_10_21 = fcustom(long_moving_stoper,
                 flost_base = lambda p:p/250, 
@@ -499,6 +648,14 @@ sm_stoper_10_42_old = fcustom(short_moving_stoper,
                 pmax_drawdown = 0.011, 
                 tstep = lambda sif,i:40,     
                 vstep = 20,                  
+            )
+
+sm_stoper_18_43 = fcustom(short_moving_stoper,
+                flost_base = lambda p:p/133, 
+                fmax_drawdown = iftrade.F360, 
+                pmax_drawdown = 0.011, 
+                tstep = lambda sif,i:40,     
+                vstep = 30,                  
             )
 
 sm_stoper_10_42 = fcustom(short_moving_stoper,

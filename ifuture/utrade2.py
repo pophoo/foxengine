@@ -163,6 +163,8 @@ def long_moving_stoper2( #多头移动平仓,一步调整到开仓位
         #willlost = flost_base(aprice)
         willlost = flost_base(ldopen[i])    #开盘价的定数
         #willlost = sif.atr15x[i]/XBASE    #效果不佳
+        mykeeper = fkeeper(ldopen[i])
+        pkeeper = aprice + mykeeper     #拉平位置
         spmax_drawdown = pmax_drawdown * aprice
         sfmax_drawdown = fmax_drawdown(aprice)
         max_drawdown = spmax_drawdown if spmax_drawdown < sfmax_drawdown else sfmax_drawdown
@@ -198,10 +200,17 @@ def long_moving_stoper2( #多头移动平仓,一步调整到开仓位
                 nhigh = trans[IHIGH][j]
                 if(nhigh > cur_high):
                     cur_high = nhigh
-                    win_stop = lost_stop + (cur_high - buy_price)/mytstep * vstep
+                    if nhigh > pkeeper:
+                        win_stop = lost_stop + (cur_high - buy_price)/mytstep * vstep
+                        if aprice > win_stop:
+                            win_stop = aprice
+                    else:
+                        win_stop = 0    #不能拉平
                     mstop = cur_high - max_drawdown
-                    cur_stop = win_stop if win_stop > mstop else mstop
-                    
+                    #cur_stop = win_stop if win_stop > mstop else mstop
+                    w_stop = win_stop if win_stop > mstop else mstop
+                    if w_stop > cur_stop:
+                        cur_stop = w_stop
     return rev
 
 def short_moving_stoper2(
@@ -229,6 +238,8 @@ def short_moving_stoper2(
         #willlost = flost_base(aprice)
         willlost = flost_base(ldopen[i])    #开盘价的定数
         #willlost = sif.atr15x[i]/XBASE    #效果不佳
+        mykeeper = fkeeper(ldopen[i])
+        pkeeper = aprice - mykeeper     #拉平位置
         spmax_drawdown = pmax_drawdown * aprice
         sfmax_drawdown = fmax_drawdown(aprice)
         max_drawdown = spmax_drawdown if spmax_drawdown < sfmax_drawdown else sfmax_drawdown
@@ -264,9 +275,16 @@ def short_moving_stoper2(
                 nlow = trans[ILOW][j]
                 if(nlow < cur_low):
                     cur_low = nlow
-                    win_stop = lost_stop - (sell_price - cur_low)/mytstep * vstep 
+                    if nlow < pkeeper:
+                        win_stop = lost_stop - (sell_price - cur_low)/mytstep * vstep 
+                        if aprice < win_stop:
+                            win_stop = aprice
+                    else:
+                        win_stop = 99999999    #不能拉平
                     mstop = cur_low + max_drawdown
-                    cur_stop = win_stop if win_stop < mstop else mstop
+                    w_stop = win_stop if win_stop < mstop else mstop
+                    if w_stop < cur_stop:
+                        cur_stop = w_stop
                         
     return rev
 
@@ -592,13 +610,13 @@ lm_stoper_10_42 = fcustom(long_moving_stoper,
                 vstep = 20,                  
             )
 
-lm_stoper_10_42b = fcustom(long_moving_stoper,
-                flost_base = lambda p:p/250, 
+lm_stoper_10_42b = fcustom(long_moving_stoper2,
+                flost_base = lambda p:p/300, 
                 fmax_drawdown = iftrade.F360, 
                 pmax_drawdown = 0.011, 
                 tstep = lambda sif,i:40,     
                 vstep = 20,                  
-                fkeeper = lambda p:p/200,
+                fkeeper = lambda p:p/160,
             )
 
 lm_stoper_10_21 = fcustom(long_moving_stoper,
@@ -657,6 +675,16 @@ sm_stoper_18_43 = fcustom(short_moving_stoper,
                 tstep = lambda sif,i:40,     
                 vstep = 30,                  
             )
+
+sm_stoper_10_42b = fcustom(short_moving_stoper2,
+                flost_base = lambda p:p/250, 
+                fmax_drawdown = iftrade.F360, 
+                pmax_drawdown = 0.011, 
+                tstep = lambda sif,i:40,     
+                vstep = 20,                  
+                fkeeper = lambda p:p/125,
+            )
+
 
 sm_stoper_10_42 = fcustom(short_moving_stoper,
                 flost_base = lambda p:p/250, 

@@ -8,6 +8,40 @@
 
 from wolfox.fengine.ifuture.utrade import *
 
+###
+###计算时段的收盘价-开盘价的平均值
+###
+def calc_ol(sif,oorder,corder):
+    oprice = sif.open[sif.iorder==oorder]
+    cprice = sif.close[sif.iorder==corder]
+    assert len(oprice) == len(cprice),u'开盘序列长度=%s,和收盘序列不一致=%s' % (len(oprice),len(cprice))
+    xprice = cprice - oprice
+    uxprice = [p for p in xprice if p>0]
+    dxprice = [p for p in xprice if p<0]
+    return sum(xprice) * 1.0 / len(oprice),sum(uxprice)*1.0/len(uxprice),len(uxprice),sum(dxprice)*1.0/len(dxprice),len(dxprice)
+
+
+def calc_avg_price(sif,dfrom=0,dend=99999999):
+    ''' 计算平均价
+    '''
+    oaprice = [0] * 271
+    caprice = [0] * 271
+    for i in range(271):
+        oprice = sif.open[gand(sif.iorder==i,sif.date>=dfrom,sif.date<dend)>0]
+        cprice = sif.close[gand(sif.iorder==i,sif.date>=dfrom,sif.date<dend)>0]
+        oaprice[i] = int(sum(oprice) * 1.0 / len(oprice))
+        caprice[i] = int(sum(cprice) * 1.0 / len(cprice))
+        #print oaprice[i],caprice[i]
+    return oaprice,caprice
+
+
+def long_time_stoper(sif,sopened,mytime=1454):
+    sl = np.select([sif.time==mytime],[1],0)
+    return  sl * XSELL
+
+def short_time_stoper(sif,sopened,mytime=1454):
+    sl = np.select([sif.time==mytime],[1],0)
+    return  sl * XBUY
 
 
 def long_moving_stoper( #多头移动平仓

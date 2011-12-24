@@ -187,6 +187,15 @@ def stop_short_3(sif,sopened):
     sl[-3:] = 1
     return  sl * XBUY
 
+def stop_long_time(sif,sopened,mytime):
+    sl = np.select([sif.time==mytime],[1],0)
+    return  sl * XSELL
+
+def stop_short_time(sif,sopened,mytime):
+    sl = np.select([sif.time==mytime],[1],0)
+    return  sl * XBUY
+
+
 def repeat_trades(actions,calc_profit=iftrade.normal_profit):  #简单的trades,每个trade只有一次开仓和平仓
     ''' 不支持同时双向开仓
         但支持同向多次开仓

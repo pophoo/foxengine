@@ -46,7 +46,7 @@ i00 = ifmap['IF0001']   #当月连续
 #tradesy =  utrade.utrade_n(i00,ufuncs.xxx)
 tradesy =  utrade2.utrade2_n(i00,ufuncs2.mbreak)
 
-iftrade.limit_profit(tradesy,-90)
+#iftrade.limit_profit(tradesy,-90)
 
 lx = lambda ii,trade:ii.xatr[trade.actions[0].index]
 lm = lambda ii,trade:ii.mxatr[trade.actions[0].index]

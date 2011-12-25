@@ -235,6 +235,8 @@ def dpeak(sif):
     sif.dlow = sl
     sif.idhigh = ih
     sif.idlow = il
+    sif.iidhigh = sif.iorder[ih]
+    sif.iidlow = sif.iorder[il]
     sif.dhighl = shl
     sif.dlowh = slh
     sif.dmid = (sif.dhigh+sif.dlow)/2

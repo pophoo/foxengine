@@ -279,6 +279,84 @@ def long_moving_stoper3( #多头移动平仓
                     
     return rev
 
+def short_moving_stoper4(
+        sif,
+        sopened,
+        flost_base = iftrade.F70,    #flost:买入点数 --> 止损点数
+        fzero_base = iftrade.F70,    #平推位
+        fmax_drawdown = iftrade.F250, #最大回落比例
+        pmax_drawdown = 0.012, #最大回落比例
+        tstep = lambda sif,i:40,     #行情顺向滑动单位
+        vstep = 20,                  #止损顺向移动单位   
+        ):
+    '''
+    '''
+    trans = sif.transaction
+    rev = np.zeros_like(sopened)
+    isignal = np.nonzero(sopened)[0]
+    iclosed = 0   #空头平仓日
+    will_losts = []
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
+    
+    for i in isignal:
+        price = sopened[i]
+        aprice = abs(price)
+        #willlost = flost_base(aprice)
+        willlost = flost_base(ldopen[i])    #开盘价的定数
+        zero_base = fzero_base(ldopen[i])
+        #willlost = sif.atr15x[i]/XBASE    #效果不佳
+        spmax_drawdown = pmax_drawdown * aprice
+        sfmax_drawdown = fmax_drawdown(aprice)
+        max_drawdown = spmax_drawdown if spmax_drawdown < sfmax_drawdown else sfmax_drawdown
+        will_losts.append(willlost)
+        mytstep = tstep(sif,i)
+        myvstep = vstep
+        #mytstep = ldopen[i] / 750
+        #myvstep = ldopen[i] / 1500
+
+        #print 'find short stop:',i
+        if i<=iclosed:
+            #print 'short skipped'
+            continue
+        sell_price = price
+        zero_price = price - zero_base
+        lost_stop = sell_price + willlost
+        cur_low = min(sell_price,trans[ICLOSE][i])
+        if cur_low < zero_price:
+            win_stop = lost_stop - (sell_price - cur_low)/mytstep * myvstep 
+            cur_stop = win_stop if win_stop > sell_price else win_stop
+        else:
+            cur_stop = lost_stop
+        #print trans[IDATE][i],trans[ITIME][i],cur_low,cur_stop
+        if trans[ICLOSE][i] > cur_stop:
+            #print '----buy----------:',cur_stop,trans[ICLOSE][i],cur_high,lost_stop
+            iclosed = i
+            rev[i] = cur_stop * XBUY    #两次乘XBUY，把符号整回来
+        else:
+            for j in range(i+1,len(rev)):
+                if trans[IORDER][j] >= 269: #换日
+                    iclosed = j
+                    break
+                if trans[IHIGH][j] > cur_stop:
+                    iclosed = j
+                    #rev[j] = cur_stop * XBUY
+                    rev[j] = (cur_stop if cur_stop > trans[IOPEN][j] else trans[IOPEN][j])* XBUY
+                    #print 'buy:',j
+                    #print 'buy:',i,price,trans[IDATE][i],trans[ITIME][i],trans[IDATE][j],trans[ITIME][j]                        
+                    break
+                nlow = trans[ILOW][j]
+                if(nlow < cur_low):
+                    if nlow < zero_price:
+                        cur_low = nlow
+                        win_stop = lost_stop - (sell_price - cur_low)/mytstep * myvstep 
+                        mstop = cur_low + max_drawdown
+                        cur_stop = win_stop if win_stop < mstop else mstop
+                        if cur_stop > sell_price:
+                            cur_stop = sell_price
+                    else:#不改变止损
+                        pass    
+    return rev
+
 def short_moving_stoper3(
         sif,
         sopened,
@@ -930,6 +1008,14 @@ sm_stoper_10_42b = fcustom(short_moving_stoper2,
                 fkeeper = lambda p:p/125,
             )
 
+sm_stoper_10_42d = fcustom(short_moving_stoper4,
+                flost_base = lambda p:p/333, 
+                fzero_base = lambda p:p/300, 
+                fmax_drawdown = iftrade.F360, 
+                pmax_drawdown = 0.011, 
+                tstep = lambda sif,i:160,     
+                vstep = 80,                  
+            )
 
 sm_stoper_10_42 = fcustom(short_moving_stoper,
                 flost_base = lambda p:p/250, 
@@ -938,6 +1024,15 @@ sm_stoper_10_42 = fcustom(short_moving_stoper,
                 tstep = lambda sif,i:40,     
                 vstep = 20,                  
             )
+
+sm_stoper_10_42_2 = fcustom(short_moving_stoper,
+                flost_base = lambda p:p/300, 
+                fmax_drawdown = iftrade.F360, 
+                pmax_drawdown = 0.011, 
+                tstep = lambda sif,i:60,     
+                vstep = 30,                  
+            )
+
 
 sm_stoper_10_21 = fcustom(short_moving_stoper,
                 flost_base = lambda p:p/250, 

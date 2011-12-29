@@ -9,6 +9,34 @@
 from wolfox.fengine.ifuture.utrade import *
 
 ###
+###
+def extend_s_trade(sif,trades,flost_base = lambda p:p/250):
+    '''
+        扩展空头交易的信息
+    '''
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)         
+    for trade in trades:
+        ii = trade.actions[0].index #序号
+        lbase = flost_base(ldopen[ii])
+        trade.move = lbase + trade.profit + 14 #14手续费
+        trade.lbase = lbase
+        trade.index = ii
+
+
+def static_classify(sif,trades,afunc):
+    '''
+        静态归类
+    '''
+    return sum([afunc(sif,trade) for trade in trades])
+
+def static_analyse(sif,trades):
+    '''
+        静态分析
+    '''
+    pass
+
+
+###
 ###计算时段的收盘价-开盘价的平均值
 ###
 def calc_ol(sif,oorder,corder):

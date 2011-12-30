@@ -1019,8 +1019,8 @@ sm_stoper_10_42_old = fcustom(short_moving_stoper,
                 vstep = 20,                  
             )
 
-sm_stoper_18_43 = fcustom(short_moving_stoper,
-                flost_base = lambda p:p/133, 
+sm_stoper_18_42 = fcustom(short_moving_stoper,
+                flost_base = lambda p:p/180, 
                 fmax_drawdown = iftrade.F360, 
                 pmax_drawdown = 0.011, 
                 tstep = lambda sif,i:40,     

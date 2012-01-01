@@ -438,7 +438,7 @@ def prepare_index(sif):
 
 
     sif.i_cof15 = np.where(
-            gand((trans[IORDER])%15==0,trans[IORDER]!=0)
+            gand((trans[IORDER])%15==14,trans[IORDER]>0)
         )[0]    #15分钟收盘线,不考虑隔日的因素
     sif.i_oof15 = roll0(sif.i_cof15)+1
     sif.i_oof15[0] = 0    
@@ -1428,6 +1428,11 @@ def prepare_index(sif):
     sif.closed = trans[ICLOSE][sif.i_cofd]
     sif.highd,sif.lowd,sif.vold = calc_high_low_vol(trans,sif.i_oofd,sif.i_cofd)
     sif.holdingd = trans[IHOLDING][sif.i_cofd]
+
+    sif.ldopen = dnext(sif.opend,sif.close,sif.i_oofd)  #当日开盘
+    sif.ldclose = dnext(sif.closed,sif.close,sif.i_cofd)    #前一日收盘
+    sif.ldhigh = dnext(sif.highd,sif.close,sif.i_cofd)      #前一日最高
+    sif.ldlow = dnext(sif.lowd,sif.close,sif.i_cofd)        #前一日最低
 
     sif.day2range = dict(zip(sif.date[sif.i_cofd],sif.highd-sif.lowd))
 

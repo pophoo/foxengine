@@ -9,6 +9,25 @@
 from wolfox.fengine.ifuture.utrade import *
 
 ###
+#打印结果
+###
+def gen_result(sif,trades):
+    extend_s_trade(sif,trades)
+    ss = 0
+    shigh = 0
+    chigh = 0
+    for trade in trades:
+        ss += trade.profit
+        if ss > shigh:
+            shigh = ss
+            chigh = 0
+        else:
+            chigh += 1
+        trade.chigh = chigh
+        print trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].time,trade.actions[1].price,trade.actions[1].index-trade.actions[0].index,trade.orignal.name,trade.chigh
+
+
+###
 ###
 def extend_s_trade(sif,trades,flost_base = lambda p:p/250):
     '''
@@ -34,6 +53,7 @@ def static_analyse(sif,trades):
         静态分析
     '''
     pass
+
 
 
 ###

@@ -116,7 +116,8 @@ FPATH2 = 'D:/work/applications/gcode/wolfox/fengine/ifuture/data/'
 prefix = 'SF'
 #IFS = 'IF0001','IF1005','IF1006','IF1007','IF1008','IF1009','IF1010','IF1012','IF1103'#,'RU1011','FU1009','CU1011','CU1009'
 #IFS = ('IF0001','IF1005','IF1006','IF1007','IF1008','IF1009','IF1010','IF1012','IF1101','IF1102','IF1103','IF1104')
-IFS = ('IF0001','CF1205','ru1109','IF1111','IF1110','IF1112')
+#IFS = ('IF0001','CF1205','ru1109','IF1111','IF1110','IF1112')
+IFS = ('IF0001','IF1201','IF1112')
 #IF0000:当月连续，当某日收盘下月合约持仓超过本月90%时切换
 SUFFIX = '.txt'
 SUFFIX_ZIP = '.zip'

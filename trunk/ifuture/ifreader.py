@@ -618,6 +618,7 @@ def prepare_index(sif):
     sif.highd,sif.lowd,sif.vold = calc_high_low_vol(trans,sif.i_oofd,sif.i_cofd)
     sif.holdingd = trans[IHOLDING][sif.i_cofd]
     sif.day = trans[IDATE][sif.i_cofd]
+    sif.dated = sif.day
 
     sif.day2range = dict(zip(sif.date[sif.i_cofd],sif.highd-sif.lowd))
 

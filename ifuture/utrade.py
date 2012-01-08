@@ -1739,6 +1739,10 @@ def day_trades(trades,limit=-200):
     '''
         每日连续回撤到limit(含limit)之后不再开仓. 即如果已经损失20点，limit=-20，则不能再开仓
         在中间即便有盈利，但是如果累计起来仍然为负，则持续计算
+        最终返回每日的交易，其中profit为不过滤的值，sprofit为过滤后的,ntrade为每日的交易次数
+            trades为当日交易
+        总交易次数:    sum([trade.ntrade for trade in trades])
+        总盈亏:        sum([trade.sprofit for trade in trades])
     '''
     if len(trades) == 0:
         return []
@@ -1750,6 +1754,8 @@ def day_trades(trades,limit=-200):
                             ntrade = 1,
                             ontrade = 1,
                             tclose = 0,
+                            trades = [cur_trade],
+                            ii = cur_trade.actions[0].index,
                         )
                 ]
     for trade in trades[1:]:
@@ -1768,6 +1774,7 @@ def day_trades(trades,limit=-200):
                 rlast.sprofit += trade.profit
                 rlast.ntrade += 1
                 rlast.max_drawdown += trade.profit
+                rlast.trades.append(trade)
                 if rlast.max_drawdown > 0:
                     rlast.max_drawdown = 0
                 elif rlast.max_drawdown > last_drawdown:
@@ -1780,10 +1787,10 @@ def day_trades(trades,limit=-200):
                         ntrade = 1,
                         ontrade = 1,
                         tclose = 0,
+                        trades = [trade],
+                        ii = trade.actions[0].index,
                     )
             )
-            
-
     return results
 
 

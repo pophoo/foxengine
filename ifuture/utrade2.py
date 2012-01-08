@@ -55,6 +55,20 @@ def static_analyse(sif,trades):
     pass
 
 
+def day_analyse(sif,trades):
+    '''
+        分析日交易的情况
+        日交易结果来自于 utrade.day_trades
+        for trade in trades: print trade.day,trade.twave,trade.tdd,trade.sprofit,trade.profit,trade.rd
+    '''
+    dd = dnext(nma(sif.waved,5),sif.close,sif.i_cofd)
+    for trade in trades:
+        #if dd[trade.ii] == 0:
+        #    print dd[trade.ii],trade.day
+        trade.twave = sif.day2range[trade.day]
+        trade.tdd = dd[trade.ii]
+        trade.rd = trade.twave * 1.0 / trade.tdd
+
 
 ###
 ###计算时段的收盘价-开盘价的平均值

@@ -620,7 +620,8 @@ def prepare_index(sif):
     sif.day = trans[IDATE][sif.i_cofd]
     sif.dated = sif.day
 
-    sif.day2range = dict(zip(sif.date[sif.i_cofd],sif.highd-sif.lowd))
+    sif.waved = sif.highd - sif.lowd
+    sif.day2range = dict(zip(sif.date[sif.i_cofd],sif.waved))
 
     sif.atrd = atr(sif.closed*XBASE,sif.highd*XBASE,sif.lowd*XBASE,20)
     sif.xatrd = sif.atrd * XBASE * XBASE / sif.closed

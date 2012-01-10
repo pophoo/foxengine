@@ -990,6 +990,7 @@ lm_stoper_18_43 = fcustom(long_moving_stoper,
 lm_stoper_10_42 = fcustom(long_moving_stoper,
                 flost_base = lambda p:p/250, 
                 fmax_drawdown = iftrade.F360, 
+                #fmax_drawdown = lambda x:900, 
                 pmax_drawdown = 0.011, 
                 #pmax_drawdown = 0.1, #即不起作用
                 tstep = lambda sif,i:80,     

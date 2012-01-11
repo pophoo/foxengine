@@ -439,7 +439,7 @@ def prepare_index(sif):
 
 
     sif.i_cof15 = np.where(
-            gand((trans[IORDER])%15==14,trans[IORDER]>0)
+            gand((trans[IORDER])%15==0,trans[IORDER]>0)
         )[0]    #15分钟收盘线,不考虑隔日的因素
     sif.i_oof15 = roll0(sif.i_cof15)+1
     sif.i_oof15[0] = 0    

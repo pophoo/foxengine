@@ -2727,10 +2727,27 @@ def profit_distribution2(sif,dtrades,limit = [0.6,1,1.5,4]):#求按照振幅/atr
             results[id].plosts += dtrade.sprofit
     return results[:-1]
 
+def profit_distribution3(sif,dtrades,limit = [0.01,0.02,0.03,0.04,0.05,0.1]):#求按照opend的盈利分布
+    mylimit = [l for l in limit]
+    mylimit.append(99999999)  #哨兵
+    results = [BaseObject(end=il,wins=0,losts=0,pwins=0,plosts=0) for il in mylimit]
+    for dtrade in dtrades:
+        drange = sif.day2range[dtrade.day]
+        dr = drange * 1.0 / sif.opend[sif.day2i[dtrade.day]]
+        id = 0
+        while(dr > mylimit[id]): #必然会触及条件
+            id+=1
+        if dtrade.sprofit>0:
+            results[id].wins += 1
+            results[id].pwins += dtrade.sprofit
+        elif dtrade.sprofit<=0:
+            results[id].losts += 1
+            results[id].plosts += dtrade.sprofit
+    return results[:-1]
 
 pd = profit_distribution
 pd2 = profit_distribution2
-
+pd3 = profit_distribution3
 
 def calc_profit(trades,av=200000,rate=0.9,lever=0.17,base=300,max_volume=80):#计算增量
     '''

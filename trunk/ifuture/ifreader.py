@@ -639,6 +639,8 @@ def prepare_index(sif):
     
     sif.day2range_std = dict(zip(sif.date[sif.i_cofd],(sif.highd-sif.lowd)*XBASE*1.0/rollx(sif.atrd)))
     
+    sif.day2i = dict(zip(sif.day,range(len(sif.day))))
+
     '''
     sif.svap3,sif.v2i3 = svap_ma(sif.vol3,sif.close3,67)
     sif.svap2_3,sif.v2i2_3 = svap_ma(sif.vol3,sif.close3,67,weight=2)

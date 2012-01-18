@@ -979,19 +979,30 @@ def max_drawdown(trades,datefrom=20100401,dateto=20200101):
     smax = 0    #最大连续回撤
     max1 = 0    #最大单笔回撤
     curs = 0
+    pre_curs = 0
     mdate = 20100401
+    spoint=0
+    sdate = 20100401
+    ssdate = sdate
+    sspoint = spoint
     for trade in trades:
         tdate = trade.actions[-1].date
         if tdate > datefrom and tdate < dateto: #忽略掉小于开始时间的
             curs += trade.profit   #本为负数
+            if curs < 0 and pre_curs >= 0:
+                spoint = trade.actions[0].price
+                sdate = trade.actions[0].date
             if curs > 0:
                 curs = 0
             elif curs < smax:
                 smax = curs
                 mdate = trade.actions[0].date
+                ssdate = sdate
+                sspoint = spoint
+            pre_curs = curs
             if trade.profit < max1:
                 max1 = trade.profit
-    return smax,max1,mdate
+    return smax,max1,ssdate,mdate,sspoint
 
 def max_win(trades,datefrom=20100401,dateto=20200101):
     '''

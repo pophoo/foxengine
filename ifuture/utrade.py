@@ -2826,6 +2826,39 @@ def calc_profit2d(trades,av=200000,rate=0.97,lever=0.17,base=300,max_volume=80):
         #print cur_date,price,am,cur_volume,s
     return s
 
+def calc_profitd(trades,av=200000,max_drawdown = 56,max_ddrawdown = 0.01212,lever=0.17,base=300,max_volume=80):#计算增量
+    '''
+        理论计算
+        av:起点值
+        max_ddrawdown: 手数计算
+        lever:保证金比例
+        区别:
+            每日计算一次
+            0.97保证第二次开仓的时候手数还能不变
+    '''
+    s = av
+    cur_volume = 1
+    cur_date = 0
+    for trade in trades:
+        price = trade.actions[0].price
+        am = price * base / 10 * lever
+        #volume = int(s * rate / am)
+        volume0 = int(s/am)
+        if volume0 < cur_volume:
+            cur_volume = volume0
+        elif trade.actions[0].date != cur_date:
+            cur_date = trade.actions[0].date
+            volume = int(s * rate / am)
+            volume = volume if volume < max_volume else max_volume
+            if volume > cur_volume:
+                cur_volume = volume
+        s = s + cur_volume * trade.profit/10 * base
+        #print cur_date,price,am,cur_volume,s
+    return s
+
+def calc_volume(amount,cur_point,max_drawdown,max_ddrawdown):
+    pass
+
 
 def limit_lost(trades,maxlost=200): #请参见day_trades,有更完善版本
     #限定每日最大损失，超过改值后不再开仓

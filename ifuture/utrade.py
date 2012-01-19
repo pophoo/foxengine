@@ -2826,15 +2826,13 @@ def calc_profit2d(trades,av=200000,rate=0.97,lever=0.17,base=300,max_volume=80):
         #print cur_date,price,am,cur_volume,s
     return s
 
-def calc_profitd(trades,av=200000,max_drawdown = 56,max_ddrawdown = 0.01212,lever=0.17,base=300,max_volume=80):#计算增量
+def calc_profitd(trades,av=200000,max_drawdown = 0.0215,max_ddrawdown = 0.0122,lever=0.17,base=300,max_volume=80):#计算增量
     '''
         理论计算
         av:起点值
         max_ddrawdown: 手数计算
         lever:保证金比例
-        区别:
-            每日计算一次
-            0.97保证第二次开仓的时候手数还能不变
+         每日计算一次
     '''
     s = av
     cur_volume = 1
@@ -2856,8 +2854,9 @@ def calc_profitd(trades,av=200000,max_drawdown = 56,max_ddrawdown = 0.01212,leve
         #print cur_date,price,am,cur_volume,s
     return s
 
-def calc_volume(amount,cur_point,max_drawdown,max_ddrawdown):
-    pass
+def calc_per_hand(cur_point,max_drawdown,max_ddrawdown,level,base):
+    
+    
 
 
 def limit_lost(trades,maxlost=200): #请参见day_trades,有更完善版本

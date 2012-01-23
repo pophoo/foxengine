@@ -24,9 +24,10 @@ import wolfox.fengine.ifuture.utrade2 as utrade2
 
 from wolfox.fengine.ifuture.ifuncs import *
 
-
+import time
+t1 = time.time()
 ifmap = ifreader.read_ifs_zip()  # fname ==> BaseObject(name='$name',transaction=trans)
-
+print u'计算耗时=%s' % (time.time()-t1)
 
 ###计算
 i00 = ifmap['IF0001']   #当月连续

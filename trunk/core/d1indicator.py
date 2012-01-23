@@ -19,6 +19,7 @@ def expma(source,trate):
         trate为今日数据在计算中所占的比重,以1/1000(1/BASE)为基数
     '''
     length = (2* BASE+trate/2)/trate -1
+    #print '+++++++++++++++++++++++++++length=%s' % length
     #print 'trate:',trate,'length;',length
     rev = np.zeros_like(source)
     if(len(source) < length):
@@ -32,6 +33,46 @@ def expma(source,trate):
         #cur = expfunctor(source[i],cur,trate)
         rev[i] = cur
         #assert cur >= 0
+    return rev
+
+
+import math
+def expma_f(source,trate):
+    '''
+        trate为浮点数
+        权重序列为(从近到远):
+            trate*(1-trate)**0,trate*(1-trate)**1,trate*(1-trate)**2,...trate*(1-trate)**(length-1)
+        weight(m) = trate(1-trate)**m
+                  = trate * e ** (m*ln(1-trate))
+
+    '''
+    length = int(2/trate + 0.5) -1
+    if(len(source) < length):
+        return np.zeros_like(source)
+    if abs(trate - 1.0) < 0.0001:
+        return source.copy()
+    #print '+++++++++++++++++++++++++++,1-trate=%s' % (1.0-trate,)
+    #assert 1.0-trate>0,'1.0-trate=%s<0' % (1.0-trate,)
+    xe = math.log(1.0-trate)
+    weights = trate * np.exp(np.arange(length)*xe)[::-1]
+
+    rev =  np.convolve(source, weights, mode='full')[:len(source)]
+    rev = np.cast[source.dtype](rev+0.5)
+    rev[:length-1] = 0
+    return rev
+
+def expma_f_foreign(source,trate):
+    length = int(2/trate + 0.5) -1
+    if(len(source) < length):
+        return np.zeros_like(source)
+    if abs(trate - 1.0) < 0.0001:
+        return source.copy()
+    
+    weights = np.exp(np.linspace(-1., 0., length))
+    weights /= weights.sum()
+    rev = np.convolve(source, weights, mode='full')[:len(source)]
+    rev = np.cast[source.dtype](rev+0.5)
+    rev[:length-1] = 0
     return rev
 
 def cexpma_old(source,n):
@@ -55,6 +96,10 @@ def cexpma(source,n):
         cur = (source[i]*2 + cur*(n-1) + (n+1)/2)/(n+1) #source[i]/n + (n-1)*cur/n
         rev[i] = cur
     return rev
+
+def cexpma_20120122(source,n):
+    #print '+++++++++++++++++++++++++++++++,n=%s,trate=%s' % (n,2.0/(n+1))
+    return expma_f(source,2.0/(n+1))
 
 def cexpma_s(source,signal,n): 
     '''

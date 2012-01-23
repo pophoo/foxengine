@@ -2854,7 +2854,10 @@ def calc_profitd(trades,av=200000,max_drawdown = 0.0215,max_ddrawdown = 0.0122,l
         #print cur_date,price,am,cur_volume,s
     return s
 
-def calc_per_hand(cur_point,max_drawdown,max_ddrawdown,level,base):
+def calc_amount_per_hand(cur_point,max_drawdown,max_ddrawdown,level,base):
+    ''' 计算每手所需资金
+    '''
+    pass
     
     
 

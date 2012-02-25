@@ -223,6 +223,7 @@ def prepare_index(sif):
     sif.xatr2 = sif.atr2 * XBASE * XBASE / trans[ICLOSE]
     sif.mxatr2 = ma(sif.xatr2,13)
 
+    sif.pdi,sif.ndi,sif.adx = adx2(sif.close,sif.high,sif.low,14,6)
 
     sif.sk,sif.sd = skdj(sif.high,sif.low,sif.close)
 
@@ -1304,6 +1305,8 @@ def prepare_index(sif):
     sif.high60,sif.low60,sif.vol60 = calc_high_low_vol(trans,sif.i_oof60,sif.i_cof60)
     sif.holding60 = trans[IHOLDING][sif.i_cof60]
 
+
+    sif.pdi,sif.ndi,sif.adx = adx2(sif.close,sif.high,sif.low,14,6)
 
     sif.atr60 = atr(sif.close60*XBASE,sif.high60*XBASE,sif.low60*XBASE,20)
     sif.xatr60 = sif.atr60 * XBASE * XBASE / sif.close60

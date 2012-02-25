@@ -22,15 +22,15 @@ class ModuleTest(unittest.TestCase):
         self.assertEquals([],expma_f([],0.013).tolist())   #相当于5日
 
 
-    def test_cexpma_20120122(self):
+    def test_cexpma(self):
         source = np.array([25000,24875,24781,24594,24500,24625,25219,27250])
-        self.assertEquals([25000,24958,24899,24797,24698,24674,24856,25654],cexpma_20120122(source,5).tolist())   #相当于5日
+        self.assertEquals([25000,24958,24899,24797,24698,24674,24856,25654],cexpma(source,5).tolist())   #相当于5日
         #source2 = np.array([25000000,24875000,24781000,24594000,24500000,24625000,25219000,27250000])  #溢出
         #self.assertEquals([0,0,0,0,24698527,24674043,24855514,25652878],cexpma_20120122(source2,5).tolist())   #相当于5日
  
-    def test_cexpma(self):
+    def test_cexpma_20120122(self):
         source = np.array([25000,24875,24781,24594,24500,24625,25219,27250])
-        self.assertEquals([0,0,0,0,21575,21483,21448,21576],cexpma(source,5).tolist())   #相当于5日
+        self.assertEquals([0,0,0,0,21575,21483,21448,21576],cexpma_20120122(source,5).tolist())   #相当于5日
 
 
     def test_cexpma_s(self):
@@ -462,6 +462,15 @@ class ModuleTest(unittest.TestCase):
         sclose = np.array([100,200,100,200,100])
         adx(sclose,shigh,slow)
         self.assertTrue(True)
+
+    def test_adx2(self): #只测试通路
+        adx(np.array([]),np.array([]),np.array([]),14,6)
+        shigh = np.array([200,250,200,400,500])
+        slow = np.array([100,200,100,200,100])
+        sclose = np.array([100,200,100,200,100])
+        adx2(sclose,shigh,slow)
+        self.assertTrue(True)
+
 
     def test_tr(self):
         shigh = np.array([200,250,200,400])

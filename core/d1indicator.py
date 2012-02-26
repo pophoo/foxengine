@@ -1022,9 +1022,24 @@ def adx(sclose,shigh,slow,n=14,m=6):
     pdi,ndi = di(pdm,ndm,xtr,n)
     return xadx(pdi,ndi,m)
 
-def adx2(sclose,shigh,slow,n=14,m=6):
+def adx0(sclose,shigh,slow,n=14,m=6):
     ''' 
         原始的adx计算方法
+        直接根据sclose,shigh,slow计算adx的快捷函数
+        n: 计算di时的平滑天数
+        m: 计算adx时的平滑天数
+    '''
+    pdm,ndm = dm(shigh,slow)
+    xtr = msum(tr(sclose,shigh,slow),n)
+    pdi = msum(pdm,n)*10000/xtr
+    ndi = msum(ndm,n)*10000/xtr
+    adx = ma(np.abs((pdi-ndi)*10000/(pdi+ndi)),m)
+    #adxr = (adx + rollx(adx,m)) /2 
+    return pdi,ndi,adx#,adxr
+
+def adx2(sclose,shigh,slow,n=14,m=6):
+    ''' 
+        调整的算法, abs在ma之后取值
         直接根据sclose,shigh,slow计算adx的快捷函数
         n: 计算di时的平滑天数
         m: 计算adx时的平滑天数
@@ -1036,6 +1051,7 @@ def adx2(sclose,shigh,slow,n=14,m=6):
     adx = np.abs(ma((pdi-ndi)*10000/(pdi+ndi),m))
     #adxr = (adx + rollx(adx,m)) /2 
     return pdi,ndi,adx#,adxr
+
 
 def tr(sclose,shigh,slow):
     ''' 真实波幅

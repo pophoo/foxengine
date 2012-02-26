@@ -223,7 +223,8 @@ def prepare_index(sif):
     sif.xatr2 = sif.atr2 * XBASE * XBASE / trans[ICLOSE]
     sif.mxatr2 = ma(sif.xatr2,13)
 
-    sif.pdi,sif.ndi,sif.adx = adx2(sif.close,sif.high,sif.low,14,6)
+    sif.pdi,sif.ndi,sif.adx = adx0(sif.close,sif.high,sif.low,14,6)
+    sif.pdi2,sif.ndi2,sif.adx2 = adx2(sif.close,sif.high,sif.low,14,6)
 
     sif.sk,sif.sd = skdj(sif.high,sif.low,sif.close)
 

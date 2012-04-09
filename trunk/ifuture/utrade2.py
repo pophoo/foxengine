@@ -891,6 +891,31 @@ def short_high_stoper(
                 )
     return np.select([signal],[gmax(sif.open,bline)],0)
 
+def long_peak_stoper(
+        sif,
+        sopened,
+        xdiff = 30,    
+        ):
+    '''
+        日内新高前xdiff平多仓
+    '''
+    bline = rollx(sif.dhigh-xdiff)
+    signal = gand(cross(bline,sif.high)>0,
+                )
+    return np.select([signal],[gmin(sif.open,bline)],0)
+
+def short_peak_stoper(
+        sif,
+        sopened,
+        xdiff = 30,
+        ):
+    '''
+        日内新低前xdiff平空仓
+    '''
+    bline = rollx(sif.dlow+xdiff) 
+    signal = gand(cross(bline,sif.low)<0,
+                )
+    return np.select([signal],[gmax(sif.open,bline)],0)
 
 def utrade2x(sif     #
             ,openers    #opener函数集合
@@ -969,6 +994,37 @@ def utrade2x(sif     #
         tradess.append(trades)
     return sync_trades(sif,tradess,acstrategy)
 
+#########
+# 震荡平仓
+#########
+lw_4_21 = fcustom(long_moving_stoper,
+                flost_base = iftrade.F40, 
+                fmax_drawdown = iftrade.F60, 
+                pmax_drawdown = 0.003, 
+                tstep = lambda sif,i:20,     
+                vstep = 10,                  
+            )
+
+sw_4_21 = fcustom(short_moving_stoper,
+                flost_base = iftrade.F40, 
+                fmax_drawdown = iftrade.F60, 
+                pmax_drawdown = 0.003, 
+                tstep = lambda sif,i:20,     
+                vstep = 10,                  
+            )
+
+lp_3 = fcustom(long_peak_stoper,
+               xdiff = 30
+            )
+
+sp_3 = fcustom(short_peak_stoper,
+               xdiff = 30
+            )
+
+
+########
+# 趋势平仓
+########
 
 lm_stoper_10_42_old = fcustom(long_moving_stoper,
                 flost_base = iftrade.F100, 
@@ -1013,6 +1069,15 @@ lm_stoper_10_21 = fcustom(long_moving_stoper,
                 tstep = lambda sif,i:20,     
                 vstep = 10,                  
             )
+
+lm_stoper_10_21b = fcustom(long_moving_stoper,
+                flost_base = lambda p:p/250, 
+                fmax_drawdown = iftrade.F360, 
+                pmax_drawdown = 0.015, 
+                tstep = lambda sif,i:20,     
+                vstep = 10,                  
+            )
+
 
 lm_stoper_8_21 = fcustom(long_moving_stoper,
                 flost_base = lambda p:p/300, 

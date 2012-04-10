@@ -899,8 +899,9 @@ def long_peak_stoper(
     '''
         日内新高前xdiff平多仓
     '''
-    bline = rollx(sif.dhigh-xdiff)
-    signal = gand(cross(bline,sif.high)>0,
+    bline = rollx(sif.dhigh-xdiff,10)
+    signal = gand(sif.high > bline,sif.high,
+                  rollx(sif.dhigh-sif.dlow,10) > 150,   #如果振幅太小，则不动
                 )
     return np.select([signal],[gmin(sif.open,bline)],0)
 

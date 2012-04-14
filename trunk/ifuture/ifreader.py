@@ -635,10 +635,10 @@ def prepare_index(sif):
     sif.day = trans[IDATE][sif.i_cofd]
     sif.dated = sif.day
 
-    sif.weekd = sd2w(sif.day)
-    sif.week = np.zeros_like(trans[IDATE])
-    sif.week[sif.i_oofd] = sif.weekd
-    sif.week = extend2next(sif.week)
+    sif.weekdd = sd2w(sif.day)
+    sif.weekday = np.zeros_like(trans[IDATE])
+    sif.weekday[sif.i_oofd] = sif.weekdd
+    sif.weekday = extend2next(sif.weekday)
 
     sif.waved = sif.highd - sif.lowd
     sif.day2range = dict(zip(sif.date[sif.i_cofd],sif.waved))

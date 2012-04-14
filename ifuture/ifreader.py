@@ -5,6 +5,19 @@ import zipfile
 from wolfox.fengine.ifuture.ibase import *
 import wolfox.fengine.ifuture.fcore as fcore
 
+def date2week(iday):
+    #http://blog.csdn.net/hawkfeifei/article/details/4337181
+    year = iday/10000
+    month = iday/100%100
+    day = iday%100
+    if month <= 2:
+        month += 12
+        year -= 1
+    return (day+2*month+3*(month+1)/5+year+year/4-year/100+year/400)%7 + 1  #转化为1-7
+
+def sd2w(sd):
+    return np.array([date2week(d) for d in sd])
+
 
 def extract_if(line):
     items = line.split(',')
@@ -621,6 +634,11 @@ def prepare_index(sif):
     sif.holdingd = trans[IHOLDING][sif.i_cofd]
     sif.day = trans[IDATE][sif.i_cofd]
     sif.dated = sif.day
+
+    sif.weekd = sd2w(sif.day)
+    sif.week = np.zeros_like(trans[IDATE])
+    sif.week[sif.i_oofd] = sif.weekd
+    sif.week = extend2next(sif.week)
 
     sif.waved = sif.highd - sif.lowd
     sif.day2range = dict(zip(sif.date[sif.i_cofd],sif.waved))

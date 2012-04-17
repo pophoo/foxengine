@@ -4,6 +4,17 @@ import unittest
 from wolfox.fengine.core.d1ex import * 
 
 class ModuleTest(unittest.TestCase):
+    def test_xdiff(self):
+        self.assertEquals([],xdiff(np.array([])).tolist())
+        a= np.array([1,0,0,1,0,-1,1,1,0,1,-1])
+        b= np.array([3,0,0,5,0,-2,4,122,0,12,-5])
+        self.assertEquals(xdiff(a).tolist(),xdiff(b).tolist())
+        self.assertEquals([1,0,0,0,0,-1,1,0,0,0,-1],xdiff(a).tolist())
+        c= np.array([0,0,0,1,0,-1,1,1,0,1,-1])
+        self.assertEquals([0,0,0,1,0,-1,1,0,0,0,-1],xdiff(c).tolist())
+        d= np.array([0,0,0,0,0,0,0,0,0,0,0])
+        self.assertEquals([0,0,0,0,0,0,0,0,0,0,0],xdiff(d).tolist())
+
     def test_ma(self):
         self.assertEquals([],ma([],3).tolist())
         a= np.array([1,2,3,4,5,6,7,8,9,0])

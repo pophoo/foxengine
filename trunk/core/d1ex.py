@@ -23,7 +23,6 @@ def xdiff(source):
     rev[ssi] = ssv
     return rev
 
-
 def ma(source,length):    #使用numpy，array更加的惯用法
     """ 计算移动平均线
         @param source 源数组

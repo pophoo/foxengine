@@ -9,6 +9,21 @@ from wolfox.fengine.core.base import cache,wcache
 from wolfox.fengine.core.d1 import BASE,band,gand,gor,nsubd,roll0,rollx,equals,nequals,greater_equals,subd,greater,lesser_equals
 from wolfox.fengine.core.utils import fcustom
 
+def xdiff(source):
+    '''
+        消除连续的同向信号
+        如 0,0,1,0,0,1,0,0,-1,0,1 --> 0,0,1,0,0,0,0,0,-1,0,1
+    '''
+    ss = np.sign(source)
+    ssi = np.nonzero(ss)[0]
+    ssv = ss[ssi]
+    ssd = np.append([1],np.diff(ssv))
+    ssv = np.select([ssd!=0],[ssv],0)
+    rev = np.zeros_like(source)
+    rev[ssi] = ssv
+    return rev
+
+
 def ma(source,length):    #使用numpy，array更加的惯用法
     """ 计算移动平均线
         @param source 源数组
@@ -180,6 +195,7 @@ def cross(target,follow):
     np.putmask(s2,flag,signal)
     rev = np.concatenate((np.array([0]),s2))
     return rev
+
 
 def under_cross(signal,source,follow):
     ''' 信号日低于或下叉。source一般为downlimit,follow为low

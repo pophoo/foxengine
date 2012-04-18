@@ -7,6 +7,7 @@
 '''
 
 from wolfox.fengine.ifuture.utrade import *
+import math
 
 ###
 #打印结果
@@ -1046,6 +1047,7 @@ lm_stoper_18_43 = fcustom(long_moving_stoper,
 
 lm_stoper_10_42 = fcustom(long_moving_stoper,
                 flost_base = lambda p:p/250, 
+                #flost_base = lambda p:int(math.sqrt(p/10)*10/5+0.5), 
                 fmax_drawdown = iftrade.F360, 
                 #fmax_drawdown = lambda x:900, 
                 pmax_drawdown = 0.011, 
@@ -1149,6 +1151,7 @@ sm_stoper_10_42d = fcustom(short_moving_stoper4,
 
 sm_stoper_10_42 = fcustom(short_moving_stoper,
                 flost_base = lambda p:p/250, 
+                #flost_base = lambda p:int(math.sqrt(p/10)*10/5+0.5), 
                 fmax_drawdown = iftrade.F360, 
                 pmax_drawdown = 0.011, 
                 tstep = lambda sif,i:40,     

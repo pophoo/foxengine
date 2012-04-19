@@ -1386,8 +1386,8 @@ def sync_tradess_u(sif,tradess,acstrategy=iftrade.late_strategy):
                 trade.orignal = cur_trade.orignal
                 trade.open_action = cur_trade.open_action
                 cur_trade = trade
-            #else:   #逆向平仓
-            elif 1>2:   #不逆向. 差别太小
+            else:   #逆向平仓
+            #elif 1>2:   #不逆向. 差别太小
                 print u'\n\t逆向平仓:',iftrade.aprofit(cur_trade.open_action,sclose[trade.actions[0].index]),sif.date[cur_trade.open_action.index],sif.time[cur_trade.open_action.index],func_name(cur_trade.orignal),'--',func_name(trade.functor)
                 reversed.append(trade)
                 xindex = reversed[0].actions[0].index

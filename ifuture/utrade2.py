@@ -106,6 +106,58 @@ def short_time_stoper(sif,sopened,mytime=1454):
     sl = np.select([sif.time==mytime],[1],0)
     return  sl * XBUY
 
+def long_early_stoper( #多头移动平仓
+        sif,
+        sopened,
+        flost_base = iftrade.F50,    #flost:买入点数 --> 止损点数
+        mins = 5,
+        ):
+    '''
+    '''
+    trans = sif.transaction
+    rev = np.zeros_like(sopened)
+    isignal = np.nonzero(sopened)[0]
+    iclosed = 0    #多头平仓日
+    will_losts = []
+    ldopen = dnext(sif.opend,sif.close,sif.i_oofd)        
+    for i in isignal:
+        price = sopened[i]
+        aprice = abs(price)
+        #willlost = flost_base(aprice)
+        willlost = flost_base(ldopen[i])    #开盘价的定数
+        will_losts.append(willlost)
+        #print u'多头止损'
+        if i <= iclosed:
+            #print 'long skipped'
+            continue
+        buy_price = -price
+        cur_stop = buy_price - willlost
+        if trans[ICLOSE][i] < cur_stop:#到达止损
+            print '----sell----------:',trans[IDATE][i],trans[ITIME][i],cur_stop,trans[ICLOSE][i]
+            iclosed = i
+            rev[i] = cur_stop * XSELL   #设定价格   #两次乘XSELL，把符号整回来
+        else:
+            kk = mins
+            for j in range(i+1,len(rev)):
+                if kk == 0:
+                    break
+                if trans[IORDER][j] >= 269: #换日
+                    iclosed = j
+                    break
+                if trans[ILOW][j] < cur_stop:
+                    iclosed = j
+                    rev[j] = (cur_stop if cur_stop < trans[IOPEN][j] else trans[IOPEN][j])* XSELL 
+                    break
+                nhigh = trans[IHIGH][j]
+                kk -= 1
+    return rev
+
+le_stoper_5_5 = fcustom(long_early_stoper,
+                flost_base = lambda p:p/800, 
+                mins = 3,
+            )
+
+
 
 def long_moving_stoper( #多头移动平仓
         sif,

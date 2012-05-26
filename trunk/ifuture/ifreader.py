@@ -18,6 +18,38 @@ def date2week(iday):
 def sd2w(sd):
     return np.array([date2week(d) for d in sd])
 
+MDAY = [0,31,59,90,120,151,181,212,243,273,304,334]
+
+def date2yday(iday):
+    ''' 返回一年中的第几天
+In [493]: ifreader.date2yday(20120526)
+Out[493]: 147
+
+In [494]: ifreader.date2yday(20120101)
+Out[494]: 1
+
+In [495]: xd=datetime.date(2012,5,26)
+
+In [496]: xd.strftime('%j')
+Out[496]: '147'
+
+In [497]: xd=datetime.date(2012,1,1)
+
+In [498]: xd.strftime('%j')
+Out[498]: '001'
+    '''
+    year = iday/10000
+    month = iday/100%100
+    day = iday%100
+    fday = MDAY[month-1]
+    if (year%400==0 or (year%4==0 and year%100!=0)) and month > 2:
+        fday += 1
+    return fday + day
+
+
+def sd2y(sd):
+    return np.array([date2yday(d) for d in sd])
+
 
 def extract_if(line):
     items = line.split(',')
@@ -639,6 +671,11 @@ def prepare_index(sif):
     sif.weekday = np.zeros_like(trans[IDATE])
     sif.weekday[sif.i_oofd] = sif.weekdd
     sif.weekday = extend2next(sif.weekday)
+
+    sif.yeardd = sd2y(sif.day)
+    sif.yearday = np.zeros_like(trans[IDATE])
+    sif.yearday[sif.i_oofd] = sif.yeardd
+    sif.yearday = extend2next(sif.yearday)
 
     sif.waved = sif.highd - sif.lowd
     sif.day2range = dict(zip(sif.date[sif.i_cofd],sif.waved))

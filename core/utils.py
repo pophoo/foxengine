@@ -31,13 +31,22 @@ from wolfox.lib.objgraph import show_most_common_types  #用于显示内存中�
 #def show_most_common_types(limit=10); Count the names of types with the most instances.Note that the GC does not track simple objects like int or str.
 #    Note that classes with the same name but defined in different modules will be lumped together.
 
+from datetime import date
+def day2weekday(iday):  #根据yyyymmdd表示的日期获得星期数，星期一为1
+    return date(iday/10000,iday%10000/100,iday%100).weekday() + 1
 
+d2w = day2weekday
+
+
+'''
+#以下仅用于后面的函数,均已废弃. 注释掉以避免对win32pdutil不必要的依赖,如需使用,则反注释这些import  #2012-7-29
 import gc
 import logging
 import win32pdhutil as wu
 
 logger = logging.getLogger('wolfox.fengine.core.utils')
 
+'''
 def get_null_obj_number(obj_type):
     i = 0
     for o in gc.get_objects():
@@ -112,9 +121,4 @@ def mguard_example():
     return [1]
 
 
-from datetime import date
-def day2weekday(iday):  #根据yyyymmdd表示的日期获得星期数，星期一为1
-    return date(iday/10000,iday%10000/100,iday%100).weekday() + 1
-
-d2w = day2weekday
 

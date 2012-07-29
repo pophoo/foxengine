@@ -66,8 +66,7 @@ def dnext(xsource,xbase,xindex):
         将长周期的抽样点xsource分派到基础周期xbase，其中这些点的坐标是xindex
         抽样点进行信号覆盖，直到下一信号
     '''
-    result = np.zeros(len(xbase)) #np.zeros_like(xbase)
-    #print type(result),type(xsource)
+    result = np.zeros_like(xbase)
     result[xindex] = xsource
     result = extend2next(result)
     return result

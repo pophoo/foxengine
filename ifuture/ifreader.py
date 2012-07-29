@@ -306,14 +306,14 @@ def prepare_index(sif):
     sif.atr5 = atr(sif.close5*XBASE,sif.high5*XBASE,sif.low5*XBASE,20)
     sif.xatr5 = sif.atr5 * XBASE * XBASE / sif.close5
     sif.mxatr5 = ma(sif.xatr5,13)
-    sif.xatr5x = np.zeros(len(trans[ICLOSE]))#np.zeros_like(trans[ICLOSE])
+    sif.xatr5x = np.zeros_like(trans[ICLOSE])
     sif.xatr5x[sif.i_cof5] = sif.xatr5
     sif.xatr5x = extend2next(sif.xatr5x)
-    sif.mxatr5x =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.mxatr5x = np.zeros_like(trans[ICLOSE])
     sif.mxatr5x[sif.i_cof5] = sif.mxatr5
     sif.mxatr5x = extend2next(sif.mxatr5x)
 
-    sif.atr5x =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.atr5x = np.zeros_like(trans[ICLOSE])
     sif.atr5x[sif.i_cof5] = sif.atr5
     sif.atr5x = extend2next(sif.atr5x)
     
@@ -350,14 +350,14 @@ def prepare_index(sif):
     sif.atr3 = atr(sif.close3*XBASE,sif.high3*XBASE,sif.low3*XBASE,20)
     sif.xatr3 = sif.atr3 * XBASE * XBASE / sif.close3
     sif.mxatr3 = ma(sif.xatr3,13)
-    sif.xatr3x =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.xatr3x = np.zeros_like(trans[ICLOSE])
     sif.xatr3x[sif.i_cof3] = sif.xatr3
     sif.xatr3x = extend2next(sif.xatr3x)
-    sif.mxatr3x =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.mxatr3x = np.zeros_like(trans[ICLOSE])
     sif.mxatr3x[sif.i_cof3] = sif.mxatr3
     sif.mxatr3x = extend2next(sif.mxatr3x)
 
-    sif.atr3x =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.atr3x = np.zeros_like(trans[ICLOSE])
     sif.atr3x[sif.i_cof3] = sif.atr3
     sif.atr3x = extend2next(sif.atr3x)
     
@@ -399,14 +399,14 @@ def prepare_index(sif):
     sif.atr10 = atr(sif.close10*XBASE,sif.high10*XBASE,sif.low10*XBASE,20)
     sif.xatr10 = sif.atr10 * XBASE * XBASE / sif.close10
     sif.mxatr10 = ma(sif.xatr10,13)
-    sif.xatr10x =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.xatr10x = np.zeros_like(trans[ICLOSE])
     sif.xatr10x[sif.i_cof10] = sif.xatr10
     sif.xatr10x = extend2next(sif.xatr10x)
-    sif.mxatr10x =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.mxatr10x = np.zeros_like(trans[ICLOSE])
     sif.mxatr10x[sif.i_cof10] = sif.mxatr10
     sif.mxatr10x = extend2next(sif.mxatr10x)
 
-    sif.atr10x =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.atr10x = np.zeros_like(trans[ICLOSE])
     sif.atr10x[sif.i_cof10] = sif.atr10
     sif.atr10x = extend2next(sif.atr10x)
     
@@ -445,28 +445,28 @@ def prepare_index(sif):
     sif.atr30 = atr(sif.close30*XBASE,sif.high30*XBASE,sif.low30*XBASE,20)
     sif.xatr30 = sif.atr30 * XBASE * XBASE / sif.close30
     sif.mxatr30 = ma(sif.xatr30,13)
-    sif.xatr30x =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.xatr30x = np.zeros_like(trans[ICLOSE])
     sif.xatr30x[sif.i_cof30] = sif.xatr30
     sif.xatr30x = extend2next(sif.xatr30x)
-    sif.mxatr30x =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.mxatr30x = np.zeros_like(trans[ICLOSE])
     sif.mxatr30x[sif.i_cof30] = sif.mxatr30
     sif.mxatr30x = extend2next(sif.mxatr30x)
 
-    sif.atr30x =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.atr30x = np.zeros_like(trans[ICLOSE])
     sif.atr30x[sif.i_cof30] = sif.atr30
     sif.atr30x = extend2next(sif.atr30x)
  
     sif.atr2_30 = atr2(sif.close30*XBASE,sif.high30*XBASE,sif.low30*XBASE,20)
     sif.xatr2_30 = sif.atr2_30 * XBASE * XBASE / sif.close30
     sif.mxatr2_30 = ma(sif.xatr2_30,13)
-    sif.xatr2_30x = np.zeros(len(trans[ICLOSE]))#np.zeros_like(trans[ICLOSE])
+    sif.xatr2_30x = np.zeros_like(trans[ICLOSE])
     sif.xatr2_30x[sif.i_cof30] = sif.xatr2_30
     sif.xatr2_30x = extend2next(sif.xatr2_30x)
-    sif.mxatr2_30x = np.zeros(len(trans[ICLOSE]))#np.zeros_like(trans[ICLOSE])
+    sif.mxatr2_30x = np.zeros_like(trans[ICLOSE])
     sif.mxatr2_30x[sif.i_cof30] = sif.mxatr2_30
     sif.mxatr2_30x = extend2next(sif.mxatr2_30x)
 
-    sif.atr2_30x =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.atr2_30x = np.zeros_like(trans[ICLOSE])
     sif.atr2_30x[sif.i_cof30] = sif.atr2_30
     sif.atr2_30x = extend2next(sif.atr2_30x)
 
@@ -502,14 +502,14 @@ def prepare_index(sif):
     sif.atr15 = atr(sif.close15*XBASE,sif.high15*XBASE,sif.low15*XBASE,20)
     sif.xatr15 = sif.atr15 * XBASE * XBASE / sif.close15
     sif.mxatr15 = ma(sif.xatr15,13)
-    sif.xatr15x =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.xatr15x = np.zeros_like(trans[ICLOSE])
     sif.xatr15x[sif.i_cof15] = sif.xatr15
     sif.xatr15x = extend2next(sif.xatr15x)
-    sif.mxatr15x =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.mxatr15x = np.zeros_like(trans[ICLOSE])
     sif.mxatr15x[sif.i_cof15] = sif.mxatr15
     sif.mxatr15x = extend2next(sif.mxatr15x)
 
-    sif.atr15x =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.atr15x = np.zeros_like(trans[ICLOSE])
     sif.atr15x[sif.i_cof15] = sif.atr15
     sif.atr15x = extend2next(sif.atr15x)
     
@@ -546,14 +546,14 @@ def prepare_index(sif):
     sif.atr60 = atr(sif.close60*XBASE,sif.high60*XBASE,sif.low60*XBASE,20)
     sif.xatr60 = sif.atr60 * XBASE * XBASE / sif.close60
     sif.mxatr60 = ma(sif.xatr60,13)
-    sif.xatr60x =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.xatr60x = np.zeros_like(trans[ICLOSE])
     sif.xatr60x[sif.i_cof60] = sif.xatr60
     sif.xatr60x = extend2next(sif.xatr60x)
-    sif.mxatr60x =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.mxatr60x = np.zeros_like(trans[ICLOSE])
     sif.mxatr60x[sif.i_cof60] = sif.mxatr60
     sif.mxatr60x = extend2next(sif.mxatr60x)
 
-    sif.atr60x = np.zeros(len(trans[ICLOSE]))#np.zeros_like(trans[ICLOSE])
+    sif.atr60x = np.zeros_like(trans[ICLOSE])
     sif.atr60x[sif.i_cof60] = sif.atr60
     sif.atr60x = extend2next(sif.atr60x)
     
@@ -589,14 +589,14 @@ def prepare_index(sif):
     sif.atr45 = atr(sif.close45*XBASE,sif.high45*XBASE,sif.low45*XBASE,20)
     sif.xatr45 = sif.atr45 * XBASE * XBASE / sif.close45
     sif.mxatr45 = ma(sif.xatr45,13)
-    sif.xatr45x =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.xatr45x = np.zeros_like(trans[ICLOSE])
     sif.xatr45x[sif.i_cof45] = sif.xatr45
     sif.xatr45x = extend2next(sif.xatr45x)
-    sif.mxatr45x =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.mxatr45x = np.zeros_like(trans[ICLOSE])
     sif.mxatr45x[sif.i_cof45] = sif.mxatr45
     sif.mxatr45x = extend2next(sif.mxatr45x)
 
-    sif.atr45x =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.atr45x = np.zeros_like(trans[ICLOSE])
     sif.atr45x[sif.i_cof45] = sif.atr45
     sif.atr45x = extend2next(sif.atr45x)
     
@@ -632,14 +632,14 @@ def prepare_index(sif):
     sif.atr90 = atr(sif.close90*XBASE,sif.high90*XBASE,sif.low90*XBASE,20)
     sif.xatr90 = sif.atr90 * XBASE * XBASE / sif.close90
     sif.mxatr90 = ma(sif.xatr90,13)
-    sif.xatr90x =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.xatr90x = np.zeros_like(trans[ICLOSE])
     sif.xatr90x[sif.i_cof90] = sif.xatr90
     sif.xatr90x = extend2next(sif.xatr90x)
-    sif.mxatr90x =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.mxatr90x = np.zeros_like(trans[ICLOSE])
     sif.mxatr90x[sif.i_cof90] = sif.mxatr90
     sif.mxatr90x = extend2next(sif.mxatr90x)
 
-    sif.atr90x = np.zeros(len(trans[ICLOSE]))#np.zeros_like(trans[ICLOSE])
+    sif.atr90x = np.zeros_like(trans[ICLOSE])
     sif.atr90x[sif.i_cof90] = sif.atr90
     sif.atr90x = extend2next(sif.atr90x)
     
@@ -683,14 +683,14 @@ def prepare_index(sif):
     sif.atrd = atr(sif.closed*XBASE,sif.highd*XBASE,sif.lowd*XBASE,20)
     sif.xatrd = sif.atrd * XBASE * XBASE / sif.closed
     sif.mxatrd = ma(sif.xatrd,13)
-    sif.xatrdx =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.xatrdx = np.zeros_like(trans[ICLOSE])
     sif.xatrdx[sif.i_cofd] = sif.xatrd
     sif.xatrdx = extend2next(sif.xatrdx)
-    sif.mxatrdx =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.mxatrdx = np.zeros_like(trans[ICLOSE])
     sif.mxatrdx[sif.i_cofd] = sif.mxatrd
     sif.mxatrdx = extend2next(sif.mxatrdx)
 
-    sif.atrdx =np.zeros(len(trans[ICLOSE]))# np.zeros_like(trans[ICLOSE])
+    sif.atrdx = np.zeros_like(trans[ICLOSE])
     sif.atrdx[sif.i_cofd] = sif.atrd
     sif.atrdx = extend2next(sif.atrdx)
     

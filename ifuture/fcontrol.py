@@ -14,8 +14,8 @@ import wolfox.fengine.ifuture.fcontrol as control
 import wolfox.fengine.ifuture.dynamic as dynamic
 import wolfox.fengine.ifuture.evaluate as ev
 import wolfox.fengine.ifuture.xfuncs as xfuncs
-import wolfox.fengine.ifuture.xfuncs2 as xfuncs2
-import wolfox.fengine.ifuture.xtfuncs as xtfuncs
+#import wolfox.fengine.ifuture.xfuncs2 as xfuncs2
+#import wolfox.fengine.ifuture.xtfuncs as xtfuncs
 import wolfox.fengine.ifuture.utrade as utrade
 import wolfox.fengine.ifuture.ufuncs as ufuncs
 import wolfox.fengine.ifuture.ufuncs2 as ufuncs2
@@ -61,7 +61,8 @@ lx5 = lambda ii,trade:ii.xatr5x[trade.actions[0].index]
 lm5 = lambda ii,trade:ii.mxatr5x[trade.actions[0].index]
 
 
-for trade in tradesy:print trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].time,trade.actions[1].price,trade.actions[1].index-trade.actions[0].index,trade.orignal.name
+#for trade in tradesy:print trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].time,trade.actions[1].price,trade.actions[1].index-trade.actions[0].index,trade.orignal.name
+for trade in tradesy:print int(trade.profit),trade.actions[0].date,trade.actions[0].time,int(trade.actions[0].position),int(trade.actions[0].price),trade.actions[1].time,trade.actions[1].price,trade.actions[1].index-trade.actions[0].index,trade.orignal.name
 
 #for trade in tradesy:print trade.profit,trade.actions[0].date,trade.actions[0].time,trade.actions[0].position,trade.actions[0].price,trade.actions[1].time,trade.actions[1].price,trade.actions[1].index-trade.actions[0].index,str(trade.functor)[10:-14],str(trade.orignal)[10:-14],lx(i00,trade),lm(i00,trade),lx5(i00,trade),lm5(i00,trade),lx15(i00,trade),lm15(i00,trade),lx30(i00,trade),lm30(i00,trade)
 
